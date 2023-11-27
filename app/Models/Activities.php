@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Actvities extends Model
+class Activities extends Model
 {
     use HasFactory;
     protected $table = "activities";
     protected $date = [
-        'created_date',
+        'date',
         'created_at',
         'updated_at'
     ];

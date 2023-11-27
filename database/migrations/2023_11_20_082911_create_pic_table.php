@@ -15,10 +15,10 @@ return new class extends Migration
     {
         Schema::create('pic', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 25);
+            $table->string('name_pic', 25);
             $table->string('position', 25);
-            $table->string('email', 50);
-            $table->string('phone', 15);
+            $table->string('email_pic', 50);
+            $table->string('phone_pic', 15);
             $table->timestamps();
         });
     }

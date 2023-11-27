@@ -10,7 +10,7 @@ class Client extends Model
     use HasFactory;
     
     protected $table = "client";
-    protected $date = [
+    protected $dates = [
         'created_date',
         'created_at',
         'updated_at'
@@ -54,12 +54,12 @@ class Client extends Model
     
     public function activities()
     {
-        return $this->hasMany('App\Model\Activities', 'id_client');
+        return $this->hasMany('App\Models\Activities', 'id_client');
     }
 
     public function quotation()
     {
-        return $this->hasMany('App\Model\quotation', 'id_client');
+        return $this->hasMany('App\Models\quotation', 'id_client');
     }
     
     public function detail_client()

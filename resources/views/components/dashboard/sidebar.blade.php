@@ -1,6 +1,6 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo">
-        <a href="index.html" class="app-brand-link">
+        <a href="{{url('/')}}" class="app-brand-link">
             <span class="app-brand-logo demo">
                 <span style="color: var(--bs-primary)">
                     <svg width="268" height="150" viewBox="0 0 38 20" fill="none"
@@ -57,10 +57,16 @@
 
     <ul class="menu-inner py-1">
         <!-- Dashboards -->
-        <li class="menu-item">
-            <a href="#" class="menu-link">
+        <li class="menu-item {{request()->is('/') ? 'active' : ''}}">
+            <a href="{{url('/')}}" class="menu-link">
                 <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
                 <div data-i18n="Dashboards">Dashboards</div>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="#" class="menu-link">
+                <i class="menu-icon tf-icons mdi mdi-phone-incoming-outgoing-outline"></i>
+                <div data-i18n="Activities">Activities</div>
             </a>
         </li>
 
@@ -68,10 +74,10 @@
         <li class="menu-header fw-light mt-4">
             <span class="menu-header-text">Client</span>
         </li>
-        <li class="menu-item {{request()->is('leads') || request()->is('cutomer') ? 'open' : ''}}">
+        <li class="menu-item {{request()->is('leads') || request()->is('customer') ? 'open' : ''}}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
-                <div data-i18n="Client">Client</div>
+                <div data-i18n="Client">CRM</div>
             </a>
 
             <ul class="menu-sub">
@@ -87,19 +93,82 @@
                 </li>
             </ul>
         </li>
-
-        <li class="menu-item {{request()->is('quotation') ? 'active' : ''}}">
-            <a href="{{url('quotation')}}" class="menu-link">
+        
+        <li class="menu-item {{request()->is('quotation/*') ? 'open' : ''}}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle" >
                 <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
-                <div data-i18n="Quotation Leads">Quotation Leads</div>
-                <div class="badge bg-danger rounded-pill ms-auto">4</div>
+                <div data-i18n="Quotation">Quotation</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{request()->is('quotation/leads') || request()->is('quotation/leads/*') ? 'active' : ''}}">
+                    <a href="{{url('quotation/leads ')}}" class="menu-link">
+                        <div data-i18n="Quotation Leads">Leads</div>
+                        <div class="badge bg-danger rounded-pill ms-auto">4</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link">
+                        <div data-i18n="Quotation Customer">Customer</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="menu-item {{request()->is('visits/*') ? 'open' : ''}}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons mdi mdi-office-building-marker-outline"></i>
+                <div data-i18n="Visit">Visit</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{request()->is('visits/leads') ? 'active' : ''}}">
+                    <a href="{{url('visits/leads')}}" class="menu-link">
+                        <div data-i18n="Leads">Leads</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link">
+                        <div data-i18n="Customer">Customer</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        
+        <li class="menu-item">
+            <a href="#" class="menu-link">
+                <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
+                <div data-i18n="Service Report">Service Report</div>
             </a>
         </li>
 
-        <li class="menu-item">
+        <li class="menu-item {{request()->is('product/*') ? 'open' : ''}}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
+                <div data-i18n="Product">Product</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{request()->is('product/data') ? 'active' : ''}}">
+                    <a href="#" class="menu-link">
+                        <div data-i18n="Data">Data</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link">
+                        <div data-i18n="Product-In">Product-In</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link">
+                        <div data-i18n="Product-Out">Product-Out</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="menu-item">  
             <a href="#" class="menu-link">
-                <i class="menu-icon tf-icons mdi mdi-message-outline"></i>
-                <div data-i18n="History VIsit">History VIsit</div>
+                <i class="menu-icon tf-icons mdi mdi-cart-arrow-down"></i>
+                <div data-i18n="Pending PO">Pending PO</div>
             </a>
         </li>
     </ul>

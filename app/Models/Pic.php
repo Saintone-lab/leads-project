@@ -11,10 +11,10 @@ class Pic extends Model
 
     protected $table = "pic";
     protected $fillable = [
-        'name',
+        'name_pic',
         'position',
-        'email',
-        'phone'
+        'email_pic',
+        'phone_pic'
     ];
 
     

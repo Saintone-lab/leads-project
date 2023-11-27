@@ -9,12 +9,12 @@
             <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
                 <div class="card-header flex-column flex-md-row">
                     <div class="head-label text-center">
-                        <h5 class="card-title mb-0">My Quotation</h5>
+                        <h5 class="card-title mb-0">Visit History</h5>
                     </div>
                     <div class="dt-action-buttons text-end pt-3 pt-md-0">
                         <a href="{{url('quotation/create')}}" type="button" class="btn btn-primary waves-effect waves-light">
                             <i class="mdi mdi-plus me-sm-1"></i>
-                            Add New Quotation
+                            Add New Visit Agenda
                         </a>
                     </div>
                 </div>
@@ -117,186 +117,6 @@
                                 </a>
                             </td>
                         </tr>
-                        <tr>
-                            <td>
-                                RJO-XI-2023-105
-                            </td>
-                            <td>
-                                PT Teras Adhi Kharisma
-                            </td>
-                            <td>
-                                RP. 21.000.000.-
-                                {{--  {{'Rp '.number_format($item->price) ?? ''}}  --}}
-                            </td>
-                            <td>
-                                Parts Kaeser CSD
-                            </td>
-                            <td>
-                                12-12-2023
-                            </td>
-                            <td>
-                                <span class="badge bg-label-warning me-1">Send</span>
-                            </td>
-                            <td>
-                                10-12-2023
-                            </td>
-                            <td>
-                                Miss Vita
-                            </td>
-                            <td>
-                                <div class="d-inline-block">
-                                    <a href="javascript:;"
-                                        class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow"
-                                        data-bs-toggle="dropdown">
-                                        <i class="mdi mdi-dots-vertical"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end m-0">
-                                        <a href="javascript:;" class="dropdown-item">Details</a>
-                                        <div class="dropdown-divider"></div><a href="javascript:;"
-                                            class="dropdown-item text-danger delete-record">Loss</a>
-                                    </div>
-                                </div>
-                                <a href="javascript:;"
-                                    class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
-                                    <i class="mdi mdi-pencil-outline"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                RJO-XI-2023-105
-                            </td>
-                            <td>
-                                PT Teras Adhi Kharisma
-                            </td>
-                            <td>
-                                RP. 21.000.000.-
-                                {{--  {{'Rp '.number_format($item->price) ?? ''}}  --}}
-                            </td>
-                            <td>
-                                Parts Kaeser CSD
-                            </td>
-                            <td>
-                                12-12-2023
-                            </td>
-                            <td>
-                                <span class="badge bg-label-primary me-1">Negotiation</span>
-                            </td>
-                            <td>
-                                10-12-2023
-                            </td>
-                            <td>
-                                Miss Vita
-                            </td>
-                            <td>
-                                <div class="d-inline-block">
-                                    <a href="javascript:;"
-                                        class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow"
-                                        data-bs-toggle="dropdown">
-                                        <i class="mdi mdi-dots-vertical"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end m-0">
-                                        <a href="javascript:;" class="dropdown-item">Details</a>
-                                        <div class="dropdown-divider"></div><a href="javascript:;"
-                                            class="dropdown-item text-danger delete-record">Loss</a>
-                                    </div>
-                                </div>
-                                <a href="javascript:;"
-                                    class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
-                                    <i class="mdi mdi-pencil-outline"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                RJO-XI-2023-105
-                            </td>
-                            <td>
-                                PT Teras Adhi Kharisma
-                            </td>
-                            <td>
-                                RP. 21.000.000.-
-                                {{--  {{'Rp '.number_format($item->price) ?? ''}}  --}}
-                            </td>
-                            <td>
-                                Parts Kaeser CSD
-                            </td>
-                            <td>
-                                12-12-2023
-                            </td>
-                            <td>
-                                <span class="badge bg-label-success me-1">Done PO</span>
-                            </td>
-                            <td>
-                                10-12-2023
-                            </td>
-                            <td>
-                                Miss Vita
-                            </td>
-                            <td>
-                                <div class="d-inline-block">
-                                    <a href="javascript:;"
-                                        class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow"
-                                        data-bs-toggle="dropdown">
-                                        <i class="mdi mdi-dots-vertical"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end m-0">
-                                        <a href="javascript:;" class="dropdown-item">Details</a>
-                                        <div class="dropdown-divider"></div><a href="javascript:;"
-                                            class="dropdown-item text-danger delete-record">Loss</a>
-                                    </div>
-                                </div>
-                                <a href="javascript:;"
-                                    class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
-                                    <i class="mdi mdi-pencil-outline"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                RJO-XI-2023-105
-                            </td>
-                            <td>
-                                PT Teras Adhi Kharisma
-                            </td>
-                            <td>
-                                RP. 21.000.000.-
-                                {{--  {{'Rp '.number_format($item->price) ?? ''}}  --}}
-                            </td>
-                            <td>
-                                Parts Kaeser CSD
-                            </td>
-                            <td>
-                                12-12-2023
-                            </td>
-                            <td>
-                                <span class="badge bg-label-danger me-1">Loss</span>
-                            </td>
-                            <td>
-                                10-12-2023
-                            </td>
-                            <td>
-                                Miss Vita
-                            </td>
-                            <td>
-                                <div class="d-inline-block">
-                                    <a href="javascript:;"
-                                        class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow"
-                                        data-bs-toggle="dropdown">
-                                        <i class="mdi mdi-dots-vertical"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end m-0">
-                                        <a href="javascript:;" class="dropdown-item">Details</a>
-                                        <div class="dropdown-divider"></div><a href="javascript:;"
-                                            class="dropdown-item text-danger delete-record">Loss</a>
-                                    </div>
-                                </div>
-                                <a href="javascript:;"
-                                    class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
-                                    <i class="mdi mdi-pencil-outline"></i>
-                                </a>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
                 <div class="row">
@@ -326,14 +146,10 @@
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
-    <link rel="stylesheet"
-        href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
-    {{-- Row Group CSS --}}
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
-    {{-- Form Validation --}}
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
 @endpush
 
@@ -345,5 +161,4 @@
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    {{--  <script src="{{ asset('assets') }}/js/ui-modals.js"></script>  --}}
 @endpush

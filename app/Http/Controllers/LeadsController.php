@@ -2,7 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Request\StoreLeadsRequest;
+
+use App\Models\Client;
+use App\Models\User;
+use App\Models\Activities;
+use App\Models\Quotation;
+use App\Models\DetailCompressor;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class LeadsController extends Controller
 {
@@ -13,7 +21,12 @@ class LeadsController extends Controller
      */
     public function index()
     {
-        return view('pages.sales.leads.index');
+        $client = Client::get();
+        // dd($client);
+        $sales = User::where('role', 'sales')->get();
+        $dcompressor = DetailCompressor::get();
+        // dd($sales);
+        return view('pages.sales.leads.index', compact('client', 'sales', 'dcompressor'));
     }
 
     /**
@@ -32,9 +45,10 @@ class LeadsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreLeadsRequest $request)
     {
-        //
+        $data = $request->all();
+        dd($data);
     }
 
     /**
@@ -45,7 +59,11 @@ class LeadsController extends Controller
      */
     public function show($id)
     {
-        //
+        $leads = Client::where('id', $id)->first();
+        $callhis = Activities::where('id_client', $id)->get();
+        $quote = Quotation::where('id_client', $id)->get();
+        // dd($quote);
+        return view('pages.sales.leads.detail', compact('leads', 'callhis','quote'));
     }
 
     /**

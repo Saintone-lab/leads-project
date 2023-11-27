@@ -23,7 +23,7 @@ class QuotationController extends Controller
      */
     public function create()
     {
-        //
+        return view('pages.sales.quotation.form');
     }
 
     /**

@@ -77,179 +77,55 @@
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
-                        <tr>
-                            <td class="sorting_disabled dt-checkboxes-cell dt-checkboxes-select-all" rowspan="1"
-                                colspan="1" style="width: 37.2px;" data-col="1" aria-label=""><input
-                                    type="checkbox" class="form-check-input"></td>
-                            <td>
-                                <span class="fw-medium">PT Teras Adhi Kharisma</span>
-                            </td>
-                            <td>
-                                Mr Ganang
-                            </td>
-                            <td>
-                                Boyolali
-                            </td>
-                            <td>
-                                Kaeser
-                            </td>
-                            <td>
-                                <span class="badge bg-label-info me-1">Send Introduction</span>
-                            </td>
-                            <td>
-                                10 Oct 2023
-                            </td>
-                            <td>
-                                17 Oct 2023
-                            </td>
-                            <td>
-                                Miss Vita
-                            </td>
-                            <td>
-                                <div class="d-inline-block">
-                                    <a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                        <i class="mdi mdi-dots-vertical"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end m-0">
-                                        <a href="{{url('leads/detail')}}" class="dropdown-item">Details</a>
-                                        <div class="dropdown-divider"></div><a href="javascript:;" class="dropdown-item text-danger delete-record">Loss</a>
+                        @foreach ($client as $clients)
+                            <tr>
+                                <td class="sorting_disabled dt-checkboxes-cell dt-checkboxes-select-all" rowspan="1"
+                                    colspan="1" style="width: 37.2px;" data-col="1" aria-label=""><input
+                                        type="checkbox" class="form-check-input"></td>
+                                <td>
+                                    <span class="fw-medium">{{$clients->company}}</span>
+                                </td>
+                                <td>
+                                    {{$clients->pic->name}}
+                                </td>
+                                <td>
+                                    {{$clients->address}}
+                                </td>
+                                <td>
+                                    {{$clients->detail_client[0]->detail_compressor->compressor->compressor_brand}}
+                                </td>
+                                <td>
+                                    <span class="badge {{$clients->id_issues == 1 ? 'bg-label-info' : ''}} {{$clients->id_issues == 2 ? 'bg-label-primary' : ''}} {{$clients->id_issues == 3 ? 'bg-label-success' : ''}} me-1">{{ $clients->issues->name}}</span>
+                                </td>
+                                <td>
+                                    {{ \Carbon\Carbon::parse($clients->created_date)->toFormattedDateString() }}
+                                </td>
+                                <td>
+                                    {{ \Carbon\Carbon::parse($clients->created_date)->addDays(7)->toFormattedDateString() }}
+                                </td>
+                                <td>
+                                    {{$clients->sales->name}}
+                                </td>
+                                <td>
+                                    <div class="d-inline-block">
+                                        <a href="javascript:;"
+                                            class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow"
+                                            data-bs-toggle="dropdown">
+                                            <i class="mdi mdi-dots-vertical"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-end m-0">
+                                            <a href="{{ route('detail.leads', $clients->id) }}" class="dropdown-item">Details</a>
+                                            <div class="dropdown-divider"></div><a href="javascript:;"
+                                                class="dropdown-item text-danger delete-record">Loss</a>
+                                        </div>
                                     </div>
-                                </div>
-                                <a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
-                                    <i class="mdi mdi-pencil-outline"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="sorting_disabled dt-checkboxes-cell dt-checkboxes-select-all" rowspan="1"
-                                colspan="1" style="width: 37.2px;" data-col="1" aria-label=""><input
-                                    type="checkbox" class="form-check-input"></td>
-                            <td>
-                                <span class="fw-medium">PT Indospring tbk.</span>
-                            </td>
-                            <td>
-                                Mr Lukman
-                            </td>
-                            <td>
-                                Boyolali
-                            </td>
-                            <td>
-                                Kaeser
-                            </td>
-                            <td>
-                                <span class="badge bg-label-primary me-1">Send Quotation</span>
-                            </td>
-                            <td>
-                                10 Oct 2023
-                            </td>
-                            <td>
-                                17 Oct 2023
-                            </td>
-                            <td>
-                                Miss Vita
-                            </td>
-                            <td>
-                                <div class="d-inline-block">
-                                    <a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                        <i class="mdi mdi-dots-vertical"></i>
+                                    <a href="javascript:;"
+                                        class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
+                                        <i class="mdi mdi-pencil-outline"></i>
                                     </a>
-                                    <div class="dropdown-menu dropdown-menu-end m-0">
-                                        <a href="javascript:;" class="dropdown-item">Details</a>
-                                        <div class="dropdown-divider"></div><a href="javascript:;" class="dropdown-item text-danger delete-record">Loss</a>
-                                    </div>
-                                </div>
-                                <a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
-                                    <i class="mdi mdi-pencil-outline"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="sorting_disabled dt-checkboxes-cell dt-checkboxes-select-all" rowspan="1"
-                                colspan="1" style="width: 37.2px;" data-col="1" aria-label=""><input
-                                    type="checkbox" class="form-check-input"></td>
-                            <td>
-                                <span class="fw-medium">PT Guci Mas Plasindo</span>
-                            </td>
-                            <td>
-                                Mrs. Ichiis
-                            </td>
-                            <td>
-                                Boyolali
-                            </td>
-                            <td>
-                                Kaeser
-                            </td>
-                            <td>
-                                <span class="badge bg-label-success me-1">Done PO</span>
-                            </td>
-                            <td>
-                                10 Oct 2023
-                            </td>
-                            <td>
-                                17 Oct 2023
-                            </td>
-                            <td>
-                                Miss Vita
-                            </td>
-                            <td>
-                                <div class="d-inline-block">
-                                    <a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                        <i class="mdi mdi-dots-vertical"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end m-0">
-                                        <a href="javascript:;" class="dropdown-item">Details</a>
-                                        <div class="dropdown-divider"></div><a href="javascript:;" class="dropdown-item text-danger delete-record">Loss</a>
-                                    </div>
-                                </div>
-                                <a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
-                                    <i class="mdi mdi-pencil-outline"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="sorting_disabled dt-checkboxes-cell dt-checkboxes-select-all" rowspan="1"
-                                colspan="1" style="width: 37.2px;" data-col="1" aria-label=""><input
-                                    type="checkbox" class="form-check-input"></td>
-                            <td>
-                                <span class="fw-medium">PT Indonesia Sejahtera</span>
-                            </td>
-                            <td>
-                                Mr Dewo
-                            </td>
-                            <td>
-                                Boyolali
-                            </td>
-                            <td>
-                                Kaeser
-                            </td>
-                            <td>
-                                <span class="badge bg-label-danger me-1">Loss</span>
-                            </td>
-                            <td>
-                                10 Oct 2023
-                            </td>
-                            <td>
-                                17 Oct 2023
-                            </td>
-                            <td>
-                                Miss Vita
-                            </td>
-                            <td>
-                                <div class="d-inline-block">
-                                    <a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                        <i class="mdi mdi-dots-vertical"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end m-0">
-                                        <a href="javascript:;" class="dropdown-item">Details</a>
-                                        <div class="dropdown-divider"></div><a href="javascript:;" class="dropdown-item text-danger delete-record">Loss</a>
-                                    </div>
-                                </div>
-                                <a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
-                                    <i class="mdi mdi-pencil-outline"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
+                                </td>
+                            </tr>
+                        @endforeach
                 </table>
                 <div class="row">
                     <div class="col-sm-12 col-md-6">
@@ -277,8 +153,7 @@
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
-    <link rel="stylesheet"
-        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
     <link rel="stylesheet"
         href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />

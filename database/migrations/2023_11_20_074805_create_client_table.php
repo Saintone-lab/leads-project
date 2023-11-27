@@ -18,7 +18,6 @@ return new class extends Migration
             $table->foreignId("id_sales");
             $table->foreignId("id_pic");
             $table->foreignId("id_issues");
-            $table->foreignId("id_service");
             $table->string('company', 50);
             $table->string('email', 25);
             $table->string('phone', 15);

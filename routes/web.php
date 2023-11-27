@@ -16,12 +16,21 @@ use App\Http\Controllers\QuotationController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('pages.sales.dashboard');
 });
 
 // Route::resource('/', 'UserController');
 Route::get('/leads', [LeadsController::class, 'index']);
-Route::get('/leads/detail', function(){
-    return view('pages.sales.leads.detail');
+Route::get('/leads/detail/{id}', [LeadsController::class, 'show'])->name('detail.leads');
+Route::get('/visits/leads', function(){
+    return view('pages.sales.visits.index');
 });
-Route::get('/quotation', [QuotationController::class, 'index']);
+Route::get('/register', function(){
+    return view('components.modal.register');
+});
+Route::get('/login', function(){
+    return view('components.modal.login');
+});
+Route::get('/quotation/leads', [QuotationController::class, 'index']);
+Route::get('/quotation/leads/create', [QuotationController::class, 'create']);
+

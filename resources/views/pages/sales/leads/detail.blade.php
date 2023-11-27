@@ -17,7 +17,7 @@
                             Adress
                         </div>
                         <div class="col-9">
-                            : Jl Boyolali - Solo No. 103 Boyolali - Jawa Tengah 10189
+                            : {{ $leads->address }}
                         </div>
                     </div>
                     <div class="row mb-1">
@@ -25,7 +25,7 @@
                             Phone
                         </div>
                         <div class="col-9">
-                            : +62 8
+                            : {{ $leads->phone }}
                         </div>
                     </div>
                     <div class="row mb-1">
@@ -33,7 +33,7 @@
                             Email
                         </div>
                         <div class="col-9">
-                            : email@gmail.com
+                            : {{ $leads->email }}
                         </div>
                     </div>
                     <div class="row mb-1">
@@ -41,7 +41,7 @@
                             PIC
                         </div>
                         <div class="col-9">
-                            : Mr. Ganang
+                            : {{ $leads->pic->name_pic }}
                         </div>
                     </div>
                     <div class="row mb-1">
@@ -49,7 +49,7 @@
                             WhatsApp
                         </div>
                         <div class="col-9">
-                            : +62 8
+                            : {{ $leads->pic->phone_pic }}
                         </div>
                     </div>
                     <div class="row mb-1">
@@ -57,7 +57,10 @@
                             Machine
                         </div>
                         <div class="col-9">
-                            : Kaese ASD, 40, BSD 75 & BSD 72
+                            : {{ $leads->detail_client[0]->detail_compressor->serial_number }} ||
+                            {{ $leads->detail_client[0]->detail_compressor->compressor->compressor_brand }},Type
+                            {{ $leads->detail_client[0]->detail_compressor->compressor->series }} ,
+                            {{ $leads->detail_client[0]->detail_compressor->hp }} HP</option>
                         </div>
                     </div>
                     <div class="row">
@@ -65,7 +68,7 @@
                             Assigned
                         </div>
                         <div class="col-9">
-                            : Ms Vita
+                            : {{ $leads->sales->name }}
                         </div>
                     </div>
                     </p>
@@ -74,7 +77,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-6 mb-3">
+        <div class="col-md-6 my-3">
             <h5 class="fw-bold pb-1 mb-2">
                 Daily Call History
             </h5>
@@ -90,60 +93,32 @@
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
-                            <tr>
-                                <td>
-                                    02-11-2023
-                                </td>
-                                <td><span class="badge bg-primary">U</span></td>
-                                <td>
-                                    Introduction Phone
-                                </td>
-                                <td>
-                                    Boyolali
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    05-11-2023
-                                </td>
-                                <td><span class="badge bg-primary">U</span></td>
-                                <td>
-                                    Get WA + Email
-                                </td>
-                                <td>
-                                    Boyolali
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    07-11-2023
-                                </td>
-                                <td><span class="badge bg-primary">U</span></td>
-                                <td>
-                                    Send Introduction Email
-                                </td>
-                                <td>
-                                    Boyolali
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    10-11-2023
-                                </td>
-                                <td><span class="badge bg-primary">U</span></td>
-                                <td>
-                                    Send Quote
-                                </td>
-                                <td>
-                                    Boyolali
-                                </td>
-                            </tr>
+                            @if ($callhis != null)
+                                @foreach ($callhis as $callhistory)
+                                    <tr>
+                                        <td>
+                                            {{ \Carbon\Carbon::parse($callhistory->date)->toFormattedDateString() }}
+                                        </td>
+                                        <td><span class="badge bg-primary">U</span></td>
+                                        <td>
+                                            {{ $callhistory->status }}
+                                        </td>
+                                        <td>
+                                            {{ $callhistory->client->address }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    Kamu Belum Punya Call History
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <div class="col-md-6 mb-3">
+        <div class="col-md-6 my-3">
             <h5 class="fw-bold pb-1 mb-2">
                 Quotation
             </h5>
@@ -159,54 +134,26 @@
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
-                            <tr>
-                                <td>
-                                    02-11-2023
-                                </td>
-                                <td><span class="badge bg-primary">U</span></td>
-                                <td>
-                                    Introduction Phone
-                                </td>
-                                <td>
-                                    Boyolali
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    05-11-2023
-                                </td>
-                                <td><span class="badge bg-primary">U</span></td>
-                                <td>
-                                    Get WA + Email
-                                </td>
-                                <td>
-                                    Boyolali
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    07-11-2023
-                                </td>
-                                <td><span class="badge bg-primary">U</span></td>
-                                <td>
-                                    Send Introduction Email
-                                </td>
-                                <td>
-                                    Boyolali
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    10-11-2023
-                                </td>
-                                <td><span class="badge bg-primary">U</span></td>
-                                <td>
-                                    Send Quote
-                                </td>
-                                <td>
-                                    Boyolali
-                                </td>
-                            </tr>
+                            @forelse ($quote as $quotation)
+                                <tr>
+                                    <td>
+                                        02-11-2023
+                                    </td>
+                                    <td><span class="badge bg-primary">U</span></td>
+                                    <td>
+                                        Introduction Phone
+                                    </td>
+                                    <td>
+                                        {{ $quotation->client->address }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        Kamu belum punya Quotation.
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

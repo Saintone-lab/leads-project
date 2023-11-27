@@ -35,7 +35,7 @@
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
             {{--  Side bar  --}}
-            @include('layouts.sales.sidebar')
+            @include('components.dashboard.sidebar')
             {{--  END: Side Bar  --}}
 
             <div class="layout-page">

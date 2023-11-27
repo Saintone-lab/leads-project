@@ -17,11 +17,11 @@ class DetailClient extends Model
     
     public function client()
     {
-        return $this->belongsTo('App\Model\Client', 'id_client', 'id');
+        return $this->belongsTo('App\Models\Client', 'id_client', 'id');
     }
     public function detail_compressor()
     {
-        return $this->belongsTo('App\Model', 'id_detail_compressor', 'id');
+        return $this->belongsTo('App\Models\DetailCompressor', 'id_detail_compressor', 'id');
     }
     
 }
