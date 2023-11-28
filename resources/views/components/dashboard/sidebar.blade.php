@@ -166,7 +166,7 @@
         </li>
 
         <li class="menu-item">  
-            <a href="#" class="menu-link">
+            <a href="{{url('pending-po')}}" class="menu-link">
                 <i class="menu-icon tf-icons mdi mdi-cart-arrow-down"></i>
                 <div data-i18n="Pending PO">Pending PO</div>
             </a>

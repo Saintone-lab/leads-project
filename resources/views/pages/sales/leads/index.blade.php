@@ -1,6 +1,19 @@
 @extends('layouts.sales.app')
 @section('title', 'My Leads')
 @section('content')
+
+    @if (Session::has('message'))
+        <div class="bs-toast toast toast-placement-ex m-2 fade top-0 end-0 hide" role="alert" aria-live="assertive"
+            aria-atomic="true" data-bs-delay="2000">
+            <div class="toast-header">
+                <i class="mdi mdi-home me-2 text-success"></i>
+                <div class="me-auto fw-semibold">Successfully</div>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">{{Session::get('message')}}</div>
+        </div>
+    @endif
+
     <h4 class="fw-bold py-3 mb-4">
         <span class="text-muted fw-light">Clients /</span> Leads
     </h4>
@@ -39,7 +52,7 @@
                                     aria-controls="DataTables_Table_0"></label></div>
                     </div>
                 </div>
-                <table class="table table-striped dataTable no-footer dtr-column" id="DataTables_Table_0"
+                <table class="table table-striped table-bordered no-footer dtr-column" id="DataTables_Table_0"
                     aria-describedby="DataTables_Table_0_info" style="width: 1214px;">
                     <thead>
                         <tr>
@@ -83,19 +96,20 @@
                                     colspan="1" style="width: 37.2px;" data-col="1" aria-label=""><input
                                         type="checkbox" class="form-check-input"></td>
                                 <td>
-                                    <span class="fw-medium">{{$clients->company}}</span>
+                                    <span class="fw-medium">{{ $clients->company }}</span>
                                 </td>
                                 <td>
-                                    {{$clients->pic->name}}
+                                    {{ $clients->pic->name_pic }}
                                 </td>
                                 <td>
-                                    {{$clients->address}}
+                                    {{ $clients->area }}
                                 </td>
                                 <td>
-                                    {{$clients->detail_client[0]->detail_compressor->compressor->compressor_brand}}
+                                    {{ $clients->detail_client->first()?->detail_compressor->compressor->compressor_brand }}
                                 </td>
                                 <td>
-                                    <span class="badge {{$clients->id_issues == 1 ? 'bg-label-info' : ''}} {{$clients->id_issues == 2 ? 'bg-label-primary' : ''}} {{$clients->id_issues == 3 ? 'bg-label-success' : ''}} me-1">{{ $clients->issues->name}}</span>
+                                    <span
+                                        class="badge {{ $clients->id_issues == 1 ? 'bg-label-info' : '' }} {{ $clients->id_issues == 2 ? 'bg-label-primary' : '' }} {{ $clients->id_issues == 3 ? 'bg-label-success' : '' }} me-1">{{ $clients->issues->name }}</span>
                                 </td>
                                 <td>
                                     {{ \Carbon\Carbon::parse($clients->created_date)->toFormattedDateString() }}
@@ -104,7 +118,7 @@
                                     {{ \Carbon\Carbon::parse($clients->created_date)->addDays(7)->toFormattedDateString() }}
                                 </td>
                                 <td>
-                                    {{$clients->sales->name}}
+                                    {{ $clients->sales->name }}
                                 </td>
                                 <td>
                                     <div class="d-inline-block">
@@ -114,7 +128,8 @@
                                             <i class="mdi mdi-dots-vertical"></i>
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-end m-0">
-                                            <a href="{{ route('detail.leads', $clients->id) }}" class="dropdown-item">Details</a>
+                                            <a href="{{ route('detail.leads', $clients->id) }}"
+                                                class="dropdown-item">Details</a>
                                             <div class="dropdown-divider"></div><a href="javascript:;"
                                                 class="dropdown-item text-danger delete-record">Loss</a>
                                         </div>
@@ -153,7 +168,8 @@
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
     <link rel="stylesheet"
         href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />

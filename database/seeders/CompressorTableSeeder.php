@@ -6,7 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Compressor;
 
-class CompressorTableSeeders extends Seeder
+class CompressorTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.

@@ -1,12 +1,12 @@
-<form action="{{ route('leads.store') }}" method="post" enctype="multipart/form-data">
+<form action="" method="post" enctype="multipart/form-data">
     {{-- {{ csrf_token() }} --}}
     @csrf
-    <div class="modal animate__animated animate__zoomIn" id="createLeads" tabindex="-1" style="display: none;"
+    <div class="modal animate__animated animate__zoomIn" id="createVisits" tabindex="-1" style="display: none;"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel5">Create New Leads</h4>
+                    <h4 class="modal-title" id="exampleModalLabel5">Create New Visits</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Quotation;
 use Illuminate\Http\Request;
 
 class QuotationController extends Controller
@@ -13,6 +14,8 @@ class QuotationController extends Controller
      */
     public function index()
     {
+        $data = Quotation::join('client', 'client.role', '=', 'quotation.id_client')->where('client.role', 'Leads')->get();
+        // dd($data);
         return view('pages.sales.quotation.index');
     }
 

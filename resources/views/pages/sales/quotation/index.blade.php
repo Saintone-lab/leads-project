@@ -12,7 +12,7 @@
                         <h5 class="card-title mb-0">My Quotation</h5>
                     </div>
                     <div class="dt-action-buttons text-end pt-3 pt-md-0">
-                        <a href="{{url('quotation/create')}}" type="button" class="btn btn-primary waves-effect waves-light">
+                        <a href="{{url('quotation/leads/create')}}" type="button" class="btn btn-primary waves-effect waves-light">
                             <i class="mdi mdi-plus me-sm-1"></i>
                             Add New Quotation
                         </a>

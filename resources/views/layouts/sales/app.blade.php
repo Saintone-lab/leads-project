@@ -1,11 +1,6 @@
 <!DOCTYPE html>
-<html
-  lang="en"
-  class="light-style layout-navbar-fixed layout-menu-fixed"
-  dir="ltr"
-  data-theme="theme-default"
-  data-assets-path="../../assets/"
-  data-template="vertical-menu-template">
+<html lang="en" class="light-style layout-navbar-fixed layout-menu-fixed" dir="ltr" data-theme="theme-default"
+    data-assets-path="../../assets/" data-template="vertical-menu-template">
 
 <head>
     @include('includes.sales.meta')
@@ -16,46 +11,52 @@
     @include('includes.sales.style')
 
     @stack('after-style')
+
     {{--  laravel style  --}}
     <script src="{{ asset('/assets') }}/vendor/js/helpers.js"></script>
 
-    {{--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section --}}
-    {{--? Template customizer: To hide customizer set displayCustomizer value false in config.js.  --}}
+    {{-- ! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section --}}
+    {{-- ? Template customizer: To hide customizer set displayCustomizer value false in config.js.  --}}
     <script src="{{ asset('/assets') }}/vendor/js/template-customizer.js"></script>
 
     {{--  ? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.   --}}
     <script src="{{ asset('assets') }}/js/config.js"></script>
-
-    {{--  Place this tag in your head or just before your close body tag.  --}}
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
 </head>
 
 <body>
-    {{--  Layout wrapper  --}}
+    <!--  Layout wrapper  -->
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
-            {{--  Side bar  --}}
+
+            <!--  Side bar  -->
             @include('components.dashboard.sidebar')
-            {{--  END: Side Bar  --}}
+            <!--  END: Side Bar  -->
 
+            <!-- Layout Page -->
             <div class="layout-page">
-
-                {{--  Navbar  --}}
+                
+                <!--  Navbar  -->
                 @include('layouts.sales.navbar')
-                {{--  END: Navbar  --}}
+                <!--  END: Navbar  -->
 
-                {{-- Content wrapper --}}
+                <!-- Content wrapper -->
                 <div class="content-wrapper">
                     <div class="container-xxl flex-grow-1 container-p-y">
 
-                        {{--  Content  --}}
+                        <!--  Content  -->
                         @yield('content')
-                        {{--  END: Content  --}}
+                        <!--  END: Content  -->
 
                     </div>
+                    <div class="content-backdrop fade"></div>
                 </div>
+                <!-- END : Content Wrapper -->
+
             </div>
+            <!-- End : Layout Page -->
         </div>
+        <div class="layout-overlay layout-menu-toggle"></div>
+        <div class="drag-target"></div>
     </div>
 
     {{--  javascript --}}
@@ -64,6 +65,11 @@
     @include('includes.sales.script')
 
     @stack('after-script')
+
+    {{-- Main JS --}}
+    <script src="{{ asset('assets') }}/js/main.js"></script>
+
+    @stack('page-js')
 </body>
 
 </html>

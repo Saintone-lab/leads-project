@@ -27,7 +27,8 @@ return new class extends Migration
             $table->date("created_date");
             $table->enum('role', ['Leads', 'Customers'])->default("Leads");
             $table->string("mobile", 14);
-            $table->string("address", 20);
+            $table->string("address");
+            $table->string("area", 20);
             $table->timestamps();
         });
     }

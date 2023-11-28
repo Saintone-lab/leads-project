@@ -28,7 +28,8 @@ class Client extends Model
         'source',
         'role',
         'mobile',
-        'address'
+        'address',
+        'area'
     ];
 
     // Connection Table

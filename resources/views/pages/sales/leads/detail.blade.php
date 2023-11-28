@@ -93,26 +93,26 @@
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
-                            @if ($callhis != null)
-                                @foreach ($callhis as $callhistory)
-                                    <tr>
-                                        <td>
-                                            {{ \Carbon\Carbon::parse($callhistory->date)->toFormattedDateString() }}
-                                        </td>
-                                        <td><span class="badge bg-primary">U</span></td>
-                                        <td>
-                                            {{ $callhistory->status }}
-                                        </td>
-                                        <td>
-                                            {{ $callhistory->client->address }}
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @else
+                            @forelse ($callhis as $callhistory)
                                 <tr>
-                                    Kamu Belum Punya Call History
+                                    <td>
+                                        {{ \Carbon\Carbon::parse($callhistory->date)->toFormattedDateString() }}
+                                    </td>
+                                    <td><span class="badge bg-primary">U</span></td>
+                                    <td>
+                                        {{ $callhistory->status }}
+                                    </td>
+                                    <td>
+                                        {{ $callhistory->client->address }}
+                                    </td>
                                 </tr>
-                            @endif
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        Kamu belum punya Call History.
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

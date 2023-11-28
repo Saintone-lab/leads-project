@@ -19,18 +19,30 @@ Route::get('/', function () {
     return view('pages.sales.dashboard');
 });
 
-// Route::resource('/', 'UserController');
-Route::get('/leads', [LeadsController::class, 'index']);
+// Route For Leads
+Route::resource('/leads', LeadsController::class);
 Route::get('/leads/detail/{id}', [LeadsController::class, 'show'])->name('detail.leads');
+
+// Route untuk Quotation
+Route::get('/quotation/leads', [QuotationController::class, 'index']);
+Route::get('/quotation/leads/create', [QuotationController::class, 'create']);
+
+// Route untuk Visit
 Route::get('/visits/leads', function(){
     return view('pages.sales.visits.index');
 });
+
+// Route untuk User
 Route::get('/register', function(){
     return view('components.modal.register');
 });
 Route::get('/login', function(){
     return view('components.modal.login');
 });
-Route::get('/quotation/leads', [QuotationController::class, 'index']);
-Route::get('/quotation/leads/create', [QuotationController::class, 'create']);
+
+// Route untuk PO
+Route::get('/pending-po', function(){
+    return view('pages.sales.po.pending.index');
+});
+
 

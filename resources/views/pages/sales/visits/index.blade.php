@@ -1,8 +1,8 @@
 @extends('layouts.sales.app')
-@section('title', 'My Quotation')
+@section('title', 'My History Visit')
 @section('content')
     <h4 class="fw-bold py-3 mb-4">
-        Quotation
+        Visits & Service Agenda
     </h4>
     <div class="card">
         <div class="card-datatable table-responsive pt-0">
@@ -12,10 +12,12 @@
                         <h5 class="card-title mb-0">Visit History</h5>
                     </div>
                     <div class="dt-action-buttons text-end pt-3 pt-md-0">
-                        <a href="{{url('quotation/create')}}" type="button" class="btn btn-primary waves-effect waves-light">
+                        <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal"
+                            data-bs-target="#createVisits">
                             <i class="mdi mdi-plus me-sm-1"></i>
                             Add New Visit Agenda
-                        </a>
+                        </button>
+                        @include('pages.sales.visits.form')
                     </div>
                 </div>
                 <div class="row">
@@ -45,28 +47,28 @@
                                 style="width: 36.2px; display: none;" aria-label=""></th>
                             <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1"
                                 colspan="1" style="width: 118.2px;" aria-label="Name: activate to sort column ascending">
-                                Quote No.</th>
+                                Date</th>
                             <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1"
                                 colspan="1" style="width: 122.2px;"
                                 aria-label="Email: activate to sort column ascending">Company</th>
                             <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1"
                                 colspan="1" style="width: 109.2px;" aria-label="Date: activate to sort column ascending">
-                                Amount</th>
+                                PIC</th>
                             <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1"
                                 colspan="1" style="width: 145.2px;"
-                                aria-label="Salary: activate to sort column ascending">Description</th>
+                                aria-label="Salary: activate to sort column ascending">Area</th>
                             <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1"
                                 colspan="1" style="width: 143.2px;"
-                                aria-label="Status: activate to sort column ascending">Expired Date</th>
+                                aria-label="Status: activate to sort column ascending">Issue</th>
+                            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1"
+                                colspan="1" style="width: 143.2px;"
+                                aria-label="Status: activate to sort column ascending">Unit</th>
+                            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1"
+                                colspan="1" style="width: 143.2px;"
+                                aria-label="Status: activate to sort column ascending">Prospect</th>
                             <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1"
                                 colspan="1" style="width: 143.2px;"
                                 aria-label="Status: activate to sort column ascending">Status</th>
-                            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1"
-                                colspan="1" style="width: 143.2px;"
-                                aria-label="Status: activate to sort column ascending">Date Follow up</th>
-                            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1"
-                                colspan="1" style="width: 143.2px;"
-                                aria-label="Status: activate to sort column ascending">Assigned</th>
                             <th class="sorting_disabled" rowspan="1" colspan="1" style="width: 151px;"
                                 aria-label="Actions">Actions</th>
                         </tr>
@@ -74,29 +76,28 @@
                     <tbody class="table-border-bottom-0">
                         <tr>
                             <td>
-                                RJO-XI-2023-105
+                                24-11-2023
                             </td>
                             <td>
                                 PT Teras Adhi Kharisma
                             </td>
                             <td>
-                                RP. 21.000.000.-
-                                {{--  {{'Rp '.number_format($item->price) ?? ''}}  --}}
+                                Mr. Hendro
                             </td>
                             <td>
-                                Parts Kaeser CSD
+                                Tangerang
                             </td>
                             <td>
-                                12-12-2023
+                                <span class="badge bg-label-info me-1">Visit CRM</span>
                             </td>
                             <td>
-                                <span class="badge bg-label-info me-1">Draft</span>
+                                Atlas Copco G37
                             </td>
                             <td>
-                                10-12-2023
+                                Service PM3
                             </td>
                             <td>
-                                Miss Vita
+                                <span class="badge bg-label-info me-1">Hold</span>
                             </td>
                             <td>
                                 <div class="d-inline-block">
@@ -146,7 +147,8 @@
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />

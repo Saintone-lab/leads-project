@@ -13,7 +13,7 @@ class StoreLeadsRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -27,10 +27,7 @@ class StoreLeadsRequest extends FormRequest
             'id_sales' => [
                 'required', 'integer'
             ],
-            'id_pic' => [
-                'required', 'integer'
-            ],
-            'id_sales' => [
+            'id_issues' => [
                 'required', 'integer'
             ],
             'company' => [
@@ -45,26 +42,14 @@ class StoreLeadsRequest extends FormRequest
             'web' => [
                 'required', 'string', 'max:255'
             ],
-            'image' => [
-                'required', 'string', 'max:255'
-            ],
             'source' => [
                 'required', 'string', 'max:255'
-            ],
-            'created_date' => [
-                'required', 'date'
-            ],
-            'role' => [
-                'required', 'string'
             ],
             'mobile' => [
                 'required', 'string'
             ],
             'address' => [
                 'required', 'string', 'max:255'
-            ],
-            'id_client' => [
-                'required', 'integer'
             ],
             'id_detail_compressor' => [
                 'required', 'integer'
