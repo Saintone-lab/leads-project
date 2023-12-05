@@ -13,20 +13,22 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('service', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('id_client');
-            $table->foreignId('id_technician');
-            $table->foreignId('id_quotation');
-            $table->integer('no_pruchase_order');
-            $table->string('job_description', 25);
-            $table->date('date');
-            $table->string('compressor_type', 25);
-            $table->string('area', 20);
-            $table->string('recommendation', 20);
-            $table->string('status',15);
-            $table->timestamps();
-        });
+        // Dibuka setelah masuk finale leads project
+        
+        // Schema::create('service', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('id_client');
+        //     $table->foreignId('id_technician');
+        //     $table->foreignId('id_quotation');
+        //     $table->integer('no_pruchase_order');
+        //     $table->string('job_description', 25);
+        //     $table->date('date');
+        //     $table->string('compressor_type', 25);
+        //     $table->string('area', 20);
+        //     $table->string('recommendation', 20);
+        //     $table->string('status',15);
+        //     $table->timestamps();
+        // });
     }
 
     /**

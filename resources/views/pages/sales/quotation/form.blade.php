@@ -11,13 +11,13 @@
                 <div class="row">
                     <div class="col-12 col-lg-3 mb-3">
                         <div class="form-floating form-floating-outline">
-                            <select class="form-select" id="floatingSelect" aria-label="Floating label select example">
-                                <option>Open this select menu</option>
+                            <select class="form-select" id="Customers" aria-label="Floating label select example">
+                                <option>-----Select Customers-----</option>
                                 <option value="1">One</option>
                                 <option value="2">Two</option>
                                 <option value="3">Three</option>
                             </select>
-                            <label for="floatingSelect">Works with selects</label>
+                            <label for="Customers">Customers</label>
                         </div>
                     </div>
                     <div class="col-lg-3"></div>

@@ -13,12 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('detail_client', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('id_client');
-            $table->foreignId('id_detail_compressor');
-            $table->timestamps();
-        });
+        // Dibuka setelah masuk finale leads project
+        
+        // Schema::create('detail_client', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('id_client');
+        //     $table->foreignId('id_detail_compressor');
+        //     $table->timestamps();
+        // });
     }
 
     /**

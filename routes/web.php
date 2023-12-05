@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadsController;
 use App\Http\Controllers\QuotationController;
@@ -15,13 +16,21 @@ use App\Http\Controllers\QuotationController;
 |
 */
 
-Route::get('/', function () {
-    return view('pages.sales.dashboard');
+// Route Dashboard
+// Route::get('/', function () {
+//     return view('pages.sales.dashboard');
+// });
+Route::get('/', [DashboardController::class,'index']);
+
+// Route Reports
+Route::get('/reports', function () {
+    return view('pages.sales.report.index');
 });
 
 // Route For Leads
 Route::resource('/leads', LeadsController::class);
 Route::get('/leads/detail/{id}', [LeadsController::class, 'show'])->name('detail.leads');
+Route::post('/leads/action/{id}', [LeadsController::class,'storeActionWithLeads'])->name('action.leads');
 
 // Route untuk Quotation
 Route::get('/quotation/leads', [QuotationController::class, 'index']);

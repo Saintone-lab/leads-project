@@ -23,6 +23,7 @@ class Client extends Model
         'company',
         'email',
         'phone',
+        'ru',
         'web',
         'image',
         'source',

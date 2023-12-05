@@ -13,18 +13,20 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('detail_compressor', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('id_compressor');
-            $table->string('compressor_type', 25);
-            $table->integer('hp');
-            $table->integer('bar');
-            $table->integer('fad');
-            $table->integer('start_comissioning');
-            $table->string('serial_number', 25);
-            $table->integer('waranty');
-            $table->timestamps();
-        });
+        // Dibuka setelah masuk finale leads project
+        
+        // Schema::create('detail_compressor', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('id_compressor');
+        //     $table->string('compressor_type', 25);
+        //     $table->integer('hp');
+        //     $table->integer('bar');
+        //     $table->integer('fad');
+        //     $table->integer('start_comissioning');
+        //     $table->string('serial_number', 25);
+        //     $table->integer('waranty');
+        //     $table->timestamps();
+        // });
     }
 
     /**

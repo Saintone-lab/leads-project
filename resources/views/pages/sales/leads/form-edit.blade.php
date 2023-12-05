@@ -1,19 +1,12 @@
-<form action="{{ @$leads ? route('leads.update', @$leads->id) : route('leads.store') }}" method="post"
-    enctype="multipart/form-data">
+<form action="{{ route('leads.store') }}" method="post" enctype="multipart/form-data">
     {{-- {{ csrf_token() }} --}}
     @csrf
-
-    @if (@$leads)
-        @method('patch')
-    @endif
-    <div class="modal animate__animated animate__fadeIn"
-        id="{{ @$leads ? 'updateLeads' . strval(@$leads->id) : 'createLeads' }}" tabindex="-1" style="display: none;"
+    <div class="modal animate__animated animate__fadeIn" id="createLeads" tabindex="-1" style="display: none;"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel5">{{ @$leads ? 'Update Data' : 'Create New' }} Leads
-                    </h4>
+                    <h4 class="modal-title" id="exampleModalLabel5">Create New Leads</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -33,9 +26,7 @@
                                     aria-label="Default select example">
                                     <option disabled>----- Choose Sales -----</option>
                                     @foreach ($sales as $saless)
-                                        <option value="{{ $saless->id }}"
-                                            {{ @$leads->id_sales == $saless->id ? 'selected' : '' }}>{{ $saless->name }}
-                                        </option>
+                                        <option value="{{ $saless->id }}">{{ $saless->name }}</option>
                                     @endforeach
                                 </select>
                                 <label for="selectSales">Sales</label>
@@ -43,24 +34,24 @@
                         </div>
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="company" class="form-control" name="company"
-                                    placeholder="Mr/Mss xxxx" value="{{ old('company', @$leads->company ?? '') }}">
-                                <label for="company">Company</label>
+                                <input type="pic" id="picAnimation" class="form-control" name="company"
+                                    placeholder="Mr/Mss xxxx">
+                                <label for="picAnimation">Company</label>
                             </div>
                         </div>
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="email" id="email" class="form-control" name="email"
-                                    placeholder="xxxx@xxx.xx" value="{{ old('email', @$leads->email ?? '') }}">
-                                <label for="email">Email</label>
+                                <input type="email" id="emailAnimation" class="form-control" name="email"
+                                    placeholder="xxxx@xxx.xx">
+                                <label for="emailAnimation">Email</label>
                             </div>
                         </div>
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="phone" id="phoneAnimation" class="form-control" name="phone"
-                                    placeholder="081xxxxx" value="{{ old('phone', @$leads->phone ?? '') }}">
+                                    placeholder="081xxxxx">
                                 <label for="phoneAnimation">Phone</label>
                             </div>
                         </div>
@@ -69,86 +60,59 @@
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="websiteAnimation" class="form-control" name="web"
-                                    placeholder="xxxxxxxxx.com" value="{{ old('web', @$leads->web ?? '') }}">
+                                    placeholder="xxxxxxxxx.com">
                                 <label for="websiteAnimation">Website</label>
                             </div>
                         </div>
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <select class="form-select" id="selectR/U" aria-label="Default select example"
-                                    name="ru">
-                                    <option disabled>----- Choose R/U -----</option>
-                                    <option value="User" {{ old('ru', @$leads->ru) == 'User' ? 'selected' : '' }}>
-                                        User
-                                    </option>
-                                    <option value="Reseller"
-                                        {{ old('ru', @$leads->ru) == 'Reseller' ? 'selected' : '' }}>Reseller
-                                    </option>
-                                </select>
-                                <label for="selectSource">R/U</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row g-2 mb-3">
-                        <div class="col mb-2">
-                            <div class="form-floating form-floating-outline">
                                 <select class="form-select" id="selectSource" aria-label="Default select example"
                                     name="source">
                                     <option disabled>----- Choose Source -----</option>
-                                    <option value="IG"
-                                        {{ old('source', @$leads->source) == 'IG' ? 'selected' : '' }}>Instagram
-                                    </option>
-                                    <option value="LinkedIn"
-                                        {{ old('source', @$leads->source) == 'LinkedIn' ? 'selected' : '' }}>LinkedIn
-                                    </option>
-                                    <option value="Website"
-                                        {{ old('source', @$leads->source) == 'Website' ? 'selected' : '' }}>Website
-                                    </option>
-                                    <option value="Iklan"
-                                        {{ old('source', @$leads->source) == 'Iklan' ? 'selected' : '' }}>Iklan
-                                    </option>
+                                    <option value="IG">Instagram</option>
+                                    <option value="LinkedIn">LinkedIn</option>
+                                    <option value="Website">Website</option>
+                                    <option value="Iklan">Iklan</option>
                                 </select>
                                 <label for="selectSource">Source</label>
                             </div>
                         </div>
+                    </div>
+                    <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <select class="form-select" id="selectMobile" aria-label="Default select example"
                                     name="mobile">
                                     <option disabled>----- Choose Mobile -----</option>
-                                    <option value="WA" {{ old('mobile', @$leads->mobile) == 'WA' ? 'selected' : '' }}>
-                                        WhatsApp</option>
-                                    <option value="Phone Office"
-                                        {{ old('mobile', @$leads->mobile) == 'Phone Office' ? 'selected' : '' }}>Phone
-                                        Office</option>
+                                    <option value="WA">WhatsApp</option>
+                                    <option value="Phone Office">Phone Office</option>
                                 </select>
                                 <label for="selectMobile">Mobile</label>
+                            </div>
+                        </div>
+                        <div class="col mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="machineAnimation" class="form-control"
+                                    placeholder="Contoh: Copco Atlas" name="machine">
+                                <label for="machineAnimation">Machine</label>
                             </div>
                         </div>
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="machineAnimation" class="form-control"
-                                    placeholder="Contoh: Copco Atlas" name="machine"
-                                    value="{{ old('machine', @$leads->machine ?? '') }}">
-                                <label for="machineAnimation">Machine</label>
-                            </div>
-                        </div>
-                        <div class="col mb-2">
-                            <div class="form-floating form-floating-outline">
                                 <input type="text" id="areaAnimation" class="form-control"
-                                    placeholder="Contoh: Bandung" name="area"
-                                    value="{{ old('area', @$leads->area ?? '') }}">
+                                    placeholder="Contoh: Bandung" name="area">
                                 <label for="areaAnimation">Area</label>
                             </div>
                         </div>
+                        <div class="col"></div>
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline mb-4">
                                 <textarea class="form-control h-px-100" name="address" id="addressTextarea1"
-                                    placeholder="Contoh: Jl Taman Kopo Indah 5 Kota...">{{ old('address', @$leads->address ?? '') }}</textarea>
+                                    placeholder="Contoh: Jl Taman Kopo Indah 5 Kota..."></textarea>
                                 <label for="addressTextarea1">Address</label>
                             </div>
                         </div>
@@ -160,16 +124,14 @@
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="nameAnimation" class="form-control" name="namePic"
-                                    placeholder="xxxxxxx xxxxxxxx"
-                                    value="{{ old('namePic', @$leads->pic->name_pic ?? '') }}">
+                                    placeholder="xxxxxxx xxxxxxxx">
                                 <label for="nameAnimation">Name</label>
                             </div>
                         </div>
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="positionAnimation" class="form-control" name="position"
-                                    placeholder="example: CEO"
-                                    value="{{ old('position', @$leads->pic->position ?? '') }}">
+                                    placeholder="example: CEO">
                                 <label for="positionAnimation">Position</label>
                             </div>
                         </div>
@@ -178,16 +140,14 @@
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="emailPicAnimation" class="form-control" name="emailPic"
-                                    placeholder="xxxxxxxx@xxx.xx"
-                                    value="{{ old('emailPic', @$leads->pic->email_pic ?? '') }}">
+                                    placeholder="xxxxxxxx@xxx.xx">
                                 <label for="emailPicAnimation">Email PIC</label>
                             </div>
                         </div>
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="phone" id="phonePicAnimation" class="form-control" name="phonePic"
-                                    placeholder="08xxxxxxxxxx"
-                                    value="{{ old('phonePic', @$leads->pic->phone_pic ?? '') }}">
+                                    placeholder="08xxxxxxxxxx">
                                 <label for="phonePicAnimation">Phone PIC</label>
                             </div>
                         </div>

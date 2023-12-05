@@ -69,19 +69,25 @@
                 <div data-i18n="Activities">Activities</div>
             </a>
         </li>
+        <li class="menu-item {{request()->is('reports') ? 'active' : ''}}">
+            <a href="{{url('/reports')}}" class="menu-link">
+                <i class="menu-icon tf-icons mdi mdi-finance"></i>
+                <div data-i18n="Reports">Reports</div>
+            </a>
+        </li>
 
         <!-- Layouts -->
         <li class="menu-header fw-light mt-4">
             <span class="menu-header-text">Client</span>
         </li>
-        <li class="menu-item {{request()->is('leads') || request()->is('customer') ? 'open' : ''}}">
+        <li class="menu-item {{request()->is('leads') || request()->is('leads/detail/*') || request()->is('customer') ? 'open' : ''}}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
                 <div data-i18n="Client">CRM</div>
             </a>
 
             <ul class="menu-sub">
-                <li class="menu-item {{request()->is('leads') ? 'active' : ''}}">
+                <li class="menu-item {{request()->is('leads') || request()->is('leads/detail/*') ? 'active' : ''}}">
                     <a href="{{url('leads')}}" class="menu-link">
                         <div data-i18n="Leads">Leads</div>
                     </a>

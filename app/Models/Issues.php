@@ -10,7 +10,7 @@ class Issues extends Model
     use HasFactory;
     protected $table = "issues";
     protected $fillable = [
-        'name'
+        'issue'
     ];
 
     

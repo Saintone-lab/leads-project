@@ -13,12 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('compressor', function (Blueprint $table) {
-            $table->id();
-            $table->string('compressor_brand', 50);
-            $table->string('series', 25);
-            $table->timestamps();
-        });
+        // Dibuka setelah masuk finale leads project
+        
+        // Schema::create('compressor', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('compressor_brand', 50);
+        //     $table->string('series', 25);
+        //     $table->timestamps();
+        // });
     }
 
     /**

@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
             }
           }
         },
-        basicSalary: {
+        cekalary: {
           validators: {
             notEmpty: {
               message: 'Basic Salary is required'
@@ -111,17 +111,18 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
 // datatable (jquery)
 $(function () {
-  var dt_basic_table = $('.datatables-basic'),
+  var dt_basic_table = $('.datatables-basics'),
+    dt_cek_table = $('.datatables-cek'),
+    dt_visits_table = $('.datatables-visits'),
     dt_complex_header_table = $('.dt-complex-header'),
     dt_row_grouping_table = $('.dt-row-grouping'),
-    dt_multilingual_table = $('.dt-multilingual'),
-    dt_basic;
+    dt_multilingual_table = $('.dt-multilingual');
 
   // DataTable with buttons
   // --------------------------------------------------------------------
 
   if (dt_basic_table.length) {
-    dt_basic = dt_basic_table.DataTable({
+    var dt_basic = dt_basic_table.DataTable({
       ajax: assetsPath + 'json/table-datatable.json',
       columns: [
         { data: '' },

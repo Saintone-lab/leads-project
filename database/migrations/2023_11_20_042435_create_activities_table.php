@@ -19,7 +19,9 @@ return new class extends Migration
             $table->string('name', 15);
             $table->string('status', 10);
             $table->date('date');
+            $table->date('follow_up');
             $table->string('action', 20);
+            $table->string('schedule');
             $table->timestamps();
         });
     }

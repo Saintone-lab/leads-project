@@ -15,24 +15,26 @@ class DetailCilentTableSeeder extends Seeder
      */
     public function run()
     {
-        $dclient = [
-            [
-                'id_client' => '1',
-                'id_detail_compressor' => '1',
-            ],
-            [
-                'id_client' => '1',
-                'id_detail_compressor' => '2',
-            ],
-            [
-                'id_client' => '2',
-                'id_detail_compressor' => '2',
-            ],
-            [
-                'id_client' => '3',
-                'id_detail_compressor' => '2',
-            ],
-        ];
-        DetailClient::insert($dclient);
+        // Dibuka Saat Finale Leads Project
+        
+        // $dclient = [
+        //     [
+        //         'id_client' => '1',
+        //         'id_detail_compressor' => '1',
+        //     ],
+        //     [
+        //         'id_client' => '1',
+        //         'id_detail_compressor' => '2',
+        //     ],
+        //     [
+        //         'id_client' => '2',
+        //         'id_detail_compressor' => '2',
+        //     ],
+        //     [
+        //         'id_client' => '3',
+        //         'id_detail_compressor' => '2',
+        //     ],
+        // ];
+        // DetailClient::insert($dclient);
     }
 }

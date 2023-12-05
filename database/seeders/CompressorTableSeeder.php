@@ -15,12 +15,14 @@ class CompressorTableSeeder extends Seeder
      */
     public function run()
     {
-        $compressor = [
-            [
-                'compressor_brand' => 'Atlas Copco',
-                'series' => 'S'
-            ],
-        ];
-        Compressor::insert($compressor);
+        // Dibuka di Final Leads Project
+
+        // $compressor = [
+        //     [
+        //         'compressor_brand' => 'Atlas Copco',
+        //         'series' => 'S'
+        //     ],
+        // ];
+        // Compressor::insert($compressor);
     }
 }

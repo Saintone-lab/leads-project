@@ -17,16 +17,19 @@ class IssuesTableSeeder extends Seeder
     {
         $issues = [
             [
-                'name' => 'Send Introduction'
+                'issue' => 'New Client'
             ],
             [
-                'name' => 'Send Quote'
+                'issue' => 'Send Introduction'
             ],
             [
-                'name' => 'Done PO'
+                'issue' => 'Send Quote'
             ],
             [
-                'name' => 'Loss'
+                'issue' => 'Done PO'
+            ],
+            [
+                'issue' => 'Loss'
             ],
         ];
         Issues::insert($issues);

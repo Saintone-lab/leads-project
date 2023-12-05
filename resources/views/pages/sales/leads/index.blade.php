@@ -10,14 +10,42 @@
                 <div class="me-auto fw-semibold">Successfully</div>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-            <div class="toast-body">{{Session::get('message')}}</div>
+            <div class="toast-body">{{ Session::get('message') }}</div>
         </div>
     @endif
 
     <h4 class="fw-bold py-3 mb-4">
         <span class="text-muted fw-light">Clients /</span> Leads
     </h4>
+
     <div class="card">
+        <div class="card-datatable table-responsive pt-0">
+            <table class="datatable-leads table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Company</th>
+                        <th>PIC</th>
+                        <th>Address</th>
+                        <th>R/U</th>
+                        <th>Machine</th>
+                        <th>Status</th>
+                        <th>Last Contact</th>
+                        <th>Next Follow Up</th>
+                        <th>Assigned</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    @include('pages.sales.leads.form')
+    @foreach ($client as $clients)
+        @include('pages.sales.activities.form')
+    @endforeach
+    {{-- <div class="card">
         <div class="card-datatable table-responsive pt-0">
             <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
                 <div class="card-header flex-column flex-md-row">
@@ -86,7 +114,7 @@
                                 colspan="1" style="width: 143.2px;"
                                 aria-label="Status: activate to sort column ascending">Assigned</th>
                             <th class="sorting_disabled" rowspan="1" colspan="1" style="width: 151px;"
-                                aria-label="Actions">Actions</th>
+                                aria-label="Actions"><i class="mdi mdi-24px mdi-file-document-edit-outline"></i></th>
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
@@ -105,17 +133,17 @@
                                     {{ $clients->area }}
                                 </td>
                                 <td>
-                                    {{ $clients->detail_client->first()?->detail_compressor->compressor->compressor_brand }}
+                                    {{ $clients->machine }}
                                 </td>
                                 <td>
                                     <span
-                                        class="badge {{ $clients->id_issues == 1 ? 'bg-label-info' : '' }} {{ $clients->id_issues == 2 ? 'bg-label-primary' : '' }} {{ $clients->id_issues == 3 ? 'bg-label-success' : '' }} me-1">{{ $clients->issues->name }}</span>
+                                        class="badge {{ $clients->id_issues == 1 ? 'bg-label-warning' : '' }} {{ $clients->id_issues == 2 ? 'bg-label-info' : '' }} {{ $clients->id_issues == 3 ? 'bg-label-primary' : '' }} {{ $clients->id_issues == 4 ? 'bg-label-success' : '' }} me-1">{{ $clients->issues->issue }}</span>
                                 </td>
                                 <td>
-                                    {{ \Carbon\Carbon::parse($clients->created_date)->toFormattedDateString() }}
+                                    {{ $clients->activities->first()->date ?? '-' }}
                                 </td>
                                 <td>
-                                    {{ \Carbon\Carbon::parse($clients->created_date)->addDays(7)->toFormattedDateString() }}
+                                    {{ $clients->activities->first()->follow_up ?? '-' }}
                                 </td>
                                 <td>
                                     {{ $clients->sales->name }}
@@ -130,16 +158,18 @@
                                         <div class="dropdown-menu dropdown-menu-end m-0">
                                             <a href="{{ route('detail.leads', $clients->id) }}"
                                                 class="dropdown-item">Details</a>
-                                            <div class="dropdown-divider"></div><a href="javascript:;"
-                                                class="dropdown-item text-danger delete-record">Loss</a>
+                                            <button type="button" class="dropdown-item" data-bs-toggle="modal"
+                                                data-bs-target="#createAction{{ $clients->id }}">Action</button>
+                                                <a href="#"
+                                                    class="dropdown-item">Report</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a href="#" data-id="{{ $clients->id }}"
+                                                class="dropdown-item text-danger delete-data-leads">Delete</a>
                                         </div>
                                     </div>
-                                    <a href="javascript:;"
-                                        class="btn btn-sm btn-text-secondary rounded-pill btn-icon item-edit">
-                                        <i class="mdi mdi-pencil-outline"></i>
-                                    </a>
                                 </td>
                             </tr>
+                            @include('pages.sales.activities.form')
                         @endforeach
                 </table>
                 <div class="row">
@@ -163,31 +193,136 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 @endsection
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
-    <link rel="stylesheet"
-        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
     <link rel="stylesheet"
         href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
-    {{-- Row Group CSS --}}
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
-    {{-- Form Validation --}}
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
 @endpush
 
 @push('after-script')
     <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/bootstrap-datepicker/bootstrap-datepicker.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/FormValidation.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
+@endpush
+
+@push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/js/ui-modals.js"></script>
+    <script src="{{ asset('assets') }}/js/forms-pickers.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-leads.js"></script>
+@endpush
+
+@push('script')
+    <script>
+        $(document).on('click', '.delete-data-leads', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('leads') }}/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Your file has been deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    location.reload();
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+            // Swal.fire({
+            //     title: "Are you sure?",
+            //     text: "You won't be able to revert this!",
+            //     icon: "warning",
+            //     showCancelButton: true,
+            //     confirmButtonColor: "#3085d6",
+            //     cancelButtonColor: "#d33",
+            //     confirmButtonText: "Yes, delete it!"
+            // }).then((result) => {
+            //     if (result.isConfirmed) {
+            //         $.ajax({
+            //             'url': '{{ url('leads') }}/' + id,
+            //             'type': 'POST',
+            //             'data': {
+            //                 '_method': 'DELETE',
+            //                 '_token': '{{ csrf_token() }}'
+            //             },
+            //             success: function(response) {
+            //                 if (response == 1) {
+            //                     Swal.fire({
+            //                         title: "Deleted!",
+            //                         text: "Your file has been deleted.",
+            //                         icon: "success"
+            //                     })
+            //                     window.setTimeout(function() {
+            //                         location.reload();
+            //                     }, 2000);
+            //                 } else {
+            //                     Swal.fire({
+            //                         icon: 'error',
+            //                         title: 'Oops...',
+            //                         text: 'Data Failed to Delete!'
+            //                     });
+            //                 }
+            //             }
+            //         });
+            //     }
+            // });
+        });
+    </script>
 @endpush

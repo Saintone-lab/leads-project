@@ -913,6 +913,73 @@
     radialChart.render();
   }
 
+  // Radial Bar Chart
+  // --------------------------------------------------------------------
+  const reportBarChartEl = document.querySelector('#reportBarChart'),
+    reportBarChartConfig = {
+      chart: {
+        height: 500,
+        fontFamily: 'Inter',
+        type: 'radialBar'
+      },
+      colors: [chartColors.donut.series1, chartColors.donut.series2, chartColors.donut.series3, chartColors.donut.series4, chartColors.donut.series5],
+      plotOptions: {
+        radialBar: {
+          size: 185,
+          hollow: {
+            size: '40%'
+          },
+          track: {
+            margin: 10,
+            background: config.colors_label.secondary
+          },
+          dataLabels: {
+            name: {
+              fontSize: '2rem'
+            },
+            value: {
+              fontSize: '1.2rem',
+              color: legendColor
+            },
+            total: {
+              show: true,
+              fontWeight: 400,
+              fontSize: '1.125rem',
+              color: headingColor,
+              label: 'Week 5',
+              formatter: function (w) {
+                return '98%';
+              }
+            }
+          }
+        }
+      },
+      grid: {
+        borderColor: borderColor,
+        padding: {
+          top: -35,
+          bottom: -30
+        }
+      },
+      legend: {
+        show: true,
+        position: 'bottom',
+        labels: {
+          colors: legendColor,
+          useSeriesColors: false
+        }
+      },
+      stroke: {
+        lineCap: 'round'
+      },
+      series: [98, 96, 99, 100, 91],
+      labels: ['Week 5', 'Week 4', 'Week 3', 'Week 2', 'Week 1']
+    };
+  if (typeof reportBarChartEl !== undefined && reportBarChartEl !== null) {
+    const reportChart = new ApexCharts(reportBarChartEl, reportBarChartConfig);
+    reportChart.render();
+  }
+
   // Radar Chart
   // --------------------------------------------------------------------
   const radarChartEl = document.querySelector('#radarChart'),

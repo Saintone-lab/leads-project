@@ -10,6 +10,13 @@
     <div class="row mb-4">
         <div class="col-md-6">
             <div class="card">
+                <div class="card-header pb-0">
+                    <div class="text-end text-muted">
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#updateLeads{{ $leads->id }}">
+                            <button type="button" class="btn btn-sm btn-label-primary">Edit</button>
+                        </a>
+                    </div>
+                </div>
                 <div class="card-body">
                     <p class="card-text">
                     <div class="row mb-1">
@@ -57,10 +64,7 @@
                             Machine
                         </div>
                         <div class="col-9">
-                            : {{ $leads->detail_client[0]->detail_compressor->serial_number }} ||
-                            {{ $leads->detail_client[0]->detail_compressor->compressor->compressor_brand }},Type
-                            {{ $leads->detail_client[0]->detail_compressor->compressor->series }} ,
-                            {{ $leads->detail_client[0]->detail_compressor->hp }} HP</option>
+                            : {{ $leads->machine }}
                         </div>
                     </div>
                     <div class="row">
@@ -87,7 +91,7 @@
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>R/U</th>
+                                <th>Action</th>
                                 <th>Status</th>
                                 <th>Address</th>
                             </tr>
@@ -96,14 +100,16 @@
                             @forelse ($callhis as $callhistory)
                                 <tr>
                                     <td>
-                                        {{ \Carbon\Carbon::parse($callhistory->date)->toFormattedDateString() }}
+                                        {{ \Carbon\Carbon::parse($callhistory->date)->format('d/m/Y') }}
                                     </td>
-                                    <td><span class="badge bg-primary">U</span></td>
+                                    <td>
+                                        {{ $callhistory->action }}
+                                    </td>
                                     <td>
                                         {{ $callhistory->status }}
                                     </td>
                                     <td>
-                                        {{ $callhistory->client->address }}
+                                        {{ $callhistory->client->area }}
                                     </td>
                                 </tr>
                             @empty
@@ -128,7 +134,7 @@
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>R/U</th>
+                                <th>Action</th>
                                 <th>Status</th>
                                 <th>Address</th>
                             </tr>
@@ -160,4 +166,5 @@
             </div>
         </div>
     </div>
+    @include('pages.sales.leads.form')
 @endsection()

@@ -20,29 +20,37 @@ class ActivitiesTableSeeder extends Seeder
                 'id_client' => '1',
                 'name' => 'Daily Call',
                 'status' => 'Responded',
-                'date'        => date('Y-m-d h:i:s'),
-                'action' => 'Number Office'
+                'date'        => \Carbon\Carbon::yesterday()->subDays(3)->format('Y-m-d H:i:s'),    
+                'follow_up'        => \Carbon\Carbon::today()->addDays(14)->format('Y-m-d H:i:s'),
+                'action' => 'Number Office',
+                'schedule' => '-'
             ],
             [
                 'id_client' => '1',
                 'name' => 'Follow Up',
                 'status' => 'Not Respon',
-                'date'        => date('Y-m-d h:i:s'),
-                'action' => 'WhatsApp'
+                'date'        => \Carbon\Carbon::today()->addDays(10)->format('Y-m-d H:i:s'),    
+                'follow_up'        => \Carbon\Carbon::today()->addDays(24)->format('Y-m-d H:i:s'),
+                'action' => 'WhatsApp',
+                'schedule' => '-'
             ],
             [
                 'id_client' => '2',
                 'name' => 'Daily Call',
                 'status' => 'Not Respon',
-                'date'        => date('Y-m-d h:i:s'),
-                'action' => 'Number Office'
+                'date'        => \Carbon\Carbon::today()->subDays(4)->format('Y-m-d H:i:s'),    
+                'follow_up'        => \Carbon\Carbon::today()->addDays(10)->format('Y-m-d H:i:s'),
+                'action' => 'Number Office',
+                'schedule' => '-'
             ],
             [
                 'id_client' => '3',
                 'name' => 'Daily Call',
                 'status' => 'Responded',
-                'date'        => date('Y-m-d h:i:s'),
-                'action' => 'Number Office'
+                'date'        => \Carbon\Carbon::today()->subDays(7)->format('Y-m-d H:i:s'),    
+                'follow_up'        => \Carbon\Carbon::today()->addDays(7)->format('Y-m-d H:i:s'),
+                'action' => 'Number Office',
+                'schedule' => '-'
             ],
         ];
         Activities::insert($activities);

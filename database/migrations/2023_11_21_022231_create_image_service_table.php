@@ -13,12 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('image_service', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('id_service');
-            $table->string('image');
-            $table->timestamps();
-        });
+        // Dibuka setelah masuk finale leads project
+        
+        // Schema::create('image_service', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('id_service');
+        //     $table->string('image');
+        //     $table->timestamps();
+        // });
     }
 
     /**

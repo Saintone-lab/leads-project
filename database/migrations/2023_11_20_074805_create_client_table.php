@@ -21,12 +21,14 @@ return new class extends Migration
             $table->string('company', 50);
             $table->string('email', 25);
             $table->string('phone', 15);
+            $table->enum('ru', ['User', 'Reseller']);
             $table->string('web')->nullable();
             $table->string('image')->nullable();
             $table->string('source', 15);
             $table->date("created_date");
             $table->enum('role', ['Leads', 'Customers'])->default("Leads");
             $table->string("mobile", 14);
+            $table->string("machine");
             $table->string("address");
             $table->string("area", 20);
             $table->timestamps();

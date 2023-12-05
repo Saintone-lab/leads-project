@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('compressor_data');
             $table->integer('running_hour');
             $table->date('date');
+            $table->string('prospect');
+            $table->string('map_url');
             $table->string('note');
             $table->string('recomendation');
             $table->timestamps();
