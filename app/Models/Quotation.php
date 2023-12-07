@@ -11,6 +11,7 @@ class Quotation extends Model
     protected $table = "quotation";
     protected $date = [
         'date_expired',
+        'folup_date',
         'created_at',
         'updated_at'
     ];
@@ -19,9 +20,10 @@ class Quotation extends Model
         'id_sales',
         'id_service',
         'status',
-        'disc',
         'tax',
         'shipping',
+        'no_quote',
+        'termcon',
         'subtotal',
         'harga_total'
     ];

@@ -12,7 +12,9 @@ class DetailQuotation extends Model
     protected $fillable = [
         'id_quotation',
         'product',
+        'detail_product',
         'qty',
+        'disc',
         'price',
         'amount',
     ];

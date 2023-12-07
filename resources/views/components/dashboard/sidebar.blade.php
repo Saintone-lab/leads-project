@@ -100,14 +100,14 @@
             </ul>
         </li>
         
-        <li class="menu-item {{request()->is('quotation/*') ? 'open' : ''}}">
+        <li class="menu-item {{request()->is('quotation') || request()->is('quotation/*') ? 'open' : ''}}">
             <a href="javascript:void(0);" class="menu-link menu-toggle" >
                 <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                 <div data-i18n="Quotation">Quotation</div>
             </a>
             <ul class="menu-sub">
-                <li class="menu-item {{request()->is('quotation/leads') || request()->is('quotation/leads/*') ? 'active' : ''}}">
-                    <a href="{{url('quotation/leads ')}}" class="menu-link">
+                <li class="menu-item {{request()->is('quotation') || request()->is('quotation/*') ? 'active' : ''}}">
+                    <a href="{{route('quotation.index')}}" class="menu-link">
                         <div data-i18n="Quotation Leads">Leads</div>
                         <div class="badge bg-danger rounded-pill ms-auto">4</div>
                     </a>
