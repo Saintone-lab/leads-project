@@ -17,7 +17,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_quotation');
             $table->string('product', 25); // detail
+            $table->longText('detail_product'); // detail
             $table->integer('qty'); // detail
+            $table->integer('disc');
             $table->integer('price'); // detail
             $table->integer('amount'); // detail
             $table->timestamps();

@@ -1,40 +1,42 @@
 @extends('layouts.sales.app')
 @section('title', 'Create Quotation')
 @section('content')
-    <h3 class="fw-semibold py-3 mb-4">
-        #RJO-XI-2023-105
-    </h3>
-    <hr>
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled" placeholder="John Doe"
+            aria-describedby="floatingInputFilledHelp" name="no_quote" value="#RJO-XI-2023-105" disabled>
+        <span class="form-floating-focused"></span>
+    </div>
     <div class="card">
         <div class="card-body">
-            <form action="" class="form-repeater source-item" enctype="multipart/form-data">
+            <form action="" class="form-invoice-repeater source-item" enctype="multipart/form-data">
                 <div class="row">
                     <div class="col-12 col-lg-3 mb-3">
                         <div class="form-floating form-floating-outline">
-                            <select class="form-select" id="Customers" aria-label="Floating label select example">
-                                <option>-----Select Customers-----</option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
+                            <select class="form-select" id="Clients" aria-label="Floating label select example"
+                                name="id_client">
+                                <option disabled>-----Select Clients-----</option>
+                                @foreach ($client as $clients)
+                                    <option value="{{ $clients->id }}">{{ $clients->company }}</option>
+                                @endforeach
                             </select>
-                            <label for="Customers">Customers</label>
+                            <label for="Clients">Clients</label>
                         </div>
                     </div>
                     <div class="col-lg-3"></div>
                     <div class="col-6 col-lg-3">
                         <div class="form-floating form-floating-outline mb-4">
-                            <input class="form-control" type="date" id="html5-date-input">
-                            <label for="html5-date-input">Date</label>
+                            <input class="form-control" type="date" id="expiredDate" name="expired_date">
+                            <label for="expiredDate">Expired Date</label>
                         </div>
                     </div>
                     <div class="col-6 col-lg-3">
                         <div class="form-floating form-floating-outline mb-4">
-                            <input class="form-control" type="date" id="html5-date-input">
-                            <label for="html5-date-input">Date</label>
+                            <input class="form-control" type="date" id="folupDate" name="folup_date">
+                            <label for="folupDate">Follow Up Date</label>
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row mb-3">
                     <div class="col-md-6">
                         <div class="form-floating form-floating-outline mb-4">
                             <input class="form-control" type="text" placeholder="Materialize" id="html5-text-input">
@@ -42,154 +44,63 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="form-floating form-floating-outline mb-4">
-                            <input class="form-control" type="text" placeholder="Materialize" id="html5-text-input">
-                            <label for="html5-text-input">Assigned</label>
+                        <div class="form-floating form-floating-outline">
+                            <select class="form-select" id="Assigned" aria-label="Floating label select example"
+                                name="id_sales">
+                                <option disabled>-----Select Assigned-----</option>
+                                @foreach ($sales as $saless)
+                                    <option value="{{ $saless->id }}">{{ $saless->name }}</option>
+                                @endforeach
+                            </select>
+                            <label for="Assigned">Assigned</label>
                         </div>
                     </div>
                 </div>
-                {{-- <div data-repeater-list="group-a">
-                    <div data-repeater-item="">
-                        <div class="row">
-                            <div class=" col-lg-6 col-xl-3 col-12 mb-0">
-                                <div class="form-floating form-floating-outline">
-                                    <input type="text" id="form-repeater-1-1" class="form-control"
-                                        placeholder="john.doe">
-                                    <label for="form-repeater-1-1">Username</label>
-                                </div>
-                            </div>
-                            <div class=" col-lg-6 col-xl-3 col-12 mb-0">
-                                <div class="form-floating form-floating-outline">
-                                    <input type="password" id="form-repeater-1-2" class="form-control"
-                                        placeholder="············">
-                                    <label for="form-repeater-1-2">Password</label>
-                                </div>
-                            </div>
-                            <div class=" col-lg-6 col-xl-2 col-12 mb-0">
-                                <div class="form-floating form-floating-outline">
-                                    <select id="form-repeater-1-3" class="form-select">
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                    </select>
-                                    <label for="form-repeater-1-3">Gender</label>
-                                </div>
-                            </div>
-                            <div class=" col-lg-6 col-xl-2 col-12 mb-0">
-                                <div class="form-floating form-floating-outline">
-                                    <select id="form-repeater-1-4" class="form-select">
-                                        <option value="Designer">Designer</option>
-                                        <option value="Developer">Developer</option>
-                                        <option value="Tester">Tester</option>
-                                        <option value="Manager">Manager</option>
-                                    </select>
-                                    <label for="form-repeater-1-4">Profession</label>
-                                </div>
-                            </div>
-                            <div class=" col-lg-12 col-xl-2 col-12 d-flex align-items-center mb-0">
-                                <button class="btn btn-label-danger waves-effect" data-repeater-delete="">
-                                    <i class="mdi mdi-close me-1"></i>
-                                    <span class="align-middle">Delete</span>
-                                </button>
-                            </div>
-                        </div>
-                        <hr>
-                    </div>
-                </div>
-                <div class="mb-0">
-                    <button class="btn btn-primary waves-effect waves-light" data-repeater-create="">
-                        <i class="mdi mdi-plus me-1"></i>
-                        <span class="align-middle">Add</span>
-                    </button>
-                </div> --}}
                 <div class="mb-3" data-repeater-list="group-a">
                     <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
                         <div class="d-flex border rounded position-relative pe-0">
                             <div class="row w-100 p-3">
                                 <div class="col-md-6 col-12 mb-md-0 mb-3">
-                                    <p class="mb-2 repeater-title">Item</p>
-                                    <select class="form-select item-details mb-3">
-                                        <option selected="" disabled="">Select Item</option>
-                                        <option value="App Design">App Design</option>
-                                        <option value="App Customization">App Customization</option>
-                                        <option value="ABC Template">ABC Template</option>
-                                        <option value="App Development">App Development</option>
-                                    </select>
-                                    <textarea class="form-control" rows="2" placeholder="Item Information" disabled></textarea>
+                                    <label for="product" class="mb-2">Product</label>
+                                    <input type="text" name="product" id="product" class="form-control mb-3 product"
+                                        placeholder="Example: Kaeser">
+                                    <textarea class="form-control" rows="2" placeholder="Detail Product. Example: Kaeser ASD" name="detail_product"></textarea>
                                 </div>
                                 <div class="col-md-3 col-12 mb-md-0 mb-3">
-                                    <p class="mb-2 repeater-title">Cost</p>
-                                    <input type="number" class="form-control invoice-item-price mb-2" placeholder="00"
-                                        min="12" disabled>
-                                    <div class="d-flex flex-column gap-2">
-                                        <span>Discount & Tax:</span>
-                                        <span>
-                                            <span class="discount me-2">0%</span>
-                                            <span class="tax-1 me-2" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                data-bs-original-title="Tax 1">0%</span>
-                                                <span class="tax-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Tax 2" aria-describedby="tooltip961399">0%</span>
-                                        </span>
+                                    <p class="mb-2 repeater-title">Price</p>
+                                    <div class="input-group" data-price="1">
+                                        <span class="input-group-text">Rp. </span>
+                                        <input type="number" class="form-control invoice-item-price" name="price"
+                                            id="price-1" data-id="1" min="12" placeholder="Put Price Here">
                                     </div>
                                 </div>
-                                <div class="col-md-2 col-12 mb-md-0 mb-3">
+                                <div class="col-md-1 col-12 mb-md-0 mb-3">
                                     <p class="mb-2 repeater-title">Qty</p>
-                                    <input type="number" class="form-control invoice-item-qty" placeholder="1"
-                                        min="1" max="50">
+                                    <input type="number" class="form-control invoice-item-qty" placeholder="Min 1"
+                                        name="qty" id="qty-1" data-id="1" min="1" max="50">
+                                </div>
+                                <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                    <p class="mb-2 repeater-title">Discount</p>
+                                    <input type="number" class="form-control invoice-item-disc" placeholder="Min 1"
+                                        name="disc" id="disc-1" data-id="1" min="1" max="50">
                                 </div>
                                 <div class="col-md-1 col-12 pe-0">
-                                    <p class="mb-2 repeater-title">Price</p>
-                                    <p class="mb-0">$24.00</p>
+                                    <p class="mb-2 repeater-title">Amount</p>
+                                    <p class="mb-0 amount-label" id="amount-label-1" data-id="1"></p>
+                                    <input type="number" class="form-control invoice-item-amount" name="amount"
+                                        id="amount-1" data-id="1" min="12" hidden>
                                 </div>
                             </div>
                             <div class="d-flex flex-column align-items-center justify-content-between border-start p-2">
-                                <i class="mdi mdi-close cursor-pointer bg-danger text-white" data-repeater-delete=""></i>
-                                <div class="dropdown">
-                                    <i class="mdi mdi-cog-outline cursor-pointer more-options-dropdown" role="button"
-                                        id="dropdownMenuButton" data-bs-toggle="dropdown" data-bs-auto-close="outside"
-                                        aria-expanded="false">
-                                    </i>
-                                    <div class="dropdown-menu dropdown-menu-end w-px-300 p-3"
-                                        aria-labelledby="dropdownMenuButton" style="">
-                                        <div class="row g-3">
-                                            <div class="col-12">
-                                                <label for="discountInput" class="form-label">Discount(%)</label>
-                                                <input type="number" class="form-control" id="discountInput"
-                                                    min="0" max="100">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="taxInput1" class="form-label">Tax 1</label>
-                                                <select name="group-a[0][tax-1-input]" id="taxInput1"
-                                                    class="form-select tax-select">
-                                                    <option value="0%" selected="">0%</option>
-                                                    <option value="1%">1%</option>
-                                                    <option value="10%">10%</option>
-                                                    <option value="18%">18%</option>
-                                                    <option value="40%">40%</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="taxInput2" class="form-label">Tax 2</label>
-                                                <select name="group-a[0][tax-2-input]" id="taxInput2"
-                                                    class="form-select tax-select">
-                                                    <option value="0%" selected="">0%</option>
-                                                    <option value="1%">1%</option>
-                                                    <option value="10%">10%</option>
-                                                    <option value="18%">18%</option>
-                                                    <option value="40%">40%</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="dropdown-divider my-3"></div>
-                                        <button type="button"
-                                            class="btn btn-label-primary btn-apply-changes waves-effect">Apply</button>
-                                    </div>
-                                </div>
+                                <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
+                                    data-repeater-delete=""></i>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12 mb-2">
-                        <button type="button" class="btn btn-sm btn-primary waves-effect waves-light"
+                        <button type="button" class="btn btn-sm btn-primary waves-effect waves-light btn-add"
                             data-repeater-create="">
                             <i class="mdi mdi-plus me-1"></i> Add Item
                         </button>
@@ -197,35 +108,70 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-8">
-                        <h5 class="my-3">
-                            Terms & Conditions :
-                        </h5>
-                        <div class="card">
-                            <div class="card-body">
-                                <p class="card-text">1. Validity of Quotation : 1(one) Month since the date of Quotation
-                                </p>
-                                <p class="card-text">2. Price : Franco FACTORY</p>
-                                <p class="card-text">3. Delivery Process : Item 1 & 3 Ready Stock, Item 2 Indent 7-10 dayas
-                                    after PO received</p>
-                                <p class="card-text">4. Payment : 50% DP, 50% Before delivery</p>
-                            </div>
-                        </div>
+                        <label for="exampleFormControlTextarea1">
+                            <h5 class="my-3">
+                                Terms & Conditions :
+                            </h5>
+                        </label>
+                        <textarea class="form-control h-px-200" id="exampleFormControlTextarea1" placeholder="Terms And Conditions..."
+                            name="termcon"></textarea>
                     </div>
                     <div class="col-lg-4">
-                        <div class="card shadow-none bg-secondary text-white border border-secondary my-3">
-                            <div class="card-body">
-                                <p class="card-text">Sub Total : <span class="float-end">RP. 20.650.000.-</span></p>
+                        <div class="card shadow-none bg-light text-secondary border border-secondary mt-5 mb-3">
+                            <div class="card-body ">
+                                <div class="row">
+                                    <label class="col-sm-4 col-form-label text-sm-start" for="collapsible-pincode">Sub
+                                        Total :</label>
+                                    <div class="col-sm-8">
+                                        <p class="mb-0 subtotal-label" id="subtotal-label" data-id="1"></p>
+                                        <input type="number" id="subtotal" class="form-control" hidden>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="card shadow-none bg-secondary text-white border border-secondary mb-3">
+                        <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
                             <div class="card-body">
-                                <p class="card-text m-auto">Shipping Cost : <span class="float-end">RP.
-                                        20.650.000.-</span></p>
+                                <div class="row">
+                                    <label class="col-sm-4 col-form-label text-sm-start" for="collapsible-tax">Tax
+                                        :</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="number" id="tax" class="form-control text-end"
+                                                placeholder="Put Tax Here..." style="background: none; border: none;"
+                                                max="100">
+                                            <span class="input-group-text"
+                                                style="background: none; border: none;">%</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="card shadow-none bg-secondary text-white border border-secondary mb-3">
-                            <div class="card-body">
-                                <p class="card-text m-auto">Total : <span class="float-end">RP. 20.650.000.-</span></p>
+                        <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
+                            <div class="card-body ">
+                                <div class="row">
+                                    <label class="col-sm-4 col-form-label text-sm-start"
+                                        for="collapsible-pincode">Shipping :</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <span class="input-group-text" style="background: none; border: none;">Rp.
+                                            </span>
+                                            <input type="number" id="shipping" class="form-control"
+                                                placeholder="658468" style="background: none; border: none;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
+                            <div class="card-body ">
+                                <div class="row">
+                                    <label class="col-sm-4 col-form-label text-sm-start" for="collapsible-pincode">Total
+                                        :</label>
+                                    <div class="col-sm-8">
+                                        <p class="mb-0 harga-total-label" id="hargaTotalLabel" data-id="1"></p>
+                                        <input type="number" id="hargaTotal" class="form-control" hidden>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="float-end">
@@ -245,7 +191,103 @@
 @push('after-style')
 @endpush
 @push('after-script')
-    <script src="{{ asset('assets') }}/vendor/libs/jquery-repeater/jquery-repeater.js"></script>
-    <script src="{{ asset('assets') }}/js/forms-extras.js"></script>
+    <script src="{{ asset('assets') }}/includes/repeater/jquery-repeater-invoice.js"></script>
+    <script src="{{ asset('assets') }}/includes/repeater/repeater-invoice.js"></script>
     <script src="{{ asset('assets') }}/js/app-invoice-add.js"></script>
+@endpush
+@push('script')
+    <script>
+        $(() => {
+            // Format Integer menjadi Currency ID Rupiah
+            let formatter = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR'
+            });
+
+            // PROBLEM : 1 tidak bisa mengambil per id
+
+            // Logic amount + Subtotal
+            $('.invoice-item-price, .invoice-item-qty, .invoice-item-disc').on('change', function(ev) {
+                var id = $(this).data('id');
+                console.log(id);
+                var sTotal = 0,
+                    row = 0;
+                // id = $(`.invoice-item-price`).data("id");
+                var amount = 0,
+                    hasil = 0,
+                    disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val());
+                hasil = $(`#price-${id}`).val() * $(`#qty-${id}`).val();
+                amount = (hasil - (hasil * disc / 100));
+                $(`#amount-${id}`).val(amount);
+                $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+                $('.amount-label').each(() => {
+                    row++;
+                    sTotal += parseInt($(`#amount-${row}`).val())
+                })
+                console.log(sTotal + "<total row>" + row);
+                $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                $('#subtotal').val(sTotal);
+            });
+            // ---------- OPSI A ----------
+            // Walaupun ditambah data yabg di atasnya masih bisa di ubah price dan qty (belum dapat)
+
+            // ---------- OPSI B ----------
+            // Ketika sudah ditambah data yang diatasnya sudah takbisa ganti price
+
+            // var id = 0;
+            $('.btn-add').on('click', () => {
+                $('.invoice-item-price, .invoice-item-qty, .invoice-item-disc').on('change', function(ev) {
+                    var id = $(this).data('id');
+                    console.log(id);
+                    var sTotal = 0,
+                        row = 0;
+                    // id = $(`.invoice-item-price`).data("id");
+                    var amount = 0,
+                        hasil = 0,
+                        disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(
+                            `#disc-${id}`).val());
+                    hasil = $(`#price-${id}`).val() * $(`#qty-${id}`).val();
+                    amount = (hasil - (hasil * disc / 100));
+                    $(`#amount-${id}`).val(amount);
+                    $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+                    $('.amount-label').each(() => {
+                        row++;
+                        sTotal += parseInt($(`#amount-${row}`).val())
+                    })
+                    console.log(sTotal + "<total row>" + row);
+                    $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                    $('#subtotal').val(sTotal);
+                });
+            });
+            // $('.btn-del').on('click', () => {
+            //     id--;
+            //     console.log(id);
+            //     var sTotal = 0,
+            //         row = 0;
+            //     var amount = 0;
+            //     amount = $(`#price-${id}`).val() * $(`#qty-${id}`).val();
+            //     $(`#amount-${id}`).val(amount);
+            //     $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+            //     $('.amount-label').each(() => {
+            //         row++;
+            //         sTotal += parseInt($(`#amount-${row}`).val());
+            //     })
+            //     console.log(sTotal + "<total row>" + row);
+            //     $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+            //     $('#subtotal').val(sTotal);
+            // });
+
+            // Logic Harga Total
+            $('#subtotal, #tax, #shipping').on('change', () => {
+                var hTotal = 0;
+                var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
+                var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
+                var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
+                hTotal = parseInt(sTotal + (sTotal * tax / 100) + shipping);
+                $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
+                $('#hargaTotal').val(hTotal);
+                console.log(hTotal);
+            });
+        })
+    </script>
 @endpush

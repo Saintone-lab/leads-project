@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'area',
         'role'
     ];
 
@@ -46,12 +47,12 @@ class User extends Authenticatable
     
     public function clients()
     {
-        return $this->hasMany('App\Model\client', 'id_sales');
+        return $this->hasMany('App\Models\client', 'id_sales');
     }
     
     public function quotation()
     {
-        return $this->hasMany('App\Model\Quotation', 'id_sales');
+        return $this->hasMany('App\Models\Quotation', 'id_sales');
     }
     
 }

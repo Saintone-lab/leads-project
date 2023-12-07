@@ -4,7 +4,11 @@ include 'db.php';
 $con = new mysqli($host, $user, $pass, $databaseName);
 
 
-$qResult = $con->query("SELECT v.* , c.company FROM visit v INNER JOIN client c on v.id_client = c.id");        
+$qResult = $con->query("SELECT q.*, c.company, u.name, d.detail_product FROM quotation q 
+LEFT JOIN client c on c.id = q.id_client
+INNER JOIN users u on u.id = q.id_sales
+LEFT JOIN detail_quotation d on d.id_quotation = q.id
+GROUP BY id ORDER BY q.folup_date ASC;");        
 $result = array();                       
 while ($fetchData = $qResult->fetch_assoc()) {
     $result[] = $fetchData;

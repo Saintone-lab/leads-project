@@ -1,28 +1,20 @@
 $(function () {
-    var dt_table_leads = $(".datatable-leads");
+    var dt_table_quotation = $(".datatable-quotation");
 
-    if (dt_table_leads.length) {
-        var dt_leads = dt_table_leads.DataTable({
-            // ajax: assetsPath + "api/leads/connection.php",
-            ajax: {
-                type: "GET",
-                url: assetsPath + "api/leads/connection.php",
-                Success: function (hasil) {
-                    console.log(hasil);
-                },
-            },
+    if (dt_table_quotation.length) {
+        var dt_quotation = dt_table_quotation.DataTable({
+            ajax: assetsPath + "api/quotation/connection.php",
             columns: [
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
+                { data: "no_quote" },
                 { data: "company" },
-                { data: "name_pic" },
-                { data: "area" },
-                { data: "ru" },
-                { data: "machine" },
-                { data: "issue" },
-                { data: "date" },
-                { data: "follow_up" },
+                { data: "harga_total" },
+                { data: "detail_product" },
+                { data: "expired_date" },
+                { data: "status" },
+                { data: "folup_date" },
                 { data: "name" },
                 { data: "" },
             ],
@@ -60,64 +52,31 @@ $(function () {
                 },
                 {
                     responsivePriority: 1,
-                    targets: 3,
-                },
-                {
-                    // Label
-                    targets: 6,
-                    render: function (data, type, full, meta) {
-                        var $status_ru = full["ru"];
-                        var $status = {
-                            "User": {
-                                title: "User",
-                                class: "bg-success",
-                            },
-                            "Reseller": {
-                                title: "Reseller",
-                                class: " bg-warning",
-                            },
-                        };
-                        if (typeof $status[$status_ru] === "undefined") {
-                            return data;
-                        }
-                        return (
-                            '<span class="badge ' +
-                            $status[$status_ru].class +
-                            '">' +
-                            $status[$status_ru].title +
-                            "</span>"
-                        );
-                    },
+                    targets: 4,
                 },
                 {
                     // Label
                     targets: 8,
                     render: function (data, type, full, meta) {
-                        var $status_number = full["id_issues"];
+                        var $status_number = full["status"];
                         var $status = {
-                            1: {
-                                title: "New Client",
-                                class: "bg-label-warning",
+                            "Draft": { title: "Draft", class: "bg-label-info" },
+                            "Send": {
+                                title: "Send",
+                                class: " bg-label-warning",
                             },
-                            2: {
-                                title: "Send Introduction",
-                                class: " bg-label-info",
-                            },
-                            3: {
-                                title: "Send Quote",
-                                class: " bg-label-primary",
-                            },
-                            4: {
+                            "Negotiation": { title: "Negotiation", class: " bg-label-primary" },
+                            "Done PO": {
                                 title: "Done PO",
                                 class: " bg-label-success",
                             },
-                            5: { title: "Loss", class: " bg-label-danger" },
+                            "Loss": { title: "Loss", class: " bg-label-danger" },
                         };
                         if (typeof $status[$status_number] === "undefined") {
                             return data;
                         }
                         return (
-                            '<span class="badge ' +
+                            '<span class="badge rounded-pill ' +
                             $status[$status_number].class +
                             '">' +
                             $status[$status_number].title +
@@ -128,22 +87,18 @@ $(function () {
                 {
                     // Actions
                     targets: -1,
-                    title: '<i class="mdi mdi-24px mdi-file-document-edit-outline"></i>',
+                    title: "Actions",
                     orderable: false,
                     searchable: false,
                     render: function (data, type, full, meta) {
-                        var $dataId = full["id"];
-                        var $detailLeadsUrl = route('detail.leads', $dataId);
                         return (
                             '<div class="d-inline-block">' +
                             '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
                             '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<li><a href="'+ $detailLeadsUrl +'"class="dropdown-item">Details</a></li>' +
-                            '<li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#createAction'+$dataId+'" >Action</button></li>' +
+                            '<li><a href="javascript:;" class="dropdown-item">Details</a></li>' +
+                            '<li><a href="javascript:;" class="dropdown-item">Archive</a></li>' +
                             '<div class="dropdown-divider"></div>' +
-                            '<li><a href="javascript:;" data-id="' +
-                            $dataId +
-                            '" class="dropdown-item text-danger delete-record">Delete</a></li>' +
+                            '<li><a href="javascript:;" class="dropdown-item text-danger delete-record">Delete</a></li>' +
                             "</ul>" +
                             "</div>"
                         );
@@ -165,7 +120,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -221,7 +176,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -258,7 +213,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -295,7 +250,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -332,7 +287,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -367,12 +322,11 @@ $(function () {
                     ],
                 },
                 {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Leads</span>',
-                    className: "btn btn-primary",
-                    attr: {
-                        "data-bs-target": "#createLeads",
-                        "data-bs-toggle": "modal",
-                    },
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Quotation</span>',
+                    className: "btn btn-primary btn-new",
+                    action: function(e, dt, node, config){
+                        window.location = route('create.quotation')
+                    }
                 },
             ],
             responsive: {
@@ -380,7 +334,7 @@ $(function () {
                     display: $.fn.dataTable.Responsive.display.modal({
                         header: function (row) {
                             var data = row.data();
-                            return "Details of " + data["company"];
+                            return "Details of " + data["full_name"];
                         },
                     }),
                     type: "column",
@@ -411,7 +365,7 @@ $(function () {
             },
         });
         $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Leads</h5>'
+            '<h5 class="card-title mb-0">Table quotations</h5>'
         );
     }
 });

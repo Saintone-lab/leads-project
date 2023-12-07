@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Quotation;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class QuotationController extends Controller
@@ -14,8 +16,6 @@ class QuotationController extends Controller
      */
     public function index()
     {
-        $data = Quotation::join('client', 'client.role', '=', 'quotation.id_client')->where('client.role', 'Leads')->get();
-        // dd($data);
         return view('pages.sales.quotation.index');
     }
 
@@ -26,7 +26,9 @@ class QuotationController extends Controller
      */
     public function create()
     {
-        return view('pages.sales.quotation.form');
+        $client = Client::all();
+        $sales = User::where('role','sales')->get();
+        return view('pages.sales.quotation.form', compact('client','sales'));
     }
 
     /**
@@ -37,7 +39,29 @@ class QuotationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $rule = [
+            'product' => 'required',
+            'detail_product' => 'required',
+            'termcon' => 'required',
+        ];
+        $this->validate($request, $rule);
+        $quotation = new Quotation();
+        $quotation->id_client = $request->id_client;
+        $quotation->id_sales = $request->id_sales;
+        $quotation->id_service = NULL;
+        $quotation->status = "Draft";
+        $quotation->expired_date = $request->expired_date;
+        $quotation->folup_date = $request->folup_date;
+        if( $request->tax != NULL){
+            $quotation->tax = $request->tax;
+        }else{
+            $quotation->tax = 0;
+        }
+        $quotation->shipping = $request->shipping;
+        $quotation->no_quote = $request->no_quote;
+        $quotation->termcon = $request->termcon;
+        $quotation->subtotal = $request->subtotal;
+        $quotation->harga_total = $request->harga_total;
     }
 
     /**

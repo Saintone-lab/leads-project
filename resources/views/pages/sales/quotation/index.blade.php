@@ -6,13 +6,37 @@
     </h4>
     <div class="card">
         <div class="card-datatable table-responsive pt-0">
+            <table class="datatable-quotation table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Quote No.</th>
+                        <th>Company</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Expired Date</th>
+                        <th>Status</th>
+                        <th>Date Follow Up</th>
+                        <th>Assigned</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-datatable table-responsive pt-0">
             <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
                 <div class="card-header flex-column flex-md-row">
                     <div class="head-label text-center">
                         <h5 class="card-title mb-0">My Quotation</h5>
                     </div>
                     <div class="dt-action-buttons text-end pt-3 pt-md-0">
-                        <a href="{{url('quotation/leads/create')}}" type="button" class="btn btn-primary waves-effect waves-light">
+                        <a href="{{ url('quotation/leads/create') }}" type="button"
+                            class="btn btn-primary waves-effect waves-light">
                             <i class="mdi mdi-plus me-sm-1"></i>
                             Add New Quotation
                         </a>
@@ -329,11 +353,8 @@
     <link rel="stylesheet"
         href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
-    {{-- Row Group CSS --}}
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
-    {{-- Form Validation --}}
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
 @endpush
 
@@ -344,6 +365,9 @@
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
+@endpush
+
+@push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    {{--  <script src="{{ asset('assets') }}/js/ui-modals.js"></script>  --}}
+    <script src="{{ asset('assets') }}/includes/table-quotation.js"></script>
 @endpush

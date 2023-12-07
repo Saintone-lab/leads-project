@@ -21,7 +21,7 @@
             </div>
             <!--/ Congratulations card -->
 
-            <!-- Total Profit -->
+            <!-- Total Leads -->
             <div class="col-xl-2 col-lg-2 col-md-3 col-sm-4 col-6">
                 <div class="card h-100">
                     <div class="card-body">
@@ -33,14 +33,14 @@
                             </div>
                         </div>
                         <div class="card-info mt-4 pt-1">
-                            <h5 class="mb-2">155k</h5>
+                            <h4 class="mb-2">{{$leads->count()}} <small class="text-muted fs-tiny">/ 360</small></h4>
                             <p class="text-muted">Total Leads</p>
                             <div class="badge bg-label-secondary rounded-pill">Miss Regita</div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!--/ Total Profit -->
+            <!--/ Total Leads -->
 
             <!-- Total Expenses -->
             <div class="col-xl-2 col-lg-2 col-md-3 col-sm-4 col-6">
@@ -54,8 +54,8 @@
                             </div>
                         </div>
                         <div class="card-info mt-4 pt-1">
-                            <h5 class="mb-2">$13.4k</h5>
-                            <p class="text-muted">Total Sales</p>
+                            <h4 class="mb-2">{{$customers->count()}} <small class="text-muted fs-tiny">/ 360</small></h4>
+                            <p class="text-muted">Total Customers</p>
                             <div class="badge bg-label-secondary rounded-pill">Miss Regita</div>
                         </div>
                     </div>
@@ -75,8 +75,8 @@
                             </div>
                         </div>
                         <div class="card-info mt-4 pt-1">
-                            <h5 class="mb-2">$13.4k</h5>
-                            <p class="text-muted">Total Sales</p>
+                            <h4 class="mb-2">{{$quotation->count()}} <small class="text-muted fs-tiny">/ 360</small></h4>
+                            <p class="text-muted">Total Quotation</p>
                             <div class="badge bg-label-secondary rounded-pill">Miss Regita</div>
                         </div>
                     </div>
@@ -96,7 +96,7 @@
                             </div>
                         </div>
                         <div class="card-info mt-4 pt-1">
-                            <h5 class="mb-2">$13.4k</h5>
+                            <h4 class="mb-2">{{$po->count()}} <small class="text-muted fs-tiny">/ 360</small></h4>
                             <p class="text-muted">Total PO</p>
                             <div class="badge bg-label-secondary rounded-pill">Miss Regita</div>
                         </div>

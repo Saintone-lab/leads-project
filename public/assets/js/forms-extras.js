@@ -147,7 +147,9 @@ $(function () {
 
         fromControl.each(function (i) {
           var id = 'form-repeater-' + row + '-' + col;
+          var name = 'price[' + row + ']' ;
           $(fromControl[i]).attr('id', id);
+          $(fromControl[i]).attr('name', name);
           $(formLabel[i]).attr('for', id);
           col++;
         });
