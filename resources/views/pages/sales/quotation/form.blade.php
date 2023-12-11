@@ -4,22 +4,24 @@
     <form action="{{ route('quotation.store') }}" method="post" enctype="multipart/form-data">
         @csrf
         <div class="form-floating mb-3">
-            <h3 class="fw-bold fs-3">#RJO-XI-{{\Carbon\Carbon::now()->year}}-{{$idQ}}</h3>
+            <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
+                placeholder="#RJO-XI-{{ \Carbon\Carbon::now()->year }}-{{ $idQ }}"
+                aria-describedby="floatingInputFilledHelp" name="no_quote">
+            <label for="floatingInputFilled">No Quotation</label>
             <span class="form-floating-focused"></span>
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
         </div>
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <div class="card">
             <div class="card-body">
                 <div class="form-invoice-repeater source-item">
-                    <input type="text" name="no_quote" id="" value="#RJO-XI-{{\Carbon\Carbon::now()->year}}-{{$idQ}}" hidden>
                     <div class="row">
                         <div class="col-12 col-lg-3 mb-3">
                             <div class="form-floating form-floating-outline">
@@ -50,8 +52,9 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <div class="form-floating form-floating-outline mb-4">
-                                <input class="form-control" type="text" placeholder="Materialize" id="html5-text-input">
-                                <label for="html5-text-input">Address</label>
+                                <input class="form-control" type="text" placeholder="Put your No PR Here ...."
+                                    id="html5-text-input" disabled>
+                                <label for="html5-text-input">No PR</label>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -119,15 +122,40 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-8">
-                            <label for="exampleFormControlTextarea1">
-                                <h5 class="my-3">
-                                    Terms & Conditions :
-                                </h5>
-                            </label>
-                            <textarea class="form-control h-px-200" id="exampleFormControlTextarea1" placeholder="Terms And Conditions..."
-                                name="termcon"></textarea>
+                        <div class="col-lg-6 col-12">
+                            <h5 class="my-4">
+                                Terms & Conditions :
+                            </h5>
+                            <div class="row mb-3">
+                                <label class="col-sm-4 col-form-label" for="validity">Validity Of Quotation</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="validity" class="form-control form-control-lg"
+                                        name="validity" value="1(one) Month After this Quotation Created">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-4 col-form-label" for="pricing">Price</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="pricing" class="form-control form-control-lg"
+                                        name="pricing" value="Franco FACTORY ( BEKASI )">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-4 col-form-label" for="delivery">Delivery Process</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="delivery" class="form-control form-control-lg"
+                                        value="Ready stock / Indent" name="delivery_process">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-4 col-form-label" for="payment">Payment</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="payment" class="form-control form-control-lg"
+                                        value="DP / Cash Before Delivery" name="payment">
+                                </div>
+                            </div>
                         </div>
+                        <div class="col-lg-2"></div>
                         <div class="col-lg-4">
                             <div class="card shadow-none bg-light text-secondary border border-secondary mt-5 mb-3">
                                 <div class="card-body ">
@@ -136,7 +164,8 @@
                                             Total :</label>
                                         <div class="col-sm-8">
                                             <p class="mb-0 subtotal-label" id="subtotal-label" data-id="1"></p>
-                                            <input type="number" id="subtotal" class="form-control" name="subtotal" hidden>
+                                            <input type="number" id="subtotal" class="form-control" name="subtotal"
+                                                hidden>
                                         </div>
                                     </div>
                                 </div>
@@ -147,13 +176,13 @@
                                         <label class="col-sm-4 col-form-label text-sm-start" for="collapsible-tax">Tax
                                             :</label>
                                         <div class="col-sm-8">
-                                            <div class="input-group">
-                                                <input type="number" id="tax" class="form-control text-end"
-                                                    placeholder="Put Tax Here..." style="background: none; border: none;"
-                                                    max="100" name="tax">
-                                                <span class="input-group-text"
-                                                    style="background: none; border: none;">%</span>
-                                            </div>
+                                            <select id="tax" class="form-select form-select-lg"
+                                                style="background: none; border: none;">
+                                                <option disabled>Pilih Opsi Pajak</option>
+                                                <option value="0" selected>Tanpa Pajak</option>
+                                                <option value="12"><span> Dengan PPN <small class="text-muted"> 12%
+                                                        </small> </span></option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -167,8 +196,10 @@
                                             <div class="input-group">
                                                 <span class="input-group-text" style="background: none; border: none;">Rp.
                                                 </span>
-                                                <input type="number" id="shipping" class="form-control"
-                                                    placeholder="658468" style="background: none; border: none;" name="shipping">
+                                                <input type="text" id="shipping" class="form-control"
+                                                    placeholder="Shipping Cost Here....." data-type="currency"
+                                                    style="background: none; border: none;"
+                                                    pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" name="shipping">
                                             </div>
                                         </div>
                                     </div>
@@ -182,7 +213,8 @@
                                             :</label>
                                         <div class="col-sm-8">
                                             <p class="mb-0 harga-total-label" id="hargaTotalLabel" data-id="1"></p>
-                                            <input type="number" id="hargaTotal" class="form-control" name="harga_total" hidden>
+                                            <input type="number" id="hargaTotal" class="form-control"
+                                                name="harga_total" hidden>
                                         </div>
                                     </div>
                                 </div>
@@ -219,12 +251,9 @@
                 currency: 'IDR'
             });
 
-            // PROBLEM : 1 tidak bisa mengambil per id
-
             // Logic amount + Subtotal
-            $('.invoice-item-price, .invoice-item-qty, .invoice-item-disc').on('change', function(ev) {
+            $('.invoice-item-price, .invoice-item-qty, .invoice-item-disc').on('keyup', function(ev) {
                 var id = $(this).data('id');
-                console.log(id);
                 var sTotal = 0,
                     row = 0;
                 var amount = 0,
@@ -243,11 +272,10 @@
                 $('#subtotal').val(sTotal);
             });
 
+            // Logic Subtotal dan Amount Setelah Tambah Product
             $('.btn-add').on('click', () => {
-                // Logic Subtotal dan Amount Setelah Tambah Product
-                $('.invoice-item-price, .invoice-item-qty, .invoice-item-disc').on('change', function(ev) {
+                $('.invoice-item-price, .invoice-item-qty, .invoice-item-disc').on('keyup', function(ev) {
                     var id = $(this).data('id');
-                    console.log(id);
                     var sTotal = 0,
                         row = 0;
                     var amount = 0,
@@ -267,28 +295,50 @@
                     $('#subtotal').val(sTotal);
                 });
                 // Logic Harga Total Setelah Tambah Product
-                $('#subtotal, #tax, #shipping, .invoice-item-price, .invoice-item-qty, .invoice-item-disc')
-                    .on('change', () => {
+                $('#tax').on('change', () => {
+                    var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal')
+                        .val());
+                    var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($(
+                        '#shipping').val());
+                    var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
+                    var hTotal = parseInt(sTotal + (sTotal * tax / 100) + shipping);
+                    $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
+                    $('#hargaTotal').val(hTotal);
+                    console.log(tax);
+                })
+                $('#subtotal, #shipping, .invoice-item-price, .invoice-item-qty, .invoice-item-disc').on(
+                    'keyup', () => {
                         var hTotal = 0;
                         var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal')
                             .val());
-                        var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
                         var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($(
                             '#shipping').val());
+                        var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
+                        console.log(tax);
                         hTotal = parseInt(sTotal + (sTotal * tax / 100) + shipping);
                         $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
                         $('#hargaTotal').val(hTotal);
-                        console.log(hTotal);
+                        console.log("Harga Total :" + hTotal);
                     });
             });
 
             // Logic Harga Total
-            $('#subtotal, #tax, #shipping, .invoice-item-price, .invoice-item-qty, .invoice-item-disc').on('change',
+            $('#tax').on('change', () => {
+                var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
+                var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
+                var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
+                var hTotal = parseInt(sTotal + (sTotal * tax / 100) + shipping);
+                $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
+                $('#hargaTotal').val(hTotal);
+                console.log(tax);
+            })
+            $('#subtotal, #shipping, .invoice-item-price, .invoice-item-qty, .invoice-item-disc').on('keyup',
                 () => {
                     var hTotal = 0;
                     var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
-                    var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
                     var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
+                    var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
+                    console.log(tax);
                     hTotal = parseInt(sTotal + (sTotal * tax / 100) + shipping);
                     $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
                     $('#hargaTotal').val(hTotal);

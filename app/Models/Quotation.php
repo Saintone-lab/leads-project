@@ -46,5 +46,9 @@ class Quotation extends Model
     {
         return $this->hasMany('App\Models\DetailQuotation', 'id_quotation');
     }
+    public function termncon()
+    {
+        return $this->hasMany('App\Models\Termncon', 'id_quotation');
+    }
     
 }

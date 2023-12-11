@@ -1,28 +1,40 @@
+@page{
+  size: auto !important;
+  size: A4 !important;
+  margin: 0mm !important;
+}
 html,
 body {
-  background: #fff !important;
+    background: #fff !important;
 }
 
 body > :not(.invoice-print) {
-  display: none !important;
+    display: none !important;
 }
 
 .invoice-print {
-  min-width: 768px !important;
-  font-size: 15px !important;
+    font-size: 15px !important;
 }
+
+.invoice-print table{
+    font-size: 12px !important;
+}
+
 .invoice-print svg {
-  fill: #828393 !important;
+    fill: #828393 !important;
+}
+.invoice-print img {
+    width: 100%;
 }
 
 .invoice-print * {
-  border-color: rgba(76, 78, 100, 0.5) !important;
-  color: #828393 !important;
+    border-color: rgba(76, 78, 100, 0.5) !important;
+    color: #828393 !important;
 }
 .invoice-print * .border-top {
-  border-top: 1px solid rgba(76, 78, 100, 0.5) !important;
+    border-top: 1px solid rgba(76, 78, 100, 0.5) !important;
 }
 
 .dark-style .invoice-print th {
-  color: #fff !important;
+    color: #fff !important;
 }

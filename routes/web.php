@@ -34,8 +34,9 @@ Route::post('/leads/action/{id}', [LeadsController::class,'storeActionWithLeads'
 
 // Route untuk Quotation
 Route::resource('/quotation', QuotationController::class);
-// Route::get('/quotation/leads', [QuotationController::class, 'index'])->name('quotation.leads');
 Route::get('/quotation/leads/create', [QuotationController::class, 'create'])->name('create.quotation');
+Route::get('/quotation/print/{id}', [QuotationController::class, 'print_quote'])->name('print.quotation');
+Route::get('/quotation/pdf/{id}', [QuotationController::class, 'pdf_quote'])->name('pdf.quotation');
 
 // Route untuk Visit
 Route::get('/visits/leads', function(){

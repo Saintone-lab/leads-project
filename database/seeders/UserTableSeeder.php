@@ -17,14 +17,16 @@ class UserTableSeeder extends Seeder
     {
         $user = [
             [
-                'name' => 'Ms Vita',
-                'email' => 'vita@gmail.com',
-                'password' => 'vitareftech123',
+                'name' => 'Mr Yusuf',
+                'phone' => '081267987456',
+                'email' => 'yusuf@gmail.com',
+                'password' => 'yusufreftech123',
                 'area' => 'bandung',
                 'role' => 'sales',
             ],
             [
                 'name' => 'Ms Regita',
+                'phone' => '081266823456',
                 'email' => 'regita@gmail.com',
                 'password' => 'regitaairn123',
                 'area' => 'bandung',
@@ -32,6 +34,7 @@ class UserTableSeeder extends Seeder
             ],
             [
                 'name' => 'Mr Ari',
+                'phone' => '081294857656',
                 'email' => 'ari@gmail.com',
                 'password' => 'aritech123',
                 'area' => 'bandung',
