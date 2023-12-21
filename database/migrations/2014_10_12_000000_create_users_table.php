@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('area', 25);
             $table->enum('role',['sales', 'technician', 'admin']);
+            // ini nanti pakai
             // $table->rememberToken();
             $table->timestamps();
         });
