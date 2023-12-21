@@ -14,27 +14,22 @@
                 </div>
                 <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 27</p>
                 <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                <p class="mb-0"><i class="mdi mdi-whatsapp scaleX-n1-rtl me-1"></i>+62 813-2058-3277
-                </p>
                 <p>
-                    <i class="mdi mdi-whatsapp scaleX-n1-rtl me-1"></i>022 54417653
+                    <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1"></i>022 54417653
                 </p>
             </div>
-            <div>
+            <div class="text-end">
                 <h5 class="fw-bold">QUOTATION</h5>
                 <div>
                     <span class="fw-bolder">#{{ $quote->no_quote }}</span>
                 </div>
                 <div class="mt-1">
-                    <span class="text-muted">{{ $quote->status }}</span>
+                    <span
+                        class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
                 </div>
                 <div class="my-1">
-                    <span>Date Estimated:</span>
-                    <span>{{ \Carbon\Carbon::parse($quote->estimated_date)->toFormattedDateString() }}</span>
                 </div>
                 <div>
-                    <span>Date Expired:</span>
-                    <span>{{ \Carbon\Carbon::parse($quote->expired_date)->toFormattedDateString() }}</span>
                 </div>
             </div>
         </div>
@@ -46,7 +41,7 @@
                 <div class="col-6 my-3">
                     <h6 class="pb-2 fw-semibold fs-4">Quote To:</h6>
                 </div>
-                <div class="col-6 my-3">
+                <div class="col-6 mb-3">
                 </div>
             </div>
             <div class="row">
@@ -55,28 +50,34 @@
                     <p class="mb-1">Company </p>
                     <p class="mb-1">Phone </p>
                     <p class="mb-1">Email </p>
-                    <p class="mb-1">Address</p>
+                    <p class="mb-1">No PR</p>
                 </div>
                 <div class="col-4">
-                    <p class="mb-1">: {{ $quote->client->pic->name_pic }}</p>
-                    <p class="mb-1">: {{ $quote->client->company }}</p>
-                    <p class="mb-1">: {{ $quote->client->phone }}</p>
-                    <p class="mb-1">: {{ $quote->client->email }}</p>
-                    <p class="mb-1">: {{ $quote->client->address }}</p>
+                    <p class="mb-1">: {{ $quote->pic->name_pic }}</p>
+                    <p class="mb-1">: {{ $quote->pic->client->company }}</p>
+                    <p class="mb-1">: {{ $quote->no_pr ?? '-' }}</p>
+                    <p class="mb-1">: {{ $quote->pic->client->phone }}</p>
+                    <p class="mb-1">: {{ $quote->pic->client->email }}</p>
                 </div>
-                <div class="col-2 fw-medium">
-                    <p class="mb-1">Sales</p>
-                    <p class="mb-1">Phone Sales </p>
+                <div class="col-3 fw-medium text-end">
+                    <p class="mb-1">Sales :</p>
+                    <p class="mb-1">Phone Sales :</p>
+                    <p class="mb-1">Date Estimated :</p>
+                    <p class="mb-1">Date Expired :</p>
+                    <p class="mb-1">Title :</p>
                 </div>
-                <div class="col-4">
-                    <p class="mb-1">: {{ $quote->sales->name }}</p>
-                    <p class="mb-1">: {{ $quote->sales->phone }}</p>
+                <div class="col-3 text-end">
+                    <p class="mb-1"> {{ $quote->sales->name }}</p>
+                    <p class="mb-1"> {{ $quote->sales->phone }}</p>
+                    <p class="mb-1"> {{ \Carbon\Carbon::parse($quote->estimated_date)->toFormattedDateString() }}</p>
+                    <p class="mb-1"> {{ \Carbon\Carbon::parse($quote->expired_date)->toFormattedDateString() }}</p>
+                    <p class="mb-1"> {{ $quote->title }}</p>
                 </div>
             </div>
         </div>
 
         <div class="mb-2">
-            <table class="table m-0">
+            <table class="table table-borderless m-0">
                 <thead class="table-light border-top">
                     <tr>
                         <th class="no">No.</th>
@@ -96,7 +97,7 @@
                         @php
                             $no++;
                         @endphp
-                        <tr>
+                        <tr class="row-product">
                             <td>{{ $no }}</td>
                             <td class="text-nowrap">{{ $product->product }}</td>
                             <td class="text-nowrap">{{ $product->detail_product }}</td>
@@ -106,22 +107,28 @@
                             <td>RP {{ number_format($product->amount, 0, '', '.') }}</td>
                         </tr>
                     @endforeach
-                    <tr>
-                        <td colspan="4" class="align-top px-4 py-5">
+                    <tr class="">
+                        <td colspan="3" rowspan="2" class="align-top pt-4">
                             <span>Thanks for your business</span>
                         </td>
-                        <td class="text-end px-4 py-5">
+                        <td colspan="2" class="text-end pt-4 pb-0">
                             <p class="mb-2">Subtotal:</p>
                             <p class="mb-2">Tax:</p>
                             <p class="mb-2">Shipping Cost:</p>
-                            <p class="mb-0">Total:</p>
                         </td>
-                        <td colspan="2" class="px-4 py-5">
+                        <td colspan="2" class="pt-4 pb-0">
                             <p class="fw-semibold mb-2 text-end">RP
                                 {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                             <p class="fw-semibold mb-2 text-end">{{ $quote->tax }}%</p>
                             <p class="fw-semibold mb-2 text-end">RP
                                 {{ number_format($quote->shipping, 0, '', '.') }}</p>
+                        </td>
+                    </tr>
+                    <tr class="total">
+                        <td colspan="2" class="">
+                            <p class="mb-0 text-end">Total:</p>
+                        </td>
+                        <td colspan="2" class="">
                             <p class="fw-semibold mb-0 text-end">RP
                                 {{ number_format($quote->harga_total, 0, '', '.') }}</p>
                         </td>
@@ -131,15 +138,15 @@
         </div>
 
         <div class="mb-0">
-            <h5 class="my-4">Term & Condition</h5>
+            <h5 class="mt-4 mb-3">Term & Condition</h5>
             <div class="row">
-                <div class="col-3 fw-medium">
+                <div class="col-3 fw-medium termc">
                     <p class="mb-1">Validity Of Quotation</p>
                     <p class="mb-1">Price </p>
                     <p class="mb-1">Delivery Process </p>
                     <p class="mb-1">Payment </p>
                 </div>
-                <div class="col">
+                <div class="col termc">
                     <p class="mb-1">: {{ $quote->termncon[0]->validity }}</p>
                     <p class="mb-1">: {{ $quote->termncon[0]->pricing }}</p>
                     <p class="mb-1">: {{ $quote->termncon[0]->delivery_process }}</p>
@@ -152,6 +159,7 @@
 @push('after-style')
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice-print.css" />
+    <link rel="stylesheet" href="style.css">
 @endpush
 @push('after-script')
     <script src="{{ asset('assets') }}/js/app-invoice-print.js"></script>

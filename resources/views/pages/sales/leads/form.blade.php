@@ -153,6 +153,7 @@
                             </div>
                         </div>
                     </div>
+                    @empty($leads)
                     <div class="divider divider-dark mx-3">
                         <div class="divider-text"><span class="fw-semibold">Personal In Charge</span></div>
                     </div>
@@ -192,6 +193,7 @@
                             </div>
                         </div>
                     </div>
+                    @endempty
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-label-secondary waves-effect"

@@ -63,6 +63,12 @@
                 <div data-i18n="Dashboards">Dashboards</div>
             </a>
         </li>
+        <li class="menu-item {{request()->is('dashboard/admin') ? 'active' : ''}}">
+            <a href="{{route('dashboard.admin')}}" class="menu-link">
+                <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
+                <div data-i18n="Dashboards Admin">Dashboards Admin</div>
+            </a>
+        </li>
         <li class="menu-item">
             <a href="#" class="menu-link">
                 <i class="menu-icon tf-icons mdi mdi-phone-incoming-outgoing-outline"></i>
@@ -75,6 +81,12 @@
                 <div data-i18n="Reports">Reports</div>
             </a>
         </li>
+        <li class="menu-item {{request()->is('reports/admin') ? 'active' : ''}}">
+            <a href="{{route('reports.admin')}}" class="menu-link">
+                <i class="menu-icon tf-icons mdi mdi-finance"></i>
+                <div data-i18n="Reports Admin">Reports Admin</div>
+            </a>
+        </li>
 
         <!-- Layouts -->
         <li class="menu-header fw-light mt-4">
@@ -83,7 +95,7 @@
         <li class="menu-item {{request()->is('leads') || request()->is('leads/detail/*') || request()->is('customer') ? 'open' : ''}}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
-                <div data-i18n="Client">CRM</div>
+                <div data-i18n="Client">Client</div>
             </a>
 
             <ul class="menu-sub">
@@ -175,6 +187,13 @@
             <a href="{{url('pending-po')}}" class="menu-link">
                 <i class="menu-icon tf-icons mdi mdi-cart-arrow-down"></i>
                 <div data-i18n="Pending PO">Pending PO</div>
+            </a>
+        </li>
+
+        <li class="menu-item">  
+            <a href="{{route('existing.sales')}}" class="menu-link">
+                <i class="menu-icon tf-icons mdi mdi-call-split"></i>
+                <div data-i18n="Existing Sales">Existing Sales</div>
             </a>
         </li>
     </ul>

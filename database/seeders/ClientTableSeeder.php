@@ -18,7 +18,6 @@ class ClientTableSeeder extends Seeder
         $client = [
             [
                 'id_sales' => '1',
-                'id_pic' => '1',
                 'id_issues' => '1',
                 'company' => 'PT. Rakha Daksa',
                 'email' => 'rakshaDasha@gmail.com',
@@ -38,7 +37,6 @@ class ClientTableSeeder extends Seeder
             ],
             [
                 'id_sales' => '2',
-                'id_pic' => '2',
                 'id_issues' => '2',
                 'company' => 'PT. Indospring Tbk.',
                 'email' => 'Indospring@gmail.com',
@@ -58,7 +56,6 @@ class ClientTableSeeder extends Seeder
             ],
             [
                 'id_sales' => '1',
-                'id_pic' => '3',
                 'id_issues' => '3',
                 'company' => 'PT Abadi',
                 'email' => 'Abadi@selamanya.com',

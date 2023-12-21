@@ -16,7 +16,6 @@ return new class extends Migration
         Schema::create('client', function (Blueprint $table) {
             $table->id();
             $table->foreignId("id_sales");
-            $table->foreignId("id_pic");
             $table->foreignId("id_issues");
             $table->string('company', 50);
             $table->string('email', 25);
@@ -28,7 +27,7 @@ return new class extends Migration
             $table->date("created_date");
             $table->enum('role', ['Leads', 'Customers'])->default("Leads");
             $table->string("mobile", 14);
-            $table->string("machine");
+            $table->string("machine")->nullable();
             $table->string("address");
             $table->string("area", 20);
             $table->timestamps();

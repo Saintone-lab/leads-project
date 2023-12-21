@@ -11,16 +11,23 @@ class Pic extends Model
 
     protected $table = "pic";
     protected $fillable = [
+        'id_client',
         'name_pic',
         'position',
         'email_pic',
-        'phone_pic'
+        'phone_pic',
+        'area',
+        'machine',
     ];
 
     
     public function client()
     {
-        return $this->hasMany('App\Model\Client', 'id_pic');
+        return $this->belongsTo('App\Models\Client', 'id_client', 'id');
     }
     
+    public function quotation()
+    {
+        return $this->hasMany('App\Models\Quotation', 'id_pic');
+    }
 }

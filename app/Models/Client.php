@@ -47,21 +47,11 @@ class Client extends Model
         return $this->belongsTo('App\Models\Service', 'id_service', 'id');
     }
     
-    public function pic()
-    {
-        return $this->belongsTo('App\Models\Pic', 'id_pic', 'id');
-    }
-    
     // Extend Table
     
     public function activities()
     {
         return $this->hasMany('App\Models\Activities', 'id_client');
-    }
-
-    public function quotation()
-    {
-        return $this->hasMany('App\Models\quotation', 'id_client');
     }
     
     public function detail_client()
@@ -73,6 +63,10 @@ class Client extends Model
     public function visit()
     {
         return $this->hasMany('App\Models\Visit', 'id_client');
+    }
+    public function pic()
+    {
+        return $this->hasMany('App\Models\PIC', 'id_client');
     }
     
 }

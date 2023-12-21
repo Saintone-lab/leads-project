@@ -6,7 +6,7 @@
     </h4>
     <div class="card">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-quotation table table-striped">
+            <table class="datatable-rev-quotation table table-striped">
                 <thead>
                     <tr>
                         <th></th>

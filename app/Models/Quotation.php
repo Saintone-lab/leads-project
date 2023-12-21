@@ -16,11 +16,13 @@ class Quotation extends Model
         'updated_at'
     ];
     protected $fillable = [
-        'id_client',
+        'id_pic',
         'id_sales',
         'id_service',
+        'no_pr',
         'status',
         'tax',
+        'diskon',
         'shipping',
         'no_quote',
         'termcon',
@@ -28,9 +30,9 @@ class Quotation extends Model
         'harga_total'
     ];
 
-    public function client()
+    public function pic()
     {
-        return $this->belongsTo('App\Models\Client', 'id_client', 'id');
+        return $this->belongsTo('App\Models\Pic', 'id_pic', 'id');
     }
     public function sales()
     {
@@ -49,6 +51,10 @@ class Quotation extends Model
     public function termncon()
     {
         return $this->hasMany('App\Models\Termncon', 'id_quotation');
+    }
+    public function revisi()
+    {
+        return $this->hasMany('App\Models\RevQuote', 'id_quotation');
     }
     
 }

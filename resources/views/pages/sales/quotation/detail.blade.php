@@ -19,10 +19,8 @@
                             </div>
                             <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 27</p>
                             <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                            <p class="mb-0"><i class="mdi mdi-whatsapp scaleX-n1-rtl me-1"></i>+62 813-2058-3277
-                            </p>
                             <p>
-                                <i class="mdi mdi-whatsapp scaleX-n1-rtl me-1"></i>022 54417653
+                                <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1"></i>022 54417653
                             </p>
                         </div>
                         <div>
@@ -31,15 +29,7 @@
                                 <span class="fw-bolder">#{{ $quote->no_quote }}</span>
                             </div>
                             <div class="mt-1">
-                                <span class="text-muted">{{ $quote->status }}</span>
-                            </div>
-                            <div class="my-1">
-                                <span>Date Estimated:</span>
-                                <span>{{ \Carbon\Carbon::parse($quote->estimated_date)->toFormattedDateString() }}</span>
-                            </div>
-                            <div>
-                                <span>Date Expired:</span>
-                                <span>{{ \Carbon\Carbon::parse($quote->expired_date)->toFormattedDateString() }}</span>
+                                <span class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
                             </div>
                         </div>
                     </div>
@@ -54,27 +44,33 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-2 col-6 fw-medium">
+                        <div class="col-2 fw-medium">
                             <p class="mb-1">Name PIC</p>
                             <p class="mb-1">Company </p>
-                            <p class="mb-1">Address</p>
                             <p class="mb-1">Phone </p>
                             <p class="mb-1">Email </p>
+                            <p class="mb-1">No PR</p>
                         </div>
-                        <div class="col-md-4 col-6">
-                            <p class="mb-1">: {{ $quote->client->pic->name_pic }}</p>
-                            <p class="mb-1">: {{ $quote->client->company }}</p>
-                            <p class="mb-1">: {{ $quote->client->address }}</p>
-                            <p class="mb-1">: {{ $quote->client->phone }}</p>
-                            <p class="mb-1">: {{ $quote->client->email }}</p>
+                        <div class="col-4">
+                            <p class="mb-1">: {{ $quote->pic->name_pic }}</p>
+                            <p class="mb-1">: {{ $quote->pic->client->company }}</p>
+                            <p class="mb-1">: {{ $quote->no_pr ?? '-' }}</p>
+                            <p class="mb-1">: {{ $quote->pic->client->phone }}</p>
+                            <p class="mb-1">: {{ $quote->pic->client->email }}</p>
                         </div>
-                        <div class="col-md-2 col-6 fw-medium">
-                            <p class="mb-1">Sales</p>
-                            <p class="mb-1">Phone Sales </p>
+                        <div class="col-3 fw-medium text-end">
+                            <p class="mb-1">Sales :</p>
+                            <p class="mb-1">Phone Sales :</p>
+                            <p class="mb-1">Title :</p>
+                            <p class="mb-1">Date Estimated :</p>
+                            <p class="mb-1">Date Expired :</p>
                         </div>
-                        <div class="col-md-4 col-6">
-                            <p class="mb-1">: {{ $quote->sales->name }}</p>
-                            <p class="mb-1">: {{ $quote->sales->phone }}</p>
+                        <div class="col-3 text-end">
+                            <p class="mb-1"> {{ $quote->sales->name }}</p>
+                            <p class="mb-1"> {{ $quote->sales->phone }}</p>
+                            <p class="mb-1"> {{ $quote->title }}</p>
+                            <p class="mb-1"> {{ \Carbon\Carbon::parse($quote->estimated_date)->toFormattedDateString() }}</p>
+                            <p class="mb-1"> {{ \Carbon\Carbon::parse($quote->expired_date)->toFormattedDateString() }}</p>
                         </div>
                     </div>
                 </div>
@@ -104,24 +100,32 @@
                                     <td class="text-nowrap">{{ $product->product }}</td>
                                     <td class="text-nowrap">{{ $product->detail_product }}</td>
                                     <td>RP {{ number_format($product->price, 0, '', '.') }}</td>
-                                    <td>{{$product->qty}}</td>
-                                    <td>{{$product->disc}}%</td>
+                                    <td>{{ $product->qty }}</td>
+                                    <td>{{ $product->disc }}%</td>
                                     <td>RP {{ number_format($product->amount, 0, '', '.') }}</td>
                                 </tr>
                             @endforeach
                             <tr>
-                                <td colspan="5" class="align-top px-4 py-5">
+                                <td colspan="3" class="align-top px-4 py-5">
                                     <span>Thanks for your business</span>
                                 </td>
-                                <td class="text-end px-4 py-5">
+                                <td colspan="2" class="text-end px-4 py-5">
                                     <p class="mb-2">Subtotal:</p>
                                     <p class="mb-2">Tax:</p>
+                                    <p class="mb-2">Discount Quote:</p>
+                                    <p class="mb-2">Shipping Cost:</p>
                                     <p class="mb-0">Total:</p>
                                 </td>
-                                <td class="px-4 py-5">
-                                    <p class="fw-semibold mb-2 text-end">RP {{ number_format($quote->subtotal, 0, '', '.') }}</p>
-                                    <p class="fw-semibold mb-2 text-end">{{$quote->tax}}%</p>
-                                    <p class="fw-semibold mb-0 text-end">RP {{ number_format($quote->harga_total, 0, '', '.') }}</p>
+                                <td colspan="2" class="px-4 py-5">
+                                    <p class="fw-semibold mb-2 text-end">RP
+                                        {{ number_format($quote->subtotal, 0, '', '.') }}</p>
+                                    <p class="fw-semibold mb-2 text-end">{{ $quote->tax }}%</p>
+                                    <p class="fw-semibold mb-2 text-end">RP {{ number_format($quote->diskon, 0, '', '.') }}
+                                    </p>
+                                    <p class="fw-semibold mb-2 text-end">RP
+                                        {{ number_format($quote->shipping, 0, '', '.') }}</p>
+                                    <p class="fw-semibold mb-0 text-end">RP
+                                        {{ number_format($quote->harga_total, 0, '', '.') }}</p>
                                 </td>
                             </tr>
                         </tbody>
@@ -152,10 +156,11 @@
             <div class="card">
                 <div class="card-body">
                     <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
-                        href="{{route('print.quotation', $quote->id)}}">
+                        href="{{ route('print.quotation', $quote->id) }}">
                         Print
                     </a>
-                    <a href="{{route('pdf.quotation', $quote->id)}}" type="button" class="btn btn-outline-secondary d-grid w-100 waves-effect">Download</a>
+                    <a href="{{ route('pdf.quotation', $quote->id) }}" type="button"
+                        class="btn btn-outline-secondary d-grid w-100 waves-effect">Download</a>
                 </div>
             </div>
         </div>

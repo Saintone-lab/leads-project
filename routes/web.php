@@ -35,6 +35,8 @@ Route::post('/leads/action/{id}', [LeadsController::class,'storeActionWithLeads'
 // Route untuk Quotation
 Route::resource('/quotation', QuotationController::class);
 Route::get('/quotation/leads/create', [QuotationController::class, 'create'])->name('create.quotation');
+Route::get('/quotation/{id}/change_status', [QuotationController::class, 'change_status'])->name('status.change.quotation');
+Route::get('/quotation/revision/{id}', [QuotationController::class, 'edit_revisi'])->name('revisi.quotation');
 Route::get('/quotation/print/{id}', [QuotationController::class, 'print_quote'])->name('print.quotation');
 Route::get('/quotation/pdf/{id}', [QuotationController::class, 'pdf_quote'])->name('pdf.quotation');
 
@@ -51,9 +53,23 @@ Route::get('/login', function(){
     return view('components.modal.login');
 });
 
+// Route untuk existing
+Route::get('/existing', function(){
+    return view('pages.sales.existing.index');
+})->name('existing.sales');
+
+
 // Route untuk PO
 Route::get('/pending-po', function(){
     return view('pages.sales.po.pending.index');
 });
 
+// Route untuk Admin
+Route::get('/dashboard/admin', function(){
+    return view('pages.admin.dashboard');
+})->name('dashboard.admin');
+
+Route::get('/reports/admin', function(){
+    return view('pages.admin.report');
+})->name('reports.admin');
 

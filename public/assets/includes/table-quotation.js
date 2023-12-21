@@ -11,14 +11,18 @@ $(function () {
                 { data: "no_quote" },
                 { data: "company" },
                 { data: "harga_total" },
-                { data: "detail_product" },
+                { data: "title" },
+                { data: "estimated_date" },
+                { data: "status" },
                 { data: "expired_date" },
                 { data: "status" },
-                { data: "folup_date" },
-                { data: "name" },
                 { data: "" },
             ],
             columnDefs: [
+                {
+                    targets: 5,
+                    render: $.fn.dataTable.render.number( '.', '', 0, 'Rp.' ),
+                },
                 {
                     // For Responsive
                     className: "control",
@@ -55,22 +59,58 @@ $(function () {
                     targets: 4,
                 },
                 {
-                    // Label
+                    // Label Status Name
                     targets: 8,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $status = {
-                            "Draft": { title: "Draft", class: "bg-label-info" },
-                            "Send": {
+                            "25": { title: "Draft", class: "bg-label-info" },
+                            "50": {
                                 title: "Send",
                                 class: " bg-label-warning",
                             },
-                            "Negotiation": { title: "Negotiation", class: " bg-label-primary" },
-                            "Done PO": {
+                            "75": {
+                                title: "Negotiation",
+                                class: " bg-label-primary",
+                            },
+                            "100": {
                                 title: "Done PO",
                                 class: " bg-label-success",
                             },
-                            "Loss": { title: "Loss", class: " bg-label-danger" },
+                            "0": { title: "Loss", class: " bg-label-danger" },
+                        };
+                        if (typeof $status[$status_number] === "undefined") {
+                            return data;
+                        }
+                        return (
+                            '<span class="badge rounded-pill ' +
+                            $status[$status_number].class +
+                            '">' +
+                            $status[$status_number].title +
+                            "</span>"
+                        );
+                    },
+                },
+                {
+                    // Label Status Percent
+                    targets: 10,
+                    render: function (data, type, full, meta) {
+                        var $status_number = full["status"];
+                        var $status = {
+                            "25": { title: "25%", class: "bg-label-info" },
+                            "50": {
+                                title: "50%",
+                                class: " bg-label-warning",
+                            },
+                            "75": {
+                                title: "75%",
+                                class: " bg-label-primary",
+                            },
+                            "100": {
+                                title: "100%",
+                                class: " bg-label-success",
+                            },
+                            "0": { title: "0%", class: " bg-label-danger" },
                         };
                         if (typeof $status[$status_number] === "undefined") {
                             return data;
@@ -92,13 +132,21 @@ $(function () {
                     searchable: false,
                     render: function (data, type, full, meta) {
                         var $dataId = full["id"];
-                        var $detailQUrl = route('quotation.show', $dataId);
+                        var $detailQUrl = route("quotation.show", $dataId);
+                        var $revQUrl = route("revisi.quotation", $dataId);
                         return (
                             '<div class="d-inline-block">' +
                             '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
                             '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<li><a href="'+ $detailQUrl +'" class="dropdown-item">Details</a></li>' +
-                            '<li><a href="javascript:;" class="dropdown-item">Archive</a></li>' +
+                            '<li><a href="' +
+                            $detailQUrl +
+                            '" class="dropdown-item">Details</a></li>' +
+                            '<li><a href="' +
+                            $revQUrl +
+                            '" class="dropdown-item">Revisi</a></li>' +
+                            '<li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changeStatus-' +
+                            $dataId +
+                            '" >Change Status</button></li>' +
                             '<div class="dropdown-divider"></div>' +
                             '<li><a href="javascript:;" class="dropdown-item text-danger delete-record">Delete</a></li>' +
                             "</ul>" +
@@ -326,9 +374,9 @@ $(function () {
                 {
                     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Quotation</span>',
                     className: "btn btn-primary btn-new",
-                    action: function(e, dt, node, config){
-                        window.location = route('create.quotation')
-                    }
+                    action: function (e, dt, node, config) {
+                        window.location = route("create.quotation");
+                    },
                 },
             ],
             responsive: {

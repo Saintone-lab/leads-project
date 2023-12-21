@@ -19,10 +19,39 @@ $(function () {
                 { data: "name_pic" },
                 { data: "area" },
                 { data: "ru" },
-                { data: "machine" },
+                {
+                    data: "machine",
+                    render: function (data, type, row) {
+                        // Jika data adalah null atau undefined, kembalikan '-'
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            // Jika data memiliki nilai, kembalikan nilainya
+                            return type === "display" ? data : "-";
+                        }
+                    },
+                },
                 { data: "issue" },
-                { data: "date" },
-                { data: "follow_up" },
+                { data: "date",
+                render: function (data, type, row) {
+                    // Jika data adalah null atau undefined, kembalikan '-'
+                    if (data === null || data === undefined) {
+                        return "-";
+                    } else {
+                        // Jika data memiliki nilai, kembalikan nilainya
+                        return type === "display" ? data : "-";
+                    }
+                }, },
+                { data: "follow_up",
+                render: function (data, type, row) {
+                    // Jika data adalah null atau undefined, kembalikan '-'
+                    if (data === null || data === undefined) {
+                        return "-";
+                    } else {
+                        // Jika data memiliki nilai, kembalikan nilainya
+                        return type === "display" ? data : "-";
+                    }
+                }, },
                 { data: "name" },
                 { data: "" },
             ],
@@ -68,11 +97,11 @@ $(function () {
                     render: function (data, type, full, meta) {
                         var $status_ru = full["ru"];
                         var $status = {
-                            "User": {
+                            User: {
                                 title: "User",
                                 class: "bg-success",
                             },
-                            "Reseller": {
+                            Reseller: {
                                 title: "Reseller",
                                 class: " bg-warning",
                             },
@@ -133,13 +162,17 @@ $(function () {
                     searchable: false,
                     render: function (data, type, full, meta) {
                         var $dataId = full["id"];
-                        var $detailLeadsUrl = route('detail.leads', $dataId);
+                        var $detailLeadsUrl = route("detail.leads", $dataId);
                         return (
                             '<div class="d-inline-block">' +
                             '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
                             '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<li><a href="'+ $detailLeadsUrl +'"class="dropdown-item">Details</a></li>' +
-                            '<li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#createAction'+$dataId+'" >Action</button></li>' +
+                            '<li><a href="' +
+                            $detailLeadsUrl +
+                            '"class="dropdown-item">Details</a></li>' +
+                            '<li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#createAction' +
+                            $dataId +
+                            '" >Action</button></li>' +
                             '<div class="dropdown-divider"></div>' +
                             '<li><a href="javascript:;" data-id="' +
                             $dataId +

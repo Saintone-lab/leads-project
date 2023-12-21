@@ -80,9 +80,6 @@ class LeadsController extends Controller
             'area' =>
                 'required',
 
-            'machine' =>
-                'required',
-
             'namePic' =>
                 'required',
 
@@ -107,7 +104,6 @@ class LeadsController extends Controller
             'mobile.required'=> 'Field Mobile Wajib Diisi',
             'address.required'=> 'Field Address Wajib Diisi',
             'area.required'=> 'Field Area Wajib Diisi',
-            'machine.required'=> 'Field Machine Wajib Diisi',
             'namePic.required'=> 'Field Nama PIC Wajib Diisi',
             'emailPic.required'=> 'Field Email PIC Wajib Diisi',
             'phonePic.required'=> 'Field Nomor PIC Wajib Diisi',
@@ -115,12 +111,10 @@ class LeadsController extends Controller
         ];
         
         $this->validate($request, $rule, $message);
-        $idPic = Pic::orderBy('id', 'desc')->first()->id;
 
         //masukan data ke table leads(client)
         $leads = new Client;
         $leads->id_sales = $request->sales;
-        $leads->id_pic = $idPic + 1;
         $leads->id_issues = 1;
         $leads->company = $request->company;
         $leads->email = $request->email;
@@ -131,7 +125,11 @@ class LeadsController extends Controller
         $leads->source = $request->source;
         $leads->created_date = Carbon::today()->toDateString();
         $leads->role = 'Leads';
-        $leads->machine = $request->machine;
+        if( $request->machine != NULL){
+            $leads->machine = $request->machine;
+        }else {
+            $leads->machine = NULL;
+        }
         $leads->mobile = $request->mobile;
         $leads->address = $request->address;
         $leads->area = $request->area;
@@ -139,10 +137,13 @@ class LeadsController extends Controller
 
         // masukan data ke table PIC
         $pic = new Pic;
+        $pic->id_client = $leads->id;
         $pic->name_pic = $request->namePic;
         $pic->position = $request->position;
         $pic->email_pic = $request->emailPic;
         $pic->phone_pic = $request->phonePic;
+        $pic->area = $request->area;
+        $pic->machine = $request->machine;
         $picsave = $pic->save();
 
         if ($leadsave && $picsave) {
@@ -159,11 +160,12 @@ class LeadsController extends Controller
     public function show($id)
     {
         $leads = Client::where('id', $id)->first();
+        $charge = PIC::where('id_client', $id)->get();
         $callhis = Activities::where('id_client', $id)->get();
         $quote = Quotation::where('id_client', $id)->get();
         $sales = User::where('role', 'sales')->get();
         // dd($quote);
-        return view('pages.sales.leads.detail', compact('leads', 'callhis', 'quote', 'sales'));
+        return view('pages.sales.leads.detail', compact('leads', 'callhis', 'quote', 'sales', 'charge'));
     }
 
     /**
@@ -215,18 +217,6 @@ class LeadsController extends Controller
 
             'machine' =>
                 'required',
-
-            'namePic' =>
-                'required',
-
-            'emailPic' =>
-                'required',
-
-            'phonePic' =>
-                'required',
-
-            'position' =>
-                'required',
         ];
 
         $message = [
@@ -241,10 +231,6 @@ class LeadsController extends Controller
             'address.required'=> 'Field Address Wajib Diisi',
             'area.required'=> 'Field Area Wajib Diisi',
             'machine.required'=> 'Field Machine Wajib Diisi',
-            'namePic.required'=> 'Field Nama PIC Wajib Diisi',
-            'emailPic.required'=> 'Field Email PIC Wajib Diisi',
-            'phonePic.required'=> 'Field Nomor PIC Wajib Diisi',
-            'position.required'=> 'Field Posisi PIC Wajib Diisi',
         ];
         
         $this->validate($request, $rule, $message);
@@ -263,16 +249,8 @@ class LeadsController extends Controller
         $leads->address = $request->address;
         $leads->area = $request->area;
         $leadsave = $leads->save();
-        
-        // masukan data ke table PIC
-        $pic = Pic::where('id', $leads->id_pic)->first();
-        $pic->name_pic = $request->namePic;
-        $pic->position = $request->position;
-        $pic->email_pic = $request->emailPic;
-        $pic->phone_pic = $request->phonePic;
-        $picsave = $pic->save();
 
-        if($leadsave && $picsave){
+        if($leadsave){
             return redirect('/leads/detail/'.$id)->with('message', 'data telah diUpdate');
         }
     }

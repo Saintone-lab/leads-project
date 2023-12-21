@@ -15,16 +15,18 @@ return new class extends Migration
     {
         Schema::create('quotation', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_client');
+            $table->foreignId('id_pic');
             $table->foreignId('id_sales');
             $table->foreignId('id_service')->nullable();
-            $table->string('status', 15);
+            $table->string('no_pr')->nullable();
+            $table->string('title');
+            $table->integer('status');
             $table->date('estimated_date');
             $table->date('expired_date');
-            $table->date('folup_date');
             $table->integer('tax');
             $table->integer('shipping');
             $table->string('no_quote');
+            $table->integer('diskon');
             $table->integer('subtotal');
             $table->integer('harga_total');
             $table->timestamps();
