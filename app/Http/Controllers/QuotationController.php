@@ -77,6 +77,7 @@ class QuotationController extends Controller
         $quotation->id_service = NULL;
         $quotation->no_pr = NULL;
         $quotation->status = "25";
+        $quotation->note = "-";
         $quotation->expired_date = $request->expired_date;
         $quotation->estimated_date = $request->estimated_date;
         if ($request->tax != NULL) {
@@ -192,6 +193,7 @@ class QuotationController extends Controller
             $quotation->no_pr = NULL;
         }
         $quotation->status = $quote->status;
+        $quotation->note = $quote->note;
         $quotation->expired_date = $request->expired_date;
         $quotation->estimated_date = $request->estimated_date;
         $quotation->tax = $request->tax;
@@ -267,23 +269,27 @@ class QuotationController extends Controller
         $quotation = Quotation::where('id', $id)->first();
         $dquotation = DetailQuotation::where('id_quotation', $id)->get();
         $client = Client::all();
+        $pic = Pic::all();
         $sales = User::where('role', 'sales')->get();
-        return view('pages.sales.quotation.form', compact('quotation', 'dquotation', 'client', 'sales'));
+        return view('pages.sales.quotation.form', compact('quotation', 'dquotation', 'client', 'sales', 'pic'));
     }
 
     public function change_status($id, Request $request)
     {
         $rule = [
             'status' => 'required',
+            'note' => 'required',
         ];
         $message = [
             'status.required' => 'Field Status Wajib Diisi',
+            'note.required' => 'Field note Wajib Diisi',
         ];
         
         $this->validate($request, $rule, $message);
         
         $quotation = Quotation::find( $id );
         $quotation->status = $request->status;
+        $quotation->note = $request->note;
         $stats = $quotation->save();
         if ($stats) {
             return redirect('quotation')->with("success", "Data Status Quotation Telah Diubah");

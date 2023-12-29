@@ -92,7 +92,7 @@
                 <h5 class="fw-bold pb-1 mb-3">
                     PIC
                 </h5>
-                <a type="button" data-bs-toggle="modal" data-bs-target="#createPIC">
+                <a type="button" data-bs-toggle="modal" data-bs-target="#createPic">
                     <button type="button" class="btn btn-primary">
                         + Create New PIC
                     </button>
@@ -102,7 +102,7 @@
                 <div class="card mb-2">
                     <div class="card-header pb-0">
                         <div class="text-end text-muted">
-                            <a type="button" data-bs-toggle="modal" data-bs-target="#updatePic{{ $pic->id }}">
+                            <a type="button" data-bs-toggle="modal" data-bs-target="#updatePic-{{ $pic->id }}">
                                 <button type="button" class="btn btn-sm btn-label-primary">
                                     <i class="menu-icon tf-icons mdi mdi-14px mdi-account-edit-outline"></i>Edit
                                 </button>
@@ -136,22 +136,6 @@
                             </div>
                             <div class="col-9">
                                 : {{ $pic->email_pic }}
-                            </div>
-                        </div>
-                        <div class="row mb-1">
-                            <div class="col-3">
-                                Machine
-                            </div>
-                            <div class="col-9">
-                                : {{ $pic->machine }}
-                            </div>
-                        </div>
-                        <div class="row mb-1">
-                            <div class="col-3">
-                                Area
-                            </div>
-                            <div class="col-9">
-                                : {{ $pic->area }}
                             </div>
                         </div>
                         </p>
@@ -249,4 +233,8 @@
         </div>
     </div>
     @include('pages.sales.leads.form')
+    @include('components.modal.pic.form-create')
+    @foreach ($charge as $pic)
+        @include('components.modal.pic.form-update')
+    @endforeach
 @endsection()

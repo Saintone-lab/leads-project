@@ -11,9 +11,9 @@
                 <div class="modal-body p-0">
 
                     <div class="onboarding-content mb-0">
-                        <h4 class="onboarding-title text-body">{{$quote->no_quote}}</h4>
+                        <h4 class="onboarding-title text-body">{{ $quote->no_quote }}</h4>
                         <div class="onboarding-info mb-3">
-                            {{$quote->pic->client->company}}
+                            {{ $quote->pic->client->company }}
                         </div>
                         <form>
                             <div class="row">
@@ -22,11 +22,21 @@
                                         <select class="form-select" tabindex="0" id="roleEx3" name="status">
                                             <option value="25">Draft <small class="text-muted">25%</small></option>
                                             <option value="50">Send <small class="text-muted">50%</small></option>
-                                            <option value="75">Negotiation <small class="text-muted">75%</small></option>
-                                            <option value="100">Done PO <small class="text-muted">100%</small></option>
+                                            <option value="75">Negotiation <small class="text-muted">75%</small>
+                                            </option>
+                                            <option value="100">Done PO <small class="text-muted">100%</small>
+                                            </option>
                                             <option value="0">Loss <small class="text-muted">0%</small></option>
                                         </select>
                                         <label for="roleEx3">Status</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-floating form-floating-outline">
+                                        <input type="text" id="note" class="form-control" name="note"
+                                            placeholder="Put Note Here....."
+                                            value="{{ old('note') }}">
+                                        <label for="note">Note</label>
                                     </div>
                                 </div>
                             </div>

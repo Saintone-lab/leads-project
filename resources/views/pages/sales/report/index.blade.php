@@ -90,4 +90,46 @@
             </div>
         </div>
     </div>
+    <div class="card mb-4">
+        <h5 class="card-header">Total PO</h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead class="table-light">
+                    <tr>
+                        <th>PO No.</th>
+                        <th>Company</th>
+                        <th>Title</th>
+                        <th>PO Date</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    @php
+                        $totalP = 0;
+                    @endphp
+                    @foreach ($quotation as $quote)
+                        @php
+                            $totalQ = $quote['harga_total'];
+                            $totalP += $totalQ;
+                        @endphp
+                        <tr>
+                            <td>
+                                <strong>{{ $quote->no_quote }}</strong>
+                            </td>
+                            <td>{{ $quote->pic->client->company }}</td>
+                            <td>{{ $quote->title }}</td>
+                            <td>{{ \Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</td>
+                            <td>Rp {{ number_format($quote->harga_total, 0, '', '.') }}</td>
+                        </tr>
+                    @endforeach
+                    <tr class="bg-label-secondary">
+                        <td colspan="3">
+                        </td>
+                        <td><strong>Total</strong></td>
+                        <td><strong>Rp {{ number_format($totalP, 0, '', '.') }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 @endsection

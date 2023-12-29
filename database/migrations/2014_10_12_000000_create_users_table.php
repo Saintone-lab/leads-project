@@ -21,9 +21,9 @@ return new class extends Migration
             // $table->date('email_verified_at')->nullable();
             $table->string('password');
             $table->string('area', 25);
-            $table->enum('role',['sales', 'technician', 'admin']);
-            // ini nanti pakai
-            // $table->rememberToken();
+            $table->enum('role',['Sales', 'Technician', 'Admin', 'Warehouse']);
+            $table->string('image');
+            $table->rememberToken();
             $table->timestamps();
         });
     }

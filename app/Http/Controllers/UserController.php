@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
 use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -15,7 +19,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        return view('login');
+        abort(404);
     }
 
     /**
@@ -25,7 +29,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        return view("pages.sales.user.create-acc");
     }
 
     /**
@@ -36,7 +40,47 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        //
+        $rule = [
+            'name => required',
+            'email => required',
+            'area => required',
+            'image => required',
+            'phone => required',
+        ];
+        $customMessages = [
+            'name.required' => 'Field Nama Wajib Diisi!',
+            'email.required' => 'Field EMail Wajib Diisi',
+            'image.required' => 'Field Foto Wajib Diisi',
+            'area.required' => 'Field Area Wajib Diisi',
+            'phone.required' => 'Field phone Wajib Diisi!',
+        ];
+        
+        $this->validate($request, $rule, $customMessages);
+        $users = new User;
+        $users->name = $request->name;
+        $users->email = $request->email;
+        $users->area = $request->area;
+        $users->phone = '+62'.$request->phone;
+        $users->password = Hash::make($request->password);
+        if ($request->hasFile('image')) {
+            if ($users->image != 'asset/profile/profile.jpg'){
+                File::delete($users->image);
+            }
+
+            $foto = $request->file('image');
+            $foto_ext = $foto->getClientOriginalExtension();
+            $foto_name = Str::random(8);
+
+            $upload_path = 'asset/profile';
+            $imagename = $upload_path . '/' . $foto_name . '.' . $foto_ext;
+            $request->file('image')->move($upload_path, $imagename);
+
+            $users['image'] = $imagename;
+        }
+        $status = $users->save();
+        if ($status) {
+            return redirect('/profile'.'/'.Auth::user()->id)->with('success','Data Has been created');
+        }
     }
 
     /**
@@ -47,7 +91,9 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        //
+        $user = User::find(Auth::user()->id);
+        $overview = User::where("role", "sales")->get();
+        return view('pages.sales.user.profile', compact('user', 'overview'));
     }
 
     /**
@@ -58,7 +104,7 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        //
+        return view('pages.sales.user.setting', compact('user'));
     }
 
     /**
@@ -68,9 +114,48 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(UpdateUserRequest $request, $id)
     {
-        //
+        $rule = [
+            'name => required',
+            'email => required',
+            'area => required',
+            'image => required',
+            'phone => required',
+        ];
+        $customMessages = [
+            'name.required' => 'Field Nama Wajib Diisi!',
+            'email.required' => 'Field EMail Wajib Diisi',
+            'image.required' => 'Field Foto Wajib Diisi',
+            'area.required' => 'Field Area Wajib Diisi',
+            'phone.required' => 'Field phone Wajib Diisi!',
+        ];
+        
+        $this->validate($request, $rule, $customMessages);
+        $users = User::find($id);
+        $users->name = $request->name;
+        $users->email = $request->email;
+        $users->area = $request->area;
+        $users->phone = $request->phone;
+        if ($request->hasFile('image')) {
+            if ($users->image != 'asset/profile/profile.jpg'){
+                File::delete($users->image);
+            }
+
+            $foto = $request->file('image');
+            $foto_ext = $foto->getClientOriginalExtension();
+            $foto_name = Str::random(8);
+
+            $upload_path = 'asset/profile';
+            $imagename = $upload_path . '/' . $foto_name . '.' . $foto_ext;
+            $request->file('image')->move($upload_path, $imagename);
+
+            $users['image'] = $imagename;
+        }
+        $status = $users->save();
+        if ($status) {
+            return redirect('/profile'.'/'.$id)->with('success','Data Has been updated');
+        }
     }
 
     /**
@@ -81,6 +166,6 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+        abort(404);
     }
 }

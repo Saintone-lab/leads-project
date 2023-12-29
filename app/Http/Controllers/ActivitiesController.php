@@ -38,6 +38,10 @@ class ActivitiesController extends Controller
     {
         $leads = Client::where("id", $request->client_id)->first();
         $leads->id_issues = $request->issues;
+        if ($request->issues == '4'){
+            $leads->role = 'Customers';
+        }
+        dd($request);
 
         $action = new Activities;
         $action->client_id = $request->client_id;

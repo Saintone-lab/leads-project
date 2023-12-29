@@ -13,7 +13,7 @@
                                     <div class="badge bg-label-primary rounded-pill lh-xs">Year of 2021</div>
                                 </div>
                                 <div class="d-flex align-items-end">
-                                    <h4 class="mb-0 me-2">8.14k</h4>
+                                    <h4 class="mb-0 me-2">125Jt <span class="small text-muted">/150Jt</span></h4>
                                     <small class="text-success">+15.6%</small>
                                 </div>
                             </div>
@@ -150,7 +150,7 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="mb-0 text-muted">Total $42,580 Sales</p>
+                        <p class="mb-0 text-muted">Forecast Quotation $42,580</p>
                     </div>
                     <div class="card-body">
                         <div id="monthlyOverviewChartYolan"></div>

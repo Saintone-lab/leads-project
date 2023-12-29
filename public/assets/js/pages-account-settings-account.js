@@ -7,8 +7,7 @@
 document.addEventListener('DOMContentLoaded', function (e) {
   (function () {
     const formAccSettings = document.querySelector('#formAccountSettings'),
-      deactivateAcc = document.querySelector('#formAccountDeactivation'),
-      deactivateButton = deactivateAcc.querySelector('.deactivate-account');
+      deactivateAcc = document.querySelector('#formAccountDeactivation');
 
     // Form validation for Add new record
     if (formAccSettings) {
@@ -95,43 +94,43 @@ document.addEventListener('DOMContentLoaded', function (e) {
     const accountActivation = document.querySelector('#accountActivation');
 
     // Alert With Functional Confirm Button
-    if (deactivateButton) {
-      deactivateButton.onclick = function () {
-        if (accountActivation.checked == true) {
-          Swal.fire({
-            text: 'Are you sure you would like to deactivate your account?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes',
-            customClass: {
-              confirmButton: 'btn btn-primary me-2 waves-effect waves-light',
-              cancelButton: 'btn btn-label-secondary waves-effect'
-            },
-            buttonsStyling: false
-          }).then(function (result) {
-            if (result.value) {
-              Swal.fire({
-                icon: 'success',
-                title: 'Deleted!',
-                text: 'Your file has been deleted.',
-                customClass: {
-                  confirmButton: 'btn btn-success waves-effect'
-                }
-              });
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-              Swal.fire({
-                title: 'Cancelled',
-                text: 'Deactivation Cancelled!!',
-                icon: 'error',
-                customClass: {
-                  confirmButton: 'btn btn-success waves-effect'
-                }
-              });
-            }
-          });
-        }
-      };
-    }
+    // if (deactivateButton) {
+    //   deactivateButton.onclick = function () {
+    //     if (accountActivation.checked == true) {
+    //       Swal.fire({
+    //         text: 'Are you sure you would like to deactivate your account?',
+    //         icon: 'warning',
+    //         showCancelButton: true,
+    //         confirmButtonText: 'Yes',
+    //         customClass: {
+    //           confirmButton: 'btn btn-primary me-2 waves-effect waves-light',
+    //           cancelButton: 'btn btn-label-secondary waves-effect'
+    //         },
+    //         buttonsStyling: false
+    //       }).then(function (result) {
+    //         if (result.value) {
+    //           Swal.fire({
+    //             icon: 'success',
+    //             title: 'Deleted!',
+    //             text: 'Your file has been deleted.',
+    //             customClass: {
+    //               confirmButton: 'btn btn-success waves-effect'
+    //             }
+    //           });
+    //         } else if (result.dismiss === Swal.DismissReason.cancel) {
+    //           Swal.fire({
+    //             title: 'Cancelled',
+    //             text: 'Deactivation Cancelled!!',
+    //             icon: 'error',
+    //             customClass: {
+    //               confirmButton: 'btn btn-success waves-effect'
+    //             }
+    //           });
+    //         }
+    //       });
+    //     }
+    //   };
+    // }
 
     // CleaveJS validation
 

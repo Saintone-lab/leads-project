@@ -25,6 +25,7 @@
                 </thead>
             </table>
         </div>
+        <span data-bs-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="Responded | Send Quotation" class="badge rounded-pill  bg-label-primary">75%</span>
     </div>
     @foreach ($quotation as $quote)
         @include('pages.sales.quotation.modal-status')
@@ -53,4 +54,13 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-quotation.js"></script>
+@endpush
+
+@push('script')
+    <script>
+        // Initialize Bootstrap tooltips using jQuery
+        $(document).ready(function() {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
 @endpush

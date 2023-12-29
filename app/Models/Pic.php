@@ -16,8 +16,6 @@ class Pic extends Model
         'position',
         'email_pic',
         'phone_pic',
-        'area',
-        'machine',
     ];
 
     

@@ -4,13 +4,12 @@
 <div class="invoice-print p-4">
     <div class="container-fluid flex-grow-1 container-p-y">
         <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
-            <div class="mb-xl-0 pb-3">
-                <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
-                    <span class="app-brand-logo demo" style="width: 50px">
-                        <img class="text-md" src="{{ asset('assets') }}/img/favicon/logo-reftech1.png" alt=""
+            <div class="mb-xl-0">
+                <div class="d-flex svg-illustration align-items-center gap-2 mb-3">
+                    <span class="app-brand-logo demo" style="width: 50%">
+                        <img class="text-md" src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}" alt="" 
                             srcset="">
                     </span>
-                    <span class="h4 mb-0 app-brand-text fw-bold">PT REFTECH JAYA OPTIMA</span>
                 </div>
                 <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 27</p>
                 <p class="mb-1">Bandung – Jawa Barat 40218</p>
@@ -38,10 +37,10 @@
 
         <div class="mb-4">
             <div class="row">
-                <div class="col-6 my-3">
-                    <h6 class="pb-2 fw-semibold fs-4">Quote To:</h6>
+                <div class="col-6 my-2">
+                    <h6 class="fw-semibold fs-4">Quote To:</h6>
                 </div>
-                <div class="col-6 mb-3">
+                <div class="col-6 mb-2">
                 </div>
             </div>
             <div class="row">
@@ -55,9 +54,9 @@
                 <div class="col-4">
                     <p class="mb-1">: {{ $quote->pic->name_pic }}</p>
                     <p class="mb-1">: {{ $quote->pic->client->company }}</p>
-                    <p class="mb-1">: {{ $quote->no_pr ?? '-' }}</p>
                     <p class="mb-1">: {{ $quote->pic->client->phone }}</p>
                     <p class="mb-1">: {{ $quote->pic->client->email }}</p>
+                    <p class="mb-1">: {{ $quote->no_pr ?? '-' }}</p>
                 </div>
                 <div class="col-3 fw-medium text-end">
                     <p class="mb-1">Sales :</p>
@@ -77,7 +76,7 @@
         </div>
 
         <div class="mb-2">
-            <table class="table table-borderless m-0">
+            <table class="table table-borderless m-0" style="width: 100%">
                 <thead class="table-light border-top">
                     <tr>
                         <th class="no">No.</th>
@@ -85,7 +84,7 @@
                         <th class="desc">Description</th>
                         <th class="price">Price</th>
                         <th class="qty">Qty</th>
-                        <th class="disc">Discount</th>
+                        <th class="disc">Disc</th>
                         <th class="amount">Amount</th>
                     </tr>
                 </thead>
@@ -100,16 +99,16 @@
                         <tr class="row-product">
                             <td>{{ $no }}</td>
                             <td class="text-nowrap">{{ $product->product }}</td>
-                            <td class="text-nowrap">{{ $product->detail_product }}</td>
-                            <td>RP {{ number_format($product->price, 0, '', '.') }}</td>
+                            <td style="max-width: 200px; word-wrap: break-word; word-break: break-all; white-space: normal;">{{ $product->detail_product }}</td>
+                            <td class="text-end">{{ number_format($product->price, 0, '', '.') }}</td>
                             <td>{{ $product->qty }}</td>
                             <td>{{ $product->disc }}%</td>
-                            <td>RP {{ number_format($product->amount, 0, '', '.') }}</td>
+                            <td class="text-end">{{ number_format($product->amount, 0, '', '.') }}</td>
                         </tr>
                     @endforeach
                     <tr class="">
                         <td colspan="3" rowspan="2" class="align-top pt-4">
-                            <span>Thanks for your business</span>
+                            
                         </td>
                         <td colspan="2" class="text-end pt-4 pb-0">
                             <p class="mb-2">Subtotal:</p>
@@ -117,10 +116,10 @@
                             <p class="mb-2">Shipping Cost:</p>
                         </td>
                         <td colspan="2" class="pt-4 pb-0">
-                            <p class="fw-semibold mb-2 text-end">RP
+                            <p class="fw-semibold mb-2 text-end">Rp
                                 {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                             <p class="fw-semibold mb-2 text-end">{{ $quote->tax }}%</p>
-                            <p class="fw-semibold mb-2 text-end">RP
+                            <p class="fw-semibold mb-2 text-end">Rp
                                 {{ number_format($quote->shipping, 0, '', '.') }}</p>
                         </td>
                     </tr>
@@ -129,7 +128,7 @@
                             <p class="mb-0 text-end">Total:</p>
                         </td>
                         <td colspan="2" class="">
-                            <p class="fw-semibold mb-0 text-end">RP
+                            <p class="fw-semibold mb-0 text-end">Rp
                                 {{ number_format($quote->harga_total, 0, '', '.') }}</p>
                         </td>
                     </tr>

@@ -23,6 +23,7 @@ class UserTableSeeder extends Seeder
                 'password' => 'yusufreftech123',
                 'area' => 'bandung',
                 'role' => 'sales',
+                'image' => 'profile.jpg',
             ],
             [
                 'name' => 'Ms Regita',
@@ -31,6 +32,7 @@ class UserTableSeeder extends Seeder
                 'password' => 'regitaairn123',
                 'area' => 'bandung',
                 'role' => 'sales',
+                'image' => 'profile.jpg',
             ],
             [
                 'name' => 'Mr Ari',
@@ -39,6 +41,7 @@ class UserTableSeeder extends Seeder
                 'password' => 'aritech123',
                 'area' => 'bandung',
                 'role' => 'technician',
+                'image' => 'profile.jpg',
             ],
         ];
         User::insert($user);

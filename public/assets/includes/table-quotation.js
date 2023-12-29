@@ -2,6 +2,7 @@ $(function () {
     var dt_table_quotation = $(".datatable-quotation");
 
     if (dt_table_quotation.length) {
+        $('[data-toggle="tooltip"]').tooltip();
         var dt_quotation = dt_table_quotation.DataTable({
             ajax: assetsPath + "api/quotation/connection.php",
             columns: [
@@ -21,7 +22,7 @@ $(function () {
             columnDefs: [
                 {
                     targets: 5,
-                    render: $.fn.dataTable.render.number( '.', '', 0, 'Rp.' ),
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
                 {
                     // For Responsive
@@ -64,20 +65,20 @@ $(function () {
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $status = {
-                            "25": { title: "Draft", class: "bg-label-info" },
-                            "50": {
+                            25: { title: "Draft", class: "bg-label-info" },
+                            50: {
                                 title: "Send",
                                 class: " bg-label-warning",
                             },
-                            "75": {
+                            75: {
                                 title: "Negotiation",
                                 class: " bg-label-primary",
                             },
-                            "100": {
+                            100: {
                                 title: "Done PO",
                                 class: " bg-label-success",
                             },
-                            "0": { title: "Loss", class: " bg-label-danger" },
+                            0: { title: "Loss", class: " bg-label-danger" },
                         };
                         if (typeof $status[$status_number] === "undefined") {
                             return data;
@@ -96,27 +97,48 @@ $(function () {
                     targets: 10,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
+                        var $titleTool = full["note"];
                         var $status = {
-                            "25": { title: "25%", class: "bg-label-info" },
-                            "50": {
+                            25: { 
+                                title: "25%", 
+                                class: "bg-label-info", 
+                                colorTip : "tooltip-info", 
+                                titleTip : $titleTool, 
+                            },
+                            50: {
                                 title: "50%",
                                 class: " bg-label-warning",
+                                colorTip : "tooltip-warning",
+                                titleTip : $titleTool, 
                             },
-                            "75": {
+                            75: {
                                 title: "75%",
                                 class: " bg-label-primary",
+                                colorTip : "tooltip-primary",
+                                titleTip : $titleTool, 
                             },
-                            "100": {
+                            100: {
                                 title: "100%",
                                 class: " bg-label-success",
+                                colorTip : "tooltip-success",
+                                titleTip : $titleTool, 
                             },
-                            "0": { title: "0%", class: " bg-label-danger" },
+                            0: { 
+                                title: "0%", 
+                                class: " bg-label-danger", 
+                                colorTip : "tooltip-danger", 
+                                titleTip : $titleTool, 
+                            },
                         };
                         if (typeof $status[$status_number] === "undefined") {
                             return data;
                         }
                         return (
-                            '<span class="badge rounded-pill ' +
+                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
+                            $status[$status_number].colorTip +
+                            '" title="'+
+                            $status[$status_number].titleTip+
+                            '" class="badge rounded-pill ' +
                             $status[$status_number].class +
                             '">' +
                             $status[$status_number].title +
@@ -155,6 +177,10 @@ $(function () {
                     },
                 },
             ],
+            drawCallback: function (settings) {
+                console.log("drawCallback");
+                $('[data-toggle="tooltip"]').tooltip();
+            },
             order: [[2, "desc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
@@ -418,4 +444,7 @@ $(function () {
             '<h5 class="card-title mb-0">Table quotations</h5>'
         );
     }
+    dt_table_quotation.on("draw", function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
 });

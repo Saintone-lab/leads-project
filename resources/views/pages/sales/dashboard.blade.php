@@ -28,13 +28,13 @@
                         <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                             <div class="avatar">
                                 <div class="avatar-initial bg-label-info rounded">
-                                    <i class="mdi mdi-account-search-outline mdi-24px"></i>
+                                    <i class="mdi mdi-phone-outline mdi-24px"></i>
                                 </div>
                             </div>
                         </div>
                         <div class="card-info mt-4 pt-1">
                             <h4 class="mb-2">{{$leads->count()}} <small class="text-muted fs-tiny">/ 360</small></h4>
-                            <p class="text-muted">Total Leads</p>
+                            <p class="text-muted">Daily Call</p>
                             <div class="badge bg-label-secondary rounded-pill">Miss Regita</div>
                         </div>
                     </div>
@@ -55,7 +55,7 @@
                         </div>
                         <div class="card-info mt-4 pt-1">
                             <h4 class="mb-2">{{$customers->count()}} <small class="text-muted fs-tiny">/ 360</small></h4>
-                            <p class="text-muted">Total Customers</p>
+                            <p class="text-muted">CRM Existing</p>
                             <div class="badge bg-label-secondary rounded-pill">Miss Regita</div>
                         </div>
                     </div>
@@ -76,7 +76,7 @@
                         </div>
                         <div class="card-info mt-4 pt-1">
                             <h4 class="mb-2">{{$quotation->count()}} <small class="text-muted fs-tiny">/ 360</small></h4>
-                            <p class="text-muted">Total Quotation</p>
+                            <p class="text-muted">Quotation</p>
                             <div class="badge bg-label-secondary rounded-pill">Miss Regita</div>
                         </div>
                     </div>
@@ -97,7 +97,7 @@
                         </div>
                         <div class="card-info mt-4 pt-1">
                             <h4 class="mb-2">{{$po->count()}} <small class="text-muted fs-tiny">/ 360</small></h4>
-                            <p class="text-muted">Total PO</p>
+                            <p class="text-muted">Pruchase Order</p>
                             <div class="badge bg-label-secondary rounded-pill">Miss Regita</div>
                         </div>
                     </div>

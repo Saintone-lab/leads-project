@@ -21,6 +21,7 @@ class Quotation extends Model
         'id_service',
         'no_pr',
         'status',
+        'note',
         'tax',
         'diskon',
         'shipping',

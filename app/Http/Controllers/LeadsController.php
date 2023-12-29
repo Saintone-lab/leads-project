@@ -142,8 +142,6 @@ class LeadsController extends Controller
         $pic->position = $request->position;
         $pic->email_pic = $request->emailPic;
         $pic->phone_pic = $request->phonePic;
-        $pic->area = $request->area;
-        $pic->machine = $request->machine;
         $picsave = $pic->save();
 
         if ($leadsave && $picsave) {
@@ -162,9 +160,8 @@ class LeadsController extends Controller
         $leads = Client::where('id', $id)->first();
         $charge = PIC::where('id_client', $id)->get();
         $callhis = Activities::where('id_client', $id)->get();
-        $quote = Quotation::where('id_client', $id)->get();
+        $quote = Quotation::join('pic','pic.id','=','quotation.id_pic')->where('pic.id_client', $id)->get();
         $sales = User::where('role', 'sales')->get();
-        // dd($quote);
         return view('pages.sales.leads.detail', compact('leads', 'callhis', 'quote', 'sales', 'charge'));
     }
 
@@ -264,11 +261,17 @@ class LeadsController extends Controller
     public function destroy($id)
     {
         $leadsD = Client::find($id);
+        $picD = Pic::where('id_client', $id)->get();
         $activitiesD = Activities::where('id_client', $id)->get();
         $visitD = Visit::where('id_client', $id)->get();
-        $quoteD = Quotation::where('id_client', $id)->get();
+        $quoteD = Quotation::join('pic','pic.id','=','quotation.id_pic')->where('pic.id_client', $id)->get();
 
         $delLeads = $leadsD->delete();
+        if( $picD != NULL) {
+            foreach ($picD as $pic) {
+                $delpic = $pic->delete();
+            }
+        }
         if( $activitiesD != NULL) {
             foreach ($activitiesD as $activities) {
                 $delActivities = $activities->delete();
@@ -285,7 +288,7 @@ class LeadsController extends Controller
             }
         }
 
-        if($delLeads || $delActivities || $delVisits || $delQuote){
+        if($delLeads || $delActivities || $delVisits || $delQuote || $delpic){
             return 1;
         }else{
             return 0;
@@ -295,6 +298,9 @@ class LeadsController extends Controller
     public function storeActionWithLeads(Request $request, $id){
         $leads = Client::where("id", $id)->first();
         $leads->id_issues = $request->issues;
+        if ($request->issues == '4'){
+            $leads->role = 'Customers';
+        }
         $isuSave = $leads->save();
 
         $action = new Activities;

@@ -13,7 +13,7 @@
         @endif
         <div class="form-floating mb-3">
             <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
-                placeholder="#RJO-XI-{{ \Carbon\Carbon::now()->year }}-" aria-describedby="floatingInputFilledHelp"
+                value="#RJO-XI-{{ \Carbon\Carbon::now()->year }}-" aria-describedby="floatingInputFilledHelp"
                 name="no_quote" value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote . '-REV-' : '') }}">
             <label for="floatingInputFilled">Number Quotation</label>
             <span class="form-floating-focused"></span>
@@ -137,7 +137,7 @@
                                             <div class="col-md-1 col-12 mb-md-0 mb-3">
                                                 <p class="mb-2 repeater-title">Discount</p>
                                                 <input type="number" class="form-control invoice-item-disc"
-                                                    placeholder="Min 1" name="disc[]" id="disc-{{ $dataDetail }}"
+                                                    placeholder="%" name="disc[]" id="disc-{{ $dataDetail }}"
                                                     data-id="{{ $dataDetail }}" min="1" max="50"
                                                     value="{{ old('disc[]', $quote->disc) }}">
                                             </div>
@@ -168,7 +168,7 @@
                                         <div class="col-md-6 col-12 mb-md-0 mb-3">
                                             <label for="product" class="mb-2">Product</label>
                                             <input type="text" name="product[]" id="product"
-                                                class="form-control mb-3 product" placeholder="Example: Kaeser">
+                                                class="form-control mb-3 product" placeholder="Put Your Part Number Here. Example: 6.641.13.1">
                                             <textarea class="form-control" rows="2" placeholder="Detail Product. Example: Kaeser ASD"
                                                 name="detail_product[]"></textarea>
                                         </div>
@@ -194,8 +194,8 @@
                                         <div class="col-md-1 col-12 mb-md-0 mb-3">
                                             <p class="mb-2 repeater-title">Discount</p>
                                             <input type="number" class="form-control invoice-item-disc"
-                                                placeholder="Min 1" name="disc[]" id="disc-1" data-id="1"
-                                                min="1" max="50" value="{{ old('disc[]') }}}}">
+                                                placeholder="%" name="disc[]" id="disc-1" data-id="1"
+                                                min="0" max="50" value="{{ old('disc[]') }}}}">
                                         </div>
                                         <div class="col-md-1 col-12 pe-0">
                                             <p class="mb-2 repeater-title">Amount</p>
@@ -309,7 +309,7 @@
                                                 <input type="text" id="shipping-label" class="form-control"
                                                     placeholder="Shipping Cost Here....." data-type="currency"
                                                     style="background: none; border: none;"
-                                                    pattern="^[1-9]\d{0,2}(\.\d{3})*$"
+                                                    pattern="^[0-9]\d{0,2}(\.\d{3})*$"
                                                     value="{{ old('shipping', @$quotation->shipping ? number_format(@$quotation->shipping, 0, '', '.') : '') }}">
                                                 <input type="number" name="shipping" id="shipping"
                                                     value="{{ old('shipping', @$quotation->shipping ?? '') }}" hidden>

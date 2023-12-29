@@ -20,8 +20,6 @@ return new class extends Migration
             $table->string('position', 25);
             $table->string('email_pic', 50);
             $table->string('phone_pic', 15);
-            $table->string('area', 25);
-            $table->string('machine');
             $table->timestamps();
         });
     }

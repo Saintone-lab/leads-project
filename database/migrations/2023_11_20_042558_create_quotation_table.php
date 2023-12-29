@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('no_pr')->nullable();
             $table->string('title');
             $table->integer('status');
+            $table->string('note');
             $table->date('estimated_date');
             $table->date('expired_date');
             $table->integer('tax');
