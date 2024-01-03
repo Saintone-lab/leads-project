@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('email')->unique();
             // $table->date('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('code');
             $table->string('area', 25);
             $table->enum('role',['Sales', 'Technician', 'Admin', 'Warehouse']);
             $table->string('image');

@@ -233,8 +233,8 @@
         </div>
     </div>
     @include('pages.sales.leads.form')
-    @include('components.modal.pic.form-create')
+    @include('components.modal.pic.leads.form-create')
     @foreach ($charge as $pic)
-        @include('components.modal.pic.form-update')
+        @include('components.modal.pic.leads.form-update')
     @endforeach
 @endsection()

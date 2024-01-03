@@ -1,6 +1,6 @@
 @page {
     size: auto !important;
-    size: A4 !important;
+    size: 240mm 330mm !important;
     margin: 0mm !important;
 }
 @media print {
@@ -18,7 +18,8 @@
     }
 
     .invoice-print table {
-        max-width: fit-content !important;
+        /* max-width: fit-content !important; */
+        width: 100%;
         font-size: 12px !important;
     }
 

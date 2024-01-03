@@ -87,6 +87,13 @@
                                     <div class="fv-plugins-message-container invalid-feedback"></div>
                                 </div>
 
+                                <div class="form-floating form-floating-outline mb-3 fv-plugins-icon-container">
+                                    <input type="text" class="form-control" id="code" name="code"
+                                        placeholder="Enter your Code" autofocus="">
+                                    <label for="code">Code</label>
+                                    <div class="fv-plugins-message-container invalid-feedback"></div>
+                                </div>
+
                                 <div class="mb-3 fv-plugins-icon-container">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="terms-conditions"

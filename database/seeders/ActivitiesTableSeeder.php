@@ -23,7 +23,7 @@ class ActivitiesTableSeeder extends Seeder
                 'date'        => \Carbon\Carbon::yesterday()->subDays(3)->format('Y-m-d H:i:s'),    
                 'follow_up'        => \Carbon\Carbon::today()->addDays(14)->format('Y-m-d H:i:s'),
                 'action' => 'Number Office',
-                'schedule' => '-'
+                'note' => '-'
             ],
             [
                 'id_client' => '1',
@@ -32,7 +32,7 @@ class ActivitiesTableSeeder extends Seeder
                 'date'        => \Carbon\Carbon::today()->addDays(10)->format('Y-m-d H:i:s'),    
                 'follow_up'        => \Carbon\Carbon::today()->addDays(24)->format('Y-m-d H:i:s'),
                 'action' => 'WhatsApp',
-                'schedule' => '-'
+                'note' => '-'
             ],
             [
                 'id_client' => '2',
@@ -41,7 +41,7 @@ class ActivitiesTableSeeder extends Seeder
                 'date'        => \Carbon\Carbon::today()->subDays(4)->format('Y-m-d H:i:s'),    
                 'follow_up'        => \Carbon\Carbon::today()->addDays(10)->format('Y-m-d H:i:s'),
                 'action' => 'Number Office',
-                'schedule' => '-'
+                'note' => '-'
             ],
             [
                 'id_client' => '3',
@@ -50,7 +50,7 @@ class ActivitiesTableSeeder extends Seeder
                 'date'        => \Carbon\Carbon::today()->subDays(7)->format('Y-m-d H:i:s'),    
                 'follow_up'        => \Carbon\Carbon::today()->addDays(7)->format('Y-m-d H:i:s'),
                 'action' => 'Number Office',
-                'schedule' => '-'
+                'note' => '-'
             ],
         ];
         Activities::insert($activities);

@@ -312,7 +312,7 @@ class LeadsController extends Controller
         }
         $action->status = $request->status;
         $action->action = $request->action;
-        $action->schedule = $request->schedule;
+        $action->note = $request->note;
         $action->date = \Carbon\Carbon::today();
         $action->follow_up = $request->follow_up;
         $activitiesSave = $action->save();

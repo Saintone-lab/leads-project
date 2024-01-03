@@ -1,14 +1,23 @@
 $(function () {
     var dt_table_leads = $(".datatable-leads");
+    var Url = "api/db/leads";
 
     if (dt_table_leads.length) {
+        $('[data-toggle="tooltip"]').tooltip();
         var dt_leads = dt_table_leads.DataTable({
             // ajax: assetsPath + "api/leads/connection.php",
             ajax: {
                 type: "GET",
-                url: assetsPath + "api/leads/connection.php",
-                Success: function (hasil) {
+                url: Url,
+
+                success: function (hasil, Url) {
+                    console.log("Url:", Url);
                     console.log(hasil);
+                },
+                error: function (error) {
+                    console.log("Url:", Url);
+                    console.error("Error:", error);
+                    console.log("error disini");
                 },
             },
             columns: [
@@ -32,26 +41,30 @@ $(function () {
                     },
                 },
                 { data: "issue" },
-                { data: "date",
-                render: function (data, type, row) {
-                    // Jika data adalah null atau undefined, kembalikan '-'
-                    if (data === null || data === undefined) {
-                        return "-";
-                    } else {
-                        // Jika data memiliki nilai, kembalikan nilainya
-                        return type === "display" ? data : "-";
-                    }
-                }, },
-                { data: "follow_up",
-                render: function (data, type, row) {
-                    // Jika data adalah null atau undefined, kembalikan '-'
-                    if (data === null || data === undefined) {
-                        return "-";
-                    } else {
-                        // Jika data memiliki nilai, kembalikan nilainya
-                        return type === "display" ? data : "-";
-                    }
-                }, },
+                {
+                    data: "date",
+                    render: function (data, type, row) {
+                        // Jika data adalah null atau undefined, kembalikan '-'
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            // Jika data memiliki nilai, kembalikan nilainya
+                            return type === "display" ? data : "-";
+                        }
+                    },
+                },
+                {
+                    data: "follow_up",
+                    render: function (data, type, row) {
+                        // Jika data adalah null atau undefined, kembalikan '-'
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            // Jika data memiliki nilai, kembalikan nilainya
+                            return type === "display" ? data : "-";
+                        }
+                    },
+                },
                 { data: "name" },
                 { data: "" },
             ],
@@ -123,30 +136,48 @@ $(function () {
                     targets: 8,
                     render: function (data, type, full, meta) {
                         var $status_number = full["id_issues"];
+                        var $titleTool = full["note"];
                         var $status = {
                             1: {
                                 title: "New Client",
                                 class: "bg-label-warning",
+                                colorTip: "tooltip-warning",
+                                titleTip: $titleTool,
                             },
                             2: {
                                 title: "Send Introduction",
                                 class: " bg-label-info",
+                                colorTip: "tooltip-info",
+                                titleTip: $titleTool,
                             },
                             3: {
                                 title: "Send Quote",
                                 class: " bg-label-primary",
+                                colorTip: "tooltip-primary",
+                                titleTip: $titleTool,
                             },
                             4: {
                                 title: "Done PO",
                                 class: " bg-label-success",
+                                colorTip: "tooltip-success",
+                                titleTip: $titleTool,
                             },
-                            5: { title: "Loss", class: " bg-label-danger" },
+                            5: {
+                                title: "Loss",
+                                class: " bg-label-danger",
+                                colorTip: "tooltip-danger",
+                                titleTip: $titleTool,
+                            },
                         };
                         if (typeof $status[$status_number] === "undefined") {
                             return data;
                         }
                         return (
-                            '<span class="badge ' +
+                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
+                            $status[$status_number].colorTip +
+                            '" title="' +
+                            $status[$status_number].titleTip +
+                            '" class="badge ' +
                             $status[$status_number].class +
                             '">' +
                             $status[$status_number].title +
@@ -408,6 +439,9 @@ $(function () {
                     },
                 },
             ],
+            drawCallback: function (settings) {
+                $('[data-toggle="tooltip"]').tooltip();
+            },
             responsive: {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal({
@@ -447,4 +481,7 @@ $(function () {
             '<h5 class="card-title mb-0">Table Leads</h5>'
         );
     }
+    dt_table_leads.on("draw", function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
 });

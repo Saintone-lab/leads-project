@@ -1,19 +1,16 @@
-<form action="#" method="post"
+<form action="{{route('pic.leads.store', $leads->id)}}" method="post"
 {{-- {{ @$pic ? route('pic.update', @$pic->$id) : route('pic.store') }} --}}
+
     enctype="multipart/form-data">
     {{-- {{ csrf_token() }} --}}
     @csrf
-
-    @if ($pic)
-        @method('patch')
-    @endif
     <div class="modal animate__animated animate__fadeIn"
-        id="{{ 'updatePic-' .strval($pic->id) }}" tabindex="-1" style="display: none;"
+        id="{{ 'createPic' }}" tabindex="-1" style="display: none;"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel5">{{'Update Data '}} Pic
+                    <h4 class="modal-title" id="exampleModalLabel5">{{'Create New ' }} Pic
                     </h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -35,7 +32,7 @@
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="nameAnimation" class="form-control" name="namePic"
                                     placeholder="xxxxxxx xxxxxxxx"
-                                    value="{{ old('namePic', @$pic->name_pic ?? '') }}">
+                                    value="{{ old('namePic') }}">
                                 <label for="nameAnimation">Name</label>
                             </div>
                         </div>
@@ -43,7 +40,7 @@
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="positionAnimation" class="form-control" name="position"
                                     placeholder="example: CEO"
-                                    value="{{ old('position', @$pic->position ?? '') }}">
+                                    value="{{ old('position') }}">
                                 <label for="positionAnimation">Position</label>
                             </div>
                         </div>
@@ -53,7 +50,7 @@
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="emailPicAnimation" class="form-control" name="emailPic"
                                     placeholder="xxxxxxxx@xxx.xx"
-                                    value="{{ old('emailPic', @$pic->email_pic ?? '') }}">
+                                    value="{{ old('emailPic') }}">
                                 <label for="emailPicAnimation">Email PIC</label>
                             </div>
                         </div>
@@ -61,7 +58,7 @@
                             <div class="form-floating form-floating-outline">
                                 <input type="phone" id="phonePicAnimation" class="form-control" name="phonePic"
                                     placeholder="08xxxxxxxxxx"
-                                    value="{{ old('phonePic', @$pic->phone_pic ?? '') }}">
+                                    value="{{ old('phonePic') }}">
                                 <label for="phonePicAnimation">Phone PIC</label>
                             </div>
                         </div>

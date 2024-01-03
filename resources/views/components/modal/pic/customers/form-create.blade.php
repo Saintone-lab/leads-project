@@ -1,4 +1,4 @@
-<form action="#" method="post"
+<form action="{{ route('pic.cust.store', $customers->id) }}" method="post"
 {{-- {{ @$pic ? route('pic.update', @$pic->$id) : route('pic.store') }} --}}
 
     enctype="multipart/form-data">

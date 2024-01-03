@@ -4,5 +4,5 @@ $user = "root";
 $pass = "";
 
 $databaseName = "db_leads_v1";
-$tableName = "client";
+$tableName = "quotation";
 ?>

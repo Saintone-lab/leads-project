@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class UserTableSeeder extends Seeder
 {
@@ -17,30 +18,43 @@ class UserTableSeeder extends Seeder
     {
         $user = [
             [
-                'name' => 'Mr Yusuf',
+                'name' => 'Yusuf Herdiana',
                 'phone' => '081267987456',
-                'email' => 'yusuf@gmail.com',
-                'password' => 'yusufreftech123',
-                'area' => 'bandung',
+                'email' => 'sales@reftech.id',
+                'password' => Hash::make('sales'),
+                'code' => 'YH',
+                'area' => 'Bandung',
                 'role' => 'sales',
                 'image' => 'profile.jpg',
             ],
             [
-                'name' => 'Ms Regita',
+                'name' => 'Regita Dwi Melinda',
                 'phone' => '081266823456',
-                'email' => 'regita@gmail.com',
-                'password' => 'regitaairn123',
-                'area' => 'bandung',
+                'email' => 'regita@reftech.id',
+                'password' => Hash::make('sales'),
+                'code' => 'RM',
+                'area' => 'Bandung',
                 'role' => 'sales',
                 'image' => 'profile.jpg',
             ],
             [
-                'name' => 'Mr Ari',
+                'name' => 'Rifan Fahli',
                 'phone' => '081294857656',
-                'email' => 'ari@gmail.com',
-                'password' => 'aritech123',
-                'area' => 'bandung',
-                'role' => 'technician',
+                'email' => 'rifan@reftech.id',
+                'password' => Hash::make('sales'),
+                'code' => 'RF',
+                'area' => 'Bandung',
+                'role' => 'sales',
+                'image' => 'profile.jpg',
+            ],
+            [
+                'name' => 'Yolan Yolanda',
+                'phone' => '081294857656',
+                'email' => 'support@reftech.id',
+                'password' => Hash::make('sales'),
+                'code' => 'CRM',
+                'area' => 'Bandung',
+                'role' => 'sales',
                 'image' => 'profile.jpg',
             ],
         ];

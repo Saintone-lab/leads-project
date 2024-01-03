@@ -40,6 +40,9 @@
                 </thead>
             </table>
         </div>
+        
+        <span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-danger" class="badge rounded-pill  bg-label-danger" data-bs-original-title="Price too high">{{Auth::user()->id}}</span>
+        <span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-warning" title="Quotation telah dikirim" class="badge  bg-label-primary">Send Quote</span>
     </div>
     @include('pages.sales.leads.form')
     @foreach ($client as $clients)
@@ -73,14 +76,16 @@
 @endpush
 
 @push('page-script')
-    <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/js/ui-modals.js"></script>
-    <script src="{{ asset('assets') }}/js/forms-pickers.js"></script>
     <script src="{{ asset('assets') }}/includes/table-leads.js"></script>
 @endpush
 
 @push('script')
     <script>
+        // Initialize Bootstrap tooltips using jQuery
+        $(document).ready(function() {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
         $(document).on('click', '.delete-data-leads', function() {
             var id = $(this).data('id');
             Swal.fire({

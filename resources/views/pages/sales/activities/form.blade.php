@@ -48,9 +48,9 @@
                         </div>
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="scheduleAnimation" class="form-control" name="schedule"
-                                    placeholder="Schedule....">
-                                <label for="scheduleAnimation">Schedule Introduction / Visit</label>
+                                <input type="text" id="scheduleAnimation" class="form-control" name="note"
+                                    placeholder="Put Your Note Here....">
+                                <label for="scheduleAnimation">Note</label>
                             </div>
                         </div>
                     </div>

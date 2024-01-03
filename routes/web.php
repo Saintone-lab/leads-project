@@ -3,6 +3,7 @@
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExistingController;
+use App\Http\Controllers\PicController;
 use App\Http\Controllers\ReportsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadsController;
@@ -72,6 +73,13 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/reports/admin', function () {
         return view('pages.admin.report');
     })->name('reports.admin');
+
+    // Route untuk Pic
+    Route::resource('/pic', PicController::class);
+    Route::post('/pic/customers/{id}', [PicController::class, 'storeOnCust'])->name('pic.cust.store');
+    Route::post('/pic/leads/{id}', [PicController::class, 'storeOnLeads'])->name('pic.leads.store');
+    Route::post('/pic/customers/{id}', [PicController::class, 'updateOnCust'])->name('pic.cust.update');
+    Route::post('/pic/customers/{id}', [PicController::class, 'destroyOnCust'])->name('pic.cust.destroy');
 
 });
 Auth::routes();

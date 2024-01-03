@@ -241,8 +241,8 @@
         </div>
     </div>
     @include('components.modal.client.customers.form')
-    @include('components.modal.pic.form-create')
+    @include('components.modal.pic.customers.form-create')
     @foreach ($charge as $pic)
-        @include('components.modal.pic.form-update')
+        @include('components.modal.pic.customers.form-update')
     @endforeach
 @endsection()

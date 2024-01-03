@@ -21,7 +21,7 @@ return new class extends Migration
             $table->date('date');
             $table->date('follow_up');
             $table->string('action', 20);
-            $table->string('schedule');
+            $table->string('note');
             $table->timestamps();
         });
     }

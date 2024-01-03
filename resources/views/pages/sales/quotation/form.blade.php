@@ -13,7 +13,7 @@
         @endif
         <div class="form-floating mb-3">
             <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
-                value="#RJO-XI-{{ \Carbon\Carbon::now()->year }}-" aria-describedby="floatingInputFilledHelp"
+                value="001-P/BDG/RJO-{{Auth::user()->code}}/I/{{ \Carbon\Carbon::now()->year }}" aria-describedby="floatingInputFilledHelp"
                 name="no_quote" value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote . '-REV-' : '') }}">
             <label for="floatingInputFilled">Number Quotation</label>
             <span class="form-floating-focused"></span>

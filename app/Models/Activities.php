@@ -18,7 +18,8 @@ class Activities extends Model
         'id_client',
         'name',
         'status',
-        'action'
+        'action',
+        'note',
     ];
 
     public function client(){

@@ -119,14 +119,14 @@
                             <td>{{ $quote->pic->client->company }}</td>
                             <td>{{ $quote->title }}</td>
                             <td>{{ \Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</td>
-                            <td>Rp {{ number_format($quote->harga_total, 0, '', '.') }}</td>
+                            <td class="text-end">Rp {{ number_format($quote->harga_total, 0, '', '.') }}</td>
                         </tr>
                     @endforeach
                     <tr class="bg-label-secondary">
                         <td colspan="3">
                         </td>
                         <td><strong>Total</strong></td>
-                        <td><strong>Rp {{ number_format($totalP, 0, '', '.') }}</strong></td>
+                        <td class="text-end"><strong>Rp {{ number_format($totalP, 0, '', '.') }}</strong></td>
                     </tr>
                 </tbody>
             </table>

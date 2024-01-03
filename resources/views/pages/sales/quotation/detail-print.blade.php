@@ -13,7 +13,7 @@
                 </div>
                 <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 27</p>
                 <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                <p>
+                <p class="mb-0">
                     <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1"></i>022 54417653
                 </p>
             </div>
@@ -37,40 +37,34 @@
 
         <div class="mb-4">
             <div class="row">
-                <div class="col-6 my-2">
-                    <h6 class="fw-semibold fs-4">Quote To:</h6>
+                <div class="col-6">
+                    <h6 class="fw-semibold fs-4 mb-3">Quote To:</h6>
                 </div>
                 <div class="col-6 mb-2">
                 </div>
             </div>
             <div class="row">
                 <div class="col-2 fw-medium">
-                    <p class="mb-1">Name PIC</p>
                     <p class="mb-1">Company </p>
+                    <p class="mb-1">Name PIC</p>
                     <p class="mb-1">Phone </p>
                     <p class="mb-1">Email </p>
-                    <p class="mb-1">No PR</p>
                 </div>
                 <div class="col-4">
-                    <p class="mb-1">: {{ $quote->pic->name_pic }}</p>
                     <p class="mb-1">: {{ $quote->pic->client->company }}</p>
+                    <p class="mb-1">: {{ $quote->pic->name_pic }}</p>
                     <p class="mb-1">: {{ $quote->pic->client->phone }}</p>
                     <p class="mb-1">: {{ $quote->pic->client->email }}</p>
-                    <p class="mb-1">: {{ $quote->no_pr ?? '-' }}</p>
                 </div>
                 <div class="col-3 fw-medium text-end">
-                    <p class="mb-1">Sales :</p>
-                    <p class="mb-1">Phone Sales :</p>
-                    <p class="mb-1">Date Estimated :</p>
-                    <p class="mb-1">Date Expired :</p>
-                    <p class="mb-1">Title :</p>
+                    <p class="mb-1">Saler :</p>
+                    <p class="mb-1">Date :</p>
+                    <p class="mb-1">No PR :</p>
                 </div>
                 <div class="col-3 text-end">
-                    <p class="mb-1"> {{ $quote->sales->name }}</p>
-                    <p class="mb-1"> {{ $quote->sales->phone }}</p>
+                    <p class="mb-1"> PT Reftech Jaya Optima</p>
                     <p class="mb-1"> {{ \Carbon\Carbon::parse($quote->estimated_date)->toFormattedDateString() }}</p>
-                    <p class="mb-1"> {{ \Carbon\Carbon::parse($quote->expired_date)->toFormattedDateString() }}</p>
-                    <p class="mb-1"> {{ $quote->title }}</p>
+                    <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                 </div>
             </div>
         </div>
@@ -80,7 +74,7 @@
                 <thead class="table-light border-top">
                     <tr>
                         <th class="no">No.</th>
-                        <th class="item">Item</th>
+                        <th class="item text-nowrap">Part Number</th>
                         <th class="desc">Description</th>
                         <th class="price">Price</th>
                         <th class="qty">Qty</th>
@@ -136,22 +130,26 @@
             </table>
         </div>
 
-        <div class="mb-0">
+        <div class="mb-4">
             <h5 class="mt-4 mb-3">Term & Condition</h5>
             <div class="row">
-                <div class="col-3 fw-medium termc">
+                <div class="col-3 fw-medium termc p-3">
                     <p class="mb-1">Validity Of Quotation</p>
                     <p class="mb-1">Price </p>
                     <p class="mb-1">Delivery Process </p>
                     <p class="mb-1">Payment </p>
                 </div>
-                <div class="col termc">
+                <div class="col termc p-3">
                     <p class="mb-1">: {{ $quote->termncon[0]->validity }}</p>
                     <p class="mb-1">: {{ $quote->termncon[0]->pricing }}</p>
                     <p class="mb-1">: {{ $quote->termncon[0]->delivery_process }}</p>
                     <p class="mb-1">: {{ $quote->termncon[0]->payment }}</p>
                 </div>
             </div>
+        </div>
+        <div class="mb-0">
+            <p class="text-center mb-0">if you have any questions about this quotation, please contact :</p>
+            <p class="text-center">{{ $quote->sales->name }} {{ $quote->sales->phone }}</p>
         </div>
     </div>
 </div>
