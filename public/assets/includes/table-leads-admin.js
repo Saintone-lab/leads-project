@@ -1,6 +1,5 @@
 $(function () {
-    var dt_table_leads = $(".datatable-leads");
-    var Url = "db/leads";
+    var dt_table_leads = $(".datatable-leads-admin");
 
     if (dt_table_leads.length) {
         $('[data-toggle="tooltip"]').tooltip();
@@ -8,11 +7,7 @@ $(function () {
             // ajax: assetsPath + "api/leads/connection.php",
             ajax: {
                 type: "GET",
-                url: Url,
-                headers : {
-                    'Content-Type': 'application/json',
-                },
-
+                url: assetsPath + "api/leads/connection.php",
                 // success: function (hasil, Url) {
                 //     console.log("Url:", Url);
                 //     console.log(hasil);
@@ -432,14 +427,6 @@ $(function () {
                             },
                         },
                     ],
-                },
-                {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Leads</span>',
-                    className: "btn btn-primary",
-                    attr: {
-                        "data-bs-target": "#createLeads",
-                        "data-bs-toggle": "modal",
-                    },
                 },
             ],
             drawCallback: function (settings) {

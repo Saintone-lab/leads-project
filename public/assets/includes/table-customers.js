@@ -1,15 +1,26 @@
 $(function () {
     var dt_table_customers = $(".datatable-customers");
+    var Url = "db/customers";
 
     if (dt_table_customers.length) {
         var dt_customers = dt_table_customers.DataTable({
             // ajax: assetsPath + "api/customers/connection.php",
             ajax: {
                 type: "GET",
-                url: assetsPath + "api/customers/connection.php",
-                Success: function (hasil) {
-                    console.log(hasil);
+                url: Url,
+                headers : {
+                    'Content-Type': 'application/json',
                 },
+
+                // success: function (hasil, Url) {
+                //     console.log("Url:", Url);
+                //     console.log(hasil);
+                // },
+                // error: function (error) {
+                //     console.log("Url:", Url);
+                //     console.error("Error:", error);
+                //     console.log("error disini");
+                // },
             },
             columns: [
                 { data: "" },

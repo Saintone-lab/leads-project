@@ -13,7 +13,7 @@
         @endif
         <div class="form-floating mb-3">
             <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
-                value="001-P/BDG/RJO-{{Auth::user()->code}}/I/{{ \Carbon\Carbon::now()->year }}" aria-describedby="floatingInputFilledHelp"
+                value="{{$formattedNumberQ}}-P/BDG/RJO-{{Auth::user()->code}}/{{$formattedMonthNow}}/{{ \Carbon\Carbon::now()->year }}" aria-describedby="floatingInputFilledHelp"
                 name="no_quote" value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote . '-REV-' : '') }}">
             <label for="floatingInputFilled">Number Quotation</label>
             <span class="form-floating-focused"></span>
@@ -87,7 +87,7 @@
                                     <option disabled>-----Select Assigned-----</option>
                                     @foreach ($sales as $saless)
                                         <option value="{{ $saless->id }}"
-                                            {{ @$quotation->id_sales == $saless->id ? 'selected' : '' }}>
+                                            {{ $saless->id == Auth::user()->id ? 'selected' : '' }}>
                                             {{ $saless->name }}</option>
                                     @endforeach
                                 </select>
@@ -139,7 +139,7 @@
                                                 <input type="number" class="form-control invoice-item-disc"
                                                     placeholder="%" name="disc[]" id="disc-{{ $dataDetail }}"
                                                     data-id="{{ $dataDetail }}" min="1" max="50"
-                                                    value="{{ old('disc[]', $quote->disc) }}">
+                                                    value="{{ old('disc[]', $quote->disc ?? '0') }}">
                                             </div>
                                             <div class="col-md-1 col-12 pe-0">
                                                 <p class="mb-2 repeater-title">Amount</p>
@@ -189,13 +189,13 @@
                                             <p class="mb-2 repeater-title">Qty</p>
                                             <input type="number" class="form-control invoice-item-qty"
                                                 placeholder="Min 1" name="qty[]" id="qty-1" data-id="1"
-                                                min="1" max="50" value="{{ old('qty[]') }}}}">
+                                                min="1" max="50" value="{{ old('qty[]') }}">
                                         </div>
                                         <div class="col-md-1 col-12 mb-md-0 mb-3">
                                             <p class="mb-2 repeater-title">Discount</p>
                                             <input type="number" class="form-control invoice-item-disc"
                                                 placeholder="%" name="disc[]" id="disc-1" data-id="1"
-                                                min="0" max="50" value="{{ old('disc[]') }}}}">
+                                                min="0" max="50" value="{{ old('disc[]', '0') }}">
                                         </div>
                                         <div class="col-md-1 col-12 pe-0">
                                             <p class="mb-2 repeater-title">Amount</p>
@@ -203,7 +203,7 @@
                                                 {{ old(strval('amount[]')) }}</p>
                                             <input type="number" class="form-control invoice-item-amount"
                                                 name="amount[]" id="amount-1" data-id="1" min="12"
-                                                value="{{ old('amount[]') }}}}" hidden>
+                                                value="{{ old('amount[]') }}" hidden>
                                         </div>
                                     </div>
                                     <div

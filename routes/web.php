@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApiTableController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExistingController;
@@ -81,5 +82,16 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/pic/customers/{id}', [PicController::class, 'updateOnCust'])->name('pic.cust.update');
     Route::post('/pic/customers/{id}', [PicController::class, 'destroyOnCust'])->name('pic.cust.destroy');
 
+    // Route untuk API Tabel DataTable
+    // Route::get('/fetch-data/leads', [ApiTableController::class, 'tableLeads']);
+    Route::get('/db/leads', function () {
+        require_once base_path('app/api/leads/connection.php');
+    });
+    Route::get('/db/customers', function () {
+        require_once base_path('app/api/customers/connection.php');
+    });
+    Route::get('/db/quotation', function () {
+        require_once base_path('app/api/quotation/connection.php');
+    });
 });
 Auth::routes();

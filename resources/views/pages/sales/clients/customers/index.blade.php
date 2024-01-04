@@ -18,28 +18,53 @@
         <span class="text-muted fw-light">Clients /</span> Customers
     </h4>
 
-    <div class="card">
-        <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-customers table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Company</th>
-                        <th>PIC</th>
-                        <th>Address</th>
-                        <th>R/U</th>
-                        <th>Machine</th>
-                        <th>Last Contact</th>
-                        <th>Next Follow Up</th>
-                        <th>Assigned</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-            </table>
+    @if (Auth::user()->role == 'Sales')
+        <div class="card">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-customers table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Company</th>
+                            <th>PIC</th>
+                            <th>Address</th>
+                            <th>R/U</th>
+                            <th>Machine</th>
+                            <th>Last Contact</th>
+                            <th>Next Follow Up</th>
+                            <th>Assigned</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
-    </div>
+    @elseif(Auth::user()->role == 'Admin')
+        <div class="card">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-customers-admin table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Company</th>
+                            <th>PIC</th>
+                            <th>Address</th>
+                            <th>R/U</th>
+                            <th>Machine</th>
+                            <th>Last Contact</th>
+                            <th>Next Follow Up</th>
+                            <th>Assigned</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    @endif
 @endsection
 
 @push('after-style')
@@ -72,6 +97,7 @@
     <script src="{{ asset('assets') }}/js/ui-modals.js"></script>
     <script src="{{ asset('assets') }}/js/forms-pickers.js"></script>
     <script src="{{ asset('assets') }}/includes/table-customers.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-customers-admin.js"></script>
 @endpush
 
 @push('script')

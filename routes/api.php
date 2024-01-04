@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApiTableController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,8 +19,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-});
-Route::get('/db/leads', function () {
-    require_once base_path('app/api/leads/connection.php');
+Route::middleware('auth:api')->group(function () {
+    Route::get('/fetch-data/leads', [ApiTableController::class, 'tableLeads']);
+    Route::get('/db/leads', function () {
+        require_once base_path('app/api/leads/connection.php');
+    });
 });

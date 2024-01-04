@@ -8,6 +8,8 @@ use App\Models\Pic;
 use App\Models\Quotation;
 use App\Models\Termncon;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use PDF;
 use Illuminate\Http\Request;
 
@@ -31,12 +33,14 @@ class QuotationController extends Controller
      */
     public function create()
     {
-        $idquote = Quotation::orderBy('id', 'desc')->first()->id;
-        $idQ = $idquote + 1;
-        $dquotation = DetailQuotation::Where('id_quotation', $idQ)->first();
+        $dateNow = Carbon::now();
+        $numberQ = Quotation::whereYear('estimated_date', $dateNow)->where('id_sales', Auth::user()->id)->count();
+        $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
+        $monthNow = $dateNow->month;
+        $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::all();
         $sales = User::where('role', 'sales')->get();
-        return view('pages.sales.quotation.form', compact('dquotation', 'pic', 'sales'));
+        return view('pages.sales.quotation.form', compact('pic', 'sales', 'formattedNumberQ', 'formattedMonthNow'));
     }
 
     /**
@@ -284,15 +288,35 @@ class QuotationController extends Controller
             'status.required' => 'Field Status Wajib Diisi',
             'note.required' => 'Field note Wajib Diisi',
         ];
-        
+
         $this->validate($request, $rule, $message);
-        
-        $quotation = Quotation::find( $id );
+
+        $quotation = Quotation::find($id);
         $quotation->status = $request->status;
         $quotation->note = $request->note;
         $stats = $quotation->save();
         if ($stats) {
             return redirect('quotation')->with("success", "Data Status Quotation Telah Diubah");
         }
+    }
+
+    protected function convertToRoman($month)
+    {
+        $romanMonth = [
+            1 => 'I',
+            2 => 'II',
+            3 => 'III',
+            4 => 'IV',
+            5 => 'V',
+            6 => 'VI',
+            7 => 'VII',
+            8 => 'VIII',
+            9 => 'IX',
+            10 => 'X',
+            11 => 'XI',
+            12 => 'XII',
+        ];
+
+        return $romanMonth[$month];
     }
 }

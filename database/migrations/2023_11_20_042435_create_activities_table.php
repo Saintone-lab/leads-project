@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_client');
             $table->string('name', 15);
-            $table->string('status', 10);
+            $table->string('status');
             $table->date('date');
             $table->date('follow_up');
             $table->string('action', 20);

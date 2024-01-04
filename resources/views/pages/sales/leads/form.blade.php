@@ -34,7 +34,7 @@
                                     <option disabled>----- Choose Sales -----</option>
                                     @foreach ($sales as $saless)
                                         <option value="{{ $saless->id }}"
-                                            {{ @$leads->id_sales == $saless->id ? 'selected' : '' }}>{{ $saless->name }}
+                                            {{ $saless->id == Auth::user()->id ? 'selected' : '' }}>{{ $saless->name }}
                                         </option>
                                     @endforeach
                                 </select>

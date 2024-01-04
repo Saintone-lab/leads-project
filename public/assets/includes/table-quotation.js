@@ -1,10 +1,27 @@
 $(function () {
     var dt_table_quotation = $(".datatable-quotation");
+    var Url = 'db/quotation';
 
     if (dt_table_quotation.length) {
         $('[data-toggle="tooltip"]').tooltip();
         var dt_quotation = dt_table_quotation.DataTable({
-            ajax: assetsPath + "api/quotation/connection.php",
+            ajax: {
+                type: "GET",
+                url: Url,
+                headers : {
+                    'Content-Type': 'application/json',
+                },
+
+                // success: function (hasil, Url) {
+                //     console.log("Url:", Url);
+                //     console.log(hasil);
+                // },
+                // error: function (error) {
+                //     console.log("Url:", Url);
+                //     console.error("Error:", error);
+                //     console.log("error disini");
+                // },
+            },
             columns: [
                 { data: "" },
                 { data: "id" },

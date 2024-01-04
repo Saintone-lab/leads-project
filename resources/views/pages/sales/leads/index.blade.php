@@ -18,32 +18,67 @@
         <span class="text-muted fw-light">Clients /</span> Leads
     </h4>
 
-    <div class="card">
-        <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-leads table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Company</th>
-                        <th>PIC</th>
-                        <th>Address</th>
-                        <th>R/U</th>
-                        <th>Machine</th>
-                        <th>Status</th>
-                        <th>Last Contact</th>
-                        <th>Next Follow Up</th>
-                        <th>Assigned</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-            </table>
+    @if (Auth::user()->role == 'Sales')
+        <div class="card">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-leads table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Company</th>
+                            <th>PIC</th>
+                            <th>Address</th>
+                            <th>R/U</th>
+                            <th>Machine</th>
+                            <th>Status</th>
+                            <th>Last Contact</th>
+                            <th>Next Follow Up</th>
+                            <th>Assigned</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+            <span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-danger"
+                class="badge rounded-pill  bg-label-danger"
+                data-bs-original-title="Price too high">{{ Auth::user()->id }}</span>
+            <span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-warning"
+                title="Quotation telah dikirim" class="badge  bg-label-primary">Send Quote</span>
         </div>
-        
-        <span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-danger" class="badge rounded-pill  bg-label-danger" data-bs-original-title="Price too high">{{Auth::user()->id}}</span>
-        <span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-warning" title="Quotation telah dikirim" class="badge  bg-label-primary">Send Quote</span>
-    </div>
+    @elseif(Auth::user()->role == 'Admin')
+        <div class="card">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-leads-admin table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Company</th>
+                            <th>PIC</th>
+                            <th>Address</th>
+                            <th>R/U</th>
+                            <th>Machine</th>
+                            <th>Status</th>
+                            <th>Last Contact</th>
+                            <th>Next Follow Up</th>
+                            <th>Assigned</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+            <span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-danger"
+                class="badge rounded-pill  bg-label-danger"
+                data-bs-original-title="Price too high">{{ Auth::user()->id }}</span>
+            <span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-warning"
+                title="Quotation telah dikirim" class="badge  bg-label-primary">Send Quote</span>
+        </div>
+    @endif
     @include('pages.sales.leads.form')
     @foreach ($client as $clients)
         @include('pages.sales.activities.form')
@@ -77,6 +112,7 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/includes/table-leads.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-leads-admin.js"></script>
 @endpush
 
 @push('script')
