@@ -49,7 +49,7 @@
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="scheduleAnimation" class="form-control" name="note"
-                                    placeholder="Put Your Note Here....">
+                                    placeholder="Put Your Note Here...." value="{{ old('note', $clients->activities[0]->note)}}">
                                 <label for="scheduleAnimation">Note</label>
                             </div>
                         </div>

@@ -1,5 +1,5 @@
 @extends('layouts.sales.app')
-@section('title', 'My Leads')
+@section('title', 'My Customer')
 @section('content')
 
     @if (Session::has('message'))

@@ -24,10 +24,10 @@
     <ul class="menu-inner py-1">
         @if (auth::user()->role == 'Admin')
             <!-- Dashboards -->
-            <li class="menu-item {{ request()->is('dashboard/admin') ? 'active' : '' }}">
-                <a href="{{ route('dashboard.admin') }}" class="menu-link">
+            <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
+                <a href="{{ url('/') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
-                    <div data-i18n="Dashboards Admin">Dashboards Admin</div>
+                    <div data-i18n="Dashboards">Dashboards</div>
                 </a>
             </li>
             <li class="menu-item">
@@ -36,12 +36,13 @@
                     <div data-i18n="Activities">Activities</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('reports/admin') ? 'active' : '' }}">
-                <a href="{{ route('reports.admin') }}" class="menu-link">
+            <li class="menu-item {{ request()->is('reports') ? 'active' : '' }}">
+                <a href="{{ url('/reports') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-finance"></i>
-                    <div data-i18n="Reports Admin">Reports Admin</div>
+                    <div data-i18n="Reports">Reports</div>
                 </a>
-            </li><!-- Layouts -->
+            </li>
+            <!-- Layouts -->
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Client</span>
             </li>

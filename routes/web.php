@@ -77,9 +77,9 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk Pic
     Route::resource('/pic', PicController::class);
-    Route::post('/pic/customers/{id}', [PicController::class, 'storeOnCust'])->name('pic.cust.store');
     Route::post('/pic/leads/{id}', [PicController::class, 'storeOnLeads'])->name('pic.leads.store');
-    Route::post('/pic/customers/{id}', [PicController::class, 'updateOnCust'])->name('pic.cust.update');
+    Route::post('/pic/customers/store/{id}', [PicController::class, 'storeOnCust'])->name('pic.cust.store');
+    Route::post('/pic/customers/update/{id}', [PicController::class, 'updateOnCust'])->name('pic.cust.update');
     Route::post('/pic/customers/{id}', [PicController::class, 'destroyOnCust'])->name('pic.cust.destroy');
 
     // Route untuk API Tabel DataTable

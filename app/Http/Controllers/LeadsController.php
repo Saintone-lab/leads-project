@@ -24,11 +24,8 @@ class LeadsController extends Controller
     public function index()
     {
         $client = Client::where("role", "Leads")->get();
-        // $folup = $client->activities()->orderBy("follow_up","desc");
-        // dd($client);
         $issue = Issues::get();
         $sales = User::where('role', 'sales')->get();
-        // $dcompressor = DetailCompressor::get();
         return view('pages.sales.leads.index', compact('client', 'sales', 'issue'));
     }
 

@@ -41,12 +41,6 @@
                     </thead>
                 </table>
             </div>
-
-            <span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-danger"
-                class="badge rounded-pill  bg-label-danger"
-                data-bs-original-title="Price too high">{{ Auth::user()->id }}</span>
-            <span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-warning"
-                title="Quotation telah dikirim" class="badge  bg-label-primary">Send Quote</span>
         </div>
     @elseif(Auth::user()->role == 'Admin')
         <div class="card">
@@ -71,12 +65,6 @@
                     </thead>
                 </table>
             </div>
-
-            <span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-danger"
-                class="badge rounded-pill  bg-label-danger"
-                data-bs-original-title="Price too high">{{ Auth::user()->id }}</span>
-            <span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-warning"
-                title="Quotation telah dikirim" class="badge  bg-label-primary">Send Quote</span>
         </div>
     @endif
     @include('pages.sales.leads.form')
