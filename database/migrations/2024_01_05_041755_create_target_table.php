@@ -13,14 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('termncon', function (Blueprint $table) {
+        Schema::create('target', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_quotation');
-            $table->string('validity');
-            $table->string('pricing');
-            $table->string('delivery_process');
-            $table->string('payment');
-            $table->string('note')->nullable();
+            $table->foreignId('id_sales');
+            $table->string('dc');
+            $table->string('intro');
+            $table->string('quote');
+            $table->string('po');
             $table->timestamps();
         });
     }
@@ -32,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('termncon');
+        Schema::dropIfExists('target');
     }
 };

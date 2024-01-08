@@ -28,17 +28,24 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "company" },
-                { data: "name_pic" },
+                {
+                    data: "name_pic",
+                    render: function (data, type, row) {
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            return type === "display" ? data : "-";
+                        }
+                    },
+                },
                 { data: "area" },
                 { data: "ru" },
                 {
                     data: "machine",
                     render: function (data, type, row) {
-                        // Jika data adalah null atau undefined, kembalikan '-'
                         if (data === null || data === undefined) {
                             return "-";
                         } else {
-                            // Jika data memiliki nilai, kembalikan nilainya
                             return type === "display" ? data : "-";
                         }
                     },
@@ -47,11 +54,9 @@ $(function () {
                 {
                     data: "date",
                     render: function (data, type, row) {
-                        // Jika data adalah null atau undefined, kembalikan '-'
                         if (data === null || data === undefined) {
                             return "-";
                         } else {
-                            // Jika data memiliki nilai, kembalikan nilainya
                             return type === "display" ? data : "-";
                         }
                     },
@@ -59,16 +64,13 @@ $(function () {
                 {
                     data: "follow_up",
                     render: function (data, type, row) {
-                        // Jika data adalah null atau undefined, kembalikan '-'
                         if (data === null || data === undefined) {
                             return "-";
-                        } else {
-                            // Jika data memiliki nilai, kembalikan nilainya
+                        } else {    
                             return type === "display" ? data : "-";
                         }
                     },
                 },
-                { data: "name" },
                 { data: "" },
             ],
             columnDefs: [
@@ -148,24 +150,30 @@ $(function () {
                                 titleTip: $titleTool,
                             },
                             2: {
+                                title: "Not Responded",
+                                class: " bg-label-danger",
+                                colorTip: "tooltip-danger",
+                                titleTip: $titleTool,
+                            },
+                            3: {
                                 title: "Send Introduction",
                                 class: " bg-label-info",
                                 colorTip: "tooltip-info",
                                 titleTip: $titleTool,
                             },
-                            3: {
+                            4: {
                                 title: "Send Quote",
                                 class: " bg-label-primary",
                                 colorTip: "tooltip-primary",
                                 titleTip: $titleTool,
                             },
-                            4: {
+                            5: {
                                 title: "Done PO",
                                 class: " bg-label-success",
                                 colorTip: "tooltip-success",
                                 titleTip: $titleTool,
                             },
-                            5: {
+                            6: {
                                 title: "Loss",
                                 class: " bg-label-danger",
                                 colorTip: "tooltip-danger",

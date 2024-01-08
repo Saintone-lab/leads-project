@@ -49,7 +49,7 @@
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="scheduleAnimation" class="form-control" name="note"
-                                    placeholder="Put Your Note Here...." value="{{ old('note', $clients->activities[0]->note)}}">
+                                    placeholder="Put Your Note Here...." value="-">
                                 <label for="scheduleAnimation">Note</label>
                             </div>
                         </div>
@@ -71,7 +71,7 @@
                                 <select class="form-select" id="selectStatus" aria-label="Default select example"
                                     name="issues">
                                     @foreach ($issue as $issues)
-                                        <option value="{{ $issues->id }}" {{$clients->id_issues > $issues->id ? 'disabled' : '' }}>{{ $issues->issue }}</option>
+                                        <option value="{{ $issues->id }}" {{ $issues->id == $clients->id_issues ? 'selected' : '' }}>{{ $issues->issue }}</option>
                                     @endforeach
                                 </select>
                                 <label for="selectStatus">Status</label>

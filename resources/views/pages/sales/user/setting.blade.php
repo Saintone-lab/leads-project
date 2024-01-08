@@ -14,14 +14,16 @@
                         <a class="nav-link active" href="javascript:void(0);"><i
                                 class="mdi mdi-cog-outline me-1 mdi-20px"></i>Account Settings</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('profile.create')}}"><i
-                                class="mdi mdi-account-multiple-outline me-1 mdi-20px"></i>Create Account</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="pages-profile-connections.html"><i
-                                class="mdi mdi-tools me-1 mdi-20px"></i>Tools</a>
-                    </li>
+                    @if (Auth::user()->role == 'Admin')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('profile.create') }}"><i
+                                    class="mdi mdi-account-multiple-outline me-1 mdi-20px"></i>Create Account</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="pages-profile-connections.html"><i
+                                    class="mdi mdi-tools me-1 mdi-20px"></i>Tools</a>
+                        </li>
+                    @endif
                 </ul>
                 <div class="card mb-4">
                     <form action="{{route('profile.update', Auth::user()->id)}}" id="" method="POST" enctype="multipart/form-data">
@@ -76,10 +78,11 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="input-group input-group-merge">
+                                        <span class="input-group-text">+62</span>
                                         <div class="form-floating form-floating-outline">
-                                            <input type="text" id="phone" name="phone" class="form-control"
-                                                placeholder="81293746582" value="{{ old('phone', Auth::user()->phone) }}" />
-                                            <label for="phone">Phone Number</label>
+                                            <input type="text" class="form-control" placeholder="8123094857"
+                                                id="phone" name="phone" value="{{ old('phone', Auth::user()->phone) }}">
+                                                <label for="phone">Phone Number</label>
                                         </div>
                                     </div>
                                 </div>

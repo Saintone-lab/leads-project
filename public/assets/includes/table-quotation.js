@@ -1,6 +1,6 @@
 $(function () {
     var dt_table_quotation = $(".datatable-quotation");
-    var Url = 'db/quotation';
+    var Url = "db/quotation";
 
     if (dt_table_quotation.length) {
         $('[data-toggle="tooltip"]').tooltip();
@@ -8,8 +8,8 @@ $(function () {
             ajax: {
                 type: "GET",
                 url: Url,
-                headers : {
-                    'Content-Type': 'application/json',
+                headers: {
+                    "Content-Type": "application/json",
                 },
 
                 // success: function (hasil, Url) {
@@ -82,20 +82,34 @@ $(function () {
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $status = {
-                            25: { title: "Draft", class: "bg-label-info" },
-                            50: {
-                                title: "Send",
-                                class: " bg-label-warning",
+                            20: {
+                                title: "Send WA / Email",
+                                class: "bg-label-secondary",
                             },
-                            75: {
-                                title: "Negotiation",
+                            30: {
+                                title: "Inquiry Accepted",
+                                class: " bg-label-dark",
+                            },
+                            40: {
+                                title: "Progress Follow Up",
+                                class: " bg-label-info",
+                            },
+                            60: {
+                                title: "Negotiation / Revisi",
                                 class: " bg-label-primary",
+                            },
+                            80: {
+                                title: "Hot Prospect",
+                                class: " bg-label-warning",
                             },
                             100: {
                                 title: "Done PO",
                                 class: " bg-label-success",
                             },
-                            0: { title: "Loss", class: " bg-label-danger" },
+                            0: {
+                                title: "Loss",
+                                class: " bg-label-danger",
+                            },
                         };
                         if (typeof $status[$status_number] === "undefined") {
                             return data;
@@ -116,35 +130,47 @@ $(function () {
                         var $status_number = full["status"];
                         var $titleTool = full["note"];
                         var $status = {
-                            25: { 
-                                title: "25%", 
-                                class: "bg-label-info", 
-                                colorTip : "tooltip-info", 
-                                titleTip : $titleTool, 
+                            20: {
+                                title: "20%",
+                                class: "bg-label-secondary",
+                                colorTip: "tooltip-secondary",
+                                titleTip: $titleTool,
                             },
-                            50: {
-                                title: "50%",
-                                class: " bg-label-warning",
-                                colorTip : "tooltip-warning",
-                                titleTip : $titleTool, 
+                            30: {
+                                title: "30%",
+                                class: " bg-label-dark",
+                                colorTip: "tooltip-dark",
+                                titleTip: $titleTool,
                             },
-                            75: {
-                                title: "75%",
+                            40: {
+                                title: "40%",
+                                class: " bg-label-info",
+                                colorTip: "tooltip-info",
+                                titleTip: $titleTool,
+                            },
+                            60: {
+                                title: "60%",
                                 class: " bg-label-primary",
-                                colorTip : "tooltip-primary",
-                                titleTip : $titleTool, 
+                                colorTip: "tooltip-primary",
+                                titleTip: $titleTool,
+                            },
+                            80: {
+                                title: "80%",
+                                class: " bg-label-warning",
+                                colorTip: "tooltip-warning",
+                                titleTip: $titleTool,
                             },
                             100: {
                                 title: "100%",
                                 class: " bg-label-success",
-                                colorTip : "tooltip-success",
-                                titleTip : $titleTool, 
+                                colorTip: "tooltip-success",
+                                titleTip: $titleTool,
                             },
-                            0: { 
-                                title: "0%", 
-                                class: " bg-label-danger", 
-                                colorTip : "tooltip-danger", 
-                                titleTip : $titleTool, 
+                            0: {
+                                title: "0%",
+                                class: " bg-label-danger",
+                                colorTip: "tooltip-danger",
+                                titleTip: $titleTool,
                             },
                         };
                         if (typeof $status[$status_number] === "undefined") {
@@ -153,8 +179,8 @@ $(function () {
                         return (
                             '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
                             $status[$status_number].colorTip +
-                            '" title="'+
-                            $status[$status_number].titleTip+
+                            '" title="' +
+                            $status[$status_number].titleTip +
                             '" class="badge rounded-pill ' +
                             $status[$status_number].class +
                             '">' +

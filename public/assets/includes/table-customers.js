@@ -62,7 +62,6 @@ $(function () {
                         return type === "display" ? data : "-";
                     }
                 }, },
-                { data: "name" },
                 { data: "" },
             ],
             columnDefs: [

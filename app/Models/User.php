@@ -58,5 +58,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\Quotation', 'id_sales');
     }
+    public function target()
+    {
+        return $this->hasMany('App\Models\Target', 'id_sales');
+    }
     
 }

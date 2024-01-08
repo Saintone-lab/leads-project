@@ -34,7 +34,6 @@
                             <th>Machine</th>
                             <th>Last Contact</th>
                             <th>Next Follow Up</th>
-                            <th>Assigned</th>
                             <th>Action</th>
                         </tr>
                     </thead>

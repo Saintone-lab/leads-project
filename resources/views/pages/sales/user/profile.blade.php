@@ -13,7 +13,7 @@
                     </div>
                     <div class="user-profile-header d-flex flex-column flex-sm-row text-sm-start text-center mb-4">
                         <div class="flex-shrink-0 mt-n2 mx-sm-0 mx-auto">
-                            <img src="{{url('').'/'.Auth::user()->image}}" alt="user image"
+                            <img src="{{ url('') . '/' . Auth::user()->image }}" alt="user image"
                                 class="d-block h-auto ms-0 ms-sm-4 rounded user-profile-img" />
                         </div>
                         <div class="flex-grow-1 mt-3 mt-sm-5">
@@ -59,17 +59,19 @@
                                 class="mdi mdi-account-outline me-1 mdi-20px"></i>Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{route('profile.edit', Auth::user())}}"><i
+                        <a class="nav-link" href="{{ route('profile.edit', Auth::user()) }}"><i
                                 class="mdi mdi-cog-outline me-1 mdi-20px"></i>Account Settings</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{route('profile.create')}}"><i
-                                class="mdi mdi-account-multiple-outline me-1 mdi-20px"></i>Create Account</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="pages-profile-connections.html"><i
-                                class="mdi mdi-tools me-1 mdi-20px"></i>Tools</a>
-                    </li>
+                    @if (Auth::user()->role == 'Admin')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('profile.create') }}"><i
+                                    class="mdi mdi-account-multiple-outline me-1 mdi-20px"></i>Create Account</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="pages-profile-connections.html"><i
+                                    class="mdi mdi-tools me-1 mdi-20px"></i>Tools</a>
+                        </li>
+                    @endif
                 </ul>
             </div>
         </div>
@@ -118,24 +120,26 @@
                     <div class="card-body">
                         @if (Auth::user()->role == 'Admin')
                             @foreach ($overview as $users)
-                                <small class="card-text text-uppercase text-muted">Overview {{$users->name}}</small>
+                                <small class="card-text text-uppercase text-muted">Overview {{ $users->name }}</small>
                                 <ul class="list-unstyled my-3 pt-1">
                                     <li class="d-flex align-items-center mb-3">
-                                        <i class="mdi mdi-phone-incoming-outgoing-outline mdi-24px"></i><span class="fw-semibold mx-2">Total Daily Call
+                                        <i class="mdi mdi-phone-incoming-outgoing-outline mdi-24px"></i><span
+                                            class="fw-semibold mx-2">Total Daily Call
                                             :</span>
                                         <span>135</span>
                                     </li>
                                     <li class="d-flex align-items-center mb-3">
-                                        <i class="mdi mdi-office-building-marker-outline mdi-24px"></i><span class="fw-semibold mx-2">Total Visit
+                                        <i class="mdi mdi-office-building-marker-outline mdi-24px"></i><span
+                                            class="fw-semibold mx-2">Total Visit
                                             :</span> <span>146</span>
                                     </li>
                                     <li class="d-flex align-items-center mb-3">
-                                        <i class="mdi mdi-email-outline mdi-24px"></i><span
-                                            class="fw-semibold mx-2">Total Quotation:</span> <span>897</span>
+                                        <i class="mdi mdi-email-outline mdi-24px"></i><span class="fw-semibold mx-2">Total
+                                            Quotation:</span> <span>897</span>
                                     </li>
                                     <li class="d-flex align-items-center">
-                                        <i class="mdi mdi-cart-plus mdi-24px"></i><span
-                                            class="fw-semibold mx-2">Total Done PO:</span> <span>897</span>
+                                        <i class="mdi mdi-cart-plus mdi-24px"></i><span class="fw-semibold mx-2">Total Done
+                                            PO:</span> <span>897</span>
                                     </li>
                                 </ul>
                             @endforeach

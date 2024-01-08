@@ -80,9 +80,10 @@ class QuotationController extends Controller
         $quotation->id_sales = $request->id_sales;
         $quotation->id_service = NULL;
         $quotation->no_pr = NULL;
-        $quotation->status = "25";
+        $quotation->status = "20";
         $quotation->note = "-";
         $quotation->expired_date = $request->expired_date;
+        $quotation->po_date = NULL;
         $quotation->estimated_date = $request->estimated_date;
         if ($request->tax != NULL) {
             $quotation->tax = $request->tax;
@@ -121,6 +122,7 @@ class QuotationController extends Controller
         $termncon->pricing = $request->pricing;
         $termncon->delivery_process = $request->delivery_process;
         $termncon->payment = $request->payment;
+        $termncon->note = $request->note;
         $status = $termncon->save();
 
         if ($status) {
@@ -198,6 +200,7 @@ class QuotationController extends Controller
         }
         $quotation->status = $quote->status;
         $quotation->note = $quote->note;
+        $quotation->po_date = $quote->po_date;
         $quotation->expired_date = $request->expired_date;
         $quotation->estimated_date = $request->estimated_date;
         $quotation->tax = $request->tax;
@@ -233,6 +236,7 @@ class QuotationController extends Controller
         $termncon->pricing = $request->pricing;
         $termncon->delivery_process = $request->delivery_process;
         $termncon->payment = $request->payment;
+        $termncon->note = $request->note;
         $status = $termncon->save();
 
         if ($status) {
@@ -294,6 +298,9 @@ class QuotationController extends Controller
         $quotation = Quotation::find($id);
         $quotation->status = $request->status;
         $quotation->note = $request->note;
+        if($request->note == "100"){
+            $quotation->po_date = Carbon::now();
+        }
         $stats = $quotation->save();
         if ($stats) {
             return redirect('quotation')->with("success", "Data Status Quotation Telah Diubah");

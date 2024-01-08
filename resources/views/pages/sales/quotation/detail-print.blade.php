@@ -138,12 +138,13 @@
                     <p class="mb-1">Price </p>
                     <p class="mb-1">Delivery Process </p>
                     <p class="mb-1">Payment </p>
+                    <p class="mb-1">Note </p>
                 </div>
                 <div class="col termc p-3">
                     <p class="mb-1">: {{ $quote->termncon[0]->validity }}</p>
                     <p class="mb-1">: {{ $quote->termncon[0]->pricing }}</p>
                     <p class="mb-1">: {{ $quote->termncon[0]->delivery_process }}</p>
-                    <p class="mb-1">: {{ $quote->termncon[0]->payment }}</p>
+                    <p class="mb-1">: {{ $quote->termncon[0]->note }}</p>
                 </div>
             </div>
         </div>

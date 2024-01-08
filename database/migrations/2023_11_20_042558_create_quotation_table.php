@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('note');
             $table->date('estimated_date');
             $table->date('expired_date');
+            $table->date('po_date')->nullable();
             $table->integer('tax');
             $table->integer('shipping');
             $table->string('no_quote');

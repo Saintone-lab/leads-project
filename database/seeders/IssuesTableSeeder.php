@@ -20,6 +20,9 @@ class IssuesTableSeeder extends Seeder
                 'issue' => 'New Client'
             ],
             [
+                'issue' => 'Not Respond'
+            ],
+            [
                 'issue' => 'Send Introduction'
             ],
             [

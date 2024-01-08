@@ -9,7 +9,7 @@
                     <div class="card h-100">
                         <div class="card-body text-nowrap">
                             <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
-                                Congratulations <strong>{{Auth::user()->name}}</strong> 🎉
+                                Congratulations <strong>{{ Auth::user()->name }}</strong> 🎉
                             </h4>
                             <p class="pb-0">Best seller of the month</p>
                             <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPrice }}</h4>
@@ -34,7 +34,18 @@
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">{{ $dailyCall }} <small class="text-muted fs-tiny">/ 600</small></h4>
+                                <h4 class="mb-2">{{ $dailyCall }} <small class="text-muted fs-tiny">/
+                                        @php
+                                            if (is_array($weekPerMonth)) {
+                                                $jumlahData = count($weekPerMonth);
+                                            }
+                                        @endphp
+                                        @if ($jumlahData > 4)
+                                            {{ round($target->dc + $target->dc / 4) }}
+                                        @elseif($jumlahData == 4)
+                                            {{ round($target->dc) }}
+                                        @endif
+                                    </small></h4>
                                 <p class="text-muted">Daily Call</p>
                                 <div class="badge bg-label-secondary rounded-pill">{{ Auth::user()->name }}</div>
                             </div>
@@ -55,7 +66,13 @@
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">{{ $customers->count() }} <small class="text-muted fs-tiny">/ 360</small>
+                                <h4 class="mb-2">{{ $customers->count() }} <small class="text-muted fs-tiny">/
+                                        @if ($jumlahData > 4)
+                                            {{ round($target->intro + $target->intro / 4) }}
+                                        @elseif($jumlahData == 4)
+                                            {{ round($target->intro) }}
+                                        @endif
+                                    </small>
                                 </h4>
                                 <p class="text-muted">CRM Existing</p>
                                 <div class="badge bg-label-secondary rounded-pill">{{ Auth::user()->name }}</div>
@@ -77,7 +94,13 @@
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">{{ $quotation->count() }} <small class="text-muted fs-tiny">/ 360</small>
+                                <h4 class="mb-2">{{ $quotation->count() }} <small class="text-muted fs-tiny">/
+                                        @if ($jumlahData > 4)
+                                            {{ round($target->quote + $target->quote / 4) }}
+                                        @elseif($jumlahData == 4)
+                                            {{ round($target->quote) }}
+                                        @endif
+                                    </small>
                                 </h4>
                                 <p class="text-muted">Quotation</p>
                                 <div class="badge bg-label-secondary rounded-pill">{{ Auth::user()->name }}</div>
@@ -99,7 +122,14 @@
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">{{ $po->count() }} <small class="text-muted fs-tiny">/ 360</small></h4>
+                                <h4 class="mb-2">{{ $po->count() }} <small class="text-muted fs-tiny">/
+                                        @if ($jumlahData > 4)
+                                            {{ round($target->po + $target->po / 4) }}
+                                        @elseif($jumlahData == 4)
+                                            {{ round($target->po) }}
+                                        @endif
+                                    </small>
+                                </h4>
                                 <p class="text-muted">Pruchase Order</p>
                                 <div class="badge bg-label-secondary rounded-pill">{{ Auth::user()->name }}</div>
                             </div>
@@ -216,7 +246,7 @@
                         </div>
                         <div class="card-body pt-2">
                             <ul class="p-0 m-0">
-                                @foreach ($call as $calls)
+                                @forelse ($call as $calls)
                                     <li class="d-flex mb-4 pb-1">
                                         <div class="avatar flex-shrink-0 me-3">
                                             <img src="{{ asset('assets') }}/img/avatars/4.png" alt="avatar"
@@ -236,7 +266,9 @@
                                                 {{ $calls->name }}</div>
                                         </div>
                                     </li>
-                                @endforeach
+                                @empty
+                                <p class="text-center">Tidak Ada Yang Perlu Di Call</p>
+                                @endforelse
                             </ul>
                         </div>
                     </div>

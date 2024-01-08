@@ -2,7 +2,7 @@
 @section('title', 'Detail Leads')
 @section('content')
     <h4 class="fw-bold py-3 mb-4">
-        <span class="text-muted fw-light">Clients / Leads /</span> Details PT. Teras Adhi Kharisma
+        <span class="text-muted fw-light">Clients / Leads /</span> Details {{$leads->company}}
     </h4>
     <div class="row mb-4">
         <div class="col-md-6">
@@ -232,9 +232,107 @@
             </div>
         </div>
     </div>
-    @include('pages.sales.leads.form')
+    @include('pages.sales.clients.leads.form')
     @include('components.modal.pic.leads.form-create')
     @foreach ($charge as $pic)
         @include('components.modal.pic.leads.form-update')
     @endforeach
 @endsection()
+@push('script')
+    {{-- <script>
+        $(document).on('click', '.delete-data-leads', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('leads') }}/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Your file has been deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    location.reload();
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+            // Swal.fire({
+            //     title: "Are you sure?",
+            //     text: "You won't be able to revert this!",
+            //     icon: "warning",
+            //     showCancelButton: true,
+            //     confirmButtonColor: "#3085d6",
+            //     cancelButtonColor: "#d33",
+            //     confirmButtonText: "Yes, delete it!"
+            // }).then((result) => {
+            //     if (result.isConfirmed) {
+            //         $.ajax({
+            //             'url': '{{ url('leads') }}/' + id,
+            //             'type': 'POST',
+            //             'data': {
+            //                 '_method': 'DELETE',
+            //                 '_token': '{{ csrf_token() }}'
+            //             },
+            //             success: function(response) {
+            //                 if (response == 1) {
+            //                     Swal.fire({
+            //                         title: "Deleted!",
+            //                         text: "Your file has been deleted.",
+            //                         icon: "success"
+            //                     })
+            //                     window.setTimeout(function() {
+            //                         location.reload();
+            //                     }, 2000);
+            //                 } else {
+            //                     Swal.fire({
+            //                         icon: 'error',
+            //                         title: 'Oops...',
+            //                         text: 'Data Failed to Delete!'
+            //                     });
+            //                 }
+            //             }
+            //         });
+            //     }
+            // });
+        });
+    </script> --}}
+@endpush

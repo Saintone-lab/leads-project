@@ -260,6 +260,14 @@
                                         name="payment">
                                 </div>
                             </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-4 col-form-label" for="note">Note</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="note" class="form-control form-control-lg"
+                                        value="{{ old('note', @$quotation->termncon[0]->note ?? '-') }}"
+                                        name="note">
+                                </div>
+                            </div>
                         </div>
                         <div class="col-lg-2"></div>
                         <div class="col-lg-4">
@@ -289,8 +297,8 @@
                                                 <option disabled>-----Select Tax-----</option>
                                                 <option value="0" {{ @$quotation->tax == '0' ? 'selected' : '' }}>
                                                     Without Tax</option>
-                                                <option value="12" {{ @$quotation->tax == '12' ? 'selected' : '' }}>
-                                                    <span> With PPN <small class="text-muted"> 12%</small> </span>
+                                                <option value="11" {{ @$quotation->tax == '11' ? 'selected' : '' }}>
+                                                    <span> With PPN <small class="text-muted"> 11%</small> </span>
                                                 </option>
                                             </select>
                                         </div>
@@ -310,9 +318,9 @@
                                                     placeholder="Shipping Cost Here....." data-type="currency"
                                                     style="background: none; border: none;"
                                                     pattern="^[0-9]\d{0,2}(\.\d{3})*$"
-                                                    value="{{ old('shipping', @$quotation->shipping ? number_format(@$quotation->shipping, 0, '', '.') : '') }}">
+                                                    value="{{ old('shipping', @$quotation->shipping ? number_format(@$quotation->shipping, 0, '', '.') : '0') }}">
                                                 <input type="number" name="shipping" id="shipping"
-                                                    value="{{ old('shipping', @$quotation->shipping ?? '') }}" hidden>
+                                                    value="{{ old('shipping', @$quotation->shipping ?? '0') }}" hidden>
                                             </div>
                                         </div>
                                     </div>

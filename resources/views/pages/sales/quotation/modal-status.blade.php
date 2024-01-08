@@ -20,9 +20,13 @@
                                 <div class="col-sm-12">
                                     <div class="form-floating form-floating-outline mb-3">
                                         <select class="form-select" tabindex="0" id="roleEx3" name="status">
-                                            <option value="25">Draft <small class="text-muted">25%</small></option>
-                                            <option value="50">Send <small class="text-muted">50%</small></option>
-                                            <option value="75">Negotiation <small class="text-muted">75%</small>
+                                            <option value="20">Send WA/Email <small class="text-muted">20%</small></option>
+                                            <option value="30">Inquiry Accepted <small class="text-muted">30%</small></option>
+                                            <option value="40">Progress Follow Up <small class="text-muted">40%</small>
+                                            </option>
+                                            <option value="60">Negotiation/Revisi <small class="text-muted">60%</small>
+                                            </option>
+                                            <option value="80">Hot Prospect<small class="text-muted">80%</small>
                                             </option>
                                             <option value="100">Done PO <small class="text-muted">100%</small>
                                             </option>
@@ -35,7 +39,7 @@
                                     <div class="form-floating form-floating-outline">
                                         <input type="text" id="note" class="form-control" name="note"
                                             placeholder="Put Note Here....."
-                                            value="{{ old('note') }}">
+                                            value="-">
                                         <label for="note">Note</label>
                                     </div>
                                 </div>

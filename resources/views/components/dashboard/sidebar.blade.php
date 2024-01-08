@@ -76,7 +76,6 @@
                     <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') ? 'active' : '' }}">
                         <a href="{{ route('quotation.index') }}" class="menu-link">
                             <div data-i18n="Quotation Leads">Leads</div>
-                            <div class="badge bg-danger rounded-pill ms-auto">4</div>
                         </a>
                     </li>
                     <li class="menu-item">
@@ -204,7 +203,6 @@
                     <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') ? 'active' : '' }}">
                         <a href="{{ route('quotation.index') }}" class="menu-link">
                             <div data-i18n="Quotation Leads">Leads</div>
-                            <div class="badge bg-danger rounded-pill ms-auto">4</div>
                         </a>
                     </li>
                     <li class="menu-item">

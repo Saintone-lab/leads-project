@@ -66,15 +66,6 @@ Route::group(["middleware" => "auth"], function () {
         return view('pages.sales.po.pending.index');
     });
 
-    // Route untuk Admin
-    Route::get('/dashboard/admin', function () {
-        return view('pages.admin.dashboard');
-    })->name('dashboard.admin');
-
-    Route::get('/reports/admin', function () {
-        return view('pages.admin.report');
-    })->name('reports.admin');
-
     // Route untuk Pic
     Route::resource('/pic', PicController::class);
     Route::post('/pic/leads/{id}', [PicController::class, 'storeOnLeads'])->name('pic.leads.store');

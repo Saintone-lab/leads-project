@@ -35,7 +35,6 @@
                             <th>Status</th>
                             <th>Last Contact</th>
                             <th>Next Follow Up</th>
-                            <th>Assigned</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -67,7 +66,7 @@
             </div>
         </div>
     @endif
-    @include('pages.sales.leads.form')
+    @include('pages.sales.clients.leads.form')
     @foreach ($client as $clients)
         @include('pages.sales.activities.form')
     @endforeach

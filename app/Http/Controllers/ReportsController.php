@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Activities;
 use App\Models\Quotation;
+use App\Models\Target;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,8 +17,10 @@ class ReportsController extends Controller
         $dataDc = $this->getWeekDataDC();
         $dataQuote = $this->getWeekDataQuote();
         $dataPo = $this->getWeekDataPo();
-        $quotation = Quotation::all();
-        return view("pages.sales.report.index", compact("quotation", "dataDc", "dataQuote", "dataPo"));
+        $target = Target::where('id_sales', Auth::user()->id)->first();
+        // dd($target);
+        $quotation = Quotation::where('status', '100')->get();
+        return view("pages.sales.report.index", compact("quotation", "dataDc", "dataQuote", "dataPo", "target"));
     }
 
     protected function getWeekDataDC()
@@ -34,6 +37,7 @@ class ReportsController extends Controller
             ->join('users as u', 'c.id_sales', '=', 'u.id')
             ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
             ->where('id_sales', Auth::user()->id)
+            ->where('status', 'Responded')
             ->groupBy('week')
             ->orderBy('week')
             ->pluck('total', 'week');
@@ -89,8 +93,8 @@ class ReportsController extends Controller
         $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfMonth));
 
         $weekEnd = date('W', strtotime($lastDayOfMonth));
-        $dCallPerWeek = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date), "-W", WEEK(estimated_date, 4)) as estimated_date'), DB::raw('WEEK(estimated_date, 4) as week'), DB::raw('COUNT(*) as total'))
-            ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
+        $dCallPerWeek = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date), "-W", WEEK(po_date, 4)) as po_date'), DB::raw('WEEK(po_date, 4) as week'), DB::raw('COUNT(*) as total'))
+            ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
             ->where('id_sales', Auth::user()->id)
             ->where('status', '100')
             ->groupBy('week')

@@ -30,8 +30,8 @@ $(function(){
                     $(priceLabel[i]).attr("data-id", row);
                     $(qty[i]).attr("id", idQty);
                     $(qty[i]).attr("data-id", row);
-                    $(disc[i]).attr("id", idDisc);
-                    $(disc[i]).attr("data-id", row);
+                    $(disc[i]).attr("id", idDisc).val(0);
+                    $(disc[i]).attr("data-id", row).val(0);
                     $(amount[i]).attr("id", idAmount);
                     $(amountLabel[i]).attr("id", idAmountLabel);
                     $(amount[i]).attr("data-id", row);

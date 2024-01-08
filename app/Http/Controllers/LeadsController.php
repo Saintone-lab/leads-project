@@ -26,7 +26,7 @@ class LeadsController extends Controller
         $client = Client::where("role", "Leads")->get();
         $issue = Issues::get();
         $sales = User::where('role', 'sales')->get();
-        return view('pages.sales.leads.index', compact('client', 'sales', 'issue'));
+        return view('pages.sales.clients.leads.index', compact('client', 'sales', 'issue'));
     }
 
     /**
@@ -159,7 +159,7 @@ class LeadsController extends Controller
         $callhis = Activities::where('id_client', $id)->get();
         $quote = Quotation::join('pic','pic.id','=','quotation.id_pic')->where('pic.id_client', $id)->get();
         $sales = User::where('role', 'sales')->get();
-        return view('pages.sales.leads.detail', compact('leads', 'callhis', 'quote', 'sales', 'charge'));
+        return view('pages.sales.clients.leads.detail', compact('leads', 'callhis', 'quote', 'sales', 'charge'));
     }
 
     /**
@@ -295,7 +295,7 @@ class LeadsController extends Controller
     public function storeActionWithLeads(Request $request, $id){
         $leads = Client::where("id", $id)->first();
         $leads->id_issues = $request->issues;
-        if ($request->issues == '4'){
+        if ($request->issues == '5'){
             $leads->role = 'Customers';
         }
         $isuSave = $leads->save();

@@ -10,8 +10,9 @@ class Quotation extends Model
     use HasFactory;
     protected $table = "quotation";
     protected $date = [
-        'date_expired',
-        'folup_date',
+        'expired_date',
+        'estimated_date',
+        'po_date',
         'created_at',
         'updated_at'
     ];

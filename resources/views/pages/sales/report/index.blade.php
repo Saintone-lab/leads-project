@@ -3,7 +3,7 @@
 @section('content')
     @if (Auth::user()->role == 'Sales')
         <div class="card mb-4">
-            <h5 class="card-header">Assigned: Miss Regita</h5>
+            <h5 class="card-header">Assigned: {{ Auth::user()->name }}</h5>
             <div class="table-responsive text-nowrap">
                 <table class="table">
                     <thead class="table-light">
@@ -12,8 +12,8 @@
                             @php
                                 $allWeek = 1;
                             @endphp
-                            @foreach ($dataDc as $week)
-                                <th>Week {{$allWeek}}</th>
+                            @foreach ($dataQuote as $week)
+                                <th>Week {{ $allWeek }}</th>
                                 @php
                                     $allWeek += 1;
                                 @endphp
@@ -31,13 +31,24 @@
                                 $totalDCFullWeek = 0;
                             @endphp
                             @foreach ($dataDc as $week)
-                                <td>{{$week['total']}}</td>
+                                <td>{{ $week['total'] }}</td>
                                 @php
                                     $totalDCFullWeek += $week['total'];
                                 @endphp
                             @endforeach
-                            <td>{{$totalDCFullWeek}}</td>
-                            <td>101%</td>
+                            <td>{{ $totalDCFullWeek }}</td>
+                            <td>
+                                @php
+                                    if (is_array($dataDc)) {
+                                        $jumlahData = count($dataDc);
+                                    }
+                                @endphp
+                                @if ($jumlahData > 4)
+                                    {{ round(($totalDCFullWeek / ($target->dc + $target->dc / 4)) * 100) }} %
+                                @elseif($jumlahData == 4)
+                                    {{ round(($totalDCFullWeek / $target->dc) * 100) }} %
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <td>
@@ -59,13 +70,19 @@
                                 $totalQuoteFullWeek = 0;
                             @endphp
                             @foreach ($dataQuote as $week)
-                                <td>{{$week['total']}}</td>
+                                <td>{{ $week['total'] }}</td>
                                 @php
                                     $totalQuoteFullWeek += $week['total'];
                                 @endphp
                             @endforeach
-                            <td>{{$totalQuoteFullWeek}}</td>
-                            <td>101%</td>
+                            <td>{{ $totalQuoteFullWeek }}</td>
+                            <td>
+                                @if ($jumlahData > 4)
+                                    {{ round(($totalQuoteFullWeek / ($target->quote + $target->quote / 4)) * 100) }} %
+                                @elseif($jumlahData == 4)
+                                    {{ round(($totalQuoteFullWeek / $target->quote) * 100) }} %
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <td>
@@ -75,13 +92,19 @@
                                 $totalPoFullWeek = 0;
                             @endphp
                             @foreach ($dataPo as $week)
-                                <td>{{$week['total']}}</td>
+                                <td>{{ $week['total'] }}</td>
                                 @php
                                     $totalPoFullWeek += $week['total'];
                                 @endphp
                             @endforeach
-                            <td>{{$totalPoFullWeek}}</td>
-                            <td>101%</td>
+                            <td>{{ $totalPoFullWeek }}</td>
+                            <td>
+                                @if ($jumlahData > 4)
+                                    {{ round(($totalPoFullWeek / ($target->po + $target->po / 4)) * 100) }} %
+                                @elseif($jumlahData == 4)
+                                    {{ round(($totalPoFullWeek / $target->po) * 100) }} %
+                                @endif
+                            </td>
                         </tr>
                     </tbody>
                 </table>

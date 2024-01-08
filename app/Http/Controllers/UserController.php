@@ -136,7 +136,7 @@ class UserController extends Controller
         $users->name = $request->name;
         $users->email = $request->email;
         $users->area = $request->area;
-        $users->phone = $request->phone;
+        $users->phone = '+62'.$request->phone;
         if ($request->hasFile('image')) {
             if ($users->image != 'asset/profile/profile.jpg'){
                 File::delete($users->image);
