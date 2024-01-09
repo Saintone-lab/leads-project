@@ -34,10 +34,10 @@ class DashboardController extends Controller
 
         $call = Activities::where('c.id_sales', Auth::user()->id)
             ->join('client as c', 'activities.id_client', '=', 'c.id')
-            ->join('users as u', 'c.id_sales', '=', 'u.id')
             ->groupBy("id_client")
             ->orderBy("follow_up", "asc")
             ->limit(7)->get();
+        // dd($call);
         return view("pages.sales.dashboard", compact('call', 'dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target'));
     }
 

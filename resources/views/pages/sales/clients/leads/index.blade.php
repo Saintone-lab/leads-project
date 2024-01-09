@@ -28,10 +28,8 @@
                             <th></th>
                             <th>ID</th>
                             <th>Company</th>
-                            <th>PIC</th>
                             <th>Address</th>
                             <th>R/U</th>
-                            <th>Machine</th>
                             <th>Status</th>
                             <th>Last Contact</th>
                             <th>Next Follow Up</th>
@@ -51,10 +49,8 @@
                             <th></th>
                             <th>ID</th>
                             <th>Company</th>
-                            <th>PIC</th>
                             <th>Address</th>
                             <th>R/U</th>
-                            <th>Machine</th>
                             <th>Status</th>
                             <th>Last Contact</th>
                             <th>Next Follow Up</th>

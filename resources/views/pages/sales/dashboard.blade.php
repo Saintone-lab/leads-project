@@ -46,8 +46,7 @@
                                             {{ round($target->dc) }}
                                         @endif
                                     </small></h4>
-                                <p class="text-muted">Daily Call</p>
-                                <div class="badge bg-label-secondary rounded-pill">{{ Auth::user()->name }}</div>
+                                <div class="badge bg-label-secondary rounded-pill">Daily Call</div>
                             </div>
                         </div>
                     </div>
@@ -74,8 +73,7 @@
                                         @endif
                                     </small>
                                 </h4>
-                                <p class="text-muted">CRM Existing</p>
-                                <div class="badge bg-label-secondary rounded-pill">{{ Auth::user()->name }}</div>
+                                <div class="badge bg-label-secondary rounded-pill">CRM Existing</div>
                             </div>
                         </div>
                     </div>
@@ -102,8 +100,7 @@
                                         @endif
                                     </small>
                                 </h4>
-                                <p class="text-muted">Quotation</p>
-                                <div class="badge bg-label-secondary rounded-pill">{{ Auth::user()->name }}</div>
+                                <div class="badge bg-label-secondary rounded-pill">Quotation</div>
                             </div>
                         </div>
                     </div>
@@ -130,8 +127,7 @@
                                         @endif
                                     </small>
                                 </h4>
-                                <p class="text-muted">Pruchase Order</p>
-                                <div class="badge bg-label-secondary rounded-pill">{{ Auth::user()->name }}</div>
+                                <div class="badge bg-label-secondary rounded-pill">Pruchase Order</div>
                             </div>
                         </div>
                     </div>

@@ -54,13 +54,13 @@
                             <td>
                                 <strong>Presentation / Visit</strong>
                             </td>
-                            <td>50</td>
-                            <td>51</td>
-                            <td>45</td>
-                            <td>50</td>
-                            <td>55</td>
-                            <td>306</td>
-                            <td>101%</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0%</td>
                         </tr>
                         <tr>
                             <td>
@@ -117,13 +117,13 @@
                         <li class="list-group-item">
                             <div class="d-flex justify-content-between">
                                 <p class="fw-semibold m-0"> Total Quotation</p>
-                                <p class="text-muted m-0">50</p>
+                                <p class="text-muted m-0">{{ $totalQuoteFullWeek }}</p>
                             </div>
                         </li>
                         <li class="list-group-item">
                             <div class="d-flex justify-content-between">
                                 <p class="fw-semibold m-0"> Total PO</p>
-                                <p class="text-muted m-0">50</p>
+                                <p class="text-muted m-0">{{ $totalPoFullWeek }}</p>
                             </div>
                         </li>
                     </ul>

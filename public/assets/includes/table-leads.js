@@ -28,28 +28,8 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "company" },
-                {
-                    data: "name_pic",
-                    render: function (data, type, row) {
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            return type === "display" ? data : "-";
-                        }
-                    },
-                },
                 { data: "area" },
                 { data: "ru" },
-                {
-                    data: "machine",
-                    render: function (data, type, row) {
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            return type === "display" ? data : "-";
-                        }
-                    },
-                },
                 { data: "issue" },
                 {
                     data: "date",
@@ -111,7 +91,7 @@ $(function () {
                 },
                 {
                     // Label
-                    targets: 6,
+                    targets: 5,
                     render: function (data, type, full, meta) {
                         var $status_ru = full["ru"];
                         var $status = {
@@ -138,7 +118,7 @@ $(function () {
                 },
                 {
                     // Label
-                    targets: 8,
+                    targets: 6,
                     render: function (data, type, full, meta) {
                         var $status_number = full["id_issues"];
                         var $titleTool = full["note"];
@@ -240,7 +220,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -296,7 +276,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -333,7 +313,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -370,7 +350,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -407,7 +387,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {

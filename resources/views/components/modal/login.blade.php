@@ -27,7 +27,7 @@
                     <div class="app-brand justify-content-center mt-5">
                         <img class="app-brand-logo"
                             src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
-                            alt="ini logo" style="width: 434px">
+                            alt="ini logo" style="width: 50%">
                     </div>
                     <!-- /Logo -->
 
