@@ -209,9 +209,6 @@ $(function () {
                             '<li><a href="' +
                             $revQUrl +
                             '" class="dropdown-item">Revisi</a></li>' +
-                            '<li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changeStatus-' +
-                            $dataId +
-                            '" >Change Status</button></li>' +
                             '<div class="dropdown-divider"></div>' +
                             '<li><a href="javascript:;" class="dropdown-item text-danger delete-record">Delete</a></li>' +
                             "</ul>" +
@@ -225,7 +222,7 @@ $(function () {
                 $('[data-toggle="tooltip"]').tooltip();
             },
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
@@ -483,7 +480,7 @@ $(function () {
                 },
             },
         });
-        $("div.head-label").html(
+        $("div.hl-1").html(
             '<h5 class="card-title mb-0">Table quotations</h5>'
         );
     }

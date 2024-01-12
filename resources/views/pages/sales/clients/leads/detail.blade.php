@@ -2,7 +2,7 @@
 @section('title', 'Detail Leads')
 @section('content')
     <h4 class="fw-bold py-3 mb-4">
-        <span class="text-muted fw-light">Clients / Leads /</span> Details {{$leads->company}}
+        <span class="text-muted fw-light">Clients / Leads /</span> Details {{ $leads->company }}
     </h4>
     <div class="row mb-4">
         <div class="col-md-6">
@@ -15,6 +15,7 @@
                         <a type="button" data-bs-toggle="modal" data-bs-target="#updateLeads{{ $leads->id }}">
                             <button type="button" class="btn btn-sm btn-label-primary">Edit</button>
                         </a>
+                        <a href="#" data-id="{{$leads->id}}" class="btn btn-sm btn-label-danger delete-leads">Delete</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -107,9 +108,9 @@
                                     <i class="menu-icon tf-icons mdi mdi-14px mdi-account-edit-outline"></i>Edit
                                 </button>
                             </a>
-                            <button type="button" class="btn btn-sm btn-label-danger">
+                            <a href="#" data-id="{{ $pic->id }}" class="btn btn-sm btn-label-danger delete-pic">
                                 <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline"></i>Delete
-                            </button>
+                            </a>
                         </div>
                     </div>
                     <div class="card-body">
@@ -146,9 +147,16 @@
     </div>
     <div class="row">
         <div class="col-md-6 my-3">
-            <h5 class="fw-bold pb-1 mb-2">
-                Daily Call History
-            </h5>
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold pb-1 mb-2">
+                    Daily Call History
+                </h5>
+                <a type="button" data-bs-toggle="modal" data-bs-target="#createAction{{ $leads->id }}">
+                    <button type="button" class="btn btn-primary">
+                        + Create New Action
+                    </button>
+                </a>
+            </div>
             <div class="card">
                 <div class="table-responsive text-nowrap">
                     <table class="table table-striped">
@@ -234,13 +242,23 @@
     </div>
     @include('pages.sales.clients.leads.form')
     @include('components.modal.pic.leads.form-create')
+    @include('pages.sales.activities.form')
     @foreach ($charge as $pic)
         @include('components.modal.pic.leads.form-update')
     @endforeach
 @endsection()
+@push('after-style')
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
+@endpush
+@push('after-script')
+    <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
+@endpush
+@push('page-script')
+    <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
+@endpush
 @push('script')
-    {{-- <script>
-        $(document).on('click', '.delete-data-leads', function() {
+    <script>
+        $(document).on('click', '.delete-pic', function() {
             var id = $(this).data('id');
             Swal.fire({
                 title: "Are you sure?",
@@ -256,7 +274,7 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        'url': '{{ url('leads') }}/' + id,
+                        'url': '{{ url('pic') }}/' + id,
                         'type': 'POST',
                         'data': {
                             '_method': 'DELETE',
@@ -334,5 +352,99 @@
             //     }
             // });
         });
-    </script> --}}
+        $(document).on('click', '.delete-leads', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('leads') }}/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Your file has been deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/leads';
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+            // Swal.fire({
+            //     title: "Are you sure?",
+            //     text: "You won't be able to revert this!",
+            //     icon: "warning",
+            //     showCancelButton: true,
+            //     confirmButtonColor: "#3085d6",
+            //     cancelButtonColor: "#d33",
+            //     confirmButtonText: "Yes, delete it!"
+            // }).then((result) => {
+            //     if (result.isConfirmed) {
+            //         $.ajax({
+            //             'url': '{{ url('leads') }}/' + id,
+            //             'type': 'POST',
+            //             'data': {
+            //                 '_method': 'DELETE',
+            //                 '_token': '{{ csrf_token() }}'
+            //             },
+            //             success: function(response) {
+            //                 if (response == 1) {
+            //                     Swal.fire({
+            //                         title: "Deleted!",
+            //                         text: "Your file has been deleted.",
+            //                         icon: "success"
+            //                     })
+            //                     window.setTimeout(function() {
+            //                         location.reload();
+            //                     }, 2000);
+            //                 } else {
+            //                     Swal.fire({
+            //                         icon: 'error',
+            //                         title: 'Oops...',
+            //                         text: 'Data Failed to Delete!'
+            //                     });
+            //                 }
+            //             }
+            //         });
+            //     }
+            // });
+        });
+    </script>
 @endpush

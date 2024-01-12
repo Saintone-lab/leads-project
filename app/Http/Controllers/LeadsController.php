@@ -159,7 +159,8 @@ class LeadsController extends Controller
         $callhis = Activities::where('id_client', $id)->get();
         $quote = Quotation::join('pic','pic.id','=','quotation.id_pic')->where('pic.id_client', $id)->get();
         $sales = User::where('role', 'sales')->get();
-        return view('pages.sales.clients.leads.detail', compact('leads', 'callhis', 'quote', 'sales', 'charge'));
+        $issue = Issues::all();
+        return view('pages.sales.clients.leads.detail', compact('leads', 'callhis', 'quote', 'sales', 'charge', 'issue'));
     }
 
     /**
@@ -314,7 +315,11 @@ class LeadsController extends Controller
         $action->follow_up = $request->follow_up;
         $activitiesSave = $action->save();
         if($isuSave && $activitiesSave){
-            return redirect("leads")->with("success","Data telah ditambahkan");
+            if($request->issues == '5'){
+                return redirect("/customers/detail/".$id)->with("success","Data telah ditambahkan");
+            }else{
+                return redirect("/leads/detail/".$id)->with("success","Data telah ditambahkan");
+            }
         }
     }
 }

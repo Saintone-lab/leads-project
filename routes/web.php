@@ -38,6 +38,7 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route For Customers
     Route::resource('/customers', CustomersController::class);
+    Route::get('/customers/detail/{id}', [CustomersController::class, 'show'])->name('detail.customers');
 
     // Route For Leads
     Route::resource('/leads', LeadsController::class);
@@ -47,6 +48,7 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk Quotation
     Route::resource('/quotation', QuotationController::class);
     Route::get('/quotation/leads/create', [QuotationController::class, 'create'])->name('create.quotation');
+    Route::get('/po', [QuotationController::class, 'po_quote'])->name('quotation.po');
     Route::get('/quotation/{id}/change_status', [QuotationController::class, 'change_status'])->name('status.change.quotation');
     Route::get('/quotation/revision/{id}', [QuotationController::class, 'edit_revisi'])->name('revisi.quotation');
     Route::get('/quotation/print/{id}', [QuotationController::class, 'print_quote'])->name('print.quotation');
@@ -83,6 +85,12 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/quotation', function () {
         require_once base_path('app/api/quotation/connection.php');
+    });
+    Route::get('/db/po', function () {
+        require_once base_path('app/api/po/connection.php');
+    });
+    Route::get('/db/loss', function () {
+        require_once base_path('app/api/lossQ/connection.php');
     });
 });
 Auth::routes();

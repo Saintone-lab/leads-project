@@ -3,8 +3,13 @@
     data-assets-path="{{ asset('assets') }}/" data-template="vertical-menu-template">
 
 <head>
-    @include('includes.sales.meta')
-    @section('title', 'Login')
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+
+    <title>Login Application | Reftech Apps</title>
+
+    <meta name="description" content="" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     {{--  css  --}}
     @include('includes.sales.style')
     <!-- Vendor -->

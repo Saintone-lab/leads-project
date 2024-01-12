@@ -20,17 +20,17 @@
                                 <div class="col-sm-12">
                                     <div class="form-floating form-floating-outline mb-3">
                                         <select class="form-select" tabindex="0" id="roleEx3" name="status">
-                                            <option value="20">Send WA/Email <small class="text-muted">20%</small></option>
-                                            <option value="30">Inquiry Accepted <small class="text-muted">30%</small></option>
-                                            <option value="40">Progress Follow Up <small class="text-muted">40%</small>
+                                            <option value="20" {{$quote->status == '20' ? 'selected' : ''}}>Send WA/Email <small class="text-muted">20%</small></option>
+                                            <option value="30" {{$quote->status == '30' ? 'selected' : ''}}>Inquiry Accepted <small class="text-muted">30%</small></option>
+                                            <option value="40" {{$quote->status == '40' ? 'selected' : ''}}>Progress Follow Up <small class="text-muted">40%</small>
                                             </option>
-                                            <option value="60">Negotiation/Revisi <small class="text-muted">60%</small>
+                                            <option value="60" {{$quote->status == '60' ? 'selected' : ''}}>Negotiation/Revisi <small class="text-muted">60%</small>
                                             </option>
-                                            <option value="80">Hot Prospect<small class="text-muted">80%</small>
+                                            <option value="80" {{$quote->status == '80' ? 'selected' : ''}}>Hot Prospect<small class="text-muted">80%</small>
                                             </option>
-                                            <option value="100">Done PO <small class="text-muted">100%</small>
+                                            <option value="100" {{$quote->status == '100' ? 'selected' : ''}}>Done PO <small class="text-muted">100%</small>
                                             </option>
-                                            <option value="0">Loss <small class="text-muted">0%</small></option>
+                                            <option value="0" {{$quote->status == '0' ? 'selected' : ''}}>Loss <small class="text-muted">0%</small></option>
                                         </select>
                                         <label for="roleEx3">Status</label>
                                     </div>

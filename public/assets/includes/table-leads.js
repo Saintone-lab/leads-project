@@ -9,8 +9,8 @@ $(function () {
             ajax: {
                 type: "GET",
                 url: Url,
-                headers : {
-                    'Content-Type': 'application/json',
+                headers: {
+                    "Content-Type": "application/json",
                 },
 
                 // success: function (hasil, Url) {
@@ -31,27 +31,8 @@ $(function () {
                 { data: "area" },
                 { data: "ru" },
                 { data: "issue" },
-                {
-                    data: "date",
-                    render: function (data, type, row) {
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            return type === "display" ? data : "-";
-                        }
-                    },
-                },
-                {
-                    data: "follow_up",
-                    render: function (data, type, row) {
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {    
-                            return type === "display" ? data : "-";
-                        }
-                    },
-                },
-                { data: "" },
+                { data: "date" },
+                { data: "follow_up" },
             ],
             columnDefs: [
                 {
@@ -88,6 +69,19 @@ $(function () {
                 {
                     responsivePriority: 1,
                     targets: 3,
+                },
+                {
+                    targets: 3,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $dataId = full["id"];
+                            var detailRoute = route("detail.leads", $dataId);
+                            return (
+                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                            );
+                        }
+                        return data;
+                    },
                 },
                 {
                     // Label
@@ -177,31 +171,13 @@ $(function () {
                     },
                 },
                 {
-                    // Actions
-                    targets: -1,
-                    title: '<i class="mdi mdi-24px mdi-file-document-edit-outline"></i>',
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, full, meta) {
-                        var $dataId = full["id"];
-                        var $detailLeadsUrl = route("detail.leads", $dataId);
-                        return (
-                            '<div class="d-inline-block">' +
-                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
-                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<li><a href="' +
-                            $detailLeadsUrl +
-                            '"class="dropdown-item">Details</a></li>' +
-                            '<li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#createAction' +
-                            $dataId +
-                            '" >Action</button></li>' +
-                            '<div class="dropdown-divider"></div>' +
-                            '<li><a href="javascript:;" data-id="' +
-                            $dataId +
-                            '" class="dropdown-item text-danger delete-record">Delete</a></li>' +
-                            "</ul>" +
-                            "</div>"
-                        );
+                    targets: [7, 8],
+                    render: function (data, type, row) {
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            return type === "display" ? data : "-";
+                        }
                     },
                 },
             ],

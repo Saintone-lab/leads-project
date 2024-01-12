@@ -29,7 +29,8 @@
                                 <span class="fw-bolder">#{{ $quote->no_quote }}</span>
                             </div>
                             <div class="mt-1">
-                                <span class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
+                                <span
+                                    class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
                             </div>
                         </div>
                     </div>
@@ -69,8 +70,10 @@
                             <p class="mb-1"> {{ $quote->sales->name }}</p>
                             <p class="mb-1"> {{ $quote->sales->phone }}</p>
                             <p class="mb-1"> {{ $quote->title }}</p>
-                            <p class="mb-1"> {{ \Carbon\Carbon::parse($quote->estimated_date)->toFormattedDateString() }}</p>
-                            <p class="mb-1"> {{ \Carbon\Carbon::parse($quote->expired_date)->toFormattedDateString() }}</p>
+                            <p class="mb-1"> {{ \Carbon\Carbon::parse($quote->estimated_date)->toFormattedDateString() }}
+                            </p>
+                            <p class="mb-1"> {{ \Carbon\Carbon::parse($quote->expired_date)->toFormattedDateString() }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -161,12 +164,17 @@
                         href="{{ route('print.quotation', $quote->id) }}">
                         Print
                     </a>
+                    @if ($quote->status != '100')
+                            <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3" data-bs-toggle="modal"
+                                data-bs-target="#changeStatus-{{$quote->id}}">Change Status</button>
+                    @endif
                     <a href="{{ route('pdf.quotation', $quote->id) }}" type="button"
                         class="btn btn-outline-secondary d-grid w-100 waves-effect">Download</a>
                 </div>
             </div>
         </div>
         {{-- End : Button Invoice --}}
+        @include('pages.sales.quotation.modal-status')
     </div>
 @endsection
 @push('after-style')

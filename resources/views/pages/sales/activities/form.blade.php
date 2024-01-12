@@ -1,7 +1,7 @@
-<form action="{{route('action.leads',$clients->id)}}" method="post" enctype="multipart/form-data">
+<form action="{{route('action.leads',$leads->id)}}" method="post" enctype="multipart/form-data">
     {{-- {{ csrf_token() }} --}}
     @csrf
-    <div class="modal animate__animated animate__fadeIn" id="createAction{{$clients->id}}" tabindex="-1" style="display: none;"
+    <div class="modal animate__animated animate__fadeIn" id="createAction{{$leads->id}}" tabindex="-1" style="display: none;"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
@@ -71,7 +71,7 @@
                                 <select class="form-select" id="selectStatus" aria-label="Default select example"
                                     name="issues">
                                     @foreach ($issue as $issues)
-                                        <option value="{{ $issues->id }}" {{ $issues->id == $clients->id_issues ? 'selected' : '' }}>{{ $issues->issue }}</option>
+                                        <option value="{{ $issues->id }}" {{ $issues->id == $leads->id_issues ? 'selected' : '' }}>{{ $issues->issue }}</option>
                                     @endforeach
                                 </select>
                                 <label for="selectStatus">Status</label>

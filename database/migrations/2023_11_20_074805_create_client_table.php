@@ -31,6 +31,8 @@ return new class extends Migration
             $table->string("address");
             $table->string("area", 20);
             $table->timestamps();
+
+            $table->index('role', 'idx_role');
         });
     }
 

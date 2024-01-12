@@ -33,7 +33,6 @@
                             <th>Status</th>
                             <th>Last Contact</th>
                             <th>Next Follow Up</th>
-                            <th>Action</th>
                         </tr>
                     </thead>
                 </table>
@@ -55,7 +54,6 @@
                             <th>Last Contact</th>
                             <th>Next Follow Up</th>
                             <th>Assigned</th>
-                            <th>Action</th>
                         </tr>
                     </thead>
                 </table>
@@ -63,9 +61,9 @@
         </div>
     @endif
     @include('pages.sales.clients.leads.form')
-    @foreach ($client as $clients)
+    {{-- @foreach ($client as $clients)
         @include('pages.sales.activities.form')
-    @endforeach
+    @endforeach --}}
 @endsection
 
 @push('after-style')

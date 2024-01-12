@@ -537,7 +537,7 @@
             </div>
             <div class="row gy-4">
                 <!-- Weekly Overview Chart -->
-                <div class="col-12 col-md-6 order-md-2 order-lg-0">
+                <div class="col-12 col-md-3 order-md-2 order-lg-0">
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex justify-content-between">
@@ -568,7 +568,7 @@
                 </div>
                 <!--/ Weekly Overview Chart -->
                 <!-- Weekly Overview Chart -->
-                <div class="col-12 col-md-6 order-md-2 order-lg-0">
+                <div class="col-12 col-md-3 order-md-2 order-lg-0">
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex justify-content-between">
@@ -599,7 +599,7 @@
                 </div>
                 <!--/ Weekly Overview Chart -->
                 <!-- Weekly Overview Chart -->
-                <div class="col-12 col-md-6 order-md-2 order-lg-0">
+                <div class="col-12 col-md-3 order-md-2 order-lg-0">
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex justify-content-between">
@@ -630,7 +630,7 @@
                 </div>
                 <!--/ Weekly Overview Chart -->
                 <!-- Weekly Overview Chart -->
-                <div class="col-12 col-md-6 order-md-2 order-lg-0">
+                <div class="col-12 col-md-3 order-md-2 order-lg-0">
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex justify-content-between">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Activities;
 use App\Models\Client;
 use App\Models\DetailQuotation;
 use App\Models\Pic;
@@ -296,15 +297,37 @@ class QuotationController extends Controller
         $this->validate($request, $rule, $message);
 
         $quotation = Quotation::find($id);
+        $pic = Pic::where('id', $quotation->id_pic)->first();
+        $client = Client::where('id', $pic->id_client)->first();
         $quotation->status = $request->status;
         $quotation->note = $request->note;
-        if($request->note == "100"){
+        if ($request->status == "100") {
+            $action = new Activities;
+            $action->id_client = $pic->id_client;
+            $action->name = 'Follow Up';
+            $action->status = 'Responded';
+            $action->date = Carbon::now();
+            $action->follow_up = Carbon::now()->addDays(14);
+            $action->action = 'Phone Office';
+            $action->note = 'Done PO';
+            $activitiesSave = $action->save();
+
+            $client->id_issues = '5';
+            $client->role = 'Customers';
+            $isuSave = $client->save();
+
             $quotation->po_date = Carbon::now();
         }
         $stats = $quotation->save();
-        if ($stats) {
+        if ($stats || $activitiesSave || $isuSave) {
             return redirect('quotation')->with("success", "Data Status Quotation Telah Diubah");
         }
+    }
+
+    public function po_quote()
+    {
+        $quotation = Quotation::all();
+        return view('pages.sales.quotation.po.index', compact('quotation'));
     }
 
     protected function convertToRoman($month)
