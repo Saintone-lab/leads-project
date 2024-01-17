@@ -12,9 +12,8 @@
             @method('patch')
         @endif
         <div class="form-floating mb-3">
-            <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
-                value="{{$formattedNumberQ}}-P/BDG/RJO-{{Auth::user()->code}}/{{$formattedMonthNow}}/{{ \Carbon\Carbon::now()->year }}" aria-describedby="floatingInputFilledHelp"
-                name="no_quote" value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote . '-REV-' : '') }}">
+            <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled" aria-describedby="floatingInputFilledHelp"
+                name="no_quote" value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote . '-REV-' : $formattedNumberQ . '-P/BDG/RJO-' . Auth::user()->code . '/' . $formattedMonthNow . '/' . \Carbon\Carbon::now()->year ) }}">
             <label for="floatingInputFilled">Number Quotation</label>
             <span class="form-floating-focused"></span>
         </div>
@@ -101,7 +100,6 @@
                                 $id++;
                                 $dataDetail++;
                             @endphp
-                            {{ $dataDetail }}
                             <div class="mb-3" data-repeater-list="group-a">
                                 <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
                                     <div class="d-flex border rounded position-relative pe-0">
@@ -341,9 +339,9 @@
                                                         placeholder="Discount Here....." data-type="currency"
                                                         style="background: none; border: none;"
                                                         pattern="^[1-9]\d{0,2}(\.\d{3})*$"
-                                                        value="{{ old('diskon', @$quotation->diskon ? number_format(@$quotation->diskon, 0, '', '.') : '') }}">
+                                                        value="{{ old('diskon', @$quotation->diskon ? number_format(@$quotation->diskon, 0, '', '.') : '0') }}">
                                                     <input type="number" name="diskon" id="diskon"
-                                                        value="{{ old('diskon', @$quotation->diskon ?? '') }}" hidden>
+                                                        value="{{ old('diskon', @$quotation->diskon ?? '0') }}" hidden>
                                                 </div>
                                             </div>
                                         </div>

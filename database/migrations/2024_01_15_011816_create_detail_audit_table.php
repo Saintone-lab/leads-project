@@ -13,14 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('target', function (Blueprint $table) {
+        Schema::create('detail_audit', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_sales');
-            $table->string('dc');
-            $table->string('intro');
-            $table->string('quote');
-            $table->string('po');
-            $table->string('total');
+            $table->foreignId('id_audit');
+            $table->string('tools');
+            $table->integer('qty');
+            $table->string('desc');
+            $table->enum('assesment',['Ada', 'Tidak Lengkap', 'Hilang']);
+            $table->string('note');
             $table->timestamps();
         });
     }
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('target');
+        Schema::dropIfExists('detail_audit');
     }
 };

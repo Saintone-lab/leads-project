@@ -278,9 +278,14 @@ class QuotationController extends Controller
         $quotation = Quotation::where('id', $id)->first();
         $dquotation = DetailQuotation::where('id_quotation', $id)->get();
         $client = Client::all();
+        $dateNow = Carbon::now();
+        $numberQ = Quotation::whereYear('estimated_date', $dateNow)->where('id_sales', Auth::user()->id)->count();
+        $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
+        $monthNow = $dateNow->month;
+        $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::all();
         $sales = User::where('role', 'sales')->get();
-        return view('pages.sales.quotation.form', compact('quotation', 'dquotation', 'client', 'sales', 'pic'));
+        return view('pages.sales.quotation.form', compact('quotation', 'dquotation', 'sales', 'pic', 'formattedNumberQ', 'formattedMonthNow'));
     }
 
     public function change_status($id, Request $request)

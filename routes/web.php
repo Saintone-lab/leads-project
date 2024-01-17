@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\ApiTableController;
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExistingController;
 use App\Http\Controllers\PicController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\ServiceReportsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadsController;
 use App\Http\Controllers\QuotationController;
@@ -62,6 +64,13 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk existing
     Route::resource('/existing', ExistingController::class);
 
+    // Route untuk service Reports
+    Route::resource('/service-reports', ServiceReportsController::class);
+    Route::get('/service-reports/print/{id}', [ServiceReportsController::class, 'print_reports'])->name('service-reports.print');
+
+    // Route untuk service Reports
+    Route::resource('/audit-tools', AuditController::class);
+    Route::get('/audit-tools/print/{id}', [AuditController::class, 'print_audit'])->name('audit-tools.print');
 
     // Route untuk PO
     Route::get('/pending-po', function () {
@@ -91,6 +100,12 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/loss', function () {
         require_once base_path('app/api/lossQ/connection.php');
+    });
+    Route::get('/db/reports', function () {
+        require_once base_path('app/api/reports/connection.php');
+    });
+    Route::get('/db/audit', function () {
+        require_once base_path('app/api/audit/connection.php');
     });
 });
 Auth::routes();

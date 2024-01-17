@@ -2,12 +2,12 @@
  * File Upload
  */
 
-'use strict';
+"use strict";
 
 (function () {
-  // previewTemplate: Updated Dropzone default previewTemplate
-  // ! Don't change it unless you really know what you are doing
-  const previewTemplate = `<div class="dz-preview dz-file-preview">
+    // previewTemplate: Updated Dropzone default previewTemplate
+    // ! Don't change it unless you really know what you are doing
+    const previewTemplate = `<div class="dz-preview dz-file-preview">
 <div class="dz-details">
   <div class="dz-thumbnail">
     <img data-dz-thumbnail>
@@ -24,25 +24,65 @@
 </div>
 </div>`;
 
-  // ? Start your code from here
+    // ? Start your code from here
 
-  // Basic Dropzone
-  // --------------------------------------------------------------------
+    // Basic Dropzone
+    // --------------------------------------------------------------------
 
-  const myDropzone = new Dropzone('#dropzone-basic', {
-    previewTemplate: previewTemplate,
-    parallelUploads: 1,
-    maxFilesize: 5,
-    addRemoveLinks: true,
-    maxFiles: 1
-  });
+    var myDropzone = new Dropzone("#dropzone-basic", {
+        url: "/service-reports",
+        paramName: "images",
+        previewTemplate: previewTemplate,
+        parallelUploads: 1,
+        maxFilesize: 2,
+        acceptedFiles: "image/*",
+        addRemoveLinks: true,
+        maxFiles: 4,
+        autoProcessQueue: false,
+        autoProcess: false,
+        autoQueue: false,
+        init: function () {
+            var myDropzone = this;
+            //form submission code goes here
+            $("form[name='serviceReports']").submit(function (event) {
+                //Make sure that the form isn't actully being sent.
+                event.preventDefault();
 
-  // Multiple Dropzone
-  // --------------------------------------------------------------------
-  const dropzoneMulti = new Dropzone('#dropzone-multi', {
-    previewTemplate: previewTemplate,
-    parallelUploads: 1,
-    maxFilesize: 5,
-    addRemoveLinks: true
-  });
+                // URL = $("#demoform").attr("action");
+                // formData = $("#demoform").serialize();
+                // $.ajax({
+                //     type: "POST",
+                //     url: URL,
+                //     data: formData,
+                //     success: function (result) {
+                //         if (result.status == "success") {
+                //             // fetch the useid
+                //             var userid = result.user_id;
+                //             $("#userid").val(userid); // inseting userid into hidden input field
+                //             //process the queue
+                //             myDropzone.processQueue();
+                //         } else {
+                //             console.log("error");
+                //         }
+                //     },
+                // });
+            });
+        },
+        accept: function (file, done) {
+            if (file.size == 0) {
+                done("Empty files will not be uploaded.");
+            } else {
+                done();
+            }
+        },
+    });
+
+    // Multiple Dropzone
+    // --------------------------------------------------------------------
+    const dropzoneMulti = new Dropzone("#dropzone-multi", {
+        previewTemplate: previewTemplate,
+        parallelUploads: 1,
+        maxFilesize: 5,
+        addRemoveLinks: true,
+    });
 })();

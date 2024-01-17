@@ -1,34 +1,28 @@
 @extends('layouts.sales.app')
-@section('title', 'My Quotation')
+@section('title', 'My Service Reports')
 @section('content')
     <h4 class="fw-bold py-3 mb-4">
-        Quotation
+        Service Reports
     </h4>
-    <div class="card">
+    <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-rev-quotation table table-striped">
+            <table class="datatable-reports table table-striped">
                 <thead>
                     <tr>
                         <th></th>
                         <th></th>
                         <th>ID</th>
-                        <th>Quote No.</th>
+                        <th>No Service</th>
                         <th>Company</th>
-                        <th>Total Price</th>
-                        <th>Description</th>
-                        <th>Date Quotation</th>
-                        <th>Status</th>
-                        <th>Date Expired</th>
-                        <th>Stats</th>
+                        <th>Job Desc</th>
+                        <th>Unit Type</th>
+                        <th>Date</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
             </table>
         </div>
     </div>
-    @foreach ($quotation as $quote)
-        @include('pages.sales.quotation.modal-status')
-    @endforeach
 @endsection()
 
 @push('after-style')
@@ -52,5 +46,6 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-quotation.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-reports.js"></script>
 @endpush
+

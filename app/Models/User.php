@@ -62,5 +62,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\Target', 'id_sales');
     }
+    public function audit()
+    {
+        return $this->hasMany('App\Models\Audit', 'id_technician');
+    }
     
 }

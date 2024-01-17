@@ -22,6 +22,7 @@ class TargetTableSeeder extends Seeder
                 'intro' => '40',
                 'quote' => '100',
                 'po' => '20',
+                'total' => '150000000',
             ],
             [
                 'id_sales' => '2',
@@ -29,6 +30,7 @@ class TargetTableSeeder extends Seeder
                 'intro' => '40',
                 'quote' => '40',
                 'po' => '20',
+                'total' => '150000000',
             ],
             [
                 'id_sales' => '3',
@@ -36,6 +38,7 @@ class TargetTableSeeder extends Seeder
                 'intro' => '40',
                 'quote' => '40',
                 'po' => '20',
+                'total' => '150000000',
             ],
             [
                 'id_sales' => '4',
@@ -43,6 +46,7 @@ class TargetTableSeeder extends Seeder
                 'intro' => '40',
                 'quote' => '40',
                 'po' => '20',
+                'total' => '350000000',
             ],
         ];
         Target::insert($target);

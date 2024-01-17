@@ -1,14 +1,14 @@
 @extends('layouts.sales.app')
 @section('title', 'Detail Quotation')
-
 <div class="invoice-print p-4">
     <div class="container-fluid flex-grow-1 container-p-y">
         <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
             <div class="mb-xl-0">
                 <div class="d-flex svg-illustration align-items-center gap-2 mb-3">
                     <span class="app-brand-logo demo" style="width: 50%">
-                        <img class="text-md" src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}" alt="" 
-                            srcset="">
+                        <img class="text-md"
+                            src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
+                            alt="" srcset="">
                     </span>
                 </div>
                 <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 27</p>
@@ -25,10 +25,6 @@
                 <div class="mt-1">
                     <span
                         class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
-                </div>
-                <div class="my-1">
-                </div>
-                <div>
                 </div>
             </div>
         </div>
@@ -93,7 +89,9 @@
                         <tr class="row-product">
                             <td>{{ $no }}</td>
                             <td class="text-nowrap">{{ $product->product }}</td>
-                            <td style="max-width: 200px; word-wrap: break-word; word-break: break-all; white-space: normal;">{{ $product->detail_product }}</td>
+                            <td
+                                style="max-width: 200px; word-wrap: break-word; word-break: break-all; white-space: normal;">
+                                {{ $product->detail_product }}</td>
                             <td class="text-end">{{ number_format($product->price, 0, '', '.') }}</td>
                             <td>{{ $product->qty }}</td>
                             <td>{{ $product->disc }}%</td>
@@ -102,7 +100,7 @@
                     @endforeach
                     <tr class="">
                         <td colspan="3" rowspan="2" class="align-top pt-4">
-                            
+
                         </td>
                         <td colspan="2" class="text-end pt-4 pb-0">
                             <p class="mb-2">Subtotal:</p>
@@ -155,10 +153,10 @@
     </div>
 </div>
 @push('after-style')
-    <!-- Page CSS -->
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice-print.css" />
-    <link rel="stylesheet" href="style.css">
+<!-- Page CSS -->
+<link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice-print.css" />
+<link rel="stylesheet" href="style.css">
 @endpush
 @push('after-script')
-    <script src="{{ asset('assets') }}/js/app-invoice-print.js"></script>
+<script src="{{ asset('assets') }}/js/app-invoice-print.js"></script>
 @endpush

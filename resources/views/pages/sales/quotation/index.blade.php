@@ -70,9 +70,6 @@
             </table>
         </div>
     </div>
-    @foreach ($quotation as $quote)
-        @include('pages.sales.quotation.modal-status')
-    @endforeach
 @endsection()
 
 @push('after-style')

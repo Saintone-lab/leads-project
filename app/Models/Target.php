@@ -18,7 +18,8 @@ class Target extends Model
         'dc',
         'intro',
         'quote',
-        'po'
+        'po',
+        'total'
     ];
 
     public function sales()

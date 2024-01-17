@@ -132,6 +132,7 @@ class UserController extends Controller
         ];
         
         $this->validate($request, $rule, $customMessages);
+        dd($request);
         $users = User::find($id);
         $users->name = $request->name;
         $users->email = $request->email;

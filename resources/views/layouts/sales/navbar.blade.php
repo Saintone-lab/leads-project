@@ -215,22 +215,22 @@
             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
-                        <img src="{{url('').'/'.Auth::user()->image}}" alt class="w-px-40 h-auto rounded-circle" />
+                        <img src="{{ url('') . '/' . Auth::user()->image }}" alt class="w-px-40 h-auto rounded-circle" />
                     </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>
-                        <a class="dropdown-item" href="{{route('profile.show', Auth::user()->id)}}">
+                        <a class="dropdown-item" href="{{ route('profile.show', Auth::user()->id) }}">
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
                                     <div class="avatar avatar-online">
-                                        <img src="{{url('').'/'.Auth::user()->image}}" alt
+                                        <img src="{{ url('') . '/' . Auth::user()->image }}" alt
                                             class="w-px-40 h-auto rounded-circle" />
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <span class="fw-semibold d-block">{{ Auth::user()->name}}</span>
-                                    <small class="text-muted">{{ Auth::user()->role}}</small>
+                                    <span class="fw-semibold d-block">{{ Auth::user()->name }}</span>
+                                    <small class="text-muted">{{ Auth::user()->role }}</small>
                                 </div>
                             </div>
                         </a>
@@ -239,17 +239,25 @@
                         <div class="dropdown-divider"></div>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="{{route('profile.show', Auth::user()->id)}}">
+                        <a class="dropdown-item" href="{{ route('profile.show', Auth::user()->id) }}">
                             <i class="mdi mdi-account-outline me-2"></i>
                             <span class="align-middle">My Profile</span>
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="{{route('profile.edit', Auth::user()->id)}}">
+                        <a class="dropdown-item" href="{{ route('profile.edit', Auth::user()->id) }}">
                             <i class="mdi mdi-cog-outline me-2"></i>
                             <span class="align-middle">Settings</span>
                         </a>
                     </li>
+                    @if (Auth::user()->role === 'Admin')
+                        <li>
+                            <a class="dropdown-item" href="{{ route('audit-tools.index') }}">
+                                <i class="mdi mdi-tools me-2"></i>
+                                <span class="align-middle">Audit Tools</span>
+                            </a>
+                        </li>
+                    @endif
                     <li>
                         <div class="dropdown-divider"></div>
                     </li>

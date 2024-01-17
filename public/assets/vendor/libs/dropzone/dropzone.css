@@ -5,10 +5,10 @@
   cursor: pointer;
   border-radius: 0.625rem;
 }
-.dropzone:not(.dz-clickable) {
+/* .dropzone:not(.dz-clickable) {
   opacity: 0.5;
   cursor: not-allowed;
-}
+} */
 .dropzone.dz-drag-hover {
   border-style: solid;
 }
