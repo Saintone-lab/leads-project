@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_reports');
             $table->string('picture');
+            $table->string('keterangan');
             $table->timestamps();
         });
     }

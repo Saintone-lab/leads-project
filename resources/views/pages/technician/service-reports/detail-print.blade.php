@@ -30,68 +30,51 @@
                 </div>
             </div>
         </div>
-        <hr class="my-0">
-        <div class="row">
-            <div class="col-lg-6 col-md-6 my-3">
-                <h6 class="pb-2 fw-semibold fs-4">Service To :</h6>
-            </div>
-            <div class="col-md-6 my-3">
-            </div>
-        </div>
+        <hr class="my-2">
         <div class="row mb-3">
             <div class="col-2 fw-medium">
-                <p class="mb-1">Company </p>
+                <p class="mb-1">Customers </p>
+                <p class="mb-1">Address </p>
                 <p class="mb-1">PIC </p>
-                <p class="mb-1">Area </p>
-                <p class="mb-1">Phone </p>
             </div>
             <div class="col-4">
                 <p class="mb-1">: {{ $service->pic->client->company }}</p>
-                <p class="mb-1">: {{ $service->pic->name }}</p>
                 <p class="mb-1">: {{ $service->pic->client->area }}</p>
-                <p class="mb-1">: {{ $service->pic->client->phone }}</p>
+                <p class="mb-1">: {{ $service->pic->name_pic }}</p>
             </div>
             <div class="col-2 fw-medium">
-                <p class="mb-1">Technician </p>
-                <p class="mb-1">Phone </p>
-                <p class="mb-1">Job Desc </p>
+                <p class="mb-1">Date </p>
+                <p class="mb-1">Unit Type </p>
+                <p class="mb-1">Serial Number </p>
+                <p class="mb-1">Running & Load </p>
             </div>
             <div class="col-4">
-                <p class="mb-1">: {{ $service->technician->name }}</p>
-                <p class="mb-1">: {{ $service->technician->phone }}</p>
-                <p class="mb-1">: {{ $service->jobdesc }}</p>
+                <p class="mb-1">: {{ $service->date }}</p>
+                <p class="mb-1">: {{ $service->unit }}</p>
+                <p class="mb-1">: {{ $service->serial_number }}</p>
+                <p class="mb-1">: {{ $service->running }} | {{ $service->load }}</p>
             </div>
         </div>
-        <div class="mb-2">
-            <table class="table table-borderless m-0" style="width: 100%">
-                <thead class="table-light border-top">
-                    <tr>
-                        <th>Unit</th>
-                        <th>Serial Number</th>
-                        <th>Running</th>
-                        <th>Loading</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="text-nowrap">{{ $service->unit }}</td>
-                        <td>{{ $service->serial_number }}</td>
-                        <td>{{ $service->running }}</td>
-                        <td>{{ $service->load }}</td>
-                        <td
-                            style="max-width: 200px; word-wrap: break-word; word-break: break-all; white-space: normal;">
-                            {{ $service->desc }}</td>
-                    </tr>
-                </tbody>
-            </table>
+        <hr>
+        <div class="my-2">
+            <div class="row fw-bold fs-6">
+                <div class="col-2">Job Description</div>
+                <div class="col-4">: {{ $service->jobdesc }}</div>
+            </div>
         </div>
+        <hr>
+        <div class="my-2">
+            <h5 class="my-2">Description</h5>
+            <p>{{ $service->desc }}</p>
+        </div>
+        <hr>
         <h5 class="my-4">Picture</h5>
         <div class="row mb-5">
             @foreach ($pict as $picture)
                 <div class="col-6 text-center">
                     <img src="{{ url('') . '/' . $picture->picture }}" alt="" srcset=""
                         style="max-width: 150px">
+                    <p class="fw-bolder">{{$picture->keterangan}}</p>
                 </div>
             @endforeach
         </div>

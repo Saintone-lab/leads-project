@@ -30,51 +30,64 @@
     // --------------------------------------------------------------------
 
     var myDropzone = new Dropzone("#dropzone-basic", {
-        url: "/service-reports",
         paramName: "images",
-        previewTemplate: previewTemplate,
-        parallelUploads: 1,
         maxFilesize: 2,
-        acceptedFiles: "image/*",
+        url: "/service-reports",
+        previewTemplate: previewTemplate,
+        previewsContainer: "#previews",
         addRemoveLinks: true,
-        maxFiles: 4,
         autoProcessQueue: false,
-        autoProcess: false,
-        autoQueue: false,
+        parallelUploads: 1,
+        maxFiles: 4,
+        acceptedFiles: ".jpeg, .jpg, .png, .gif",
+        thumbnailWidth: 900,
+        thumbnailHeight: 600,
+        timeout: 0,
         init: function () {
-            var myDropzone = this;
-            //form submission code goes here
-            $("form[name='serviceReports']").submit(function (event) {
-                //Make sure that the form isn't actully being sent.
-                event.preventDefault();
+            myDropzone = this;
 
-                // URL = $("#demoform").attr("action");
-                // formData = $("#demoform").serialize();
-                // $.ajax({
-                //     type: "POST",
-                //     url: URL,
-                //     data: formData,
-                //     success: function (result) {
-                //         if (result.status == "success") {
-                //             // fetch the useid
-                //             var userid = result.user_id;
-                //             $("#userid").val(userid); // inseting userid into hidden input field
-                //             //process the queue
-                //             myDropzone.processQueue();
-                //         } else {
-                //             console.log("error");
-                //         }
-                //     },
-                // });
+            // when file is dragged in
+            this.on("addedfile", function (file) {
+                $(".dropzone-drag-area")
+                    .removeClass("is-invalid")
+                    .next(".invalid-feedback")
+                    .hide();
             });
         },
-        accept: function (file, done) {
-            if (file.size == 0) {
-                done("Empty files will not be uploaded.");
-            } else {
-                done();
-            }
+        success: function (file, response) {
+            // hide form and show success message
+            $("#serviceReports").fadeOut(600);
+            setTimeout(function () {
+                $("#successMessage").removeClass("d-none");
+            }, 600);
         },
+    });
+    $("#formSubmit").on("click", function (event) {
+        event.preventDefault();
+        var $this = $(this);
+
+        // show submit button spinner
+        $this.children(".spinner-border").removeClass("d-none");
+
+        // validate form & submit if valid
+        if ($("#formDropzone")[0].checkValidity() === false) {
+            event.stopPropagation();
+
+            // show error messages & hide button spinner
+            $("#formDropzone").addClass("was-validated");
+            $this.children(".spinner-border").addClass("d-none");
+
+            // if dropzone is empty show error message
+            if (!myDropzone.getQueuedFiles().length > 0) {
+                $(".dropzone-drag-area")
+                    .addClass("is-invalid")
+                    .next(".invalid-feedback")
+                    .show();
+            }
+        } else {
+            // if everything is ok, submit the form
+            myDropzone.processQueue();
+        }
     });
 
     // Multiple Dropzone
