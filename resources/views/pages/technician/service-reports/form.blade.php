@@ -32,67 +32,75 @@
                         <div class="form-floating form-floating-outline">
                             <select id="select2Basic" class="select2 form-select form-select-lg" data-allow-clear="true"
                                 name="id_pic">
+                                <option selected>----- Select Company | Pic || Sales -----</option>
                                 @foreach ($pic as $charge)
                                     <option value="{{ $charge->id }}"
                                         {{ @$quotation->id_pic == $charge->id ? 'selected' : '' }}>
-                                        {{ $charge->name_pic }} | {{ $charge->client->company }}</option>
+                                        {{ $charge->client->company }} | {{ $charge->name_pic }} ||
+                                        {{ $charge->client->sales->name }}</option>
                                 @endforeach
                             </select>
                             <label for="select2Basic">Client</label>
                         </div>
 
-                        <input type="text" name="technician" id="" value="{{ Auth::user()->id }}"
-                            hidden>
+                        <input type="text" name="technician" id="" value="{{ Auth::user()->id }}" hidden>
                     </div>
                     <div class="col-md-2"></div>
                     <div class="col-12 col-md-4 mb-3">
                         <div class="form-floating form-floating-outline">
-                            <input class="form-control" type="date"
-                                value="{{ now()->format('Y-m-d') }}" disabled>
-                            <input type="date" name="date" id="date" value="{{ now()->format('Y-m-d') }}" hidden>
+                            <input class="form-control" type="date" value="{{ now()->format('Y-m-d') }}" disabled>
+                            <input type="date" name="date" id="date" value="{{ now()->format('Y-m-d') }}"
+                                hidden>
                             <label for="date">Date</label>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control" id="unit" name="unit"
-                                placeholder="Type Unit Type Here ....">
+                                placeholder="Type Unit Type Here ...." value="{{ old('unit') }}">
                             <label for="basic-default-fullname">Unit Type</label>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control" id="serial_number" name="serial_number"
-                                placeholder="Type Serial Number Here ....">
+                                placeholder="Type Serial Number Here ...." value="{{ old('serial_number') }}">
                             <label for="basic-default-fullname">Serial Number</label>
                         </div>
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control input-numeric" id="running" name="running"
-                                placeholder="Type Running Here...">
+                                placeholder="Type Running Here..." value="{{ old('running') }}">
                             <label for="basic-default-fullname">Running</label>
                         </div>
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control input-numeric" id="load" name="load"
-                                placeholder="Type Load Here...">
+                                placeholder="Type Load Here..." value="{{ old('load') }}">
                             <label for="basic-default-fullname">Load</label>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control" id="jobdesc" name="jobdesc"
-                                placeholder="Type Job Description Type Here ....">
+                                placeholder="Type Job Description Type Here ...." value="{{ old('jobdesc') }}">
                             <label for="basic-default-fullname">Job Description</label>
                         </div>
                     </div>
                     <div class="col-12 mb-3">
                         <div class="form-floating form-floating-outline">
                             <textarea class="form-control" id="description" name="desc" placeholder="Description here..."
-                                style="min-height: 100px;"></textarea>
+                                style="min-height: 100px;" value="{{ old('desc') }}"></textarea>
                             <label for="description">Description</label>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <div class="form-floating form-floating-outline">
+                            <textarea class="form-control" id="recomendation" name="recomendation" placeholder="Recomendation here..."
+                                style="min-height: 100px;" value="{{ old('recomendation') }}"></textarea>
+                            <label for="recomendation">Recomendation</label>
                         </div>
                     </div>
                     <div class="col-12">
@@ -100,7 +108,7 @@
                             <label for="formFileMultiple" class="form-label">Picture</label>
                             <input class="form-control" type="file" id="formFileMultiple" name="image[]"
                                 multiple="" accept="image/*">
-                            <div id="image-preview"></div>
+                            <div class="d-flex justify-content-between" id="image-preview"></div>
                         </div>
                     </div>
                     <div class="col-12 mb-3">
@@ -160,8 +168,8 @@
                     dynamicInputsContainer.append(dynamicInput);
                 }
 
-                if (files.length !== 2 && files.length !== 4) {
-                    alert('Masukan 2 atau 4 Gambar.');
+                if (files.length !== 3 && files.length !== 6 && files.length !== 9) {
+                    alert('Gambar Wajib Kelipatan 3! 3/6/9 Maksimal 9');
                     this.value = ''; // Menghapus file yang tidak memenuhi syarat
                     dynamicInputsContainer.empty();
                 }
@@ -170,13 +178,24 @@
                 const previewContainer = document.getElementById('image-preview');
                 previewContainer.innerHTML = '';
 
-                for (const file of files) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
                     const reader = new FileReader();
 
                     reader.onload = function(e) {
+                        const imageContainer = document.createElement('div');
                         const imageElement = document.createElement('img');
+                        const description = document.createElement('p');
+
+                        imageContainer.className =
+                        'image-container'; // Tambahkan kelas sesuai kebutuhan
                         imageElement.src = e.target.result;
-                        previewContainer.appendChild(imageElement);
+                        description.textContent = 'Photo ' + (i + 1);
+
+                        imageContainer.appendChild(imageElement);
+                        imageContainer.appendChild(description);
+                        previewContainer.appendChild(imageContainer);
+
                     };
 
                     reader.readAsDataURL(file);

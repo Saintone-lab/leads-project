@@ -127,6 +127,16 @@ class UserTableSeeder extends Seeder
                 'role' => 'Technician',
                 'image' => 'asset/profile/profile.jpg',
             ],
+            [
+                'name' => 'Faris Abu Hafidz',
+                'phone' => '-',
+                'email' => 'faris@reftech.id',
+                'password' => Hash::make('teknisi123'),
+                'code' => 'FAH',
+                'area' => 'Bandung',
+                'role' => 'Technician',
+                'image' => 'asset/profile/profile.jpg',
+            ],
         ];
         User::insert($user);
     }

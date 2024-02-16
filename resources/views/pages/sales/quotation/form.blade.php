@@ -2,7 +2,7 @@
 @section('title', 'Create Quotation')
 @section('content')
     @php
-        $id = 1;
+        $id = 0;
         $dataDetail = 0;
     @endphp
     <form action="{{ @$quotation ? route('quotation.update', $quotation->id) : route('quotation.store') }}" method="post"
@@ -12,8 +12,15 @@
             @method('patch')
         @endif
         <div class="form-floating mb-3">
-            <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled" aria-describedby="floatingInputFilledHelp"
-                name="no_quote" value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote . '-REV-' : $formattedNumberQ . '-P/BDG/RJO-' . Auth::user()->code . '/' . $formattedMonthNow . '/' . \Carbon\Carbon::now()->year ) }}">
+            @if (Auth::user()->code == 'YH')
+                <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
+                    aria-describedby="floatingInputFilledHelp" name="no_quote"
+                    value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote . '-REV-' : $formattedNumberQ . '-P-BDG-RJO-' . Auth::user()->code . '-' . $formattedMonthNow . '-' . \Carbon\Carbon::now()->year) }}">
+            @else
+                <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
+                    aria-describedby="floatingInputFilledHelp" name="no_quote"
+                    value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote . '-REV-' : $formattedNumberQ . '-P/BDG/RJO-' . Auth::user()->code . '/' . $formattedMonthNow . '/' . \Carbon\Carbon::now()->year) }}">
+            @endif
             <label for="floatingInputFilled">Number Quotation</label>
             <span class="form-floating-focused"></span>
         </div>
@@ -37,7 +44,7 @@
                                     @foreach ($pic as $charge)
                                         <option value="{{ $charge->id }}"
                                             {{ @$quotation->id_pic == $charge->id ? 'selected' : '' }}>
-                                            {{ $charge->name_pic }} | {{$charge->client->company}}</option>
+                                            {{ $charge->name_pic }} | {{ $charge->client->company }}</option>
                                     @endforeach
                                 </select>
                                 <label for="select2Basic">Client</label>
@@ -81,16 +88,11 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating form-floating-outline">
-                                <select class="form-select" id="Assigned" aria-label="Floating label select example"
-                                    name="id_sales">
-                                    <option disabled>-----Select Assigned-----</option>
-                                    @foreach ($sales as $saless)
-                                        <option value="{{ $saless->id }}"
-                                            {{ $saless->id == Auth::user()->id ? 'selected' : '' }}>
-                                            {{ $saless->name }}</option>
-                                    @endforeach
-                                </select>
-                                <label for="Assigned">Assigned</label>
+                                <input class="form-control" type="text" id="assigned" name="id_sales"
+                                    value="{{ Auth::user()->name }}" disabled>
+                                <input class="form-control" type="text" id="assigned" name="id_sales"
+                                    value="{{ Auth::user()->id }}" hidden>
+                                <label for="assigned">Assigned</label>
                             </div>
                         </div>
                     </div>
@@ -109,44 +111,56 @@
                                                 <input type="text" name="product[]" id="product"
                                                     class="form-control mb-3 product" placeholder="Example: Kaeser"
                                                     value="{{ old('product[]', $quote->product) }}">
-                                                <textarea class="form-control" rows="2" placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]">{{ old('detail_product[]', $quote->detail_product) }}</textarea>
+                                                <textarea class="form-control" rows="2" placeholder="Detail Product. Example: Kaeser ASD"
+                                                    name="detail_product[]">{{ old('detail_product[]', $quote->detail_product) }}</textarea>
                                             </div>
                                             <div class="col-md-3 col-12 mb-md-0 mb-3">
                                                 <p class="mb-2 repeater-title">Price</p>
                                                 <div class="input-group" data-price="1">
                                                     <span class="input-group-text">Rp. </span>
                                                     <input type="text" class="form-control invoice-item-price-label"
-                                                        id="price-label" data-id="1" min="12"
+                                                        id="price-label" data-id="{{ $id }}" min="12"
                                                         placeholder="Put Price Here" data-type="currency"
                                                         pattern="^[1-9]\d{0,2}(\.\d{3})*$"
                                                         value="{{ old('price[]', @$quote->price ? number_format(@$quote->price, 0, '', '.') : '') }}">
                                                     <input class="form-control invoice-item-price" type="number"
-                                                        name="price[]" id="price-1"
+                                                        name="price[]" id="price-{{ $id }}"
                                                         value="{{ old('price[]', @$quote->price ?? '') }}" hidden>
                                                 </div>
                                             </div>
                                             <div class="col-md-1 col-12 mb-md-0 mb-3">
                                                 <p class="mb-2 repeater-title">Qty</p>
-                                                <input type="number" class="form-control invoice-item-qty"
+                                                <input type="number" class="form-control invoice-item-qty mb-3"
                                                     placeholder="Min 1" name="qty[]" id="qty-{{ $dataDetail }}"
-                                                    data-id="{{ $dataDetail }}" min="1" max="50"
+                                                    data-id="{{ $dataDetail }}" min="1"
                                                     value="{{ old('qty[]', $quote->qty) }}">
+                                                <div class="form-floating form-floating-outline mb-4">
+                                                    <select class="form-select invoice-item-info" id="info-qty-1" data-id="1"
+                                                        aria-label="Default select example" name="info_qty[]">
+                                                        <option>---Info---</option>
+                                                        <option value="Pcs" {{ ($quote->info_qty == 'Pcs' ? 'selected' : '') }}>Pcs</option>
+                                                        <option value="Set" {{ ($quote->info_qty == 'Set' ? 'selected' : '') }}>Set</option>
+                                                        <option value="Pail" {{ ($quote->info_qty == 'Pail' ? 'selected' : '') }}>Pail</option>
+                                                    </select>
+                                                    <label for="exampleFormControlSelect1">Info</label>
+                                                </div>
                                             </div>
                                             <div class="col-md-1 col-12 mb-md-0 mb-3">
                                                 <p class="mb-2 repeater-title">Discount</p>
                                                 <input type="number" class="form-control invoice-item-disc"
                                                     placeholder="%" name="disc[]" id="disc-{{ $dataDetail }}"
-                                                    data-id="{{ $dataDetail }}" min="1" max="50"
+                                                    data-id="{{ $dataDetail }}" min="0"
                                                     value="{{ old('disc[]', $quote->disc ?? '0') }}">
                                             </div>
                                             <div class="col-md-1 col-12 pe-0">
                                                 <p class="mb-2 repeater-title">Amount</p>
-                                                <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
+                                                <p class="mb-0 amount-label" id="amount-label-{{ $id }}"
+                                                    data-id="{{ $id }}">
                                                     {{ old('amount[]', 'RP ' . number_format($quote->amount, 0, '', '.')) }}
                                                 </p>
                                                 <input type="number" class="form-control invoice-item-amount"
-                                                    name="amount[]" id="amount-1" data-id="1" min="12"
-                                                    value="{{ old('amount[]', $quote->amount) }}" hidden>
+                                                    name="amount[]" id="amount-{{ $id }}" data-id="1"
+                                                    min="12" value="{{ old('amount[]', $quote->amount) }}" hidden>
                                             </div>
                                         </div>
                                         <div
@@ -166,7 +180,8 @@
                                         <div class="col-md-6 col-12 mb-md-0 mb-3">
                                             <label for="product" class="mb-2">Product</label>
                                             <input type="text" name="product[]" id="product"
-                                                class="form-control mb-3 product" placeholder="Put Your Part Number Here. Example: 6.641.13.1">
+                                                class="form-control mb-3 product"
+                                                placeholder="Put Your Part Number Here. Example: 6.641.13.1">
                                             <textarea class="form-control" rows="2" placeholder="Detail Product. Example: Kaeser ASD"
                                                 name="detail_product[]"></textarea>
                                         </div>
@@ -185,15 +200,25 @@
                                         </div>
                                         <div class="col-md-1 col-12 mb-md-0 mb-3">
                                             <p class="mb-2 repeater-title">Qty</p>
-                                            <input type="number" class="form-control invoice-item-qty"
+                                            <input type="number" class="form-control mb-3 invoice-item-qty"
                                                 placeholder="Min 1" name="qty[]" id="qty-1" data-id="1"
-                                                min="1" max="50" value="{{ old('qty[]') }}">
+                                                min="1" value="{{ old('qty[]') }}">
+                                            <div class="form-floating form-floating-outline mb-4">
+                                                <select class="form-select invoice-item-info" id="info-qty-1" data-id="1"
+                                                    aria-label="Default select example" name="info_qty[]">
+                                                    <option disabled>---Info---</option>
+                                                    <option value="Pcs">Pcs</option>
+                                                    <option value="Set">Set</option>
+                                                    <option value="Pail">Pail</option>
+                                                </select>
+                                                <label for="exampleFormControlSelect1">Info</label>
+                                            </div>
                                         </div>
                                         <div class="col-md-1 col-12 mb-md-0 mb-3">
                                             <p class="mb-2 repeater-title">Discount</p>
-                                            <input type="number" class="form-control invoice-item-disc"
-                                                placeholder="%" name="disc[]" id="disc-1" data-id="1"
-                                                min="0" max="50" value="{{ old('disc[]', '0') }}">
+                                            <input type="number" class="form-control invoice-item-disc" placeholder="%"
+                                                name="disc[]" id="disc-1" data-id="1" min="0"
+                                                value="{{ old('disc[]', '0') }}">
                                         </div>
                                         <div class="col-md-1 col-12 pe-0">
                                             <p class="mb-2 repeater-title">Amount</p>
@@ -262,8 +287,7 @@
                                 <label class="col-sm-4 col-form-label" for="note">Note</label>
                                 <div class="col-sm-8">
                                     <input type="text" id="note" class="form-control form-control-lg"
-                                        value="{{ old('note', @$quotation->termncon[0]->note ?? '-') }}"
-                                        name="note">
+                                        value="{{ old('note', @$quotation->termncon[0]->note ?? '-') }}" name="note">
                                 </div>
                             </div>
                         </div>
@@ -338,7 +362,7 @@
                                                     <input type="text" id="diskon-label" class="form-control"
                                                         placeholder="Discount Here....." data-type="currency"
                                                         style="background: none; border: none;"
-                                                        pattern="^[1-9]\d{0,2}(\.\d{3})*$"
+                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$"
                                                         value="{{ old('diskon', @$quotation->diskon ? number_format(@$quotation->diskon, 0, '', '.') : '0') }}">
                                                     <input type="number" name="diskon" id="diskon"
                                                         value="{{ old('diskon', @$quotation->diskon ?? '0') }}" hidden>
@@ -349,6 +373,8 @@
                                 </div>
                             @endif
                             <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
+                                <input type="number" id="totalNoTax" name="total_no_tax"
+                                    value="{{ old('total_no_tax', @$quotation->total_no_tax ?? '') }}" hidden>
                                 <div class="card-body ">
                                     <div class="row">
                                         <label class="col-sm-4 col-form-label text-sm-start"
@@ -485,14 +511,18 @@
             });
 
             // Logic amount + Subtotal
-            $('.invoice-item-price-label, .invoice-item-qty, .invoice-item-disc').on('keyup change', function(ev) {
+            $('.invoice-item-price-label, .invoice-item-qty, .invoice-item-disc').on('keyup change click', function(
+                ev) {
                 var id = $(this).data('id');
                 var sTotal = 0,
                     row = 0;
                 var amount = 0,
                     hasil = 0,
+                    valHarga = $(`#price-${id}`).val(),
+                    harga = Number(valHarga),
                     disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val());
-                hasil = $(`#price-${id}`).val() * $(`#qty-${id}`).val();
+                console.log("Harga nya adalah : " + harga);
+                hasil = harga * $(`#qty-${id}`).val();
                 amount = (hasil - (hasil * disc / 100));
                 $(`#amount-${id}`).val(amount);
                 $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
@@ -501,6 +531,7 @@
                     sTotal += parseInt($(`#amount-${row}`).val())
                 })
                 console.log(sTotal + "<total row>" + row);
+                console.log("Anda Sedang berada di Id : " + id);
                 $('#subtotal-label').html(`${formatter.format(sTotal)}`);
                 $('#subtotal').val(sTotal);
             });
@@ -539,7 +570,8 @@
                     caret_pos = updated_len - original_len + caret_pos;
                     input[0].setSelectionRange(caret_pos, caret_pos);
                 });
-                $('.invoice-item-price-label, .invoice-item-qty, .invoice-item-disc').on('keyup change',
+                $('.invoice-item-price-label, .invoice-item-qty, .invoice-item-disc').on(
+                    'keyup change click',
                     function(ev) {
                         var id = $(this).data('id');
                         var sTotal = 0,
@@ -557,6 +589,7 @@
                             sTotal += parseInt($(`#amount-${row}`).val())
                         })
                         console.log(sTotal + "<total row>" + row);
+                        console.log("Anda Sedang berada di Id : " + id);
                         $('#subtotal-label').html(`${formatter.format(sTotal)}`);
                         $('#subtotal').val(sTotal);
                     });
@@ -595,16 +628,17 @@
             $('#subtotal, #tax, #shipping-label, #diskon-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-disc')
                 .on('keyup change',
                     () => {
+                        var noTax = 0;
                         var hTotal = 0;
                         var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
                         var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
                         var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon').val());
-                        console.log(discount);
                         var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                        console.log(tax);
                         hTotal = parseInt(sTotal + (sTotal * tax / 100) + shipping - discount);
+                        noTax = parseInt(sTotal + shipping - discount)
                         $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
                         $('#hargaTotal').val(hTotal);
+                        $('#totalNoTax').val(noTax);
                         console.log("Harga Total :" + hTotal);
                     });
         })

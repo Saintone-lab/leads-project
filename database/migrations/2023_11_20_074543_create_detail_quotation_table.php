@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('product', 25); // detail
             $table->longText('detail_product'); // detail
             $table->integer('qty'); // detail
+            $table->string('info_qty')->nullable(); // detail
             $table->integer('disc');
             $table->integer('price'); // detail
             $table->integer('amount'); // detail

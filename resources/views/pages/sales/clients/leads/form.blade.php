@@ -52,7 +52,7 @@
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="email" id="email" class="form-control" name="email"
+                                <input type="text" id="email" class="form-control" name="email"
                                     placeholder="xxxx@xxx.xx" value="{{ old('email', @$leads->email ?? '') }}">
                                 <label for="email">Email</label>
                             </div>

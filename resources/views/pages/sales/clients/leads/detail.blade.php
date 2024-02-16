@@ -30,6 +30,14 @@
                     </div>
                     <div class="row mb-1">
                         <div class="col-3">
+                            Area
+                        </div>
+                        <div class="col-9">
+                            : {{ $leads->area }}
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-3">
                             Phone
                         </div>
                         <div class="col-9">
@@ -95,7 +103,7 @@
                 </h5>
                 <a type="button" data-bs-toggle="modal" data-bs-target="#createPic">
                     <button type="button" class="btn btn-primary">
-                        + Create New PIC
+                        + New PIC
                     </button>
                 </a>
             </div>
@@ -153,7 +161,7 @@
                 </h5>
                 <a type="button" data-bs-toggle="modal" data-bs-target="#createAction{{ $leads->id }}">
                     <button type="button" class="btn btn-primary">
-                        + Create New Action
+                        + New Action
                     </button>
                 </a>
             </div>
@@ -165,7 +173,7 @@
                                 <th>Date</th>
                                 <th>Action</th>
                                 <th>Status</th>
-                                <th>Address</th>
+                                <th>note</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -181,7 +189,7 @@
                                         {{ $callhistory->status }}
                                     </td>
                                     <td>
-                                        {{ $callhistory->client->area }}
+                                        {{ $callhistory->note }}
                                     </td>
                                 </tr>
                             @empty
@@ -197,9 +205,14 @@
             </div>
         </div>
         <div class="col-md-6 my-3">
-            <h5 class="fw-bold pb-1 mb-2">
-                Quotation
-            </h5>
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold m-0 pt-2">
+                    Quotation
+                </h5>
+                <a href="{{ route('quotation.create') }}" type="button" class="btn btn-primary">
+                    + New Quotation
+                </a>
+            </div>
             <div class="card">
                 <div class="table-responsive text-nowrap">
                     <table class="table table-striped">

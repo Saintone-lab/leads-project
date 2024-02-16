@@ -18,8 +18,8 @@ class ReportsController extends Controller
         $dataQuote = $this->getWeekDataQuote();
         $dataPo = $this->getWeekDataPo();
         $target = Target::where('id_sales', Auth::user()->id)->first();
-        // dd($target);
-        $quotation = Quotation::where('status', '100')->get();
+        // dd($dataQuote);
+        $quotation = Quotation::where('status', '100')->where('id_sales', Auth::user()->id)->get();
         return view("pages.sales.report.index", compact("quotation", "dataDc", "dataQuote", "dataPo", "target"));
     }
 
@@ -31,7 +31,11 @@ class ReportsController extends Controller
         $firstDayOfMonth = "{$yearNow}-{$monthNow}-01";
         $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfMonth));
 
-        $weekEnd = date('W', strtotime($lastDayOfMonth));
+        $firstDayOfWeek = date('N', strtotime($firstDayOfMonth));
+        $weekEnd = date('W', strtotime($firstDayOfMonth));
+        $endWeek = date('W', strtotime($lastDayOfMonth));
+        $weekStart = $firstDayOfWeek > 1 ? $weekEnd + 1 : $weekEnd;
+
         $dCallPerWeek = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date), "-W", WEEK(date, 4)) as date'), DB::raw('WEEK(date, 4) as week'), DB::raw('COUNT(*) as total'))
             ->join('client as c', 'activities.id_client', '=', 'c.id')
             ->join('users as u', 'c.id_sales', '=', 'u.id')
@@ -41,8 +45,9 @@ class ReportsController extends Controller
             ->groupBy('week')
             ->orderBy('week')
             ->pluck('total', 'week');
+
         $fullMonthData = [];
-        for ($week = 1; $week <= $weekEnd; $week++) {
+        for ($week = $weekStart; $week <= $endWeek; $week++) {
             $weekKey = "{$week}";
 
             $weekDays = date('t', strtotime($weekKey));
@@ -53,6 +58,8 @@ class ReportsController extends Controller
                 ];
             }
         }
+        // dd($fullMonthData);
+
         return $fullMonthData;
     }
     protected function getWeekDataQuote()
@@ -63,7 +70,11 @@ class ReportsController extends Controller
         $firstDayOfMonth = "{$yearNow}-{$monthNow}-01";
         $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfMonth));
 
-        $weekEnd = date('W', strtotime($lastDayOfMonth));
+        $firstDayOfWeek = date('N', strtotime($firstDayOfMonth));
+        $weekEnd = date('W', strtotime($firstDayOfMonth));
+        $endWeek = date('W', strtotime($lastDayOfMonth));
+        $weekStart = $firstDayOfWeek > 1 ? $weekEnd + 1 : $weekEnd;
+
         $dCallPerWeek = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date), "-W", WEEK(estimated_date, 4)) as estimated_date'), DB::raw('WEEK(estimated_date, 4) as week'), DB::raw('COUNT(*) as total'))
             ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
             ->where('id_sales', Auth::user()->id)
@@ -71,7 +82,7 @@ class ReportsController extends Controller
             ->orderBy('week')
             ->pluck('total', 'week');
         $fullMonthData = [];
-        for ($week = 1; $week <= $weekEnd; $week++) {
+        for ($week = $weekStart; $week <= $endWeek; $week++) {
             $weekKey = "{$week}";
 
             $weekDays = date('t', strtotime($weekKey));
@@ -92,7 +103,11 @@ class ReportsController extends Controller
         $firstDayOfMonth = "{$yearNow}-{$monthNow}-01";
         $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfMonth));
 
-        $weekEnd = date('W', strtotime($lastDayOfMonth));
+        $firstDayOfWeek = date('N', strtotime($firstDayOfMonth));
+        $weekEnd = date('W', strtotime($firstDayOfMonth));
+        $endWeek = date('W', strtotime($lastDayOfMonth));
+        $weekStart = $firstDayOfWeek > 1 ? $weekEnd + 1 : $weekEnd;
+
         $dCallPerWeek = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date), "-W", WEEK(po_date, 4)) as po_date'), DB::raw('WEEK(po_date, 4) as week'), DB::raw('COUNT(*) as total'))
             ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
             ->where('id_sales', Auth::user()->id)
@@ -101,7 +116,7 @@ class ReportsController extends Controller
             ->orderBy('week')
             ->pluck('total', 'week');
         $fullMonthData = [];
-        for ($week = 1; $week <= $weekEnd; $week++) {
+        for ($week = $weekStart; $week <= $endWeek; $week++) {
             $weekKey = "{$week}";
 
             $weekDays = date('t', strtotime($weekKey));

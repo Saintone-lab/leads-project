@@ -29,6 +29,7 @@ class Quotation extends Model
         'no_quote',
         'termcon',
         'subtotal',
+        'total_no_tax',
         'harga_total'
     ];
 

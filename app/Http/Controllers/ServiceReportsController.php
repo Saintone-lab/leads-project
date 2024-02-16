@@ -79,6 +79,7 @@ class ServiceReportsController extends Controller
         $reports->load = $request->load;
         $reports->jobdesc = $request->jobdesc;
         $reports->desc = $request->desc;
+        $reports->recomendation = $request->recomendation;
         $reports->date = $request->date;
         $status = $reports->save();
         // dd($reports);
@@ -97,10 +98,10 @@ class ServiceReportsController extends Controller
 
                 $upload_path = 'asset/reports';
                 $imagename = $upload_path . '/' . $image_name . '.' . $image_ext;
- 
+
                 // Pemrosesan gambar
                 $img = Image::make($foto->path());
-                $img->fit(150, 200, function ($constraint) {
+                $img->fit(500, 800, function ($constraint) {
                     $constraint->aspectRatio();
                 });
                 $img->save($imagename);
@@ -110,8 +111,8 @@ class ServiceReportsController extends Controller
 
             $status = $photo->save(); // Simpan objek setelah pemrosesan setiap file
         }
-        if($status){
-            return redirect('service-reports')->with('success','Data Has been created');
+        if ($status) {
+            return redirect('service-reports')->with('success', 'Data Has been created');
         }
     }
 
@@ -125,6 +126,7 @@ class ServiceReportsController extends Controller
     {
         $service = Reports::where('id', $id)->first();
         $pict = ReportsPict::where('id_reports', $id)->get();
+        // dd($service);
         return view('pages.technician.service-reports.detail', compact('service', 'pict'));
     }
 
@@ -159,7 +161,19 @@ class ServiceReportsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $service = Reports::find($id);
+        $pic = ReportsPict::where('id_reports', $id)->get();
+
+        $delService = $service->delete();
+        foreach ($pic as $pict) {
+            $delPict = $pict->delete();
+        }
+
+        if ($delService && $delPict) {
+            return 1;
+        }else {
+            return 0;
+        }
     }
 
     public function print_reports($id)

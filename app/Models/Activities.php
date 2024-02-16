@@ -22,7 +22,7 @@ class Activities extends Model
         'note',
     ];
 
-    public function client(){
+    public function clients(){
         return $this->belongsTo('App\Models\Client', 'id_client', 'id');
     }
 }

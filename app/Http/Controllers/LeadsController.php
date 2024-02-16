@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 // use App\Http\Requests\StoreLeadsRequest;
 
 use App\Models\Client;
+use App\Models\CrmStatus;
 use App\Models\Issues;
 use App\Models\User;
 use App\Models\Activities;
@@ -298,6 +299,10 @@ class LeadsController extends Controller
         $leads->id_issues = $request->issues;
         if ($request->issues == '5'){
             $leads->role = 'Customers';
+            $status = new CrmStatus;
+            $status->id_client = $id;
+            $status->status = 2;
+            $statSave = $status->save();
         }
         $isuSave = $leads->save();
 
@@ -314,9 +319,9 @@ class LeadsController extends Controller
         $action->date = \Carbon\Carbon::today();
         $action->follow_up = $request->follow_up;
         $activitiesSave = $action->save();
-        if($isuSave && $activitiesSave){
+        if($isuSave && $activitiesSave || $statSave){
             if($request->issues == '5'){
-                return redirect("/customers/detail/".$id)->with("success","Data telah ditambahkan");
+                return redirect("/existing/".$id)->with("success","Data telah ditambahkan");
             }else{
                 return redirect("/leads/detail/".$id)->with("success","Data telah ditambahkan");
             }

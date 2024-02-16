@@ -47,33 +47,36 @@
                 <span class="menu-header-text">Client</span>
             </li>
             <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('customers') || request()->is('customers/*') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
                     <div data-i18n="Client">Client</div>
                 </a>
-    
+
                 <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') ? 'active' : '' }}">
+                    <li
+                        class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') ? 'active' : '' }}">
                         <a href="{{ url('leads') }}" class="menu-link">
                             <div data-i18n="Leads">Leads</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('customers') || request()->is('customers/*') ? 'active' : '' }}">
-                        <a href="{{ url('customers') }}" class="menu-link">
-                            <div data-i18n="Customer">Customer</div>
+
+                    <li class="menu-item {{ request()->is('existing') || request()->is('existing/*') ? 'active' : '' }}">
+                        <a href="{{ route('existing.index') }}" class="menu-link">
+                            <div data-i18n="CRM Existing">CRM Existing</div>
                         </a>
                     </li>
                 </ul>
             </li>
-    
+
             <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                     <div data-i18n="Quotation">Quotation</div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') ? 'active' : '' }}">
+                    <li
+                        class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') ? 'active' : '' }}">
                         <a href="{{ route('quotation.index') }}" class="menu-link">
                             <div data-i18n="Quotation Leads">Leads</div>
                         </a>
@@ -90,7 +93,7 @@
                     </li>
                 </ul>
             </li>
-    
+
             <li class="menu-item {{ request()->is('visits/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-office-building-marker-outline"></i>
@@ -102,6 +105,15 @@
                             <div data-i18n="Leads">Leads</div>
                         </a>
                     </li>
+
+
+                    <li
+                        class="menu-item {{ request()->is('existing') || request()->is('existing/*') ? 'active' : '' }}">
+                        <a href="{{ route('existing.index') }}" class="menu-link">
+                            <i class="menu-icon tf-icons mdi mdi-call-split"></i>
+                            <div data-i18n="CRM Existing">CRM Existing</div>
+                        </a>
+                    </li>
                     <li class="menu-item">
                         <a href="#" class="menu-link">
                             <div data-i18n="Customer">Customer</div>
@@ -109,15 +121,16 @@
                     </li>
                 </ul>
             </li>
-    
-    
-            <li class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
+
+
+            <li
+                class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
                 <a href="{{ route('service-reports.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
                     <div data-i18n="Service Report">Service Report</div>
                 </a>
             </li>
-    
+
             <li class="menu-item {{ request()->is('product/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
@@ -141,21 +154,21 @@
                     </li>
                 </ul>
             </li>
-    
+
             <li class="menu-item">
                 <a href="{{ url('pending-po') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-cart-arrow-down"></i>
                     <div data-i18n="Pending PO">Pending PO</div>
                 </a>
             </li>
-    
+
             <li class="menu-item {{ request()->is('existing') ? 'active' : '' }}">
                 <a href="{{ route('existing.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-call-split"></i>
-                    <div data-i18n="Existing Sales">Existing Sales</div>
+                    <div data-i18n="CRM Existing">CRM Existing</div>
                 </a>
             </li>
-        @else
+        @elseif (auth::user()->role == 'Sales')
             <!-- Dashboards -->
             <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
                 <a href="{{ url('/') }}" class="menu-link">
@@ -179,33 +192,37 @@
                 <span class="menu-header-text">Client</span>
             </li>
             <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('customers') || request()->is('customers/*') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
                     <div data-i18n="Client">Client</div>
                 </a>
-    
+
                 <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') ? 'active' : '' }}">
+                    <li
+                        class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') ? 'active' : '' }}">
                         <a href="{{ url('leads') }}" class="menu-link">
                             <div data-i18n="Leads">Leads</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('customers') || request()->is('customers/*') ? 'active' : '' }}">
-                        <a href="{{ url('customers') }}" class="menu-link">
-                            <div data-i18n="Customer">Customer</div>
+
+                    <li class="menu-item {{ request()->is('existing') || request()->is('existing/*') ? 'active' : '' }}">
+                        <a href="{{ route('existing.index') }}" class="menu-link">
+                            <div data-i18n="CRM Existing">CRM Existing</div>
                         </a>
                     </li>
                 </ul>
             </li>
-    
-            <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') ? 'open' : '' }}">
+
+            <li
+                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                     <div data-i18n="Quotation">Quotation</div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') ? 'active' : '' }}">
+                    <li
+                        class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') ? 'active' : '' }}">
                         <a href="{{ route('quotation.index') }}" class="menu-link">
                             <div data-i18n="Quotation Leads">Quotation Leads</div>
                         </a>
@@ -215,15 +232,14 @@
                             <div data-i18n="Quotation Customer">QuotationCustomer</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ 
-                    request()->is('po') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->is('po') ? 'active' : '' }}">
                         <a href="{{ route('quotation.po') }}" class="menu-link">
                             <div data-i18n="Done PO">Done PO</div>
                         </a>
                     </li>
                 </ul>
             </li>
-    
+
             <li class="menu-item {{ request()->is('visits/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-office-building-marker-outline"></i>
@@ -242,15 +258,16 @@
                     </li>
                 </ul>
             </li>
-    
-    
-            <li class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
+
+
+            <li
+                class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
                 <a href="{{ route('service-reports.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
                     <div data-i18n="Service Report">Service Report</div>
                 </a>
             </li>
-    
+
             <li class="menu-item {{ request()->is('product/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
@@ -274,18 +291,29 @@
                     </li>
                 </ul>
             </li>
-    
+
             <li class="menu-item">
                 <a href="{{ url('pending-po') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-cart-arrow-down"></i>
                     <div data-i18n="Pending PO">Pending PO</div>
                 </a>
             </li>
-    
-            <li class="menu-item {{ request()->is('existing') ? 'active' : '' }}">
-                <a href="{{ route('existing.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-call-split"></i>
-                    <div data-i18n="Existing Sales">Existing Sales</div>
+        @else
+            <!-- Dashboards -->
+            <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
+                <a href="{{ url('/') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
+                    <div data-i18n="Dashboards">Dashboards</div>
+                </a>
+            </li>
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Technician</span>
+            </li>
+            <li
+                class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
+                <a href="{{ route('service-reports.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
+                    <div data-i18n="Service Report">Service Report</div>
                 </a>
             </li>
         @endif

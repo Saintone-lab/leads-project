@@ -181,7 +181,7 @@
                                         {{ $callhistory->status }}
                                     </td>
                                     <td>
-                                        {{ $callhistory->client->area }}
+                                        {{ $callhistory->clients->area }}
                                     </td>
                                 </tr>
                             @empty

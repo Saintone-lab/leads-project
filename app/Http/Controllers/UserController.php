@@ -54,16 +54,18 @@ class UserController extends Controller
             'area.required' => 'Field Area Wajib Diisi',
             'phone.required' => 'Field phone Wajib Diisi!',
         ];
-        
+
         $this->validate($request, $rule, $customMessages);
         $users = new User;
         $users->name = $request->name;
         $users->email = $request->email;
         $users->area = $request->area;
-        $users->phone = '+62'.$request->phone;
+        $users->code = $request->code;
+        $users->role = $request->role;
+        $users->phone = '+62' . $request->phone;
         $users->password = Hash::make($request->password);
         if ($request->hasFile('image')) {
-            if ($users->image != 'asset/profile/profile.jpg'){
+            if ($users->image != 'asset/profile/profile.jpg') {
                 File::delete($users->image);
             }
 
@@ -76,10 +78,12 @@ class UserController extends Controller
             $request->file('image')->move($upload_path, $imagename);
 
             $users['image'] = $imagename;
+        } else {
+            $users->image = 'asset/profile/profile.jpg';
         }
         $status = $users->save();
         if ($status) {
-            return redirect('/profile'.'/'.Auth::user()->id)->with('success','Data Has been created');
+            return redirect('/profile' . '/' . Auth::user()->id)->with('success', 'Data Has been created');
         }
     }
 
@@ -130,16 +134,16 @@ class UserController extends Controller
             'area.required' => 'Field Area Wajib Diisi',
             'phone.required' => 'Field phone Wajib Diisi!',
         ];
-        
+
         $this->validate($request, $rule, $customMessages);
-        dd($request);
+        // dd($request);
         $users = User::find($id);
         $users->name = $request->name;
         $users->email = $request->email;
         $users->area = $request->area;
-        $users->phone = '+62'.$request->phone;
+        $users->phone = '+62' . $request->phone;
         if ($request->hasFile('image')) {
-            if ($users->image != 'asset/profile/profile.jpg'){
+            if ($users->image != 'asset/profile/profile.jpg') {
                 File::delete($users->image);
             }
 
@@ -155,7 +159,7 @@ class UserController extends Controller
         }
         $status = $users->save();
         if ($status) {
-            return redirect('/profile'.'/'.$id)->with('success','Data Has been updated');
+            return redirect('/profile' . '/' . $id)->with('success', 'Data Has been updated');
         }
     }
 

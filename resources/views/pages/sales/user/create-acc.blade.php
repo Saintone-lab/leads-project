@@ -101,13 +101,20 @@
                                 <div class="input-group input-group-merge">
                                     <div class="form-floating form-floating-outline">
                                         <select class="form-select" id="exampleFormControlSelect1"
-                                            aria-label="Default select example">
+                                            aria-label="Default select example" name="role">
                                             <option value="Sales">Sales</option>
                                             <option value="Technician">Technician</option>
                                             <option value="Warehouse">Warehouse</option>
                                         </select>
                                         <label for="exampleFormControlSelect1">Role select</label>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating form-floating-outline">
+                                    <input class="form-control" type="text" id="code" name="code"
+                                        value="{{ old('code') }}" placeholder="contoh: RZA" />
+                                    <label for="code">Code</label>
                                 </div>
                             </div>
                         </div>

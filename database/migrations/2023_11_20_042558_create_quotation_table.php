@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('no_quote');
             $table->integer('diskon');
             $table->integer('subtotal');
+            $table->integer('total_no_tax');
             $table->integer('harga_total');
             $table->timestamps();
         });

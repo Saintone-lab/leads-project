@@ -209,8 +209,6 @@ $(function () {
                             '<li><a href="' +
                             $revQUrl +
                             '" class="dropdown-item">Revisi</a></li>' +
-                            '<div class="dropdown-divider"></div>' +
-                            '<li><a href="javascript:;" class="dropdown-item text-danger delete-record">Delete</a></li>' +
                             "</ul>" +
                             "</div>"
                         );
@@ -438,7 +436,7 @@ $(function () {
                     ],
                 },
                 {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Quotation</span>',
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Quotation</span>',
                     className: "btn btn-primary btn-new",
                     action: function (e, dt, node, config) {
                         window.location = route("create.quotation");

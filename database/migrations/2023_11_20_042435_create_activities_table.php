@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('activities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_client');
-            $table->string('name', 15);
+            $table->enum('name', ['Daily Call', 'Follow Up', 'Crm']);
             $table->string('status');
             $table->date('date');
             $table->date('follow_up');

@@ -263,4 +263,99 @@ class PicController extends Controller
             return 0;
         }
     }
+
+    public function storeOnCrm(Request $request, $id)
+    {
+
+        $rule = [
+            'namePic' =>
+                'required',
+
+            'emailPic' =>
+                'required',
+
+            'phonePic' =>
+                'required',
+
+            'position' =>
+                'required',
+        ];
+
+        $message = [
+            'namePic.required' => 'Field Nama PIC Wajib Diisi',
+            'emailPic.required' => 'Field Email PIC Wajib Diisi',
+            'phonePic.required' => 'Field Nomor PIC Wajib Diisi',
+            'position.required' => 'Field Posisi PIC Wajib Diisi',
+        ];
+        $this->validate($request, $rule, $message);
+
+        // masukan data ke table PIC
+        $pic = new Pic;
+        $pic->id_client = $id;
+        $pic->name_pic = $request->namePic;
+        $pic->position = $request->position;
+        $pic->email_pic = $request->emailPic;
+        $pic->phone_pic = $request->phonePic;
+        $picsave = $pic->save();
+
+        if ($picsave) {
+            return redirect('/existing/' . $id)->with('message', 'data telah ditambahkan');
+        }
+    }
+
+    public function updateOnCrm(Request $request, $id)
+    {
+        $rule = [
+            'namePic' =>
+                'required',
+
+            'emailPic' =>
+                'required',
+
+            'phonePic' =>
+                'required',
+
+            'position' =>
+                'required',
+        ];
+
+        $message = [
+            'namePic.required' => 'Field Nama PIC Wajib Diisi',
+            'emailPic.required' => 'Field Email PIC Wajib Diisi',
+            'phonePic.required' => 'Field Nomor PIC Wajib Diisi',
+            'position.required' => 'Field Posisi PIC Wajib Diisi',
+        ];
+        $this->validate($request, $rule, $message);
+
+        $pic = Pic::find($id);
+        $crm = Client::where('id', $pic->id_client)->first('id');
+        $pic->name_pic = $request->namePic;
+        $pic->position = $request->position;
+        $pic->email_pic = $request->emailPic;
+        $pic->phone_pic = $request->phonePic;
+        $picsave = $pic->save();
+
+        if ($picsave) {
+            return redirect('/existing/' . $crm->id)->with('message', 'data telah ditambahkan');
+        }
+    }
+
+    public function destroyOnCrm($id)
+    {
+        $pic = Pic::find($id);
+        $quoteD = Quotation::where('id_pic', $id)->get();
+
+        $delPic = $pic->delete();
+        if ($quoteD != NULL) {
+            foreach ($quoteD as $quote) {
+                $delQuote = $quote->delete();
+            }
+        }
+
+        if ($delPic || $delQuote) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 }

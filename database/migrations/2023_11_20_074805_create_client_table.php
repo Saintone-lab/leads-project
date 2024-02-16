@@ -28,6 +28,7 @@ return new class extends Migration
             $table->enum('role', ['Leads', 'Customers'])->default("Leads");
             $table->string("mobile", 14)->nullable();
             $table->string("machine")->nullable();
+            $table->string("note")->nullable();
             $table->string("address");
             $table->string("area", 20);
             $table->timestamps();

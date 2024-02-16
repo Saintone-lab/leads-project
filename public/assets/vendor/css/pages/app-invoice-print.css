@@ -43,7 +43,7 @@
         fill: #828393 !important;
     }
     .invoice-print img {
-        width: 100%;
+        width: 60%;
     }
 
     .invoice-print .termc {
@@ -85,7 +85,10 @@
     .invoice-print svg {
         fill: #828393 !important;
     }
-    .invoice-print img {
+    .invoice-print .img-logo {
+        width: 60%;
+    }
+    .invoice-print .img-reports {
         width: 100%;
     }
     .invoice-print .termc {

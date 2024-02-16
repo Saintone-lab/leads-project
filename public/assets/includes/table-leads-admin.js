@@ -1,13 +1,18 @@
 $(function () {
-    var dt_table_leads = $(".datatable-leads-admin");
+    var dt_table_leads_admin = $(".datatable-leads-admin");
+    var Url = "db/leads/admin";
 
-    if (dt_table_leads.length) {
+    if (dt_table_leads_admin.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_leads = dt_table_leads.DataTable({
+        var dt_leads_admin = dt_table_leads_admin.DataTable({
             // ajax: assetsPath + "api/leads/connection.php",
             ajax: {
                 type: "GET",
-                url: assetsPath + "api/leads/connection.php",
+                url: Url,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+
                 // success: function (hasil, Url) {
                 //     console.log("Url:", Url);
                 //     console.log(hasil);
@@ -23,48 +28,12 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "company" },
-                { data: "name_pic" },
                 { data: "area" },
                 { data: "ru" },
-                {
-                    data: "machine",
-                    render: function (data, type, row) {
-                        // Jika data adalah null atau undefined, kembalikan '-'
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            // Jika data memiliki nilai, kembalikan nilainya
-                            return type === "display" ? data : "-";
-                        }
-                    },
-                },
                 { data: "issue" },
-                {
-                    data: "date",
-                    render: function (data, type, row) {
-                        // Jika data adalah null atau undefined, kembalikan '-'
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            // Jika data memiliki nilai, kembalikan nilainya
-                            return type === "display" ? data : "-";
-                        }
-                    },
-                },
-                {
-                    data: "follow_up",
-                    render: function (data, type, row) {
-                        // Jika data adalah null atau undefined, kembalikan '-'
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            // Jika data memiliki nilai, kembalikan nilainya
-                            return type === "display" ? data : "-";
-                        }
-                    },
-                },
+                { data: "date" },
+                { data: "follow_up" },
                 { data: "name" },
-                { data: "" },
             ],
             columnDefs: [
                 {
@@ -103,8 +72,21 @@ $(function () {
                     targets: 3,
                 },
                 {
+                    targets: 3,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $dataId = full["id"];
+                            var detailRoute = route("detail.leads", $dataId);
+                            return (
+                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                            );
+                        }
+                        return data;
+                    },
+                },
+                {
                     // Label
-                    targets: 6,
+                    targets: 5,
                     render: function (data, type, full, meta) {
                         var $status_ru = full["ru"];
                         var $status = {
@@ -131,7 +113,7 @@ $(function () {
                 },
                 {
                     // Label
-                    targets: 8,
+                    targets: 6,
                     render: function (data, type, full, meta) {
                         var $status_number = full["id_issues"];
                         var $titleTool = full["note"];
@@ -143,24 +125,30 @@ $(function () {
                                 titleTip: $titleTool,
                             },
                             2: {
+                                title: "Not Responded",
+                                class: " bg-label-danger",
+                                colorTip: "tooltip-danger",
+                                titleTip: $titleTool,
+                            },
+                            3: {
                                 title: "Send Introduction",
                                 class: " bg-label-info",
                                 colorTip: "tooltip-info",
                                 titleTip: $titleTool,
                             },
-                            3: {
+                            4: {
                                 title: "Send Quote",
                                 class: " bg-label-primary",
                                 colorTip: "tooltip-primary",
                                 titleTip: $titleTool,
                             },
-                            4: {
+                            5: {
                                 title: "Done PO",
                                 class: " bg-label-success",
                                 colorTip: "tooltip-success",
                                 titleTip: $titleTool,
                             },
-                            5: {
+                            6: {
                                 title: "Loss",
                                 class: " bg-label-danger",
                                 colorTip: "tooltip-danger",
@@ -184,31 +172,13 @@ $(function () {
                     },
                 },
                 {
-                    // Actions
-                    targets: -1,
-                    title: '<i class="mdi mdi-24px mdi-file-document-edit-outline"></i>',
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, full, meta) {
-                        var $dataId = full["id"];
-                        var $detailLeadsUrl = route("detail.leads", $dataId);
-                        return (
-                            '<div class="d-inline-block">' +
-                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
-                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<li><a href="' +
-                            $detailLeadsUrl +
-                            '"class="dropdown-item">Details</a></li>' +
-                            '<li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#createAction' +
-                            $dataId +
-                            '" >Action</button></li>' +
-                            '<div class="dropdown-divider"></div>' +
-                            '<li><a href="javascript:;" data-id="' +
-                            $dataId +
-                            '" class="dropdown-item text-danger delete-record">Delete</a></li>' +
-                            "</ul>" +
-                            "</div>"
-                        );
+                    targets: [7, 8],
+                    render: function (data, type, row) {
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            return type === "display" ? data : "-";
+                        }
                     },
                 },
             ],
@@ -227,7 +197,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -283,7 +253,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -320,7 +290,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -357,7 +327,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -394,7 +364,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -427,6 +397,14 @@ $(function () {
                             },
                         },
                     ],
+                },
+                {
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Leads</span>',
+                    className: "btn btn-primary",
+                    attr: {
+                        "data-bs-target": "#createLeads",
+                        "data-bs-toggle": "modal",
+                    },
                 },
             ],
             drawCallback: function (settings) {
@@ -471,7 +449,7 @@ $(function () {
             '<h5 class="card-title mb-0">Table Leads</h5>'
         );
     }
-    dt_table_leads.on("draw", function () {
+    dt_table_leads_admin.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

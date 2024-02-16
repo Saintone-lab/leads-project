@@ -100,6 +100,7 @@ class QuotationController extends Controller
         } else {
             $quotation->diskon = 0;
         }
+        $quotation->total_no_tax = $request->total_no_tax;
         $quotation->harga_total = $request->harga_total;
         $status = $quotation->save();
 
@@ -111,6 +112,7 @@ class QuotationController extends Controller
             $dQuote->detail_product = $request->detail_product[$item];
             $dQuote->price = $request->price[$item];
             $dQuote->qty = $request->qty[$item];
+            $dQuote->info_qty = $request->info_qty[$item];
             $dQuote->disc = $request->disc[$item];
             $dQuote->amount = $request->amount[$item];
             $status = $dQuote->save();
@@ -127,7 +129,7 @@ class QuotationController extends Controller
         $status = $termncon->save();
 
         if ($status) {
-            return redirect('quotation')->with("success", "Data Quotation Telah Ditambahkan");
+            return redirect('/quotation/' . $quotation->id)->with('message', 'data telah di tambahkan');
         }
     }
 
@@ -214,6 +216,7 @@ class QuotationController extends Controller
         } else {
             $quotation->diskon = 0;
         }
+        $quotation->total_no_tax = $request->total_no_tax;
         $quotation->harga_total = $request->harga_total;
         $status = $quotation->save();
 
@@ -225,6 +228,7 @@ class QuotationController extends Controller
             $dQuote->detail_product = $request->detail_product[$item];
             $dQuote->price = $request->price[$item];
             $dQuote->qty = $request->qty[$item];
+            $dQuote->info_qty = $request->info_qty[$item];
             $dQuote->disc = $request->disc[$item];
             $dQuote->amount = $request->amount[$item];
             $status = $dQuote->save();
@@ -253,7 +257,21 @@ class QuotationController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $quotation = Quotation::find($id);
+        $detailQuote = DetailQuotation::where('id_quotation', $id)->get();
+
+        $delQuote = $quotation->delete();
+
+        foreach ($detailQuote as $dQuote) {
+            $delDetQuote = $dQuote->delete();
+        }
+
+        if ($delQuote || $delDetQuote) {
+            return 1;
+        } else {
+            return 0;
+        }
+
     }
     public function print_quote($id)
     {

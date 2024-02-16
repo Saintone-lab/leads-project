@@ -40,7 +40,7 @@
                 </table>
             </div>
         </div>
-    @elseif(Auth::user()->role == 'Admin')
+    @elseif(Auth::user()->role == 'Admin' || Auth::user()->role == 'Technician')
         <div class="card">
             <div class="card-datatable table-responsive pt-0">
                 <table class="datatable-customers-admin table table-striped">

@@ -4,21 +4,24 @@
 <div class="invoice-print p-4">
     <div class="container-fluid flex-grow-1 container-p-y">
         <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
-            <div class="mb-xl-0 pb-3">
+            <div class="mb-xl-0 pb-1">
                 <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
                     <span class="app-brand-logo demo">
                         <span style="color: var(--bs-primary)">
-                            <img class="text-md" src="{{ asset('assets') }}/img/favicon/logo-reftech1.png" alt=""
-                                srcset="">
+                            <img class="text-md"
+                                src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
+                                alt="" srcset="" class="img-logo">
                         </span>
                     </span>
-                    <span class="h4 mb-0 app-brand-text fw-bold fs-2">PT REFTECH JAYA OPTIMA</span>
                 </div>
-                <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 27</p>
-                <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                <p>
-                    <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1"></i>022 54417653
-                </p>
+                <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
+                <div style="font-size: 10px">
+                    <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
+                    <p class="mb-1">Bandung – Jawa Barat 40218</p>
+                    <p class="mb-1">
+                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1"></i>022 54417653
+                    </p>
+                </div>
             </div>
             <div>
                 <h3 class="fw-bold">SERVICE REPORTS</h3>
@@ -63,22 +66,28 @@
             </div>
         </div>
         <hr>
-        <div class="my-2">
-            <h5 class="my-2">Description</h5>
-            <p>{{ $service->desc }}</p>
+        <div class="row my-2">
+            <div class="col-8">
+                <h5 class="my-2">Description</h5>
+                <pre class="mb-1" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->desc }}</pre>
+            </div>
+            <div class="col-4">
+                <h5 class="my-2">Recomendation</h5>
+                <pre class="mb-1" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->recomendation }}</pre>
+            </div>
         </div>
         <hr>
         <h5 class="my-4">Picture</h5>
-        <div class="row mb-5">
+        <div class="row mb-2">
             @foreach ($pict as $picture)
-                <div class="col-6 text-center">
+                <div class="col-4 text-center">
                     <img src="{{ url('') . '/' . $picture->picture }}" alt="" srcset=""
-                        style="max-width: 150px">
-                    <p class="fw-bolder">{{$picture->keterangan}}</p>
+                        style="max-width: 200px" class="img-reports">
+                    <p class="fw-bolder">{{ $picture->keterangan }}</p>
                 </div>
             @endforeach
         </div>
-        <div class="row mt-5">
+        <div class="row mt-2">
             <div class="col-4 mt-5 fw-bold text-center">
                 <p class="pb-5">PT Reftech Jaya Optima</p>
                 <p class="pt-3">( {{ $service->technician->name }} )</p>

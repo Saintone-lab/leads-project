@@ -24,7 +24,7 @@ if (Auth::check()) {
         LEFT JOIN pic p on p.id = r.id_pic
         LEFT JOIN client c on c.id = p.id_client
         INNER JOIN users u on u.id = r.id_technician
-        -- WHERE u.id = $user->id
+        WHERE u.id = $user->id
         GROUP BY id ORDER BY r.date ASC";
 
         $stmt = $pdo->prepare($query);

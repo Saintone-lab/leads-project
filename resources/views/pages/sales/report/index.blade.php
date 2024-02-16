@@ -54,11 +54,9 @@
                             <td>
                                 <strong>Presentation / Visit</strong>
                             </td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
+                            @foreach ($dataDc as $week)
+                                <td>0</td>
+                            @endforeach
                             <td>0</td>
                             <td>0%</td>
                         </tr>
@@ -149,7 +147,7 @@
                         @endphp
                         @foreach ($quotation as $quote)
                             @php
-                                $totalQ = $quote['harga_total'];
+                                $totalQ = $quote['total_no_tax'];
                                 $totalP += $totalQ;
                             @endphp
                             <tr>
@@ -159,7 +157,7 @@
                                 <td>{{ $quote->pic->client->company }}</td>
                                 <td>{{ $quote->title }}</td>
                                 <td>{{ \Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</td>
-                                <td class="text-end">Rp {{ number_format($quote->harga_total, 0, '', '.') }}</td>
+                                <td class="text-end">Rp {{ number_format($quote->total_no_tax, 0, '', '.') }}</td>
                             </tr>
                         @endforeach
                         <tr class="bg-label-secondary">

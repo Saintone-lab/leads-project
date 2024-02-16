@@ -7,21 +7,24 @@
             <div class="card invoice-preview-card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
-                        <div class="mb-xl-0 pb-3">
+                        <div class="mb-xl-0 pb-1">
                             <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
                                 <span class="app-brand-logo demo">
                                     <span style="color: var(--bs-primary)">
-                                        <img class="text-md" src="{{ asset('assets') }}/img/favicon/logo-reftech1.png"
-                                            alt="" srcset="">
+                                        <img class="text-md"
+                                            src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
+                                            alt="" srcset="" width="60%">
                                     </span>
                                 </span>
-                                <span class="h4 mb-0 app-brand-text fw-bold fs-2">PT REFTECH JAYA OPTIMA</span>
                             </div>
-                            <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 27</p>
-                            <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                            <p>
-                                <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1"></i>022 54417653
-                            </p>
+                            <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
+                            <div style="font-size: 10px">
+                                <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
+                                <p class="mb-1">Bandung – Jawa Barat 40218</p>
+                                <p class="mb-1">
+                                    <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1"></i>022 54417653
+                                </p>
+                            </div>
                         </div>
                         <div>
                             <h3 class="fw-bold">QUOTATION</h3>
@@ -32,48 +35,42 @@
                                 <span
                                     class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
                             </div>
+                            <div class="mt-1">
+                                <span
+                                    class="text-muted">{{ Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <hr class="my-0">
                 <div class="card-body mb-3">
                     <div class="row">
-                        <div class="col-lg-6 col-md-6 my-3">
-                            <h6 class="pb-2 fw-semibold fs-4">Quote To:</h6>
+                        <div class="col-6">
+                            <h6 class="fw-semibold fs-4 mb-3">Quote To:</h6>
                         </div>
-                        <div class="col-md-6 my-3">
+                        <div class="col-6 mb-2">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-2 fw-medium">
-                            <p class="mb-1">Name PIC</p>
                             <p class="mb-1">Company </p>
+                            <p class="mb-1">Name PIC</p>
                             <p class="mb-1">Phone </p>
-                            <p class="mb-1">Email </p>
-                            <p class="mb-1">No PR</p>
                         </div>
                         <div class="col-4">
-                            <p class="mb-1">: {{ $quote->pic->name_pic }}</p>
                             <p class="mb-1">: {{ $quote->pic->client->company }}</p>
-                            <p class="mb-1">: {{ $quote->no_pr ?? '-' }}</p>
+                            <p class="mb-1">: {{ $quote->pic->name_pic }}</p>
                             <p class="mb-1">: {{ $quote->pic->client->phone }}</p>
-                            <p class="mb-1">: {{ $quote->pic->client->email }}</p>
                         </div>
                         <div class="col-3 fw-medium text-end">
                             <p class="mb-1">Sales :</p>
-                            <p class="mb-1">Phone Sales :</p>
-                            <p class="mb-1">Title :</p>
-                            <p class="mb-1">Date Estimated :</p>
-                            <p class="mb-1">Date Expired :</p>
+                            <p class="mb-1">No PR :</p>
+                            <p class="mb-1">Email :</p>
                         </div>
                         <div class="col-3 text-end">
-                            <p class="mb-1"> {{ $quote->sales->name }}</p>
-                            <p class="mb-1"> {{ $quote->sales->phone }}</p>
-                            <p class="mb-1"> {{ $quote->title }}</p>
-                            <p class="mb-1"> {{ \Carbon\Carbon::parse($quote->estimated_date)->toFormattedDateString() }}
-                            </p>
-                            <p class="mb-1"> {{ \Carbon\Carbon::parse($quote->expired_date)->toFormattedDateString() }}
-                            </p>
+                            <p class="mb-1"> PT Reftech Jaya Optima</p>
+                            <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
+                            <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                         </div>
                     </div>
                 </div>
@@ -83,7 +80,6 @@
                             <tr>
                                 <th>No.</th>
                                 <th>Item</th>
-                                <th>Description</th>
                                 <th>Price</th>
                                 <th>Qty</th>
                                 <th>Discount</th>
@@ -98,12 +94,16 @@
                                 @php
                                     $no++;
                                 @endphp
-                                <tr>
+                                <tr style="font-size: 13px">
                                     <td>{{ $no }}</td>
-                                    <td class="text-nowrap">{{ $product->product }}</td>
-                                    <td class="text-nowrap">{{ $product->detail_product }}</td>
+                                    <td class="text-nowrap">
+                                        <p class="mb-0 fw-semibold" style="font-size: 12px">
+                                            {{ $product->product }}
+                                        </p>
+                                        <pre class="mb-0" style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
+                                    </td>
                                     <td>RP {{ number_format($product->price, 0, '', '.') }}</td>
-                                    <td>{{ $product->qty }}</td>
+                                    <td>{{ $product->qty }} {{ $product->info_qty}} </td>
                                     <td>{{ $product->disc }}%</td>
                                     <td>RP {{ number_format($product->amount, 0, '', '.') }}</td>
                                 </tr>
@@ -165,11 +165,14 @@
                         Print
                     </a>
                     @if ($quote->status != '100')
-                            <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3" data-bs-toggle="modal"
-                                data-bs-target="#changeStatus-{{$quote->id}}">Change Status</button>
+                        <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
+                            data-bs-toggle="modal" data-bs-target="#changeStatus-{{ $quote->id }}">Change
+                            Status</button>
                     @endif
                     <a href="{{ route('pdf.quotation', $quote->id) }}" type="button"
-                        class="btn btn-outline-secondary d-grid w-100 waves-effect">Download</a>
+                        class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">Download</a>
+                    <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-quotation"
+                        data-id="{{ $quote->id }}">Delete</a>
                 </div>
             </div>
         </div>
@@ -180,4 +183,109 @@
 @push('after-style')
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
+@endpush
+@push('after-script')
+    <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
+@endpush
+@push('page-script')
+    <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
+@endpush
+@push('script')
+    <script>
+        $(document).on('click', '.delete-quotation', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('quotation') }}/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Your file has been deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/quotation';
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+            // Swal.fire({
+            //     title: "Are you sure?",
+            //     text: "You won't be able to revert this!",
+            //     icon: "warning",
+            //     showCancelButton: true,
+            //     confirmButtonColor: "#3085d6",
+            //     cancelButtonColor: "#d33",
+            //     confirmButtonText: "Yes, delete it!"
+            // }).then((result) => {
+            //     if (result.isConfirmed) {
+            //         $.ajax({
+            //             'url': '{{ url('leads') }}/' + id,
+            //             'type': 'POST',
+            //             'data': {
+            //                 '_method': 'DELETE',
+            //                 '_token': '{{ csrf_token() }}'
+            //             },
+            //             success: function(response) {
+            //                 if (response == 1) {
+            //                     Swal.fire({
+            //                         title: "Deleted!",
+            //                         text: "Your file has been deleted.",
+            //                         icon: "success"
+            //                     })
+            //                     window.setTimeout(function() {
+            //                         location.reload();
+            //                     }, 2000);
+            //                 } else {
+            //                     Swal.fire({
+            //                         icon: 'error',
+            //                         title: 'Oops...',
+            //                         text: 'Data Failed to Delete!'
+            //                     });
+            //                 }
+            //             }
+            //         });
+            //     }
+            // });
+        });
+    </script>
 @endpush

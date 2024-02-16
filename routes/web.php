@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApiTableController;
 use App\Http\Controllers\AuditController;
+use App\Http\Controllers\CrmController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExistingController;
@@ -62,7 +63,9 @@ Route::group(["middleware" => "auth"], function () {
     });
 
     // Route untuk existing
-    Route::resource('/existing', ExistingController::class);
+    Route::resource('/existing', CrmController::class);
+    Route::post('/existing/action/{id}', [CrmController::class, 'storeActionWithCrm'])->name('action.crm');
+    Route::post('/existing/update-status/{id}', [CrmController::class, 'updateStatusAtDropdown'])->name('update-status.crm');
 
     // Route untuk service Reports
     Route::resource('/service-reports', ServiceReportsController::class);
@@ -83,14 +86,23 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/pic/customers/store/{id}', [PicController::class, 'storeOnCust'])->name('pic.cust.store');
     Route::post('/pic/customers/update/{id}', [PicController::class, 'updateOnCust'])->name('pic.cust.update');
     Route::post('/pic/customers/{id}', [PicController::class, 'destroyOnCust'])->name('pic.cust.destroy');
+    Route::post('/pic/existing/store/{id}', [PicController::class, 'storeOnCrm'])->name('pic.crm.store');
+    Route::patch('/pic/existing/update/{id}', [PicController::class, 'updateOnCrm'])->name('pic.crm.update');
+    Route::post('/pic/existing/{id}', [PicController::class, 'destroyOnCrm'])->name('pic.crm.destroy');
 
     // Route untuk API Tabel DataTable
     // Route::get('/fetch-data/leads', [ApiTableController::class, 'tableLeads']);
     Route::get('/db/leads', function () {
         require_once base_path('app/api/leads/connection.php');
     });
+    Route::get('/db/leads/admin', function () {
+        require_once base_path('app/api/leads/connectionAdmin.php');
+    });
     Route::get('/db/customers', function () {
         require_once base_path('app/api/customers/connection.php');
+    });
+    Route::get('/db/crm', function () {
+        require_once base_path('app/api/crm/connection.php');
     });
     Route::get('/db/quotation', function () {
         require_once base_path('app/api/quotation/connection.php');

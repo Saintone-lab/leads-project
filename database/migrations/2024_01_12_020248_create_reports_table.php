@@ -24,6 +24,7 @@ return new class extends Migration {
             $table->string('jobdesc');
             $table->date('date');
             $table->longText('desc');
+            $table->longText('recomendation');
             $table->timestamps();
         });
     }

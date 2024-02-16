@@ -68,5 +68,9 @@ class Client extends Model
     {
         return $this->hasMany('App\Models\PIC', 'id_client');
     }
+    public function crm_status()
+    {
+        return $this->hasMany('App\Models\CrmStatus', 'id_client');
+    }
     
 }
