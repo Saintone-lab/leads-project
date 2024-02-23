@@ -197,14 +197,9 @@ class CrmController extends Controller
 
     public function storeActionWithCrm(Request $request, $id)
     {
-        $crm = Client::where("id", $id)->first();
         $action = new Activities;
         $action->id_client = $id;
-        if ($crm->activities != Null) {
-            $action->name = "Follow Up";
-        } else {
-            $action->name = "Daily Call";
-        }
+        $action->name = "CRM";
         $action->status = $request->status;
         $action->action = $request->action;
         $action->note = $request->note;

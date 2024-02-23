@@ -18,7 +18,10 @@
                     <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
                     <p class="mb-1">Bandung – Jawa Barat 40218</p>
                     <p class="mb-1">
-                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1"></i>022 54417653
+                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
+                    </p>
+                    <p class="mb-1">
+                        <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>service@reftech.com
                     </p>
                 </div>
             </div>

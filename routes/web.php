@@ -35,9 +35,11 @@ Route::group(["middleware" => "auth"], function () {
     // Route User
     Route::resource('/profile', UserController::class);
 
-
     // Route Reports
     Route::get('/reports', [ReportsController::class, 'index']);
+
+    // Route Overview
+    Route::get('/overview', [DashboardController::class, 'overviewIndex']);
 
     // Route For Customers
     Route::resource('/customers', CustomersController::class);
@@ -110,11 +112,17 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/po', function () {
         require_once base_path('app/api/po/connection.php');
     });
+    Route::get('/db/prospect', function () {
+        require_once base_path('app/api/prospect/connection.php');
+    });
     Route::get('/db/loss', function () {
         require_once base_path('app/api/lossQ/connection.php');
     });
     Route::get('/db/reports', function () {
         require_once base_path('app/api/reports/connection.php');
+    });
+    Route::get('/db/reports/admin', function () {
+        require_once base_path('app/api/reports/connectionAdmin.php');
     });
     Route::get('/db/audit', function () {
         require_once base_path('app/api/audit/connection.php');

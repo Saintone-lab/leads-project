@@ -14,6 +14,7 @@ use App\Models\Quotation;
 use App\Models\Pic;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class LeadsController extends Controller
 {
@@ -112,7 +113,7 @@ class LeadsController extends Controller
 
         //masukan data ke table leads(client)
         $leads = new Client;
-        $leads->id_sales = $request->sales;
+        $leads->id_sales = Auth::id();
         $leads->id_issues = 1;
         $leads->company = $request->company;
         $leads->email = $request->email;

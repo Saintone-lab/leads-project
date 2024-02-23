@@ -23,8 +23,13 @@ class QuotationController extends Controller
      */
     public function index()
     {
-        $quotation = Quotation::all();
-        return view('pages.sales.quotation.index', compact('quotation'));
+        $quotation = Quotation::where('id_sales', Auth::user()->id)->get();
+        $forecast = Quotation::where('id_sales', Auth::user()->id)->whereIn('status', ['20', '30','40','60','80'])->sum('harga_total');
+        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('status', '80')->sum('harga_total');
+        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->sum('harga_total');
+        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->sum('harga_total');
+        // dd();
+        return view('pages.sales.quotation.index', compact('quotation','forecast','prospect','po','loss'));
     }
 
     /**
@@ -102,33 +107,34 @@ class QuotationController extends Controller
         }
         $quotation->total_no_tax = $request->total_no_tax;
         $quotation->harga_total = $request->harga_total;
-        $status = $quotation->save();
-
-        // Masukan Data Ke Tabel Detail Quotataion
-        foreach ($request->product as $item => $value) {
-            $dQuote = new DetailQuotation;
-            $dQuote->id_quotation = $quotation->id;
-            $dQuote->product = $request->product[$item];
-            $dQuote->detail_product = $request->detail_product[$item];
-            $dQuote->price = $request->price[$item];
-            $dQuote->qty = $request->qty[$item];
-            $dQuote->info_qty = $request->info_qty[$item];
-            $dQuote->disc = $request->disc[$item];
-            $dQuote->amount = $request->amount[$item];
-            $status = $dQuote->save();
+        $quoteSave = $quotation->save();
+        if ($quoteSave) {
+            // Masukan Data Ke Tabel Detail Quotataion
+            foreach ($request->product as $item => $value) {
+                $dQuote = new DetailQuotation;
+                $dQuote->id_quotation = $quotation->id;
+                $dQuote->product = $request->product[$item];
+                $dQuote->detail_product = $request->detail_product[$item];
+                $dQuote->price = $request->price[$item];
+                $dQuote->qty = $request->qty[$item];
+                $dQuote->info_qty = $request->info_qty[$item];
+                $dQuote->disc = $request->disc[$item];
+                $dQuote->amount = $request->amount[$item];
+                $dQuoteSave = $dQuote->save();
+            }
+            if ($dQuoteSave) {
+                // Masukan Data ke dalam Tabel Term n Condition
+                $termncon = new Termncon;
+                $termncon->id_quotation = $quotation->id;
+                $termncon->validity = $request->validity;
+                $termncon->pricing = $request->pricing;
+                $termncon->delivery_process = $request->delivery_process;
+                $termncon->payment = $request->payment;
+                $termncon->note = $request->note;
+                $termnconSave = $termncon->save();
+            }
         }
-
-        // Masukan Data ke dalam Tabel Term n Condition
-        $termncon = new Termncon;
-        $termncon->id_quotation = $quotation->id;
-        $termncon->validity = $request->validity;
-        $termncon->pricing = $request->pricing;
-        $termncon->delivery_process = $request->delivery_process;
-        $termncon->payment = $request->payment;
-        $termncon->note = $request->note;
-        $status = $termncon->save();
-
-        if ($status) {
+        if ($termnconSave) {
             return redirect('/quotation/' . $quotation->id)->with('message', 'data telah di tambahkan');
         }
     }
@@ -218,33 +224,34 @@ class QuotationController extends Controller
         }
         $quotation->total_no_tax = $request->total_no_tax;
         $quotation->harga_total = $request->harga_total;
-        $status = $quotation->save();
-
-        // Masukan Data Ke Tabel Detail Quotataion
-        foreach ($request->product as $item => $value) {
-            $dQuote = new DetailQuotation;
-            $dQuote->id_quotation = $quotation->id;
-            $dQuote->product = $request->product[$item];
-            $dQuote->detail_product = $request->detail_product[$item];
-            $dQuote->price = $request->price[$item];
-            $dQuote->qty = $request->qty[$item];
-            $dQuote->info_qty = $request->info_qty[$item];
-            $dQuote->disc = $request->disc[$item];
-            $dQuote->amount = $request->amount[$item];
-            $status = $dQuote->save();
+        $quoteSave = $quotation->save();
+        if ($quoteSave) {
+            // Masukan Data Ke Tabel Detail Quotataion
+            foreach ($request->product as $item => $value) {
+                $dQuote = new DetailQuotation;
+                $dQuote->id_quotation = $quotation->id;
+                $dQuote->product = $request->product[$item];
+                $dQuote->detail_product = $request->detail_product[$item];
+                $dQuote->price = $request->price[$item];
+                $dQuote->qty = $request->qty[$item];
+                $dQuote->info_qty = $request->info_qty[$item];
+                $dQuote->disc = $request->disc[$item];
+                $dQuote->amount = $request->amount[$item];
+                $dQuoteSave = $dQuote->save();
+            }
+            if ($dQuoteSave) {
+                // Masukan Data ke dalam Tabel Term n Condition
+                $termncon = new Termncon;
+                $termncon->id_quotation = $quotation->id;
+                $termncon->validity = $request->validity;
+                $termncon->pricing = $request->pricing;
+                $termncon->delivery_process = $request->delivery_process;
+                $termncon->payment = $request->payment;
+                $termncon->note = $request->note;
+                $termnconSave = $termncon->save();
+            }
         }
-
-        // Masukan Data ke dalam Tabel Term n Condition
-        $termncon = new Termncon;
-        $termncon->id_quotation = $quotation->id;
-        $termncon->validity = $request->validity;
-        $termncon->pricing = $request->pricing;
-        $termncon->delivery_process = $request->delivery_process;
-        $termncon->payment = $request->payment;
-        $termncon->note = $request->note;
-        $status = $termncon->save();
-
-        if ($status) {
+        if ($termnconSave) {
             return redirect('quotation')->with("success", "Data Revisi Quotation Telah Ditambahkan");
         }
     }

@@ -26,8 +26,16 @@ class DashboardController extends Controller
             ->whereMonth("date", $monthNow)
             ->where('u.id', Auth::user()->id)
             ->where('status', 'Responded')
+            ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
             ->count();
-        $customers = Client::where("role", "Customers")->get();
+        $customers = Activities::select('activities.*')
+        ->join('client as c', 'activities.id_client', '=', 'c.id')
+        ->join('users as u', 'c.id_sales', '=', 'u.id')
+        ->whereMonth("date", $monthNow)
+        ->where('u.id', Auth::user()->id)
+        ->where('status', 'Responded')
+        ->where('activities.name', 'CRM')
+        ->count();
         $quotation = Quotation::whereMonth("estimated_date", $monthNow)->where("id_sales", Auth::user()->id)->get();
         $po = Quotation::whereMonth("estimated_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->get();
         $poTotalPrice = Quotation::whereMonth("estimated_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->sum('total_no_tax');
@@ -56,7 +64,6 @@ class DashboardController extends Controller
             })->count();
         });
 
-
         $call = Activities::where('c.id_sales', Auth::user()->id)
             ->join('client as c', 'activities.id_client', '=', 'c.id')
             ->groupBy("id_client")
@@ -64,6 +71,51 @@ class DashboardController extends Controller
             ->limit(7)->get();
         // dd($call);
         return view("pages.sales.dashboard", compact('call', 'dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredDC', 'filteredQuote'));
+    }
+
+    public function overviewIndex()
+    {
+        $sales = User::where('role', 'Sales')->get();
+        $totalPO = $sales->map(function ($sale) {
+            $dateNow = Carbon::now();
+            $monthNow = $dateNow->month;
+            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->sum('harga_total');
+        });
+        $totalForecast = $sales->map(function ($sale) {
+            $dateNow = Carbon::now();
+            $monthNow = $dateNow->month;
+            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('harga_total');
+            return number_format($total, 2, ',', '.');
+        });
+        $filteredPO = $sales->map(function ($sale) {
+            $dateNow = Carbon::now();
+            $monthNow = $dateNow->month;
+            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->count();
+        });
+        $filteredQuote = $sales->map(function ($sale) {
+            $dateNow = Carbon::now();
+            $monthNow = $dateNow->month;
+            return $sale->quotation()->whereMonth('estimated_date', $monthNow)->count();
+        });
+        $filteredDC = $sales->map(function ($sale) {
+            $dateNow = Carbon::now();
+            $monthNow = $dateNow->month;
+            return $sale->clients->flatMap(function ($client) use ($monthNow) {
+                return $client->activities()->whereMonth('date', $monthNow)->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->get();
+            })->count();
+        });
+        $filteredCRM = $sales->map(function ($sale) {
+            $dateNow = Carbon::now();
+            $monthNow = $dateNow->month;
+            return $sale->clients->flatMap(function ($client) use ($monthNow) {
+                return $client->activities()->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'CRM')->get();
+            })->count();
+        });
+        $targett = $sales->map(function ($sale) {
+            return $sale->target()->pluck('total')->sum();
+        });
+        // dd($targett);
+        return view('pages.admin.overview', compact('sales', 'totalPO', 'totalForecast', 'filteredPO', 'filteredQuote', 'filteredDC', 'filteredCRM', 'targett'));
     }
 
     protected function formatNumber($number)

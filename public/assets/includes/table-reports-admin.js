@@ -1,10 +1,9 @@
 $(function () {
-    var dt_table_quotation = $(".datatable-quotation");
-    var Url = "db/quotation";
+    var dt_table_reports_admin = $(".datatable-reports-admin");
+    var Url = "db/reports/admin";
 
-    if (dt_table_quotation.length) {
-        $('[data-toggle="tooltip"]').tooltip();
-        var dt_quotation = dt_table_quotation.DataTable({
+    if (dt_table_reports_admin.length) {
+        var dt_reports_admin = dt_table_reports_admin.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -26,21 +25,15 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "no_quote" },
+                { data: "no_service" },
                 { data: "company" },
-                { data: "harga_total" },
-                { data: "title" },
-                { data: "estimated_date" },
-                { data: "status" },
-                { data: "expired_date" },
-                { data: "status" },
-                { data: "" },
+                { data: "jobdesc" },
+                { data: "unit" },
+                { data: "date" },
+                { data: "sales" },
+                { data: "technician" },
             ],
             columnDefs: [
-                {
-                    targets: 5,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
-                },
                 {
                     // For Responsive
                     className: "control",
@@ -73,152 +66,23 @@ $(function () {
                     visible: false,
                 },
                 {
-                    responsivePriority: 1,
-                    targets: 4,
-                },
-                {
-                    // Label Status Name
-                    targets: 8,
-                    render: function (data, type, full, meta) {
-                        var $status_number = full["status"];
-                        var $status = {
-                            20: {
-                                title: "Send WA / Email",
-                                class: "bg-label-secondary",
-                            },
-                            30: {
-                                title: "Inquiry Accepted",
-                                class: " bg-label-dark",
-                            },
-                            40: {
-                                title: "Progress Follow Up",
-                                class: " bg-label-info",
-                            },
-                            60: {
-                                title: "Negotiation / Revisi",
-                                class: " bg-label-primary",
-                            },
-                            80: {
-                                title: "Hot Prospect",
-                                class: " bg-label-warning",
-                            },
-                            100: {
-                                title: "Done PO",
-                                class: " bg-label-success",
-                            },
-                            0: {
-                                title: "Loss",
-                                class: " bg-label-danger",
-                            },
-                        };
-                        if (typeof $status[$status_number] === "undefined") {
-                            return data;
+                    targets: 3,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $dataId = full["id"];
+                            var detailRoute = route("service-reports.show", $dataId);
+                            return (
+                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                            );
                         }
-                        return (
-                            '<span class="badge rounded-pill ' +
-                            $status[$status_number].class +
-                            '">' +
-                            $status[$status_number].title +
-                            "</span>"
-                        );
+                        return data;
                     },
                 },
                 {
-                    // Label Status Percent
-                    targets: 10,
-                    render: function (data, type, full, meta) {
-                        var $status_number = full["status"];
-                        var $titleTool = full["note"];
-                        var $status = {
-                            20: {
-                                title: "20%",
-                                class: "bg-label-secondary",
-                                colorTip: "tooltip-secondary",
-                                titleTip: $titleTool,
-                            },
-                            30: {
-                                title: "30%",
-                                class: " bg-label-dark",
-                                colorTip: "tooltip-dark",
-                                titleTip: $titleTool,
-                            },
-                            40: {
-                                title: "40%",
-                                class: " bg-label-info",
-                                colorTip: "tooltip-info",
-                                titleTip: $titleTool,
-                            },
-                            60: {
-                                title: "60%",
-                                class: " bg-label-primary",
-                                colorTip: "tooltip-primary",
-                                titleTip: $titleTool,
-                            },
-                            80: {
-                                title: "80%",
-                                class: " bg-label-warning",
-                                colorTip: "tooltip-warning",
-                                titleTip: $titleTool,
-                            },
-                            100: {
-                                title: "100%",
-                                class: " bg-label-success",
-                                colorTip: "tooltip-success",
-                                titleTip: $titleTool,
-                            },
-                            0: {
-                                title: "0%",
-                                class: " bg-label-danger",
-                                colorTip: "tooltip-danger",
-                                titleTip: $titleTool,
-                            },
-                        };
-                        if (typeof $status[$status_number] === "undefined") {
-                            return data;
-                        }
-                        return (
-                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
-                            $status[$status_number].colorTip +
-                            '" title="' +
-                            $status[$status_number].titleTip +
-                            '" class="badge rounded-pill ' +
-                            $status[$status_number].class +
-                            '">' +
-                            $status[$status_number].title +
-                            "</span>"
-                        );
-                    },
-                },
-                {
-                    // Actions
-                    targets: -1,
-                    title: "Actions",
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, full, meta) {
-                        var $dataId = full["id"];
-                        var $detailQUrl = route("quotation.show", $dataId);
-                        var $revQUrl = route("revisi.quotation", $dataId);
-                        return (
-                            '<div class="d-inline-block">' +
-                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
-                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<li><a href="' +
-                            $detailQUrl +
-                            '" class="dropdown-item">Details</a></li>' +
-                            '<li><a href="' +
-                            $revQUrl +
-                            '" class="dropdown-item">Revisi</a></li>' +
-                            "</ul>" +
-                            "</div>"
-                        );
-                    },
+                    responsivePriority: 2,
+                    targets: [3,4],
                 },
             ],
-            drawCallback: function (settings) {
-                console.log("drawCallback");
-                $('[data-toggle="tooltip"]').tooltip();
-            },
             order: [[2, "desc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
@@ -435,13 +299,6 @@ $(function () {
                         },
                     ],
                 },
-                {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Quotation</span>',
-                    className: "btn btn-primary btn-new",
-                    action: function (e, dt, node, config) {
-                        window.location = route("create.quotation");
-                    },
-                },
             ],
             responsive: {
                 details: {
@@ -479,10 +336,7 @@ $(function () {
             },
         });
         $("div.hl-1").html(
-            '<h5 class="card-title mb-0">Quotations</h5>'
+            '<h5 class="card-title mb-0">Table Service Reports</h5>'
         );
     }
-    dt_table_quotation.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
 });

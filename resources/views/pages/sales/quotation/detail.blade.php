@@ -22,7 +22,10 @@
                                 <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
                                 <p class="mb-1">Bandung – Jawa Barat 40218</p>
                                 <p class="mb-1">
-                                    <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1"></i>022 54417653
+                                    <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
+                                </p>
+                                <p class="mb-1">
+                                    <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>service@reftech.com
                                 </p>
                             </div>
                         </div>
@@ -100,10 +103,11 @@
                                         <p class="mb-0 fw-semibold" style="font-size: 12px">
                                             {{ $product->product }}
                                         </p>
-                                        <pre class="mb-0" style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
+                                        <pre class="mb-0"
+                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
                                     </td>
                                     <td>RP {{ number_format($product->price, 0, '', '.') }}</td>
-                                    <td>{{ $product->qty }} {{ $product->info_qty}} </td>
+                                    <td>{{ $product->qty }} {{ $product->info_qty }} </td>
                                     <td>{{ $product->disc }}%</td>
                                     <td>RP {{ number_format($product->amount, 0, '', '.') }}</td>
                                 </tr>
@@ -164,15 +168,19 @@
                         href="{{ route('print.quotation', $quote->id) }}">
                         Print
                     </a>
-                    @if ($quote->status != '100')
-                        <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
-                            data-bs-toggle="modal" data-bs-target="#changeStatus-{{ $quote->id }}">Change
-                            Status</button>
+                    @if (Auth::user()->role == 'Sales')
+                        @if ($quote->status != '100')
+                            <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
+                                data-bs-toggle="modal" data-bs-target="#changeStatus-{{ $quote->id }}">Change
+                                Status</button>
+                        @endif
                     @endif
                     <a href="{{ route('pdf.quotation', $quote->id) }}" type="button"
                         class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">Download</a>
-                    <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-quotation"
-                        data-id="{{ $quote->id }}">Delete</a>
+                    @if (Auth::user()->role == 'Sales')
+                        <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-quotation"
+                            data-id="{{ $quote->id }}">Delete</a>
+                    @endif
                 </div>
             </div>
         </div>

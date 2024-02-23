@@ -51,7 +51,7 @@ class User extends Authenticatable
     
     public function clients()
     {
-        return $this->hasMany('App\Models\client', 'id_sales');
+        return $this->hasMany('App\Models\Client', 'id_sales');
     }
     
     public function quotation()

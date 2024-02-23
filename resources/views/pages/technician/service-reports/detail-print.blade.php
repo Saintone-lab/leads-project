@@ -1,5 +1,5 @@
 @extends('layouts.sales.app')
-@section('title', 'Detail Quotation')
+@section('title', 'Service reports')
 
 <div class="invoice-print p-4">
     <div class="container-fluid flex-grow-1 container-p-y">
@@ -83,17 +83,17 @@
                 <div class="col-4 text-center">
                     <img src="{{ url('') . '/' . $picture->picture }}" alt="" srcset=""
                         style="max-width: 200px" class="img-reports">
-                    <p class="fw-bolder">{{ $picture->keterangan }}</p>
+                    <p>{{ $picture->keterangan }}</p>
                 </div>
             @endforeach
         </div>
         <div class="row mt-2">
-            <div class="col-4 mt-5 fw-bold text-center">
+            <div class="col-4 mt-5 text-center">
                 <p class="pb-5">PT Reftech Jaya Optima</p>
                 <p class="pt-3">( {{ $service->technician->name }} )</p>
             </div>
             <div class="col-4"></div>
-            <div class="col-4 mt-5 fw-bold text-center">
+            <div class="col-4 mt-5 text-center">
                 <p class="pb-5">{{ $service->pic->client->company }}</p>
                 <p class="pt-3">( {{ $service->pic->name_pic }} )</p>
             </div>

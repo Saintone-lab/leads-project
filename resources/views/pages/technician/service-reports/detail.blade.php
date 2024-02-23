@@ -21,12 +21,15 @@
                                 <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
                                 <p class="mb-1">Bandung – Jawa Barat 40218</p>
                                 <p class="mb-1">
-                                    <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1"></i>022 54417653
+                                    <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
+                                </p>
+                                <p class="mb-1">
+                                    <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>service@reftech.com
                                 </p>
                             </div>
                         </div>
                         <div>
-                            <h3 class="fw-bold">SERVICE REPORTS</h3>
+                            <h3 class="fw-bold">SERVICE REPORT</h3>
                             <div>
                                 <span class="fw-bolder">#{{ $service->no_service }}</span>
                             </div>
@@ -54,7 +57,7 @@
                             <p class="mb-1">Running & Load </p>
                         </div>
                         <div class="col-4">
-                            <p class="mb-1">: {{ $service->unit }}</p>
+                            <p class="mb-1">: {{ $service->date }}</p>
                             <p class="mb-1">: {{ $service->unit }}</p>
                             <p class="mb-1">: {{ $service->serial_number }}</p>
                             <p class="mb-1">: {{ $service->running }} | {{ $service->load }}</p>
@@ -73,11 +76,13 @@
                     <div class="row">
                         <div class="col-6">
                             <h5 class="my-2">Description</h5>
-                            <pre class="mb-1" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->desc }}</pre>
+                            <pre class="mb-1"
+                                style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->desc }}</pre>
                         </div>
                         <div class="col-6">
                             <h5 class="my-2">Recomendation</h5>
-                            <pre class="mb-1" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->recomendation }}</pre>
+                            <pre class="mb-1"
+                                style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->recomendation }}</pre>
                         </div>
                     </div>
                     <hr>
@@ -87,17 +92,17 @@
                             <div class="col-4 text-center">
                                 <img src="{{ url('') . '/' . $picture->picture }}" alt="" srcset=""
                                     style="max-width : 200px;">
-                                <p class="fw-bolder">{{ $picture->keterangan }}</p>
+                                <p>{{ $picture->keterangan }}</p>
                             </div>
                         @endforeach
                     </div>
                     <div class="row mt-5">
-                        <div class="col-4 mt-5 fw-bold text-center">
+                        <div class="col-4 mt-5 text-center">
                             <p class="pb-5">PT Reftech Jaya Optima</p>
                             <p class="pt-3">( {{ $service->technician->name }} )</p>
                         </div>
                         <div class="col-4"></div>
-                        <div class="col-4 mt-5 fw-bold text-center">
+                        <div class="col-4 mt-5 text-center">
                             <p class="pb-5">{{ $service->pic->client->company }}</p>
                             <p class="pt-3">( {{ $service->pic->name_pic }} )</p>
                         </div>
@@ -116,8 +121,10 @@
                     </a>
                     <a href="#" type="button"
                         class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">Download</a>
-                    <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-service"
-                        data-id="{{ $service->id }}">Delete</a>
+                    @if (Auth::user()->role == 'Technician')
+                        <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-service"
+                            data-id="{{ $service->id }}">Delete</a>
+                    @endif
                 </div>
             </div>
         </div>

@@ -27,24 +27,10 @@
                         </div>
                     @endif
                     <div class="row g-2 mb-3">
-                        <div class="col mb-2">
-                            <div class="form-floating form-floating-outline">
-                                <select class="form-select" id="selectSales" name="sales"
-                                    aria-label="Default select example">
-                                    <option disabled>----- Choose Sales -----</option>
-                                    @foreach ($sales as $saless)
-                                        <option value="{{ $saless->id }}"
-                                            {{ $saless->id == Auth::user()->id ? 'selected' : '' }}>{{ $saless->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <label for="selectSales">Sales</label>
-                            </div>
-                        </div>
-                        <div class="col mb-2">
+                        <div class="col-12 mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="company" class="form-control" name="company"
-                                    placeholder="Mr/Mss xxxx" value="{{ old('company', @$leads->company ?? '') }}">
+                                    placeholder="PT xxxxxxx" value="{{ old('company', @$leads->company ?? '') }}">
                                 <label for="company">Company</label>
                             </div>
                         </div>

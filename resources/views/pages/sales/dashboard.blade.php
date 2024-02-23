@@ -69,7 +69,7 @@
                             </div>
                         </div>
                         <div class="card-info mt-4 pt-1">
-                            <h4 class="mb-2">{{ $customers->count() }} <small class="text-muted fs-tiny">/
+                            <h4 class="mb-2">{{ $customers }} <small class="text-muted fs-tiny">/
                                     @if ($jumlahData > 4)
                                         {{ round($target->intro + $target->intro / 4) }}
                                     @elseif($jumlahData == 4)
@@ -434,302 +434,34 @@
 
         </div>
     @elseif (Auth::user()->role == 'Admin')
-        <div class="row gy-4 mb-4">
-            <div class="col-lg-3 col-sm-6">
-                <div class="card">
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="card-body">
-                                <div class="card-info mb-3 pb-2">
-                                    <h5 class="mb-3 text-nowrap">Mr Yusuf</h5>
-                                    <div class="badge bg-label-primary rounded-pill lh-xs">Year of 2021</div>
-                                </div>
-                                <div class="d-flex align-items-end">
-                                    <h4 class="mb-0 me-2">125Jt <span class="small text-muted">/150Jt</span></h4>
-                                    <small class="text-success">+15.6%</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 text-end d-flex align-items-end">
-                            <div class="card-body pb-0 pt-3">
-                                <img src="{{ asset('assets') }}/img/illustrations/faq-illustration.png" alt="Ratings"
-                                    class="img-fluid" width="95">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-prospect-quote table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Quote No.</th>
+                            <th>Company</th>
+                            <th>Total Price</th>
+                            <th>Status</th>
+                            <th>Assigned</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
-            <div class="col-lg-3 col-sm-6">
-                <div class="card">
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="card-body">
-                                <div class="card-info mb-3 pb-2">
-                                    <h5 class="mb-3 text-nowrap">Ms Regita</h5>
-                                    <div class="badge bg-label-success rounded-pill lh-xs">Last Month</div>
-                                </div>
-                                <div class="d-flex align-items-end">
-                                    <h4 class="mb-0 me-2">12.2k</h4>
-                                    <small class="text-danger">-25.5%</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 text-end d-flex align-items-end">
-                            <div class="card-body pb-0 pt-3">
-                                <img src="{{ asset('assets') }}/img/illustrations/card-session-illustration.png"
-                                    alt="Ratings" class="img-fluid" width="81">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-sm-6">
-                <div class="card">
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="card-body">
-                                <div class="card-info mb-3 pb-2">
-                                    <h5 class="mb-3 text-nowrap">Mr Ari</h5>
-                                    <div class="badge bg-label-warning rounded-pill lh-xs">Daily Customers</div>
-                                </div>
-                                <div class="d-flex align-items-end d-flex align-items-end">
-                                    <h4 class="mb-0 me-2">42.4k</h4>
-                                    <small class="text-success">+9.2%</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 text-end d-flex align-items-end">
-                            <div class="card-body pb-0 pt-3">
-                                <img src="{{ asset('assets') }}/img/illustrations/card-customers-illustration.png"
-                                    alt="Ratings" class="img-fluid" width="84">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-sm-6">
-                <div class="card">
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="card-body">
-                                <div class="card-info mb-3 pb-2">
-                                    <h5 class="mb-3 text-nowrap">Ms Yolan</h5>
-                                    <div class="badge bg-label-secondary rounded-pill lh-xs">Last Week</div>
-                                </div>
-                                <div class="d-flex align-items-end">
-                                    <h4 class="mb-0 me-2">42.5k</h4>
-                                    <small class="text-success">+10.8%</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 text-end d-flex align-items-end">
-                            <div class="card-body pb-0 pt-3">
-                                <img src="{{ asset('assets') }}/img/illustrations/card-orders-illustration.png"
-                                    alt="Ratings" class="img-fluid" width="78">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row gy-4">
-            @php
-                $item = 0;
-            @endphp
-            @foreach ($sales as $sale)
-                <div class="col-md-6 col-lg-3 col-xl-3 mb-4">
-                    <div class="card h-100" id="sales[{{ $item }}]">
-                        <div class="card-body">
-                            <div class="bg-label-info rounded-3 text-center mb-3 pt-4">
-                                <img class="img-fluid" src="../../assets/img/illustrations/card-ratings-illustration.png"
-                                    alt="Boy card image" width="130">
-                            </div>
-                            <h4 class="mb-2 pb-1">{{ $sale->name }}</h4>
-                            <p>{{ $totalPO[$item] }} / <span
-                                    class="text-muted fs-tiny">{{ $sale->target[0]->total }}</span></p>
-                            <div class="row mb-3 g-3">
-                                <div class="col-6">
-                                    <div class="d-flex">
-                                        <div class="avatar flex-shrink-0 me-2">
-                                            <span class="avatar-initial rounded bg-label-primary"><i
-                                                    class="mdi mdi-phone-outline mdi-24px"></i></span>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0 text-nowrap">{{ $filteredDC[$item] }}</h6>
-                                            <small>Daily Call</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="d-flex">
-                                        <div class="avatar flex-shrink-0 me-2">
-                                            <span class="avatar-initial rounded bg-label-primary"><i
-                                                    class="mdi mdi-account-multiple-outline mdi-24px"></i></span>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0 text-nowrap">5</h6>
-                                            <small>CRM</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="d-flex">
-                                        <div class="avatar flex-shrink-0 me-2">
-                                            <span class="avatar-initial rounded bg-label-primary"><i
-                                                    class="mdi mdi-email-multiple-outline mdi-24px"></i></span>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0 text-nowrap">{{ $filteredQuote[$item] }}</h6>
-                                            <small>Quotation</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="d-flex">
-                                        <div class="avatar flex-shrink-0 me-2">
-                                            <span class="avatar-initial rounded bg-label-primary"><i
-                                                    class="mdi mdi-cart-plus mdi-24px"></i></span>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0 text-nowrap">{{ $filteredPO[$item] }}</h6>
-                                            <small>PO</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 text-center">
-                                <a href="javascript:void(0);"
-                                    class="btn btn-primary w-100 d-grid waves-effect waves-light">See Details</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @php
-                    $item++;
-                @endphp
-            @endforeach
-            <!-- Weekly Overview Chart -->
-            {{-- <div class="col-12 col-md-3 order-md-2 order-lg-0">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between">
-                            <h5 class="mb-1">Ms Regitas's Monthly Overview </h5>
-                            <div class="dropdown">
-                                <button class="btn p-0" type="button" id="weeklyOverviewDropdown"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="weeklyOverviewDropdown">
-                                    <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="mb-0 text-muted">Total $42,580 Sales</p>
-                    </div>
-                    <div class="card-body">
-                        <div id="monthlyOverviewChartRegita"></div>
-                        <div class="mt-1">
-                            <div class="d-grid mt-3">
-                                <button class="btn btn-primary" type="button">Details</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-3 order-md-2 order-lg-0">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between">
-                            <h5 class="mb-1">Ms Yolan's Weekly Overview</h5>
-                            <div class="dropdown">
-                                <button class="btn p-0" type="button" id="weeklyOverviewDropdown"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="weeklyOverviewDropdown">
-                                    <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="mb-0 text-muted">Forecast Quotation $42,580</p>
-                    </div>
-                    <div class="card-body">
-                        <div id="monthlyOverviewChartYolan"></div>
-                        <div class="mt-1">
-                            <div class="d-grid mt-3">
-                                <button class="btn btn-primary" type="button">Details</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-3 order-md-2 order-lg-0">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between">
-                            <h5 class="mb-1">Mr Yusuf's Weekly Overview</h5>
-                            <div class="dropdown">
-                                <button class="btn p-0" type="button" id="weeklyOverviewDropdown"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="weeklyOverviewDropdown">
-                                    <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="mb-0 text-muted">Total $42,580 Sales</p>
-                    </div>
-                    <div class="card-body">
-                        <div id="monthlyOverviewChartYusuf"></div>
-                        <div class="mt-1">
-                            <div class="d-grid mt-3">
-                                <button class="btn btn-primary" type="button">Details</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-3 order-md-2 order-lg-0">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between">
-                            <h5 class="mb-1">Mr Ari's Weekly Overview</h5>
-                            <div class="dropdown">
-                                <button class="btn p-0" type="button" id="weeklyOverviewDropdown"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="weeklyOverviewDropdown">
-                                    <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="mb-0 text-muted">Total $42,580 Sales</p>
-                    </div>
-                    <div class="card-body">
-                        <div id="monthlyOverviewChartAri"></div>
-                        <div class="mt-1">
-                            <div class="d-grid mt-3">
-                                <button class="btn btn-primary" type="button">Details</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
-            <!--/ Weekly Overview Chart -->
         </div>
     @endif
 @endsection
 @push('after-style')
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/apex-charts/apex-charts.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/swiper/swiper.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/fullcalendar/fullcalendar.css" />
@@ -754,6 +486,7 @@
     <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/apex-charts/apexcharts.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
 @endpush
 @push('page-script')
     <!-- Page JS -->
@@ -763,4 +496,5 @@
     <script src="{{ asset('assets') }}/js/app-calendar.js"></script>
     <script src="{{ asset('assets') }}/js/dashboards-crm.js"></script>
     <script src="{{ asset('assets') }}/includes/chart/card-monthly.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-prospect.js"></script>
 @endpush
