@@ -60,20 +60,25 @@
         </div>
         <hr>
         <div class="my-2">
-            <div class="row fw-bold fs-6">
-                <div class="col-2">Job Description</div>
-                <div class="col-4">: {{ $service->jobdesc }}</div>
+            <div class="row">
+                <div class="col-2 fw-medium">
+                    <p class="mb-1">Job Description </p>
+                </div>
+                <div class="col d-flex gap-1">
+                    <p>: </p>
+                    <p class="mb-1"> {{ $service->jobdesc }}</p>
+                </div>
             </div>
         </div>
         <hr>
         <div class="row my-2">
             <div class="col-8">
                 <h5 class="my-2">Description</h5>
-                <pre class="mb-1" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->desc }}</pre>
+                <pre class="mb-1" style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->desc }}</pre>
             </div>
             <div class="col-4">
                 <h5 class="my-2">Recomendation</h5>
-                <pre class="mb-1" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->recomendation }}</pre>
+                <pre class="mb-1" style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->recomendation }}</pre>
             </div>
         </div>
         <hr>
@@ -89,12 +94,24 @@
         </div>
         <div class="row mt-2">
             <div class="col-4 mt-5 text-center">
-                <p class="pb-5">PT Reftech Jaya Optima</p>
+                <p>PT Reftech Jaya Optima</p>
+                @if (isset($service->technician->sign))
+                    <img src="{{ url('') . '/' . $service->technician->sign }}" alt="" srcset=""
+                        height="100">
+                @else
+                    <div class="pb-5"></div>
+                @endif
                 <p class="pt-3">( {{ $service->technician->name }} )</p>
             </div>
             <div class="col-4"></div>
             <div class="col-4 mt-5 text-center">
-                <p class="pb-5">{{ $service->pic->client->company }}</p>
+                <p class="">{{ $service->pic->client->company }}</p>
+                @if (isset($service->sign_client))
+                    <img src="{{ url('') . '/' . $service->sign_client }}" alt="" srcset=""
+                        height="100">
+                @else
+                    <div class="pb-5"></div>
+                @endif
                 <p class="pt-3">( {{ $service->pic->name_pic }} )</p>
             </div>
         </div>

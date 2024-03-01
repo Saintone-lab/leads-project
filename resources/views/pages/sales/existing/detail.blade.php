@@ -248,7 +248,9 @@
                         <tr>
                             @foreach ($crmhis as $item)
                                 @foreach ($item as $minggu)
-                                    <td data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="tooltip-primary" data-bs-original-title="{{$minggu['note'][0]}}">
+                                    <td data-bs-toggle="tooltip" data-bs-placement="top"
+                                        data-bs-custom-class="tooltip-primary"
+                                        data-bs-original-title="{{ $minggu['note'][0] }}">
                                         {{ $minggu['data'][0] }}
                                     </td>
                                 @endforeach
@@ -259,11 +261,11 @@
             </div>
         </div>
     </div>
-    <div class="row mb-3">
+    <div class="row">
         <div class="col-md-6 my-3">
             <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold pb-1 mb-2">
-                    Service Reports History
+                    CRM History
                 </h5>
             </div>
             <div class="card">
@@ -348,6 +350,129 @@
                                     </td>
                                 </tr>
                             @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 my-3">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold pb-1 mb-2">
+                    Service History
+                </h5>
+            </div>
+            <div class="card">
+                <div class="table-responsive text-nowrap">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>No Service</th>
+                                <th>Unit</th>
+                                <th>Teknisi</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            @forelse ($service as $reports)
+                                <tr>
+                                    <td class="fw-medium">
+                                        <a class="text-black"
+                                            href="{{ route('service-reports.show', $reports->id) }}">{{ $reports->no_service }}</a>
+
+                                    </td>
+                                    <td>
+                                        {{ $reports->unit }}
+                                    </td>
+                                    <td>
+                                        {{ $reports->technician->name }}
+                                    </td>
+                                    <td>
+                                        {{ $reports->date }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        Kamu belum Pernah Melakukan Service.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 my-3">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold m-0 pt-2">
+                    Purchasing Order
+                </h5>
+            </div>
+            <div class="card">
+                <div class="table-responsive text-nowrap">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Number Quote</th>
+                                <th>Status</th>
+                                <th>Total Price</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            <tr>
+                                <td>
+                                    -
+                                </td>
+                                <td>
+                                    -
+                                </td>
+                                <td>-</td>
+                                <td>
+                                    -
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col my-3">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold m-0 pt-2">
+                    Service History
+                </h5>
+            </div>
+            <div class="card">
+                <div class="table-responsive text-nowrap">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Unit</th>
+                                <th>Running Hour</th>
+                                <th>Teknisi</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            <tr>
+                                <td>
+                                    -
+                                </td>
+                                <td>
+                                    -
+                                </td>
+                                <td>
+                                    -
+                                </td>
+                                <td>-</td>
+                                <td>
+                                    -
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

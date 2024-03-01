@@ -6,7 +6,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel5">Create Daily Call</h4>
+                    <h4 class="modal-title" id="exampleModalLabel5">Create CRM</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -21,11 +21,15 @@
                     @endif
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
-                            <div class="form-floating form-floating-outline">
+                            {{-- <div class="form-floating form-floating-outline">
                                 <input type="text" id="bs-datepicker-date" placeholder="MM/DD/YYYY"
                                     class="form-control" name="date" value="{{ \Carbon\Carbon::today()->format('d/m/Y') }}"
                                     disabled>
                                 <label for="bs-datepicker-date">Date</label>
+                            </div> --}}
+                            <div class="form-floating form-floating-outline">
+                                <input class="form-control" type="date" id="date" name="date">
+                                <label for="date">Date</label>
                             </div>
                         </div>
                         <div class="col mb-2">

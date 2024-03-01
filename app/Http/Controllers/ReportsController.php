@@ -20,7 +20,7 @@ class ReportsController extends Controller
         $target = Target::where('id_sales', Auth::user()->id)->first();
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        // dd($dataQuote);
+        dd($dataDc);
         $quotation = Quotation::where('status', '100')->whereMonth('po_date', $monthNow)->where('id_sales', Auth::user()->id)->get();
         return view("pages.sales.report.index", compact("quotation", "dataDc", "dataQuote", "dataPo", "target"));
     }
@@ -43,7 +43,7 @@ class ReportsController extends Controller
             ->join('users as u', 'c.id_sales', '=', 'u.id')
             ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
             ->where('id_sales', Auth::user()->id)
-            ->where('activities.name', ['Daily Call', 'Follow Up'])
+            ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
             ->where('status', 'Responded')
             ->groupBy('week')
             ->orderBy('week')

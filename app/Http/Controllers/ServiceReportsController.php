@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Pic;
 use App\Models\Reports;
 use App\Models\ReportsPict;
+use App\Models\SignPict;
 use Carbon\Carbon;
+use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -81,6 +83,7 @@ class ServiceReportsController extends Controller
         $reports->desc = $request->desc;
         $reports->recomendation = $request->recomendation;
         $reports->date = $request->date;
+        $reports->sign_client = NULL;
         $status = $reports->save();
         // dd($reports);
 
@@ -171,7 +174,7 @@ class ServiceReportsController extends Controller
 
         if ($delService && $delPict) {
             return 1;
-        }else {
+        } else {
             return 0;
         }
     }
@@ -182,6 +185,54 @@ class ServiceReportsController extends Controller
         $pict = ReportsPict::where('id_reports', $id)->get();
         return view('pages.technician.service-reports.detail-print', compact('service', 'pict'));
     }
+
+    public function hand_sign(Request $request, $id)
+    {
+        $photo = Reports::find($id);
+
+        if ($request->hasFile('sign_client')) {
+            $foto = $request->file('sign_client'); // Akses file sesuai dengan iterasi saat ini
+            // Proses setiap file gambar
+            $image_ext = $foto->getClientOriginalExtension();
+            $image_name = Str::random(8);
+
+            $upload_path = 'asset/reports';
+            $imagename = $upload_path . '/' . $image_name . '.' . $image_ext;
+
+            // Pemrosesan gambar
+            $img = Image::make($foto->path());
+            $img->fit(800, 500, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $img->save($imagename);
+
+            $photo['sign_client'] = $imagename;
+        }
+        // dd($photo);
+        $status = $photo->save();
+
+        if($status){
+            return redirect('/service-reports/'.$id)->with('massage', 'Data telah terkirim');
+        }
+    }
+    public function delete_hand_sign($id)
+    {
+        $reports = Reports::find($id);
+
+        $delsign = File::delete($reports->sign_client);
+        if($delsign){
+            $reports->sign_client = NULL;
+        }
+        // dd($photo);
+        $status = $reports->save();
+
+        if($status){
+            return 1;
+        }else{
+            return 0;
+        }
+    }
+
     protected function convertToRoman($month)
     {
         $romanMonth = [

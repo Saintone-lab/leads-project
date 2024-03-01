@@ -1,7 +1,8 @@
 <?php
 use Illuminate\Support\Facades\Auth;
 
-header('Content-Type: application/json');$host = "localhost";
+header('Content-Type: application/json');
+$host = "localhost";
 $users = "root";
 $pass = "";
 
@@ -19,11 +20,11 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT q.*, c.company, u.name, u.id AS userID FROM quotation q 
+        $query = "SELECT q.*, c.company, u.name FROM quotation q 
         LEFT JOIN pic p on p.id = q.id_pic
         LEFT JOIN client c on c.id = p.id_client
         INNER JOIN users u on u.id = q.id_sales
-        WHERE q.status = '80'
+        WHERE u.id = $user->id AND q.status = '80'
         GROUP BY id ORDER BY q.expired_date ASC";
 
         $stmt = $pdo->prepare($query);

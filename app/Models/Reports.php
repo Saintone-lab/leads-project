@@ -23,6 +23,7 @@ class Reports extends Model
         'load',
         'jobdesc',
         'desc',
+        'sign_client',
     ];
 
     // Connection Table

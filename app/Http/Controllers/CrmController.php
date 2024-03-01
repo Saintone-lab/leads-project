@@ -8,6 +8,7 @@ use App\Models\CrmStatus;
 use App\Models\Issues;
 use App\Models\Pic;
 use App\Models\Quotation;
+use App\Models\Reports;
 use App\Models\User;
 use App\Models\Visit;
 use Carbon\Carbon;
@@ -61,9 +62,10 @@ class CrmController extends Controller
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
         $crmhis = $this->data($id);
+        $service = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')->where('pic.id_client', $id)->get();
         // dd($crmhis);
 
-        return view('pages.sales.existing.detail', compact('existing', 'callhis', 'quote', 'sales', 'charge', 'issue', 'crmhis'));
+        return view('pages.sales.existing.detail', compact('existing', 'callhis', 'quote', 'sales', 'charge', 'issue', 'crmhis', 'service'));
     }
 
     /**
@@ -203,7 +205,7 @@ class CrmController extends Controller
         $action->status = $request->status;
         $action->action = $request->action;
         $action->note = $request->note;
-        $action->date = \Carbon\Carbon::today();
+        $action->date = $request->date;
         $action->follow_up = $request->follow_up;
         $activitiesSave = $action->save();
         if ($activitiesSave) {
@@ -320,7 +322,7 @@ class CrmController extends Controller
             // Jika jumlah hari dalam minggu lebih dari 4, pertimbangkan sebagai satu minggu
             if ($daysInWeek > 4) {
                 $month = $currentWeek->format('F Y');
-                $data = Activities::whereBetween('created_at', [$startDate, $endDate])->where('id_client', $id)->get();
+                $data = Activities::whereBetween('date', [$startDate, $endDate])->where('id_client', $id)->get();
                 if ($data->isNotEmpty()) {
                     // dd($data);
                     // Jika ada data, tambahkan ke array dataPerMonth
@@ -328,7 +330,8 @@ class CrmController extends Controller
                         'week_start' => $startDate->format('Y-m-d'),
                         'week_end' => $endDate->format('Y-m-d'),
                         'data' => $data->map(function ($item) {
-                            return $item->created_at->format('m-d');
+                            $carbonDate = Carbon::parse($item->date);
+                            return $carbonDate->format('m-d');
                         }),
                         'note' => $data->map(function ($item) {
                             return $item->note;

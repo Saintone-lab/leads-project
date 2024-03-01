@@ -72,6 +72,8 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk service Reports
     Route::resource('/service-reports', ServiceReportsController::class);
     Route::get('/service-reports/print/{id}', [ServiceReportsController::class, 'print_reports'])->name('service-reports.print');
+    Route::post('/service-reports/sign/{id}', [ServiceReportsController::class, 'hand_sign'])->name('service-reports.sign');
+    Route::delete('/service-reports/del-sign/{id}', [ServiceReportsController::class, 'delete_hand_sign'])->name('service-reports.del-sign');
 
     // Route untuk service Reports
     Route::resource('/audit-tools', AuditController::class);
@@ -114,6 +116,9 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/prospect', function () {
         require_once base_path('app/api/prospect/connection.php');
+    });
+    Route::get('/db/prospect/sales', function () {
+        require_once base_path('app/api/prospect/connectionSales.php');
     });
     Route::get('/db/loss', function () {
         require_once base_path('app/api/lossQ/connection.php');

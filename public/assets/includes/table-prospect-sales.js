@@ -1,15 +1,13 @@
 $(function () {
-    var dt_table_prospect_quote = $(".datatable-prospect-quote");
-    var Url = "db/prospect";
+    var dt_table_prospect_quote_sales = $(".datatable-prospect-quote-sales");
+    var Url = "db/prospect/sales";
 
-    if (dt_table_prospect_quote.length) {
+    if (dt_table_prospect_quote_sales.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_prospect = dt_table_prospect_quote.DataTable({
-            dom: "Pfrtip",
+        var dt_prospect_sales = dt_table_prospect_quote_sales.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
-                dataSrc: "data",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -18,11 +16,10 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "no_quote" },
                 { data: "company" },
+                { data: "title" },
                 { data: "harga_total" },
                 { data: "status" },
-                { data: "name" },
                 { data: "" },
             ],
             columnDefs: [
@@ -156,25 +153,14 @@ $(function () {
                 },
             ],
             drawCallback: function (settings) {
+                console.log("drawCallback");
                 $('[data-toggle="tooltip"]').tooltip();
             },
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>><"row"<"col-md-12 d-flex justify-content-end"q>>',
+            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
-                // {
-                //     extend: "collection",
-                //     className: "btn btn-label-secondary dropdown-toggle me-2",
-                //     text: '<i class="mdi mdi-export-variant me-sm-1"></i> <span class="d-none d-sm-inline-block">Sales</span>',
-                //     buttons: function (response) {
-                //         $.each(response, function (index, item) {
-                //             extend: "print";
-                //             text: '<i class="mdi mdi-printer-outline me-1" ></i>Yusuf';
-                //             className: "dropdown-item";
-                //         });
-                //     },
-                // },
                 {
                     extend: "collection",
                     className: "btn btn-label-primary dropdown-toggle me-2",
@@ -386,11 +372,6 @@ $(function () {
                         },
                     ],
                 },
-                {
-                    className:
-                        "btn btn-label-secondary dropdown-filter dropdown-toggle me-2",
-                        text : 'User',
-                },
             ],
             responsive: {
                 details: {
@@ -427,11 +408,11 @@ $(function () {
                 },
             },
         });
-        new $.fn.dataTable.SearchPanes(dt_prospect);
-
-        $("div.hl-2").html('<h5 class="card-title mb-0">Prospect</h5>');
+        $("div.hl-2").html(
+            '<h5 class="card-title mb-0">Prospect</h5>'
+        );
     }
-    dt_table_prospect_quote.on("draw", function () {
+    dt_table_prospect_quote_sales.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

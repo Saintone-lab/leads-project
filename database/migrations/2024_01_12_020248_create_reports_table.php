@@ -25,6 +25,7 @@ return new class extends Migration {
             $table->date('date');
             $table->longText('desc');
             $table->longText('recomendation');
+            $table->string('sign_client');
             $table->timestamps();
         });
     }

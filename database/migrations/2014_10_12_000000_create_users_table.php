@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('area', 25);
             $table->enum('role',['Sales', 'Technician', 'Admin', 'Warehouse']);
             $table->string('image');
+            $table->string('sign')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

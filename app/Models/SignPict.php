@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ReportsPict extends Model
+class SignPict extends Model
 {
     use HasFactory;
-    
-    protected $table = "reports_pict";
+
+    protected $table = "sign_pict";
     protected $date = [
         'created_at',
         'updated_at'
@@ -17,7 +17,6 @@ class ReportsPict extends Model
     protected $fillable = [
         'id_reports',
         'picture',
-        'keterangan'
     ];
 
     // Connection Table

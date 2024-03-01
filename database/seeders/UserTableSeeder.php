@@ -26,6 +26,7 @@ class UserTableSeeder extends Seeder
                 'area' => 'Bandung',
                 'role' => 'Sales',
                 'image' => 'asset/profile/profile.jpg',
+                'sign' => NULL,
             ],
             [
                 'name' => 'Regita Dwi Melinda',
@@ -36,6 +37,7 @@ class UserTableSeeder extends Seeder
                 'area' => 'Bandung',
                 'role' => 'Sales',
                 'image' => 'asset/profile/profile.jpg',
+                'sign' => NULL,
             ],
             [
                 'name' => 'Rifan Fahli',
@@ -46,6 +48,7 @@ class UserTableSeeder extends Seeder
                 'area' => 'Bandung',
                 'role' => 'Sales',
                 'image' => 'asset/profile/profile.jpg',
+                'sign' => NULL,
             ],
             [
                 'name' => 'Yolan Yolanda',
@@ -56,6 +59,7 @@ class UserTableSeeder extends Seeder
                 'area' => 'Bandung',
                 'role' => 'Sales',
                 'image' => 'asset/profile/profile.jpg',
+                'sign' => NULL,
             ],
             [
                 'name' => 'Angel Irene',
@@ -66,6 +70,7 @@ class UserTableSeeder extends Seeder
                 'area' => 'Bandung',
                 'role' => 'Admin',
                 'image' => 'asset/profile/profile.jpg',
+                'sign' => NULL,
             ],
             [
                 'name' => 'Arief Rachman',
@@ -76,6 +81,7 @@ class UserTableSeeder extends Seeder
                 'area' => 'Bandung',
                 'role' => 'Admin',
                 'image' => 'asset/profile/profile.jpg',
+                'sign' => NULL,
             ],
             [
                 'name' => 'Admin Ref',
@@ -86,6 +92,7 @@ class UserTableSeeder extends Seeder
                 'area' => 'Bandung',
                 'role' => 'Admin',
                 'image' => 'asset/profile/profile.jpg',
+                'sign' => NULL,
             ],
             [
                 'name' => 'Tedi Mulyadi',
@@ -96,6 +103,7 @@ class UserTableSeeder extends Seeder
                 'area' => 'Bandung',
                 'role' => 'Technician',
                 'image' => 'asset/profile/profile.jpg',
+                'sign' => NULL,
             ],
             [
                 'name' => 'Candra Wahyudi',
@@ -106,6 +114,7 @@ class UserTableSeeder extends Seeder
                 'area' => 'Bandung',
                 'role' => 'Technician',
                 'image' => 'asset/profile/profile.jpg',
+                'sign' => NULL,
             ],
             [
                 'name' => 'Trimo Susandanu',
@@ -116,6 +125,7 @@ class UserTableSeeder extends Seeder
                 'area' => 'Bandung',
                 'role' => 'Technician',
                 'image' => 'asset/profile/profile.jpg',
+                'sign' => NULL,
             ],
             [
                 'name' => 'Reza Hilmi Maulana',
@@ -126,6 +136,7 @@ class UserTableSeeder extends Seeder
                 'area' => 'Bandung',
                 'role' => 'Technician',
                 'image' => 'asset/profile/profile.jpg',
+                'sign' => NULL,
             ],
             [
                 'name' => 'Faris Abu Hafidz',
@@ -136,6 +147,7 @@ class UserTableSeeder extends Seeder
                 'area' => 'Bandung',
                 'role' => 'Technician',
                 'image' => 'asset/profile/profile.jpg',
+                'sign' => NULL,
             ],
         ];
         User::insert($user);

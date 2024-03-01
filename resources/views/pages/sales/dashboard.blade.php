@@ -140,135 +140,64 @@
         </div>
 
         <div class="row gy-4 mb-4">
-            <!-- Radial bar Chart -->
-            <div class="col-md-8 col-12 mb-4">
+            {{-- Start Diagram --}}
+            <div class="col-lg-6 col-md-6 col-12">
                 <div class="card">
-                    <div class="card-header d-flex align-items-center justify-content-between">
-                        <h5 class="card-title mb-0">Report</h5>
-                        <div class="dropdown">
-                            <button type="button" class="btn dropdown-toggle p-0" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                <i class="mdi mdi-account-outline"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">Today</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);"
-                                        class="dropdown-item d-flex align-items-center">Yesterday</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">Last
-                                        7
-                                        Days</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">Last
-                                        30
-                                        Days</a>
-                                </li>
-                                <li>
-                                    <hr class="dropdown-divider" />
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">Current
-                                        Month</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">Last
-                                        Month</a>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn dropdown-toggle p-0" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                <i class="mdi mdi-calendar-month-outline"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">Today</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);"
-                                        class="dropdown-item d-flex align-items-center">Yesterday</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">Last
-                                        7
-                                        Days</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">Last
-                                        30
-                                        Days</a>
-                                </li>
-                                <li>
-                                    <hr class="dropdown-divider" />
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">Current
-                                        Month</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center">Last
-                                        Month</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div id="reportBarChart"></div>
-                    </div>
-                </div>
-            </div>
-            <!-- /Radial bar Chart -->
-
-            <!-- Meeting Schedule -->
-            <div class="col-lg-4 col-md-6 col-12">
-                <div class="card h-100">
-                    <div class="card-header d-flex align-items-center justify-content-between">
-                        <h5 class="card-title mb-0 me-2">Call Schedule</h5>
-                        <div class="dropdown">
-                            <button class="btn p-0" type="button" id="meetingSchedule" data-bs-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                                <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="meetingSchedule">
-                                <a class="dropdown-item waves-effect" href="javascript:void(0);">Last 28 Days</a>
-                                <a class="dropdown-item waves-effect" href="javascript:void(0);">Last Month</a>
-                                <a class="dropdown-item waves-effect" href="javascript:void(0);">Last Year</a>
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="mb-1">Monthly Sales</h5>
+                            <div class="dropdown">
+                                <button class="btn p-0" type="button" id="weeklyOverviewDropdown" data-bs-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                                    <i class="mdi mdi-dots-vertical mdi-24px"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="weeklyOverviewDropdown">
+                                    <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
+                                    <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
+                                    <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body pt-2">
-                        <ul class="p-0 m-0">
-                            @forelse ($call as $calls)
-                                <li class="d-flex mb-4 pb-1">
-                                    <div class="avatar flex-shrink-0 me-3">
-                                        <img src="{{ asset('assets') }}/img/avatars/4.png" alt="avatar"
-                                            class="rounded">
-                                    </div>
-                                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                        <div class="me-2">
-                                            <h6 class="mb-0 fw-semibold">{{ $calls->clients->company }}</h6>
-                                            <small class="text-muted">
-                                                <i class="mdi mdi-calendar-blank-outline mdi-14px"></i>
-                                                <span>{{ \Carbon\Carbon::parse($calls->follow_up)->toFormattedDateString() }}</span>
-                                            </small>
-                                        </div>
-                                        <div
-                                            class="badge bg-label-{{ $calls->name == 'Daily Call' ? 'primary' : 'success' }} rounded-pill">
-                                            {{ $calls->name }}</div>
-                                    </div>
-                                </li>
-                            @empty
-                                <p class="text-center">Tidak Ada Yang Perlu Di Call</p>
-                            @endforelse
-                        </ul>
+                    <div class="card-body">
+                        <div id="weeklyOverviewChart"></div>
+                        <div class="mt-1">
+                            <div class="d-flex align-items-center gap-3">
+                                <h3 class="mb-0">62%</h3>
+                                <p class="mb-0 text-muted">Your sales performance is 35% 😎 better compared to last month
+                                </p>
+                            </div>
+                            <div class="d-grid mt-3">
+                                <button class="btn btn-primary" type="button">Details</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <!--/ Meeting Schedule -->
+            {{-- End:: Diagram --}}
+
+            {{-- Prospect Table --}}
+            <div class="col-lg-6 col-md-6 col-12">
+                <div class="card mb-3">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-prospect-quote-sales table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Company</th>
+                                    <th>Title</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {{-- End:: Prospect Table --}}
         </div>
 
         <div class="card app-calendar-wrapper">
@@ -434,25 +363,196 @@
 
         </div>
     @elseif (Auth::user()->role == 'Admin')
-        <div class="card mb-3">
-            <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-prospect-quote table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>Quote No.</th>
-                            <th>Company</th>
-                            <th>Total Price</th>
-                            <th>Status</th>
-                            <th>Assigned</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                </table>
+        <div class="row gy-4 mb-4">
+            <div class="col-12 col-lg-4">
+                <div class="card">
+                    <div class="card-body text-nowrap">
+                        <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
+                            Sales Results</strong> 🎉
+                        </h4>
+                        <p class="pb-0">sell of the month</p>
+                        <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPriceAdmin }}</h4>
+                        @php
+                            $jumlah_target = 0;
+                            $jumlah_target = ($poTotalPriceAdmin / 1000000000) * 100;
+                            $formatted_jumlah_target = number_format($jumlah_target, 3);
+                        @endphp
+                        <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
+                        <a href="javascript:;" class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
+                    </div>
+                    <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
+                        class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
+                </div>
+            </div>
+            <div class="col-12 col-lg-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <div class="card-title m-0">
+                            <h5 class="mb-0">Sales Overview</h5>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn p-0" type="button" id="earningReportsTabsId" data-bs-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                                <i class="mdi mdi-dots-vertical mdi-24px"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="earningReportsTabsId">
+                                <a class="dropdown-item waves-effect" href="javascript:void(0);">View More</a>
+                                <a class="dropdown-item waves-effect" href="javascript:void(0);">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body pb-3">
+                        <ul class="nav nav-tabs nav-tabs-widget pb-3 gap-4 mx-1 d-flex flex-nowrap" role="tablist">
+                            @foreach ($sales as $user)
+                                <li class="nav-item" role="presentation">
+                                    <div class="nav-link btn {{ $user->id == 1 ? 'active' : '' }} d-flex flex-column align-items-center justify-content-center"
+                                        role="tab" data-bs-toggle="tab"
+                                        data-bs-target="#navs-sales-{{ $user->id }}"
+                                        aria-controls="navs-sales-{{ $user->id }}" aria-selected="true">
+                                        <button type="button"
+                                            class="btn btn-icon rounded-pill btn-label-facebook waves-effect">
+                                            <img src="{{ url('') . '/' . $user->image }}" alt="" srcset=""
+                                                style="max-width : 20px;">
+                                        </button>
+                                    </div>
+                                </li>
+                            @endforeach
+                            <span class="tab-slider" style="left: 0px; width: 112px; bottom: 0px;"></span>
+                        </ul>
+                        <div class="tab-content p-0 ms-0 ms-sm-2">
+                            @php
+                                $item = 0;
+                            @endphp
+                            @foreach ($sales as $user)
+                                <div class="tab-pane fade{{ $user->id == 1 ? ' show active' : '' }}"
+                                    id="navs-sales-{{ $user->id }}" role="tabpanel">
+
+                                    <div class="mb-3">
+                                        <div data-id="{{ $item }}">
+                                            <div class="card-header">
+                                                <div class="d-flex justify-content-between">
+                                                    <h4 class="mb-2">{{ $user->name }}'s Overview</h4>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <h5 class="mb-0 fw-normal">Total Sales <span class="fs-4">Rp
+                                                            {{ number_format($totalPO[$item], 2, ',', '.') }}</span></h5>
+                                                    @php
+                                                        $jumlah_target = [];
+                                                        foreach ($totalPO as $key => $value) {
+                                                            if (isset($targett[$key]) && $targett[$key] != 0) {
+                                                                $jumlah_target[$key] = ($value / $targett[$key]) * 100;
+                                                                $formatted_jumlah_target[$key] = number_format($jumlah_target[$key], 3);
+                                                            } else {
+                                                                $jumlah_target[$key] = 0;
+                                                            }
+                                                        }
+                                                    @endphp
+                                                    <div class="d-flex align-items-center text-success">
+                                                        <p class="mb-0"> {{ $formatted_jumlah_target[$item] }}%</p>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    <h5 class="fw-normal mb-0">Forecast <span class="fs-4">Rp
+                                                            {{ $totalForecast[$item] }}</span></h5>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    <h5 class="fw-normal">Hot Prospect <span class="fs-4">Rp
+                                                            {{ $totalProspect[$item] }}</span></h5>
+                                                </div>
+                                            </div>
+                                            <div class="card-body d-flex justify-content-between flex-wrap gap-3">
+                                                <div class="d-flex gap-2">
+                                                    <div class="avatar">
+                                                        <a type="button" data-bs-toggle="modal"
+                                                            data-bs-target="#overview-sales-{{ $item }}">
+                                                            <button type="button"
+                                                                class="avatar-initial bg-label-info rounded">
+                                                                <i class="mdi mdi-phone-outline mdi-24px"></i>
+                                                            </button>
+                                                        </a>
+                                                    </div>
+                                                    <div class="card-info">
+                                                        <h5 class="mb-0">{{ $filteredDC[$item] }}</h5>
+                                                        <small class="text-muted">Daily Call</small>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <div class="avatar">
+                                                        <div class="avatar-initial bg-label-primary rounded">
+                                                            <i class="mdi mdi-account-multiple-outline mdi-24px"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-info">
+                                                        <h5 class="mb-0">{{ $filteredCRM[$item] }}</h5>
+                                                        <small class="text-muted">CRM</small>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <div class="avatar">
+                                                        <div class="avatar-initial bg-label-warning rounded">
+                                                            <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-info">
+                                                        <h5 class="mb-0">{{ $filteredQuote[$item] }}</h5>
+                                                        <small class="text-muted">Quotation</small>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <div class="avatar">
+                                                        <div class="avatar-initial bg-label-success rounded">
+                                                            <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-info">
+                                                        <h5 class="mb-0">{{ $filteredPO[$item] }}</h5>
+                                                        <small class="text-muted">PO</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @php
+                                        $item++;
+                                    @endphp
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div class="row gy-4 mb-4">
+            <div class="card mb-3">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-prospect-quote table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Quote No.</th>
+                                <th>Company</th>
+                                <th>Total Price</th>
+                                <th>Status</th>
+                                <th>Assigned</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @php
+            $item = 0;
+        @endphp
+        @foreach ($sales as $user)
+            @include('components.modal.overview')
+            @php
+                $item++;
+            @endphp
+        @endforeach
     @endif
 @endsection
 @push('after-style')
@@ -472,8 +572,11 @@
 
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/cards-statistics.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/cards-analytics.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/apex-charts/apex-charts.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-calendar.css" />
+    <link rel="stylesheet" type="text/css"
+        href="{{ url('https://cdn.datatables.net/searchpanes/2.3.0/css/searchPanes.dataTables.min.css') }}">
+    <link rel="stylesheet" type="text/css"
+        href="{{ url('https://cdn.datatables.net/select/2.0.0/css/select.dataTables.min.css') }}">
 @endpush
 
 @push('after-script')
@@ -487,14 +590,15 @@
     <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/apex-charts/apexcharts.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
+    <script src="{{ url('https://cdn.datatables.net/searchpanes/2.3.0/js/dataTables.searchPanes.min.js') }}"></script>
+    <script src="{{ url('https://cdn.datatables.net/select/2.0.0/js/select.dataTables.min.js') }}"></script>
 @endpush
 @push('page-script')
     <!-- Page JS -->
     <script src="{{ asset('assets') }}/js/dashboards-crm.js"></script>
-    <script src="{{ asset('assets') }}/js/charts-apex.js"></script>
     <script src="{{ asset('assets') }}/js/app-calendar-events.js"></script>
     <script src="{{ asset('assets') }}/js/app-calendar.js"></script>
-    <script src="{{ asset('assets') }}/js/dashboards-crm.js"></script>
     <script src="{{ asset('assets') }}/includes/chart/card-monthly.js"></script>
     <script src="{{ asset('assets') }}/includes/table-prospect.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-prospect-sales.js"></script>
 @endpush
