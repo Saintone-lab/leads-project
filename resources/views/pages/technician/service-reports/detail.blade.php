@@ -5,7 +5,7 @@
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
             <div class="card invoice-preview-card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
+                    <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-row flex-column">
                         <div class="mb-xl-0 pb-1">
                             <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
                                 <span class="app-brand-logo demo">
@@ -24,7 +24,7 @@
                                     <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
                                 </p>
                                 <p class="mb-1">
-                                    <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>service@reftech.com
+                                    <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>service@reftech.id
                                 </p>
                             </div>
                         </div>
@@ -40,22 +40,22 @@
                     </div>
                     <hr class="my-2">
                     <div class="row mb-3">
-                        <div class="col-2 fw-medium">
+                        <div class="col-lg-2 col-4 fw-medium">
                             <p class="mb-1">Customers </p>
                             <p class="mb-1">Address </p>
                             <p class="mb-1">PIC </p>
                         </div>
-                        <div class="col-4">
+                        <div class="col-lg-4 col-8">
                             <p class="mb-1">: {{ $service->pic->client->company }}</p>
                             <p class="mb-1">: {{ $service->pic->client->area }}</p>
                             <p class="mb-1">: {{ $service->pic->name_pic }}</p>
                         </div>
-                        <div class="col-2 fw-medium">
+                        <div class="col-lg-2 col-4 fw-medium">
                             <p class="mb-1">Unit Type </p>
                             <p class="mb-1">Serial Number </p>
                             <p class="mb-1">Running & Load </p>
                         </div>
-                        <div class="col-4">
+                        <div class="col-lg-4 col-8">
                             <p class="mb-1">: {{ $service->unit }}</p>
                             <p class="mb-1">: {{ $service->serial_number }}</p>
                             <p class="mb-1">: {{ $service->running }} | {{ $service->load }}</p>
@@ -63,22 +63,22 @@
                     </div>
                     <hr>
                     <div class="row">
-                        <div class="col-2 fw-medium">
+                        <div class="col-lg-2 col-4 fw-medium">
                             <p class="mb-1">Job Description </p>
                         </div>
-                        <div class="col d-flex gap-1">
+                        <div class="col-lg-10 col-8 d-flex gap-1">
                             <p>: </p>
                             <p class="mb-1"> {{ $service->jobdesc }}</p>
                         </div>
                     </div>
                     <hr>
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-lg-6 col-12">
                             <h5 class="my-2">Description</h5>
                             <pre class="mb-1"
                                 style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->desc }}</pre>
                         </div>
-                        <div class="col-6">
+                        <div class="col-lg-6 col-12">
                             <h5 class="my-2">Recomendation</h5>
                             <pre class="mb-1"
                                 style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->recomendation }}</pre>
@@ -88,7 +88,7 @@
                     <h5 class="my-4">Picture</h5>
                     <div class="row mb-5">
                         @foreach ($pict as $picture)
-                            <div class="col-4 text-center">
+                            <div class="col-lg-4 col-12 text-center">
                                 <img src="{{ url('') . '/' . $picture->picture }}" alt="" srcset=""
                                     style="max-width : 200px;">
                                 <p>{{ $picture->keterangan }}</p>

@@ -7,6 +7,7 @@ use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExistingController;
 use App\Http\Controllers\PicController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ServiceReportsController;
 use Illuminate\Support\Facades\Route;
@@ -94,6 +95,14 @@ Route::group(["middleware" => "auth"], function () {
     Route::patch('/pic/existing/update/{id}', [PicController::class, 'updateOnCrm'])->name('pic.crm.update');
     Route::post('/pic/existing/{id}', [PicController::class, 'destroyOnCrm'])->name('pic.crm.destroy');
 
+    // Route untuk Product
+    Route::resource('/product', ProductController::class);
+    Route::post('/product/equivalent/store/{id}', [ProductController::class, 'storeEquivalent'])->name('product.equivalent');
+    Route::post('/product/replacement/store/{id}', [ProductController::class, 'storeReplacement'])->name('product.replacement');
+    Route::delete('/product/equivalent/{id}', [ProductController::class, 'destroyEquivalent'])->name('product.equivalent.destroy');
+    Route::delete('/product/replacement/{id}', [ProductController::class, 'destroyReplacement'])->name('product.replacement.destroy');
+
+
     // Route untuk API Tabel DataTable
     // Route::get('/fetch-data/leads', [ApiTableController::class, 'tableLeads']);
     Route::get('/db/leads', function () {
@@ -131,6 +140,12 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/audit', function () {
         require_once base_path('app/api/audit/connection.php');
+    });
+    Route::get('/db/product', function () {
+        require_once base_path('app/api/product/connection.php');
+    });
+    Route::get('/db/product/sales', function () {
+        require_once base_path('app/api/product/connectionSales.php');
     });
 });
 Auth::routes();

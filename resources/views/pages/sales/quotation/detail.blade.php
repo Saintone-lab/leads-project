@@ -25,7 +25,7 @@
                                     <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
                                 </p>
                                 <p class="mb-1">
-                                    <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>service@reftech.com
+                                    <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
                                 </p>
                             </div>
                         </div>
@@ -98,18 +98,18 @@
                                     $no++;
                                 @endphp
                                 <tr style="font-size: 13px">
-                                    <td>{{ $no }}</td>
-                                    <td class="text-nowrap">
+                                    <td class="align-top">{{ $no }}</td>
+                                    <td class="text-nowrap align-top">
                                         <p class="mb-0 fw-semibold" style="font-size: 12px">
                                             {{ $product->product }}
                                         </p>
                                         <pre class="mb-0"
                                             style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
                                     </td>
-                                    <td>RP {{ number_format($product->price, 0, '', '.') }}</td>
-                                    <td>{{ $product->qty }} {{ $product->info_qty }} </td>
-                                    <td>{{ $product->disc }}%</td>
-                                    <td>RP {{ number_format($product->amount, 0, '', '.') }}</td>
+                                    <td class="align-top">RP {{ number_format($product->price, 0, '', '.') }}</td>
+                                    <td class="align-top">{{ $product->qty }} {{ $product->info_qty }} </td>
+                                    <td class="align-top">{{ $product->disc }}%</td>
+                                    <td class="align-top">RP {{ number_format($product->amount, 0, '', '.') }}</td>
                                 </tr>
                             @endforeach
                             <tr>

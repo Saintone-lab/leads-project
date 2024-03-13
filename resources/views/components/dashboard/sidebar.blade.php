@@ -128,14 +128,14 @@
                 </a>
             </li>
 
-            <li class="menu-item {{ request()->is('product/*') ? 'open' : '' }}">
+            <li class="menu-item {{ request()->is('product') || request()->is('product/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
                     <div data-i18n="e-Stock">e-Stock</div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('product/data') ? 'active' : '' }}">
-                        <a href="javascript:void(0);" class="menu-link">
+                    <li class="menu-item {{ request()->is('product') || request()->is('product/*') ? 'active' : '' }}">
+                        <a href="{{route('product.index')}}" class="menu-link">
                             <div data-i18n="Product">Product</div>
                         </a>
                     </li>
@@ -258,14 +258,14 @@
                 </a>
             </li>
 
-            <li class="menu-item {{ request()->is('product/*') ? 'open' : '' }}">
+            <li class="menu-item {{ request()->is('product') || request()->is('product/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
                     <div data-i18n="e-Stock">e-Stock</div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('product/data') ? 'active' : '' }}">
-                        <a href="javascript:void(0);" class="menu-link">
+                    <li class="menu-item {{ request()->is('product') || request()->is('product/*') ? 'active' : '' }}">
+                        <a href="{{route('product.index')}}" class="menu-link">
                             <div data-i18n="Product">Product</div>
                         </a>
                     </li>

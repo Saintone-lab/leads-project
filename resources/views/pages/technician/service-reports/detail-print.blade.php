@@ -21,6 +21,9 @@
                     <p class="mb-1">
                         <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1"></i>022 54417653
                     </p>
+                    <p class="mb-1">
+                        <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>service@reftech.id
+                    </p>
                 </div>
             </div>
             <div>
@@ -46,13 +49,11 @@
                 <p class="mb-1">: {{ $service->pic->name_pic }}</p>
             </div>
             <div class="col-2 fw-medium">
-                <p class="mb-1">Date </p>
                 <p class="mb-1">Unit Type </p>
                 <p class="mb-1">Serial Number </p>
                 <p class="mb-1">Running & Load </p>
             </div>
             <div class="col-4">
-                <p class="mb-1">: {{ $service->date }}</p>
                 <p class="mb-1">: {{ $service->unit }}</p>
                 <p class="mb-1">: {{ $service->serial_number }}</p>
                 <p class="mb-1">: {{ $service->running }} | {{ $service->load }}</p>
