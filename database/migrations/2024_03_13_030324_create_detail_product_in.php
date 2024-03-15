@@ -15,6 +15,10 @@ return new class extends Migration
     {
         Schema::create('detail_product_in', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('id_detail_product');
+            $table->foreignId('id_product_in');
+            $table->integer('qty');
+            $table->integer('modal');
             $table->timestamps();
         });
     }

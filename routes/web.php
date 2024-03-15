@@ -8,8 +8,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExistingController;
 use App\Http\Controllers\PicController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductInController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ServiceReportsController;
+use App\Models\ProductIn;
+use App\Models\SerialProduct;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadsController;
 use App\Http\Controllers\QuotationController;
@@ -102,6 +105,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/product/equivalent/{id}', [ProductController::class, 'destroyEquivalent'])->name('product.equivalent.destroy');
     Route::delete('/product/replacement/{id}', [ProductController::class, 'destroyReplacement'])->name('product.replacement.destroy');
 
+    // Route untuk Product
+    Route::resource('/product-in', ProductInController::class);
 
     // Route untuk API Tabel DataTable
     // Route::get('/fetch-data/leads', [ApiTableController::class, 'tableLeads']);
@@ -143,6 +148,15 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/product', function () {
         require_once base_path('app/api/product/connection.php');
+    });
+    Route::get('/db/product/{id}', function ($id) {
+        // Menggunakan Eloquent untuk mengambil data serial_product berdasarkan id
+        $serialProduct = SerialProduct::where('id_product', $id)->get();
+        // Mengembalikan data dalam bentuk JSON
+        return response()->json(['data' => $serialProduct]);
+    });
+    Route::get('/db/productIn', function () {
+        require_once base_path('app/api/product/in/connection.php');
     });
     Route::get('/db/product/sales', function () {
         require_once base_path('app/api/product/connectionSales.php');

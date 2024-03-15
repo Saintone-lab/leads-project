@@ -64,14 +64,14 @@
                             Stock
                         </div>
                         <div class="col-9">
-                            : {{ $product->product->stock }}
+                            : {{ $product->stock }}
                         </div>
                     </div>
                     </p>
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-12">
+        <div class="col-md-4 col-12">
             <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold pb-1 mb-2">
                     Replacement
@@ -99,7 +99,7 @@
                                         {{ $detail->replacement }}
                                     </td>
                                     <td>
-                                        {{ $detail->stock }} {{ $detail->unit }}
+                                        {{ $detail->stock }} {{ $detail->product->unit }}
                                     </td>
                                     <td>
                                         {{ $detail->modal }}
@@ -123,7 +123,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-12">
+        <div class="col-md-8 col-12">
             <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold pb-1 mb-2">
                     Equivalent
@@ -135,46 +135,20 @@
                 </a>
             </div>
             <div class="card">
-                <div class="table-responsive text-nowrap">
-                    <table class="table table-striped">
+                <div class="card-body">
+                    <table class="datatable-product-equivalent table table-striped">
                         <thead>
                             <tr>
-                                <th>FXP Parts</th>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Fxp Parts</th>
                                 <th>Brand</th>
                                 <th>PN</th>
                                 <th>Price</th>
+                                <th></th>
                             </tr>
                         </thead>
-                        <tbody class="table-border-bottom-0">
-                            @forelse ($serials as $serial)
-                                <tr>
-                                    <td>
-                                        {{ $serial->fxp_parts }}
-                                    </td>
-                                    <td>
-                                        {{ $serial->brand }}
-                                    </td>
-                                    <td>
-                                        {{ $serial->pn }}
-                                    </td>
-                                    <td>
-                                        Rp {{ number_format($serial->price, 0, '', '.') }}
-                                    </td>
-                                    <td>
-                                        <a href="#" data-id="{{ $serial->id }}"
-                                            class="btn btn-sm btn-label-danger delete-equivalent">
-                                            <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">
-                                        Kamu belum punya Equivalent.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
                     </table>
                 </div>
             </div>
@@ -187,12 +161,28 @@
 @push('after-style')
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
 @endpush
 @push('after-script')
     <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/FormValidation.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
 @endpush
 @push('page-script')
+<script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-equivalent.js"></script>
 @endpush
 @push('script')
     <script></script>

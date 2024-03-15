@@ -23,4 +23,8 @@ class DetailProduct extends Model
     {
         return $this->belongsTo('App\Models\Product', 'id_product', 'id');
     }
+    public function detailProductIn()
+    {
+        return $this->hasMany('App\Models\DetailProductIn', 'id_detail_product');
+    }
 }

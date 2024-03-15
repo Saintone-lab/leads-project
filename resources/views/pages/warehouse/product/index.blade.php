@@ -34,13 +34,6 @@
                             <th>Desc</th>
                             <th>Dimension</th>
                             <th>Stock</th>
-                            <th>Replacement</th>
-                            <th>Modal</th>
-                            <th>Stock</th>
-                            <th>Fxp Parts</th>
-                            <th>Brand</th>
-                            <th>PN</th>
-                            <th>Price</th>
                         </tr>
                     </thead>
                 </table>

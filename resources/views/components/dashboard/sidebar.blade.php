@@ -128,7 +128,7 @@
                 </a>
             </li>
 
-            <li class="menu-item {{ request()->is('product') || request()->is('product/*') ? 'open' : '' }}">
+            <li class="menu-item {{ request()->is('product') || request()->is('product/*') || request()->is('product-in') || request()->is('product-in/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
                     <div data-i18n="e-Stock">e-Stock</div>
@@ -139,8 +139,8 @@
                             <div data-i18n="Product">Product</div>
                         </a>
                     </li>
-                    <li class="menu-item">
-                        <a href="javascript:void(0);" class="menu-link">
+                    <li class="menu-item {{ request()->is('product-in') || request()->is('product-in/*') ? 'active' : '' }}">
+                        <a href="{{route('product-in.index')}}" class="menu-link">
                             <div data-i18n="Product-In">Product-In</div>
                         </a>
                     </li>
@@ -258,7 +258,7 @@
                 </a>
             </li>
 
-            <li class="menu-item {{ request()->is('product') || request()->is('product/*') ? 'open' : '' }}">
+            <li class="menu-item {{ request()->is('product') || request()->is('product/*') || request()->is('product-in') || request()->is('product-in/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
                     <div data-i18n="e-Stock">e-Stock</div>
@@ -269,8 +269,8 @@
                             <div data-i18n="Product">Product</div>
                         </a>
                     </li>
-                    <li class="menu-item">
-                        <a href="javascript:void(0);" class="menu-link">
+                    <li class="menu-item {{ request()->is('product-in') || request()->is('product-in/*') ? 'active' : '' }}">
+                        <a href="{{route('product-in.index')}}" class="menu-link">
                             <div data-i18n="Product-In">Product-In</div>
                         </a>
                     </li>

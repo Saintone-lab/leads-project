@@ -1,6 +1,6 @@
 $(function () {
-    var dt_table_product = $(".datatable-product");
-    var Url = "db/product";
+    var dt_table_product = $(".datatable-product-in");
+    var Url = "db/productIn";
 
     if (dt_table_product.length) {
         $('[data-toggle="tooltip"]').tooltip();
@@ -26,10 +26,11 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "commodity" },
-                { data: "description" },
-                { data: "dimension" },
-                { data: "all_stock" },
+                { data: "invoice" },
+                { data: "supplier" },
+                { data: "note" },
+                { data: "date" },
+                { data: "" },
             ],
             columnDefs: [
                 {
@@ -68,88 +69,30 @@ $(function () {
                     targets: 3,
                 },
                 {
-                    targets: 3,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id_p"];
-                            var detailRoute = route("product.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                            );
-                        }
-                        return data;
+                    // Actions
+                    targets: -1,
+                    title: "Actions",
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, full, meta) {
+                        var $dataId = full["id"];
+                        var $detailQUrl = route("product-in.show", $dataId);
+                        var $revQUrl = route("product-in.edit", $dataId);
+                        return (
+                            '<div class="d-inline-block">' +
+                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
+                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
+                            '<li><a href="' +
+                            $detailQUrl +
+                            '" class="dropdown-item">Details</a></li>' +
+                            '<li><a href="' +
+                            $revQUrl +
+                            '" class="dropdown-item">Edit</a></li>' +
+                            "</ul>" +
+                            "</div>"
+                        );
                     },
                 },
-                // {
-                //     // Label
-                //     targets: 6,
-                //     render: function (data, type, full, meta) {
-                //         var $status_number = full["id_issues"];
-                //         var $titleTool = full["note"];
-                //         var $status = {
-                //             1: {
-                //                 title: "New Client",
-                //                 class: "bg-label-warning",
-                //                 colorTip: "tooltip-warning",
-                //                 titleTip: $titleTool,
-                //             },
-                //             2: {
-                //                 title: "Not Responded",
-                //                 class: " bg-label-danger",
-                //                 colorTip: "tooltip-danger",
-                //                 titleTip: $titleTool,
-                //             },
-                //             3: {
-                //                 title: "Send Introduction",
-                //                 class: " bg-label-info",
-                //                 colorTip: "tooltip-info",
-                //                 titleTip: $titleTool,
-                //             },
-                //             4: {
-                //                 title: "Send Quote",
-                //                 class: " bg-label-primary",
-                //                 colorTip: "tooltip-primary",
-                //                 titleTip: $titleTool,
-                //             },
-                //             5: {
-                //                 title: "Done PO",
-                //                 class: " bg-label-success",
-                //                 colorTip: "tooltip-success",
-                //                 titleTip: $titleTool,
-                //             },
-                //             6: {
-                //                 title: "Loss",
-                //                 class: " bg-label-danger",
-                //                 colorTip: "tooltip-danger",
-                //                 titleTip: $titleTool,
-                //             },
-                //         };
-                //         if (typeof $status[$status_number] === "undefined") {
-                //             return data;
-                //         }
-                //         return (
-                //             '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
-                //             $status[$status_number].colorTip +
-                //             '" title="' +
-                //             $status[$status_number].titleTip +
-                //             '" class="badge ' +
-                //             $status[$status_number].class +
-                //             '">' +
-                //             $status[$status_number].title +
-                //             "</span>"
-                //         );
-                //     },
-                // },
-                // {
-                //     targets: [7, 8],
-                //     render: function (data, type, row) {
-                //         if (data === null || data === undefined) {
-                //             return "-";
-                //         } else {
-                //             return data;
-                //         }
-                //     },
-                // },
             ],
             order: [[2, "desc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
@@ -368,11 +311,10 @@ $(function () {
                     ],
                 },
                 {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
-                    className: "btn btn-primary",
-                    attr: {
-                        "data-bs-target": "#createProduct",
-                        "data-bs-toggle": "modal",
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Invoice Product</span>',
+                    className: "btn btn-primary btn-new",
+                    action: function (e, dt, node, config) {
+                        window.location = route("product-in.create");
                     },
                 },
             ],

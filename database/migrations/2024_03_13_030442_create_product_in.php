@@ -15,6 +15,10 @@ return new class extends Migration
     {
         Schema::create('product_in', function (Blueprint $table) {
             $table->id();
+            $table->string('invoice');
+            $table->string('supplier');
+            $table->string('note');
+            $table->date('date');
             $table->timestamps();
         });
     }

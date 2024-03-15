@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetailProductIn;
+use App\Models\ProductIn;
 use Illuminate\Http\Request;
 
 class ProductInController extends Controller
@@ -13,6 +15,8 @@ class ProductInController extends Controller
      */
     public function index()
     {
+        // $product = ProductIn::all();
+        // dd($product);
         return view('pages.warehouse.product-in.index');
     }
 
@@ -23,7 +27,7 @@ class ProductInController extends Controller
      */
     public function create()
     {
-        //
+        return view('pages.warehouse.product-in.form');
     }
 
     /**
@@ -45,7 +49,9 @@ class ProductInController extends Controller
      */
     public function show($id)
     {
-        //
+        $product = ProductIn::find($id);
+        $detail = DetailProductIn::where('id_product_in', $id)->get();
+        return view('pages.warehouse.product-in.detail', compact('product', 'detail'));
     }
 
     /**
@@ -79,6 +85,19 @@ class ProductInController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $product = ProductIn::find($id);
+        $detail = DetailProductIn::where('id_product_in', $id)->get();
+
+        $delProductIn = $product->delete();
+
+        foreach ($detail as $dProductIn) {
+            $delDetProductIn = $dProductIn->delete();
+        }
+
+        if ($delProductIn || $delDetProductIn) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }
