@@ -16,7 +16,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return view('pages.warehouse.product.index');
+        $commodity = Product::count();
+        $dproduct = DetailProduct::count();
+        return view('pages.warehouse.product.index', compact('commodity', 'dproduct'));
     }
 
     /**
@@ -192,7 +194,6 @@ class ProductController extends Controller
         $replace = new DetailProduct;
         $replace->id_product = $id;
         $replace->replacement = $request->replacement;
-        $replace->unit = "pcs";
         $replace->modal = 0;
         $replace->stock = 0;
         $replaceSave = $replace->save();

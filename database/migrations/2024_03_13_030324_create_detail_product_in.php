@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('id_product_in');
             $table->integer('qty');
             $table->integer('modal');
+            $table->integer('amount');
             $table->timestamps();
         });
     }

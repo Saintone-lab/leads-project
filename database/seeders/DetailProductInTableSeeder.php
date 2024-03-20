@@ -21,30 +21,35 @@ class DetailProductInTableSeeder extends Seeder
                 'id_product_in' => '2',
                 'qty' => '6',
                 'modal' => '500000',
+                'amount' => '3000000',
             ],
             [
                 'id_detail_product' => '2',
                 'id_product_in' => '2',
                 'qty' => '6',
                 'modal' => '500000',
+                'amount' => '3000000',
             ],
             [
                 'id_detail_product' => '3',
                 'id_product_in' => '2',
                 'qty' => '6',
                 'modal' => '500000',
+                'amount' => '3000000',
             ],
             [
                 'id_detail_product' => '2',
                 'id_product_in' => '1',
                 'qty' => '6',
                 'modal' => '500000',
+                'amount' => '3000000',
             ],
             [
                 'id_detail_product' => '6',
                 'id_product_in' => '2',
                 'qty' => '6',
                 'modal' => '500000',
+                'amount' => '3000000',
             ],
         ];
         DetailProductIn::insert($dProduct);

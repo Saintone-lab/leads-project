@@ -11,6 +11,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductInController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ServiceReportsController;
+use App\Models\DetailProduct;
 use App\Models\ProductIn;
 use App\Models\SerialProduct;
 use Illuminate\Support\Facades\Route;
@@ -107,6 +108,12 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk Product
     Route::resource('/product-in', ProductInController::class);
+    Route::get('/product-in/replacement/{id}', function ($id) {
+        // Menggunakan Eloquent untuk mengambil data serial_product berdasarkan id
+        $product = DetailProduct::where('id_product', $id)->get();
+        // Mengembalikan data dalam bentuk JSON
+        return response()->json($product);
+    });
 
     // Route untuk API Tabel DataTable
     // Route::get('/fetch-data/leads', [ApiTableController::class, 'tableLeads']);
@@ -149,7 +156,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/product', function () {
         require_once base_path('app/api/product/connection.php');
     });
-    Route::get('/db/product/{id}', function ($id) {
+    Route::get('/db/product/serial/{id}', function ($id) {
         // Menggunakan Eloquent untuk mengambil data serial_product berdasarkan id
         $serialProduct = SerialProduct::where('id_product', $id)->get();
         // Mengembalikan data dalam bentuk JSON

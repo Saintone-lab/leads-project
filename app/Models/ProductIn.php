@@ -18,6 +18,8 @@ class ProductIn extends Model
         'invoice',
         'supplier',
         'note',
+        'shipping',
+        'price',
     ];
     public function detail()
     {

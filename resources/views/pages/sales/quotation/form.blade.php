@@ -59,12 +59,10 @@
                         </div>
                         <div class="col-6 col-lg-3">
                             <div class="form-floating form-floating-outline mb-4">
-                                <input class="form-control" type="date" id="estimatedDate"
-                                    name="estimated_date"
-                                    {{-- {{ @$quotation->estimated_date ? '' : '_label' }}  naikin nanti--}}
+                                <input class="form-control" type="date" id="estimatedDate" name="estimated_date"
+                                    {{-- {{ @$quotation->estimated_date ? '' : '_label' }}  naikin nanti --}}
                                     value="{{ old('estimated_date', @$quotation->estimated_date ?? now()->format('Y-m-d')) }}"
-                                    {{-- {{ @$quotation->estimated_date ? '' : 'disabled' }} --}}
-                                    >
+                                    {{-- {{ @$quotation->estimated_date ? '' : 'disabled' }} --}}>
                                 @if (empty($quotation->estimated_date))
                                     <input type="date" name="estimated_date" id=""
                                         value="{{ now()->format('Y-m-d') }}" hidden>
@@ -137,14 +135,25 @@
                                                     data-id="{{ $dataDetail }}" min="1"
                                                     value="{{ old('qty[]', $quote->qty) }}">
                                                 <div class="form-floating form-floating-outline mb-4">
-                                                    <select class="form-select invoice-item-info" id="info-qty-1" data-id="1"
-                                                        aria-label="Default select example" name="info_qty[]">
+                                                    <select class="form-select invoice-item-info" id="info-qty-1"
+                                                        data-id="1" aria-label="Default select example"
+                                                        name="info_qty[]">
                                                         <option>---Info---</option>
-                                                        <option value="Pcs" {{ ($quote->info_qty == 'Pcs' ? 'selected' : '') }}>Pcs</option>
-                                                        <option value="Set" {{ ($quote->info_qty == 'Set' ? 'selected' : '') }}>Set</option>
-                                                        <option value="Pail" {{ ($quote->info_qty == 'Pail' ? 'selected' : '') }}>Pail</option>
-                                                        <option value="Unit" {{ ($quote->info_qty == 'Unit' ? 'selected' : '') }}>Unit</option>
-                                                        <option value="Lot" {{ ($quote->info_qty == 'Lot' ? 'selected' : '') }}>Lot</option>
+                                                        <option value="Pcs"
+                                                            {{ $quote->info_qty == 'Pcs' ? 'selected' : '' }}>Pcs
+                                                        </option>
+                                                        <option value="Set"
+                                                            {{ $quote->info_qty == 'Set' ? 'selected' : '' }}>Set
+                                                        </option>
+                                                        <option value="Pail"
+                                                            {{ $quote->info_qty == 'Pail' ? 'selected' : '' }}>Pail
+                                                        </option>
+                                                        <option value="Unit"
+                                                            {{ $quote->info_qty == 'Unit' ? 'selected' : '' }}>Unit
+                                                        </option>
+                                                        <option value="Lot"
+                                                            {{ $quote->info_qty == 'Lot' ? 'selected' : '' }}>Lot
+                                                        </option>
                                                     </select>
                                                     <label for="exampleFormControlSelect1">Info</label>
                                                 </div>
@@ -208,8 +217,8 @@
                                                 placeholder="Min 1" name="qty[]" id="qty-1" data-id="1"
                                                 min="1" value="{{ old('qty[]') }}">
                                             <div class="form-floating form-floating-outline mb-4">
-                                                <select class="form-select invoice-item-info" id="info-qty-1" data-id="1"
-                                                    aria-label="Default select example" name="info_qty[]">
+                                                <select class="form-select invoice-item-info" id="info-qty-1"
+                                                    data-id="1" aria-label="Default select example" name="info_qty[]">
                                                     <option disabled>---Info---</option>
                                                     <option value="Pcs">Pcs</option>
                                                     <option value="Set">Set</option>

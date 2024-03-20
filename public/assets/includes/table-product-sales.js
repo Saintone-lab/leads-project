@@ -64,19 +64,19 @@ $(function () {
                     responsivePriority: 1,
                     targets: 3,
                 },
-                {
-                    targets: 3,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("product.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                            );
-                        }
-                        return data;
-                    },
-                },
+                // {
+                //     targets: 3,
+                //     render: function (data, type, full, row) {
+                //         if (type === "display") {
+                //             var $dataId = full["id"];
+                //             var detailRoute = route("product.show", $dataId);
+                //             return (
+                //                 '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                //             );
+                //         }
+                //         return data;
+                //     },
+                // },
                 {
                     targets: [3, 4, 5, 9],
                     render: function (data, type, row) {

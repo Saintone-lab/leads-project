@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('supplier');
             $table->string('note');
             $table->date('date');
+            $table->integer('shipping');
+            $table->integer('total');
             $table->timestamps();
         });
     }

@@ -1,6 +1,6 @@
 $(function () {
     var dt_table_product = $(".datatable-product-equivalent");
-    var Url = "/db/product/";
+    var Url = "/db/product/serial/";
     var path = window.location.pathname;
     var id = path.substring(path.lastIndexOf('/') + 1);
     
