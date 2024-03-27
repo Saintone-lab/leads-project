@@ -1,5 +1,5 @@
 @extends('layouts.sales.app')
-@section('title', 'Product In')
+@section('title', 'Product Out')
 @section('content')
     <div class="row invoice-preview">
         {{-- Invoice --}}
@@ -44,11 +44,21 @@
                 <div class="card-body mb-3">
                     <div class="row">
                         <div class="col-4 col-lg-2 fw-medium">
-                            <p class="mb-1">Supplier </p>
+                            <p class="mb-1">Customers </p>
+                        </div>
+                        <div class="col-8">
+                            <pre class="mb-1"
+                                style="font-size: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $product->detail_client }}</pre>
+                        </div>
+                    </div>
+                </div>
+                <hr class="my-0">
+                <div class="card-body mb-3">
+                    <div class="row">
+                        <div class="col-4 col-lg-2 fw-medium">
                             <p class="mb-1">Note</p>
                         </div>
                         <div class="col-8">
-                            <p class="mb-1">: {{ $product->supplier }}</p>
                             <p class="mb-1">: {{ $product->note }}</p>
                         </div>
                     </div>
@@ -60,7 +70,7 @@
                                 <th>No.</th>
                                 <th>Item</th>
                                 <th>Qty</th>
-                                <th>Modal</th>
+                                <th>Price</th>
                                 <th>Amount</th>
                             </tr>
                         </thead>
@@ -83,7 +93,7 @@
                                     </td>
                                     <td class="align-top">{{ $products->qty }} {{ $products->detailProduct->product->unit }}
                                     </td>
-                                    <td class="align-top">RP {{ number_format($products->modal, 0, '', '.') }}</td>
+                                    <td class="align-top">RP {{ number_format($products->price, 0, '', '.') }}</td>
                                     <td class="align-top">RP {{ number_format($products->amount, 0, '', '.') }}</td>
                                 </tr>
                             @endforeach
@@ -144,7 +154,7 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        'url': '{{ url('product-in') }}/' + id,
+                        'url': '{{ url('product-out') }}/' + id,
                         'type': 'POST',
                         'data': {
                             '_method': 'DELETE',
@@ -161,7 +171,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/product-in';
+                                    window.location.href = '/product-out';
                                 }, 2000);
                             } else {
                                 Swal.fire({

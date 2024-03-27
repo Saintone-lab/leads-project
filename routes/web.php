@@ -9,8 +9,10 @@ use App\Http\Controllers\ExistingController;
 use App\Http\Controllers\PicController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductInController;
+use App\Http\Controllers\ProductOutController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ServiceReportsController;
+use App\Http\Controllers\StockController;
 use App\Models\DetailProduct;
 use App\Models\ProductIn;
 use App\Models\SerialProduct;
@@ -106,14 +108,27 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/product/equivalent/{id}', [ProductController::class, 'destroyEquivalent'])->name('product.equivalent.destroy');
     Route::delete('/product/replacement/{id}', [ProductController::class, 'destroyReplacement'])->name('product.replacement.destroy');
 
-    // Route untuk Product
+    // Route untuk Product In
     Route::resource('/product-in', ProductInController::class);
     Route::get('/product-in/replacement/{id}', function ($id) {
-        // Menggunakan Eloquent untuk mengambil data serial_product berdasarkan id
         $product = DetailProduct::where('id_product', $id)->get();
-        // Mengembalikan data dalam bentuk JSON
         return response()->json($product);
     });
+    Route::get('/product-out/replacement/{id}', function ($id) {
+        $product = DetailProduct::findOrFail($id);
+        return response()->json($product);
+    });
+    Route::get('/product-in/equivalent/{id}', function ($id) {
+        $product = SerialProduct::where('id_product', $id)->get();
+        return response()->json($product);
+    });
+
+    // Route untuk Product Out
+    Route::resource('/product-out', ProductOutController::class);
+
+    
+    // Route untuk Stock
+    Route::resource('/stock', StockController::class);
 
     // Route untuk API Tabel DataTable
     // Route::get('/fetch-data/leads', [ApiTableController::class, 'tableLeads']);
@@ -164,6 +179,9 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/productIn', function () {
         require_once base_path('app/api/product/in/connection.php');
+    });
+    Route::get('/db/productOut', function () {
+        require_once base_path('app/api/product/out/connection.php');
     });
     Route::get('/db/product/sales', function () {
         require_once base_path('app/api/product/connectionSales.php');

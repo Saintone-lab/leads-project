@@ -18,7 +18,8 @@ class ProductController extends Controller
     {
         $commodity = Product::count();
         $dproduct = DetailProduct::count();
-        return view('pages.warehouse.product.index', compact('commodity', 'dproduct'));
+        $sproduct = SerialProduct::count();
+        return view('pages.warehouse.product.index', compact('commodity', 'dproduct', 'sproduct'));
     }
 
     /**

@@ -22,9 +22,11 @@ class ProductTableSeeder extends Seeder
                 'go' => 'Oem',
                 'category' => 'Consumable Part',
                 'dimension' => '200x100x150',
+                'first_stock' => '10',
                 'stock' => '10',
                 'unit' => 'pail',
                 'note' => '-',
+                "date"=> \Carbon\Carbon::today()->format('Y-m-d H:i:s'),
             ],
             [
                 'commodity' => 'W940',
@@ -32,9 +34,11 @@ class ProductTableSeeder extends Seeder
                 'go' => 'Oem',
                 'category' => 'Consumable Part',
                 'dimension' => '170x100x150',
+                'first_stock' => '4',
                 'stock' => '4',
                 'unit' => 'pail',
                 'note' => '-',
+                "date"=> \Carbon\Carbon::today()->format('Y-m-d H:i:s'),
             ],
         ];
         Product::insert($product);

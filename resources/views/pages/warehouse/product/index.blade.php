@@ -26,8 +26,8 @@
                     <div class="col-sm-6 col-lg-3">
                         <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
                             <div>
-                                <p class="mb-2">Replacement</p>
-                                <h4 class="mb-2">{{$dproduct}}</h4>
+                                <p class="mb-2">Equivalent</p>
+                                <h4 class="mb-2">{{$sproduct}}</h4>
                                 <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
                             </div>
                             <div class="avatar me-lg-4">

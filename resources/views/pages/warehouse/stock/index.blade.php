@@ -1,26 +1,24 @@
 @extends('layouts.sales.app')
-@section('title', 'Product In')
+@section('title', 'Data Product')
 @section('content')
     <h4 class="fw-bold py-3 mb-4">
-        Product In
+        Product Stock
     </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-product-in table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Invoice</th>
-                        <th>Supplier</th>
-                        <th>Note</th>
-                        <th>Price</th>
-                        <th>Date</th>
-                        <th></th>
-                    </tr>
-                </thead>
-            </table>
+                <table class="datatable-stock table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Commodity</th>
+                            <th>Desc</th>
+                            <th>First Stock</th>
+                            <th>Recent Stock</th>
+                        </tr>
+                    </thead>
+                </table>
         </div>
     </div>
 @endsection()
@@ -46,5 +44,5 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-product-in.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-stock.js"></script>
 @endpush

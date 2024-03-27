@@ -8,39 +8,39 @@ $(function(){
         });
         invoiceRepeater.repeater({
             show: function () {
-                // var product = $(this).find(".invoice-item-product");
+                var commodity = $(this).find(".invoice-item-commodity");
+                var replacement = $(this).find(".invoice-item-replacement");
+                var equivalent = $(this).find(".invoice-item-equivalent");
                 var price = $(this).find(".invoice-item-price");
                 var priceLabel = $(this).find(".invoice-item-price-label");
                 var qty = $(this).find(".invoice-item-qty");
-                var disc = $(this).find(".invoice-item-disc");
-                var info = $(this).find(".invoice-item-info");
-                var amount = $(this).find(".invoice-item-amount");
                 var amountLabel = $(this).find(".amount-label");
+                var amount = $(this).find(".invoice-item-amount");
+                var qtyLabel = $(this).find(".info-max-label");
                 var fromControl = $(this).find(".form-control, .form-select");
                 var formLabel = $(this).find(".form-label");
     
                 fromControl.each(function (i) {
                     var id = "form-repeater-" + row + "-" + col;
-                    // var nameProduct = "product[" + col + "]";
                     var idPrice = "price-" + row;
                     var idPriceLabel = "price-label-" + row;
                     var idQty = "qty-" + row;
-                    var idDisc = "disc-" + row;
-                    var idInfo = "info-qty-" + row;
+                    var idQtyLabel = "info-max-" + row;
+                    var idReplacement = "replacement-dropdown-" + row;
+                    var idEquivalent = "equivalent-dropdown-" + row;
                     var idAmount = "amount-" + row;
                     var idAmountLabel = "amount-label-" + row;
-                    // $(product[i]).attr("name", nameProduct);
+                    $(commodity[i]).attr("data-id", row);
+                    $(replacement[i]).attr("id", idReplacement);
+                    $(replacement[i]).attr("data-id", row);
+                    $(equivalent[i]).attr("id", idEquivalent);
+                    $(equivalent[i]).attr("data-id", row);
                     $(price[i]).attr("id", idPrice);
                     $(priceLabel[i]).attr("id", idPriceLabel);
                     $(priceLabel[i]).attr("data-id", row);
                     $(qty[i]).attr("id", idQty);
                     $(qty[i]).attr("data-id", row);
-                    $(info[i]).attr("id", idInfo);
-                    $(info[i]).attr("data-id", row);
-                    $(info[i]).val('Pcs');
-                    $(info[i]).prop("selected", true);
-                    $(disc[i]).attr("id", idDisc).val(0);
-                    $(disc[i]).attr("data-id", row).val(0);
+                    $(qtyLabel[i]).attr("id", idQtyLabel);
                     $(amount[i]).attr("id", idAmount);
                     $(amountLabel[i]).attr("id", idAmountLabel);
                     $(amount[i]).attr("data-id", row);

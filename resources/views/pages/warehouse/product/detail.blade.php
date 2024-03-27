@@ -9,6 +9,9 @@
             <div class="card">
                 <div class="card-header pb-0">
                     <div class="text-end text-muted">
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#updateStock-{{ $product->id }}">
+                            <button type="button" class="btn btn-sm btn-label-success">Edit Stock</button>
+                        </a>
                         <a type="button" data-bs-toggle="modal" data-bs-target="#updateProduct-{{ $product->id }}">
                             <button type="button" class="btn btn-sm btn-label-primary">Edit</button>
                         </a>
@@ -57,6 +60,14 @@
                         </div>
                         <div class="col-9">
                             : {{ $product->dimension }}
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-3">
+                            Stock Awal
+                        </div>
+                        <div class="col-9">
+                            : {{ $product->first_stock }} ({{$product->date}})
                         </div>
                     </div>
                     <div class="row mb-1">
@@ -155,6 +166,7 @@
         </div>
     </div>
     @include('components.modal.warehouse.product.form')
+    @include('components.modal.warehouse.product.stock')
     @include('components.modal.warehouse.replacement.form')
     @include('components.modal.warehouse.equivalent.form')
 @endsection()

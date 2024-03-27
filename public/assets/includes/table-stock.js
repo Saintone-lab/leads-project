@@ -1,5 +1,5 @@
 $(function () {
-    var dt_table_product = $(".datatable-product");
+    var dt_table_product = $(".datatable-stock");
     var Url = "db/product";
 
     if (dt_table_product.length) {
@@ -11,7 +11,6 @@ $(function () {
                 headers: {
                     "Content-Type": "application/json",
                 },
-
                 // success: function (hasil, Url) {
                 //     console.log("Url:", Url);
                 //     console.log(hasil);
@@ -28,7 +27,7 @@ $(function () {
                 { data: "id" },
                 { data: "commodity" },
                 { data: "description" },
-                { data: "dimension" },
+                { data: "first_stock" },
                 { data: "all_stock" },
             ],
             columnDefs: [
@@ -297,14 +296,14 @@ $(function () {
                         },
                     ],
                 },
-                {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
-                    className: "btn btn-primary",
-                    attr: {
-                        "data-bs-target": "#createProduct",
-                        "data-bs-toggle": "modal",
-                    },
-                },
+                // {
+                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
+                //     className: "btn btn-primary",
+                //     attr: {
+                //         "data-bs-target": "#createProduct",
+                //         "data-bs-toggle": "modal",
+                //     },
+                // },
             ],
             drawCallback: function (settings) {
                 $('[data-toggle="tooltip"]').tooltip();

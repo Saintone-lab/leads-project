@@ -29,6 +29,7 @@ $(function () {
                 { data: "invoice" },
                 { data: "supplier" },
                 { data: "note" },
+                { data: "total" },
                 { data: "date" },
                 { data: "" },
             ],
@@ -67,6 +68,10 @@ $(function () {
                 {
                     responsivePriority: 1,
                     targets: 3,
+                },
+                {
+                    targets: 6,
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp "),
                 },
                 {
                     // Actions

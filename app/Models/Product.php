@@ -10,14 +10,19 @@ class Product extends Model
     use HasFactory;
     protected $table = "product";
     protected $date = [
+        'date',
         'created_at',
         'updated_at'
     ];
     protected $fillable = [
         'commodity',
         'description',
+        'go',
         'dimension',
+        'frist_stock',
         'stock',
+        'unit',
+        'note',
     ];
     
     public function detail()

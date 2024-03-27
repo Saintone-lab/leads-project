@@ -304,14 +304,14 @@ $(function () {
                         },
                     ],
                 },
-                {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
-                    className: "btn btn-primary",
-                    attr: {
-                        "data-bs-target": "#createProduct",
-                        "data-bs-toggle": "modal",
-                    },
-                },
+                // {
+                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
+                //     className: "btn btn-primary",
+                //     attr: {
+                //         "data-bs-target": "#createProduct",
+                //         "data-bs-toggle": "modal",
+                //     },
+                // },
             ],
             drawCallback: function (settings) {
                 $('[data-toggle="tooltip"]').tooltip();

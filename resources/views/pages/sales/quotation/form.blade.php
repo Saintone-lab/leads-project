@@ -5,7 +5,8 @@
         $id = 0;
         $dataDetail = 0;
     @endphp
-    <form action="{{ @$quotation ? route('quotation.update', $quotation->id) : route('quotation.store') }}" method="post"
+    <form id="formAuthentication" class="mb-3 fv-plugins-bootstrap5 fv-plugins-framework"
+        action="{{ @$quotation ? route('quotation.update', $quotation->id) : route('quotation.store') }}" method="post"
         enctype="multipart/form-data">
         @csrf
         @if (@$quotation)
@@ -36,7 +37,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="form-invoice-repeater source-item">
-                    <div class="row">
+                    <div class="row mb-2">
                         <div class="col-12 col-lg-3 mb-3">
                             <div class="form-floating form-floating-outline">
                                 <select id="select2Basic" class="select2 form-select form-select-lg" data-allow-clear="true"
@@ -51,14 +52,14 @@
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">
-                            <div class="form-floating form-floating-outline mb-4">
+                            <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="text" placeholder="Put Title Quotation Here ...."
-                                    id="title-input" name="title" value="{{ old('title', @$quotation->title ?? '') }}">
-                                <label for="title-input">Title Quotation</label>
+                                    id="title" name="title" value="{{ old('title', @$quotation->title ?? '') }}">
+                                <label for="title">Title Quotation</label>
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">
-                            <div class="form-floating form-floating-outline mb-4">
+                            <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="date" id="estimatedDate" name="estimated_date"
                                     {{-- {{ @$quotation->estimated_date ? '' : '_label' }}  naikin nanti --}}
                                     value="{{ old('estimated_date', @$quotation->estimated_date ?? now()->format('Y-m-d')) }}"
@@ -71,7 +72,7 @@
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">
-                            <div class="form-floating form-floating-outline mb-4">
+                            <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="date" id="expiredDate" name="expired_date"
                                     value="{{ old('expired_date', @$quotation->expired_date ?? '') }}">
                                 <label for="expiredDate">Expired Date</label>
@@ -108,9 +109,9 @@
                                         <div class="row w-100 p-3">
                                             <div class="col-md-6 col-12 mb-md-0 mb-3">
                                                 <label for="product" class="mb-2">Product</label>
-                                                <input type="text" name="product[]" id="product"
-                                                    class="form-control mb-3 product" placeholder="Example: Kaeser"
-                                                    value="{{ old('product[]', $quote->product) }}">
+                                                <input type="text" id="product" class="form-control"
+                                                    placeholder="Example: Kaeser"
+                                                    value="{{ old('product[]', $quote->product) }} " name="product[]">
                                                 <textarea class="form-control" rows="2" placeholder="Detail Product. Example: Kaeser ASD"
                                                     name="detail_product[]">{{ old('detail_product[]', $quote->detail_product) }}</textarea>
                                             </div>
@@ -186,14 +187,14 @@
                             </div>
                         @endforeach
                     @else
-                        <div class="mb-3" data-repeater-list="group-a">
+                        <div class="mb-2" data-repeater-list="group-a">
                             <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
                                 <div class="d-flex border rounded position-relative pe-0">
                                     <div class="row w-100 p-3">
-                                        <div class="col-md-6 col-12 mb-md-0 mb-3">
+                                        <div class="col-md-6 col-12 mb-md-0">
                                             <label for="product" class="mb-2">Product</label>
                                             <input type="text" name="product[]" id="product"
-                                                class="form-control mb-3 product"
+                                                class="form-control mb-4 invoice-item-product"
                                                 placeholder="Put Your Part Number Here. Example: 6.641.13.1">
                                             <textarea class="form-control" rows="2" placeholder="Detail Product. Example: Kaeser ASD"
                                                 name="detail_product[]"></textarea>
@@ -203,7 +204,7 @@
                                             <div class="input-group" data-price="1">
                                                 <span class="input-group-text">Rp. </span>
                                                 <input type="text" class="form-control invoice-item-price-label"
-                                                    id="price-label" data-id="1" min="12"
+                                                    id="price-label" data-id="1" min="12" name="harga"
                                                     placeholder="Put Price Here" data-type="currency"
                                                     pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
                                                     @blur="focused = false" value="{{ old('price[]') }}">
@@ -213,7 +214,7 @@
                                         </div>
                                         <div class="col-md-1 col-12 mb-md-0 mb-3">
                                             <p class="mb-2 repeater-title">Qty</p>
-                                            <input type="number" class="form-control mb-3 invoice-item-qty"
+                                            <input type="number" class="form-control mb-4 invoice-item-qty"
                                                 placeholder="Min 1" name="qty[]" id="qty-1" data-id="1"
                                                 min="1" value="{{ old('qty[]') }}">
                                             <div class="form-floating form-floating-outline mb-4">
@@ -426,12 +427,16 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
 @endpush
 @push('after-script')
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/FormValidation.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
     <script src="{{ asset('assets') }}/includes/repeater/jquery-repeater-invoice.js"></script>
-    <script src="{{ asset('assets') }}/includes/repeater/repeater-invoice.js"></script>
     <script src="{{ asset('assets') }}/js/app-invoice-add.js"></script>
 @endpush
 @push('page-script')
+    <script src="{{ asset('assets') }}/includes/repeater/repeater-invoice.js"></script>
+    <script src="{{ asset('assets') }}/includes/validator/quotation-validation.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush
 @push('script')
@@ -442,6 +447,93 @@
                 style: 'currency',
                 currency: 'IDR'
             });
+
+            function initFormValidation() {
+                const fv = FormValidation.formValidation(formAuthentication, {
+                    fields: {
+                        title: {
+                            validators: {
+                                notEmpty: {
+                                    message: "Please enter title",
+                                },
+                                stringLength: {
+                                    min: 6,
+                                    message: "Name must be more than 6 characters",
+                                },
+                            },
+                        },
+                        "product[]": {
+                            selector: '[name="product[]"]',
+                            validators: {
+                                notEmpty: {
+                                    message: "Please enter product",
+                                },
+                                stringLength: {
+                                    min: 3,
+                                    message: "Area must be more than 3 characters (product)",
+                                },
+                            },
+                        },
+                        "detail_product[]": {
+                            selector: '[name="detail_product[]"]',
+                            validators: {
+                                notEmpty: {
+                                    message: "Please enter detail product",
+                                },
+                                stringLength: {
+                                    min: 3,
+                                    message: "Area must be more than 3 characters (detail product)",
+                                },
+                            },
+                        },
+                        harga: {
+                            validators: {
+                                notEmpty: {
+                                    message: "Please enter price",
+                                },
+                                numericInput: {
+                                    number: "Please enter a valid number.",
+                                },
+                            },
+                        },
+                        "qty[]": {
+                            validators: {
+                                notEmpty: {
+                                    message: "Please enter Quantity",
+                                },
+                                numericInput: {
+                                    number: "Please enter a valid number.",
+                                },
+                            },
+                        },
+                    },
+                    plugins: {
+                        trigger: new FormValidation.plugins.Trigger(),
+                        bootstrap5: new FormValidation.plugins.Bootstrap5({
+                            eleValidClass: "",
+                            rowSelector: ".mb-3",
+                        }),
+                        submitButton: new FormValidation.plugins.SubmitButton(),
+
+                        defaultSubmit: new FormValidation.plugins.DefaultSubmit(),
+                        autoFocus: new FormValidation.plugins.AutoFocus(),
+                    },
+                    init: (instance) => {
+                        instance.on("plugins.message.placed", function(e) {
+                            if (
+                                e.element.parentElement.classList.contains(
+                                    "input-group"
+                                )
+                            ) {
+                                e.element.parentElement.insertAdjacentElement(
+                                    "afterend",
+                                    e.messageElement
+                                );
+                            }
+                        });
+                    },
+                });
+            }
 
             // Jquery Dependency
             // formatting  shipping
@@ -637,6 +729,7 @@
                             $('#hargaTotal').val(hTotal);
                             console.log("Harga Total :" + hTotal);
                         });
+                initFormValidation();
             });
 
             // Logic Harga Total

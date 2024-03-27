@@ -1,6 +1,6 @@
 $(function () {
-    var dt_table_product = $(".datatable-product");
-    var Url = "db/product";
+    var dt_table_product = $(".datatable-product-out");
+    var Url = "db/productOut";
 
     if (dt_table_product.length) {
         $('[data-toggle="tooltip"]').tooltip();
@@ -26,10 +26,11 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "commodity" },
-                { data: "description" },
-                { data: "dimension" },
-                { data: "all_stock" },
+                { data: "invoice" },
+                { data: "note" },
+                { data: "total" },
+                { data: "date" },
+                { data: "" },
             ],
             columnDefs: [
                 {
@@ -68,16 +69,32 @@ $(function () {
                     targets: 3,
                 },
                 {
-                    targets: 3,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id_p"];
-                            var detailRoute = route("product.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                            );
-                        }
-                        return data;
+                    targets: 5,
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp "),
+                },
+                {
+                    // Actions
+                    targets: -1,
+                    title: "Actions",
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, full, meta) {
+                        var $dataId = full["id"];
+                        var $detailQUrl = route("product-out.show", $dataId);
+                        var $revQUrl = route("product-out.edit", $dataId);
+                        return (
+                            '<div class="d-inline-block">' +
+                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
+                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
+                            '<li><a href="' +
+                            $detailQUrl +
+                            '" class="dropdown-item">Details</a></li>' +
+                            '<li><a href="' +
+                            $revQUrl +
+                            '" class="dropdown-item">Edit</a></li>' +
+                            "</ul>" +
+                            "</div>"
+                        );
                     },
                 },
             ],
@@ -298,11 +315,10 @@ $(function () {
                     ],
                 },
                 {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
-                    className: "btn btn-primary",
-                    attr: {
-                        "data-bs-target": "#createProduct",
-                        "data-bs-toggle": "modal",
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Invoice Product Out</span>',
+                    className: "btn btn-primary btn-new",
+                    action: function (e, dt, node, config) {
+                        window.location = route("product-out.create");
                     },
                 },
             ],
