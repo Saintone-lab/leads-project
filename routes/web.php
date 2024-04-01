@@ -11,10 +11,12 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductInController;
 use App\Http\Controllers\ProductOutController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceReportsController;
 use App\Http\Controllers\StockController;
 use App\Models\DetailProduct;
 use App\Models\ProductIn;
+use App\Models\SalesReports;
 use App\Models\SerialProduct;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadsController;
@@ -126,9 +128,11 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk Product Out
     Route::resource('/product-out', ProductOutController::class);
 
-    
     // Route untuk Stock
     Route::resource('/stock', StockController::class);
+
+    // Route untuk Stock
+    Route::resource('/sale-report', SalesReportController::class);
 
     // Route untuk API Tabel DataTable
     // Route::get('/fetch-data/leads', [ApiTableController::class, 'tableLeads']);
@@ -185,6 +189,51 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/product/sales', function () {
         require_once base_path('app/api/product/connectionSales.php');
+    });
+    Route::get('/db/sales/reports', function () {
+        $reports = SalesReports::orderBy('id', 'ASC')->get();
+        return response()->json(['data' => $reports]);
+    });
+    Route::get('/db/sales/reports/{id}', function ($id) {
+        $report = SalesReports::find($id);
+
+        if ($report->semester == '1') {
+            // $product = DB::table('detail_product_out AS d')
+            // ->select('d.id', 'r.commodity', 's.fxp_parts', 'd.price', DB::raw('SUM(d.qty) AS total'))
+            // ->leftJoin('product_out AS p', 'd.id_product_out', '=', 'p.id')
+            // ->leftJoin('serial_product AS s', 'd.id_serial_product', '=', 's.id')
+            // ->leftJoin('product AS r', 's.id_product', '=', 'r.id')
+            // ->whereYear('p.date', $report->year)
+            // ->whereMonth('p.date', '>=', '1')
+            // ->whereMonth('p.date', '<=', '6')
+            // ->groupBy('d.id_serial_product')
+            // ->get();
+            $product = DB::table('serial_product AS s')
+            ->select('s.id', 'r.commodity', 's.pn', DB::raw('COALESCE(SUM(d.qty), 0) AS total'))
+            ->leftJoin('detail_product_out AS d', 'd.id_serial_product', '=', 's.id')
+            ->leftJoin('product_out AS p', function ($join) use ($report) {
+                $join->on('p.id', '=', 'd.id_product_out')
+                    ->whereYear('p.date', $report->year)
+                    ->whereMonth('p.date', '>=', '1')
+                    ->whereMonth('p.date', '<=', '6');
+            })
+            ->leftJoin('product AS r', 's.id_product', '=', 'r.id')
+            ->groupBy('s.id', 'r.commodity', 's.pn')
+            ->get();
+
+        } elseif ($report->semester == '2') {
+            $product = DB::table('detail_product_out AS d')
+                ->select('d.id', 'r.commodity', 's.fxp_parts', 'd.price', DB::raw('SUM(d.qty) AS total'))
+                ->leftJoin('product_out AS p', 'd.id_product_out', '=', 'p.id')
+                ->leftJoin('serial_product AS s', 'd.id_serial_product', '=', 's.id')
+                ->leftJoin('product AS r', 's.id_product', '=', 'r.id')
+                ->whereYear('p.date', $report->year)
+                ->whereMonth('p.date', '>=', '7')
+                ->whereMonth('p.date', '<=', '12')
+                ->groupBy('d.id_serial_product')
+                ->get();
+        }
+        return response()->json(['data' => $product]);
     });
 });
 Auth::routes();

@@ -159,6 +159,12 @@
                     <div data-i18n="Stock">Stock</div>
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('sale-report') || request()->is('sale-report/*') ? 'active' : '' }}">
+                <a href="{{ route('sale-report.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-chart-box-outline"></i>
+                    <div data-i18n="Reports">Reports</div>
+                </a>
+            </li>
 
             <li class="menu-item">
                 <a href="{{ url('pending-po') }}" class="menu-link">

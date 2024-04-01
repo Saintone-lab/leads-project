@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('code');
             $table->string('area', 25);
-            $table->enum('role',['Sales', 'Technician', 'Admin', 'Warehouse']);
+            $table->enum('role',['Sales', 'Technician', 'Admin', 'Logistic', 'Accounting', 'Supervisor']);
             $table->string('image');
             $table->string('sign')->nullable();
             $table->rememberToken();

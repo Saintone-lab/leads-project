@@ -163,7 +163,7 @@
                             <h5 class="my-2">
                                 Note
                             </h5>
-                            <textarea class="form-control h-px-100" rows="2" placeholder="Write your note here...." name="note"></textarea>
+                            <textarea class="form-control h-px-100" rows="2" placeholder="Write your note here...." name="note">-</textarea>
                         </div>
                     </div>
                     <div class="float-end">

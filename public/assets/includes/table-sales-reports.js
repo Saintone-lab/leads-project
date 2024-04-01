@@ -1,17 +1,16 @@
 $(function () {
-    var dt_table_product = $(".datatable-product-out");
-    var Url = "db/productOut";
+    var dt_table_sales_reports = $(".datatable-sales-reports");
+    var Url = "db/sales/reports";
 
-    if (dt_table_product.length) {
+    if (dt_table_sales_reports.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product.DataTable({
+        var dt_sales_reports = dt_table_sales_reports.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
                 headers: {
                     "Content-Type": "application/json",
                 },
-
                 // success: function (hasil, Url) {
                 //     console.log("Url:", Url);
                 //     console.log(hasil);
@@ -26,11 +25,8 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "invoice" },
-                { data: "note" },
-                { data: "total" },
-                { data: "date" },
-                { data: "" },
+                { data: "year" },
+                { data: "semester" },
             ],
             columnDefs: [
                 {
@@ -69,51 +65,20 @@ $(function () {
                     targets: 3,
                 },
                 {
-                    targets : 3,
-                    render: function(data, type, full, meta){
-                        var $tip = full['tip'];
-                        var $invoice = full['invoice'];
-                        return (
-                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary"' +
-                            ' title=" ' +
-                            $tip +
-                            '">' +
-                            $invoice +
-                            "</span>"
-                        );
-                    },
-                },
-                {
-                    targets: 5,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp "),
-                },
-                {
-                    // Actions
-                    targets: -1,
-                    title: "Actions",
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, full, meta) {
-                        var $dataId = full["id"];
-                        var $detailQUrl = route("product-out.show", $dataId);
-                        var $revQUrl = route("product-out.edit", $dataId);
-                        return (
-                            '<div class="d-inline-block">' +
-                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
-                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<li><a href="' +
-                            $detailQUrl +
-                            '" class="dropdown-item">Details</a></li>' +
-                            '<li><a href="' +
-                            $revQUrl +
-                            '" class="dropdown-item">Edit</a></li>' +
-                            "</ul>" +
-                            "</div>"
-                        );
+                    targets: 4,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $dataId = full["id"];
+                            var detailRoute = route("sale-report.show", $dataId);
+                            return (
+                                '<a class="text-dark" href="' + detailRoute + '"> Semester ' + data + "</a>"
+                            );
+                        }
+                        return data;
                     },
                 },
             ],
-            order: [[2, "desc"]],
+            order: [[2, "asc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
@@ -330,10 +295,11 @@ $(function () {
                     ],
                 },
                 {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Invoice Product Out</span>',
-                    className: "btn btn-primary btn-new",
-                    action: function (e, dt, node, config) {
-                        window.location = route("product-out.create");
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Year/Semester</span>',
+                    className: "btn btn-primary",
+                    attr: {
+                        "data-bs-target": "#createReports",
+                        "data-bs-toggle": "modal",
                     },
                 },
             ],
@@ -379,7 +345,7 @@ $(function () {
             '<h5 class="card-title mb-0">Table Product</h5>'
         );
     }
-    dt_table_product.on("draw", function () {
+    dt_table_sales_reports.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

@@ -17,18 +17,20 @@ class ProductOutTableSeeder extends Seeder
     {
         $product = [
             [
-                'invoice' => 'PIN002/14/III/23',
+                'id_user' => '1',
                 'detail_client' => 'Bpk Asep',
-                'note' => '-',
+                'invoice' => 'PIN002/14/III/23',
                 "date"=> \Carbon\Carbon::today()->format('Y-m-d H:i:s'),
+                'note' => '-',
                 'shipping' => '500000',
                 'total' => '5000000',
             ],
             [
-                'invoice' => 'PIN005/14/III/23',
+                'id_user' => '2',
                 'detail_client' => 'Bpk Raden Dewi',
-                'note' => '-',
+                'invoice' => 'PIN002/14/III/23',
                 "date"=> \Carbon\Carbon::today()->format('Y-m-d H:i:s'),
+                'note' => '-',
                 'shipping' => '250000',
                 'total' => '2500000',
             ],

@@ -105,6 +105,9 @@
                                             <option value="Sales">Sales</option>
                                             <option value="Technician">Technician</option>
                                             <option value="Warehouse">Warehouse</option>
+                                            <option value="Accounting">Accounting</option>
+                                            <option value="Logistic">Logistic</option>
+                                            <option value="Supervisor">Supervisor</option>
                                         </select>
                                         <label for="exampleFormControlSelect1">Role select</label>
                                     </div>

@@ -7,6 +7,7 @@ use App\Models\DetailProductOut;
 use App\Models\Product;
 use App\Models\ProductOut;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProductOutController extends Controller
 {
@@ -57,6 +58,7 @@ class ProductOutController extends Controller
         $this->validate($request, $rule, $message);
         // Masukan Data ke Tabel Product Out
         $productOut = new ProductOut();
+        $productOut->id_user = Auth::user()->id;
         $productOut->invoice = $request->invoice;
         $productOut->detail_client = $request->detail_client;
         $productOut->date = $request->date;

@@ -13,15 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('product_out', function (Blueprint $table) {
+        Schema::create('sales_reports', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user');
-            $table->string('detail_client');
-            $table->string('invoice');
-            $table->date('date');
-            $table->string('note');
-            $table->integer('shipping');
-            $table->integer('total');
+            $table->enum('semester', ['1', '2']);
+            $table->integer('year');
             $table->timestamps();
         });
     }
@@ -33,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('product_out');
+        Schema::dropIfExists('sales_reports');
     }
 };

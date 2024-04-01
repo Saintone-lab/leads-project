@@ -15,6 +15,7 @@ class ProductOut extends Model
         'date'
     ];
     protected $fillable = [
+        'id_user',
         'detail_client',
         'invoice',
         'note',
@@ -22,6 +23,10 @@ class ProductOut extends Model
     ];
     public function detail()
     {
-        return $this->hasMany('App\Models\DetailProductIn', 'id_product_in');
+        return $this->hasMany('App\Models\DetailProductIn', 'id_product_out');
+    }
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User', 'id_user', 'id');
     }
 }

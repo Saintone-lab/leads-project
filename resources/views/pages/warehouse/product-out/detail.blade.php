@@ -17,20 +17,9 @@
                                     </span>
                                 </span>
                             </div>
-                            <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
-                            <div style="font-size: 10px">
-                                <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
-                                <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                                <p class="mb-1">
-                                    <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
-                                </p>
-                                <p class="mb-1">
-                                    <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
-                                </p>
-                            </div>
                         </div>
                         <div>
-                            <h3 class="fw-bold">Invoice</h3>
+                            <h3 class="fw-bold">Barang Keluar</h3>
                             <div>
                                 <span class="fw-bolder">#{{ $product->invoice }}</span>
                             </div>
@@ -46,7 +35,7 @@
                         <div class="col-4 col-lg-2 fw-medium">
                             <p class="mb-1">Customers </p>
                         </div>
-                        <div class="col-8">
+                        <div class="col-8 col-lg-10">
                             <pre class="mb-1"
                                 style="font-size: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $product->detail_client }}</pre>
                         </div>
@@ -58,13 +47,19 @@
                         <div class="col-4 col-lg-2 fw-medium">
                             <p class="mb-1">Note</p>
                         </div>
-                        <div class="col-8">
+                        <div class="col-8 col-lg-6">
                             <p class="mb-1">: {{ $product->note }}</p>
+                        </div>
+                        <div class="col-4 col-lg-2 fw-medium">
+                            <p class="mb-1">User</p>
+                        </div>
+                        <div class="col-8 col-lg-2">
+                            <p class="mb-1">: {{ $product->user->name }}</p>
                         </div>
                     </div>
                 </div>
                 <div class="table-responsive">
-                    <table class="table m-0">
+                    <table class="table m-0 mb-4">
                         <thead class="table-light border-top">
                             <tr>
                                 <th>No.</th>
@@ -117,8 +112,17 @@
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
             <div class="card">
                 <div class="card-body">
+                    <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect"
+                        href="javascript:void(0);">
+                        Print
+                    </a>
+                    <a href="javascript:void(0);" type="button" class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">
+                        Download
+                    </a>
                     <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-invoice"
-                        data-id="{{ $product->id }}">Delete</a>
+                        data-id="{{ $product->id }}">
+                        Delete
+                    </a>
                 </div>
             </div>
         </div>

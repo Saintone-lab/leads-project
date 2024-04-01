@@ -67,5 +67,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\Audit', 'id_technician');
     }
+    public function product_out()
+    {
+        return $this->hasMany('App\Models\ProductOut', 'id_user');
+    }
     
 }
