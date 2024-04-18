@@ -15,16 +15,19 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->integer('nip');
             $table->string('name');
-            $table->string('phone');
             $table->string('email')->unique();
             // $table->date('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('code');
-            $table->string('area', 25);
-            $table->enum('role',['Sales', 'Technician', 'Admin', 'Logistic', 'Accounting', 'Supervisor']);
-            $table->string('image');
+            $table->string('phone');
             $table->string('sign')->nullable();
+            $table->string('image');
+            $table->date('birthday');
+            $table->string('address');
+            $table->string('code');
+            $table->enum('role',['Sales', 'Technician', 'Admin', 'Logistic', 'Accounting', 'Supervisor']);
+            $table->date('date_in');
             $table->rememberToken();
             $table->timestamps();
         });

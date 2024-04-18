@@ -4,7 +4,7 @@
     <h4 class="fw-bold py-3 mb-4">
         <span class="text-muted fw-light">Products /</span> {{ $product->commodity }}
     </h4>
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-12 mb-4">
             <div class="card">
                 <div class="card-header pb-0">
@@ -67,7 +67,7 @@
                             Stock Awal
                         </div>
                         <div class="col-9">
-                            : {{ $product->first_stock }} ({{$product->date}})
+                            : {{ $product->first_stock }} ({{ $product->date }})
                         </div>
                     </div>
                     <div class="row mb-1">
@@ -75,14 +75,14 @@
                             Stock
                         </div>
                         <div class="col-9">
-                            : {{ $product->stock }}
+                            : {{ $product->stock }} {{ $product->unit }}
                         </div>
                     </div>
                     </p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 col-12">
+        <div class="col-md-4 col-12 h-auto overflow-auto flex-1">
             <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold pb-1 mb-2">
                     Replacement
@@ -94,7 +94,7 @@
                 </a>
             </div>
             <div class="card">
-                <div class="table-responsive text-nowrap">
+                <div class="table-responsive text-nowrap h-100">
                     <table class="table table-striped">
                         <thead>
                             <tr>
@@ -113,7 +113,7 @@
                                         {{ $detail->stock }} {{ $detail->product->unit }}
                                     </td>
                                     <td>
-                                        {{ $detail->modal }}
+                                        Rp.{{ number_format($detail->modal, 0, '', '.') }}
                                     </td>
                                     <td>
                                         <a href="#" data-id="{{ $detail->id }}"
@@ -134,7 +134,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-8 col-12">
+        <div class="col-md-8 col-12 flex-1">
             <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold pb-1 mb-2">
                     Equivalent
@@ -158,6 +158,46 @@
                                 <th>PN</th>
                                 <th>Price</th>
                                 <th></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <table class="datatable-product-in-detail table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>invoice</th>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <table class="datatable-product-out-detail table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>invoice</th>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
                     </table>
@@ -192,9 +232,11 @@
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
 @endpush
 @push('page-script')
-<script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
+    <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
     <script src="{{ asset('assets') }}/includes/table-equivalent.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-product-in-detail.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-product-out-detail.js"></script>
 @endpush
 @push('script')
     <script></script>

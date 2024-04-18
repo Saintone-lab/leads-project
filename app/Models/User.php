@@ -18,15 +18,17 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'nip',
         'name',
         'email',
         'password',
-        'code',
-        'area',
-        'phone',
-        'role',
         'image',
         'sign',
+        'birthday',
+        'address',
+        'area',
+        'role',
+        'date_in',
         'remember_token'
     ];
 
@@ -50,6 +52,11 @@ class User extends Authenticatable
     ];
 
     
+    public function detail()
+    {
+        return $this->hasMany('App\Models\User', 'id_user');
+    }
+
     public function clients()
     {
         return $this->hasMany('App\Models\Client', 'id_sales');

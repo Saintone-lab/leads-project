@@ -80,11 +80,11 @@
                                     name="category">
                                     <option disabled>----- Choose Category -----</option>
                                     <option value="Consumable Part"
-                                        {{ old('category', @$product->category) == 'Consumable Part' ? 'selected' : '' }}>
+                                        {{ @$product->category == 'Consumable Part' ? 'selected' : '' }}>
                                         Consumable Part
                                     </option>
                                     <option value="Non Consumable Part"
-                                        {{ old('category', @$product->category) == 'Non Consumable Part' ? 'selected' : '' }}>
+                                        {{ @$product->category == 'Non Consumable Part' ? 'selected' : '' }}>
                                         Non Consumable Part
                                     </option>
                                 </select>
@@ -97,10 +97,10 @@
                                     name="go">
                                     <option disabled>----- Choose G/O -----</option>
                                     <option value="Genuine"
-                                        {{ old('go', @$product->go) == 'Genuine' ? 'selected' : '' }}>
+                                        {{ @$product->go == 'Genuine' ? 'selected' : '' }}>
                                         Genuine
                                     </option>
-                                    <option value="OEM" {{ old('go', @$customers->go) == 'OEM' ? 'selected' : '' }}>
+                                    <option value="OEM" {{ @$product->go == 'OEM' ? 'selected' : '' }}>
                                         OEM
                                     </option>
                                 </select>

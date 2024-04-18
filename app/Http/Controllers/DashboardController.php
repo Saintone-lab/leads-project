@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Activities;
 use App\Models\Client;
+use App\Models\DetailProduct;
+use App\Models\Product;
 use App\Models\Quotation;
+use App\Models\SerialProduct;
 use App\Models\Target;
 use App\Models\User;
 use Carbon\Carbon;
@@ -19,8 +22,12 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $weekPerMonth = $this->getWeekperMonth();
+        $commodity = Product::count();
+        $dproduct = DetailProduct::count();
+        $sproduct = SerialProduct::count();
         // dd($weekPerMonth);
         $target = Target::where('id_sales', Auth::user()->id)->first();
+        // dd($target);
         $dailyCall = Activities::select('activities.*')
             ->join('client as c', 'activities.id_client', '=', 'c.id')
             ->join('users as u', 'c.id_sales', '=', 'u.id')
@@ -90,7 +97,7 @@ class DashboardController extends Controller
         $dataQuote = $this->getWeekDataQuote();
         $dataPO = $this->getWeekDataPO();
         // dd($dataPO);
-        return view("pages.sales.dashboard", compact('dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc'));
+        return view("pages.sales.dashboard", compact('dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'commodity', 'sproduct'));
     }
 
     public function overviewIndex()

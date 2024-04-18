@@ -14,6 +14,7 @@
                             <th>ID</th>
                             <th>Year</th>
                             <th>Semester</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                 </table>

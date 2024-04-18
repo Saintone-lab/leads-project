@@ -48,6 +48,30 @@ class TargetTableSeeder extends Seeder
                 'po' => '20',
                 'total' => '350000000',
             ],
+            [
+                'id_sales' => '13',
+                'dc' => '600',
+                'intro' => '40',
+                'quote' => '40',
+                'po' => '20',
+                'total' => '150000000',
+            ],
+            [
+                'id_sales' => '14',
+                'dc' => '600',
+                'intro' => '40',
+                'quote' => '40',
+                'po' => '20',
+                'total' => '150000000',
+            ],
+            [
+                'id_sales' => '16',
+                'dc' => '600',
+                'intro' => '40',
+                'quote' => '40',
+                'po' => '20',
+                'total' => '350000000',
+            ],
         ];
         Target::insert($target);
     }

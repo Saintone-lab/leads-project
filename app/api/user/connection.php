@@ -20,8 +20,7 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT p.*, p.id AS id_p, p.stock AS all_stock, CONCAT(p.commodity, ' || ', s.pn) AS product  FROM product p
-        LEFT JOIN serial_product s on p.id = s.id_product";
+        $query = "SELECT * FROM users";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

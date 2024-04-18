@@ -50,7 +50,7 @@
                                             }
                                         @endphp
                                         @if ($jumlahData > 4)
-                                            {{ round(($totalDCFullWeek / ($user->target->dc + $user->target->dc / 4)) * 100) }} %
+                                            {{ round(($totalDCFullWeek / ($user->target[0]->dc + $user->target[0]->dc / 4)) * 100) }} %
                                         @elseif($jumlahData == 4)
                                             {{ round(($totalDCFullWeek / $user->target[0]->dc) * 100) }} %
                                         @endif

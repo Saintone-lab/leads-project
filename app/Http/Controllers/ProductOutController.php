@@ -6,8 +6,10 @@ use App\Models\DetailProduct;
 use App\Models\DetailProductOut;
 use App\Models\Product;
 use App\Models\ProductOut;
+use App\Models\SerialProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProductOutController extends Controller
 {
@@ -28,7 +30,7 @@ class ProductOutController extends Controller
      */
     public function create()
     {
-        $product = Product::all();
+        $product = SerialProduct::all();
         return view('pages.warehouse.product-out.form', compact('product'));
     }
 
@@ -68,7 +70,7 @@ class ProductOutController extends Controller
         $productOutSave = $productOut->save();
         if ($productOutSave) {
             // Masukan Data Ke Tabel Detail Quotataion
-            foreach ($request->commodity as $item => $value) {
+            foreach ($request->equivalent as $item => $value) {
                 $dProductIn = new DetailProductOut;
                 $dProductIn->id_product_out = $productOut->id;
                 $dProductIn->id_detail_product = $request->replacement[$item];

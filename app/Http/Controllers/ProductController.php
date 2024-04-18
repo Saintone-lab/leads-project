@@ -6,6 +6,7 @@ use App\Models\DetailProduct;
 use App\Models\Product;
 use App\Models\SerialProduct;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -136,6 +137,7 @@ class ProductController extends Controller
         $product->dimension = $request->dimension;
         $product->description = $request->description;
         $product->category = $request->category;
+        $product->unit = $request->unit;
         $product->go = $request->go;
         $productSave = $product->save();
 

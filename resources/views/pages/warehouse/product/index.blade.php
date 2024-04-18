@@ -96,9 +96,10 @@
                             <th></th>
                             <th></th>
                             <th>ID</th>
-                            <th>Commodity</th>
+                            <th>Product</th>
                             <th>Desc</th>
                             <th>Dimension</th>
+                            <th>G/O</th>
                             <th>Stock</th>
                         </tr>
                     </thead>

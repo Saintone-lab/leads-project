@@ -46,22 +46,25 @@
                         <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
                             <div class="d-flex border rounded position-relative pe-0">
                                 <div class="row w-100 p-3">
-                                    <div class="col-md-3 col-12 mb-md-0 mb-3">
+                                    <div class="col-md-4 col-12 mb-md-0 mb-3">
                                         <label for="product" class="mb-2">Product</label>
                                         <div class="form-floating form-floating-outline mb-2">
-                                            <select id="commodity-dropdown"
-                                                class="select2 form-select invoice-item-commodity" data-allow-clear="true"
-                                                name="commodity[]" data-id="1">
-                                                <option> ---- Choose Commodity Here ---- </option>
+                                            <select id="equivalent-dropdown"
+                                                class="select2 form-select invoice-item-equivalent" data-allow-clear="true"
+                                                name="equivalent[]" data-id="1">
+                                                <option> ---- Choose Equivalent || Commodity Here ---- </option>
                                                 @foreach ($product as $products)
-                                                    <option value="{{ $products->id }}"> {{ $products->commodity }}
+                                                    <option value="{{ $products->id }}"
+                                                        data-commodity="{{ $products->id_product }}">
+                                                        {{ $products->fxp_parts }} - {{ $products->pn }} ||
+                                                        {{ $products->product->commodity }}
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            <label for="commodity-dropdown">Commodity</label>
+                                            <label for="equivalent-dropdown">Equivalent || Commodity</label>
                                         </div>
                                     </div>
-                                    <div class="col-md-4 col-12 mb-md-0 mb-3">
+                                    <div class="col-md-3 col-12 mb-md-0 mb-3">
                                         <label for="product" class="mb-2">Detail Product</label>
                                         <div class="form-floating form-floating-outline mb-2">
                                             <select id="replacement-dropdown-1"
@@ -70,14 +73,6 @@
                                                 <option> ---- Choose Replacement Here ---- </option>
                                             </select>
                                             <label for="replacement-dropdown">Replacement</label>
-                                        </div>
-                                        <div class="form-floating form-floating-outline mb-2">
-                                            <select id="equivalent-dropdown-1"
-                                                class="select2 form-select invoice-item-equivalent" data-id="1"
-                                                data-allow-clear="true" name="equivalent[]" disabled>
-                                                <option> ---- Choose Equivalent Here ---- </option>
-                                            </select>
-                                            <label for="equivalent-dropdown">Equivalent</label>
                                         </div>
                                     </div>
                                     <div class="col-md-1 col-12 mb-md-0 mb-3">
@@ -267,12 +262,13 @@
                 $(`#price-${id}`).val(nomorInt);
             });
 
-            $(`.invoice-item-commodity`).on('change', function(ev) {
+            $(`.invoice-item-equivalent`).on('change', function(ev) {
                 var productId = $(this).val();
                 var comId = $(this).data('id');
-                console.log(comId);
+                var commodity = $(this).find(':selected').data('commodity');
+                console.log(commodity);
                 $.ajax({
-                    url: '/product-in/replacement/' + productId,
+                    url: '/product-in/replacement/' + commodity,
                     type: 'GET',
                     success: function(response) {
                         // Mengosongkan dropdown detail produk
@@ -288,26 +284,6 @@
 
                         // Mengaktifkan dropdown detail produk
                         $(`#replacement-dropdown-${comId}`).prop('disabled', false);
-                    }
-                });
-                $.ajax({
-                    url: '/product-in/equivalent/' + productId,
-                    type: 'GET',
-                    success: function(response) {
-                        // Mengosongkan dropdown detail produk
-                        $(`#equivalent-dropdown-${comId}`).empty();
-                        // Mengisi dropdown detail produk dengan hasil yang diterima
-                        $.each(response, function(key, value) {
-                            // console.log(value);
-                            $(`#equivalent-dropdown-${comId}`).append(
-                                '<option value="' +
-                                value.id + '">' + value.fxp_parts + ' || ' + value
-                                .pn +
-                                '</option>');
-                        });
-
-                        // Mengaktifkan dropdown detail produk
-                        $(`#equivalent-dropdown-${comId}`).prop('disabled', false);
                     }
                 });
             });
@@ -389,12 +365,13 @@
                     $(`#price-${id}`).val(nomorInt);
                 });
 
-                $(`.invoice-item-commodity`).on('change', function(ev) {
+                $(`.invoice-item-equivalent`).on('change', function(ev) {
                     var productId = $(this).val();
                     var comId = $(this).data('id');
-                    console.log(comId);
+                    var commodity = $(this).find(':selected').data('commodity');
+                    console.log(commodity);
                     $.ajax({
-                        url: '/product-in/replacement/' + productId,
+                        url: '/product-in/replacement/' + commodity,
                         type: 'GET',
                         success: function(response) {
                             // Mengosongkan dropdown detail produk
@@ -412,26 +389,6 @@
                             $(`#replacement-dropdown-${comId}`).prop('disabled', false);
                         }
                     });
-                    $.ajax({
-                        url: '/product-in/equivalent/' + productId,
-                        type: 'GET',
-                        success: function(response) {
-                            // Mengosongkan dropdown detail produk
-                            $(`#equivalent-dropdown-${comId}`).empty();
-                            // Mengisi dropdown detail produk dengan hasil yang diterima
-                            $.each(response, function(key, value) {
-                                console.log(value);
-                                $(`#equivalent-dropdown-${comId}`).append(
-                                    '<option value="' +
-                                    value.id + '">' + value.fxp_parts +
-                                    ' || ' + value.pn +
-                                    '</option>');
-                            });
-
-                            // Mengaktifkan dropdown detail produk
-                            $(`#equivalent-dropdown-${comId}`).prop('disabled', false);
-                        }
-                    });
                 });
 
                 $(`.invoice-item-replacement`).on('change', function(ev) {
@@ -445,16 +402,16 @@
                         type: 'GET',
                         success: function(response) {
                             console.log(response);
-                        if (response.stock >= 1) {
-                            $(`#info-max-${comId}`).text('Max : ' + response.stock);
-                            $(`#qty-${comId}`).prop('disabled', false);
-                            $(`#qty-${comId}`).attr('max', response.stock);
-                        } else {
-                            $(`#info-max-${comId}`).text('Max : 0');
-                            $(`#qty-${comId}`).attr('max', 0);
-                            $(`#qty-${comId}`).prop('disabled', true);
-                            $(`#qty-${comId}`).attr('value', 0);
-                        }
+                            if (response.stock >= 1) {
+                                $(`#info-max-${comId}`).text('Max : ' + response.stock);
+                                $(`#qty-${comId}`).prop('disabled', false);
+                                $(`#qty-${comId}`).attr('max', response.stock);
+                            } else {
+                                $(`#info-max-${comId}`).text('Max : 0');
+                                $(`#qty-${comId}`).attr('max', 0);
+                                $(`#qty-${comId}`).prop('disabled', true);
+                                $(`#qty-${comId}`).attr('value', 0);
+                            }
                         }
                     });
                 });

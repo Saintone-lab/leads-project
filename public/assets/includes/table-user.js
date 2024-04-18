@@ -1,10 +1,10 @@
 $(function () {
-    var dt_table_product = $(".datatable-product");
-    var Url = "db/product";
+    var dt_table_user = $(".datatable-user");
+    var Url = "db/user";
 
-    if (dt_table_product.length) {
+    if (dt_table_user.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product.DataTable({
+        var dt_user = dt_table_user.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -26,11 +26,10 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "product" },
-                { data: "description" },
-                { data: "dimension" },
-                { data: "go" },
-                { data: "all_stock" },
+                { data: "nip" },
+                { data: "name" },
+                { data: "date_in" },
+                { data: "role" },
             ],
             columnDefs: [
                 {
@@ -72,8 +71,8 @@ $(function () {
                     targets: 3,
                     render: function (data, type, full, row) {
                         if (type === "display") {
-                            var $dataId = full["id_p"];
-                            var detailRoute = route("product.show", $dataId);
+                            var $dataId = full["id"];
+                            var detailRoute = route("employee.show", $dataId);
                             return (
                                 '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
                             );
@@ -82,10 +81,10 @@ $(function () {
                     },
                 },
             ],
-            order: [[2, "desc"]],
+            order: [[6, "asc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            displayLength: 15,
-            lengthMenu: [15, 25, 50, 75, 100],
+            displayLength: 7,
+            lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
                 {
                     extend: "collection",
@@ -299,10 +298,10 @@ $(function () {
                     ],
                 },
                 {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New User</span>',
                     className: "btn btn-primary",
                     attr: {
-                        "data-bs-target": "#createProduct",
+                        "data-bs-target": "#createUsers",
                         "data-bs-toggle": "modal",
                     },
                 },
@@ -346,10 +345,10 @@ $(function () {
             },
         });
         $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Product</h5>'
+            '<h5 class="card-title mb-0">Table User</h5>'
         );
     }
-    dt_table_product.on("draw", function () {
+    dt_table_user.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

@@ -100,7 +100,7 @@
                                 <p class="mb-0 fw-semibold" style="font-size: 12px">
                                     {{ $product->product }}
                                 </p>
-                                <pre class="mb-0" style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
+                                <pre class="mb-0" style="font-size: 10px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
                             </td>
                             <td class="align-top">RP {{ number_format($product->price, 0, '', '.') }}</td>
                             <td class="align-top">{{ $product->qty }} {{ $product->info_qty }}</td>
