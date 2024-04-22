@@ -27,7 +27,9 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "invoice" },
-                { data: "note" },
+                { data: "detail_client" },
+                { data: "product" },
+                { data: "qty" },
                 { data: "total" },
                 { data: "date" },
                 { data: "" },
@@ -69,22 +71,7 @@ $(function () {
                     targets: 3,
                 },
                 {
-                    targets : 3,
-                    render: function(data, type, full, meta){
-                        var $tip = full['tip'];
-                        var $invoice = full['invoice'];
-                        return (
-                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary"' +
-                            ' title=" ' +
-                            $tip +
-                            '">' +
-                            $invoice +
-                            "</span>"
-                        );
-                    },
-                },
-                {
-                    targets: 5,
+                    targets: 7,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp "),
                 },
                 {

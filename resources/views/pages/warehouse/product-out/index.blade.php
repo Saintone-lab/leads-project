@@ -13,7 +13,9 @@
                         <th></th>
                         <th>ID</th>
                         <th>Invoice</th>
-                        <th>Note</th>
+                        <th>Client</th>
+                        <th>Product</th>
+                        <th>Qty</th>
                         <th>Price</th>
                         <th>Date</th>
                         <th></th>

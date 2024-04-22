@@ -28,7 +28,8 @@ $(function () {
                 { data: "id" },
                 { data: "invoice" },
                 { data: "supplier" },
-                { data: "note" },
+                { data: "product" },
+                { data: "qty" },
                 { data: "total" },
                 { data: "date" },
                 { data: "" },
@@ -85,7 +86,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 6,
+                    targets: 7,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp "),
                 },
                 {

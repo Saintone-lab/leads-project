@@ -1,6 +1,6 @@
 $(function () {
     var dt_table_product = $(".datatable-stock");
-    var Url = "db/product";
+    var Url = "db/product/stock";
 
     if (dt_table_product.length) {
         $('[data-toggle="tooltip"]').tooltip();

@@ -29,7 +29,7 @@ class ProductInController extends Controller
      */
     public function create()
     {
-        $product = Product::all();
+        $product = DetailProduct::all();
         return view('pages.warehouse.product-in.form', compact('product'));
     }
 
@@ -67,7 +67,7 @@ class ProductInController extends Controller
         $productInSave = $productIn->save();
         if ($productInSave) {
             // Masukan Data Ke Tabel Detail Quotataion
-            foreach ($request->commodity as $item => $value) {
+            foreach ($request->replacement as $item => $value) {
                 $dProductIn = new DetailProductIn;
                 $dProductIn->id_product_in = $productIn->id;
                 $dProductIn->id_detail_product = $request->replacement[$item];

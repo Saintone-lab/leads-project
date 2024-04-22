@@ -19,7 +19,7 @@
                                 class="mdi mdi-account-multiple-outline me-1 mdi-20px"></i>Create Account</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('audit-tools.index')}}"><i
+                        <a class="nav-link" href="{{ route('audit-tools.index') }}"><i
                                 class="mdi mdi-tools me-1 mdi-20px"></i>Tools</a>
                     </li>
                 @endif
@@ -56,13 +56,6 @@
                         <div class="row mt-2 gy-4">
                             <div class="col-md-6">
                                 <div class="form-floating form-floating-outline">
-                                    <input class="form-control" type="text" id="name" name="name"
-                                        value="{{ old('name', Auth::user()->name) }}" autofocus />
-                                    <label for="name">Name</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-floating form-floating-outline">
                                     <input class="form-control" type="text" id="email" name="email"
                                         value="{{ old('email', Auth::user()->email) }}"
                                         placeholder="john.doe@example.com" />
@@ -71,19 +64,36 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating form-floating-outline">
-                                    <input type="text" class="form-control" id="area" name="area"
-                                        placeholder="Put Area here..." value="{{ old('area', Auth::user()->area) }}" />
-                                    <label for="area">Area</label>
+                                    <input class="form-control" type="text" id="name" name="name"
+                                        value="{{ old('name', Auth::user()->name ?? '') }}" placeholder="john doe" />
+                                    <label for="name">Name</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="input-group input-group-merge">
-                                    <span class="input-group-text">+62</span>
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="text" class="form-control" placeholder="8123094857" id="phone"
-                                            name="phone" value="{{ old('phone', Auth::user()->phone) }}">
-                                        <label for="phone">Phone Number</label>
+                                <div class="form-floating form-floating-outline">
+                                    <input class="form-control" type="date" id="Date" name="birthday"
+                                        value="{{ old('birthday', Auth::user()->birthday ?? now()->format('Y-m-d')) }}">
+                                    <label for="Date">Birthday Date</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating form-floating-outline fv-plugins-icon-container">
+                                    <div class="input-group input-group-merge">
+                                        <span class="input-group-text">+62</span>
+                                        <div class="form-floating form-floating-outline">
+                                            <input type="text" class="form-control" pattern="[0-9]*"
+                                                placeholder="8123094857" id="phone" name="phone"
+                                                value="{{ old('phone', Auth::user()->phone ? substr(Auth::user()->phone, 3) : '') }}">
+                                            <label for="phone">Phone</label>
+                                        </div>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating form-floating-outline">
+                                    <textarea class="form-control h-px-100" rows="2" placeholder="Write your note here...." name="address"
+                                        id="address">{{ Auth::user()->address }}</textarea>
+                                    <label for="address">Address</label>
                                 </div>
                             </div>
                         </div>

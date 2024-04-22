@@ -848,38 +848,20 @@
         </div>
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
-                @if (Auth::user()->role == 'Sales')
-                    <table class="datatable-product-sales table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Fxp Parts</th>
-                                <th>Brand</th>
-                                <th>PN</th>
-                                <th>Desc</th>
-                                <th>G/O</th>
-                                <th>Stock</th>
-                                <th>Price</th>
-                            </tr>
-                        </thead>
-                    </table>
-                @else
-                    <table class="datatable-product table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Commodity</th>
-                                <th>Desc</th>
-                                <th>Dimension</th>
-                                <th>Stock</th>
-                            </tr>
-                        </thead>
-                    </table>
-                @endif
+                <table class="datatable-product table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Commodity</th>
+                            <th>Desc</th>
+                            <th>Dimension</th>
+                            <th>go</th>
+                            <th>Stock</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
         @include('components.modal.warehouse.product.form')

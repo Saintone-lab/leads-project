@@ -56,7 +56,7 @@
                                                 @foreach ($product as $products)
                                                     <option value="{{ $products->id }}"
                                                         data-commodity="{{ $products->id_product }}">
-                                                        {{ $products->fxp_parts }} - {{ $products->pn }} ||
+                                                        {{ $products->pn }} ||
                                                         {{ $products->product->commodity }}
                                                     </option>
                                                 @endforeach
@@ -129,8 +129,8 @@
                             <div class="input-group" data-shipping="1">
                                 <span class="input-group-text">Rp. </span>
                                 <input type="text" class="form-control invoice-item-shipping-label"
-                                    id="shipping-label" data-id="1" min="12" placeholder="Put shipping Here"
-                                    data-type="currency" pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                    id="shipping-label" data-id="1" min="0" placeholder="Put shipping Here"
+                                    data-type="currency" pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
                                     @blur="focused = false" value="{{ old('shipping') }}">
                                 <input class="form-control invoice-item-shipping" type="number" name="shipping"
                                     id="shipping" value="{{ old('shipping') }}" hidden>

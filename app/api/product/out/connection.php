@@ -20,14 +20,11 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT p.*, CONCAT(
-            GROUP_CONCAT(CONCAT(pr.commodity, ' - ', s.pn) SEPARATOR ' || ')
-        ) AS tip  FROM product_out p 
+        $query = "SELECT p.*, CONCAT(pr.commodity, ' - ', dp.replacement, ' - ', s.pn) AS product, CONCAT(d.qty, ' ', pr.unit) as qty  FROM product_out p 
         LEFT JOIN detail_product_out AS d ON d.id_product_out = p.id 
         LEFT JOIN serial_product AS s ON d.id_serial_product = s.id 
         LEFT JOIN product AS pr ON s.id_product = pr.id 
-        LEFT JOIN detail_product AS dp ON d.id_detail_product = dp.id 
-        GROUP BY p.id;";
+        LEFT JOIN detail_product AS dp ON d.id_detail_product = dp.id";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

@@ -69,6 +69,19 @@ $(function () {
                     responsivePriority: 1,
                     targets: 3,
                 },
+                {
+                    targets: 3,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $dataId = full["id"];
+                            var detailRoute = route("product-out.show", $dataId);
+                            return (
+                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                            );
+                        }
+                        return data;
+                    },
+                },
             ],
             order: [[2, "desc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label-out text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',

@@ -18,7 +18,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div>
+                        <div class="text-end">
                             <h3 class="fw-bold">Barang Masuk</h3>
                             <div>
                                 <span class="fw-bolder">#{{ $product->invoice }}</span>

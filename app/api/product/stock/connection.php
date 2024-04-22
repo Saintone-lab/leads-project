@@ -7,7 +7,7 @@ $users = "root";
 $pass = "";
 
 $databaseName = "db_leads_v1";
-$tableName = "product_in";
+$tableName = "product";
 
 // Periksa apakah pengguna terotentikasi
 if (Auth::check()) {
@@ -20,10 +20,8 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT p.*, CONCAT(pr.commodity, ' - ', dp.replacement) AS product, CONCAT(d.qty, ' ', pr.unit) as qty  FROM product_in p 
-        LEFT JOIN detail_product_in AS d ON d.id_product_in = p.id 
-        LEFT JOIN detail_product AS dp ON d.id_detail_product = dp.id 
-        LEFT JOIN product AS pr ON dp.id_product = pr.id";
+        $query = "SELECT p.*, p.id AS id_p, p.stock AS all_stock, CONCAT(p.commodity, ' || ', s.pn) AS product  FROM product p
+        LEFT JOIN serial_product s on p.id = s.id_product group by p.id";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

@@ -140,7 +140,8 @@ class UserController extends Controller
         $users = User::find($id);
         $users->name = $request->name;
         $users->email = $request->email;
-        $users->area = $request->area;
+        $users->birthday = $request->birthday;
+        $users->address = $request->address;
         $users->phone = '+62' . $request->phone;
         if ($request->hasFile('image')) {
             if ($users->image != 'asset/profile/profile.jpg') {

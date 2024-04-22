@@ -80,7 +80,6 @@ class ProductOutController extends Controller
                 $dProductIn->amount = $request->amount[$item];
                 $productD = DetailProduct::where('id', $request->replacement[$item])->first();
                 $productD->stock = $productD->stock - $request->qty[$item];
-                $productD->modal = $request->price[$item];
                 $productD->save();
                 $product = Product::where('id', $productD->id_product)->first();
                 $product->stock = $product->stock - $request->qty[$item];

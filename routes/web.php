@@ -181,6 +181,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/product', function () {
         require_once base_path('app/api/product/connection.php');
     });
+    Route::get('/db/product/stock', function () {
+        require_once base_path('app/api/product/stock/connection.php');
+    });
     Route::get('/db/product/serial/{id}', function ($id) {
         // Menggunakan Eloquent untuk mengambil data serial_product berdasarkan id
         $serialProduct = SerialProduct::where('id_product', $id)->get();
@@ -194,7 +197,6 @@ Route::group(["middleware" => "auth"], function () {
         ->leftJoin('detail_product as dp', 'd.id_detail_product', '=', 'dp.id')
         ->leftJoin('product as pr', 'dp.id_product', '=', 'pr.id')
         ->where('pr.id', $id)
-        ->groupBy('p.id')
         ->get();
         return response()->json(['data' => $products]);
     });
@@ -205,7 +207,6 @@ Route::group(["middleware" => "auth"], function () {
         ->leftJoin('detail_product as dp', 'd.id_detail_product', '=', 'dp.id')
         ->leftJoin('product as pr', 'dp.id_product', '=', 'pr.id')
         ->where('pr.id', $id)
-        ->groupBy('p.id')
         ->get();
         return response()->json(['data' => $products]);
     });

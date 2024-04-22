@@ -53,24 +53,16 @@
                                     <div class="col-md-6 col-12 mb-md-0 mb-3">
                                         <label for="product" class="mb-2">Product</label>
                                         <div class="form-floating form-floating-outline mb-2">
-                                            <select id="commodity-dropdown"
-                                                class="select2 form-select invoice-item-commodity" data-allow-clear="true"
-                                                name="commodity[]" data-id="1">
-                                                <option> ---- Choose Commodity Here ---- </option>
+                                            <select id="replacement-dropdown-1"
+                                                class="select2 form-select invoice-item-replacement" data-allow-clear="true"
+                                                name="replacement[]" data-id="1">
+                                                <option> ---- Choose Commodity || Replacement Here ---- </option>
                                                 @foreach ($product as $products)
-                                                    <option value="{{ $products->id }}"> {{ $products->commodity }}
+                                                    <option value="{{ $products->id }}"> {{ $products->product->commodity }} || {{ $products->replacement }} 
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            <label for="commodity-dropdown">Commodity</label>
-                                        </div>
-                                        <div class="form-floating form-floating-outline mb-2">
-                                            <select id="replacement-dropdown-1"
-                                                class="select2 form-select invoice-item-replacement" data-id="1"
-                                                data-allow-clear="true" name="replacement[]" disabled>
-                                                <option> ---- Choose Replacement Here ---- </option>
-                                            </select>
-                                            <label for="replacement-dropdown">Replacement</label>
+                                            <label for="replacement-dropdown">Commodity || Replacement</label>
                                         </div>
                                     </div>
                                     <div class="col-md-1 col-12 mb-md-0 mb-3">
@@ -126,8 +118,8 @@
                             <div class="input-group" data-shipping="1">
                                 <span class="input-group-text">Rp. </span>
                                 <input type="text" class="form-control invoice-item-shipping-label"
-                                    id="shipping-label" data-id="1" min="12" placeholder="Put shipping Here"
-                                    data-type="currency" pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                    id="shipping-label" data-id="1" min="0" placeholder="Put shipping Here"
+                                    data-type="currency" pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
                                     @blur="focused = false" value="{{ old('shipping') }}">
                                 <input class="form-control invoice-item-shipping" type="number" name="shipping"
                                     id="shipping" value="{{ old('shipping') }}" hidden>
@@ -155,7 +147,7 @@
                             <h5 class="my-2">
                                 Note
                             </h5>
-                            <textarea class="form-control h-px-100" rows="2" placeholder="Write your note here...." name="note"></textarea>
+                            <textarea class="form-control h-px-100" rows="2" placeholder="Write your note here...." name="note">-</textarea>
                         </div>
                     </div>
                     <div class="float-end">
@@ -187,26 +179,18 @@
 @push('script')
     <script>
         $(() => {
+            var rep = 1;
             let formatter = new Intl.NumberFormat('id-ID', {
                 style: 'currency',
                 currency: 'IDR'
             });
-
             function formatNumber(n) {
                 return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
             }
 
-            function initializeSelect2Commodity() {
-                $('.invoice-item-commodity').select2({
-                    placeholder: ' ---- Choose Commodity Here ---- ',
-                    allowClear: true,
-                    width: '100%',
-                });
-            }
-
             function initializeSelect2Replacement() {
-                $('.invoice-item-replacement').select2({
-                    placeholder: ' ---- Choose Replacement Here ---- ',
+                $(`#replacement-dropdown-${rep}`).select2({
+                    placeholder: ' ---- Choose Commodity || Replacement Here ---- ',
                     allowClear: true,
                     width: '100%',
                 });
@@ -249,32 +233,7 @@
                 var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
                 // console.log(id);
                 $(`#price-${id}`).val(nomorInt);
-            });
-
-            $(`.invoice-item-commodity`).on('change', function(ev) {
-                var productId = $(this).val();
-                var comId = $(this).data('id');
-                console.log(comId);
-                $.ajax({
-                    url: '/product-in/replacement/' + productId,
-                    type: 'GET',
-                    success: function(response) {
-                        // Mengosongkan dropdown detail produk
-                        $(`#replacement-dropdown-${comId}`).empty();
-                        // Mengisi dropdown detail produk dengan hasil yang diterima
-                        $.each(response, function(key, value) {
-                            console.log(value);
-                            $(`#replacement-dropdown-${comId}`).append(
-                                '<option value="' +
-                                value.id + '">' + value.replacement +
-                                '</option>');
-                        });
-
-                        // Mengaktifkan dropdown detail produk
-                        $(`#replacement-dropdown-${comId}`).prop('disabled', false);
-                    }
-                });
-            });
+            })
 
             $('.invoice-item-price-label, .invoice-item-qty').on('keyup change click', function(
                 ev) {
@@ -328,31 +287,6 @@
                     $(`#price-${id}`).val(nomorInt);
                 });
 
-                $(`.invoice-item-commodity`).on('change', function(ev) {
-                    var productId = $(this).val();
-                    var comId = $(this).data('id');
-                    console.log(comId);
-                    $.ajax({
-                        url: '/product-in/replacement/' + productId,
-                        type: 'GET',
-                        success: function(response) {
-                            // Mengosongkan dropdown detail produk
-                            $(`#replacement-dropdown-${comId}`).empty();
-                            // Mengisi dropdown detail produk dengan hasil yang diterima
-                            $.each(response, function(key, value) {
-                                console.log(value);
-                                $(`#replacement-dropdown-${comId}`).append(
-                                    '<option value="' +
-                                    value.id + '">' + value.replacement +
-                                    '</option>');
-                            });
-
-                            // Mengaktifkan dropdown detail produk
-                            $(`#replacement-dropdown-${comId}`).prop('disabled', false);
-                        }
-                    });
-                });
-
                 $('.invoice-item-price-label, .invoice-item-qty').on('keyup change click', function(
                     ev) {
                     var id = $(this).data('id');
@@ -385,7 +319,7 @@
                             $('#total').val(hTotal);
                             console.log('Harga total: ' + hTotal);
                         });
-                initializeSelect2Commodity();
+                        rep ++;
                 initializeSelect2Replacement();
             })
         });
