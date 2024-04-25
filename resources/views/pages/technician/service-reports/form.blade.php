@@ -1,9 +1,12 @@
 @extends('layouts.sales.app')
 @section('title', 'Create Quotation')
 @section('content')
-    <form action="{{ route('service-reports.store') }}" method="post" enctype="multipart/form-data" id="serviceReports"
-        name="service-reports">
+    <form action="{{ @$report ? route('service-reports.update', @$report->id) : route('service-reports.store') }}"
+        method="post" enctype="multipart/form-data" id="serviceReports" name="service-reports">
         @csrf
+        @if (@$report)
+            @method('PATCH')
+        @endif
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -35,7 +38,7 @@
                                 <option selected>----- Select Company | Pic || Sales -----</option>
                                 @foreach ($pic as $charge)
                                     <option value="{{ $charge->id }}"
-                                        {{ @$quotation->id_pic == $charge->id ? 'selected' : '' }}>
+                                        {{ @$report->id_pic == $charge->id ? 'selected' : '' }}>
                                         {{ $charge->client->company }} | {{ $charge->name_pic }} ||
                                         {{ $charge->client->sales->name }}</option>
                                 @endforeach
@@ -57,49 +60,51 @@
                     <div class="col-md-6 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control" id="unit" name="unit"
-                                placeholder="Type Unit Type Here ...." value="{{ old('unit') }}">
+                                placeholder="Type Unit Type Here ...." value="{{ old('unit', @$report->unit ?? '') }}">
                             <label for="basic-default-fullname">Unit Type</label>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control" id="serial_number" name="serial_number"
-                                placeholder="Type Serial Number Here ...." value="{{ old('serial_number') }}">
+                                placeholder="Type Serial Number Here ...."
+                                value="{{ old('serial_number', @$report->serial_number ?? '') }}">
                             <label for="basic-default-fullname">Serial Number</label>
                         </div>
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control input-numeric" id="running" name="running"
-                                placeholder="Type Running Here..." value="{{ old('running') }}">
+                                placeholder="Type Running Here..." value="{{ old('running', @$report->running ?? '') }}">
                             <label for="basic-default-fullname">Running</label>
                         </div>
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control input-numeric" id="load" name="load"
-                                placeholder="Type Load Here..." value="{{ old('load') }}">
+                                placeholder="Type Load Here..." value="{{ old('load', @$report->load ?? '') }}">
                             <label for="basic-default-fullname">Load</label>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control" id="jobdesc" name="jobdesc"
-                                placeholder="Type Job Description Type Here ...." value="{{ old('jobdesc') }}">
+                                placeholder="Type Job Description Type Here ...."
+                                value="{{ old('jobdesc', @$report->jobdesc ?? '') }}">
                             <label for="basic-default-fullname">Job Description</label>
                         </div>
                     </div>
                     <div class="col-12 mb-3">
                         <div class="form-floating form-floating-outline">
                             <textarea class="form-control" id="description" name="desc" placeholder="Description here..."
-                                style="min-height: 100px;" value="{{ old('desc') }}"></textarea>
+                                style="min-height: 100px;" value="{{ old('desc') }}">{{ @$report->desc ?? '' }}</textarea>
                             <label for="description">Description</label>
                         </div>
                     </div>
                     <div class="col-12 mb-3">
                         <div class="form-floating form-floating-outline">
                             <textarea class="form-control" id="recomendation" name="recomendation" placeholder="Recomendation here..."
-                                style="min-height: 100px;" value="{{ old('recomendation') }}"></textarea>
+                                style="min-height: 100px;" value="{{ old('recomendation') }}">{{ @$report->recomendation ?? '' }}</textarea>
                             <label for="recomendation">Recomendation</label>
                         </div>
                     </div>
@@ -108,11 +113,40 @@
                             <label for="formFileMultiple" class="form-label">Picture</label>
                             <input class="form-control" type="file" id="formFileMultiple" name="image[]"
                                 multiple="" accept="image/*">
-                            <div class="d-flex justify-content-between" id="image-preview"></div>
+                            <div class="d-flex justify-content-between" id="image-preview">
+                                @php
+                                    $i = 1;
+                                @endphp
+                                @if (@$image)
+                                    @foreach ($image as $item)
+                                        <div class="image-container">
+                                            <img src="{{ url('') . '/' . $item->picture }}" alt=""
+                                                srcset="">
+                                            <p>Photo {{ $i }} - {{ $item->keterangan }}</p>
+                                        </div>
+                                        @php
+                                            $i++;
+                                        @endphp
+                                    @endforeach
+                                @endif
+                            </div>
                         </div>
                     </div>
                     <div class="col-12 mb-3">
                         <div id="dynamicInputsContainer">
+                            @php
+                                $i = 1;
+                            @endphp
+                            @if (@$image)
+                                @foreach ($image as $item)
+                                    <input class="form-control mb-2" type="text" name="description[]"
+                                        placeholder="Deskripsi untuk File {{ $i }}"
+                                        value="{{ @$item->keterangan }}">
+                                    @php
+                                        $i++;
+                                    @endphp
+                                @endforeach
+                            @endif
                             <!-- Elemen input dinamis akan ditambahkan di sini -->
                         </div>
                     </div>
@@ -188,7 +222,7 @@
                         const description = document.createElement('p');
 
                         imageContainer.className =
-                        'image-container'; // Tambahkan kelas sesuai kebutuhan
+                            'image-container'; // Tambahkan kelas sesuai kebutuhan
                         imageElement.src = e.target.result;
                         description.textContent = 'Photo ' + (i + 1);
 

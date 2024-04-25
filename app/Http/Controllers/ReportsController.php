@@ -20,7 +20,7 @@ class ReportsController extends Controller
         $target = Target::where('id_sales', Auth::user()->id)->first();
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        dd($dataDc);
+        // dd($dataDc);
         $quotation = Quotation::where('status', '100')->whereMonth('po_date', $monthNow)->where('id_sales', Auth::user()->id)->get();
         return view("pages.sales.report.index", compact("quotation", "dataDc", "dataQuote", "dataPo", "target"));
     }

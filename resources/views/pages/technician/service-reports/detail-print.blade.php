@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div>
-                <h3 class="fw-bold">SERVICE REPORTS</h3>
+                <h3 class="fw-bold">SERVICE REPORT</h3>
                 <div>
                     <span class="fw-bolder">#{{ $service->no_service }}</span>
                 </div>

@@ -159,13 +159,14 @@
                     <div data-i18n="Stock">Stock</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('sale-report') || request()->is('sale-report/*') ? 'active' : '' }}">
+            <li
+                class="menu-item {{ request()->is('sale-report') || request()->is('sale-report/*') ? 'active' : '' }}">
                 <a href="{{ route('sale-report.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-chart-box-outline"></i>
                     <div data-i18n="Reports">Reports</div>
                 </a>
             </li>
-            
+
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Employee</span>
             </li>
@@ -201,7 +202,14 @@
                     <i class="menu-icon tf-icons mdi mdi-finance"></i>
                     <div data-i18n="Reports">Reports</div>
                 </a>
-            </li><!-- Layouts -->
+            </li>
+            <li class="menu-item {{ request()->is('overview') ||  request()->is('overview/*') ? 'active' : '' }}">
+                <a href="{{ url('/overview') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-account-eye-outline"></i>
+                    <div data-i18n="Overview">Overview</div>
+                </a>
+            </li>
+            <!-- Layouts -->
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Client</span>
             </li>
@@ -282,7 +290,7 @@
                     <div data-i18n="Service Report">Service Report</div>
                 </a>
             </li>
-            
+
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">E-Stock</span>
             </li>
@@ -293,12 +301,6 @@
                     <div data-i18n="Product">Product</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('product-in') || request()->is('product-in/*') ? 'active' : '' }}">
-                <a href="{{ route('product-in.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-package-variant-plus"></i>
-                    <div data-i18n="Product-In">Product-In</div>
-                </a>
-            </li>
 
             <li class="menu-item">
                 <a href="{{ url('pending-po') }}" class="menu-link">
@@ -307,32 +309,32 @@
                 </a>
             </li>
         @elseif(auth::user()->role == 'Logistic')
-        <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
-            <a href="{{ url('/') }}" class="menu-link">
-                <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
-                <div data-i18n="Product">Product</div>
-            </a>
-        </li>
-        <li class="menu-item {{ request()->is('product-in') || request()->is('product-in/*') ? 'active' : '' }}">
-            <a href="{{ route('product-in.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons mdi mdi-package-variant-plus"></i>
-                <div data-i18n="Product-In">Product-In</div>
-            </a>
-        </li>
-        <li
-            class="menu-item {{ request()->is('product-out') || request()->is('product-out/*') ? 'active' : '' }}">
-            <a href="{{ route('product-out.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons mdi mdi-package-variant-minus"></i>
-                <div data-i18n="Product-Out">Product-Out</div>
-            </a>
-        </li>
-        <li class="menu-item {{ request()->is('stock') || request()->is('stock/*') ? 'active' : '' }}">
-            <a href="{{ route('stock.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons mdi mdi-package-variant-closed-check"></i>
-                <div data-i18n="Stock">Stock</div>
-            </a>
-        </li>
-        @else 
+            <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
+                <a href="{{ url('/') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
+                    <div data-i18n="Product">Product</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('product-in') || request()->is('product-in/*') ? 'active' : '' }}">
+                <a href="{{ route('product-in.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-package-variant-plus"></i>
+                    <div data-i18n="Product-In">Product-In</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('product-out') || request()->is('product-out/*') ? 'active' : '' }}">
+                <a href="{{ route('product-out.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-package-variant-minus"></i>
+                    <div data-i18n="Product-Out">Product-Out</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('stock') || request()->is('stock/*') ? 'active' : '' }}">
+                <a href="{{ route('stock.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-package-variant-closed-check"></i>
+                    <div data-i18n="Stock">Stock</div>
+                </a>
+            </li>
+        @else
             <!-- Dashboards -->
             <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
                 <a href="{{ url('/') }}" class="menu-link">

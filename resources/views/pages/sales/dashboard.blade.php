@@ -146,21 +146,10 @@
                     <div class="card-header">
                         <div class="d-flex justify-content-between">
                             <h5 class="mb-1">Monthly Sales</h5>
-                            <div class="dropdown">
-                                <button class="btn p-0" type="button" id="weeklyOverviewDropdown" data-bs-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false">
-                                    <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="weeklyOverviewDropdown">
-                                    <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <div class="card-body">
-                        <div id="weeklyOverviewChart"></div>
+                        <div id="monthlyOverviewChartRegita"></div>
                         <div class="mt-1">
                             <div class="d-flex align-items-center gap-3">
                                 <h3 class="mb-0">62%</h3>

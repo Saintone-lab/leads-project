@@ -57,7 +57,8 @@
                                                     <option value="{{ $products->id }}"
                                                         data-commodity="{{ $products->id_product }}">
                                                         {{ $products->pn }} ||
-                                                        {{ $products->product->commodity }}
+                                                        {{ $products->product->commodity }} -
+                                                        {{ $products->product->go == 'Genuine' ? 'G' : 'R' }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -263,10 +264,10 @@
             });
 
             $(`.invoice-item-equivalent`).on('change', function(ev) {
+                var replacementId = $('invoice-item-replacement').val();
                 var productId = $(this).val();
                 var comId = $(this).data('id');
                 var commodity = $(this).find(':selected').data('commodity');
-                console.log(commodity);
                 $.ajax({
                     url: '/product-in/replacement/' + commodity,
                     type: 'GET',
@@ -275,13 +276,22 @@
                         $(`#replacement-dropdown-${comId}`).empty();
                         // Mengisi dropdown detail produk dengan hasil yang diterima
                         $.each(response, function(key, value) {
-                            console.log(value);
                             $(`#replacement-dropdown-${comId}`).append(
                                 '<option value="' +
                                 value.id + '">' + value.replacement +
                                 '</option>');
                         });
 
+                        if (response[0].stock >= 1) {
+                            $(`#info-max-${comId}`).text('Max : ' + response[0].stock);
+                            $(`#qty-${comId}`).prop('disabled', false);
+                            $(`#qty-${comId}`).attr('max', response[0].stock);
+                        } else {
+                            $(`#info-max-${comId}`).text('Max : 0');
+                            $(`#qty-${comId}`).attr('max', 0);
+                            $(`#qty-${comId}`).prop('disabled', true);
+                            $(`#qty-${comId}`).attr('value', 0);
+                        }
                         // Mengaktifkan dropdown detail produk
                         $(`#replacement-dropdown-${comId}`).prop('disabled', false);
                     }
@@ -366,10 +376,10 @@
                 });
 
                 $(`.invoice-item-equivalent`).on('change', function(ev) {
+                    var replacementId = $('invoice-item-replacement').val();
                     var productId = $(this).val();
                     var comId = $(this).data('id');
                     var commodity = $(this).find(':selected').data('commodity');
-                    console.log(commodity);
                     $.ajax({
                         url: '/product-in/replacement/' + commodity,
                         type: 'GET',
@@ -378,13 +388,23 @@
                             $(`#replacement-dropdown-${comId}`).empty();
                             // Mengisi dropdown detail produk dengan hasil yang diterima
                             $.each(response, function(key, value) {
-                                console.log(value);
                                 $(`#replacement-dropdown-${comId}`).append(
                                     '<option value="' +
                                     value.id + '">' + value.replacement +
                                     '</option>');
                             });
 
+                            if (response[0].stock >= 1) {
+                                $(`#info-max-${comId}`).text('Max : ' + response[0]
+                                    .stock);
+                                $(`#qty-${comId}`).prop('disabled', false);
+                                $(`#qty-${comId}`).attr('max', response[0].stock);
+                            } else {
+                                $(`#info-max-${comId}`).text('Max : 0');
+                                $(`#qty-${comId}`).attr('max', 0);
+                                $(`#qty-${comId}`).prop('disabled', true);
+                                $(`#qty-${comId}`).attr('value', 0);
+                            }
                             // Mengaktifkan dropdown detail produk
                             $(`#replacement-dropdown-${comId}`).prop('disabled', false);
                         }

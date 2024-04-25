@@ -7,6 +7,7 @@ use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExistingController;
+use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\PicController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductInController;
@@ -49,7 +50,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/reports', [ReportsController::class, 'index']);
 
     // Route Overview
-    Route::get('/overview', [DashboardController::class, 'overviewIndex']);
+    // Route::get('/overview', [DashboardController::class, 'overviewIndex']);
 
     // Route For Customers
     Route::resource('/customers', CustomersController::class);
@@ -89,6 +90,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/audit-tools', AuditController::class);
     Route::get('/audit-tools/print/{id}', [AuditController::class, 'print_audit'])->name('audit-tools.print');
 
+    // Route untuk Overview
+    Route::resource('/overview', OverviewController::class);
     // Route untuk PO
     Route::get('/pending-po', function () {
         return view('pages.sales.po.pending.index');
@@ -192,22 +195,22 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/product/in/detail/{id}', function ($id) {
         $products = DB::table('product_in as p')
-        ->select('p.*','dp.replacement', 'd.qty')
-        ->leftJoin('detail_product_in as d', 'd.id_product_in', '=', 'p.id')
-        ->leftJoin('detail_product as dp', 'd.id_detail_product', '=', 'dp.id')
-        ->leftJoin('product as pr', 'dp.id_product', '=', 'pr.id')
-        ->where('pr.id', $id)
-        ->get();
+            ->select('p.*', 'dp.replacement', 'd.qty')
+            ->leftJoin('detail_product_in as d', 'd.id_product_in', '=', 'p.id')
+            ->leftJoin('detail_product as dp', 'd.id_detail_product', '=', 'dp.id')
+            ->leftJoin('product as pr', 'dp.id_product', '=', 'pr.id')
+            ->where('pr.id', $id)
+            ->get();
         return response()->json(['data' => $products]);
     });
     Route::get('/db/product/out/detail/{id}', function ($id) {
         $products = DB::table('product_out as p')
-        ->select('p.*','dp.replacement', 'd.qty')
-        ->leftJoin('detail_product_out as d', 'd.id_product_out', '=', 'p.id')
-        ->leftJoin('detail_product as dp', 'd.id_detail_product', '=', 'dp.id')
-        ->leftJoin('product as pr', 'dp.id_product', '=', 'pr.id')
-        ->where('pr.id', $id)
-        ->get();
+            ->select('p.*', 'dp.replacement', 'd.qty')
+            ->leftJoin('detail_product_out as d', 'd.id_product_out', '=', 'p.id')
+            ->leftJoin('detail_product as dp', 'd.id_detail_product', '=', 'dp.id')
+            ->leftJoin('product as pr', 'dp.id_product', '=', 'pr.id')
+            ->where('pr.id', $id)
+            ->get();
         return response()->json(['data' => $products]);
     });
     Route::get('/db/productIn', function () {
@@ -221,6 +224,38 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/user', function () {
         require_once base_path('app/api/user/connection.php');
+    });
+    Route::get('/db/sales/overview', function () {
+        $sales = DB::table('sales_reports AS s')
+            ->select('s.*', DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
+        JOIN users AS u ON q.id_sales = u.id
+        WHERE MONTH(q.po_date) BETWEEN 
+            CASE 
+                WHEN s.semester = "1" THEN 1 
+                WHEN s.semester = "2" THEN 7 
+            END 
+        AND 
+            CASE 
+                WHEN s.semester = "1" THEN 6 
+                WHEN s.semester = "2" THEN 12 
+            END
+        AND YEAR(q.po_date) = s.year
+        AND u.id = ' . Auth::user()->id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(q.total_no_tax), 0) FROM quotation AS q 
+        JOIN users AS u ON q.id_sales = u.id
+        WHERE MONTH(q.po_date) BETWEEN 
+            CASE 
+                WHEN s.semester = "1" THEN 1 
+                WHEN s.semester = "2" THEN 7 
+            END 
+        AND 
+            CASE 
+                WHEN s.semester = "1" THEN 6 
+                WHEN s.semester = "2" THEN 12 
+            END
+        AND YEAR(q.po_date) = s.year
+        AND u.id = ' . Auth::user()->id . ') AS price'))
+            ->get();
+        return response()->json(['data' => $sales]);
     });
     Route::get('/db/sales/reports', function () {
         $reports = SalesReports::orderBy('id', 'ASC')->get();
@@ -243,15 +278,15 @@ Route::group(["middleware" => "auth"], function () {
             // ->groupBy('s.id', 'r.commodity', 's.pn')
             // ->get();
             $product = DB::table('detail_product_out AS d')
-            ->select('d.id', 'r.commodity', 's.fxp_parts', 'd.price', 's.pn', DB::raw('SUM(d.qty) AS total'))
-            ->leftJoin('product_out AS p', 'd.id_product_out', '=', 'p.id')
-            ->leftJoin('serial_product AS s', 'd.id_serial_product', '=', 's.id')
-            ->leftJoin('product AS r', 's.id_product', '=', 'r.id')
-            ->whereYear('p.date', $report->year)
-            ->whereMonth('p.date', '>=', '1')
-            ->whereMonth('p.date', '<=', '6')
-            ->groupBy('d.id_serial_product')
-            ->get();
+                ->select('d.id', 'r.commodity', 's.fxp_parts', 'd.price', 's.pn', DB::raw('SUM(d.qty) AS total'))
+                ->leftJoin('product_out AS p', 'd.id_product_out', '=', 'p.id')
+                ->leftJoin('serial_product AS s', 'd.id_serial_product', '=', 's.id')
+                ->leftJoin('product AS r', 's.id_product', '=', 'r.id')
+                ->whereYear('p.date', $report->year)
+                ->whereMonth('p.date', '>=', '1')
+                ->whereMonth('p.date', '<=', '6')
+                ->groupBy('d.id_serial_product')
+                ->get();
         } elseif ($report->semester == '2') {
             $product = DB::table('detail_product_out AS d')
                 ->select('d.id', 'r.commodity', 's.fxp_parts', 'd.price', DB::raw('SUM(d.qty) AS total'))

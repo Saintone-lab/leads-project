@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ImageService;
 use App\Models\Pic;
 use App\Models\Reports;
 use App\Models\ReportsPict;
+use App\Models\Service;
 use App\Models\SignPict;
 use Carbon\Carbon;
 use File;
@@ -115,7 +117,7 @@ class ServiceReportsController extends Controller
             $status = $photo->save(); // Simpan objek setelah pemrosesan setiap file
         }
         if ($status) {
-            return redirect('service-reports')->with('success', 'Data Has been created');
+            return redirect('service-reports/' . $reports->id)->with('success', 'Data Has been created');
         }
     }
 
@@ -141,7 +143,16 @@ class ServiceReportsController extends Controller
      */
     public function edit($id)
     {
-        //
+        $report = Reports::find($id);
+        $image = ReportsPict::where('id_reports', $id)->get();
+        $dateNow = Carbon::now();
+        $numberS = Reports::whereYear('date', $dateNow)->where('id_technician', Auth::user()->id)->count();
+        $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
+        $monthNow = $dateNow->month;
+        $formattedMonthNow = $this->convertToRoman($monthNow);
+        $pic = Pic::all();
+        // dd($image);
+        return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow', 'report', 'image'));
     }
 
     /**
@@ -153,7 +164,81 @@ class ServiceReportsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $rule = [
+            'no_service => required',
+            'unit => required',
+            'serial_number => required',
+            'running => required',
+            'load => required',
+            'jobdesc => required',
+            'desc => required',
+        ];
+        $customMessages = [
+            'no_service.required' => 'Field No Service Wajib Diisi!',
+            'unit.required' => 'Field Unit Wajib Diisi',
+            'serial_number.required' => 'Field Serial Number Wajib Diisi',
+            'running.required' => 'Field Running Wajib Diisi!',
+            'load.required' => 'Field Load Wajib Diisi!',
+            'jobdesc.required' => 'Field Jobdesc Wajib Diisi!',
+            'desc.required' => 'Field desc Wajib Diisi!',
+        ];
+
+        $this->validate($request, $rule, $customMessages);
+        // dd($request);
+        // Masukan Data ke Service Reports
+        $reports = Reports::find($id);
+        $reports->id_technician = $request->technician;
+        $reports->id_pic = $request->id_pic;
+        $reports->no_service = $request->no_service;
+        $reports->serial_number = $request->serial_number;
+        $reports->running = $request->running;
+        $reports->unit = $request->unit;
+        $reports->load = $request->load;
+        $reports->jobdesc = $request->jobdesc;
+        $reports->desc = $request->desc;
+        $reports->recomendation = $request->recomendation;
+        $reports->date = $request->date;
+        $status = $reports->save();
+        // dd($reports);
+
+        $photos = ReportsPict::where('id_reports', $id)->get();
+        if ($request->hasFile('image')) {
+            foreach ($photos as $picture => $value) {
+                $value->delete();
+            }
+            // masukan data ke image reports
+            foreach ($request->description as $item => $value) {
+                $photo = new ReportsPict();
+                $photo->id_reports = $reports->id;
+                $photo->keterangan = $value; // Gunakan $value, bukan $request->description
+
+                $foto = $request->file('image')[$item]; // Akses file sesuai dengan iterasi saat ini
+                // Proses setiap file gambar
+                $image_ext = $foto->getClientOriginalExtension();
+                $image_name = Str::random(8);
+
+                $upload_path = 'asset/reports';
+                $imagename = $upload_path . '/' . $image_name . '.' . $image_ext;
+
+                // Pemrosesan gambar
+                $img = Image::make($foto->path());
+                $img->fit(500, 800, function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+                $img->save($imagename);
+
+                $photo['picture'] = $imagename;
+                $status = $photo->save(); // Simpan objek setelah pemrosesan setiap file
+            }
+        } else {
+            foreach ($photos as $item => $value) {
+                $value->keterangan = $request->description[$item]; // Gunakan $value, bukan $request->description
+                $status = $value->save(); // Simpan objek setelah pemrosesan setiap file
+            }
+        }
+        if ($status) {
+            return redirect('service-reports/' . $reports->id)->with('success', 'Data Has been updated');
+        }
     }
 
     /**
@@ -211,8 +296,8 @@ class ServiceReportsController extends Controller
         // dd($photo);
         $status = $photo->save();
 
-        if($status){
-            return redirect('/service-reports/'.$id)->with('massage', 'Data telah terkirim');
+        if ($status) {
+            return redirect('/service-reports/' . $id)->with('massage', 'Data telah terkirim');
         }
     }
     public function delete_hand_sign($id)
@@ -220,15 +305,15 @@ class ServiceReportsController extends Controller
         $reports = Reports::find($id);
 
         $delsign = File::delete($reports->sign_client);
-        if($delsign){
+        if ($delsign) {
             $reports->sign_client = NULL;
         }
         // dd($photo);
         $status = $reports->save();
 
-        if($status){
+        if ($status) {
             return 1;
-        }else{
+        } else {
             return 0;
         }
     }

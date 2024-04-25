@@ -144,6 +144,7 @@
                         </a>
                     @endif
                     @if (Auth::user()->role == 'Technician')
+                        <a href="{{route('service-reports.edit', $service->id)}}" class="btn btn-outline-warning d-grid w-100 waves-effect mb-3">Edit</a>
                         <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-service"
                             data-id="{{ $service->id }}">Delete</a>
                     @endif
