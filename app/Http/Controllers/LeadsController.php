@@ -50,8 +50,6 @@ class LeadsController extends Controller
     public function store(Request $request)
     {
         $rule = [
-            'sales' => 'required',
-
             'company' =>
                 'required',
 
@@ -93,7 +91,6 @@ class LeadsController extends Controller
         ];
 
         $message = [
-            'sales.required'=> 'Field Sales Wajib Diisi',
             'company.required'=> 'Field company Wajib Diisi',
             'email.required'=> 'Field Email Wajib Diisi',
             'phone.required'=> 'Field Phone Wajib Diisi',
@@ -110,7 +107,7 @@ class LeadsController extends Controller
         ];
         
         $this->validate($request, $rule, $message);
-
+        // dd($request);
         //masukan data ke table leads(client)
         $leads = new Client;
         $leads->id_sales = Auth::id();
@@ -158,11 +155,13 @@ class LeadsController extends Controller
     {
         $leads = Client::where('id', $id)->first();
         $charge = PIC::where('id_client', $id)->get();
-        $callhis = Activities::where('id_client', $id)->get();
+        $callhis = Activities::where('id_client', $id)->whereIn('name', ['Daily Call', 'Follow Up'])->get();
+        $visit = Activities::where('id_client', $id)->where('name', 'Visit')->get();
         $quote = Quotation::join('pic','pic.id','=','quotation.id_pic')->where('pic.id_client', $id)->get();
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
-        return view('pages.sales.clients.leads.detail', compact('leads', 'callhis', 'quote', 'sales', 'charge', 'issue'));
+        // dd(Auth::user());
+        return view('pages.sales.clients.leads.detail', compact('leads', 'callhis', 'quote', 'sales', 'charge', 'issue', 'visit'));
     }
 
     /**
@@ -327,5 +326,50 @@ class LeadsController extends Controller
                 return redirect("/leads/detail/".$id)->with("success","Data telah ditambahkan");
             }
         }
+    }
+    public function storeVisitWithLeads(Request $request, $id){
+        $leads = Client::where("id", $id)->first();
+        $leads->id_issues = $request->issues;
+        if ($request->issues == '5'){
+            $leads->role = 'Customers';
+            $status = new CrmStatus;
+            $status->id_client = $id;
+            $status->status = 2;
+            $statSave = $status->save();
+        }
+        $isuSave = $leads->save();
+
+        $action = new Activities;
+        $action->id_client = $id;
+        $action->name = 'Visit';
+        $action->status = $request->status;
+        $action->action = 'Visit';
+        $action->note = $request->note;
+        $action->date = \Carbon\Carbon::today();
+        $action->follow_up = $request->follow_up;
+        $activitiesSave = $action->save();
+        if($isuSave && $activitiesSave || $statSave){
+            if($request->issues == '5'){
+                return redirect("/existing/".$id)->with("success","Data telah ditambahkan");
+            }else{
+                return redirect("/leads/detail/".$id)->with("success","Data telah ditambahkan");
+            }
+        }
+    }
+
+    public function convertToCustomers(Request $request, $id){
+        $leads = Client::where("id", $id)->first();
+        $leads->role = 'Customers';
+        $leadsSave = $leads->save();
+        $status = new CrmStatus;
+        $status->id_client = $id;
+        $status->status = 2;
+        $statSave = $status->save();
+        if ($leadsSave && $statSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+        
     }
 }

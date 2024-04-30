@@ -20,15 +20,14 @@
                                     <i class="mdi mdi-dots-vertical mdi-24px"></i>
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="salesOverview" style="">
-                                    <a class="dropdown-item waves-effect" href="javascript:void(0);">Refresh</a>
-                                    <a class="dropdown-item waves-effect" href="javascript:void(0);">Share</a>
-                                    <a class="dropdown-item waves-effect" href="javascript:void(0);">Update</a>
+                                    <a class="dropdown-item waves-effect" data-bs-toggle="modal"
+                                        data-bs-target="#overviewPO{{ $DC['monthKey'] }}">Detail</a>
                                 </div>
                             </div>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <h5 class="mb-0 fw-normal">Total Sales <span class="fs-4">Rp
-                                    {{ $getTotalPO[$item]['total'] }}</span></h5>
+                                    {{ number_format($getTotalPO[$item]['total'], 2, ',', '.') }}</span></h5>
                             @php
                                 $jumlah_target = [];
                                 foreach ($getTotalPO as $key => $value) {
@@ -46,8 +45,8 @@
                             </div>
                         </div>
                         <div class="d-flex align-items-center">
-                            <h5 class="fw-normal">Forecast <span class="fs-4">Rp
-                                    {{ $getTotalForecast[$item]['total'] }}</span></h5>
+                            <h5 class="fw-normal">Quotation <span class="fs-4">Rp
+                                    {{ number_format($getTotalForecast[$item]['total'], 2, ',', '.') }}</span></h5>
                             {{-- <div class="d-flex align-items-center text-success">
                                 <p class="mb-0">+18%</p>
                                 <i class="mdi mdi-chevron-up"></i>
@@ -102,6 +101,7 @@
                     </div>
                 </div>
             </div>
+            @include('components.modal.overview.totalPo')
             @php
                 $item++;
             @endphp

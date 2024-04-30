@@ -134,6 +134,14 @@
                         </div>
                         <div class="row mb-1">
                             <div class="col-3">
+                                Position
+                            </div>
+                            <div class="col-9">
+                                : {{ $pic->position }}
+                            </div>
+                        </div>
+                        <div class="row mb-1">
+                            <div class="col-3">
                                 Phone
                             </div>
                             <div class="col-9">
@@ -333,8 +341,10 @@
                                     <td>
                                         {{ \Carbon\Carbon::parse($quotation->estimated_date)->format('d-m-Y') }}
                                     </td>
-                                    <td>
-                                        {{ $quotation->no_quote }}
+                                    <td class="fw-medium">
+                                        <a class="text-black"
+                                            href="{{ route('quotation.show', $quotation->id) }}">{{ $quotation->no_quote }}</a>
+
                                     </td>
                                     <td><span
                                             class="badge bg-label-{{ $quotation->status == '25' ? 'info' : ($quotation->status == '50' ? 'warning' : ($quotation->status == '75' ? 'primary' : ($quotation->status == '100' ? 'success' : ($quotation->status == '0' ? 'danger' : '')))) }}">{{ $quotation->status }}%</span>

@@ -15,8 +15,9 @@
                             <th>ID</th>
                             <th>Year</th>
                             <th>Semester</th>
+                            <th>Total Quote</th>
                             <th>Total PO</th>
-                            <th>Total Price</th>
+                            <th>Total Sales</th>
                             <th>Action</th>
                         </tr>
                     </thead>

@@ -120,7 +120,7 @@
                                                 <div class="input-group" data-price="1">
                                                     <span class="input-group-text">Rp. </span>
                                                     <input type="text" class="form-control invoice-item-price-label"
-                                                        id="price-label" data-id="{{ $id }}" min="12"
+                                                        id="price-label" data-id="{{ $id }}" min="0"
                                                         placeholder="Put Price Here" data-type="currency"
                                                         pattern="^[1-9]\d{0,2}(\.\d{3})*$"
                                                         value="{{ old('price[]', @$quote->price ? number_format(@$quote->price, 0, '', '.') : '') }}">
@@ -174,7 +174,7 @@
                                                 </p>
                                                 <input type="number" class="form-control invoice-item-amount"
                                                     name="amount[]" id="amount-{{ $id }}" data-id="1"
-                                                    min="12" value="{{ old('amount[]', $quote->amount) }}" hidden>
+                                                    value="{{ old('amount[]', $quote->amount) }}" hidden>
                                             </div>
                                         </div>
                                         <div
@@ -204,8 +204,8 @@
                                             <div class="input-group" data-price="1">
                                                 <span class="input-group-text">Rp. </span>
                                                 <input type="text" class="form-control invoice-item-price-label"
-                                                    id="price-label" data-id="1" min="12" name="harga"
-                                                    placeholder="Put Price Here" data-type="currency"
+                                                    id="price-label" data-id="1" name="harga"
+                                                    placeholder="Put Price Here" data-type="currency" min="0"
                                                     pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
                                                     @blur="focused = false" value="{{ old('price[]') }}">
                                                 <input class="form-control invoice-item-price" type="number"
@@ -241,7 +241,7 @@
                                             <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
                                                 {{ old(strval('amount[]')) }}</p>
                                             <input type="number" class="form-control invoice-item-amount"
-                                                name="amount[]" id="amount-1" data-id="1" min="12"
+                                                name="amount[]" id="amount-1" data-id="1" 
                                                 value="{{ old('amount[]') }}" hidden>
                                         </div>
                                     </div>

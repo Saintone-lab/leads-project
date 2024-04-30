@@ -15,6 +15,8 @@ class ReportsController extends Controller
     public function index()
     {
         $dataDc = $this->getWeekDataDC();
+        $dataCRM = $this->getWeekDataCRM();
+        $dataVisit = $this->getWeekDataVisit();
         $dataQuote = $this->getWeekDataQuote();
         $dataPo = $this->getWeekDataPo();
         $target = Target::where('id_sales', Auth::user()->id)->first();
@@ -22,7 +24,7 @@ class ReportsController extends Controller
         $monthNow = $dateNow->month;
         // dd($dataDc);
         $quotation = Quotation::where('status', '100')->whereMonth('po_date', $monthNow)->where('id_sales', Auth::user()->id)->get();
-        return view("pages.sales.report.index", compact("quotation", "dataDc", "dataQuote", "dataPo", "target"));
+        return view("pages.sales.report.index", compact("quotation", "dataDc", "dataQuote", "dataPo", "target", "dataCRM", "dataVisit"));
     }
 
     protected function getWeekDataDC()
@@ -84,7 +86,47 @@ class ReportsController extends Controller
             ->join('users as u', 'c.id_sales', '=', 'u.id')
             ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
             ->where('id_sales', Auth::user()->id)
-            ->where('name', 'CRM')
+            ->where('activities.name', 'CRM')
+            ->where('status', 'Responded')
+            ->groupBy('week')
+            ->orderBy('week')
+            ->pluck('total', 'week');
+
+        $fullMonthData = [];
+        for ($week = $weekStart; $week <= $endWeek; $week++) {
+            $weekKey = "{$week}";
+
+            $weekDays = date('t', strtotime($weekKey));
+            if ($weekDays >= 4) {
+                $fullMonthData[$weekKey] = [
+                    'week' => $weekKey,
+                    'total' => isset($dCallPerWeek[$weekKey]) ? $dCallPerWeek[$weekKey] : 0,
+                ];
+            }
+        }
+        // dd($fullMonthData);
+
+        return $fullMonthData;
+    }
+    protected function getWeekDataVisit()
+    {
+        $dateNow = Carbon::now();
+        $yearNow = $dateNow->year;
+        $monthNow = $dateNow->month;
+        $firstDayOfMonth = "{$yearNow}-{$monthNow}-01";
+        $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfMonth));
+
+        $firstDayOfWeek = date('N', strtotime($firstDayOfMonth));
+        $weekEnd = date('W', strtotime($firstDayOfMonth));
+        $endWeek = date('W', strtotime($lastDayOfMonth));
+        $weekStart = $firstDayOfWeek > 1 ? $weekEnd + 1 : $weekEnd;
+
+        $dCallPerWeek = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date), "-W", WEEK(date, 4)) as date'), DB::raw('WEEK(date, 4) as week'), DB::raw('COUNT(*) as total'))
+            ->join('client as c', 'activities.id_client', '=', 'c.id')
+            ->join('users as u', 'c.id_sales', '=', 'u.id')
+            ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->where('id_sales', Auth::user()->id)
+            ->where('activities.name', 'Visit')
             ->where('status', 'Responded')
             ->groupBy('week')
             ->orderBy('week')

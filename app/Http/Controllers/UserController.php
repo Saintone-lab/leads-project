@@ -123,7 +123,6 @@ class UserController extends Controller
         $rule = [
             'name => required',
             'email => required',
-            'area => required',
             'image => required',
             'phone => required',
         ];
@@ -131,7 +130,6 @@ class UserController extends Controller
             'name.required' => 'Field Nama Wajib Diisi!',
             'email.required' => 'Field EMail Wajib Diisi',
             'image.required' => 'Field Foto Wajib Diisi',
-            'area.required' => 'Field Area Wajib Diisi',
             'phone.required' => 'Field phone Wajib Diisi!',
         ];
 

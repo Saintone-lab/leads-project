@@ -27,6 +27,7 @@ $(function () {
                 { data: "id" },
                 { data: "year" },
                 { data: "semester" },
+                { data: "quote" },
                 { data: "total" },
                 { data: "price" },
                 { data: "" },
@@ -81,7 +82,7 @@ $(function () {
                 },
                 
                 {
-                    targets: 6,
+                    targets: 7,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
                 {

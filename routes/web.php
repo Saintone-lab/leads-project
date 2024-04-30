@@ -60,6 +60,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/leads', LeadsController::class);
     Route::get('/leads/detail/{id}', [LeadsController::class, 'show'])->name('detail.leads');
     Route::post('/leads/action/{id}', [LeadsController::class, 'storeActionWithLeads'])->name('action.leads');
+    Route::post('/leads/visit/{id}', [LeadsController::class, 'storeVisitWithLeads'])->name('visit.leads');
+    Route::post('/leads/convert/{id}', [LeadsController::class, 'convertToCustomers'])->name('convert.leads');
 
     // Route untuk Quotation
     Route::resource('/quotation', QuotationController::class);
@@ -253,7 +255,20 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN s.semester = "2" THEN 12 
             END
         AND YEAR(q.po_date) = s.year
-        AND u.id = ' . Auth::user()->id . ') AS price'))
+        AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
+        JOIN users AS u ON q.id_sales = u.id
+        WHERE MONTH(q.estimated_date) BETWEEN 
+            CASE 
+                WHEN s.semester = "1" THEN 1 
+                WHEN s.semester = "2" THEN 7 
+            END 
+        AND 
+            CASE 
+                WHEN s.semester = "1" THEN 6 
+                WHEN s.semester = "2" THEN 12 
+            END
+        AND YEAR(q.estimated_date) = s.year
+        AND u.id = ' . Auth::user()->id . ') AS quote'))
             ->get();
         return response()->json(['data' => $sales]);
     });

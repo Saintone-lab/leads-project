@@ -104,7 +104,12 @@ class EmployeeController extends Controller
             $target = new Target;
             $target->id_sales = $users->id;
             $target->dc = $request->dc;
-            $target->intro = $request->intro;
+            $target->crm = $request->crm;
+            if(isset($request->visit)){
+                $target->visit = $request->visit;
+            }else{
+                $request->visit = NULL;
+            }
             $target->quote = $request->quote;
             $target->po = $request->po;
             $target->total = $request->total;
@@ -185,7 +190,8 @@ class EmployeeController extends Controller
         $users->sign = NULL;
         $users->code = $request->code;
         $users->email = $request->email;
-        $users->phone = '+62' . $request->phone;
+        $users->password = Hash::make($request->password);
+        // $users->phone = '+62' . $request->phone;
         if ($request->hasFile('image')) {
             if ($users->image != 'asset/profile/profile.jpg') {
                 File::delete($users->image);
@@ -250,7 +256,12 @@ class EmployeeController extends Controller
             if ($request->role == "Sales") {
                 $target = Target::where('id_sales', $id)->first();
                 $target->dc = $request->dc;
-                $target->intro = $request->itnro;
+                $target->crm = $request->crm;
+                if(isset($request->visit)){
+                    $target->visit = $request->visit;
+                }else{
+                    $request->visit = NULL;
+                }
                 $target->quote = $request->quote;
                 $target->po = $request->po;
                 $target->total = $request->total;
@@ -268,7 +279,12 @@ class EmployeeController extends Controller
                 $target = new Target;
                 $target->id_sales = $id;
                 $target->dc = $request->dc;
-                $target->intro = $request->intro;
+                $target->crm = $request->crm;
+                if(isset($request->visit)){
+                    $target->visit = $request->visit;
+                }else{
+                    $request->visit = NULL;
+                }
                 $target->quote = $request->quote;
                 $target->po = $request->po;
                 $target->total = $request->total;

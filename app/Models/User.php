@@ -54,7 +54,7 @@ class User extends Authenticatable
     
     public function detail()
     {
-        return $this->hasMany('App\Models\User', 'id_user');
+        return $this->hasMany('App\Models\DetailUser', 'id_users');
     }
 
     public function clients()

@@ -6,8 +6,8 @@
     @if (@$users)
         @method('patch')
     @endif
-    <div class="modal animate__animated animate__fadeIn" id="{{ 'updateTarget-' . @$users->id}}"
-        tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal animate__animated animate__fadeIn" id="{{ 'updateTarget-' . @$users->id }}" tabindex="-1"
+        style="display: none;" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -30,16 +30,27 @@
                         </div>
                         <div class="col-6 mt-2">
                             <div class="form-floating form-floating-outline">
-                                <input class="form-control" type="number" id="intro" name="intro"
-                                    value="{{ old('intro', @$users->target[0]->intro ?? '') }}" placeholder="61256996" />
-                                <label for="intro">Introduce</label>
+                                <input class="form-control" type="number" id="crm" name="crm"
+                                    value="{{ old('crm', @$users->target[0]->crm ?? '') }}" placeholder="61256996" />
+                                <label for="crm">CRM</label>
                             </div>
                         </div>
+                        @if (@$users->detail[0]->area == 'Bekasi')
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <input class="form-control" type="number" id="visit" name="visit"
+                                        value="{{ old('visit', @$users->target[0]->visit ?? '') }}"
+                                        placeholder="61256996" />
+                                    <label for="visit">Visit</label>
+                                </div>
+                            </div>
+                        @endif
                         <div class="col-6">
                             <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="number" id="quote" name="quote"
-                                    value="{{ old('quote', @$users->target[0]->quote ?? '') }}" placeholder="61256996" />
-                                <label for="quote">Quantity</label>
+                                    value="{{ old('quote', @$users->target[0]->quote ?? '') }}"
+                                    placeholder="61256996" />
+                                <label for="quote">Quotation</label>
                             </div>
                         </div>
                         <div class="col-6">
@@ -53,12 +64,12 @@
                             <label for="total-label">Target Total</label>
                             <div class="input-group form-floating form-floating-outline" data-total="1">
                                 <span class="input-group-text">Rp. </span>
-                                <input type="text" class="form-control total-label"
-                                    id="total-label" data-id="1" min="12" placeholder="Put total Here"
-                                    data-type="currency" pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                    @blur="focused = false" value="{{ old('total', @$users->target[0]->total ?? '') }}">
-                                <input class="form-control total" type="number" name="total"
-                                    id="total" value="{{ old('total', @$users->target[0]->total ?? '') }}" hidden>
+                                <input type="text" class="form-control total-label" id="total-label" data-id="1"
+                                    min="12" placeholder="Put total Here" data-type="currency"
+                                    pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true" @blur="focused = false"
+                                    value="{{ old('total', @$users->target[0]->total ?? '') }}">
+                                <input class="form-control total" type="number" name="total" id="total"
+                                    value="{{ old('total', @$users->target[0]->total ?? '') }}" hidden>
                             </div>
                         </div>
                     </div>

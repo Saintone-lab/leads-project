@@ -15,7 +15,10 @@
                         <a type="button" data-bs-toggle="modal" data-bs-target="#updateLeads{{ $leads->id }}">
                             <button type="button" class="btn btn-sm btn-label-primary">Edit</button>
                         </a>
-                        <a href="#" data-id="{{$leads->id}}" class="btn btn-sm btn-label-danger delete-leads">Delete</a>
+                        <a href="#" data-id="{{ $leads->id }}"
+                            class="btn btn-sm btn-label-danger delete-leads">Delete</a>
+                        <a href="#" data-id="{{ $leads->id }}"
+                            class="btn btn-sm btn-label-info convert-customers">Convert Cust</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -141,6 +144,14 @@
                         </div>
                         <div class="row mb-1">
                             <div class="col-3">
+                                Position
+                            </div>
+                            <div class="col-9">
+                                : {{ $pic->position }}
+                            </div>
+                        </div>
+                        <div class="row mb-1">
+                            <div class="col-3">
                                 Email
                             </div>
                             <div class="col-9">
@@ -230,8 +241,10 @@
                                     <td>
                                         {{ \Carbon\Carbon::parse($quotation->estimated_date)->format('d-m-Y') }}
                                     </td>
-                                    <td>
-                                        {{ $quotation->no_quote }}
+                                    <td class="fw-medium">
+                                        <a class="text-black" href="{{ route('quotation.show', $quotation->id) }}">
+                                            {{ $quotation->no_quote }}
+                                        </a>
                                     </td>
                                     <td><span
                                             class="badge bg-label-{{ $quotation->status == '25' ? 'info' : ($quotation->status == '50' ? 'warning' : ($quotation->status == '75' ? 'primary' : ($quotation->status == '100' ? 'success' : ($quotation->status == '0' ? 'danger' : '')))) }}">{{ $quotation->status }}%</span>
@@ -252,10 +265,63 @@
                 </div>
             </div>
         </div>
+        @if (Auth::user()->detail[0]->area == 'Bekasi' && Auth::user()->role == 'Sales')
+            <div class="col-md-6 my-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <h5 class="fw-bold pb-1 mb-2">
+                        Visit History
+                    </h5>
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#createActionVisit{{ $leads->id }}">
+                        <button type="button" class="btn btn-primary">
+                            + New Action
+                        </button>
+                    </a>
+                </div>
+                <div class="card">
+                    <div class="table-responsive text-nowrap">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                    <th>Status</th>
+                                    <th>note</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-border-bottom-0">
+                                @forelse ($visit as $visits)
+                                    <tr>
+                                        <td>
+                                            {{ \Carbon\Carbon::parse($visits->date)->format('d-m-Y') }}
+                                        </td>
+                                        <td>
+                                            {{ $visits->action }}
+                                        </td>
+                                        <td>
+                                            {{ $visits->status }}
+                                        </td>
+                                        <td>
+                                            {{ $visits->note }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            Kamu belum punya Visit.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
     @include('pages.sales.clients.leads.form')
     @include('components.modal.pic.leads.form-create')
     @include('pages.sales.activities.form')
+    @include('pages.sales.activities.form-visit')
     @foreach ($charge as $pic)
         @include('components.modal.pic.leads.form-update')
     @endforeach
@@ -413,6 +479,100 @@
                     Swal.fire({
                         title: "Cancelled",
                         text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+            // Swal.fire({
+            //     title: "Are you sure?",
+            //     text: "You won't be able to revert this!",
+            //     icon: "warning",
+            //     showCancelButton: true,
+            //     confirmButtonColor: "#3085d6",
+            //     cancelButtonColor: "#d33",
+            //     confirmButtonText: "Yes, delete it!"
+            // }).then((result) => {
+            //     if (result.isConfirmed) {
+            //         $.ajax({
+            //             'url': '{{ url('leads') }}/' + id,
+            //             'type': 'POST',
+            //             'data': {
+            //                 '_method': 'DELETE',
+            //                 '_token': '{{ csrf_token() }}'
+            //             },
+            //             success: function(response) {
+            //                 if (response == 1) {
+            //                     Swal.fire({
+            //                         title: "Deleted!",
+            //                         text: "Your file has been deleted.",
+            //                         icon: "success"
+            //                     })
+            //                     window.setTimeout(function() {
+            //                         location.reload();
+            //                     }, 2000);
+            //                 } else {
+            //                     Swal.fire({
+            //                         icon: 'error',
+            //                         title: 'Oops...',
+            //                         text: 'Data Failed to Delete!'
+            //                     });
+            //                 }
+            //             }
+            //         });
+            //     }
+            // });
+        });
+        $(document).on('click', '.convert-customers', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Convert it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('leads') }}/convert/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Converted!",
+                                    text: "Your file has been converted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/existing/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Convert!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your Convert is cancelled :)",
                         icon: "error",
                         customClass: {
                             confirmButton: "btn btn-success waves-effect",

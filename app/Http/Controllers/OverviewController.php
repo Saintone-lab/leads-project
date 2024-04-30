@@ -96,14 +96,15 @@ class OverviewController extends Controller
         $report = SalesReports::find($id);
         $getDC = $this->getMonthlyDataDC($report->semester, $report->year);
         $cardDC = $this->cardMonthlyDC($report->semester, $report->year);
-        dd($cardDC);
         $getCRM = $this->getMonthlyDataCRM($report->semester, $report->year);
         $getQuote = $this->getMonthlyDataQuote($report->semester, $report->year);
         $getPO = $this->getMonthlyDataPO($report->semester, $report->year);
+        $getPOModal = $this->getMonthlyDataPOModal($report->semester, $report->year);
+        // dd($getPOModal);
         $getTotalForecast = $this->getMonthlyDataTotalForecast($report->semester, $report->year);
         $getTotalPO = $this->getMonthlyDataTotalPO($report->semester, $report->year);
         $targett = Target::where('id_sales', Auth::user()->id)->pluck('total')->sum();
-        return view('pages.sales.detail-overview', compact('report', 'getDC', 'getCRM', 'getQuote', 'getPO', 'getTotalForecast', 'getTotalPO', 'targett'));
+        return view('pages.sales.detail-overview', compact('report', 'getDC', 'getCRM', 'getQuote', 'getPO', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'targett'));
     }
 
     /**
@@ -165,6 +166,7 @@ class OverviewController extends Controller
                 $monthDays = date('t', strtotime($monthKey));
                 if ($monthDays >= 4) {
                     $fullMonthData[$monthKey] = [
+                        'monthKey' => $monthKey,
                         'month' => $formattedMonth,
                         'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
                     ];
@@ -174,6 +176,76 @@ class OverviewController extends Controller
             // dd($fullMonthData);
 
             return $fullMonthData;
+        } else {
+            $firstDayOfMonth = "{$year}-7-01";
+            $firstDayOfLastMonth = "{$year}-12-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+                ->join('client as c', 'activities.id_client', '=', 'c.id')
+                ->join('users as u', 'c.id_sales', '=', 'u.id')
+                ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_sales', Auth::user()->id)
+                ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
+                ->where('status', 'Responded')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 1; $month <= 6; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        }
+    }
+    protected function cardMonthlyDC($semester, $year)
+    {
+        if ($semester == 1) {
+            $firstDayOfMonth = "{$year}-1-01";
+            $firstDayOfLastMonth = "{$year}-6-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+                ->join('client as c', 'activities.id_client', '=', 'c.id')
+                ->join('users as u', 'c.id_sales', '=', 'u.id')
+                ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_sales', Auth::user()->id)
+                ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
+                ->where('status', 'Responded')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 1; $month <= 6; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    // Cek apakah data untuk bulan tersebut ada dalam $dCallPerMonth
+                    // Jika tidak ada, maka jumlahnya 0
+                    $total = isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0;
+                    // Tambahkan total ke dalam array $fullMonthData
+                    $fullMonthData[] = $total;
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+
+            return response()->json($fullMonthData);
         } else {
             $firstDayOfMonth = "{$year}-7-01";
             $firstDayOfLastMonth = "{$year}-12-01";
@@ -407,6 +479,72 @@ class OverviewController extends Controller
             return $fullMonthData;
         }
     }
+    protected function getMonthlyDataPOModal($semester, $year)
+    {
+        if ($semester == 1) {
+            $firstDayOfMonth = "{$year}-1-01";
+            $firstDayOfLastMonth = "{$year}-6-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Quotation::select('quotation.*')
+                ->selectRaw('MONTH(po_date) as month')
+                ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('quotation.id_sales', Auth::user()->id)
+                ->where('status', '100')
+                ->get();
+            // dd(Auth::user()->id);
+            $fullMonthData = [];
+            for ($month = 1; $month <= 6; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $dataForMonth = $dCallPerMonth->where('month', $monthKey);
+                    $fullMonthData[$monthKey] = [
+                        'monthKey' => $monthKey,
+                        'month' => $formattedMonth,
+                        'data' => $dataForMonth ? $dataForMonth->toArray() : null,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        } else {
+            $firstDayOfMonth = "{$year}-7-01";
+            $firstDayOfLastMonth = "{$year}-12-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Quotation::select('quotation.*')
+                ->selectRaw('MONTH(po_date) as month')
+                ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('quotation.id_sales', Auth::user()->id)
+                ->where('status', '100')
+                ->get();
+            // dd($dCallPerMonth);
+            $fullMonthData = [];
+            for ($month = 1; $month <= 6; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $dataForMonth = $dCallPerMonth->where('month', $monthKey);
+                    $fullMonthData[$monthKey] = [
+                        'monthKey' => $monthKey,
+                        'month' => $formattedMonth,
+                        'data' => $dataForMonth ? $dataForMonth->toArray() : null,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        }
+    }
     protected function getMonthlyDataTotalForecast($semester, $year)
     {
         if ($semester == 1) {
@@ -418,7 +556,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(harga_total) as total'))
                 ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
-                ->whereIn('status', ['20', '30', '40', '60', '80'])
+                ->whereIn('status', ['20', '30', '40', '60', '80', '100'])
                 ->groupBy('month')
                 ->orderBy('month')
                 ->pluck('total', 'month');
@@ -480,7 +618,7 @@ class OverviewController extends Controller
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
 
-            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(harga_total) as total'))
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(total_no_tax) as total'))
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
                 ->where('status', '100')
