@@ -205,7 +205,7 @@ class UserTableSeeder extends Seeder
                 "name" => "Derry Barmanto",
                 "phone" => "+6282180006012",
                 "email" => "derry@reftech.id",
-                'password' => Hash::make('teknisi123'),
+                'password' => Hash::make('sales123'),
                 "image" => "asset/profile/N2OsbMwE.jpg",
                 "sign" => null,
                 'birthday' => \Carbon\Carbon::today(),

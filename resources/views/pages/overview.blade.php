@@ -30,7 +30,26 @@
                 $item = 0;
             @endphp
             @foreach ($sales as $sale)
-                <div class="col-lg-6 mb-3">
+                <div class="col-6 col-lg-4 mb-3">
+                    <a href="#" class="text-decoration-none text-black">
+                        <div class="card">
+                            <div class="row">
+                                <div class="col-4">
+                                    <img src="{{ url('') . '/' . $sale->image }}" alt="" srcset="" class="rounded-circle"
+                                        style="width : 100%; height:100%;">
+                                </div>
+                                <div class="col-8 m-auto">
+                                    @php
+                                        $lastDetail = $sale->detail->last();
+                                    @endphp
+                                    <h3>{{$sale->name}}</h3>
+                                    <p>{{$lastDetail->area}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {{-- <div class="col-lg-6 mb-3">
                     <div class="card" data-id="{{ $item }}">
                         <div class="card-header">
                             <div class="d-flex justify-content-between">
@@ -69,10 +88,10 @@
                             <div class="d-flex align-items-center">
                                 <h5 class="fw-normal">Forecast <span class="fs-4">Rp {{ $totalForecast[$item] }}</span>
                                 </h5>
-                                {{-- <div class="d-flex align-items-center text-success">
+                                <div class="d-flex align-items-center text-success">
                                 <p class="mb-0">+18%</p>
                                 <i class="mdi mdi-chevron-up"></i>
-                            </div> --}}
+                            </div>
                             </div>
                         </div>
                         <div class="card-body d-flex justify-content-between flex-wrap gap-3">
@@ -122,7 +141,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 @php
                     $item++;
                 @endphp

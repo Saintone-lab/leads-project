@@ -17,7 +17,9 @@ use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceReportsController;
 use App\Http\Controllers\StockController;
 use App\Models\DetailProduct;
+use App\Models\Pic;
 use App\Models\ProductIn;
+use App\Models\Quotation;
 use App\Models\SalesReports;
 use App\Models\SerialProduct;
 use Illuminate\Support\Facades\Route;
@@ -67,6 +69,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/quotation', QuotationController::class);
     Route::get('/quotation/leads/create', [QuotationController::class, 'create'])->name('create.quotation');
     Route::get('/po', [QuotationController::class, 'po_quote'])->name('quotation.po');
+    Route::get('/loss', [QuotationController::class, 'loss_quote'])->name('quotation.loss');
     Route::get('/quotation/{id}/change_status', [QuotationController::class, 'change_status'])->name('status.change.quotation');
     Route::get('/quotation/revision/{id}', [QuotationController::class, 'edit_revisi'])->name('revisi.quotation');
     Route::get('/quotation/print/{id}', [QuotationController::class, 'print_quote'])->name('print.quotation');
@@ -194,6 +197,19 @@ Route::group(["middleware" => "auth"], function () {
         $serialProduct = SerialProduct::where('id_product', $id)->get();
         // Mengembalikan data dalam bentuk JSON
         return response()->json(['data' => $serialProduct]);
+    });
+    Route::get('/db/product/quotation/{id}', function ($id) {
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->get('quotation.*');
+        // $pic = Pic::where('id_client', $id)->get();
+        // if($pic->count() == 1) {
+        //     $quotation = Quotation::where('id_pic', $pic->id)->get();
+        // }else{
+        //     $allPic = [];
+        //     foreach ($pic as $key => $value) {
+        //         $allPic[] = $value->id;
+        //     }
+        // }
+        return response()->json(['data' => $quotation]);
     });
     Route::get('/db/product/in/detail/{id}', function ($id) {
         $products = DB::table('product_in as p')

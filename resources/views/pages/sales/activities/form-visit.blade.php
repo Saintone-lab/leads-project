@@ -1,7 +1,9 @@
-<form action="{{route('visit.leads',$leads->id)}}" method="post" enctype="multipart/form-data">
+<form
+    action="{{ request()->is('leads/detail/*') ? route('visit.leads', $leads->id) : route('visit.leads', $existing->id) }}"
+    method="post" enctype="multipart/form-data">
     {{-- {{ csrf_token() }} --}}
     @csrf
-    <div class="modal animate__animated animate__fadeIn" id="createActionVisit{{$leads->id}}" tabindex="-1" style="display: none;"
+    <div class="modal animate__animated animate__fadeIn" id="createActionVisit" tabindex="-1" style="display: none;"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
@@ -23,8 +25,8 @@
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="bs-datepicker-date" placeholder="MM/DD/YYYY"
-                                    class="form-control" name="date" value="{{ \Carbon\Carbon::today()->format('d/m/Y') }}"
-                                    disabled>
+                                    class="form-control" name="date"
+                                    value="{{ \Carbon\Carbon::today()->format('d/m/Y') }}" disabled>
                                 <label for="bs-datepicker-date">Date</label>
                             </div>
                         </div>
@@ -38,7 +40,8 @@
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <select class="form-select" id="selectAction" aria-label="Default select example" name="action" disabled>
+                                <select class="form-select" id="selectAction" aria-label="Default select example"
+                                    name="action" disabled>
                                     <option disabled>----- Choose Action -----</option>
                                     <option value="Phone Office">Phone Office</option>
                                     <option value="WhatsApp">WhatsApp</option>
@@ -72,7 +75,15 @@
                                 <select class="form-select" id="selectStatus" aria-label="Default select example"
                                     name="issues">
                                     @foreach ($issue as $issues)
-                                        <option value="{{ $issues->id }}" {{ $issues->id == $leads->id_issues ? 'selected' : '' }}>{{ $issues->issue }}</option>
+                                        @if (request()->is('leads/detail/*'))
+                                            <option value="{{ $issues->id }}"
+                                                {{ $issues->id == $leads->id_issues ? 'selected' : '' }}>
+                                                {{ $issues->issue }}</option>
+                                        @else
+                                            <option value="{{ $issues->id }}"
+                                                {{ $issues->id == $existing->id_issues ? 'selected' : '' }}>
+                                                {{ $issues->issue }}</option>
+                                        @endif
                                     @endforeach
                                 </select>
                                 <label for="selectStatus">Status</label>

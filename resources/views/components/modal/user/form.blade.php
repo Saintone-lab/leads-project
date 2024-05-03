@@ -56,7 +56,7 @@
                                 <label for="email">E-mail</label>
                             </div>
                         </div>
-                        @if (empty($users))
+                        {{-- @if (empty($users)) --}}
                             <div class="col-md-6 mt-2">
                                 <div class="input-group input-group-merge">
                                     <div class="form-floating form-floating-outline">
@@ -71,7 +71,7 @@
                                     </span>
                                 </div>
                             </div>
-                        @endif
+                        {{-- @endif --}}
                         <h5 class="text-muted mb-0">
                             Profile
                         </h5>

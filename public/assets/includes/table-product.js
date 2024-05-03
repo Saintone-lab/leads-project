@@ -74,8 +74,14 @@ $(function () {
                         if (type === "display") {
                             var $dataId = full["id_p"];
                             var detailRoute = route("product.show", $dataId);
+                            var $title = full["modal_replacements"]
                             return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                                
+                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' +
+                            $title +
+                            '">'+
+                            '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>" +
+                            "</span>"
                             );
                         }
                         return data;

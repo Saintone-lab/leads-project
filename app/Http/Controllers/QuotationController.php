@@ -196,7 +196,7 @@ class QuotationController extends Controller
             'shipping.required' => 'Quotation Wajib memiliki harga Antar',
         ];
         $this->validate($request, $rule, $message);
-        // dd($request->all());
+        dd($request->all());
         // Masukan Data ke Tabel Quotataion
         $quotation = new Quotation();
         $quotation->id_pic = $request->id_pic;
@@ -358,6 +358,10 @@ class QuotationController extends Controller
     {
         $quotation = Quotation::all();
         return view('pages.sales.quotation.po.index', compact('quotation'));
+    }
+    public function loss_quote()
+    {
+        return view('pages.sales.quotation.loss.index');
     }
 
     protected function convertToRoman($month)

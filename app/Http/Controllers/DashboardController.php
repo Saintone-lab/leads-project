@@ -100,15 +100,24 @@ class DashboardController extends Controller
                 return $client->activities()->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'CRM')->get();
             })->count();
         });
+        $filteredVisit = $sales->map(function ($sale) {
+            $dateNow = Carbon::now();
+            $monthNow = $dateNow->month;
+            return $sale->clients->flatMap(function ($client) use ($monthNow) {
+                return $client->activities()->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'Visit')->get();
+            })->count();
+        });
 
         $dataDc = $this->getWeekDataDC();
+        $dataCRM = $this->getWeekDataCRM();
+        $dataVisit = $this->getWeekDataVisit();
         $dataQuote = $this->getWeekDataQuote();
         $dataPO = $this->getWeekDataPO();
         $targett = $sales->map(function ($sale) {
             return $sale->target()->pluck('total')->sum();
         });
         // dd($targett);
-        return view("pages.sales.dashboard", compact('visit','dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'commodity', 'sproduct', 'targett'));
+        return view("pages.sales.dashboard", compact('visit','dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredVisit', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'dataCRM', 'dataVisit', 'commodity', 'sproduct', 'targett'));
     }
 
     public function overviewIndex()
@@ -149,11 +158,18 @@ class DashboardController extends Controller
                 return $client->activities()->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'CRM')->get();
             })->count();
         });
+        $filteredVisit = $sales->map(function ($sale) {
+            $dateNow = Carbon::now();
+            $monthNow = $dateNow->month;
+            return $sale->clients->flatMap(function ($client) use ($monthNow) {
+                return $client->activities()->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'Visit')->get();
+            })->count();
+        });
         $targett = $sales->map(function ($sale) {
             return $sale->target()->pluck('total')->sum();
         });
         // dd($targett);
-        return view('pages.admin.overview', compact('sales', 'totalPO', 'totalForecast', 'filteredPO', 'filteredQuote', 'filteredDC', 'filteredCRM', 'targett'));
+        return view('pages.admin.overview', compact('sales', 'totalPO', 'totalForecast', 'filteredPO', 'filteredQuote', 'filteredDC', 'filteredVisit', 'filteredCRM', 'targett'));
     }
 
     protected function formatNumber($number)

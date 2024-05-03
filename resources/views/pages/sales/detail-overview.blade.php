@@ -62,7 +62,7 @@
                             </div>
                             <div class="card-info">
                                 <h5 class="mb-0">{{ $DC['total'] }}</h5>
-                                <small class="text-muted">Daily Call</small>
+                                <small class="text-muted">{{$user->id == '1' ? 'New Leads' : 'Daily Call'}}</small>
                             </div>
                         </div>
                         <div class="d-flex gap-2">
@@ -76,6 +76,19 @@
                                 <small class="text-muted">CRM</small>
                             </div>
                         </div>
+                        {{-- @if (Auth::user()->detail[0]->area == 'Bekasi' || Auth::user()->detail[0]->area == 'Jabodetabek' || Auth::user()->detail[0]->area == 'Jawa Barat')
+                            <div class="d-flex gap-2">
+                                <div class="avatar">
+                                    <div class="avatar-initial bg-label-danger rounded">
+                                        <i class="mdi mdi-office-building-marker-outline mdi-24px"></i>
+                                    </div>
+                                </div>
+                                <div class="card-info">
+                                    <h5 class="mb-0">{{ $filteredVisit[$item] }}</h5>
+                                    <small class="text-muted">Visit</small>
+                                </div>
+                            </div>
+                        @endif --}}
                         <div class="d-flex gap-2">
                             <div class="avatar">
                                 <div class="avatar-initial bg-label-warning rounded">

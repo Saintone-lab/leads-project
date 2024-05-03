@@ -29,8 +29,8 @@ class ProductInController extends Controller
      */
     public function create()
     {
-        $product = DetailProduct::all();
-        return view('pages.warehouse.product-in.form', compact('product'));
+        $detProduct = DetailProduct::all();
+        return view('pages.warehouse.product-in.form', compact('detProduct'));
     }
 
     /**
@@ -41,7 +41,6 @@ class ProductInController extends Controller
      */
     public function store(Request $request)
     {
-
         $rule = [
             'invoice' => 'required',
             'suplier' => 'required',
@@ -123,7 +122,23 @@ class ProductInController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $product = ProductIn::find($id);
+        $dProductIn = DetailProductIn::where('id_product_in', $id)->get();
+        // dd($dProductIn);
+        $total = 0;
+        foreach ($dProductIn as $item) {
+            $item->modal = $request->modal[$item->id];
+            $item->amount = $request->modal[$item->id] * $item->qty;
+            $detailSave = $item->save();
+            $total += $item->amount;
+        }
+        if($detailSave){
+            $product->total = $total + $product->shipping;
+            $productSave = $product->save();
+        }
+        if ($productSave) {
+            return redirect('/product-in/'. $id)->with('message', 'data telah di tambahkan');
+        }
     }
 
     /**

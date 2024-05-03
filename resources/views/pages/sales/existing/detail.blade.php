@@ -315,7 +315,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 my-3">
+        {{-- <div class="col-md-6 my-3">
             <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold m-0 pt-2">
                     Quotation
@@ -347,7 +347,7 @@
 
                                     </td>
                                     <td><span
-                                            class="badge bg-label-{{ $quotation->status == '25' ? 'info' : ($quotation->status == '50' ? 'warning' : ($quotation->status == '75' ? 'primary' : ($quotation->status == '100' ? 'success' : ($quotation->status == '0' ? 'danger' : '')))) }}">{{ $quotation->status }}%</span>
+                                            class="badge bg-label-{{ $quotation->status == '20' ? 'secondary' : ($quotation->status == '30' ? 'dark' : ($quotation->status == '40' ? 'info' : ($quotation->status == '60' ? 'primary' : ($quotation->status == '80' ? 'warning' : ($quotation->status == '100' ? 'success' : ($quotation->status == '0' ? 'danger' : '')))))) }}">{{ $quotation->status }}%</span>
                                     </td>
                                     <td>
                                         RP {{ number_format($quotation->harga_total, 0, '', '.') }}
@@ -364,9 +364,7 @@
                     </table>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
+        </div> --}}
         <div class="col-md-6 my-3">
             <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold pb-1 mb-2">
@@ -390,7 +388,7 @@
                                     <td class="fw-medium">
                                         <a class="text-black"
                                             href="{{ route('service-reports.show', $reports->id) }}">{{ $reports->no_service }}</a>
-
+    
                                     </td>
                                     <td>
                                         {{ $reports->unit }}
@@ -414,6 +412,60 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
+        @if (Auth::user()->detail[0]->area == 'Bekasi' || Auth::user()->detail[0]->area == 'Jabodetabek' || Auth::user()->detail[0]->area == 'Jawa Barat' && Auth::user()->role == 'Sales')
+            <div class="col-md-6 my-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <h5 class="fw-bold pb-1 mb-2">
+                        Visit History
+                    </h5>
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#createActionVisit">
+                        <button type="button" class="btn btn-primary">
+                            + New Action
+                        </button>
+                    </a>
+                </div>
+                <div class="card">
+                    <div class="table-responsive text-nowrap">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                    <th>Status</th>
+                                    <th>note</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-border-bottom-0">
+                                @forelse ($visit as $visits)
+                                    <tr>
+                                        <td>
+                                            {{ \Carbon\Carbon::parse($visits->date)->format('d-m-Y') }}
+                                        </td>
+                                        <td>
+                                            {{ $visits->action }}
+                                        </td>
+                                        <td>
+                                            {{ $visits->status }}
+                                        </td>
+                                        <td>
+                                            {{ $visits->note }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            Kamu belum punya Visit.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
         <div class="col-md-6 my-3">
             <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold m-0 pt-2">
@@ -452,38 +504,29 @@
         <div class="col my-3">
             <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold m-0 pt-2">
-                    Service History
+                    Quotation
                 </h5>
+                <a href="{{ route('quotation.create') }}" type="button" class="btn btn-primary">
+                    + New Quotation
+                </a>
             </div>
-            <div class="card">
-                <div class="table-responsive text-nowrap">
-                    <table class="table table-striped">
+            <div class="card mb-3">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-quotation-client table table-striped">
                         <thead>
                             <tr>
-                                <th>Company</th>
-                                <th>Unit</th>
-                                <th>Running Hour</th>
-                                <th>Teknisi</th>
-                                <th>Date</th>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Quote No.</th>
+                                <th>Total Price</th>
+                                <th>Description</th>
+                                <th>Date Quotation</th>
+                                <th>Status</th>
+                                <th>Date Expired</th>
+                                <th>Stats</th>
                             </tr>
                         </thead>
-                        <tbody class="table-border-bottom-0">
-                            <tr>
-                                <td>
-                                    -
-                                </td>
-                                <td>
-                                    -
-                                </td>
-                                <td>
-                                    -
-                                </td>
-                                <td>-</td>
-                                <td>
-                                    -
-                                </td>
-                            </tr>
-                        </tbody>
                     </table>
                 </div>
             </div>
@@ -492,17 +535,35 @@
     @include('pages.sales.existing.form')
     @include('components.modal.pic.existing.form-create')
     @include('pages.sales.activities.form-existing')
+    @include('pages.sales.activities.form-visit')
     @foreach ($charge as $pic)
         @include('components.modal.pic.existing.form-update')
     @endforeach
 @endsection()
 @push('after-style')
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
 @endpush
 @push('after-script')
+    <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/FormValidation.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
 @endpush
 @push('page-script')
+<script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
+<script src="{{ asset('assets') }}/includes/table-quotation-client.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
 @endpush
 @push('script')

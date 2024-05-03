@@ -70,33 +70,37 @@
                     <li
                         class="menu-item {{ request()->is('existing') || request()->is('existing/*') ? 'active' : '' }}">
                         <a href="{{ route('existing.index') }}" class="menu-link">
-                            <div data-i18n="CRM Existing">CRM Existing</div>
+                            <div data-i18n="Customers">Customers</div>
                         </a>
                     </li>
                 </ul>
             </li>
-
-            <li
-                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') ? 'open' : '' }}">
+            
+            <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                     <div data-i18n="Quotation">Quotation</div>
                 </a>
                 <ul class="menu-sub">
                     <li
-                        class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') ? 'active' : '' }}">
+                        class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('quotation/*') ? 'active' : '' }}">
                         <a href="{{ route('quotation.index') }}" class="menu-link">
-                            <div data-i18n="Quotation Leads">Leads</div>
+                            <div data-i18n="Quotation">Quotation</div>
                         </a>
                     </li>
                     <li class="menu-item">
                         <a href="#" class="menu-link">
-                            <div data-i18n="Quotation Unit">Customer Unit</div>
+                            <div data-i18n="Quotation Unit">Quotation Unit</div>
                         </a>
                     </li>
                     <li class="menu-item {{ request()->is('po') ? 'active' : '' }}">
                         <a href="{{ route('quotation.po') }}" class="menu-link">
                             <div data-i18n="Done PO">Done PO</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('loss') ? 'active' : '' }}">
+                        <a href="{{ route('quotation.loss') }}" class="menu-link">
+                            <div data-i18n="Loss">Loss</div>
                         </a>
                     </li>
                 </ul>
@@ -231,14 +235,13 @@
                     <li
                         class="menu-item {{ request()->is('existing') || request()->is('existing/*') ? 'active' : '' }}">
                         <a href="{{ route('existing.index') }}" class="menu-link">
-                            <div data-i18n="CRM Existing">CRM Existing</div>
+                            <div data-i18n="Customers">Customers</div>
                         </a>
                     </li>
                 </ul>
             </li>
 
-            <li
-                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') ? 'open' : '' }}">
+            <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                     <div data-i18n="Quotation">Quotation</div>
@@ -247,7 +250,7 @@
                     <li
                         class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('quotation/*') ? 'active' : '' }}">
                         <a href="{{ route('quotation.index') }}" class="menu-link">
-                            <div data-i18n="Quotation Leads">Quotation Leads</div>
+                            <div data-i18n="Quotation">Quotation</div>
                         </a>
                     </li>
                     <li class="menu-item">
@@ -258,6 +261,11 @@
                     <li class="menu-item {{ request()->is('po') ? 'active' : '' }}">
                         <a href="{{ route('quotation.po') }}" class="menu-link">
                             <div data-i18n="Done PO">Done PO</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('loss') ? 'active' : '' }}">
+                        <a href="{{ route('quotation.loss') }}" class="menu-link">
+                            <div data-i18n="Loss">Loss</div>
                         </a>
                     </li>
                 </ul>

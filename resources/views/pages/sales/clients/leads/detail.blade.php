@@ -247,7 +247,7 @@
                                         </a>
                                     </td>
                                     <td><span
-                                            class="badge bg-label-{{ $quotation->status == '25' ? 'info' : ($quotation->status == '50' ? 'warning' : ($quotation->status == '75' ? 'primary' : ($quotation->status == '100' ? 'success' : ($quotation->status == '0' ? 'danger' : '')))) }}">{{ $quotation->status }}%</span>
+                                            class="badge bg-label-{{ $quotation->status == '20' ? 'secondary' : ($quotation->status == '30' ? 'dark' : ($quotation->status == '40' ? 'info' : ($quotation->status == '60' ? 'primary' : ($quotation->status == '80' ? 'warning' : ($quotation->status == '100' ? 'success' : ($quotation->status == '0' ? 'danger' : '')))))) }}">{{ $quotation->status }}%</span>
                                     </td>
                                     <td>
                                         RP {{ number_format($quotation->harga_total, 0, '', '.') }}
@@ -265,13 +265,13 @@
                 </div>
             </div>
         </div>
-        @if (Auth::user()->detail[0]->area == 'Bekasi' && Auth::user()->role == 'Sales')
+        @if (Auth::user()->detail[0]->area == 'Bekasi' || Auth::user()->detail[0]->area == 'Jabodetabek' || Auth::user()->detail[0]->area == 'Jawa Barat' && Auth::user()->role == 'Sales')
             <div class="col-md-6 my-3">
                 <div class="d-flex justify-content-between mb-2">
                     <h5 class="fw-bold pb-1 mb-2">
                         Visit History
                     </h5>
-                    <a type="button" data-bs-toggle="modal" data-bs-target="#createActionVisit{{ $leads->id }}">
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#createActionVisit">
                         <button type="button" class="btn btn-primary">
                             + New Action
                         </button>

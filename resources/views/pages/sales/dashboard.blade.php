@@ -3,7 +3,7 @@
 @section('content')
     @if (Auth::user()->role == 'Sales')
         <div class="row gy-4 mb-4">
-            @if (Auth::user()->detail[0]->area == 'Bekasi')
+            @if (Auth::user()->detail[0]->area == 'Bekasi' || Auth::user()->detail[0]->area == 'Jabodetabek' || Auth::user()->detail[0]->area == 'Jawa Barat')
                 <!-- Congratulations card -->
                 <div class="col-xl-2 col-lg-2 col-md-12 col-sm-8 col-12">
                     <div class="card h-100">
@@ -227,9 +227,9 @@
                             <div class="card-info mt-4 pt-1">
                                 <h4 class="mb-2">{{ $customers }} <small class="text-muted fs-tiny">/
                                         @if ($jumlahData > 4)
-                                            {{ round($target->intro + $target->intro / 4) }}
+                                            {{ round($target->crm + $target->crm / 4) }}
                                         @elseif($jumlahData == 4)
-                                            {{ round($target->intro) }}
+                                            {{ round($target->crm) }}
                                         @endif
                                     </small>
                                 </h4>
@@ -813,7 +813,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="d-flex align-items-center">
-                                                    <h5 class="fw-normal mb-0">Forecast <span class="fs-4">Rp
+                                                    <h5 class="fw-normal mb-0">Quotation <span class="fs-4">Rp
                                                             {{ $totalForecast[$item] }}</span></h5>
                                                 </div>
                                                 <div class="d-flex align-items-center">
@@ -834,7 +834,7 @@
                                                     </div>
                                                     <div class="card-info">
                                                         <h5 class="mb-0">{{ $filteredDC[$item] }}</h5>
-                                                        <small class="text-muted">Daily Call</small>
+                                                        <small class="text-muted">{{$user->id == '1' ? 'New Leads' : 'Daily Call'}}</small>
                                                     </div>
                                                 </div>
                                                 <div class="d-flex gap-2">
@@ -848,6 +848,22 @@
                                                         <small class="text-muted">CRM</small>
                                                     </div>
                                                 </div>
+                                                @php
+                                                    $lastDetail = $user->detail->last();
+                                                @endphp
+                                                @if ($lastDetail->area == 'Bekasi' || $lastDetail->area == 'Jabodetabek' || $lastDetail->area == 'Jawa Barat')
+                                                    <div class="d-flex gap-2">
+                                                        <div class="avatar">
+                                                            <div class="avatar-initial bg-label-danger rounded">
+                                                                <i class="mdi mdi-office-building-marker-outline mdi-24px"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-info">
+                                                            <h5 class="mb-0">{{ $filteredVisit[$item] }}</h5>
+                                                            <small class="text-muted">Visit</small>
+                                                        </div>
+                                                    </div>
+                                                @endif
                                                 <div class="d-flex gap-2">
                                                     <div class="avatar">
                                                         <div class="avatar-initial bg-label-warning rounded">

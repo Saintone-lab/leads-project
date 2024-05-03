@@ -89,50 +89,6 @@
             </table>
         </div>
     </div>
-    <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-po-quote table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Quote No.</th>
-                        <th>Company</th>
-                        <th>Total Price</th>
-                        <th>Description</th>
-                        <th>Date Quotation</th>
-                        <th>Status</th>
-                        <th>Date Expired</th>
-                        <th>Stats</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
-    <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-loss-quote table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Quote No.</th>
-                        <th>Company</th>
-                        <th>Total Price</th>
-                        <th>Description</th>
-                        <th>Date Quotation</th>
-                        <th>Status</th>
-                        <th>Date Expired</th>
-                        <th>Stats</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
 @endsection()
 
 @push('after-style')
@@ -157,8 +113,6 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-po.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-loss.js"></script>
     <script src="{{ asset('assets') }}/includes/table-quotation.js"></script>
 @endpush
 

@@ -57,7 +57,7 @@
                                                 class="select2 form-select invoice-item-replacement" data-allow-clear="true"
                                                 name="replacement[]" data-id="1">
                                                 <option> ---- Choose Commodity || Replacement Here ---- </option>
-                                                @foreach ($product as $products)
+                                                @foreach ($detProduct as $products)
                                                     <option value="{{ $products->id }}"> {{ $products->product->commodity }} || {{ $products->replacement }} 
                                                     </option>
                                                 @endforeach
@@ -76,7 +76,7 @@
                                         <div class="input-group" data-price="1">
                                             <span class="input-group-text">Rp. </span>
                                             <input type="text" class="form-control invoice-item-price-label"
-                                                id="price-label" data-id="1" min="12" placeholder="Put Price Here"
+                                                id="price-label" data-id="1" min="0" placeholder="Put Price Here"
                                                 data-type="currency" pattern="^[1-9]\d{0,2}(\.\d{3})*$"
                                                 @focus="focused = true" @blur="focused = false"
                                                 value="{{ old('price[]') }}">
