@@ -22,6 +22,7 @@ use App\Models\ProductIn;
 use App\Models\Quotation;
 use App\Models\SalesReports;
 use App\Models\SerialProduct;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadsController;
 use App\Http\Controllers\QuotationController;
@@ -97,6 +98,8 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk Overview
     Route::resource('/overview', OverviewController::class);
+    Route::get('/overview/sales/{id}', [OverviewController::class, 'semesterOverviewSales'])->name('overview.semester');
+    Route::get('/overview/admin/{semester}/{sales}', [OverviewController::class, 'overviewAdmin'])->name('overview-sales.semester');
     // Route untuk PO
     Route::get('/pending-po', function () {
         return view('pages.sales.po.pending.index');
@@ -146,7 +149,7 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk Employee
     Route::resource('/employee', EmployeeController::class);
     Route::post('/employee/position/{id}', [EmployeeController::class, 'newPosition'])->name('new.position');
-    Route::post('/employee/target/{id}', [EmployeeController::class, 'newPosition'])->name('update.target');
+    Route::patch('/employee/target/{id}', [EmployeeController::class, 'updateTarget'])->name('update.target');
 
     // Route untuk API Tabel DataTable
     // Route::get('/fetch-data/leads', [ApiTableController::class, 'tableLeads']);
@@ -200,15 +203,6 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/product/quotation/{id}', function ($id) {
         $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->get('quotation.*');
-        // $pic = Pic::where('id_client', $id)->get();
-        // if($pic->count() == 1) {
-        //     $quotation = Quotation::where('id_pic', $pic->id)->get();
-        // }else{
-        //     $allPic = [];
-        //     foreach ($pic as $key => $value) {
-        //         $allPic[] = $value->id;
-        //     }
-        // }
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/product/in/detail/{id}', function ($id) {
@@ -231,6 +225,54 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json(['data' => $products]);
     });
+
+    Route::get('/db/sales/overview/{id}', function ($id) {
+        $sales = User::find($id);
+        $data = DB::table('sales_reports AS s')
+            ->select('s.*', DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
+        JOIN users AS u ON q.id_sales = u.id
+        WHERE MONTH(q.po_date) BETWEEN 
+            CASE 
+                WHEN s.semester = "1" THEN 1 
+                WHEN s.semester = "2" THEN 7 
+            END 
+        AND 
+            CASE 
+                WHEN s.semester = "1" THEN 6 
+                WHEN s.semester = "2" THEN 12 
+            END
+        AND YEAR(q.po_date) = s.year
+        AND u.id = ' . $sales->id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(q.total_no_tax), 0) FROM quotation AS q 
+        JOIN users AS u ON q.id_sales = u.id
+        WHERE MONTH(q.po_date) BETWEEN 
+            CASE 
+                WHEN s.semester = "1" THEN 1 
+                WHEN s.semester = "2" THEN 7 
+            END 
+        AND 
+            CASE 
+                WHEN s.semester = "1" THEN 6 
+                WHEN s.semester = "2" THEN 12 
+            END
+        AND YEAR(q.po_date) = s.year
+        AND u.id = ' . $sales->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
+        JOIN users AS u ON q.id_sales = u.id
+        WHERE MONTH(q.estimated_date) BETWEEN 
+            CASE 
+                WHEN s.semester = "1" THEN 1 
+                WHEN s.semester = "2" THEN 7 
+            END 
+        AND 
+            CASE 
+                WHEN s.semester = "1" THEN 6 
+                WHEN s.semester = "2" THEN 12 
+            END
+        AND YEAR(q.estimated_date) = s.year
+        AND u.id = ' . $sales->id . ') AS quote'))
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+
     Route::get('/db/productIn', function () {
         require_once base_path('app/api/product/in/connection.php');
     });
@@ -292,6 +334,7 @@ Route::group(["middleware" => "auth"], function () {
         $reports = SalesReports::orderBy('id', 'ASC')->get();
         return response()->json(['data' => $reports]);
     });
+
     Route::get('/db/sales/reports/{id}', function ($id) {
         $report = SalesReports::find($id);
 

@@ -31,7 +31,7 @@
             @endphp
             @foreach ($sales as $sale)
                 <div class="col-6 col-lg-4 mb-3">
-                    <a href="#" class="text-decoration-none text-black">
+                    <a href="{{Route('overview.semester', $sale->id)}}" class="text-decoration-none text-black">
                         <div class="card">
                             <div class="row">
                                 <div class="col-4">

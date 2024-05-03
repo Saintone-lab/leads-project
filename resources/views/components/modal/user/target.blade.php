@@ -25,7 +25,13 @@
                             <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="number" id="dc" name="dc"
                                     value="{{ old('dc', @$users->target[0]->dc ?? '') }}" placeholder="61256996" />
-                                <label for="dc">Daily Call</label>
+                                <label for="dc">
+                                    @if (@$users)
+                                        {{ $users->id == '1' ? 'New Leads' : 'Daily Call' }}
+                                    @else
+                                    Daily Call
+                                    @endif
+                                </label>
                             </div>
                         </div>
                         <div class="col-6 mt-2">
@@ -67,7 +73,7 @@
                                 <input type="text" class="form-control total-label" id="total-label" data-id="1"
                                     min="12" placeholder="Put total Here" data-type="currency"
                                     pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true" @blur="focused = false"
-                                    value="{{ old('total', @$users->target[0]->total ?? '') }}">
+                                    value="{{ old('total', @$users->target[0]->total ? number_format($users->target[0]->total, 0, '', '.') : '') }}">
                                 <input class="form-control total" type="number" name="total" id="total"
                                     value="{{ old('total', @$users->target[0]->total ?? '') }}" hidden>
                             </div>

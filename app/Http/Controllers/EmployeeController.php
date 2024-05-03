@@ -302,9 +302,14 @@ class EmployeeController extends Controller
     }
 
     public function updateTarget(Request $request, $id){
+        $sales = User::find($id);
+        $lastDetail = $sales->detail->last();
         $target = Target::where('id_sales', $id)->first();
         $target->dc = $request->dc;
-        $target->intro = $request->intro;
+        $target->crm = $request->crm;
+        if ($lastDetail->area == "Bekasi" || $lastDetail->area == "Jabodetabek" || $lastDetail->area == "Jawa Barat") {
+            # code...
+        }
         $target->quote = $request->quote;
         $target->po = $request->po;
         $target->total = $request->total;

@@ -127,9 +127,11 @@ class ProductInController extends Controller
         // dd($dProductIn);
         $total = 0;
         foreach ($dProductIn as $item) {
+            $item->detailProduct->modal = $request->modal[$item->id]; 
             $item->modal = $request->modal[$item->id];
             $item->amount = $request->modal[$item->id] * $item->qty;
             $detailSave = $item->save();
+            $item->detailProduct->save();
             $total += $item->amount;
         }
         if($detailSave){
