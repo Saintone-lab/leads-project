@@ -1,22 +1,18 @@
 $(function () {
-    var dt_table_product = $(".datatable-reports");
-    var Url = "/db/sales/reports/";
-    var path = window.location.pathname;
-    var id = path.substring(path.lastIndexOf('/') + 1);
-    
-    // console.log("ID:", id); // Output: ID: 2
+    var dt_table_sales_reports_offline = $(".datatable-sales-reports-offline");
+    var Url = "db/sales/reports/offline";
 
-    if (dt_table_product.length) {
+    if (dt_table_sales_reports_offline.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product.DataTable({
+        var dt_sales_reports_offline = dt_table_sales_reports_offline.DataTable({
             ajax: {
                 type: "GET",
-                url: Url + id,
+                url: Url,
                 headers: {
                     "Content-Type": "application/json",
                 },
-                // success: function (hasil, url) {
-                //     console.log("Url:", url);
+                // success: function (hasil, Url) {
+                //     console.log("Url:", Url);
                 //     console.log(hasil);
                 // },
                 // error: function (error) {
@@ -29,9 +25,10 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "commodity" },
-                { data: "pn" },
+                { data: "year" },
+                { data: "semester" },
                 { data: "total" },
+                { data: "" },
             ],
             columnDefs: [
                 {
@@ -69,8 +66,42 @@ $(function () {
                     responsivePriority: 1,
                     targets: 3,
                 },
+                {
+                    targets: 4,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            return (
+                                'Semester ' +
+                                data
+                            );
+                        }
+                        return data;
+                    },
+                },
+
+                {
+                    // Actions
+                    targets: -1,
+                    title: "Actions",
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, full, meta) {
+                        var $dataId = full["id"];
+                        var $detailQUrl = route("reports.offline", $dataId);
+                        return (
+                            '<div class="d-inline-block">' +
+                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
+                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
+                            '<li><a href="' +
+                            $detailQUrl +
+                            '" class="dropdown-item">Details</a></li>' +
+                            "</ul>" +
+                            "</div>"
+                        );
+                    },
+                },
             ],
-            order: [[5, "desc"]],
+            order: [[2, "asc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
@@ -286,6 +317,14 @@ $(function () {
                         },
                     ],
                 },
+                {
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Year/Semester</span>',
+                    className: "btn btn-primary",
+                    attr: {
+                        "data-bs-target": "#createReports",
+                        "data-bs-toggle": "modal",
+                    },
+                },
             ],
             drawCallback: function (settings) {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -295,7 +334,7 @@ $(function () {
                     display: $.fn.dataTable.Responsive.display.modal({
                         header: function (row) {
                             var data = row.data();
-                            return "Details of " + data["pn"];
+                            return "Details of " + data["company"];
                         },
                     }),
                     type: "column",
@@ -326,10 +365,10 @@ $(function () {
             },
         });
         $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Product</h5>'
+            '<h5 class="card-title mb-0">Table Product Out Offline</h5>'
         );
     }
-    dt_table_product.on("draw", function () {
+    dt_table_sales_reports_offline.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

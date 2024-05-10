@@ -27,8 +27,17 @@
                                 style="min-height: 100px"></textarea>
                         </div>
                         <div class="col-6 col-lg-3">
+                            <div class="form-floating form-floating-outline">
+                                <select class="form-select" id="vers"
+                                    aria-label="Default select example" name="vers">
+                                    <option disabled>----- Select Offline / Online ------</option>
+                                    <option value="Online">Online</option>
+                                    <option value="Offline">Offline</option>
+                                </select>
+                                <label for="vers">Offline / Online</label>
+                            </div>
                         </div>
-                        <div class="col-12 col-lg-3">
+                        <div class="col-6 col-lg-3">
                             <div class="form-floating form-floating-outline mb-4">
                                 <input class="form-control" type="date" id="Date" name="date"
                                     {{-- {{ @$productIn->date ? '' : '_label' }}  naikin nanti --}}

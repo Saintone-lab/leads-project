@@ -196,7 +196,7 @@ class QuotationController extends Controller
             'shipping.required' => 'Quotation Wajib memiliki harga Antar',
         ];
         $this->validate($request, $rule, $message);
-        dd($request->all());
+        // dd($request->all());
         // Masukan Data ke Tabel Quotataion
         $quotation = new Quotation();
         $quotation->id_pic = $request->id_pic;

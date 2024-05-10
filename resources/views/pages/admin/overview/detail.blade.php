@@ -1,7 +1,7 @@
 @extends('layouts.sales.app')
 @section('title', 'Overview Sales')
 @section('content')
-    {{-- <h4 class="fw-bold py-3 mb-4">
+    <h4 class="fw-bold py-3 mb-4">
         Overview Semester {{ $report->semester }}, {{ $report->year }}
     </h4>
     <div class="row">
@@ -47,10 +47,10 @@
                         <div class="d-flex align-items-center">
                             <h5 class="fw-normal">Quotation <span class="fs-4">Rp
                                     {{ number_format($getTotalForecast[$item]['total'], 2, ',', '.') }}</span></h5>
-                            <div class="d-flex align-items-center text-success">
+                            {{-- <div class="d-flex align-items-center text-success">
                                 <p class="mb-0">+18%</p>
                                 <i class="mdi mdi-chevron-up"></i>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                     <div class="card-body d-flex justify-content-between flex-wrap gap-3">
@@ -121,5 +121,5 @@
                 $item++;
             @endphp
         @endforeach
-    </div> --}}
+    </div>
 @endsection

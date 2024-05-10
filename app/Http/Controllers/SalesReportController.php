@@ -51,7 +51,7 @@ class SalesReportController extends Controller
         $report->year = $request->year;
         $report->semester = $request->semester;
         $reportSave = $report->save();
-        if($reportSave){
+        if ($reportSave) {
             return redirect('/sale-report')->with('message', 'data telah ditambahkan');
         }
     }
@@ -100,5 +100,17 @@ class SalesReportController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function detailOnline($id)
+    {
+        $reports = SalesReports::find($id);
+        return view('pages.warehouse.reports.detail-online', compact('reports'));
+    }
+
+    public function detailOffline($id)
+    {
+        $reports = SalesReports::find($id);
+        return view('pages.warehouse.reports.detail-offline', compact('reports'));
     }
 }

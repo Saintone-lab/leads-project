@@ -35,7 +35,7 @@
                         class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
                 </div>
                 <div class="mt-1">
-                    <span class="text-muted">{{Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y')}}</span>
+                    <span class="text-muted">{{ Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</span>
                 </div>
             </div>
         </div>
@@ -100,7 +100,8 @@
                                 <p class="mb-0 fw-semibold" style="font-size: 12px">
                                     {{ $product->product }}
                                 </p>
-                                <pre class="mb-0" style="font-size: 10px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
+                                <pre class="mb-0"
+                                    style="font-size: 10px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
                             </td>
                             <td class="align-top text-end">RP {{ number_format($product->price, 0, '', '.') }}</td>
                             <td class="align-top">{{ $product->qty }} {{ $product->info_qty }}</td>
@@ -110,12 +111,14 @@
                     @endforeach
                     <tr class="">
                         <td colspan="3" rowspan="2" class="align-top pt-4">
-
                         </td>
                         <td colspan="2" class="text-end pt-4 pb-0">
                             <p class="mb-2">Subtotal:</p>
                             <p class="mb-2">Tax:</p>
                             <p class="mb-2">Shipping Cost:</p>
+                            @if ($quote->diskon != 0)
+                                <p class="mb-2">Discount:</p>
+                            @endif
                         </td>
                         <td colspan="2" class="pt-4 pb-0">
                             <p class="fw-semibold mb-2 text-end">Rp
@@ -123,8 +126,12 @@
                             <p class="fw-semibold mb-2 text-end">{{ $quote->tax }}%</p>
                             <p class="fw-semibold mb-2 text-end">Rp
                                 {{ number_format($quote->shipping, 0, '', '.') }}</p>
+                            @if ($quote->diskon != 0)
+                                <p class="fw-semibold mb-2 text-end">Rp {{ number_format($quote->diskon, 0, '', '.') }}</p>
+                            @endif
                         </td>
                     </tr>
+
                     <tr class="total">
                         <td colspan="2" class="">
                             <p class="mb-0 text-end">Total:</p>
@@ -132,6 +139,22 @@
                         <td colspan="2" class="">
                             <p class="fw-semibold mb-0 text-end">Rp
                                 {{ number_format($quote->harga_total, 0, '', '.') }}</p>
+                        </td>
+                    </tr>
+                    <tr class="" style="height: 10px !important;">
+                        <td colspan="5" class="align-top" style="font-size: 1px;"> </td>
+                    </tr>
+                    <tr class="">
+                        <td colspan="3" rowspan="2" class="align-top pt-4">
+                        </td>
+                        <td colspan="2" class="note text-end align-top">
+                            <p class="mb-0">Note:</p>
+                        </td>
+                        <td colspan="2" class="note">
+                            <pre style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap; font-size: 12px;"
+                                class="fw-semibold mb-0 text-end">
+                                {{ $quote->termncon[0]->note }}
+                            </pre>
                         </td>
                     </tr>
                 </tbody>
@@ -146,14 +169,12 @@
                     <p class="mb-1">Price </p>
                     <p class="mb-1">Delivery Process </p>
                     <p class="mb-1">Payment </p>
-                    <p class="mb-1">Note </p>
                 </div>
                 <div class="col termc p-3">
                     <p class="mb-1">: {{ $quote->termncon[0]->validity }}</p>
                     <p class="mb-1">: {{ $quote->termncon[0]->pricing }}</p>
                     <p class="mb-1">: {{ $quote->termncon[0]->delivery_process }}</p>
                     <p class="mb-1">: {{ $quote->termncon[0]->payment }}</p>
-                    <p class="mb-1">: {{ $quote->termncon[0]->note }}</p>
                 </div>
             </div>
         </div>
@@ -164,10 +185,20 @@
     </div>
 </div>
 @push('after-style')
-<!-- Page CSS -->
-<link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice-print.css" />
-<link rel="stylesheet" href="style.css">
+    <!-- Page CSS -->
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice-print.css" />
+    <link rel="stylesheet" href="style.css">
 @endpush
 @push('after-script')
-<script src="{{ asset('assets') }}/js/app-invoice-print.js"></script>
+    <script src="{{ asset('assets') }}/js/app-invoice-print.js"></script>
+@endpush
+@push('script')
+    <script>
+        $(document).ready(function() {
+            // Ambil tinggi dari elemen <pre>
+            var preHeight = $('#notePre').outerHeight();
+            // Atur tinggi elemen <p> menjadi sama dengan tinggi elemen <pre>
+            $('#noteParagraph').css('height', preHeight + 'px');
+        });
+    </script>
 @endpush

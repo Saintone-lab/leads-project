@@ -241,7 +241,7 @@
                                             <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
                                                 {{ old(strval('amount[]')) }}</p>
                                             <input type="number" class="form-control invoice-item-amount"
-                                                name="amount[]" id="amount-1" data-id="1" 
+                                                name="amount[]" id="amount-1" data-id="1"
                                                 value="{{ old('amount[]') }}" hidden>
                                         </div>
                                     </div>
@@ -302,8 +302,7 @@
                             <div class="row mb-3">
                                 <label class="col-sm-4 col-form-label" for="note">Note</label>
                                 <div class="col-sm-8">
-                                    <input type="text" id="note" class="form-control form-control-lg"
-                                        value="{{ old('note', @$quotation->termncon[0]->note ?? '-') }}" name="note">
+                                    <textarea class="form-control h-px-100" rows="2" placeholder="Write your note here...." name="note">{{ old('note', @$quotation->termncon[0]->note ?? '-') }}</textarea>
                                 </div>
                             </div>
                         </div>

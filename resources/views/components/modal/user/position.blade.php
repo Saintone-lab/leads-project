@@ -97,7 +97,7 @@
                                         data-id="1" min="12" placeholder="Put total Here"
                                         data-type="currency" pattern="^[1-9]\d{0,2}(\.\d{3})*$"
                                         @focus="focused = true" @blur="focused = false"
-                                        value="{{ old('total', @$users->target[0]->total ?? '') }}">
+                                        value="{{ old('total', @$users->target[0]->total ? number_format($users->target[0]->total, 0, '', '.') : '') }}">
                                     <input class="form-control total" type="number" name="total"
                                         id="total"
                                         value="{{ old('total', @$users->target[0]->total ?? '') }}" hidden>

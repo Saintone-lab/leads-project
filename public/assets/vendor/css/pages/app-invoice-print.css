@@ -37,8 +37,9 @@
     .invoice-print table .total{
         background-color: #dedede;
     }
-
-
+    .invoice-print table .note{
+        background-color: #f7f7f7;
+    }
     .invoice-print svg {
         fill: #828393 !important;
     }

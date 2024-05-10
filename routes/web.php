@@ -99,7 +99,7 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk Overview
     Route::resource('/overview', OverviewController::class);
     Route::get('/overview/sales/{id}', [OverviewController::class, 'semesterOverviewSales'])->name('overview.semester');
-    Route::get('/overview/admin/{semester}/{sales}', [OverviewController::class, 'overviewAdmin'])->name('overview-sales.semester');
+    Route::get('/overview/{semester}/{sales}', [OverviewController::class, 'overviewAdmin'])->name('overview-sales.semester');
     // Route untuk PO
     Route::get('/pending-po', function () {
         return view('pages.sales.po.pending.index');
@@ -145,6 +145,8 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk report
     Route::resource('/sale-report', SalesReportController::class);
+    Route::get('/sale-report/online/{id}', [SalesReportController::class, 'detailOnline'])->name('reports.online');
+    Route::get('/sale-report/offline/{id}', [SalesReportController::class, 'detailOffline'])->name('reports.offline');
 
     // Route untuk Employee
     Route::resource('/employee', EmployeeController::class);
@@ -330,12 +332,59 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json(['data' => $sales]);
     });
-    Route::get('/db/sales/reports', function () {
-        $reports = SalesReports::orderBy('id', 'ASC')->get();
+    
+    Route::get('/db/sales/reports/online', function () {
+        // $reports = SalesReports::orderBy('id', 'ASC')->get();
+        $reports = DB::table('sales_reports AS s')
+            ->select('s.*', DB::raw('
+        (SELECT COALESCE(SUM(dpo.qty), 0) 
+            FROM product_out AS po
+            JOIN detail_product_out AS dpo ON dpo.id_product_out = po.id 
+            WHERE 
+                MONTH(po.date) >= 
+                    CASE 
+                        WHEN s.semester = "1" THEN 1 
+                        WHEN s.semester = "2" THEN 7 
+                    END 
+                AND 
+                MONTH(po.date) <= 
+                    CASE 
+                        WHEN s.semester = "1" THEN 6 
+                        WHEN s.semester = "2" THEN 12 
+                    END
+                AND YEAR(po.date) = s.year
+                AND po.vers = "Online"
+        ) AS total'))
+            ->get();
+        return response()->json(['data' => $reports]);
+    });
+    Route::get('/db/sales/reports/offline', function () {
+        // $reports = SalesReports::orderBy('id', 'ASC')->get();
+        $reports = DB::table('sales_reports AS s')
+            ->select('s.*', DB::raw('
+        (SELECT COALESCE(SUM(dpo.qty), 0) 
+            FROM product_out AS po
+            JOIN detail_product_out AS dpo ON dpo.id_product_out = po.id 
+            WHERE 
+                MONTH(po.date) >= 
+                    CASE 
+                        WHEN s.semester = "1" THEN 1 
+                        WHEN s.semester = "2" THEN 7 
+                    END 
+                AND 
+                MONTH(po.date) <= 
+                    CASE 
+                        WHEN s.semester = "1" THEN 6 
+                        WHEN s.semester = "2" THEN 12 
+                    END
+                AND YEAR(po.date) = s.year
+                AND po.vers = "Offline"
+        ) AS total'))
+            ->get();
         return response()->json(['data' => $reports]);
     });
 
-    Route::get('/db/sales/reports/{id}', function ($id) {
+    Route::get('/db/sales/reports/online/{id}', function ($id) {
         $report = SalesReports::find($id);
 
         if ($report->semester == '1') {
@@ -359,6 +408,7 @@ Route::group(["middleware" => "auth"], function () {
                 ->whereYear('p.date', $report->year)
                 ->whereMonth('p.date', '>=', '1')
                 ->whereMonth('p.date', '<=', '6')
+                ->where('p.vers', 'Online')
                 ->groupBy('d.id_serial_product')
                 ->get();
         } elseif ($report->semester == '2') {
@@ -370,6 +420,50 @@ Route::group(["middleware" => "auth"], function () {
                 ->whereYear('p.date', $report->year)
                 ->whereMonth('p.date', '>=', '7')
                 ->whereMonth('p.date', '<=', '12')
+                ->where('p.vers', 'Online')
+                ->groupBy('d.id_serial_product')
+                ->get();
+        }
+        return response()->json(['data' => $product]);
+    });
+
+    Route::get('/db/sales/reports/offline/{id}', function ($id) {
+        $report = SalesReports::find($id);
+
+        if ($report->semester == '1') {
+            // $product = DB::table('serial_product AS s')
+            // ->select('s.id', 'r.commodity', 's.pn', DB::raw('COALESCE(SUM(d.qty), 0) AS total'))
+            // ->leftJoin('detail_product_out AS d', 'd.id_serial_product', '=', 's.id')
+            // ->leftJoin('product_out AS p', function ($join) use ($report) {
+            //     $join->on('p.id', '=', 'd.id_product_out')
+            //         ->whereYear('p.date', $report->year)
+            //         ->whereMonth('p.date', '>=', '1')
+            //         ->whereMonth('p.date', '<=', '6');
+            // })
+            // ->leftJoin('product AS r', 's.id_product', '=', 'r.id')
+            // ->groupBy('s.id', 'r.commodity', 's.pn')
+            // ->get();
+            $product = DB::table('detail_product_out AS d')
+                ->select('d.id', 'r.commodity', 's.fxp_parts', 'd.price', 's.pn', DB::raw('SUM(d.qty) AS total'))
+                ->leftJoin('product_out AS p', 'd.id_product_out', '=', 'p.id')
+                ->leftJoin('serial_product AS s', 'd.id_serial_product', '=', 's.id')
+                ->leftJoin('product AS r', 's.id_product', '=', 'r.id')
+                ->whereYear('p.date', $report->year)
+                ->whereMonth('p.date', '>=', '1')
+                ->whereMonth('p.date', '<=', '6')
+                ->where('p.vers', 'Offline')
+                ->groupBy('d.id_serial_product')
+                ->get();
+        } elseif ($report->semester == '2') {
+            $product = DB::table('detail_product_out AS d')
+                ->select('d.id', 'r.commodity', 's.fxp_parts', 'd.price', DB::raw('SUM(d.qty) AS total'))
+                ->leftJoin('product_out AS p', 'd.id_product_out', '=', 'p.id')
+                ->leftJoin('serial_product AS s', 'd.id_serial_product', '=', 's.id')
+                ->leftJoin('product AS r', 's.id_product', '=', 'r.id')
+                ->whereYear('p.date', $report->year)
+                ->whereMonth('p.date', '>=', '7')
+                ->whereMonth('p.date', '<=', '12')
+                ->where('p.vers', 'Offline')
                 ->groupBy('d.id_serial_product')
                 ->get();
         }

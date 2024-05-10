@@ -19,6 +19,7 @@ class ProductOut extends Model
         'detail_client',
         'invoice',
         'note',
+        'vers',
         'total',
     ];
     public function detail()

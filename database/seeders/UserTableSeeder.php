@@ -219,7 +219,7 @@ class UserTableSeeder extends Seeder
                 "name" => "Eri Kurnia",
                 "phone" => "+62823-2020-9811",
                 "email" => "eri@reftech.id",
-                'password' => Hash::make('teknisi123'),
+                'password' => Hash::make('sales123'),
                 "image" => "asset/profile/HvVZS3Xu.jpg",
                 "sign" => null,
                 'birthday' => \Carbon\Carbon::today(),

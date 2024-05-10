@@ -100,7 +100,10 @@
                             <tr>
                                 <th>Replacement</th>
                                 <th>Stock</th>
-                                <th>Modal</th>
+                                @if (Auth::user()->role == 'Admin')
+                                    <th>Modal</th>
+                                    <th>Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -112,15 +115,17 @@
                                     <td>
                                         {{ $detail->stock }} {{ $detail->product->unit }}
                                     </td>
-                                    <td>
-                                        Rp.{{ number_format($detail->modal, 0, '', '.') }}
-                                    </td>
-                                    <td>
-                                        <a href="#" data-id="{{ $detail->id }}"
-                                            class="btn btn-sm btn-label-danger delete-replacement">
-                                            <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                                        </a>
-                                    </td>
+                                    @if (Auth::user()->role == 'Admin')
+                                        <td>
+                                            Rp.{{ number_format($detail->modal, 0, '', '.') }}
+                                        </td>
+                                        <td>
+                                            <a href="#" data-id="{{ $detail->id }}"
+                                                class="btn btn-sm btn-label-danger delete-replacement">
+                                                <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                            </a>
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>

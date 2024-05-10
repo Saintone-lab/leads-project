@@ -45,6 +45,7 @@ class ProductOutController extends Controller
         $rule = [
             'invoice' => 'required',
             'detail_client' => 'required',
+            'vers' => 'required',
             'date' => 'required',
             'shipping' => 'required',
             'note' => 'required',
@@ -52,6 +53,7 @@ class ProductOutController extends Controller
         $message = [
             'invoice.required' => 'Field No Invoice Wajib Diisi',
             'detail_client.required' => 'Field Detail Client Wajib Diisi',
+            'vers.required' => 'Field Offline / Online Wajib Diisi',
             'date.required' => 'Field Date Wajib Diisi',
             'shipping.required' => 'Field Shipping Wajib Diisi',
             'note.required' => 'Field Note Wajib Diisi',
@@ -63,6 +65,7 @@ class ProductOutController extends Controller
         $productOut->id_user = Auth::user()->id;
         $productOut->invoice = $request->invoice;
         $productOut->detail_client = $request->detail_client;
+        $productOut->vers = $request->vers;
         $productOut->date = $request->date;
         $productOut->note = $request->note;
         $productOut->shipping = $request->shipping;
@@ -143,6 +146,10 @@ class ProductOutController extends Controller
         $delProductOut = $product->delete();
 
         foreach ($detail as $dProductOut) {
+            $dProductOut->detailProduct->stock = $dProductOut->detailProduct->stock + $dProductOut->qty;
+            $dProductOut->detailProduct->save();
+            $dProductOut->detailProduct->product->stock = $dProductOut->detailProduct->product->stock + $dProductOut->qty;
+            $dProductOut->detailProduct->product->save();
             $delDetProductOut = $dProductOut->delete();
         }
 

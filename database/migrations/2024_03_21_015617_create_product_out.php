@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('invoice');
             $table->date('date');
             $table->string('note');
+            $table->enum('vers',['Offline', 'Online']);
             $table->integer('shipping');
             $table->integer('total');
             $table->timestamps();

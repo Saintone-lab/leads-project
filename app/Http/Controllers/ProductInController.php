@@ -75,7 +75,7 @@ class ProductInController extends Controller
                 $dProductIn->amount = $request->amount[$item];
                 $productD = DetailProduct::where('id', $request->replacement[$item])->first();
                 $productD->stock = $productD->stock + $request->qty[$item];
-                $productD->modal = $request->price[$item];
+                // $productD->modal = $request->price[$item];
                 $productD->save();
                 $product = Product::where('id', $productD->id_product)->first();
                 $product->stock = $product->stock + $request->qty[$item];
@@ -157,6 +157,10 @@ class ProductInController extends Controller
         $delProductIn = $product->delete();
 
         foreach ($detail as $dProductIn) {
+            $dProductIn->detailProduct->stock = $dProductIn->detailProduct->stock - $dProductIn->qty;
+            $dProductIn->detailProduct->save();
+            $dProductIn->detailProduct->product->stock = $dProductIn->detailProduct->product->stock - $dProductIn->qty;
+            $dProductIn->detailProduct->product->save();
             $delDetProductIn = $dProductIn->delete();
         }
 

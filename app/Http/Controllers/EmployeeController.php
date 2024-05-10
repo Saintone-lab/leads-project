@@ -302,13 +302,28 @@ class EmployeeController extends Controller
     }
 
     public function updateTarget(Request $request, $id){
+        $rule = [
+            'dc => required',
+            'crm => required',
+            'quote => required',
+            'po => required',
+            'total => required',
+        ];
+        $customMessages = [
+            'dc.required' => 'Field dc Wajib Diisi!',
+            'crm.required' => 'Field crm Wajib Diisi!',
+            'quote.required' => 'Field quote Wajib Diisi',
+            'po.required' => 'Field po Wajib Diisi',
+            'total.required' => 'Field code Wajib Diisi',
+        ];
+        $this->validate($request, $rule, $customMessages);
         $sales = User::find($id);
         $lastDetail = $sales->detail->last();
         $target = Target::where('id_sales', $id)->first();
         $target->dc = $request->dc;
         $target->crm = $request->crm;
         if ($lastDetail->area == "Bekasi" || $lastDetail->area == "Jabodetabek" || $lastDetail->area == "Jawa Barat") {
-            # code...
+            $target->visit = $request->visit;
         }
         $target->quote = $request->quote;
         $target->po = $request->po;

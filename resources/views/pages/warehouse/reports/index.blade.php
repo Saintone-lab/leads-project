@@ -6,7 +6,7 @@
     </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-sales-reports table table-striped">
+                <table class="datatable-sales-reports-online table table-striped">
                     <thead>
                         <tr>
                             <th></th>
@@ -14,6 +14,25 @@
                             <th>ID</th>
                             <th>Year</th>
                             <th>Semester</th>
+                            <th>Total Quantity</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                </table>
+        </div>
+    </div>
+    
+    <div class="card mb-3">
+        <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-sales-reports-offline table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Year</th>
+                            <th>Semester</th>
+                            <th>Total Quantity</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -44,5 +63,6 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-sales-reports.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-sales-reports-online.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-sales-reports-offline.js"></script>
 @endpush

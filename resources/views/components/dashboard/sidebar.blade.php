@@ -42,7 +42,7 @@
                     <div data-i18n="Reports">Reports</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('overview') ? 'active' : '' }}">
+            <li class="menu-item {{ request()->is('overview') ||  request()->is('overview/*') ||  request()->is('overview/*/*') ? 'active' : '' }}">
                 <a href="{{ url('/overview') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-account-eye-outline"></i>
                     <div data-i18n="Overview">Overview</div>
@@ -106,7 +106,7 @@
                 </ul>
             </li>
 
-            <li class="menu-item {{ request()->is('visits/*') ? 'open' : '' }}">
+            {{-- <li class="menu-item {{ request()->is('visits/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-office-building-marker-outline"></i>
                     <div data-i18n="Visit">Visit</div>
@@ -123,7 +123,7 @@
                         </a>
                     </li>
                 </ul>
-            </li>
+            </li> --}}
 
 
             <li
@@ -207,7 +207,7 @@
                     <div data-i18n="Reports">Reports</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('overview') ||  request()->is('overview/*') ? 'active' : '' }}">
+            <li class="menu-item {{ request()->is('overview') ||  request()->is('overview/*') ||  request()->is('overview/*/*') ? 'active' : '' }}">
                 <a href="{{ url('/overview') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-account-eye-outline"></i>
                     <div data-i18n="Overview">Overview</div>
@@ -271,7 +271,7 @@
                 </ul>
             </li>
 
-            <li class="menu-item {{ request()->is('visits/*') ? 'open' : '' }}">
+            {{-- <li class="menu-item {{ request()->is('visits/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-office-building-marker-outline"></i>
                     <div data-i18n="Visit">Visit</div>
@@ -288,7 +288,7 @@
                         </a>
                     </li>
                 </ul>
-            </li>
+            </li> --}}
 
 
             <li

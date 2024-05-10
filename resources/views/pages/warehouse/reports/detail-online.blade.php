@@ -6,7 +6,7 @@
     </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-reports table table-striped">
+                <table class="datatable-reports-online table table-striped">
                     <thead>
                         <tr>
                             <th></th>
@@ -43,5 +43,5 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-sale.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-sale-online.js"></script>
 @endpush

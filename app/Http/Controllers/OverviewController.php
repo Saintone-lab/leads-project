@@ -150,20 +150,19 @@ class OverviewController extends Controller
 
     public function overviewAdmin($semester, $sales)
     {
-        // $report = SalesReports::find($semester);
-        // $getDC = $this->getMonthlyDataDCSales($report->semester, $report->year, $sales);
-        // $cardDC = $this->cardMonthlyDCSales($report->semester, $report->year, $sales);
-        // $getCRM = $this->getMonthlyDataCRMSales($report->semester, $report->year, $sales);
-        // $getVisit = $this->getMonthlyDataVisitSales($report->semester, $report->year, $sales);
-        // $getQuote = $this->getMonthlyDataQuoteSales($report->semester, $report->year, $sales);
-        // $getPO = $this->getMonthlyDataPOSales($report->semester, $report->year, $sales);
-        // $getPOModal = $this->getMonthlyDataPOModalSales($report->semester, $report->year, $sales);
-        // $getTotalForecast = $this->getMonthlyDataTotalForecastSales($report->semester, $report->year, $sales);
-        // $getTotalPO = $this->getMonthlyDataTotalPOSales($report->semester, $report->year, $sales);
-        // $targett = Target::where('id_sales', $sales)->pluck('total')->sum();
+        $report = SalesReports::find($semester);
+        $getDC = $this->getMonthlyDataDCSales($report->semester, $report->year, $sales);
+        $cardDC = $this->cardMonthlyDCSales($report->semester, $report->year, $sales);
+        $getCRM = $this->getMonthlyDataCRMSales($report->semester, $report->year, $sales);
+        $getVisit = $this->getMonthlyDataVisitSales($report->semester, $report->year, $sales);
+        $getQuote = $this->getMonthlyDataQuoteSales($report->semester, $report->year, $sales);
+        $getPO = $this->getMonthlyDataPOSales($report->semester, $report->year, $sales);
+        $getPOModal = $this->getMonthlyDataPOModalSales($report->semester, $report->year, $sales);
+        $getTotalForecast = $this->getMonthlyDataTotalForecastSales($report->semester, $report->year, $sales);
+        $getTotalPO = $this->getMonthlyDataTotalPOSales($report->semester, $report->year, $sales);
+        $targett = Target::where('id_sales', $sales)->pluck('total')->sum();
         // dd($getDC);
-        return view('pages.admin.overview.detail');
-        // return view('pages.admin.overview.detail', compact('report', 'getDC', 'getCRM', 'getVisit', 'getQuote', 'getPO', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'targett'));
+        return view('pages.admin.overview.detail', compact('report', 'getDC', 'getCRM', 'getVisit', 'getQuote', 'getPO', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'targett'));
     }
     protected function getMonthlyDataDC($semester, $year)
     {

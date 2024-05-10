@@ -1,28 +1,23 @@
 @extends('layouts.sales.app')
-@section('title', 'Product Out')
+@section('title', 'Sales Reports')
 @section('content')
     <h4 class="fw-bold py-3 mb-4">
-        Product Out
+        Reports {{$reports->year}}, Semester {{$reports->semester}}
     </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-product-out table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Invoice</th>
-                        <th>Client</th>
-                        <th>Product</th>
-                        <th>Note</th>
-                        <th>Qty</th>
-                        <th>Price</th>
-                        <th>Date</th>
-                        <th></th>
-                    </tr>
-                </thead>
-            </table>
+                <table class="datatable-reports-offline table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Commodity</th>
+                            <th>Equivalent</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                </table>
         </div>
     </div>
 @endsection()
@@ -48,5 +43,5 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-product-out.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-sale-offline.js"></script>
 @endpush
