@@ -23,6 +23,7 @@ class Quotation extends Model
         'no_pr',
         'status',
         'note',
+        'flag',
         'tax',
         'diskon',
         'shipping',

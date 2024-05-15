@@ -78,97 +78,108 @@
                             : {{ $product->stock }} {{ $product->unit }}
                         </div>
                     </div>
-                    </p>
+                    <div class="row mb-1">
+                        <div class="col-3">
+                            Note
+                        </div>
+                        <div class="col-9">
+                            <pre class="mb-1"
+                                style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $product->note }}
+                            </pre>
+                        </div>
+                    </div>
                 </div>
+                </p>
             </div>
         </div>
-        <div class="col-md-4 col-12 h-auto overflow-auto flex-1">
-            <div class="d-flex justify-content-between mb-2">
-                <h5 class="fw-bold pb-1 mb-2">
-                    Replacement
-                </h5>
-                <a type="button" data-bs-toggle="modal" data-bs-target="#createReplacement-{{ $product->id }}">
-                    <button type="button" class="btn btn-primary">
-                        + New Replacement
-                    </button>
-                </a>
-            </div>
-            <div class="card">
-                <div class="table-responsive text-nowrap h-100">
-                    <table class="table table-striped">
-                        <thead>
+    </div>
+    <div class="col-md-4 col-12 h-auto overflow-auto flex-1">
+        <div class="d-flex justify-content-between mb-2">
+            <h5 class="fw-bold pb-1 mb-2">
+                Replacement
+            </h5>
+            <a type="button" data-bs-toggle="modal" data-bs-target="#createReplacement-{{ $product->id }}">
+                <button type="button" class="btn btn-primary">
+                    + New Replacement
+                </button>
+            </a>
+        </div>
+        <div class="card">
+            <div class="table-responsive text-nowrap h-100">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Replacement</th>
+                            <th>Stock</th>
+                            @if (Auth::user()->role == 'Admin')
+                                <th>Modal</th>
+                                <th>Action</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        @forelse ($details as $detail)
                             <tr>
-                                <th>Replacement</th>
-                                <th>Stock</th>
+                                <td>
+                                    {{ $detail->replacement }}
+                                </td>
+                                <td>
+                                    {{ $detail->stock }} {{ $detail->product->unit }}
+                                </td>
                                 @if (Auth::user()->role == 'Admin')
-                                    <th>Modal</th>
-                                    <th>Action</th>
+                                    <td>
+                                        Rp.{{ number_format($detail->modal, 0, '', '.') }}
+                                    </td>
+                                    <td>
+                                        <a href="#" data-id="{{ $detail->id }}"
+                                            class="btn btn-sm btn-label-danger delete-replacement">
+                                            <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                        </a>
+                                    </td>
                                 @endif
                             </tr>
-                        </thead>
-                        <tbody class="table-border-bottom-0">
-                            @forelse ($details as $detail)
-                                <tr>
-                                    <td>
-                                        {{ $detail->replacement }}
-                                    </td>
-                                    <td>
-                                        {{ $detail->stock }} {{ $detail->product->unit }}
-                                    </td>
-                                    @if (Auth::user()->role == 'Admin')
-                                        <td>
-                                            Rp.{{ number_format($detail->modal, 0, '', '.') }}
-                                        </td>
-                                        <td>
-                                            <a href="#" data-id="{{ $detail->id }}"
-                                                class="btn btn-sm btn-label-danger delete-replacement">
-                                                <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                                            </a>
-                                        </td>
-                                    @endif
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">
-                                        Kamu belum punya Replacement.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-8 col-12 flex-1">
-            <div class="d-flex justify-content-between mb-2">
-                <h5 class="fw-bold pb-1 mb-2">
-                    Equivalent
-                </h5>
-                <a type="button" data-bs-toggle="modal" data-bs-target="#createEquivalent-{{ $product->id }}">
-                    <button type="button" class="btn btn-primary">
-                        + New Equivalent
-                    </button>
-                </a>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <table class="datatable-product-equivalent table table-striped">
-                        <thead>
+                        @empty
                             <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Fxp Parts</th>
-                                <th>Brand</th>
-                                <th>PN</th>
-                                <th>Price</th>
-                                <th></th>
+                                <td colspan="4" class="text-center">
+                                    Kamu belum punya Replacement.
+                                </td>
                             </tr>
-                        </thead>
-                    </table>
-                </div>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
+    </div>
+    <div class="col-md-8 col-12 flex-1">
+        <div class="d-flex justify-content-between mb-2">
+            <h5 class="fw-bold pb-1 mb-2">
+                Equivalent
+            </h5>
+            <a type="button" data-bs-toggle="modal" data-bs-target="#createEquivalent-{{ $product->id }}">
+                <button type="button" class="btn btn-primary">
+                    + New Equivalent
+                </button>
+            </a>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <table class="datatable-product-equivalent table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Fxp Parts</th>
+                            <th>Brand</th>
+                            <th>PN</th>
+                            <th>Price</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
     </div>
     <div class="row">
         <div class="col-12 col-lg-6">

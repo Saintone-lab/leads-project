@@ -6,44 +6,84 @@
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
             <div class="card invoice-preview-card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
-                        <div class="mb-xl-0 pb-1">
-                            <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
-                                <span class="app-brand-logo demo">
-                                    <span style="color: var(--bs-primary)">
-                                        <img class="text-md"
-                                            src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
-                                            alt="" srcset="" width="60%">
+                    @if ($quote->flag == 'Reftech')
+                        <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
+                            <div class="mb-xl-0 pb-1">
+                                <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
+                                    <span class="app-brand-logo demo">
+                                        <span style="color: var(--bs-primary)">
+                                            <img class="text-md"
+                                                src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
+                                                alt="" srcset="" width="60%">
+                                        </span>
                                     </span>
-                                </span>
+                                </div>
+                                <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
+                                <div style="font-size: 10px">
+                                    <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
+                                    <p class="mb-1">Bandung – Jawa Barat 40218</p>
+                                    <p class="mb-1">
+                                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
+                                    </p>
+                                    <p class="mb-1">
+                                        <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
+                                    </p>
+                                </div>
                             </div>
-                            <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
-                            <div style="font-size: 10px">
-                                <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
-                                <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                                <p class="mb-1">
-                                    <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
-                                </p>
-                                <p class="mb-1">
-                                    <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
-                                </p>
-                            </div>
-                        </div>
-                        <div>
-                            <h3 class="fw-bold">QUOTATION</h3>
                             <div>
-                                <span class="fw-bolder">#{{ $quote->no_quote }}</span>
-                            </div>
-                            <div class="mt-1">
-                                <span
-                                    class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
-                            </div>
-                            <div class="mt-1">
-                                <span
-                                    class="text-muted">{{ Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</span>
+                                <h3 class="fw-bold">QUOTATION</h3>
+                                <div>
+                                    <span class="fw-bolder">#{{ $quote->no_quote }}</span>
+                                </div>
+                                <div class="mt-1">
+                                    <span
+                                        class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
+                                </div>
+                                <div class="mt-1">
+                                    <span
+                                        class="text-muted">{{ Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
+                            <div class="mb-xl-0 pb-1">
+                                <div class="d-flex svg-illustration align-items-center gap-2 mb-2">
+                                    <span class="app-brand-logo demo">
+                                        <span style="color: var(--bs-primary)">
+                                            <img class="text-md" src="{{ asset('/asset') }}/logo/Kojisha-Log.png"
+                                                alt="" srcset="" width="60%">
+                                        </span>
+                                    </span>
+                                </div>
+                                <p class="mb-1 fw-bolder">PT Kojisha</p>
+                                <div style="font-size: 10px">
+                                    <p class="mb-1">Jl. Nancep No. 45A, Setu</p>
+                                    <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
+                                    <p class="mb-1">
+                                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62 812-1000-0997
+                                    </p>
+                                    <p class="mb-1">
+                                        <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
+                                    </p>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="fw-bold">QUOTATION</h3>
+                                <div>
+                                    <span class="fw-bolder">#{{ $quote->no_quote }}</span>
+                                </div>
+                                <div class="mt-1">
+                                    <span
+                                        class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
+                                </div>
+                                <div class="mt-1">
+                                    <span
+                                        class="text-muted">{{ Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
                 <hr class="my-0">
                 <div class="card-body mb-3">
@@ -71,7 +111,8 @@
                             <p class="mb-1">Email :</p>
                         </div>
                         <div class="col-3 text-end">
-                            <p class="mb-1"> PT Reftech Jaya Optima</p>
+                            <p class="mb-1"> {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha' }}
+                            </p>
                             <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                             <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                         </div>
@@ -109,7 +150,8 @@
                                     <td class="align-top text-end">RP {{ number_format($product->price, 0, '', '.') }}</td>
                                     <td class="align-top">{{ $product->qty }} {{ $product->info_qty }} </td>
                                     <td class="align-top">{{ $product->disc }}%</td>
-                                    <td class="align-top text-end">RP {{ number_format($product->amount, 0, '', '.') }}</td>
+                                    <td class="align-top text-end">RP {{ number_format($product->amount, 0, '', '.') }}
+                                    </td>
                                 </tr>
                             @endforeach
                             <tr>
@@ -127,7 +169,8 @@
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                                     <p class="fw-semibold mb-2 text-end">{{ $quote->tax }}%</p>
-                                    <p class="fw-semibold mb-2 text-end">RP {{ number_format($quote->diskon, 0, '', '.') }}
+                                    <p class="fw-semibold mb-2 text-end">RP
+                                        {{ number_format($quote->diskon, 0, '', '.') }}
                                     </p>
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($quote->shipping, 0, '', '.') }}</p>
@@ -162,7 +205,7 @@
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-body">
                     <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
                         href="{{ route('print.quotation', $quote->id) }}">
@@ -180,6 +223,17 @@
                     @if (Auth::user()->role == 'Sales')
                         <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-quotation"
                             data-id="{{ $quote->id }}">Delete</a>
+                    @endif
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <a href="#" data-id="{{ $quote->id }}"
+                        class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
+                        {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
+                    @if ($quote->status != '100')
+                        <a href="#" data-id="{{ $quote->id }}"
+                            class="btn btn-outline-whatsapp d-grid w-100 waves-effect donePo">Convert To PO</a>
                     @endif
                 </div>
             </div>
@@ -294,6 +348,62 @@
             //         });
             //     }
             // });
+        });
+        $(document).on('click', '.convert-flag', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure to Convert this?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Convert it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('quotation') }}/' + id + '/convert_flag',
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Converted!",
+                                    text: "Your file has been converted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/quotation/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Convert!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your Convert is cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
         });
     </script>
 @endpush

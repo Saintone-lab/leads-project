@@ -16,10 +16,12 @@ use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceReportsController;
 use App\Http\Controllers\StockController;
+use App\Models\Activities;
 use App\Models\DetailProduct;
 use App\Models\Pic;
 use App\Models\ProductIn;
 use App\Models\Quotation;
+use App\Models\Reports;
 use App\Models\SalesReports;
 use App\Models\SerialProduct;
 use App\Models\User;
@@ -72,6 +74,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/po', [QuotationController::class, 'po_quote'])->name('quotation.po');
     Route::get('/loss', [QuotationController::class, 'loss_quote'])->name('quotation.loss');
     Route::get('/quotation/{id}/change_status', [QuotationController::class, 'change_status'])->name('status.change.quotation');
+    Route::post('/quotation/{id}/convert_flag', [QuotationController::class, 'convert_flag'])->name('convert-flag.quotation');
     Route::get('/quotation/revision/{id}', [QuotationController::class, 'edit_revisi'])->name('revisi.quotation');
     Route::get('/quotation/print/{id}', [QuotationController::class, 'print_quote'])->name('print.quotation');
     Route::get('/quotation/pdf/{id}', [QuotationController::class, 'pdf_quote'])->name('pdf.quotation');
@@ -275,6 +278,22 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $data]);
     });
 
+    Route::get('/db/client/po-history/{id}', function ($id) {
+        $data = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('quotation.status', '100')->where('pic.id_client', $id)->get('quotation.*');
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/client/crm-history/{id}', function ($id) {
+        $data = Activities::where('id_client', $id)->whereIn('name', ['Daily Call', 'Follow Up', 'CRM'])->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/client/service-history/{id}', function ($id) {
+        $data = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')
+            ->join('users', 'users.id', '=', 'reports.id_technician')
+            ->where('pic.id_client', $id)
+            ->select('reports.*', 'users.name')
+            ->get();
+        return response()->json(['data' => $data]);
+    });
     Route::get('/db/productIn', function () {
         require_once base_path('app/api/product/in/connection.php');
     });
@@ -332,7 +351,7 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json(['data' => $sales]);
     });
-    
+
     Route::get('/db/sales/reports/online', function () {
         // $reports = SalesReports::orderBy('id', 'ASC')->get();
         $reports = DB::table('sales_reports AS s')

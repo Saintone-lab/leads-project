@@ -6,7 +6,7 @@
     </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-product-in table table-striped">
+            <table class="datatable-product-{{Auth::user()->role == 'Logistic' ? 'in-logistic' : 'in'}} table table-striped">
                 <thead>
                     <tr>
                         <th></th>
@@ -48,4 +48,5 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-in.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-product-in-logistic.js"></script>
 @endpush

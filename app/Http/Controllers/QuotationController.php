@@ -24,10 +24,10 @@ class QuotationController extends Controller
     public function index()
     {
         $quotation = Quotation::where('id_sales', Auth::user()->id)->get();
-        $forecast = Quotation::where('id_sales', Auth::user()->id)->whereIn('status', ['20', '30','40','60','80'])->sum('harga_total');
-        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('status', '80')->sum('harga_total');
-        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->sum('harga_total');
-        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->sum('harga_total');
+        $forecast = Quotation::where('id_sales', Auth::user()->id)->whereIn('status', ['20', '30','40','60','80'])->sum('total_no_tax');
+        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('status', '80')->sum('total_no_tax');
+        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->sum('total_no_tax');
+        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->sum('total_no_tax');
         // dd();
         return view('pages.sales.quotation.index', compact('quotation','forecast','prospect','po','loss'));
     }
@@ -362,6 +362,21 @@ class QuotationController extends Controller
     public function loss_quote()
     {
         return view('pages.sales.quotation.loss.index');
+    }
+
+    public function convert_flag(Request $request, $id){
+        $quote = Quotation::find($id);
+        if($quote->flag == 'Reftech'){
+            $quote->flag = 'Kojisha';
+        }elseif ($quote->flag == 'Kojisha') {
+            $quote->flag = 'Reftech';
+        }
+        $quoteSave = $quote->save();
+        if($quoteSave){
+            return 1;
+        }else{
+            return 0;
+        }
     }
 
     protected function convertToRoman($month)

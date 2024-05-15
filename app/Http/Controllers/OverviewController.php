@@ -30,7 +30,7 @@ class OverviewController extends Controller
         $totalForecast = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('harga_total');
+            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('total_no_tax');
             return number_format($total, 2, ',', '.');
         });
         $filteredPO = $sales->map(function ($sale) {
@@ -648,7 +648,7 @@ class OverviewController extends Controller
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
 
-            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(harga_total) as total'))
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(total_no_tax) as total'))
                 ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
                 ->whereIn('status', ['20', '30', '40', '60', '80', '100'])
@@ -678,7 +678,7 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-12-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(harga_total) as total'))
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(total_no_tax) as total'))
                 ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
                 ->whereIn('status', ['20', '30', '40', '60', '80'])
@@ -743,7 +743,7 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-12-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(harga_total) as total'))
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(total_no_tax) as total'))
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
                 ->where('status', '100')
@@ -1255,7 +1255,7 @@ class OverviewController extends Controller
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
 
-            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(harga_total) as total'))
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(total_no_tax) as total'))
                 ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
                 ->whereIn('status', ['20', '30', '40', '60', '80', '100'])
@@ -1285,7 +1285,7 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-12-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(harga_total) as total'))
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(total_no_tax) as total'))
                 ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
                 ->whereIn('status', ['20', '30', '40', '60', '80'])
@@ -1350,7 +1350,7 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-12-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(harga_total) as total'))
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(total_no_tax) as total'))
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
                 ->where('status', '100')

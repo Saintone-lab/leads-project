@@ -72,8 +72,15 @@
                                     </td>
                                     <td class="align-top">{{ $products->qty }} {{ $products->detailProduct->product->unit }}
                                     </td>
-                                    <td class="align-top">RP {{ number_format($products->modal, 0, '', '.') }}</td>
-                                    <td class="align-top">RP {{ number_format($products->amount, 0, '', '.') }}</td>
+                                    @if (Auth::user()->role == 'Logistic')
+                                        <td class="align-top">RP {{ str_repeat('*', strlen((string) $products->modal)) }}
+                                        </td>
+                                        <td class="align-top">RP {{ str_repeat('*', strlen((string) $products->amount)) }}
+                                        </td>
+                                    @else
+                                        <td class="align-top">RP {{ number_format($products->modal, 0, '', '.') }}</td>
+                                        <td class="align-top">RP {{ number_format($products->amount, 0, '', '.') }}</td>
+                                    @endif
                                 </tr>
                             @endforeach
                             <tr style="font-size: 13px;">
@@ -84,7 +91,11 @@
                             <tr style="font-size: 13px">
                                 <td colspan="3" style="border:none;"></td>
                                 <td style="border:none;">Total</td>
-                                <td style="border:none;">: RP {{ number_format($product->total, 0, '', '.') }}</td>
+                                @if (Auth::user()->role == 'Logistic')
+                                    <td style="border:none;">: RP {{ str_repeat('*', strlen((string) $product->total)) }}</td>
+                                    @else
+                                    <td style="border:none;">: RP {{ number_format($product->total, 0, '', '.') }}</td>
+                                @endif
                             </tr>
                         </tbody>
                     </table>

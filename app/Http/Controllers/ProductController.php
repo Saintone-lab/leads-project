@@ -139,6 +139,7 @@ class ProductController extends Controller
         $product->category = $request->category;
         $product->unit = $request->unit;
         $product->go = $request->go;
+        $product->note = $request->note;
         $productSave = $product->save();
 
         if ($productSave) {

@@ -1,10 +1,10 @@
 $(function () {
-    var dt_table_quotation = $(".datatable-quotation");
-    var Url = "db/quotation";
+    var dt_table_product = $(".datatable-product-in-logistic");
+    var Url = "db/productIn";
 
-    if (dt_table_quotation.length) {
+    if (dt_table_product.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_quotation = dt_table_quotation.DataTable({
+        var dt_product = dt_table_product.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -26,21 +26,15 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "no_quote" },
-                { data: "company" },
-                { data: "total_no_tax" },
-                { data: "title" },
-                { data: "estimated_date" },
-                { data: "status" },
-                { data: "expired_date" },
-                { data: "status" },
+                { data: "invoice" },
+                { data: "supplier" },
+                { data: "product" },
+                { data: "qty" },
+                { data: "total" },
+                { data: "date" },
                 { data: "" },
             ],
             columnDefs: [
-                {
-                    targets: 5,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
-                },
                 {
                     // For Responsive
                     className: "control",
@@ -74,119 +68,27 @@ $(function () {
                 },
                 {
                     responsivePriority: 1,
-                    targets: 4,
+                    targets: 3,
                 },
                 {
-                    // Label Status Name
-                    targets: 8,
+                    targets: 3,
                     render: function (data, type, full, meta) {
-                        var $status_number = full["status"];
-                        var $status = {
-                            20: {
-                                title: "Send WA / Email",
-                                class: "bg-label-secondary",
-                            },
-                            30: {
-                                title: "Inquiry Accepted",
-                                class: " bg-label-dark",
-                            },
-                            40: {
-                                title: "Progress Follow Up",
-                                class: " bg-label-info",
-                            },
-                            60: {
-                                title: "Negotiation / Revisi",
-                                class: " bg-label-primary",
-                            },
-                            80: {
-                                title: "Hot Prospect",
-                                class: " bg-label-warning",
-                            },
-                            100: {
-                                title: "Done PO",
-                                class: " bg-label-success",
-                            },
-                            0: {
-                                title: "Loss",
-                                class: " bg-label-danger",
-                            },
-                        };
-                        if (typeof $status[$status_number] === "undefined") {
-                            return data;
-                        }
+                        var $tip = full["tip"];
+                        var $invoice = full["invoice"];
                         return (
-                            '<span class="badge rounded-pill ' +
-                            $status[$status_number].class +
+                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary"' +
+                            ' title=" ' +
+                            $tip +
                             '">' +
-                            $status[$status_number].title +
+                            $invoice +
                             "</span>"
                         );
                     },
                 },
                 {
-                    // Label Status Percent
-                    targets: 10,
-                    render: function (data, type, full, meta) {
-                        var $status_number = full["status"];
-                        var $titleTool = full["note"];
-                        var $status = {
-                            20: {
-                                title: "20%",
-                                class: "bg-label-secondary",
-                                colorTip: "tooltip-secondary",
-                                titleTip: $titleTool,
-                            },
-                            30: {
-                                title: "30%",
-                                class: " bg-label-dark",
-                                colorTip: "tooltip-dark",
-                                titleTip: $titleTool,
-                            },
-                            40: {
-                                title: "40%",
-                                class: " bg-label-info",
-                                colorTip: "tooltip-info",
-                                titleTip: $titleTool,
-                            },
-                            60: {
-                                title: "60%",
-                                class: " bg-label-primary",
-                                colorTip: "tooltip-primary",
-                                titleTip: $titleTool,
-                            },
-                            80: {
-                                title: "80%",
-                                class: " bg-label-warning",
-                                colorTip: "tooltip-warning",
-                                titleTip: $titleTool,
-                            },
-                            100: {
-                                title: "100%",
-                                class: " bg-label-success",
-                                colorTip: "tooltip-success",
-                                titleTip: $titleTool,
-                            },
-                            0: {
-                                title: "0%",
-                                class: " bg-label-danger",
-                                colorTip: "tooltip-danger",
-                                titleTip: $titleTool,
-                            },
-                        };
-                        if (typeof $status[$status_number] === "undefined") {
-                            return data;
-                        }
-                        return (
-                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
-                            $status[$status_number].colorTip +
-                            '" title="' +
-                            $status[$status_number].titleTip +
-                            '" class="badge rounded-pill ' +
-                            $status[$status_number].class +
-                            '">' +
-                            $status[$status_number].title +
-                            "</span>"
-                        );
+                    targets: 7,
+                    render: function (data, type, row, meta) {
+                        return "*".repeat(data.toString().length);
                     },
                 },
                 {
@@ -197,8 +99,8 @@ $(function () {
                     searchable: false,
                     render: function (data, type, full, meta) {
                         var $dataId = full["id"];
-                        var $detailQUrl = route("quotation.show", $dataId);
-                        var $revQUrl = route("revisi.quotation", $dataId);
+                        var $detailQUrl = route("product-in.show", $dataId);
+                        var $revQUrl = route("product-in.edit", $dataId);
                         return (
                             '<div class="d-inline-block">' +
                             '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
@@ -208,19 +110,15 @@ $(function () {
                             '" class="dropdown-item">Details</a></li>' +
                             '<li><a href="' +
                             $revQUrl +
-                            '" class="dropdown-item">Revisi</a></li>' +
+                            '" class="dropdown-item">Edit</a></li>' +
                             "</ul>" +
                             "</div>"
                         );
                     },
                 },
             ],
-            drawCallback: function (settings) {
-                console.log("drawCallback");
-                $('[data-toggle="tooltip"]').tooltip();
-            },
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
@@ -234,7 +132,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -290,7 +188,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -327,7 +225,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -364,7 +262,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -401,7 +299,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                columns: [3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -436,19 +334,22 @@ $(function () {
                     ],
                 },
                 {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Quotation</span>',
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Invoice Product</span>',
                     className: "btn btn-primary btn-new",
                     action: function (e, dt, node, config) {
-                        window.location = route("create.quotation");
+                        window.location = route("product-in.create");
                     },
                 },
             ],
+            drawCallback: function (settings) {
+                $('[data-toggle="tooltip"]').tooltip();
+            },
             responsive: {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal({
                         header: function (row) {
                             var data = row.data();
-                            return "Details of " + data["full_name"];
+                            return "Details of " + data["company"];
                         },
                     }),
                     type: "column",
@@ -478,11 +379,11 @@ $(function () {
                 },
             },
         });
-        $("div.hl-1").html(
-            '<h5 class="card-title mb-0">Quotations</h5>'
+        $("div.head-label").html(
+            '<h5 class="card-title mb-0">Table Product</h5>'
         );
     }
-    dt_table_quotation.on("draw", function () {
+    dt_table_product.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

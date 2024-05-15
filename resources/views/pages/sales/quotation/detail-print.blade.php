@@ -2,43 +2,85 @@
 @section('title', $quote->no_quote)
 <div class="invoice-print p-4">
     <div class="container-fluid flex-grow-1 container-p-y">
-        <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
-            <div class="mb-xl-0 pb-1">
-                <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
-                    <span class="app-brand-logo demo">
-                        <span style="color: var(--bs-primary)">
-                            <img class="text-md"
-                                src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
-                                alt="" srcset="" width="60%">
+
+        @if ($quote->flag == 'Reftech')
+            <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
+                <div class="mb-xl-0 pb-1">
+                    <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
+                        <span class="app-brand-logo demo">
+                            <span style="color: var(--bs-primary)">
+                                <img class="text-md"
+                                    src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
+                                    alt="" srcset="" width="60%">
+                            </span>
                         </span>
-                    </span>
+                    </div>
+                    <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
+                    <div style="font-size: 10px">
+                        <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
+                        <p class="mb-1">Bandung – Jawa Barat 40218</p>
+                        <p class="mb-1">
+                            <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
+                        </p>
+                        <p class="mb-1">
+                            <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
+                        </p>
+                    </div>
                 </div>
-                <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
-                <div style="font-size: 10px">
-                    <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
-                    <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                    <p class="mb-1">
-                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
-                    </p>
-                    <p class="mb-1">
-                        <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
-                    </p>
-                </div>
-            </div>
-            <div class="text-end">
-                <h5 class="fw-bold">QUOTATION</h5>
                 <div>
-                    <span class="fw-bolder">#{{ $quote->no_quote }}</span>
-                </div>
-                <div class="mt-1">
-                    <span
-                        class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
-                </div>
-                <div class="mt-1">
-                    <span class="text-muted">{{ Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</span>
+                    <h3 class="fw-bold">QUOTATION</h3>
+                    <div>
+                        <span class="fw-bolder">#{{ $quote->no_quote }}</span>
+                    </div>
+                    <div class="mt-1">
+                        <span
+                            class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
+                    </div>
+                    <div class="mt-1">
+                        <span
+                            class="text-muted">{{ Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        @else
+            <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
+                <div class="mb-xl-0 pb-1">
+                    <div class="d-flex svg-illustration align-items-center gap-2 mb-2">
+                        <span class="app-brand-logo demo">
+                            <span style="color: var(--bs-primary)">
+                                <img class="text-md" src="{{ asset('/asset') }}/logo/Kojisha-Log.png" alt=""
+                                    srcset="" width="60%">
+                            </span>
+                        </span>
+                    </div>
+                    <p class="mb-1 fw-bolder">PT Kojisha</p>
+                    <div style="font-size: 10px">
+                        <p class="mb-1">Jl. Nancep No. 45A, Setu</p>
+                        <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
+                        <p class="mb-1">
+                            <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62 812-1000-0997
+                        </p>
+                        <p class="mb-1">
+                            <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="fw-bold">QUOTATION</h3>
+                    <div>
+                        <span class="fw-bolder">#{{ $quote->no_quote }}</span>
+                    </div>
+                    <div class="mt-1">
+                        <span
+                            class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
+                    </div>
+                    <div class="mt-1">
+                        <span
+                            class="text-muted">{{ Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</span>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         <hr>
 
@@ -67,7 +109,7 @@
                     <p class="mb-1">Email :</p>
                 </div>
                 <div class="col-4 text-end">
-                    <p class="mb-1"> PT Reftech Jaya Optima</p>
+                    <p class="mb-1"> {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha' }}</p>
                     <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                     <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                 </div>
@@ -127,7 +169,8 @@
                             <p class="fw-semibold mb-2 text-end">Rp
                                 {{ number_format($quote->shipping, 0, '', '.') }}</p>
                             @if ($quote->diskon != 0)
-                                <p class="fw-semibold mb-2 text-end">Rp {{ number_format($quote->diskon, 0, '', '.') }}</p>
+                                <p class="fw-semibold mb-2 text-end">Rp
+                                    {{ number_format($quote->diskon, 0, '', '.') }}</p>
                             @endif
                         </td>
                     </tr>
@@ -180,7 +223,11 @@
         </div>
         <div class="mb-0">
             <p class="text-center mb-0">if you have any questions about this quotation, please contact :</p>
-            <p class="text-center">{{ $quote->sales->name }} {{ $quote->sales->phone }}</p>
+            @if ($quote->flag == 'Reftech')
+                <p class="text-center">{{ $quote->sales->name }} {{ $quote->sales->phone }}</p>
+            @else
+                <p class="text-center">+62 812-1000-0997</p>
+            @endif
         </div>
     </div>
 </div>

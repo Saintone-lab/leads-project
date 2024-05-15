@@ -642,6 +642,22 @@
                 $('#subtotal').val(sTotal);
             });
 
+            // Logic Harga Total
+            $('#subtotal, #tax, #shipping-label, #diskon-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-disc')
+                .on('keyup change',
+                    () => {
+                        var noTax = 0;
+                        var hTotal = 0;
+                        var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
+                        var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon').val());
+                        var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
+                        hTotal = parseInt(sTotal + (sTotal * tax / 100) - discount);
+                        noTax = parseInt(sTotal - discount)
+                        $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
+                        $('#hargaTotal').val(hTotal);
+                        $('#totalNoTax').val(noTax);
+                    });
+
             // Logic Subtotal dan Amount Setelah Tambah Product
             $('.btn-add').on('click', () => {
                 $(".invoice-item-price-label").on('keyup', function() {
@@ -699,55 +715,26 @@
                         $('#subtotal-label').html(`${formatter.format(sTotal)}`);
                         $('#subtotal').val(sTotal);
                     });
-                // Logic Harga Total Setelah Tambah Product
-                $('#tax').on('change', () => {
-                    var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal')
-                        .val());
-                    var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($(
-                        '#shipping').val());
-                    var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                    var hTotal = parseInt(sTotal + (sTotal * tax / 100) + shipping);
-                    $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
-                    $('#hargaTotal').val(hTotal);
-                    console.log(tax);
-                })
-                $('#subtotal, #shipping, .invoice-item-price-label, #diskon-label, .invoice-item-qty, .invoice-item-disc')
-                    .on(
-                        'keyup change', () => {
+
+                // Logic Harga Total
+                $('#subtotal, #tax, #shipping-label, #diskon-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-disc')
+                    .on('keyup change',
+                        () => {
+                            var noTax = 0;
                             var hTotal = 0;
                             var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal')
                                 .val());
-                            var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($(
-                                '#shipping').val());
-                            var discount = isNaN(parseInt($('#discount').val())) ? 0 : parseInt($(
-                                '#discount').val());
+                            var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon')
+                                .val());
                             var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                            console.log(tax);
-                            hTotal = parseInt(sTotal + (sTotal * tax / 100) + shipping);
+                            hTotal = parseInt(sTotal + (sTotal * tax / 100) - discount);
+                            noTax = parseInt(sTotal - discount)
                             $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
                             $('#hargaTotal').val(hTotal);
-                            console.log("Harga Total :" + hTotal);
+                            $('#totalNoTax').val(noTax);
                         });
-                initFormValidation();
-            });
 
-            // Logic Harga Total
-            $('#subtotal, #tax, #shipping-label, #diskon-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-disc')
-                .on('keyup change',
-                    () => {
-                        var noTax = 0;
-                        var hTotal = 0;
-                        var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
-                        var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
-                        var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon').val());
-                        var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                        hTotal = parseInt(sTotal + (sTotal * tax / 100) + shipping - discount);
-                        noTax = parseInt(sTotal + shipping - discount)
-                        $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
-                        $('#hargaTotal').val(hTotal);
-                        $('#totalNoTax').val(noTax);
-                        console.log("Harga Total :" + hTotal);
-                    });
+            });
         })
     </script>
 @endpush

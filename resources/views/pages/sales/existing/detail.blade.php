@@ -277,40 +277,19 @@
                 </h5>
             </div>
             <div class="card">
-                <div class="table-responsive text-nowrap">
-                    <table class="table table-striped">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-crm-history table table-striped" id="dataTableCrm">
                         <thead>
                             <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
                                 <th>Date</th>
-                                <th>Action</th>
+                                <th>Mobile</th>
                                 <th>Status</th>
-                                <th>note</th>
+                                <th>Note</th>
                             </tr>
                         </thead>
-                        <tbody class="table-border-bottom-0">
-                            @forelse ($callhis as $callhistory)
-                                <tr>
-                                    <td>
-                                        {{ \Carbon\Carbon::parse($callhistory->date)->format('d-m-Y') }}
-                                    </td>
-                                    <td>
-                                        {{ $callhistory->action }}
-                                    </td>
-                                    <td>
-                                        {{ $callhistory->status }}
-                                    </td>
-                                    <td>
-                                        {{ $callhistory->note }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">
-                                        Kamu belum punya Call History.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
                     </table>
                 </div>
             </div>
@@ -372,49 +351,28 @@
                 </h5>
             </div>
             <div class="card">
-                <div class="table-responsive text-nowrap">
-                    <table class="table table-striped">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-service-history table table-striped" id="dataTableCrm">
                         <thead>
                             <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
                                 <th>No Service</th>
                                 <th>Unit</th>
                                 <th>Teknisi</th>
                                 <th>Date</th>
                             </tr>
                         </thead>
-                        <tbody class="table-border-bottom-0">
-                            @forelse ($service as $reports)
-                                <tr>
-                                    <td class="fw-medium">
-                                        <a class="text-black"
-                                            href="{{ route('service-reports.show', $reports->id) }}">{{ $reports->no_service }}</a>
-    
-                                    </td>
-                                    <td>
-                                        {{ $reports->unit }}
-                                    </td>
-                                    <td>
-                                        {{ $reports->technician->name }}
-                                    </td>
-                                    <td>
-                                        {{ $reports->date }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">
-                                        Kamu belum Pernah Melakukan Service.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
     <div class="row">
-        @if (Auth::user()->detail[0]->area == 'Bekasi' || Auth::user()->detail[0]->area == 'Jabodetabek' || Auth::user()->detail[0]->area == 'Jawa Barat' && Auth::user()->role == 'Sales')
+        @if (Auth::user()->detail[0]->area == 'Bekasi' ||
+                Auth::user()->detail[0]->area == 'Jabodetabek' ||
+                (Auth::user()->detail[0]->area == 'Jawa Barat' && Auth::user()->role == 'Sales'))
             <div class="col-md-6 my-3">
                 <div class="d-flex justify-content-between mb-2">
                     <h5 class="fw-bold pb-1 mb-2">
@@ -473,30 +431,19 @@
                 </h5>
             </div>
             <div class="card">
-                <div class="table-responsive text-nowrap">
-                    <table class="table table-striped">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-po-history table table-striped" id="dataTableCrm">
                         <thead>
                             <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
                                 <th>Date</th>
-                                <th>Number Quote</th>
+                                <th>No Quote</th>
                                 <th>Status</th>
                                 <th>Total Price</th>
                             </tr>
                         </thead>
-                        <tbody class="table-border-bottom-0">
-                            <tr>
-                                <td>
-                                    -
-                                </td>
-                                <td>
-                                    -
-                                </td>
-                                <td>-</td>
-                                <td>
-                                    -
-                                </td>
-                            </tr>
-                        </tbody>
                     </table>
                 </div>
             </div>
@@ -562,8 +509,11 @@
     <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
 @endpush
 @push('page-script')
-<script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-<script src="{{ asset('assets') }}/includes/table-quotation-client.js"></script>
+    <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-quotation-client.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-crm-history.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-po-history.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-service-history.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
 @endpush
 @push('script')

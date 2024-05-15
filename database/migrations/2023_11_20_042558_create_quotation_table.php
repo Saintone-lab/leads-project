@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('title');
             $table->integer('status');
             $table->string('note');
+            $table->enum('flag',['Reftech','Kojisha']);
             $table->date('estimated_date');
             $table->date('expired_date');
             $table->date('po_date')->nullable();

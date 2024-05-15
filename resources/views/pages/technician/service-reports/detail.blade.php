@@ -76,7 +76,8 @@
                         <div class="col-lg-6 col-12">
                             <h5 class="my-2">Description</h5>
                             <pre class="mb-1"
-                                style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->desc }}</pre>
+                                style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->desc }}
+                            </pre>
                         </div>
                         <div class="col-lg-6 col-12">
                             <h5 class="my-2">Recomendation</h5>
@@ -144,7 +145,8 @@
                         </a>
                     @endif
                     @if (Auth::user()->role == 'Technician')
-                        <a href="{{route('service-reports.edit', $service->id)}}" class="btn btn-outline-warning d-grid w-100 waves-effect mb-3">Edit</a>
+                        <a href="{{ route('service-reports.edit', $service->id) }}"
+                            class="btn btn-outline-warning d-grid w-100 waves-effect mb-3">Edit</a>
                         <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-service"
                             data-id="{{ $service->id }}">Delete</a>
                     @endif

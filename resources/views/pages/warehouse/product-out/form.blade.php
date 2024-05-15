@@ -141,9 +141,9 @@
                                 <input type="text" class="form-control invoice-item-shipping-label"
                                     id="shipping-label" data-id="1" min="0" placeholder="Put shipping Here"
                                     data-type="currency" pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                    @blur="focused = false" value="{{ old('shipping') }}">
+                                    @blur="focused = false" value="{{ old('shipping', @$pOut->shipping ? number_format(@$pOut->shipping, 0, '', '.') : '0')}}">
                                 <input class="form-control invoice-item-shipping" type="number" name="shipping"
-                                    id="shipping" value="{{ old('shipping') }}" hidden>
+                                    id="shipping" value="{{ old('shipping', @$pOut->shipping ?? '0') }}" hidden>
                             </div>
                         </div>
                     </div>

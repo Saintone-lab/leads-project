@@ -20,7 +20,7 @@ $(function () {
                 { data: "id" },
                 { data: "no_quote" },
                 { data: "company" },
-                { data: "harga_total" },
+                { data: "total_no_tax" },
                 { data: "status" },
                 { data: "name" },
                 { data: "" },
