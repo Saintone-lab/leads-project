@@ -24,12 +24,12 @@ class QuotationController extends Controller
     public function index()
     {
         $quotation = Quotation::where('id_sales', Auth::user()->id)->get();
-        $forecast = Quotation::where('id_sales', Auth::user()->id)->whereIn('status', ['20', '30','40','60','80'])->sum('total_no_tax');
+        $forecast = Quotation::where('id_sales', Auth::user()->id)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('total_no_tax');
         $prospect = Quotation::where('id_sales', Auth::user()->id)->where('status', '80')->sum('total_no_tax');
         $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->sum('total_no_tax');
         $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->sum('total_no_tax');
         // dd();
-        return view('pages.sales.quotation.index', compact('quotation','forecast','prospect','po','loss'));
+        return view('pages.sales.quotation.index', compact('quotation', 'forecast', 'prospect', 'po', 'loss'));
     }
 
     /**
@@ -364,17 +364,59 @@ class QuotationController extends Controller
         return view('pages.sales.quotation.loss.index');
     }
 
-    public function convert_flag(Request $request, $id){
+    public function sales_quotation($id)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $quotation = Quotation::where('id_sales', $id)->whereMonth('estimated_date',$monthNow)->get();
+        $forecast = Quotation::where('id_sales', $id)->whereMonth('estimated_date',$monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('total_no_tax');
+        $prospect = Quotation::where('id_sales', $id)->whereMonth('estimated_date',$monthNow)->where('status', '80')->sum('total_no_tax');
+        $po = Quotation::where('id_sales', $id)->whereMonth('po_date',$monthNow)->where('status', '100')->sum('total_no_tax');
+        $loss = Quotation::where('id_sales', $id)->whereMonth('estimated_date',$monthNow)->where('status', '0')->sum('total_no_tax');
+        return view('pages.sales.quotation.sales', compact('quotation', 'forecast', 'prospect', 'po', 'loss'));
+    }
+
+    public function convert_po(Request $request, $id)
+    {
+        $rule = [
+            // 'poDate' => 'required',
+            'note' => 'required',
+        ];
+        $message = [
+            // 'poDate.required' => 'Field Date Wajib Diisi',
+            'note.required' => 'Field note Wajib Diisi',
+        ];
+
+        $this->validate($request, $rule, $message);
+        // dd($request);
+        $quotation = Quotation::find($id);
+        $pic = Pic::where('id', $quotation->id_pic)->first();
+        $client = Client::where('id', $pic->id_client)->first();
+        $quotation->status = "100";
+        $quotation->note = $request->note;
+        $quotation->po_date = $request->po_date;
+        $quoteSave = $quotation->save();
+        if ($client->id_issues != "5") {
+            $client->id_issues = '5';
+            $client->role = 'Customers';
+            $client->save();
+        }
+        if ($quoteSave) {
+            return redirect('/quotation/'. $id)->with("success", "data telah ditambahkan");
+        }
+    }
+    public function convert_flag(Request $request, $id)
+    {
         $quote = Quotation::find($id);
-        if($quote->flag == 'Reftech'){
+        if ($quote->flag == 'Reftech') {
             $quote->flag = 'Kojisha';
-        }elseif ($quote->flag == 'Kojisha') {
+        } elseif ($quote->flag == 'Kojisha') {
             $quote->flag = 'Reftech';
         }
         $quoteSave = $quote->save();
-        if($quoteSave){
+        if ($quoteSave) {
             return 1;
-        }else{
+        } else {
             return 0;
         }
     }

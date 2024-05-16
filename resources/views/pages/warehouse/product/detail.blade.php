@@ -93,93 +93,94 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4 col-12 h-auto overflow-auto flex-1">
-        <div class="d-flex justify-content-between mb-2">
-            <h5 class="fw-bold pb-1 mb-2">
-                Replacement
-            </h5>
-            <a type="button" data-bs-toggle="modal" data-bs-target="#createReplacement-{{ $product->id }}">
-                <button type="button" class="btn btn-primary">
-                    + New Replacement
-                </button>
-            </a>
-        </div>
-        <div class="card">
-            <div class="table-responsive text-nowrap h-100">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Replacement</th>
-                            <th>Stock</th>
-                            @if (Auth::user()->role == 'Admin')
-                                <th>Modal</th>
-                                <th>Action</th>
-                            @endif
-                        </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0">
-                        @forelse ($details as $detail)
+    <div class="row">
+        <div class="col-md-5 col-12 ">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold pb-1 mb-2">
+                    Replacement
+                </h5>
+                <a type="button" data-bs-toggle="modal" data-bs-target="#createReplacement-{{ $product->id }}">
+                    <button type="button" class="btn btn-primary">
+                        + New Replacement
+                    </button>
+                </a>
+            </div>
+            <div class="card">
+                <div class="table-responsive text-nowrap h-100">
+                    <table class="table table-striped">
+                        <thead>
                             <tr>
-                                <td>
-                                    {{ $detail->replacement }}
-                                </td>
-                                <td>
-                                    {{ $detail->stock }} {{ $detail->product->unit }}
-                                </td>
+                                <th>Replacement</th>
+                                <th>Stock</th>
                                 @if (Auth::user()->role == 'Admin')
-                                    <td>
-                                        Rp.{{ number_format($detail->modal, 0, '', '.') }}
-                                    </td>
-                                    <td>
-                                        <a href="#" data-id="{{ $detail->id }}"
-                                            class="btn btn-sm btn-label-danger delete-replacement">
-                                            <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                                        </a>
-                                    </td>
+                                    <th>Modal</th>
+                                    <th>Action</th>
                                 @endif
                             </tr>
-                        @empty
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            @forelse ($details as $detail)
+                                <tr>
+                                    <td>
+                                        {{ $detail->replacement }}
+                                    </td>
+                                    <td>
+                                        {{ $detail->stock }} {{ $detail->product->unit }}
+                                    </td>
+                                    @if (Auth::user()->role == 'Admin')
+                                        <td>
+                                            Rp.{{ number_format($detail->modal, 0, '', '.') }}
+                                        </td>
+                                        <td>
+                                            <a href="#" data-id="{{ $detail->id }}"
+                                                class="btn btn-sm btn-label-danger delete-replacement">
+                                                <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                            </a>
+                                        </td>
+                                    @endif
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        Kamu belum punya Replacement.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md col-12 flex-1 mb-3">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold pb-1 mb-2">
+                    Equivalent
+                </h5>
+                <a type="button" data-bs-toggle="modal" data-bs-target="#createEquivalent-{{ $product->id }}">
+                    <button type="button" class="btn btn-primary">
+                        + New Equivalent
+                    </button>
+                </a>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <table class="datatable-product-equivalent table table-striped">
+                        <thead>
                             <tr>
-                                <td colspan="4" class="text-center">
-                                    Kamu belum punya Replacement.
-                                </td>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Fxp Parts</th>
+                                <th>Brand</th>
+                                <th>PN</th>
+                                <th>Price</th>
+                                <th></th>
                             </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-8 col-12 flex-1">
-        <div class="d-flex justify-content-between mb-2">
-            <h5 class="fw-bold pb-1 mb-2">
-                Equivalent
-            </h5>
-            <a type="button" data-bs-toggle="modal" data-bs-target="#createEquivalent-{{ $product->id }}">
-                <button type="button" class="btn btn-primary">
-                    + New Equivalent
-                </button>
-            </a>
-        </div>
-        <div class="card">
-            <div class="card-body">
-                <table class="datatable-product-equivalent table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>Fxp Parts</th>
-                            <th>Brand</th>
-                            <th>PN</th>
-                            <th>Price</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-        </div>
-    </div>
     </div>
     <div class="row">
         <div class="col-12 col-lg-6">
@@ -220,6 +221,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
     @include('components.modal.warehouse.product.form')
     @include('components.modal.warehouse.product.stock')

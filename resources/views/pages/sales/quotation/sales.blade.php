@@ -77,7 +77,7 @@
     </div>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable{{Auth::user()->role == "Admin" ? '-quotation-admin' : '-quotation'}} table table-striped">
+            <table class="datatable-quotation-sales table table-striped">
                 <thead>
                     <tr>
                         <th></th>
@@ -91,9 +91,6 @@
                         <th>Status</th>
                         <th>Date Expired</th>
                         <th>Stats</th>
-                        @if (Auth::user()->role == 'Admin')
-                            <th>Assign</th>
-                        @endif
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -124,8 +121,7 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-quotation.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-quotation-admin.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-quotation-sales.js"></script>
 @endpush
 
 @push('script')

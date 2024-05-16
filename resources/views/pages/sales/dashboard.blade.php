@@ -962,15 +962,15 @@
                                             </div>
                                             <div class="card-body d-flex justify-content-between flex-wrap gap-3">
                                                 <div class="d-flex gap-2">
-                                                    <div class="avatar">
-                                                        <a type="button" data-bs-toggle="modal"
-                                                            data-bs-target="#overview-sales-{{ $item }}">
+                                                    <a type="button" data-bs-toggle="modal"
+                                                        data-bs-target="#overview-sales-{{ $item }}">
+                                                        <div class="avatar">
                                                             <button type="button"
                                                                 class="avatar-initial bg-label-info rounded">
                                                                 <i class="mdi mdi-phone-outline mdi-24px"></i>
                                                             </button>
-                                                        </a>
-                                                    </div>
+                                                        </div>
+                                                    </a>
                                                     <div class="card-info">
                                                         <h5 class="mb-0">{{ $filteredDC[$item] }}</h5>
                                                         <small
@@ -1006,11 +1006,13 @@
                                                     </div>
                                                 @endif
                                                 <div class="d-flex gap-2">
-                                                    <div class="avatar">
-                                                        <div class="avatar-initial bg-label-warning rounded">
-                                                            <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                                    <a href="{{route('sales.quotation', $user->id)}}">
+                                                        <div class="avatar">
+                                                            <div class="avatar-initial bg-label-warning rounded">
+                                                                <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    </a>
                                                     <div class="card-info">
                                                         <h5 class="mb-0">{{ $filteredQuote[$item] }}</h5>
                                                         <small class="text-muted">Quotation</small>

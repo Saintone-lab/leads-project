@@ -24,13 +24,14 @@
                                     <p class="mb-1">Bandung – Jawa Barat 40218</p>
                                     <p class="mb-1">
                                         <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
+                                        {{ '  |  ' }}<i
+                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
                                     </p>
                                     <p class="mb-1">
-                                        <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
                                     </p>
                                 </div>
                             </div>
-                            <div>
+                            <div class="text-end">
                                 <h3 class="fw-bold">QUOTATION</h3>
                                 <div>
                                     <span class="fw-bolder">#{{ $quote->no_quote }}</span>
@@ -56,19 +57,18 @@
                                         </span>
                                     </span>
                                 </div>
-                                <p class="mb-1 fw-bolder">PT Kojisha</p>
+                                <p class="mb-1 fw-bolder">PT Kojisha Innotiv Indonesia</p>
                                 <div style="font-size: 10px">
                                     <p class="mb-1">Jl. Nancep No. 45A, Setu</p>
                                     <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
                                     <p class="mb-1">
                                         <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62 812-1000-0997
-                                    </p>
-                                    <p class="mb-1">
-                                        <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
+                                        {{ ' | ' }}<i
+                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
                                     </p>
                                 </div>
                             </div>
-                            <div>
+                            <div class="text-end">
                                 <h3 class="fw-bold">QUOTATION</h3>
                                 <div>
                                     <span class="fw-bolder">#{{ $quote->no_quote }}</span>
@@ -111,7 +111,8 @@
                             <p class="mb-1">Email :</p>
                         </div>
                         <div class="col-3 text-end">
-                            <p class="mb-1"> {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha' }}
+                            <p class="mb-1">
+                                {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
                             </p>
                             <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                             <p class="mb-1"> {{ $quote->pic->client->email }}</p>
@@ -232,14 +233,16 @@
                         class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
                         {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
                     @if ($quote->status != '100')
-                        <a href="#" data-id="{{ $quote->id }}"
-                            class="btn btn-outline-whatsapp d-grid w-100 waves-effect donePo">Convert To PO</a>
+                        <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"
+                            data-bs-toggle="modal" data-bs-target="#convertPo">Convert PO
+                            Convert PO</button>
                     @endif
                 </div>
             </div>
         </div>
         {{-- End : Button Invoice --}}
         @include('pages.sales.quotation.modal-status')
+        @include('components.modal.quotation.convert-po')
     </div>
 @endsection
 @push('after-style')

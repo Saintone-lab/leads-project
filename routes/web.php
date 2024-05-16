@@ -25,6 +25,7 @@ use App\Models\Reports;
 use App\Models\SalesReports;
 use App\Models\SerialProduct;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadsController;
 use App\Http\Controllers\QuotationController;
@@ -75,9 +76,11 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/loss', [QuotationController::class, 'loss_quote'])->name('quotation.loss');
     Route::get('/quotation/{id}/change_status', [QuotationController::class, 'change_status'])->name('status.change.quotation');
     Route::post('/quotation/{id}/convert_flag', [QuotationController::class, 'convert_flag'])->name('convert-flag.quotation');
+    Route::post('/quotation/{id}/convert_po', [QuotationController::class, 'convert_po'])->name('convert-po.quotation');
     Route::get('/quotation/revision/{id}', [QuotationController::class, 'edit_revisi'])->name('revisi.quotation');
     Route::get('/quotation/print/{id}', [QuotationController::class, 'print_quote'])->name('print.quotation');
     Route::get('/quotation/pdf/{id}', [QuotationController::class, 'pdf_quote'])->name('pdf.quotation');
+    Route::get('/quotation/sales/{id}', [QuotationController::class, 'sales_quotation'])->name('sales.quotation');
 
     // Route untuk Visit
     Route::get('/visits/leads', function () {
@@ -172,6 +175,15 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/quotation', function () {
         require_once base_path('app/api/quotation/connection.php');
+    });
+    Route::get('/db/quotation/admin', function () {
+        require_once base_path('app/api/quotation/connectionAdmin.php');
+    });
+    Route::get('/db/quotation/sales/{id}', function ($id) {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $id)->get(['quotation.*', 'client.company']);
+        return response()->json(['data' => $quotation]);
     });
     Route::get('/db/po', function () {
         require_once base_path('app/api/po/connection.php');
