@@ -47,14 +47,6 @@
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="description" class="form-control" name="description"
-                                    placeholder="xxxxxxx"
-                                    value="{{ old('description', @$product->description ?? '') }}">
-                                <label for="description">Description</label>
-                            </div>
-                        </div>
-                        <div class="col mb-2">
-                            <div class="form-floating form-floating-outline">
                                 <select class="form-select invoice-item-info" id="unit"
                                     aria-label="Default select example" name="unit">
                                     <option disabled>----- Info Quantity -----</option>
@@ -72,8 +64,6 @@
                                 <label for="exampleFormControlSelect1">Unit</label>
                             </div>
                         </div>
-                    </div>
-                    <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <select class="form-select" id="category" aria-label="Default select example"
@@ -91,21 +81,39 @@
                                 <label for="selectSource">Category</label>
                             </div>
                         </div>
+                    </div>
+                    <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <select class="form-select" id="selectG/O" aria-label="Default select example"
                                     name="go">
                                     <option disabled>----- Choose G/O -----</option>
-                                    <option value="Genuine"
-                                        {{ @$product->go == 'Genuine' ? 'selected' : '' }}>
+                                    <option value="Genuine" {{ @$product->go == 'Genuine' ? 'selected' : '' }}>
                                         Genuine
                                     </option>
-                                    <option value="OEM" {{ @$product->go == 'OEM' ? 'selected' : '' }}>
-                                        OEM
+                                    <option value="Replacement" {{ @$product->go == 'Replacement' ? 'selected' : '' }}>
+                                        Replacement
                                     </option>
                                 </select>
-                                <label for="selectG/O">Genuine/Oem
+                                <label for="selectG/O">Genuine/Replacement
                                 </label>
+                            </div>
+                        </div>
+                        <div class="col mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="detail_desc" class="form-control" name="detail_desc"
+                                    placeholder="Short Description"
+                                    value="{{ old('detail_desc', @$product->detail_desc ?? '') }}">
+                                <label for="detail_desc">Short Descroption</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <textarea type="text" id="description" class="form-control h-px-100" name="description" placeholder="xxxxxxx"
+                                    cols="30" rows="10">{{ old('description', @$product->description ?? '') }}</textarea>
+                                <label for="description">Description</label>
                             </div>
                         </div>
                     </div>

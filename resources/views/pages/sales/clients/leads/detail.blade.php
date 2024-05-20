@@ -177,40 +177,19 @@
                 </a>
             </div>
             <div class="card">
-                <div class="table-responsive text-nowrap">
-                    <table class="table table-striped">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-crm-history table table-striped" id="dataTableCrm">
                         <thead>
                             <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
                                 <th>Date</th>
-                                <th>Action</th>
+                                <th>ACtion</th>
                                 <th>Status</th>
-                                <th>note</th>
+                                <th>Note</th>
                             </tr>
                         </thead>
-                        <tbody class="table-border-bottom-0">
-                            @forelse ($callhis as $callhistory)
-                                <tr>
-                                    <td>
-                                        {{ \Carbon\Carbon::parse($callhistory->date)->format('d-m-Y') }}
-                                    </td>
-                                    <td>
-                                        {{ $callhistory->action }}
-                                    </td>
-                                    <td>
-                                        {{ $callhistory->status }}
-                                    </td>
-                                    <td>
-                                        {{ $callhistory->note }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">
-                                        Kamu belum punya Call History.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
                     </table>
                 </div>
             </div>
@@ -224,48 +203,28 @@
                     + New Quotation
                 </a>
             </div>
-            <div class="card">
-                <div class="table-responsive text-nowrap">
-                    <table class="table table-striped">
+
+            <div class="card mb-3">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-quotation-leads table table-striped">
                         <thead>
                             <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
                                 <th>Date</th>
-                                <th>Number Quote</th>
+                                <th>Quote No.</th>
                                 <th>Status</th>
                                 <th>Total Price</th>
                             </tr>
                         </thead>
-                        <tbody class="table-border-bottom-0">
-                            @forelse ($quote as $quotation)
-                                <tr>
-                                    <td>
-                                        {{ \Carbon\Carbon::parse($quotation->estimated_date)->format('d-m-Y') }}
-                                    </td>
-                                    <td class="fw-medium">
-                                        <a class="text-black" href="{{ route('quotation.show', $quotation->id) }}">
-                                            {{ $quotation->no_quote }}
-                                        </a>
-                                    </td>
-                                    <td><span
-                                            class="badge bg-label-{{ $quotation->status == '20' ? 'secondary' : ($quotation->status == '30' ? 'dark' : ($quotation->status == '40' ? 'info' : ($quotation->status == '60' ? 'primary' : ($quotation->status == '80' ? 'warning' : ($quotation->status == '100' ? 'success' : ($quotation->status == '0' ? 'danger' : '')))))) }}">{{ $quotation->status }}%</span>
-                                    </td>
-                                    <td>
-                                        RP {{ number_format($quotation->harga_total, 0, '', '.') }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">
-                                        Kamu belum punya Quotation.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        @if (Auth::user()->detail[0]->area == 'Bekasi' || Auth::user()->detail[0]->area == 'Jabodetabek' || Auth::user()->detail[0]->area == 'Jawa Barat' && Auth::user()->role == 'Sales')
+        @if (Auth::user()->detail[0]->area == 'Bekasi' ||
+                Auth::user()->detail[0]->area == 'Jabodetabek' ||
+                (Auth::user()->detail[0]->area == 'Jawa Barat' && Auth::user()->role == 'Sales'))
             <div class="col-md-6 my-3">
                 <div class="d-flex justify-content-between mb-2">
                     <h5 class="fw-bold pb-1 mb-2">
@@ -327,12 +286,30 @@
     @endforeach
 @endsection()
 @push('after-style')
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
 @endpush
 @push('after-script')
+    <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/FormValidation.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
 @endpush
 @push('page-script')
+    <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-crm-history.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-quotation-leads.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
 @endpush
 @push('script')

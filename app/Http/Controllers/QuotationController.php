@@ -6,7 +6,9 @@ use App\Models\Activities;
 use App\Models\Client;
 use App\Models\DetailQuotation;
 use App\Models\Pic;
+use App\Models\Product;
 use App\Models\Quotation;
+use App\Models\SerialProduct;
 use App\Models\Termncon;
 use App\Models\User;
 use Carbon\Carbon;
@@ -28,8 +30,13 @@ class QuotationController extends Controller
         $prospect = Quotation::where('id_sales', Auth::user()->id)->where('status', '80')->sum('total_no_tax');
         $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->sum('total_no_tax');
         $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->sum('total_no_tax');
+        $quotationAdmin = Quotation::get();
+        $forecastAdmin = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->sum('total_no_tax');
+        $prospectAdmin = Quotation::where('status', '80')->sum('total_no_tax');
+        $poAdmin = Quotation::where('status', '100')->sum('total_no_tax');
+        $lossAdmin = Quotation::where('status', '0')->sum('total_no_tax');
         // dd();
-        return view('pages.sales.quotation.index', compact('quotation', 'forecast', 'prospect', 'po', 'loss'));
+        return view('pages.sales.quotation.index', compact('quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
     }
 
     /**
@@ -46,7 +53,9 @@ class QuotationController extends Controller
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::all();
         $sales = User::where('role', 'sales')->get();
-        return view('pages.sales.quotation.form', compact('pic', 'sales', 'formattedNumberQ', 'formattedMonthNow'));
+        $product = Product::join('serial_product as s','s.id_product', '=', 'product.id')->get(['s.id','product.go', 's.pn', 's.brand', 'product.detail_desc']);
+        // dd($product);
+        return view('pages.sales.quotation.form', compact('pic', 'sales', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 
     /**
@@ -79,7 +88,7 @@ class QuotationController extends Controller
             'shipping.required' => 'Quotation Wajib memiliki harga Antar',
         ];
         $this->validate($request, $rule, $message);
-        // dd($request->all());
+        // dd($request);
         // Masukan Data ke Tabel Quotataion
         $quotation = new Quotation();
         $quotation->id_pic = $request->id_pic;
@@ -149,6 +158,7 @@ class QuotationController extends Controller
     {
         $quote = Quotation::where('id', $id)->first();
         $dquote = DetailQuotation::where('id_quotation', $id)->get();
+        $product = Product::join('serial_product as s','s.id_product', '=', 'product.id')->get(['s.id','product.go', 's.pn']);
         // dd($quote);
         return view("pages.sales.quotation.detail", compact('quote', 'dquote'));
     }
@@ -309,8 +319,9 @@ class QuotationController extends Controller
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::all();
+        $product = Product::join('serial_product as s','s.id_product', '=', 'product.id')->get(['s.id','product.go', 's.pn']);
         $sales = User::where('role', 'sales')->get();
-        return view('pages.sales.quotation.form', compact('quotation', 'dquotation', 'sales', 'pic', 'formattedNumberQ', 'formattedMonthNow'));
+        return view('pages.sales.quotation.form', compact('quotation', 'dquotation', 'sales', 'pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 
     public function change_status($id, Request $request)

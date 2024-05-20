@@ -193,7 +193,7 @@
                         </td>
                         <td colspan="2" class="note">
                             <pre style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap; font-size: 12px;"
-                                class="fw-semibold mb-0 text-end">
+                                class="fw-semibold mb-0">
                                 {{ $quote->termncon[0]->note }}
                             </pre>
                         </td>

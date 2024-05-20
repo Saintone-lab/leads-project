@@ -98,29 +98,43 @@
                         </div>
                     </div>
                     @if (@$dquotation)
-                        @foreach ($dquotation as $quote)
-                            @php
-                                $id++;
-                                $dataDetail++;
-                            @endphp
-                            <div class="mb-3" data-repeater-list="group-a">
+                        <div class="mb-3" data-repeater-list="group-a">
+                            @foreach ($dquotation as $quote)
+                                @php
+                                    $id++;
+                                    $dataDetail++;
+                                @endphp
                                 <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
                                     <div class="d-flex border rounded position-relative pe-0">
                                         <div class="row w-100 p-3">
                                             <div class="col-md-6 col-12 mb-md-0 mb-3">
                                                 <label for="product" class="mb-2">Product</label>
-                                                <input type="text" id="product" class="form-control"
-                                                    placeholder="Example: Kaeser"
-                                                    value="{{ old('product[]', $quote->product) }} " name="product[]">
-                                                <textarea class="form-control" rows="2" placeholder="Detail Product. Example: Kaeser ASD"
-                                                    name="detail_product[]">{{ old('detail_product[]', $quote->detail_product) }}</textarea>
+                                                <div class="form-floating form-floating-outline mb-2">
+                                                    <select id="product-{{ $id }}"
+                                                        class="select2 form-select invoice-item-product"
+                                                        data-allow-clear="true" name="product[]"
+                                                        data-id="{{ $id }}">
+                                                        <option value="">---- Choose Part Number Here ----</option>
+                                                        @foreach ($product as $products)
+                                                            <option value="{{ $products->brand }} {{ $products->pn }}"
+                                                                data-replacement="{{ $products->id }}">
+                                                                {{ $products->brand }} {{ $products->pn }} ({{$products->detail_desc}}) ||
+                                                                {{ $products->go }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <label for="product-{{ $id }}">Product Part Number</label>
+                                                </div>
+                                                <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-{{ $id }}"
+                                                    placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]">{{ old('detail_product[]', $quote->detail_product) }}</textarea>
                                             </div>
                                             <div class="col-md-3 col-12 mb-md-0 mb-3">
                                                 <p class="mb-2 repeater-title">Price</p>
                                                 <div class="input-group" data-price="1">
                                                     <span class="input-group-text">Rp. </span>
                                                     <input type="text" class="form-control invoice-item-price-label"
-                                                        id="price-label" data-id="{{ $id }}" min="0"
+                                                        id="priceLabel-{{ $id }}"
+                                                        data-id="{{ $id }}" min="0"
                                                         placeholder="Put Price Here" data-type="currency"
                                                         pattern="^[1-9]\d{0,2}(\.\d{3})*$"
                                                         value="{{ old('price[]', @$quote->price ? number_format(@$quote->price, 0, '', '.') : '') }}">
@@ -184,8 +198,8 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        </div>
                     @else
                         <div class="mb-2" data-repeater-list="group-a">
                             <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
@@ -193,18 +207,30 @@
                                     <div class="row w-100 p-3">
                                         <div class="col-md-6 col-12 mb-md-0">
                                             <label for="product" class="mb-2">Product</label>
-                                            <input type="text" name="product[]" id="product"
-                                                class="form-control mb-4 invoice-item-product"
-                                                placeholder="Put Your Part Number Here. Example: 6.641.13.1">
-                                            <textarea class="form-control" rows="2" placeholder="Detail Product. Example: Kaeser ASD"
-                                                name="detail_product[]"></textarea>
+                                            <div class="form-floating form-floating-outline mb-2">
+                                                <select id="product-{{ $id }}"
+                                                    class="select2 form-select invoice-item-product"
+                                                    data-allow-clear="true" name="product[]" data-id="1">
+                                                    <option> ---- Choose Part Number Here ---- </option>
+                                                    @foreach ($product as $products)
+                                                        <option value="{{ $products->brand }} {{ $products->pn }}"
+                                                            data-replacement="{{ $products->id }}">
+                                                            {{ $products->brand }} {{ $products->pn }} ({{$products->detail_desc}}) ||
+                                                            {{ $products->go }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <label for="product-{{ $id }}">Product Part Number</label>
+                                            </div>
+                                            <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-1"
+                                                placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]"></textarea>
                                         </div>
                                         <div class="col-md-3 col-12 mb-md-0 mb-3">
                                             <p class="mb-2 repeater-title">Price</p>
                                             <div class="input-group" data-price="1">
                                                 <span class="input-group-text">Rp. </span>
                                                 <input type="text" class="form-control invoice-item-price-label"
-                                                    id="price-label" data-id="1" name="harga"
+                                                    id="priceLabel-1" data-id="1" name="harga"
                                                     placeholder="Put Price Here" data-type="currency" min="0"
                                                     pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
                                                     @blur="focused = false" value="{{ old('price[]') }}">
@@ -447,6 +473,23 @@
                 currency: 'IDR'
             });
 
+            function initializeSelect2Product() {
+                $('.invoice-item-product').select2({
+                    placeholder: ' ---- Choose Part Number Here ---- ',
+                    allowClear: true,
+                    width: '100%',
+                });
+            }
+            $(document).ready(function() {
+                // Panggil fungsi inisialisasi saat halaman dimuat
+                initializeSelect2Product();
+
+                // Jika ada elemen dinamis yang ditambahkan, gunakan event listener
+                $(document).on('repeater:added', function() {
+                    initializeSelect2Product();
+                });
+            });
+
             function initFormValidation() {
                 const fv = FormValidation.formValidation(formAuthentication, {
                     fields: {
@@ -596,6 +639,64 @@
                 $('#diskon').val(nomorInt);
             }
 
+            function formatPrice(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+
+            $('.invoice-item-product').on('change', function(ev) {
+                var replacementId = $(this).find(':selected').data('replacement');
+                var Url = '/quotation/product/' + replacementId;
+                var id = $(this).data('id');
+                // console.log('Replacement ID:', replacementId);
+                // console.log('URL:', Url);
+                console.log('Textarea ID:', id);
+
+                $.ajax({
+                    url: Url,
+                    type: 'GET',
+                    success: function(response) {
+                        console.log('AJAX Response:', response);
+                        $(`#detailProduct-${id}`).val(response[0].detail);
+                        $(`#priceLabel-${id}`).val(formatPrice(response[0].price));
+                        $(`#price-${id}`).val(response[0].price);
+                        var sTotal = 0,
+                            row = 0,
+                            amount = 0,
+                            hasil = 0,
+                            harga = response[0].price,
+                            disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(
+                                `#disc-${id}`).val());
+                        // menghitung hasil
+                        hasil = harga * $(`#qty-${id}`).val();
+                        // menghitung amount
+                        amount = (hasil - (hasil * disc / 100));
+                        // memasukan data amount dan subtotal
+                        $(`#amount-${id}`).val(amount);
+                        $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+                        $('.amount-label').each(() => {
+                            row++;
+                            sTotal += parseInt($(`#amount-${row}`).val())
+                        });
+                        $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                        $('#subtotal').val(sTotal);
+
+                        var noTax = 0;
+                        var hTotal = 0;
+                        var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax')
+                            .val());
+                        hTotal = parseInt(sTotal - disc + (sTotal * tax / 100));
+                        noTax = parseInt(sTotal - disc)
+                        $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
+                        $('#hargaTotal').val(hTotal);
+                        $('#totalNoTax').val(noTax);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+
+
             $(".invoice-item-price-label").on('keyup', function() {
                 var input = $(this)
                 var id = input.data('id');
@@ -619,25 +720,28 @@
             // Logic amount + Subtotal
             $('.invoice-item-price-label, .invoice-item-qty, .invoice-item-disc').on('keyup change click', function(
                 ev) {
+                // mengambil ID
                 var id = $(this).data('id');
+                // prepare data
                 var sTotal = 0,
-                    row = 0;
-                var amount = 0,
+                    row = 0,
+                    amount = 0,
                     hasil = 0,
                     valHarga = $(`#price-${id}`).val(),
                     harga = Number(valHarga),
                     disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val());
-                console.log("Harga nya adalah : " + harga);
+                // menghitung hasil
+                console.log(harga);
                 hasil = harga * $(`#qty-${id}`).val();
+                // menghitung amount
                 amount = (hasil - (hasil * disc / 100));
+                // memasukan data amount dan subtotal
                 $(`#amount-${id}`).val(amount);
                 $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
                 $('.amount-label').each(() => {
                     row++;
                     sTotal += parseInt($(`#amount-${row}`).val())
-                })
-                console.log(sTotal + "<total row>" + row);
-                console.log("Anda Sedang berada di Id : " + id);
+                });
                 $('#subtotal-label').html(`${formatter.format(sTotal)}`);
                 $('#subtotal').val(sTotal);
             });
@@ -650,16 +754,72 @@
                         var hTotal = 0;
                         var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
                         var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon').val());
+                        var dTotal = sTotal - discount;
                         var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                        hTotal = parseInt(sTotal + (sTotal * tax / 100) - discount);
-                        noTax = parseInt(sTotal - discount)
+                        hTotal = parseInt(dTotal + (dTotal * tax / 100));
+                        noTax = parseInt(dTotal)
                         $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
                         $('#hargaTotal').val(hTotal);
                         $('#totalNoTax').val(noTax);
                     });
-
             // Logic Subtotal dan Amount Setelah Tambah Product
             $('.btn-add').on('click', () => {
+
+                $('.invoice-item-product').on('change', function(ev) {
+                    var replacementId = $(this).find(':selected').data('replacement');
+                    var Url = '/quotation/product/' + replacementId;
+                    var id = $(this).data('id');
+                    // console.log('Replacement ID:', replacementId);
+                    // console.log('URL:', Url);
+                    // console.log('Textarea ID:', `#detailProduct-${id}`);
+
+                    $.ajax({
+                        url: Url,
+                        type: 'GET',
+                        success: function(response) {
+                            // console.log('AJAX Response:', response);
+                            $(`#detailProduct-${id}`).val(response[0].detail);
+                            $(`#priceLabel-${id}`).val(formatPrice(response[0].price));
+                            $(`#price-${id}`).val(response[0].price);
+                            var sTotal = 0,
+                                row = 0,
+                                amount = 0,
+                                hasil = 0,
+                                harga = response[0].price,
+                                disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 :
+                                parseInt($(
+                                    `#disc-${id}`).val());
+                            // menghitung hasil
+                            hasil = harga * $(`#qty-${id}`).val();
+                            // menghitung amount
+                            amount = (hasil - (hasil * disc / 100));
+                            // memasukan data amount dan subtotal
+                            $(`#amount-${id}`).val(amount);
+                            $(`#amount-label-${id}`).html(
+                                `${formatter.format(amount)}`);
+                            $('.amount-label').each(() => {
+                                row++;
+                                sTotal += parseInt($(`#amount-${row}`).val())
+                            });
+                            $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                            $('#subtotal').val(sTotal);
+
+                            var noTax = 0;
+                            var hTotal = 0;
+                            var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($(
+                                    '#tax')
+                                .val());
+                            hTotal = parseInt(sTotal - disc + (sTotal * tax / 100));
+                            noTax = parseInt(sTotal - disc)
+                            $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
+                            $('#hargaTotal').val(hTotal);
+                            $('#totalNoTax').val(noTax);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error:', error);
+                        }
+                    });
+                });
                 $(".invoice-item-price-label").on('keyup', function() {
                     var input = $(this)
                     var id = input.data('id');
@@ -726,15 +886,17 @@
                                 .val());
                             var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon')
                                 .val());
+                            var dTotal = sTotal - discount;
                             var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                            hTotal = parseInt(sTotal + (sTotal * tax / 100) - discount);
-                            noTax = parseInt(sTotal - discount)
+                            hTotal = parseInt(dTotal + (dTotal * tax / 100));
+                            noTax = parseInt(dTotal)
                             $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
                             $('#hargaTotal').val(hTotal);
                             $('#totalNoTax').val(noTax);
                         });
-
+                initializeSelect2Product();
             });
+
         })
     </script>
 @endpush

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DetailProduct;
 use App\Models\Product;
 use App\Models\SerialProduct;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -67,11 +68,14 @@ class ProductController extends Controller
         $product->commodity = $request->commodity;
         $product->dimension = $request->dimension;
         $product->description = $request->description;
+        $product->detail_desc = $request->detail_desc;
         $product->category = $request->category;
         $product->go = $request->go;
+        $product->first_stock = 0;
         $product->stock = 0;
         $product->unit = $request->unit;
         $product->note = $request->note;
+        $product->date = Carbon::today();
         $productSave = $product->save();
 
         if ($productSave) {
@@ -136,6 +140,7 @@ class ProductController extends Controller
         $product->commodity = $request->commodity;
         $product->dimension = $request->dimension;
         $product->description = $request->description;
+        $product->detail_desc = $request->detail_desc;
         $product->category = $request->category;
         $product->unit = $request->unit;
         $product->go = $request->go;

@@ -8,7 +8,8 @@ $(function(){
         });
         invoiceRepeater.repeater({
             show: function () {
-                // var product = $(this).find(".invoice-item-product");
+                var product = $(this).find(".invoice-item-product");
+                var detailProduct = $(this).find(".invoice-item-detail-product");
                 var price = $(this).find(".invoice-item-price");
                 var priceLabel = $(this).find(".invoice-item-price-label");
                 var qty = $(this).find(".invoice-item-qty");
@@ -23,14 +24,17 @@ $(function(){
                     var id = "form-repeater-" + row + "-" + col;
                     // var nameProduct = "product[" + col + "]";
                     var idPrice = "price-" + row;
-                    var idPriceLabel = "price-label-" + row;
+                    var idDetailProduct = "detailProduct-" + row;
+                    var idPriceLabel = "priceLabel-" + row;
                     var idQty = "qty-" + row;
                     var idDisc = "disc-" + row;
                     var idInfo = "info-qty-" + row;
                     var idAmount = "amount-" + row;
                     var idAmountLabel = "amount-label-" + row;
+                    $(product[i]).attr("data-id", row);
                     // $(product[i]).attr("name", nameProduct);
                     $(price[i]).attr("id", idPrice);
+                    $(detailProduct[i]).attr("id", idDetailProduct);
                     $(priceLabel[i]).attr("id", idPriceLabel);
                     $(priceLabel[i]).attr("data-id", row);
                     $(qty[i]).attr("id", idQty);

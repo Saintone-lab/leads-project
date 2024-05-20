@@ -81,6 +81,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/quotation/print/{id}', [QuotationController::class, 'print_quote'])->name('print.quotation');
     Route::get('/quotation/pdf/{id}', [QuotationController::class, 'pdf_quote'])->name('pdf.quotation');
     Route::get('/quotation/sales/{id}', [QuotationController::class, 'sales_quotation'])->name('sales.quotation');
+    Route::get('/quotation/product/{id}', function ($id) {
+        $product = SerialProduct::join('product as p','p.id', '=', 'serial_product.id_product')->where('serial_product.id', $id)->get(['p.description AS detail', 'serial_product.price']);
+        return response()->json($product);
+    });
 
     // Route untuk Visit
     Route::get('/visits/leads', function () {

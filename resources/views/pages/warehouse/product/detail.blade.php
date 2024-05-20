@@ -40,6 +40,14 @@
                     </div>
                     <div class="row mb-1">
                         <div class="col-3">
+                            Short Description
+                        </div>
+                        <div class="col-9">
+                            : {{ $product->detail_desc }}
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-3">
                             Genuine / OEM
                         </div>
                         <div class="col-9">

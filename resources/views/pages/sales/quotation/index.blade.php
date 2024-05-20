@@ -8,10 +8,10 @@
                     <div class="col-sm-6 col-lg-3">
                         <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
                             <div>
-                                <p class="mb-2">Forecast</p>
-                                <h4 class="mb-2">Rp {{ number_format($forecast, 2, ',', '.') }}</h4>
+                                <p class="mb-2">Quotation</p>
+                                <h4 class="mb-2">Rp {{ number_format(Auth::user()->role == "Admin" ? $forecastAdmin : $forecast, 2, ',', '.') }}</h4>
                                 <p class="mb-0"><span
-                                        class="badge rounded-pill bg-label-success">{{ $quotation->whereIn('status', ['20', '30', '40', '60', '80'])->count() }}</span>
+                                        class="badge rounded-pill bg-label-success">{{ (Auth::user()->role == "Admin" ? $quotationAdmin : $quotation)->whereIn('status', ['20', '30', '40', '60', '80'])->count() }}</span>
                                 </p>
                             </div>
                             <div class="avatar me-sm-4">
@@ -26,9 +26,9 @@
                         <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
                             <div>
                                 <p class="mb-2">Hot Prospect</p>
-                                <h4 class="mb-2">Rp {{ number_format($prospect, 2, ',', '.') }}</h4>
+                                <h4 class="mb-2">Rp {{ number_format(Auth::user()->role == "Admin" ? $prospectAdmin : $prospect, 2, ',', '.') }}</h4>
                                 <p class="mb-0"><span
-                                        class="badge rounded-pill bg-label-success">{{ $quotation->where('status', '80')->count() }}</span>
+                                        class="badge rounded-pill bg-label-success">{{ (Auth::user()->role == "Admin" ? $quotationAdmin : $quotation)->where('status', '80')->count() }}</span>
                                 </p>
                             </div>
                             <div class="avatar me-lg-4">
@@ -42,10 +42,10 @@
                     <div class="col-sm-6 col-lg-3">
                         <div class="d-flex justify-content-between align-items-start border-end pb-3 pb-sm-0 card-widget-3">
                             <div>
-                                <p class="mb-2">Pruchase Order</p>
-                                <h4 class="mb-2">Rp {{ number_format($po, 2, ',', '.') }}</h4>
+                                <p class="mb-2">Purchase Order</p>
+                                <h4 class="mb-2">Rp {{ number_format(Auth::user()->role == "Admin" ? $poAdmin : $po, 2, ',', '.') }}</h4>
                                 <p class="mb-0"><span
-                                        class="badge rounded-pill bg-label-success">{{ $quotation->where('status', '100')->count() }}</span>
+                                        class="badge rounded-pill bg-label-success">{{ (Auth::user()->role == "Admin" ? $quotationAdmin : $quotation)->where('status', '100')->count() }}</span>
                                 </p>
                             </div>
                             <div class="avatar me-sm-4">
@@ -59,9 +59,9 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="mb-2">Loss Order</p>
-                                <h4 class="mb-2">Rp {{ number_format($loss, 2, ',', '.') }}</h4>
+                                <h4 class="mb-2">Rp {{ number_format(Auth::user()->role == "Admin" ? $lossAdmin : $loss, 2, ',', '.') }}</h4>
                                 <p class="mb-0"><span
-                                        class="badge rounded-pill bg-label-danger">{{ $quotation->where('status', '0')->count() }}</span>
+                                        class="badge rounded-pill bg-label-danger">{{ (Auth::user()->role == "Admin" ? $quotationAdmin : $quotation)->where('status', '0')->count() }}</span>
                                 </p>
                             </div>
                             <div class="avatar">
