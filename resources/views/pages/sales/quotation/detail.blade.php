@@ -227,22 +227,72 @@
                     @endif
                 </div>
             </div>
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-body">
                     <a href="#" data-id="{{ $quote->id }}"
                         class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
                         {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
                     @if ($quote->status != '100')
                         <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"
-                            data-bs-toggle="modal" data-bs-target="#convertPo">Convert PO
-                            Convert PO</button>
+                            data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
                     @endif
                 </div>
             </div>
+            {{-- @if (Auth::user()->role == 'Accounting') --}}
+            <div class="card">
+                <div class="card-body">
+                    @php
+                        // Inisialisasi variabel
+                        $sellingContract = null;
+                        $orderContract = null;
+
+                        // Loop untuk menemukan kontrak dengan tipe Selling dan Order
+                        if (isset($quote) && $quote->contract) {
+                            foreach ($quote->contract as $contract) {
+                                if ($contract->type == 'Selling') {
+                                    $sellingContract = $contract;
+                                } elseif ($contract->type == 'Order') {
+                                    $orderContract = $contract;
+                                }
+                            }
+                        }
+                    @endphp
+
+                    <!-- Cek apakah ada kontrak bertipe Selling -->
+                    @if ($sellingContract)
+                        <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
+                            href="{{ route('contract.show', $sellingContract->id) }}">
+                            Go To Selling Contract
+                        </a>
+                    @else
+                        <button type="button" class="btn btn-facebook d-grid w-100 waves-effect mb-3"
+                            data-bs-toggle="modal" data-bs-target="#sellingContract">
+                            Create Selling Contract
+                        </button>
+                    @endif
+
+                    <!-- Cek apakah ada kontrak bertipe Order -->
+                    @if ($orderContract)
+                        <a class="btn btn-google-plus d-grid w-100 mb-3 waves-effect" target="_blank"
+                            href="{{ route('contract.show', $orderContract->id) }}">
+                            Go To Contract Order
+                        </a>
+                    @else
+                        <button type="button" class="btn btn-google-plus d-grid w-100 waves-effect mb-3"
+                            data-bs-toggle="modal" data-bs-target="#contractOrder">
+                            Create Contract Order
+                        </button>
+                    @endif
+                    {{-- <button type="button" class="btn btn-google-plus d-grid w-100 waves-effect mb-3"
+                        data-bs-toggle="modal" data-bs-target="#convertPo">Create Contract Order</button> --}}
+                </div>
+            </div>
+            {{-- @endif --}}
         </div>
         {{-- End : Button Invoice --}}
         @include('pages.sales.quotation.modal-status')
         @include('components.modal.quotation.convert-po')
+        @include('components.modal.accounting.selling-contract')
     </div>
 @endsection
 @push('after-style')

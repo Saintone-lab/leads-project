@@ -19,6 +19,7 @@ class ProductTableSeeder extends Seeder
             [
                 'commodity' => 'W962',
                 'description' => 'Oil Filter',
+                'detail_desc' => 'Oil Filter',
                 'go' => 'Oem',
                 'category' => 'Consumable Part',
                 'dimension' => '200x100x150',
@@ -31,6 +32,7 @@ class ProductTableSeeder extends Seeder
             [
                 'commodity' => 'W940',
                 'description' => 'Oil Filter',
+                'detail_desc' => 'Oil Filter',
                 'go' => 'Oem',
                 'category' => 'Consumable Part',
                 'dimension' => '170x100x150',

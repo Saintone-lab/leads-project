@@ -60,5 +60,8 @@ class Quotation extends Model
     {
         return $this->hasMany('App\Models\RevQuote', 'id_quotation');
     }
-    
+    public function contract()
+    {
+        return $this->hasMany('App\Models\Contract', 'id_quotation');
+    }
 }

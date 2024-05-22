@@ -97,6 +97,7 @@
                             <th></th>
                             <th>ID</th>
                             <th>Product</th>
+                            <th>Part Number</th>
                             <th>Desc</th>
                             <th>Dimension</th>
                             <th>G/O</th>

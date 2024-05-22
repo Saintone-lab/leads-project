@@ -52,8 +52,8 @@
                             <div class="input-group form-floating form-floating-outline" data-price="1">
                                 <span class="input-group-text">Rp. </span>
                                 <input type="text" class="form-control invoice-item-price-label" id="price-label"
-                                    data-id="1" min="12" placeholder="Put Price Here" data-type="currency"
-                                    pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true" @blur="focused = false"
+                                    data-id="1" min="0" placeholder="Put Price Here" data-type="currency"
+                                    pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true" @blur="focused = false"
                                     value="{{ old('price') }}">
                                 <input class="form-control invoice-item-price" type="number" name="price"
                                     id="price" value="{{ old('price') }}" hidden>

@@ -21,10 +21,11 @@ if (Auth::check()) {
 
         // Query database for data
         $query = "SELECT 
-        p.*, 
+        p.*,
+        s.pn, 
         p.id AS id_p, 
         p.stock AS all_stock, 
-        CONCAT(p.commodity, IFNULL(CONCAT(' || ', s.pn), '')) AS product, 
+        -- CONCAT(p.commodity, IFNULL(CONCAT(' || ', s.pn), '')) AS product, 
         IFNULL(
             GROUP_CONCAT(CONCAT(dp.replacement, '( Rp ', FORMAT(dp.modal, 2), ')' ) SEPARATOR ' || '), 
             'Tidak Ada Replacement'
@@ -36,7 +37,7 @@ if (Auth::check()) {
             LEFT JOIN 
                 detail_product dp ON p.id = dp.id_product
             GROUP BY 
-                p.id";
+                p.id, s.pn";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

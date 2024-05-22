@@ -58,7 +58,7 @@
                                                 name="replacement[]" data-id="1">
                                                 <option> ---- Choose Commodity || Replacement Here ---- </option>
                                                 @foreach ($detProduct as $products)
-                                                    <option value="{{ $products->id }}"> {{ $products->product->commodity }} || {{ $products->replacement }} 
+                                                    <option value="{{ $products->id }}"> {{ $products->product->commodity }} ({{$products->product->detail_desc}}) || {{ $products->replacement }} - {{ $products->product->go == 'Genuine' ? 'G' : 'R' }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -77,7 +77,7 @@
                                             <span class="input-group-text">Rp. </span>
                                             <input type="text" class="form-control invoice-item-price-label"
                                                 id="price-label" data-id="1" min="0" placeholder="Put Price Here"
-                                                data-type="currency" pattern="^[1-9]\d{0,2}(\.\d{3})*$"
+                                                data-type="currency" pattern="^[0-9]\d{0,2}(\.\d{3})*$"
                                                 @focus="focused = true" @blur="focused = false"
                                                 value="{{ old('price[]') }}">
                                             <input class="form-control invoice-item-price" type="number" name="price[]"
@@ -89,7 +89,7 @@
                                         <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
                                             {{ old(strval('amount[]')) }}</p>
                                         <input type="number" class="form-control invoice-item-amount" name="amount[]"
-                                            id="amount-1" data-id="1" min="12" value="{{ old('amount[]') }}"
+                                            id="amount-1" data-id="1" min="0" value="{{ old('amount[]') }}"
                                             hidden>
                                     </div>
                                 </div>

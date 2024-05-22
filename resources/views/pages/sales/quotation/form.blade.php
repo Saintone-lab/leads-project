@@ -117,7 +117,7 @@
                                                         <option value="">---- Choose Part Number Here ----</option>
                                                         @foreach ($product as $products)
                                                             <option value="{{ $products->brand }} {{ $products->pn }}"
-                                                                data-replacement="{{ $products->id }}">
+                                                                data-replacement="{{ $products->id }}" {{ $quote->product == "{$products->brand} {$products->pn}" ? 'selected' : '' }}>
                                                                 {{ $products->brand }} {{ $products->pn }} ({{$products->detail_desc}}) ||
                                                                 {{ $products->go }}
                                                             </option>
@@ -136,7 +136,7 @@
                                                         id="priceLabel-{{ $id }}"
                                                         data-id="{{ $id }}" min="0"
                                                         placeholder="Put Price Here" data-type="currency"
-                                                        pattern="^[1-9]\d{0,2}(\.\d{3})*$"
+                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$"
                                                         value="{{ old('price[]', @$quote->price ? number_format(@$quote->price, 0, '', '.') : '') }}">
                                                     <input class="form-control invoice-item-price" type="number"
                                                         name="price[]" id="price-{{ $id }}"
@@ -232,7 +232,7 @@
                                                 <input type="text" class="form-control invoice-item-price-label"
                                                     id="priceLabel-1" data-id="1" name="harga"
                                                     placeholder="Put Price Here" data-type="currency" min="0"
-                                                    pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                                    pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
                                                     @blur="focused = false" value="{{ old('price[]') }}">
                                                 <input class="form-control invoice-item-price" type="number"
                                                     name="price[]" id="price-1" value="{{ old('price[]') }}" hidden>

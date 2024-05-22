@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApiTableController;
 use App\Http\Controllers\AuditController;
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
@@ -163,6 +164,11 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/employee/position/{id}', [EmployeeController::class, 'newPosition'])->name('new.position');
     Route::patch('/employee/target/{id}', [EmployeeController::class, 'updateTarget'])->name('update.target');
 
+    // Route untuk Selling Contract dan Confirm Order
+    Route::resource('/contract', ContractController::class);
+    Route::post('/contract/selling-contract/{id}', [ContractController::class, 'create_selling_contract'])->name('selling.contract');
+    Route::get('/contract/print/{id}', [ContractController::class, 'contract_print'])->name('contract.print');
+    
     // Route untuk API Tabel DataTable
     // Route::get('/fetch-data/leads', [ApiTableController::class, 'tableLeads']);
     Route::get('/db/leads', function () {

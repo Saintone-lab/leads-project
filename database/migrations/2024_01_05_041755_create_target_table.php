@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_sales');
             $table->string('dc');
-            $table->string('intro');
+            $table->string('crm');
+            $table->string('visit');
             $table->string('quote');
             $table->string('po');
             $table->string('total');

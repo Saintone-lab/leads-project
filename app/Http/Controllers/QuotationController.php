@@ -159,8 +159,11 @@ class QuotationController extends Controller
         $quote = Quotation::where('id', $id)->first();
         $dquote = DetailQuotation::where('id_quotation', $id)->get();
         $product = Product::join('serial_product as s','s.id_product', '=', 'product.id')->get(['s.id','product.go', 's.pn']);
+        $noQuote = substr($quote->no_quote, 0,5);
+        $today = Carbon::now();
+        $thisYear = $today->year;
         // dd($quote);
-        return view("pages.sales.quotation.detail", compact('quote', 'dquote'));
+        return view("pages.sales.quotation.detail", compact('quote', 'dquote', 'noQuote','thisYear'));
     }
 
     /**
@@ -319,8 +322,9 @@ class QuotationController extends Controller
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::all();
-        $product = Product::join('serial_product as s','s.id_product', '=', 'product.id')->get(['s.id','product.go', 's.pn']);
+        $product = Product::join('serial_product as s','s.id_product', '=', 'product.id')->get(['s.id','product.go', 's.pn', 's.brand', 'product.detail_desc']);
         $sales = User::where('role', 'sales')->get();
+        // dd($dquotation);
         return view('pages.sales.quotation.form', compact('quotation', 'dquotation', 'sales', 'pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 

@@ -74,8 +74,8 @@ class ProductInController extends Controller
                 $dProductIn->modal = $request->price[$item];
                 $dProductIn->amount = $request->amount[$item];
                 $productD = DetailProduct::where('id', $request->replacement[$item])->first();
+                $productD->modal = (($productD->stock * $productD->modal) + ($request->qty[$item] * $request->price[$item])) / ($productD->stock + $request->qty[$item]);
                 $productD->stock = $productD->stock + $request->qty[$item];
-                $productD->modal = $request->price[$item];
                 $productD->save();
                 $product = Product::where('id', $productD->id_product)->first();
                 $product->stock = $product->stock + $request->qty[$item];
@@ -127,19 +127,19 @@ class ProductInController extends Controller
         // dd($dProductIn);
         $total = 0;
         foreach ($dProductIn as $item) {
-            $item->detailProduct->modal = $request->modal[$item->id]; 
+            $item->detailProduct->modal = $request->modal[$item->id];
             $item->modal = $request->modal[$item->id];
             $item->amount = $request->modal[$item->id] * $item->qty;
             $detailSave = $item->save();
             $item->detailProduct->save();
             $total += $item->amount;
         }
-        if($detailSave){
+        if ($detailSave) {
             $product->total = $total + $product->shipping;
             $productSave = $product->save();
         }
         if ($productSave) {
-            return redirect('/product-in/'. $id)->with('message', 'data telah di tambahkan');
+            return redirect('/product-in/' . $id)->with('message', 'data telah di tambahkan');
         }
     }
 

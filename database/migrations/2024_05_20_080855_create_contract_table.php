@@ -13,18 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('product', function (Blueprint $table) {
+        Schema::create('contract', function (Blueprint $table) {
             $table->id();
-            $table->string('commodity');
-            $table->string('description');
-            $table->string('detail_desc');
-            $table->string('go');
-            $table->string('category');
-            $table->string('dimension');
-            $table->integer('first_stock');
-            $table->integer('stock');
-            $table->string('unit');
-            $table->string('note');
+            $table->foreignId('id_quotation');
+            $table->string('no_contract');
+            // $table->string('sign')->nullable();
+            $table->enum('type',['Selling', 'Order']);
             $table->date('date');
             $table->timestamps();
         });
@@ -37,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('product');
+        Schema::dropIfExists('contract');
     }
 };
