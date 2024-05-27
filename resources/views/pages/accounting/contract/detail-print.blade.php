@@ -97,13 +97,11 @@
                 </div>
                 <div class="col-2 fw-medium text-end">
                     <p class="mb-1">Sales :</p>
-                    <p class="mb-1">No PR :</p>
                     <p class="mb-1">Email :</p>
                 </div>
                 <div class="col-4 text-end">
                     <p class="mb-1">
-                        {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}</p>
-                    <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
+                        {{ $sellcon->type == 'Selling' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}</p>
                     <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                 </div>
             </div>
@@ -199,12 +197,8 @@
         <div class="row mt-5">
             <div class="col-4 my-5 text-center">
                 <h4>Authorized By,</h4>
-                @if (isset($service->technician->sign))
-                    <img src="{{ url('') . '/' . $service->technician->sign }}" alt="" srcset=""
-                        height="100">
-                @else
-                    <div class="pb-5"></div>
-                @endif
+                    <img src="{{ asset('/asset') }}/contract\sign-irene.jpeg" alt="" srcset=""
+                        height="80">
                 <p class="pt-3">Mrs. Irene</p>
                 <p>PT. Reftech Jaya Optima</p>
             </div>
@@ -217,7 +211,7 @@
                 @else
                     <div class="pb-5"></div>
                 @endif
-                <p class="pt-3">{{ $quote->pic->name_pic }}</p>
+                <p class="pt-5">{{ $quote->pic->name_pic }}</p>
                 <p>{{ $quote->pic->client->company }}</p>
             </div>
         </div>

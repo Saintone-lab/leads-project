@@ -109,9 +109,12 @@ class ContractController extends Controller
         }
 
     }
+    public function index_selling(){
+        return view("pages.accounting.contract.index-selling");
+    }
     public function contract_print($id){
         $sellcon = Contract::find($id);
-        $quote = Quotation::where('id', $id)->first();
+        $quote = Quotation::where('id', $sellcon->id_quotation)->first();
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         return view('pages.accounting.contract.detail-print', compact('sellcon','quote','dquote'));
     }

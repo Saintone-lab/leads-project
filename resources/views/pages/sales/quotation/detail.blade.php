@@ -259,29 +259,31 @@
                     @endphp
 
                     <!-- Cek apakah ada kontrak bertipe Selling -->
-                    @if ($sellingContract)
-                        <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
-                            href="{{ route('contract.show', $sellingContract->id) }}">
-                            Go To Selling Contract
-                        </a>
-                    @else
-                        <button type="button" class="btn btn-facebook d-grid w-100 waves-effect mb-3"
-                            data-bs-toggle="modal" data-bs-target="#sellingContract">
-                            Create Selling Contract
-                        </button>
-                    @endif
+                    @if (Auth::user()->role == 'Admin')
+                        @if ($sellingContract)
+                            <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
+                                href="{{ route('contract.show', $sellingContract->id) }}">
+                                Go To Selling Contract
+                            </a>
+                        @else
+                            <button type="button" class="btn btn-facebook d-grid w-100 waves-effect mb-3"
+                                data-bs-toggle="modal" data-bs-target="#sellingContract">
+                                Create Selling Contract
+                            </button>
+                        @endif
 
-                    <!-- Cek apakah ada kontrak bertipe Order -->
-                    @if ($orderContract)
-                        <a class="btn btn-google-plus d-grid w-100 mb-3 waves-effect" target="_blank"
-                            href="{{ route('contract.show', $orderContract->id) }}">
-                            Go To Contract Order
-                        </a>
-                    @else
-                        <button type="button" class="btn btn-google-plus d-grid w-100 waves-effect mb-3"
-                            data-bs-toggle="modal" data-bs-target="#contractOrder">
-                            Create Contract Order
-                        </button>
+                        <!-- Cek apakah ada kontrak bertipe Order -->
+                        @if ($orderContract)
+                            <a class="btn btn-google-plus d-grid w-100 mb-3 waves-effect" target="_blank"
+                                href="{{ route('contract.show', $orderContract->id) }}">
+                                Go To Contract Order
+                            </a>
+                        @else
+                            <button type="button" class="btn btn-google-plus d-grid w-100 waves-effect mb-3"
+                                data-bs-toggle="modal" data-bs-target="#contractOrder">
+                                Create Contract Order
+                            </button>
+                        @endif
                     @endif
                     {{-- <button type="button" class="btn btn-google-plus d-grid w-100 waves-effect mb-3"
                         data-bs-toggle="modal" data-bs-target="#convertPo">Create Contract Order</button> --}}

@@ -391,6 +391,14 @@ class QuotationController extends Controller
         return view('pages.sales.quotation.sales', compact('quotation', 'forecast', 'prospect', 'po', 'loss'));
     }
 
+    public function sales_po($id)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $quotation = Quotation::where('id_sales', $id)->whereMonth('po_date',$monthNow)->get();
+        return view('pages.sales.quotation.po.sales', compact('quotation'));
+    }
+
     public function convert_po(Request $request, $id)
     {
         $rule = [

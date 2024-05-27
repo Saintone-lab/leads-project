@@ -1006,7 +1006,7 @@
                                                     </div>
                                                 @endif
                                                 <div class="d-flex gap-2">
-                                                    <a href="{{route('sales.quotation', $user->id)}}">
+                                                    <a href="{{ route('sales.quotation', $user->id) }}">
                                                         <div class="avatar">
                                                             <div class="avatar-initial bg-label-warning rounded">
                                                                 <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
@@ -1019,11 +1019,13 @@
                                                     </div>
                                                 </div>
                                                 <div class="d-flex gap-2">
-                                                    <div class="avatar">
-                                                        <div class="avatar-initial bg-label-success rounded">
-                                                            <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                    <a href="{{ route('sales.po', $user->id) }}">
+                                                        <div class="avatar">
+                                                            <div class="avatar-initial bg-label-success rounded">
+                                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    </a>
                                                     <div class="card-info">
                                                         <h5 class="mb-0">{{ $filteredPO[$item] }}</h5>
                                                         <small class="text-muted">PO</small>
@@ -1154,10 +1156,11 @@
                             <th></th>
                             <th></th>
                             <th>ID</th>
-                            <th>Commodity</th>
+                            <th>Product</th>
+                            <th>Part Number</th>
                             <th>Desc</th>
                             <th>Dimension</th>
-                            <th>go</th>
+                            <th>G/O</th>
                             <th>Stock</th>
                         </tr>
                     </thead>
@@ -1214,7 +1217,7 @@
     <script src="{{ asset('assets') }}/includes/chart/card-monthly.js"></script>
     <script src="{{ asset('assets') }}/includes/table-prospect.js"></script>
     <script src="{{ asset('assets') }}/includes/table-prospect-sales.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-product.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-sales.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-product.js"></script>
     <script src="{{ asset('assets') }}/js/ui-modals.js"></script>
 @endpush

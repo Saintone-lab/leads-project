@@ -18,6 +18,7 @@ use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceReportsController;
 use App\Http\Controllers\StockController;
 use App\Models\Activities;
+use App\Models\Contract;
 use App\Models\DetailProduct;
 use App\Models\Pic;
 use App\Models\ProductIn;
@@ -82,8 +83,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/quotation/print/{id}', [QuotationController::class, 'print_quote'])->name('print.quotation');
     Route::get('/quotation/pdf/{id}', [QuotationController::class, 'pdf_quote'])->name('pdf.quotation');
     Route::get('/quotation/sales/{id}', [QuotationController::class, 'sales_quotation'])->name('sales.quotation');
+    Route::get('/po/sales/{id}', [QuotationController::class, 'sales_po'])->name('sales.po');
     Route::get('/quotation/product/{id}', function ($id) {
-        $product = SerialProduct::join('product as p','p.id', '=', 'serial_product.id_product')->where('serial_product.id', $id)->get(['p.description AS detail', 'serial_product.price']);
+        $product = SerialProduct::join('product as p', 'p.id', '=', 'serial_product.id_product')->where('serial_product.id', $id)->get(['p.description AS detail', 'serial_product.price']);
         return response()->json($product);
     });
 
@@ -168,7 +170,21 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/contract', ContractController::class);
     Route::post('/contract/selling-contract/{id}', [ContractController::class, 'create_selling_contract'])->name('selling.contract');
     Route::get('/contract/print/{id}', [ContractController::class, 'contract_print'])->name('contract.print');
-    
+    Route::get('/selling/contract', [ContractController::class, 'index_selling'])->name('index.selling');
+    Route::get('/db/selling-contract', function () {
+        $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->get([
+                'contract.*',
+                'q.harga_total',
+                'u.name',
+                'c.company'
+            ]);
+        return response()->json(['data' => $contract]);
+    });
+
     // Route untuk API Tabel DataTable
     // Route::get('/fetch-data/leads', [ApiTableController::class, 'tableLeads']);
     Route::get('/db/leads', function () {
@@ -193,6 +209,12 @@ Route::group(["middleware" => "auth"], function () {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $id)->get(['quotation.*', 'client.company']);
+        return response()->json(['data' => $quotation]);
+    });
+    Route::get('/db/po/sales/{id}', function ($id) {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('po_date', $monthNow)->where('quotation.id_sales', $id)->where('status', '100')->get(['quotation.*', 'client.company']);
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/po', function () {

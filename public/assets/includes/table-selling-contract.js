@@ -1,34 +1,37 @@
 $(function () {
-    var dt_table_product_sales = $(".datatable-product-sales");
-    var Url = "db/product/sales";
+    var dt_table_selling_contract = $(".datatable-selling-contract");
+    var Url = "/db/selling-contract";
 
-    if (dt_table_product_sales.length) {
+    if (dt_table_selling_contract.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product_sales.DataTable({
+        var dt_selling_contract = dt_table_selling_contract.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
                 headers: {
                     "Content-Type": "application/json",
                 },
+                // success: function (hasil, Url) {
+                //     console.log("Url:", Url);
+                //     console.log(hasil);
+                // },
+                // error: function (error) {
+                //     console.log("Url:", Url);
+                //     console.error("Error:", error);
+                //     console.log("error disini");
+                // },
             },
             columns: [
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "fxp_parts" },
-                { data: "brand" },
-                { data: "pn" },
-                { data: "description" },
-                { data: "go" },
-                { data: "stock" },
-                { data: "price" },
+                { data: "no_contract" },
+                { data: "company" },
+                { data: "harga_total" },
+                { data: "date" },
+                { data: "name" },
             ],
             columnDefs: [
-                {
-                    targets: 9,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
-                },
                 {
                     // For Responsive
                     className: "control",
@@ -61,36 +64,38 @@ $(function () {
                     visible: false,
                 },
                 {
+                    targets: 3,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $dataId = full["id"];
+                            var detailRoute = route("contract.show", $dataId);
+                            return (
+                                '<a class="text-dark" href="' +
+                                detailRoute +
+                                '">' +
+                                data +
+                                "</a>"
+                            );
+                        }
+                        return data;
+                    },
+                },
+                {
+                    targets: 5,
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                },
+                {
                     responsivePriority: 1,
                     targets: 3,
                 },
-                // {
-                //     targets: 3,
-                //     render: function (data, type, full, row) {
-                //         if (type === "display") {
-                //             var $dataId = full["id"];
-                //             var detailRoute = route("product.show", $dataId);
-                //             return (
-                //                 '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                //             );
-                //         }
-                //         return data;
-                //     },
-                // },
-                {
-                    targets: [3, 4, 5, 9],
-                    render: function (data, type, row) {
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            return data;
-                        }
-                    },
-                },
             ],
+            drawCallback: function (settings) {
+                console.log("drawCallback");
+                $('[data-toggle="tooltip"]').tooltip();
+            },
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
+            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
                 {
@@ -103,7 +108,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -159,7 +164,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -196,7 +201,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -233,7 +238,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -270,7 +275,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -304,24 +309,13 @@ $(function () {
                         },
                     ],
                 },
-                // {
-                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
-                //     className: "btn btn-primary",
-                //     attr: {
-                //         "data-bs-target": "#createProduct",
-                //         "data-bs-toggle": "modal",
-                //     },
-                // },
             ],
-            drawCallback: function (settings) {
-                $('[data-toggle="tooltip"]').tooltip();
-            },
             responsive: {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal({
                         header: function (row) {
                             var data = row.data();
-                            return "Details of " + data["pn"];
+                            return "Details of " + data["full_name"];
                         },
                     }),
                     type: "column",
@@ -351,11 +345,11 @@ $(function () {
                 },
             },
         });
-        $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Product</h5>'
+        $("div.hl-2").html(
+            '<h5 class="card-title mb-0">Table Selling Contract</h5>'
         );
     }
-    dt_table_product_sales.on("draw", function () {
+    dt_table_selling_contract.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

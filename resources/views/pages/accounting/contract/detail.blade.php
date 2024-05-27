@@ -179,12 +179,8 @@
                 <div class="row mt-5">
                     <div class="col-4 my-5 text-center">
                         <h4>Authorized By,</h4>
-                        @if (isset($service->technician->sign))
-                            <img src="{{ url('') . '/' . $service->technician->sign }}" alt="" srcset=""
-                                height="100">
-                        @else
-                            <div class="pb-5"></div>
-                        @endif
+                        <img src="{{ asset('/asset') }}/contract\sign-irene.jpeg" alt="" srcset=""
+                            height="80">
                         <p class="pt-3">Mrs. Irene</p>
                         <p>PT. Reftech Jaya Optima</p>
                     </div>
@@ -197,7 +193,7 @@
                         @else
                             <div class="pb-5"></div>
                         @endif
-                        <p class="pt-3">{{ $quote->pic->name_pic }}</p>
+                        <p class="pt-5">{{ $quote->pic->name_pic }}</p>
                         <p>{{ $quote->pic->client->company }}</p>
                     </div>
                 </div>
@@ -214,10 +210,9 @@
                     </a>
                     <a href="#" class="btn btn-outline-danger d-grid w-100 mb-3 waves-effect delete-contract"
                         data-id="{{ $sellcon->id }}" data-quote="{{ $quote->id }}">Delete</a>
-                    <a class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect"
-                        href="{{ route('quotation.show', $quote->id) }}">
+                    <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">
                         Back
-                    </a>
+                    </button>
                 </div>
             </div>
             {{-- End : Button Invoice --}}
@@ -292,6 +287,9 @@
                         });
                     }
                 });
+            });
+            $('#backButton').click(function() {
+                window.history.back();
             });
         </script>
     @endpush

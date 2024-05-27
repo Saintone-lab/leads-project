@@ -76,7 +76,7 @@
                 </ul>
             </li>
             
-            <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') ? 'open' : '' }}">
+            <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') || request()->is('po/sales/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                     <div data-i18n="Quotation">Quotation</div>
@@ -93,7 +93,7 @@
                             <div data-i18n="Quotation Unit">Quotation Unit</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('po') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->is('po') || request()->is('po/sales/*') ? 'active' : '' }}">
                         <a href="{{ route('quotation.po') }}" class="menu-link">
                             <div data-i18n="Done PO">Done PO</div>
                         </a>
@@ -124,13 +124,27 @@
                     </li>
                 </ul>
             </li> --}}
-
-
             <li
                 class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
                 <a href="{{ route('service-reports.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
                     <div data-i18n="Service Report">Service Report</div>
+                </a>
+            </li>
+            
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Accounting</span>
+            </li>
+            <li class="menu-item {{ request()->is('selling/contract') ? 'active' : '' }}">
+                <a href="{{route('index.selling')}}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-file-sign"></i>
+                    <div data-i18n="Selling Contract">Selling Contract</div>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-file-document-check-outline"></i>
+                    <div data-i18n="Confirm Order">Confirm Order</div>
                 </a>
             </li>
 
