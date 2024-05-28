@@ -1043,26 +1043,25 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="row gy-4 mb-4">
-            <div class="card mb-3">
-                <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-prospect-quote table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Quote No.</th>
-                                <th>Company</th>
-                                <th>Total Price</th>
-                                <th>Status</th>
-                                <th>Assigned</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                    </table>
+            <div class="col-12">
+                <div class="card mb-3">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-prospect-quote table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Total Price</th>
+                                    <th>Status</th>
+                                    <th>Assigned</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1218,6 +1217,6 @@
     <script src="{{ asset('assets') }}/includes/table-prospect.js"></script>
     <script src="{{ asset('assets') }}/includes/table-prospect-sales.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-sales.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-product.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-product-logistic.js"></script>
     <script src="{{ asset('assets') }}/js/ui-modals.js"></script>
 @endpush

@@ -1,5 +1,5 @@
 @extends('layouts.sales.app')
-@section('title', 'Create Quotation')
+@section('title', 'Create Service Reports')
 @section('content')
     <form action="{{ @$report ? route('service-reports.update', @$report->id) : route('service-reports.store') }}"
         method="post" enctype="multipart/form-data" id="serviceReports" name="service-reports">

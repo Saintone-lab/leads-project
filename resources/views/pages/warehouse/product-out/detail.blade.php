@@ -84,7 +84,7 @@
                                             {{ $products->detailProduct->replacement }}
                                         </p>
                                         <pre class="mb-0"
-                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $products->detailProduct->product->commodity }}</pre>
+                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $products->detailProduct->product->description }}</pre>
                                     </td>
                                     <td class="align-top">{{ $products->qty }} {{ $products->detailProduct->product->unit }}
                                     </td>

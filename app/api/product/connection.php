@@ -22,7 +22,8 @@ if (Auth::check()) {
         // Query database for data
         $query = "SELECT 
         p.*,
-        s.pn, 
+        s.pn,
+        s.price,
         p.id AS id_p, 
         p.stock AS all_stock, 
         -- CONCAT(p.commodity, IFNULL(CONCAT(' || ', s.pn), '')) AS product, 

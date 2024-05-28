@@ -169,13 +169,30 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk Selling Contract dan Confirm Order
     Route::resource('/contract', ContractController::class);
     Route::post('/contract/selling-contract/{id}', [ContractController::class, 'create_selling_contract'])->name('selling.contract');
+    Route::post('/contract/confirm-rder/{id}', [ContractController::class, 'create_confirm_order'])->name('confirm.order');
     Route::get('/contract/print/{id}', [ContractController::class, 'contract_print'])->name('contract.print');
     Route::get('/selling/contract', [ContractController::class, 'index_selling'])->name('index.selling');
+    Route::get('/order/contract', [ContractController::class, 'index_order'])->name('index.order');
     Route::get('/db/selling-contract', function () {
         $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'p.id_client')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.type','Selling')
+            ->get([
+                'contract.*',
+                'q.harga_total',
+                'u.name',
+                'c.company'
+            ]);
+        return response()->json(['data' => $contract]);
+    });
+    Route::get('/db/confirm-order', function () {
+        $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.type','Order')
             ->get([
                 'contract.*',
                 'q.harga_total',

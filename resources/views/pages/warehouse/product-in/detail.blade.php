@@ -68,7 +68,7 @@
                                             {{ $products->detailProduct->replacement }}
                                         </p>
                                         <pre class="mb-0"
-                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $products->detailProduct->product->commodity }}</pre>
+                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $products->detailProduct->product->description }}</pre>
                                     </td>
                                     <td class="align-top">{{ $products->qty }} {{ $products->detailProduct->product->unit }}
                                     </td>
@@ -107,7 +107,7 @@
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
             <div class="card">
                 <div class="card-body">
-                    <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
+                    <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect"
                         href="javascript{0}">
                         Print
                     </a>

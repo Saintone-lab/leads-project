@@ -1,5 +1,5 @@
 @extends('layouts.sales.app')
-@section('title', 'Selling Contract')
+@section('title', 'Contract')
 @section('content')
     <div class="row invoice-preview">
         {{-- Invoice --}}
@@ -65,13 +65,9 @@
                                 </div>
                             </div>
                             <div class="text-end">
-                                <h3 class="fw-bold">QUOTATION</h3>
+                                <h3 class="fw-bold">Confirm Order</h3>
                                 <div>
-                                    <span class="fw-bolder">#{{ $quote->no_quote }}</span>
-                                </div>
-                                <div class="mt-1">
-                                    <span
-                                        class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
+                                    <span class="fw-bolder">#{{ $sellcon->no_contract }}</span>
                                 </div>
                                 <div class="mt-1">
                                     <span
@@ -106,8 +102,7 @@
                             <p class="mb-1">Email :</p>
                         </div>
                         <div class="col-3 text-end">
-                            <p class="mb-1">
-                                {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
+                            <p class="mb-1"> PT Kojisha Innotiv Indonesia
                             </p>
                             <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                         </div>
@@ -176,27 +171,41 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="row mt-5">
-                    <div class="col-4 my-5 text-center">
-                        <h4>Authorized By,</h4>
-                        <img src="{{ asset('/asset') }}/contract\sign-irene.jpeg" alt="" srcset=""
-                            height="80">
-                        <p class="pt-3">Mrs. Irene</p>
-                        <p>PT. Reftech Jaya Optima</p>
-                    </div>
-                    <div class="col-4"></div>
-                    <div class="col-4 my-5 text-center">
-                        <h4>Accepted By Customer,</h4>
-                        @if (isset($service->technician->sign))
-                            <img src="{{ url('') . '/' . $service->technician->sign }}" alt="" srcset=""
-                                height="100">
-                        @else
+                @if ($sellcon->type == 'Selling')
+                    <div class="row mt-5">
+                        <div class="col-4 my-5 text-center">
+                            <p class="fs-normal fw-medium">Authorized By,</p>
+                            <img src="{{ asset('/asset') }}/contract\sign-irene.jpeg" alt="" srcset=""
+                                style="width: 100px; height: 77px;">
+                            <p class="pt-3">Mrs. Irene</p>
+                            <p>PT. Reftech Jaya Optima</p>
+                        </div>
+                        <div class="col-4"></div>
+                        <div class="col-4 my-5 text-center">
+                            <p class="fs-normal fw-medium">Accepted By Customer,</p>
                             <div class="pb-5"></div>
-                        @endif
-                        <p class="pt-5">{{ $quote->pic->name_pic }}</p>
-                        <p>{{ $quote->pic->client->company }}</p>
+                            <p class="pt-5">{{ $quote->pic->name_pic }}</p>
+                            <p>{{ $quote->pic->client->company }}</p>
+                        </div>
                     </div>
-                </div>
+                @else
+                    <div class="row mt-5">
+                        <div class="col-4 my-5 text-center">
+                            <p class="fs-normal fw-medium">Authorized By,</p>
+                            <img src="{{ asset('/asset') }}/contract\sign-dedeh.png" alt="" srcset=""
+                                style="width: 100px; height: 77px;">
+                            <p class="pt-3">Dedeh Sulastri</p>
+                            <p>Director</p>
+                        </div>
+                        <div class="col-4"></div>
+                        <div class="col-4 my-5 text-center">
+                            <p class="fs-normal fw-medium">Accepted By Customer,</p>
+                            <div class="pb-5"></div>
+                            <p class="pt-5">{{ $quote->pic->name_pic }}</p>
+                            <p>{{ $quote->pic->client->company }}</p>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
         {{-- End: Invoice --}}

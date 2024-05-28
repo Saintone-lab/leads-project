@@ -101,7 +101,8 @@
                 </div>
                 <div class="col-4 text-end">
                     <p class="mb-1">
-                        {{ $sellcon->type == 'Selling' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}</p>
+                        {{ $sellcon->type == 'Selling' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
+                    </p>
                     <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                 </div>
             </div>
@@ -194,27 +195,41 @@
                 </tbody>
             </table>
         </div>
-        <div class="row mt-5">
-            <div class="col-4 my-5 text-center">
-                <h4>Authorized By,</h4>
+        @if ($sellcon->type == 'Selling')
+            <div class="row mt-5">
+                <div class="col-4 my-5 text-center">
+                    <p class="fs-normal fw-medium">Authorized By,</p>
                     <img src="{{ asset('/asset') }}/contract\sign-irene.jpeg" alt="" srcset=""
-                        height="80">
-                <p class="pt-3">Mrs. Irene</p>
-                <p>PT. Reftech Jaya Optima</p>
-            </div>
-            <div class="col-4"></div>
-            <div class="col-4 my-5 text-center">
-                <h4>Accepted By Customer,</h4>
-                @if (isset($service->technician->sign))
-                    <img src="{{ url('') . '/' . $service->technician->sign }}" alt="" srcset=""
-                        height="100">
-                @else
+                        style="width: 100px; height: 77px;">
+                    <p class="pt-3">Mrs. Irene</p>
+                    <p>PT. Reftech Jaya Optima</p>
+                </div>
+                <div class="col-4"></div>
+                <div class="col-4 my-5 text-center">
+                    <p class="fs-normal fw-medium">Accepted By Customer,</p>
                     <div class="pb-5"></div>
-                @endif
-                <p class="pt-5">{{ $quote->pic->name_pic }}</p>
-                <p>{{ $quote->pic->client->company }}</p>
+                    <p class="pt-5">{{ $quote->pic->name_pic }}</p>
+                    <p>{{ $quote->pic->client->company }}</p>
+                </div>
             </div>
-        </div>
+        @else
+            <div class="row mt-5">
+                <div class="col-4 my-5 text-center">
+                    <p class="fs-normal fw-medium">Authorized By,</p>
+                    <img src="{{ asset('/asset') }}/contract\sign-dedeh.png" alt="" srcset=""
+                        style="width: 100px; height: 77px;">
+                    <p class="pt-3">Dedeh Sulastri</p>
+                    <p>Director</p>
+                </div>
+                <div class="col-4"></div>
+                <div class="col-4 my-5 text-center">
+                    <p class="fs-normal fw-medium">Accepted By Customer,</p>
+                    <div class="pb-5"></div>
+                    <p class="pt-5">{{ $quote->pic->name_pic }}</p>
+                    <p>{{ $quote->pic->client->company }}</p>
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 @push('after-style')

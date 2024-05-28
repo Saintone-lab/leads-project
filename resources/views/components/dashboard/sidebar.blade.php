@@ -141,8 +141,8 @@
                     <div data-i18n="Selling Contract">Selling Contract</div>
                 </a>
             </li>
-            <li class="menu-item">
-                <a href="#" class="menu-link">
+            <li class="menu-item {{ request()->is('order/contract')  ? 'active' : '' }}">
+                <a href="{{route('index.order')}}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-file-document-check-outline"></i>
                     <div data-i18n="Confirm Order">Confirm Order</div>
                 </a>

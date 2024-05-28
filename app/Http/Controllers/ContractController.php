@@ -107,10 +107,26 @@ class ContractController extends Controller
         }else{
 
         }
+    }
+    
+    public function create_confirm_order(Request $request, $id){
+        $sellcon = new Contract;
+        $sellcon->id_quotation = $id;
+        $sellcon->no_contract = $request->no_contract;
+        $sellcon->type = "Order";
+        $sellcon->date = Carbon::today();
+        $sellconSave = $sellcon->save();
+        if ($sellconSave) {
+            return redirect('contract/'. $sellcon->id);
+        }else{
 
+        }
     }
     public function index_selling(){
         return view("pages.accounting.contract.index-selling");
+    }
+    public function index_order(){
+        return view("pages.accounting.contract.index-order");
     }
     public function contract_print($id){
         $sellcon = Contract::find($id);

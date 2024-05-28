@@ -1,5 +1,5 @@
 @extends('layouts.sales.app')
-@section('title', 'Detail Audit Tools')
+@section('title', 'Service Reports')
 @section('content')
     <div class="row invoice-preview">
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">

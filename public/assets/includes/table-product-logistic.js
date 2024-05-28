@@ -28,7 +28,7 @@ $(function () {
                 { data: "id" },
                 { data: "commodity" },
                 { data: "pn" },
-                { data: "price" },
+                // { data: "price" },
                 { data: "description" },
                 { data: "dimension" },
                 { data: "go" },

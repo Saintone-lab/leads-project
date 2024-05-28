@@ -274,14 +274,14 @@
 
                         <!-- Cek apakah ada kontrak bertipe Order -->
                         @if ($orderContract)
-                            <a class="btn btn-google-plus d-grid w-100 mb-3 waves-effect" target="_blank"
+                            <a class="btn btn-google-plus d-grid w-100 mb-3 waves-effect"
                                 href="{{ route('contract.show', $orderContract->id) }}">
-                                Go To Contract Order
+                                Go To Confirm Order
                             </a>
                         @else
                             <button type="button" class="btn btn-google-plus d-grid w-100 waves-effect mb-3"
-                                data-bs-toggle="modal" data-bs-target="#contractOrder">
-                                Create Contract Order
+                                data-bs-toggle="modal" data-bs-target="#confirmOrder">
+                                Create Confirm Order
                             </button>
                         @endif
                     @endif
@@ -295,6 +295,7 @@
         @include('pages.sales.quotation.modal-status')
         @include('components.modal.quotation.convert-po')
         @include('components.modal.accounting.selling-contract')
+        @include('components.modal.accounting.confirm-order')
     </div>
 @endsection
 @push('after-style')
