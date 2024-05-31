@@ -43,7 +43,7 @@
                     <div class="d-flex svg-illustration align-items-center gap-2 mb-2">
                         <span class="app-brand-logo demo">
                             <span style="color: var(--bs-primary)">
-                                <img class="text-md" src="{{ asset('/asset') }}/logo/Kojisha-Log.png" alt=""
+                                <img class="text-md" src="{{ asset('/asset') }}/logo/Logo-update-size.png" alt=""
                                     srcset="" width="60%">
                             </span>
                         </span>
@@ -60,13 +60,9 @@
                     </div>
                 </div>
                 <div class="text-end">
-                    <h3 class="fw-bold">QUOTATION</h3>
+                    <h3 class="fw-bold">Confirm Order</h3>
                     <div>
-                        <span class="fw-bolder">#{{ $quote->no_quote }}</span>
-                    </div>
-                    <div class="mt-1">
-                        <span
-                            class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
+                        <span class="fw-bolder">#{{ $sellcon->no_contract }}</span>
                     </div>
                     <div class="mt-1">
                         <span
@@ -148,7 +144,7 @@
                         </td>
                         <td colspan="2" class="text-end pt-4 pb-0">
                             <p class="mb-2">Subtotal:</p>
-                            <p class="mb-2">Tax:</p>
+                            <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
                             <p class="mb-2">Shipping Cost:</p>
                             @if ($quote->diskon != 0)
                                 <p class="mb-2">Discount:</p>
@@ -157,7 +153,8 @@
                         <td colspan="2" class="pt-4 pb-0">
                             <p class="fw-semibold mb-2 text-end">Rp
                                 {{ number_format($quote->subtotal, 0, '', '.') }}</p>
-                            <p class="fw-semibold mb-2 text-end">{{ $quote->tax }}%</p>
+                            <p class="fw-semibold mb-2 text-end">
+                                {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
                             <p class="fw-semibold mb-2 text-end">Rp
                                 {{ number_format($quote->shipping, 0, '', '.') }}</p>
                             @if ($quote->diskon != 0)

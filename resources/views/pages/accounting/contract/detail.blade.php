@@ -48,7 +48,7 @@
                                 <div class="d-flex svg-illustration align-items-center gap-2 mb-2">
                                     <span class="app-brand-logo demo">
                                         <span style="color: var(--bs-primary)">
-                                            <img class="text-md" src="{{ asset('/asset') }}/logo/Kojisha-Log.png"
+                                            <img class="text-md" src="{{ asset('/asset') }}/logo/Logo-update-size.png"
                                                 alt="" srcset="" width="60%">
                                         </span>
                                     </span>
@@ -150,7 +150,7 @@
                                 </td>
                                 <td colspan="2" class="text-end px-4 py-5">
                                     <p class="mb-2">Subtotal:</p>
-                                    <p class="mb-2">Tax:</p>
+                                    <p class="mb-2">Tax {{$quote->tax == '11' ? '(11%)' : ''}}:</p>
                                     <p class="mb-2">Discount Quote:</p>
                                     <p class="mb-2">Shipping Cost:</p>
                                     <p class="mb-0">Total:</p>
@@ -158,7 +158,7 @@
                                 <td colspan="2" class="px-4 py-5">
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($quote->subtotal, 0, '', '.') }}</p>
-                                    <p class="fw-semibold mb-2 text-end">{{ $quote->tax }}%</p>
+                                    <p class="fw-semibold mb-2 text-end">{{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($quote->diskon, 0, '', '.') }}
                                     </p>

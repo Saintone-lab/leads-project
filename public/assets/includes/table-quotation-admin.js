@@ -32,7 +32,7 @@ $(function () {
                 { data: "title" },
                 { data: "estimated_date" },
                 { data: "status" },
-                { data: "expired_date" },
+                // { data: "expired_date" },
                 { data: "status" },
                 { data: "name" },
                 { data: "" },
@@ -126,7 +126,7 @@ $(function () {
                 },
                 {
                     // Label Status Percent
-                    targets: 10,
+                    targets: 9  ,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $titleTool = full["note"];

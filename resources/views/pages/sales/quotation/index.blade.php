@@ -89,7 +89,7 @@
                         <th>Description</th>
                         <th>Date Quotation</th>
                         <th>Status</th>
-                        <th>Date Expired</th>
+                        {{-- <th>Date Expired</th> --}}
                         <th>Stats</th>
                         @if (Auth::user()->role == 'Admin')
                             <th>Assign</th>

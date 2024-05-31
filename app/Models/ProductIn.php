@@ -18,7 +18,10 @@ class ProductIn extends Model
         'invoice',
         'supplier',
         'note',
+        'subtotal',
+        'total_no_tax',
         'shipping',
+        'tax',
         'price',
     ];
     public function detail()

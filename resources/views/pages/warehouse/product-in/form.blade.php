@@ -58,7 +58,11 @@
                                                 name="replacement[]" data-id="1">
                                                 <option> ---- Choose Commodity || Replacement Here ---- </option>
                                                 @foreach ($detProduct as $products)
-                                                    <option value="{{ $products->id }}"> {{ $products->product->commodity }} ({{$products->product->detail_desc}}) || {{ $products->replacement }} - {{ $products->product->go == 'Genuine' ? 'G' : 'R' }}
+                                                    <option value="{{ $products->id }}"> {{ $products->product->commodity }}
+                                                        ({{ $products->product->detail_desc }})
+                                                        ||
+                                                        {{ $products->replacement }} -
+                                                        {{ $products->product->go == 'Genuine' ? 'G' : 'R' }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -93,8 +97,7 @@
                                             hidden>
                                     </div>
                                 </div>
-                                <div
-                                    class="d-flex flex-column align-items-center justify-content-between border-start p-2">
+                                <div class="d-flex flex-column align-items-center justify-content-between border-start p-2">
                                     <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
                                         data-repeater-delete=""></i>
                                 </div>
@@ -113,6 +116,24 @@
                         <div class="col-lg-8"></div>
                         <div class="col-lg-4 col-12">
                             <h5 class="my-2">
+                                Subtotal
+                            </h5>
+                            <div class="input-group" data-subtotal="1">
+                                <span class="input-group-text">Rp. </span>
+                                <p class="form-control invoice-item-subtotal-label h-px-25 mb-0" id="subtotal-label">
+                                    Subtotal
+                                    Here </p>
+                                <input class="form-control invoice-item-subtotal" type="number" name="subtotal"
+                                    id="subtotal" value="{{ old('subtotal') }}" hidden>
+                                <input class="form-control invoice-item-total-no-tax" type="number" name="total_no_tax"
+                                    id="totalNoTax" value="{{ old('total_no_tax') }}" hidden>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-lg-8"></div>
+                        <div class="col-lg-4 col-12">
+                            <h5 class="my-2">
                                 Shipping
                             </h5>
                             <div class="input-group" data-shipping="1">
@@ -123,6 +144,22 @@
                                     @blur="focused = false" value="{{ old('shipping') }}">
                                 <input class="form-control invoice-item-shipping" type="number" name="shipping"
                                     id="shipping" value="{{ old('shipping') }}" hidden>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-lg-8"></div>
+                        <div class="col-lg-4 col-12">
+                            <h5 class="my-2">
+                                Tax
+                            </h5>
+                            <div class="form-floating form-floating-outline mb-4">
+                                <select class="form-select invoice-item-tax" id="tax" name="tax"
+                                    aria-label="Default select example">
+                                    <option selected disabled>----- Choose Tax Here -----</option>
+                                    <option value="11">11%</option>
+                                    <option value="0">0%</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -184,6 +221,7 @@
                 style: 'currency',
                 currency: 'IDR'
             });
+
             function formatNumber(n) {
                 return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
             }
@@ -246,23 +284,30 @@
                 amount = harga * $(`#qty-${id}`).val();
                 $(`#amount-${id}`).val(amount);
                 $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+                $('.amount-label').each(() => {
+                    row++;
+                    sTotal += parseInt($(`#amount-${row}`).val())
+                });
+                $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                $('#subtotal').val(sTotal);
             });
 
             // Logic Harga Total
-            $('#shipping-label, .invoice-item-price-label, .invoice-item-qty')
+            $('#shipping-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-tax')
                 .on('keyup change',
                     () => {
                         var row = 0,
                             total = 0,
                             hTotal = 0,
+                            totalNoTax = 0,
+                            tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val()),
+                            subtotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val()),
                             shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
-                        $('.amount-label').each(() => {
-                            row++;
-                            total += parseInt($(`#amount-${row}`).val())
-                        });
-                        hTotal = parseInt(total + shipping);
+                        hTotal = parseInt(subtotal + (subtotal * tax / 100) + shipping);
+                        totalNoTax = parseInt(subtotal + shipping);
                         $('#total-label').html(`${formatter.format(hTotal)}`);
                         $('#total').val(hTotal);
+                        $('#totalNoTax').val(totalNoTax);
                         console.log('Harga total: ' + hTotal);
                     });
             // Logic Subtotal dan Amount Setelah Tambah Product
@@ -287,6 +332,7 @@
                     $(`#price-${id}`).val(nomorInt);
                 });
 
+
                 $('.invoice-item-price-label, .invoice-item-qty').on('keyup change click', function(
                     ev) {
                     var id = $(this).data('id');
@@ -295,31 +341,37 @@
                     var amount = 0,
                         valHarga = $(`#price-${id}`).val(),
                         harga = Number(valHarga);
-                    console.log("Harga nya adalah : " + harga);
                     amount = harga * $(`#qty-${id}`).val();
                     $(`#amount-${id}`).val(amount);
                     $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+                    $('.amount-label').each(() => {
+                        row++;
+                        sTotal += parseInt($(`#amount-${row}`).val())
+                    });
+                    $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                    $('#subtotal').val(sTotal);
                 });
 
-                $('#shipping-label, .invoice-item-price-label, .invoice-item-qty')
+
+                $('#shipping-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-tax')
                     .on('keyup change',
                         () => {
                             var row = 0,
                                 total = 0,
                                 hTotal = 0,
+                                totalNoTax = 0,
+                                tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val()),
+                                subtotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($(
+                                    '#subtotal').val()),
                                 shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($(
                                     '#shipping').val());
-                            $('.amount-label').each(() => {
-                                row++;
-                                total += parseInt($(`#amount-${row}`).val())
-                            });
-                            console.log('Ini Total: ' +total);
-                            hTotal = parseInt(total + shipping);
+                            hTotal = parseInt(subtotal + (subtotal * tax / 100) + shipping);
+                            totalNoTax = parseInt(subtotal + shipping);
                             $('#total-label').html(`${formatter.format(hTotal)}`);
                             $('#total').val(hTotal);
                             console.log('Harga total: ' + hTotal);
                         });
-                        rep ++;
+                rep++;
                 initializeSelect2Replacement();
             })
         });

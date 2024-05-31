@@ -26,6 +26,7 @@ class Quotation extends Model
         'flag',
         'tax',
         'diskon',
+        'fee',
         'shipping',
         'no_quote',
         'termcon',

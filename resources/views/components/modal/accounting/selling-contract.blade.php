@@ -18,7 +18,7 @@
                                 <div class="col-12  mb-3">
                                     <div class="form-floating form-floating-outline">
                                         <input type="text" class="form-control" id="no_contract" name="no_contract"
-                                            placeholder="John Doe" value="{{$noQuote}}/SELLCTX/RJO/{{$thisYear}}">
+                                            placeholder="John Doe" value="{{$quote->tax == '11' ? $formattedNumberSP : $formattedNumberSNP}}/{{$quote->tax == '11' ? 'P' : 'NP'}}/SELLCTX/RJO/{{$thisYear}}">
                                         <label for="no_contract">No Selling Contract</label>
                                     </div>
                                 </div>

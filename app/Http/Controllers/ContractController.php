@@ -51,8 +51,9 @@ class ContractController extends Controller
     {
         $sellcon = Contract::find($id);
         $quote = Quotation::where('id', $sellcon->id_quotation)->first();
+        $tax = $quote->total_no_tax * $quote->tax / 100;
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
-        return view('pages.accounting.contract.detail', compact('sellcon','quote','dquote'));
+        return view('pages.accounting.contract.detail', compact('sellcon','quote','dquote','tax'));
     }
 
     /**
@@ -131,7 +132,8 @@ class ContractController extends Controller
     public function contract_print($id){
         $sellcon = Contract::find($id);
         $quote = Quotation::where('id', $sellcon->id_quotation)->first();
+        $tax = $quote->total_no_tax * $quote->tax / 100;
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
-        return view('pages.accounting.contract.detail-print', compact('sellcon','quote','dquote'));
+        return view('pages.accounting.contract.detail-print', compact('sellcon','quote','dquote', 'tax'));
     }
 }

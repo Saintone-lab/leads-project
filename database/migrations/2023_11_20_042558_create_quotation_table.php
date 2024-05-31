@@ -30,6 +30,7 @@ return new class extends Migration
             $table->integer('shipping');
             $table->string('no_quote');
             $table->integer('diskon');
+            $table->integer('fee');
             $table->integer('subtotal');
             $table->integer('total_no_tax');
             $table->integer('harga_total');

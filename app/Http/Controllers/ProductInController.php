@@ -60,6 +60,9 @@ class ProductInController extends Controller
         $productIn->invoice = $request->invoice;
         $productIn->supplier = $request->suplier;
         $productIn->date = $request->date;
+        $productIn->subtotal = $request->subtotal;
+        $productIn->total_no_tax = $request->total_no_tax;
+        $productIn->tax = $request->tax;
         $productIn->note = $request->note;
         $productIn->shipping = $request->shipping;
         $productIn->total = $request->total;
@@ -98,8 +101,9 @@ class ProductInController extends Controller
     public function show($id)
     {
         $product = ProductIn::find($id);
+        $tax = $product->subtotal * $product->tax / 100;
         $detail = DetailProductIn::where('id_product_in', $id)->get();
-        return view('pages.warehouse.product-in.detail', compact('product', 'detail'));
+        return view('pages.warehouse.product-in.detail', compact('product', 'detail', 'tax'));
     }
 
     /**
@@ -135,7 +139,9 @@ class ProductInController extends Controller
             $total += $item->amount;
         }
         if ($detailSave) {
-            $product->total = $total + $product->shipping;
+            $product->subtotal = $total;
+            $product->total_no_tax = $total + $product->shipping;
+            $product->total = $total + ($total * $product->tax) + $product->shipping;
             $productSave = $product->save();
         }
         if ($productSave) {
@@ -169,5 +175,12 @@ class ProductInController extends Controller
         } else {
             return 0;
         }
+    }
+    
+    public function productIn_print($id){
+        $product = ProductIn::find($id);
+        $detail = DetailProductIn::where('id_product_in', $product->id)->get();
+        $tax = $product->total_no_tax * $product->tax / 100;
+        return view('pages.warehouse.product-in.detail-print', compact('product','detail', 'tax'));
     }
 }

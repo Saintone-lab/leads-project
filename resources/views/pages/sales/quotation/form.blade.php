@@ -117,8 +117,10 @@
                                                         <option value="">---- Choose Part Number Here ----</option>
                                                         @foreach ($product as $products)
                                                             <option value="{{ $products->brand }} {{ $products->pn }}"
-                                                                data-replacement="{{ $products->id }}" {{ $quote->product == "{$products->brand} {$products->pn}" ? 'selected' : '' }}>
-                                                                {{ $products->brand }} {{ $products->pn }} ({{$products->detail_desc}}) ||
+                                                                data-replacement="{{ $products->id }}"
+                                                                {{ $quote->product == "{$products->brand} {$products->pn}" ? 'selected' : '' }}>
+                                                                {{ $products->brand }} {{ $products->pn }}
+                                                                ({{ $products->detail_desc }}) ||
                                                                 {{ $products->go }}
                                                             </option>
                                                         @endforeach
@@ -215,7 +217,8 @@
                                                     @foreach ($product as $products)
                                                         <option value="{{ $products->brand }} {{ $products->pn }}"
                                                             data-replacement="{{ $products->id }}">
-                                                            {{ $products->brand }} {{ $products->pn }} ({{$products->detail_desc}}) ||
+                                                            {{ $products->brand }} {{ $products->pn }}
+                                                            ({{ $products->detail_desc }}) ||
                                                             {{ $products->go }}
                                                         </option>
                                                     @endforeach
@@ -472,7 +475,6 @@
                 style: 'currency',
                 currency: 'IDR'
             });
-
             function initializeSelect2Product() {
                 $('.invoice-item-product').select2({
                     placeholder: ' ---- Choose Part Number Here ---- ',
@@ -753,11 +755,13 @@
                         var noTax = 0;
                         var hTotal = 0;
                         var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
+                        var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
                         var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon').val());
                         var dTotal = sTotal - discount;
                         var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                        hTotal = parseInt(dTotal + (dTotal * tax / 100));
-                        noTax = parseInt(dTotal)
+                        hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
+                        noTax = parseInt(dTotal + shipping);
+                        console.log(hTotal);
                         $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
                         $('#hargaTotal').val(hTotal);
                         $('#totalNoTax').val(noTax);
@@ -888,10 +892,11 @@
                                 .val());
                             var dTotal = sTotal - discount;
                             var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                            hTotal = parseInt(dTotal + (dTotal * tax / 100));
-                            noTax = parseInt(dTotal)
+                            hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
+                            noTax = parseInt(dTotal + shipping);
                             $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
                             $('#hargaTotal').val(hTotal);
+                            console.log(hTotal);
                             $('#totalNoTax').val(noTax);
                         });
                 initializeSelect2Product();

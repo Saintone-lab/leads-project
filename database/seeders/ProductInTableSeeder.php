@@ -21,7 +21,10 @@ class ProductInTableSeeder extends Seeder
                 'supplier' => 'Bpk Asep',
                 'note' => '-',
                 "date"=> \Carbon\Carbon::today()->format('Y-m-d H:i:s'),
+                'subtotal' => '4500000',
+                'total_no_tax' => '5000000',
                 'shipping' => '500000',
+                'tax' => '0',
                 'total' => '5000000',
             ],
             [
@@ -29,7 +32,10 @@ class ProductInTableSeeder extends Seeder
                 'supplier' => 'Bpk Raden Dewi',
                 'note' => '-',
                 "date"=> \Carbon\Carbon::today()->format('Y-m-d H:i:s'),
+                'subtotal' => '2250000',
+                'total_no_tax' => '2500000',
                 'shipping' => '250000',
+                'tax' => '0',
                 'total' => '2500000',
             ],
         ];

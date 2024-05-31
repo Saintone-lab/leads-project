@@ -79,6 +79,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/quotation/{id}/change_status', [QuotationController::class, 'change_status'])->name('status.change.quotation');
     Route::post('/quotation/{id}/convert_flag', [QuotationController::class, 'convert_flag'])->name('convert-flag.quotation');
     Route::post('/quotation/{id}/convert_po', [QuotationController::class, 'convert_po'])->name('convert-po.quotation');
+    Route::post('/quotation/{id}/insert_fee', [QuotationController::class, 'insert_fee'])->name('insert_fee.quotation');
+    Route::post('/quotation/{id}/delete_fee', [QuotationController::class, 'delete_fee'])->name('delete_fee.quotation');
     Route::get('/quotation/revision/{id}', [QuotationController::class, 'edit_revisi'])->name('revisi.quotation');
     Route::get('/quotation/print/{id}', [QuotationController::class, 'print_quote'])->name('print.quotation');
     Route::get('/quotation/pdf/{id}', [QuotationController::class, 'pdf_quote'])->name('pdf.quotation');
@@ -137,6 +139,7 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk Product In
     Route::resource('/product-in', ProductInController::class);
+    Route::get('/product-in/print/{id}', [ProductInController::class, 'productIn_print'])->name('productIn.print');
     Route::get('/product-in/replacement/{id}', function ($id) {
         $product = DetailProduct::where('id_product', $id)->get();
         return response()->json($product);
@@ -173,12 +176,13 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/contract/print/{id}', [ContractController::class, 'contract_print'])->name('contract.print');
     Route::get('/selling/contract', [ContractController::class, 'index_selling'])->name('index.selling');
     Route::get('/order/contract', [ContractController::class, 'index_order'])->name('index.order');
-    Route::get('/db/selling-contract', function () {
+    Route::get('/db/selling-contract/tax', function () {
         $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'p.id_client')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
             ->where('contract.type','Selling')
+            ->where('q.tax','11')
             ->get([
                 'contract.*',
                 'q.harga_total',
@@ -187,12 +191,43 @@ Route::group(["middleware" => "auth"], function () {
             ]);
         return response()->json(['data' => $contract]);
     });
-    Route::get('/db/confirm-order', function () {
+    Route::get('/db/selling-contract/non-tax', function () {
+        $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.type','Selling')
+            ->where('q.tax','0')
+            ->get([
+                'contract.*',
+                'q.harga_total',
+                'u.name',
+                'c.company'
+            ]);
+        return response()->json(['data' => $contract]);
+    });
+    Route::get('/db/confirm-order/tax', function () {
         $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'p.id_client')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
             ->where('contract.type','Order')
+            ->where('q.tax','11')
+            ->get([
+                'contract.*',
+                'q.harga_total',
+                'u.name',
+                'c.company'
+            ]);
+        return response()->json(['data' => $contract]);
+    });
+    Route::get('/db/confirm-order/non-tax', function () {
+        $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.type','Order')
+            ->where('q.tax','0')
             ->get([
                 'contract.*',
                 'q.harga_total',
@@ -357,6 +392,12 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/productIn', function () {
         require_once base_path('app/api/product/in/connection.php');
+    });
+    Route::get('/db/productInTax', function () {
+        require_once base_path('app/api/product/in/connectionTax.php');
+    });
+    Route::get('/db/productInNoTax', function () {
+        require_once base_path('app/api/product/in/connectionNoTax.php');
     });
     Route::get('/db/productOut', function () {
         require_once base_path('app/api/product/out/connection.php');

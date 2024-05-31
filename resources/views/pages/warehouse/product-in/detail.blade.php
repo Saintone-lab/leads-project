@@ -83,6 +83,24 @@
                                     @endif
                                 </tr>
                             @endforeach
+                            <tr style="font-size: 13px">
+                                <td colspan="3" style="border:none;"></td>
+                                <td >Subtotal</td>
+                                @if (Auth::user()->role == 'Logistic')
+                                    <td>: RP {{ str_repeat('*', strlen((string) $product->subtotal)) }}</td>
+                                    @else
+                                    <td>: RP {{ number_format($product->subtotal, 0, '', '.') }}</td>
+                                @endif
+                            </tr>
+                            <tr style="font-size: 13px">
+                                <td colspan="3" style="border:none;"></td>
+                                <td >Tax {{$product->tax == '11' ? '11%' : ''}}</td>
+                                @if (Auth::user()->role == 'Logistic')
+                                    <td>: RP {{ str_repeat('*', strlen((string) $tax)) }}</td>
+                                    @else
+                                    <td>: RP {{ number_format($tax, 0, '', '.') }}</td>
+                                @endif
+                            </tr>
                             <tr style="font-size: 13px;">
                                 <td colspan="3" style="border:none;"></td>
                                 <td>Shipping</td>
@@ -107,8 +125,8 @@
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
             <div class="card">
                 <div class="card-body">
-                    <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect"
-                        href="javascript{0}">
+                    <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
+                        href="{{route('productIn.print', $product->id)}}">
                         Print
                     </a>
                     <a href="javascript{0}" type="button" class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">

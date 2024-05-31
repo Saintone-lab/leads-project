@@ -6,7 +6,25 @@
     </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-selling-contract table table-striped">
+            <table class="datatable-selling-contract-tax table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Selling No.</th>
+                        <th>Company</th>
+                        <th>Total Price</th>
+                        <th>Date</th>
+                        <th>Sales</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-datatable table-responsive pt-0">
+            <table class="datatable-selling-contract-non-tax table table-striped">
                 <thead>
                     <tr>
                         <th></th>
@@ -45,7 +63,8 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-selling-contract.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-selling-contract-tax.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-selling-contract-non-tax.js"></script>
 @endpush
 
 @push('script')

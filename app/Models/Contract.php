@@ -17,7 +17,7 @@ class Contract extends Model
     protected $fillable = [
         'id_quotation',
         'no_contract',
-        // 'sign',
+        'level',
         'type',
     ];
     

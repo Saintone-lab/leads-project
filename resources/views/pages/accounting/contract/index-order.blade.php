@@ -6,7 +6,25 @@
     </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-confirm-order table table-striped">
+            <table class="datatable-confirm-order-tax table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Order No.</th>
+                        <th>Company</th>
+                        <th>Total Price</th>
+                        <th>Date</th>
+                        <th>Sales</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-datatable table-responsive pt-0">
+            <table class="datatable-confirm-order-non-tax table table-striped">
                 <thead>
                     <tr>
                         <th></th>
@@ -45,7 +63,8 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-confirm-order.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-confirm-order-tax.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-confirm-order-non-tax.js"></script>
 @endpush
 
 @push('script')

@@ -154,7 +154,7 @@
                         </td>
                         <td colspan="2" class="text-end pt-4 pb-0">
                             <p class="mb-2">Subtotal:</p>
-                            <p class="mb-2">Tax:</p>
+                            <p class="mb-2">Tax {{$quote->tax == '11' ? '(11%)' : ''}}:</p>
                             <p class="mb-2">Shipping Cost:</p>
                             @if ($quote->diskon != 0)
                                 <p class="mb-2">Discount:</p>
@@ -163,7 +163,8 @@
                         <td colspan="2" class="pt-4 pb-0">
                             <p class="fw-semibold mb-2 text-end">Rp
                                 {{ number_format($quote->subtotal, 0, '', '.') }}</p>
-                            <p class="fw-semibold mb-2 text-end">{{ $quote->tax }}%</p>
+                            <p class="fw-semibold mb-2 text-end">
+                                {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
                             <p class="fw-semibold mb-2 text-end">Rp
                                 {{ number_format($quote->shipping, 0, '', '.') }}</p>
                             @if ($quote->diskon != 0)

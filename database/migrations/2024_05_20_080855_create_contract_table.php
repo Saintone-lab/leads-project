@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_quotation');
             $table->string('no_contract');
-            // $table->string('sign')->nullable();
+            $table->enum('level',['0', '1']);
             $table->enum('type',['Selling', 'Order']);
             $table->date('date');
             $table->timestamps();

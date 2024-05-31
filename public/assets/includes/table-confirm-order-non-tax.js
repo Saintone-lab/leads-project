@@ -1,10 +1,10 @@
 $(function () {
-    var dt_table_selling_contract = $(".datatable-selling-contract");
-    var Url = "/db/selling-contract";
+    var dt_table_confirm_order_non_tax = $(".datatable-confirm-order-non-tax");
+    var Url = "/db/confirm-order/non-tax";
 
-    if (dt_table_selling_contract.length) {
+    if (dt_table_confirm_order_non_tax.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_selling_contract = dt_table_selling_contract.DataTable({
+        var dt_confirm_order_non_tax = dt_table_confirm_order_non_tax.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -95,7 +95,7 @@ $(function () {
             },
             order: [[2, "desc"]],
             displayLength: 7,
-            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2-non text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
                 {
@@ -345,11 +345,11 @@ $(function () {
                 },
             },
         });
-        $("div.hl-2").html(
-            '<h5 class="card-title mb-0">Table Selling Contract</h5>'
+        $("div.hl-2-non").html(
+            '<h5 class="card-title mb-0">Table Confirm Order Non Tax</h5>'
         );
     }
-    dt_table_selling_contract.on("draw", function () {
+    dt_table_confirm_order_non_tax.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

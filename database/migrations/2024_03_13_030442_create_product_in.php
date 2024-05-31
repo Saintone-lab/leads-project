@@ -19,7 +19,10 @@ return new class extends Migration
             $table->string('supplier');
             $table->string('note');
             $table->date('date');
+            $table->integer('subtotal');
+            $table->integer('total_no_tax');
             $table->integer('shipping');
+            $table->integer('tax');
             $table->integer('total');
             $table->timestamps();
         });

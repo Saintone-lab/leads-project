@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Activities;
 use App\Models\Client;
+use App\Models\Contract;
 use App\Models\DetailQuotation;
 use App\Models\Pic;
 use App\Models\Product;
@@ -53,7 +54,7 @@ class QuotationController extends Controller
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::all();
         $sales = User::where('role', 'sales')->get();
-        $product = Product::join('serial_product as s','s.id_product', '=', 'product.id')->get(['s.id','product.go', 's.pn', 's.brand', 'product.detail_desc']);
+        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
         // dd($product);
         return view('pages.sales.quotation.form', compact('pic', 'sales', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
@@ -114,6 +115,7 @@ class QuotationController extends Controller
         } else {
             $quotation->diskon = 0;
         }
+        $quotation->fee = 0;
         $quotation->total_no_tax = $request->total_no_tax;
         $quotation->harga_total = $request->harga_total;
         $quoteSave = $quotation->save();
@@ -156,14 +158,24 @@ class QuotationController extends Controller
      */
     public function show($id)
     {
+        $dateNow = Carbon::now();
+        $numberSP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $dateNow)->where('q.tax', '11')->where('contract.type', 'Selling')->groupBy('contract.id')->get('contract.id');
+        $numberSNP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $dateNow)->where('q.tax', '0')->where('contract.type', 'Selling')->groupBy('contract.id')->get('contract.id');
+        $numberCP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $dateNow)->where('q.tax', '11')->where('contract.type', 'Order')->groupBy('contract.id')->get('contract.id');
+        $numberCNP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $dateNow)->where('q.tax', '0')->where('contract.type', 'Order')->groupBy('contract.id')->get('contract.id');
+        $formattedNumberSP = str_pad($numberSP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $formattedNumberSNP = str_pad($numberSNP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $formattedNumberCP = str_pad($numberSP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $formattedNumberCNP = str_pad($numberSNP->count() + 1, 3, '0', STR_PAD_LEFT);
         $quote = Quotation::where('id', $id)->first();
         $dquote = DetailQuotation::where('id_quotation', $id)->get();
-        $product = Product::join('serial_product as s','s.id_product', '=', 'product.id')->get(['s.id','product.go', 's.pn']);
-        $noQuote = substr($quote->no_quote, 0,5);
+        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn']);
+        $noQuote = substr($quote->no_quote, 0, 3);
         $today = Carbon::now();
+        $tax = $quote->subtotal * $quote->tax / 100;
         $thisYear = $today->year;
-        // dd($quote);
-        return view("pages.sales.quotation.detail", compact('quote', 'dquote', 'noQuote','thisYear'));
+        // dd($formattedNumberSP);
+        return view("pages.sales.quotation.detail", compact('quote', 'dquote', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP'));
     }
 
     /**
@@ -235,6 +247,7 @@ class QuotationController extends Controller
         } else {
             $quotation->diskon = 0;
         }
+        $quotation->fee =0;
         $quotation->total_no_tax = $request->total_no_tax;
         $quotation->harga_total = $request->harga_total;
         $quoteSave = $quotation->save();
@@ -297,8 +310,9 @@ class QuotationController extends Controller
     {
         $quote = Quotation::where('id', $id)->first();
         $dquote = DetailQuotation::where('id_quotation', $id)->get();
+        $tax = $quote->total_no_tax * $quote->tax / 100;
         // dd($termncon);
-        return view("pages.sales.quotation.detail-print", compact('quote', 'dquote'));
+        return view("pages.sales.quotation.detail-print", compact('quote', 'dquote', 'tax'));
     }
 
     public function pdf_quote($id)
@@ -322,7 +336,7 @@ class QuotationController extends Controller
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::all();
-        $product = Product::join('serial_product as s','s.id_product', '=', 'product.id')->get(['s.id','product.go', 's.pn', 's.brand', 'product.detail_desc']);
+        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
         $sales = User::where('role', 'sales')->get();
         // dd($dquotation);
         return view('pages.sales.quotation.form', compact('quotation', 'dquotation', 'sales', 'pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
@@ -383,11 +397,11 @@ class QuotationController extends Controller
     {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        $quotation = Quotation::where('id_sales', $id)->whereMonth('estimated_date',$monthNow)->get();
-        $forecast = Quotation::where('id_sales', $id)->whereMonth('estimated_date',$monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('total_no_tax');
-        $prospect = Quotation::where('id_sales', $id)->whereMonth('estimated_date',$monthNow)->where('status', '80')->sum('total_no_tax');
-        $po = Quotation::where('id_sales', $id)->whereMonth('po_date',$monthNow)->where('status', '100')->sum('total_no_tax');
-        $loss = Quotation::where('id_sales', $id)->whereMonth('estimated_date',$monthNow)->where('status', '0')->sum('total_no_tax');
+        $quotation = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->get();
+        $forecast = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('total_no_tax');
+        $prospect = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->where('status', '80')->sum('total_no_tax');
+        $po = Quotation::where('id_sales', $id)->whereMonth('po_date', $monthNow)->where('status', '100')->sum('total_no_tax');
+        $loss = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->where('status', '0')->sum('total_no_tax');
         return view('pages.sales.quotation.sales', compact('quotation', 'forecast', 'prospect', 'po', 'loss'));
     }
 
@@ -395,7 +409,7 @@ class QuotationController extends Controller
     {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        $quotation = Quotation::where('id_sales', $id)->whereMonth('po_date',$monthNow)->get();
+        $quotation = Quotation::where('id_sales', $id)->whereMonth('po_date', $monthNow)->get();
         return view('pages.sales.quotation.po.sales', compact('quotation'));
     }
 
@@ -425,7 +439,7 @@ class QuotationController extends Controller
             $client->save();
         }
         if ($quoteSave) {
-            return redirect('/quotation/'. $id)->with("success", "data telah ditambahkan");
+            return redirect('/quotation/' . $id)->with("success", "data telah ditambahkan");
         }
     }
     public function convert_flag(Request $request, $id)
@@ -440,6 +454,25 @@ class QuotationController extends Controller
         if ($quoteSave) {
             return 1;
         } else {
+            return 0;
+        }
+    }
+
+    public function insert_fee(Request $request, $id){
+        $quote = Quotation::find($id);
+        $quote->fee = $request->fee;
+        $quoteSave = $quote->save();
+        if ($quoteSave) {
+            return redirect('/quotation/' . $quote->id)->with('message', 'fee telah di tambahkan');
+        }
+    }
+    public function delete_fee(Request $request, $id){
+        $quote = Quotation::find($id);
+        $quote->fee = 0;
+        $quoteSave = $quote->save();
+        if ($quoteSave) {
+            return 1;
+        }else {
             return 0;
         }
     }

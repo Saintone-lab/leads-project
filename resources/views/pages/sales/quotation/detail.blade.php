@@ -161,7 +161,7 @@
                                 </td>
                                 <td colspan="2" class="text-end px-4 py-5">
                                     <p class="mb-2">Subtotal:</p>
-                                    <p class="mb-2">Tax:</p>
+                                    <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
                                     <p class="mb-2">Discount Quote:</p>
                                     <p class="mb-2">Shipping Cost:</p>
                                     <p class="mb-0">Total:</p>
@@ -169,7 +169,8 @@
                                 <td colspan="2" class="px-4 py-5">
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($quote->subtotal, 0, '', '.') }}</p>
-                                    <p class="fw-semibold mb-2 text-end">{{ $quote->tax }}%</p>
+                                    <p class="fw-semibold mb-2 text-end">
+                                        {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($quote->diskon, 0, '', '.') }}
                                     </p>
@@ -238,28 +239,88 @@
                     @endif
                 </div>
             </div>
-            {{-- @if (Auth::user()->role == 'Accounting') --}}
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-body">
-                    @php
-                        // Inisialisasi variabel
-                        $sellingContract = null;
-                        $orderContract = null;
+                    @if (Auth::user()->role == 'Sales')
+                        <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
+                            data-bs-toggle="modal" data-bs-target="#insertFee">Insert Fee</button>
+                    @endif
+                    <div class="row">
+                        <div class="d-flex justify-content-between mb-2">
+                            <h5>Fee : Rp. {{ number_format($quote->fee, 0, ',', '.') }}</h5>
+                            @if (Auth::user()->role == 'Sales' && $quote->fee != '0')
+                                <a href="#" data-id="{{ $quote->id }}"
+                                    class="btn btn-sm btn-label-danger delete-fee">
+                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @if (Auth::user()->role == 'Sales')
+                <div class="card">
+                    <div class="card-body">
+                        @php
+                            // Inisialisasi variabel
+                            $sellingContract = null;
+                            $orderContract = null;
 
-                        // Loop untuk menemukan kontrak dengan tipe Selling dan Order
-                        if (isset($quote) && $quote->contract) {
-                            foreach ($quote->contract as $contract) {
-                                if ($contract->type == 'Selling') {
-                                    $sellingContract = $contract;
-                                } elseif ($contract->type == 'Order') {
-                                    $orderContract = $contract;
+                            // Loop untuk menemukan kontrak dengan tipe Selling dan Order
+                            if (isset($quote) && $quote->contract) {
+                                foreach ($quote->contract as $contract) {
+                                    if ($contract->type == 'Selling') {
+                                        $sellingContract = $contract;
+                                    } elseif ($contract->type == 'Order') {
+                                        $orderContract = $contract;
+                                    }
                                 }
                             }
-                        }
-                    @endphp
+                        @endphp
+                        @if ($sellingContract)
+                            <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
+                                href="{{ route('contract.show', $sellingContract->id) }}">
+                                Go To Selling Contract
+                            </a>
+                        @else
+                            <button type="button" class="btn btn-outline-dark d-grid w-100 waves-effect mb-3">
+                                Belum Punya Selling Contract
+                            </button>
+                        @endif
+                        @if ($orderContract)
+                            <a class="btn btn-google-plus d-grid w-100 mb-3 waves-effect"
+                                href="{{ route('contract.show', $orderContract->id) }}">
+                                Go To Confirm Order
+                            </a>
+                        @else
+                            <button type="button" class="btn btn-outline-dark d-grid w-100 waves-effect mb-3">
+                                Belum Punya Confirm Order
+                            </button>
+                        @endif
+                    </div>
+                </div>
+            @endif
 
-                    <!-- Cek apakah ada kontrak bertipe Selling -->
-                    @if (Auth::user()->role == 'Admin')
+            <!-- Cek apakah ada kontrak bertipe Selling -->
+            @if (Auth::user()->role == 'Admin')
+                <div class="card">
+                    <div class="card-body">
+                        @php
+                            // Inisialisasi variabel
+                            $sellingContract = null;
+                            $orderContract = null;
+
+                            // Loop untuk menemukan kontrak dengan tipe Selling dan Order
+                            if (isset($quote) && $quote->contract) {
+                                foreach ($quote->contract as $contract) {
+                                    if ($contract->type == 'Selling') {
+                                        $sellingContract = $contract;
+                                    } elseif ($contract->type == 'Order') {
+                                        $orderContract = $contract;
+                                    }
+                                }
+                            }
+                        @endphp
                         @if ($sellingContract)
                             <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
                                 href="{{ route('contract.show', $sellingContract->id) }}">
@@ -284,18 +345,19 @@
                                 Create Confirm Order
                             </button>
                         @endif
-                    @endif
-                    {{-- <button type="button" class="btn btn-google-plus d-grid w-100 waves-effect mb-3"
+                        {{-- <button type="button" class="btn btn-google-plus d-grid w-100 waves-effect mb-3"
                         data-bs-toggle="modal" data-bs-target="#convertPo">Create Contract Order</button> --}}
-                </div>
-            </div>
-            {{-- @endif --}}
+                    </div>
+            @endif
         </div>
-        {{-- End : Button Invoice --}}
-        @include('pages.sales.quotation.modal-status')
-        @include('components.modal.quotation.convert-po')
-        @include('components.modal.accounting.selling-contract')
-        @include('components.modal.accounting.confirm-order')
+        {{-- @endif --}}
+    </div>
+    {{-- End : Button Invoice --}}
+    @include('pages.sales.quotation.modal-status')
+    @include('components.modal.quotation.convert-po')
+    @include('components.modal.accounting.selling-contract')
+    @include('components.modal.accounting.confirm-order')
+    @include('components.modal.quotation.insert-fee')
     </div>
 @endsection
 @push('after-style')
@@ -311,6 +373,34 @@
 @endpush
 @push('script')
     <script>
+        let formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR'
+        });
+
+        function formatNumber(n) {
+            return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+        }
+        $(".invoice-item-price-label").on('keyup', function() {
+            var input = $(this)
+            var id = input.data('id');
+            var input_val = input.val();
+
+            // original length
+            var original_len = input_val.length;
+
+            // add commas to number
+            // remove all non-digits
+            input_val = formatNumber(input_val);
+            input_val = input_val;
+
+            // send updated string to input
+            input.val(input_val);
+            var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+            console.log(id);
+            $(`#price-${id}`).val(nomorInt);
+        });
+
         $(document).on('click', '.delete-quotation', function() {
             var id = $(this).data('id');
             Swal.fire({
@@ -453,6 +543,62 @@
                     Swal.fire({
                         title: "Cancelled",
                         text: "Your Convert is cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.delete-fee', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure to Delete this fee?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('quotation') }}/' + id + '/delete_fee',
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Converted!",
+                                    text: "Your fee has been deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/quotation/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your Delete is cancelled :)",
                         icon: "error",
                         customClass: {
                             confirmButton: "btn btn-success waves-effect",
