@@ -10,6 +10,7 @@ class Quotation extends Model
     use HasFactory;
     protected $table = "quotation";
     protected $date = [
+        'status_date',
         'expired_date',
         'estimated_date',
         'po_date',
@@ -27,6 +28,7 @@ class Quotation extends Model
         'tax',
         'diskon',
         'fee',
+        'po_file',
         'shipping',
         'no_quote',
         'termcon',

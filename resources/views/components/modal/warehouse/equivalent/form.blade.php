@@ -27,9 +27,9 @@
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="fxp" class="form-control" name="fxp"
-                                    placeholder="W XXX" value="{{ old('fxp_parts', @$product->fxp_parts ?? '') }}">
-                                <label for="fxp">Fxp Parts</label>
+                                <input type="text" id="image" class="form-control" name="image"
+                                    placeholder=" Example : https://drive.google.com/drive/folders/**********" value="{{ old('image', @$product->image ?? '') }}">
+                                <label for="image">Image ( Link GDrive )</label>
                             </div>
                         </div>
                         <div class="col mb-2">

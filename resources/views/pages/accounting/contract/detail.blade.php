@@ -6,7 +6,7 @@
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
             <div class="card invoice-preview-card">
                 <div class="card-body">
-                    @if ($sellcon->type == 'Selling')
+                    @if ($contract->type == 'Selling')
                         <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
                             <div class="mb-xl-0 pb-1">
                                 <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
@@ -34,11 +34,11 @@
                             <div class="text-end">
                                 <h3 class="fw-bold">SELLING CONTRACT</h3>
                                 <div>
-                                    <span class="fw-bolder">#{{ $sellcon->no_contract }}</span>
+                                    <span class="fw-bolder">#{{ $contract->no_contract }}</span>
                                 </div>
                                 <div class="mt-1">
                                     <span
-                                        class="text-muted">{{ Carbon\Carbon::parse($sellcon->date)->format('d-m-Y') }}</span>
+                                        class="text-muted">{{ Carbon\Carbon::parse($contract->date)->format('d-m-Y') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -67,7 +67,7 @@
                             <div class="text-end">
                                 <h3 class="fw-bold">Confirm Order</h3>
                                 <div>
-                                    <span class="fw-bolder">#{{ $sellcon->no_contract }}</span>
+                                    <span class="fw-bolder">#{{ $contract->no_contract }}</span>
                                 </div>
                                 <div class="mt-1">
                                     <span
@@ -150,7 +150,7 @@
                                 </td>
                                 <td colspan="2" class="text-end px-4 py-5">
                                     <p class="mb-2">Subtotal:</p>
-                                    <p class="mb-2">Tax {{$quote->tax == '11' ? '(11%)' : ''}}:</p>
+                                    <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
                                     <p class="mb-2">Discount Quote:</p>
                                     <p class="mb-2">Shipping Cost:</p>
                                     <p class="mb-0">Total:</p>
@@ -158,7 +158,8 @@
                                 <td colspan="2" class="px-4 py-5">
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($quote->subtotal, 0, '', '.') }}</p>
-                                    <p class="fw-semibold mb-2 text-end">{{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
+                                    <p class="fw-semibold mb-2 text-end">
+                                        {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($quote->diskon, 0, '', '.') }}
                                     </p>
@@ -171,7 +172,7 @@
                         </tbody>
                     </table>
                 </div>
-                @if ($sellcon->type == 'Selling')
+                @if ($contract->type == 'Selling')
                     <div class="row mt-5">
                         <div class="col-4 my-5 text-center">
                             <p class="fs-normal fw-medium">Authorized By,</p>
@@ -213,12 +214,21 @@
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
             <div class="card mb-3">
                 <div class="card-body">
-                    <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
-                        href="{{ route('contract.print', $sellcon->id) }}">
-                        Print
-                    </a>
-                    <a href="#" class="btn btn-outline-danger d-grid w-100 mb-3 waves-effect delete-contract"
-                        data-id="{{ $sellcon->id }}" data-quote="{{ $quote->id }}">Delete</a>
+                    @if ($contract->level == '0')
+                        <button type="button" class="btn btn-primary d-grid w-100 waves-effect mb-3"
+                            data-bs-toggle="modal" data-bs-target="#acceptContract{{$contract->id}}">
+                            Accept
+                        </button>
+                        <a href="#" class="btn btn-outline-danger d-grid w-100 mb-3 waves-effect delete-contract"
+                            data-id="{{ $contract->id }}" data-quote="{{ $quote->id }}">Reject</a>
+                    @elseif($contract->level == '1')
+                        <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
+                            href="{{ route('contract.print', $contract->id) }}">
+                            Print
+                        </a>
+                        <a href="#" class="btn btn-outline-danger d-grid w-100 mb-3 waves-effect delete-contract"
+                            data-id="{{ $contract->id }}" data-quote="{{ $quote->id }}">Delete</a>
+                    @endif
                     <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">
                         Back
                     </button>
@@ -226,6 +236,35 @@
             </div>
             {{-- End : Button Invoice --}}
         </div>
+        @php
+            // Inisialisasi variabel
+            $sellingContract = null;
+            $orderContract = null;
+            $requestedSellingContract = null;
+            $requestedOrderContract = null;
+            $result = '';
+
+            // Loop untuk menemukan kontrak dengan tipe Selling dan Order
+            if ($contract->type == 'Selling' && $contract->quotation->tax == '0') {
+                $sellingNonTax = $contract;
+            } elseif ($contract->type == 'Selling' && $contract->quotation->tax == '11') {
+                $sellingTax = $contract;
+            } elseif ($contract->type == 'Order' && $contract->quotation->tax == '0') {
+                $orderNonTax = $contract;
+            } elseif ($contract->type == 'Order' && $contract->quotation->tax == '11') {
+                $orderTax = $contract;
+            }
+            if (isset($sellingTax)) {
+                $result = $formattedNumberSP;
+            } elseif (isset($sellingNonTax)) {
+                $result = $formattedNumberSNP;
+            } elseif (isset($orderTax)) {
+                $result = $formattedNumberCP;
+            } elseif (isset($orderNonTax)) {
+                $result = $formattedNumberCNP;
+            }
+        @endphp
+        @include('components.modal.accounting.accept-contract')
     @endsection
     @push('after-style')
         <!-- Page CSS -->

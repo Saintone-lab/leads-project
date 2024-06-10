@@ -120,7 +120,8 @@
                                                                 data-replacement="{{ $products->id }}"
                                                                 {{ $quote->product == "{$products->brand} {$products->pn}" ? 'selected' : '' }}>
                                                                 {{ $products->brand }} {{ $products->pn }}
-                                                                ({{ $products->detail_desc }}) ||
+                                                                ({{ $products->detail_desc }})
+                                                                ||
                                                                 {{ $products->go }}
                                                             </option>
                                                         @endforeach
@@ -218,7 +219,8 @@
                                                         <option value="{{ $products->brand }} {{ $products->pn }}"
                                                             data-replacement="{{ $products->id }}">
                                                             {{ $products->brand }} {{ $products->pn }}
-                                                            ({{ $products->detail_desc }}) ||
+                                                            ({{ $products->detail_desc }})
+                                                            ||
                                                             {{ $products->go }}
                                                         </option>
                                                     @endforeach
@@ -392,30 +394,27 @@
                                     </div>
                                 </div>
                             </div>
-                            @if (@$quotation)
-                                <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
-                                    <div class="card-body ">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-start"
-                                                for="collapsible-pincode">Discount :</label>
-                                            <div class="col-sm-8">
-                                                <div class="input-group">
-                                                    <span class="input-group-text"
-                                                        style="background: none; border: none;">Rp.
-                                                    </span>
-                                                    <input type="text" id="diskon-label" class="form-control"
-                                                        placeholder="Discount Here....." data-type="currency"
-                                                        style="background: none; border: none;"
-                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$"
-                                                        value="{{ old('diskon', @$quotation->diskon ? number_format(@$quotation->diskon, 0, '', '.') : '0') }}">
-                                                    <input type="number" name="diskon" id="diskon"
-                                                        value="{{ old('diskon', @$quotation->diskon ?? '0') }}" hidden>
-                                                </div>
+                            <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
+                                <div class="card-body ">
+                                    <div class="row">
+                                        <label class="col-sm-4 col-form-label text-sm-start"
+                                            for="collapsible-pincode">Discount :</label>
+                                        <div class="col-sm-8">
+                                            <div class="input-group">
+                                                <span class="input-group-text" style="background: none; border: none;">Rp.
+                                                </span>
+                                                <input type="text" id="diskon-label" class="form-control"
+                                                    placeholder="Discount Here....." data-type="currency"
+                                                    style="background: none; border: none;"
+                                                    pattern="^[0-9]\d{0,2}(\.\d{3})*$"
+                                                    value="{{ old('diskon', @$quotation->diskon ? number_format(@$quotation->diskon, 0, '', '.') : '0') }}">
+                                                <input type="number" name="diskon" id="diskon"
+                                                    value="{{ old('diskon', @$quotation->diskon ?? '0') }}" hidden>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            @endif
+                            </div>
                             <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
                                 <input type="number" id="totalNoTax" name="total_no_tax"
                                     value="{{ old('total_no_tax', @$quotation->total_no_tax ?? '') }}" hidden>
@@ -475,6 +474,7 @@
                 style: 'currency',
                 currency: 'IDR'
             });
+
             function initializeSelect2Product() {
                 $('.invoice-item-product').select2({
                     placeholder: ' ---- Choose Part Number Here ---- ',
@@ -888,15 +888,17 @@
                             var hTotal = 0;
                             var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal')
                                 .val());
+                            var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($(
+                                '#shipping').val());
                             var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon')
                                 .val());
                             var dTotal = sTotal - discount;
                             var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
                             hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
                             noTax = parseInt(dTotal + shipping);
+                            console.log(hTotal);
                             $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
                             $('#hargaTotal').val(hTotal);
-                            console.log(hTotal);
                             $('#totalNoTax').val(noTax);
                         });
                 initializeSelect2Product();

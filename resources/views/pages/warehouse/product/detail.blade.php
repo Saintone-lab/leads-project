@@ -178,7 +178,7 @@
                                 <th></th>
                                 <th></th>
                                 <th>ID</th>
-                                <th>Fxp Parts</th>
+                                <th>Image</th>
                                 <th>Brand</th>
                                 <th>PN</th>
                                 <th>Price</th>

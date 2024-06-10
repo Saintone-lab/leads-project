@@ -14,10 +14,10 @@ class SerialProduct extends Model
         'updated_at'
     ];
     protected $fillable = [
-        'commodity',
-        'description',
-        'hpp',
-        'stock',
+        'brand',
+        'pn',
+        'image',
+        'price',
     ];
     public function product()
     {

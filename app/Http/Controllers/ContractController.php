@@ -17,7 +17,20 @@ class ContractController extends Controller
      */
     public function index()
     {
-        //
+        $contracts = Contract::where('level', '0')->get();
+        // dd($contracts);
+        $today = Carbon::now();
+        $thisYear = $today->year;
+        $numberSP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $today)->where('q.tax', '11')->where('contract.type', 'Selling')->where('contract.level', '1')->groupBy('contract.id')->get('contract.id');
+        $numberSNP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $today)->where('q.tax', '0')->where('contract.type', 'Selling')->where('contract.level', '1')->groupBy('contract.id')->get('contract.id');
+        $numberCP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $today)->where('q.tax', '11')->where('contract.type', 'Order')->where('contract.level', '1')->groupBy('contract.id')->get('contract.id');
+        $numberCNP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $today)->where('q.tax', '0')->where('contract.type', 'Order')->where('contract.level', '1')->groupBy('contract.id')->get('contract.id');
+        $formattedNumberSP = str_pad($numberSP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $formattedNumberSNP = str_pad($numberSNP->count() + 1, 3, '0', STR_PAD_LEFT);
+        // dd($numberSP);
+        $formattedNumberCP = str_pad($numberCP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $formattedNumberCNP = str_pad($numberCNP->count() + 1, 3, '0', STR_PAD_LEFT);
+        return view('pages.accounting.request.index', compact('contracts', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP'));
     }
 
     /**
@@ -49,11 +62,21 @@ class ContractController extends Controller
      */
     public function show($id)
     {
-        $sellcon = Contract::find($id);
-        $quote = Quotation::where('id', $sellcon->id_quotation)->first();
+        $today = Carbon::now();
+        $thisYear = $today->year;
+        $numberSP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $today)->where('q.tax', '11')->where('contract.type', 'Selling')->where('contract.level', '1')->groupBy('contract.id')->get('contract.id');
+        $numberSNP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $today)->where('q.tax', '0')->where('contract.type', 'Selling')->where('contract.level', '1')->groupBy('contract.id')->get('contract.id');
+        $numberCP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $today)->where('q.tax', '11')->where('contract.type', 'Order')->where('contract.level', '1')->groupBy('contract.id')->get('contract.id');
+        $numberCNP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $today)->where('q.tax', '0')->where('contract.type', 'Order')->where('contract.level', '1')->groupBy('contract.id')->get('contract.id');
+        $formattedNumberSP = str_pad($numberSP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $formattedNumberSNP = str_pad($numberSNP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $formattedNumberCP = str_pad($numberCP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $formattedNumberCNP = str_pad($numberCNP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $contract = Contract::find($id);
+        $quote = Quotation::where('id', $contract->id_quotation)->first();
         $tax = $quote->total_no_tax * $quote->tax / 100;
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
-        return view('pages.accounting.contract.detail', compact('sellcon','quote','dquote','tax'));
+        return view('pages.accounting.contract.detail', compact('contract', 'quote', 'dquote', 'tax', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP'));
     }
 
     /**
@@ -94,46 +117,109 @@ class ContractController extends Controller
         } else {
             return 0;
         }
-        
+
     }
-    public function create_selling_contract(Request $request, $id){
+    public function create_selling_contract(Request $request, $id)
+    {
         $sellcon = new Contract;
         $sellcon->id_quotation = $id;
         $sellcon->no_contract = $request->no_contract;
+        $sellcon->level = "1";
         $sellcon->type = "Selling";
         $sellcon->date = Carbon::today();
         $sellconSave = $sellcon->save();
         if ($sellconSave) {
-            return redirect('contract/'. $sellcon->id);
-        }else{
+            return redirect('contract/' . $sellcon->id);
+        } else {
 
         }
     }
-    
-    public function create_confirm_order(Request $request, $id){
+
+    public function create_confirm_order(Request $request, $id)
+    {
         $sellcon = new Contract;
         $sellcon->id_quotation = $id;
         $sellcon->no_contract = $request->no_contract;
+        $sellcon->level = "1";
         $sellcon->type = "Order";
         $sellcon->date = Carbon::today();
         $sellconSave = $sellcon->save();
         if ($sellconSave) {
-            return redirect('contract/'. $sellcon->id);
-        }else{
+            return redirect('contract/' . $sellcon->id);
+        } else {
 
         }
     }
-    public function index_selling(){
+    public function index_selling()
+    {
         return view("pages.accounting.contract.index-selling");
     }
-    public function index_order(){
+    public function index_order()
+    {
         return view("pages.accounting.contract.index-order");
     }
-    public function contract_print($id){
+    public function contract_print($id)
+    {
         $sellcon = Contract::find($id);
         $quote = Quotation::where('id', $sellcon->id_quotation)->first();
         $tax = $quote->total_no_tax * $quote->tax / 100;
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
-        return view('pages.accounting.contract.detail-print', compact('sellcon','quote','dquote', 'tax'));
+        return view('pages.accounting.contract.detail-print', compact('sellcon', 'quote', 'dquote', 'tax'));
+    }
+    public function request_selling_contract($id)
+    {
+        $quote = Quotation::find($id);
+        $sellcon = new Contract;
+        $sellcon->id_quotation = $id;
+        $sellcon->no_contract = $quote->no_quote;
+        $sellcon->level = "0";
+        $sellcon->type = "Selling";
+        $sellcon->date = Carbon::today();
+        $sellconSave = $sellcon->save();
+        if ($sellconSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public function request_confirm_order($id)
+    {
+        $quote = Quotation::find($id);
+        $sellcon = new Contract;
+        $sellcon->id_quotation = $id;
+        $sellcon->no_contract = $quote->no_quote;
+        $sellcon->level = "0";
+        $sellcon->type = "Order";
+        $sellcon->date = Carbon::today();
+        $sellconSave = $sellcon->save();
+        if ($sellconSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public function accept_contract(Request $request, $id)
+    {
+        // Menemukan kontrak berdasarkan ID
+        $contract = Contract::find($id);
+
+        // Memeriksa apakah kontrak ditemukan
+        if (!$contract) {
+            return redirect()->back()->with('error', 'Contract not found');
+        }
+
+        // Memperbarui kontrak
+        $contract->no_contract = $request->no_contract;
+        $contract->level = '1';
+        $contractSave = $contract->save();
+
+        // Memeriksa apakah penyimpanan berhasil
+        if ($contractSave) {
+            return redirect('/contract/' . $id)->with('message', 'Contract Was Accepted');
+        } else {
+            return redirect()->back()->with('error', 'Failed to accept contract');
+        }
     }
 }

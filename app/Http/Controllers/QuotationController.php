@@ -13,7 +13,9 @@ use App\Models\SerialProduct;
 use App\Models\Termncon;
 use App\Models\User;
 use Carbon\Carbon;
+use File;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use PDF;
 use Illuminate\Http\Request;
 
@@ -97,9 +99,11 @@ class QuotationController extends Controller
         $quotation->id_service = NULL;
         $quotation->no_pr = NULL;
         $quotation->status = "20";
+        $quotation->status_date = Carbon::today();
         $quotation->note = "-";
         $quotation->expired_date = $request->expired_date;
         $quotation->po_date = NULL;
+        $quotation->po_file = NULL;
         $quotation->estimated_date = $request->estimated_date;
         if ($request->tax != NULL) {
             $quotation->tax = $request->tax;
@@ -165,8 +169,8 @@ class QuotationController extends Controller
         $numberCNP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $dateNow)->where('q.tax', '0')->where('contract.type', 'Order')->groupBy('contract.id')->get('contract.id');
         $formattedNumberSP = str_pad($numberSP->count() + 1, 3, '0', STR_PAD_LEFT);
         $formattedNumberSNP = str_pad($numberSNP->count() + 1, 3, '0', STR_PAD_LEFT);
-        $formattedNumberCP = str_pad($numberSP->count() + 1, 3, '0', STR_PAD_LEFT);
-        $formattedNumberCNP = str_pad($numberSNP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $formattedNumberCP = str_pad($numberCP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $formattedNumberCNP = str_pad($numberCNP->count() + 1, 3, '0', STR_PAD_LEFT);
         $quote = Quotation::where('id', $id)->first();
         $dquote = DetailQuotation::where('id_quotation', $id)->get();
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn']);
@@ -233,8 +237,10 @@ class QuotationController extends Controller
             $quotation->no_pr = NULL;
         }
         $quotation->status = $quote->status;
+        $quotation->status_date = $quote->status_date;
         $quotation->note = $quote->note;
         $quotation->po_date = $quote->po_date;
+        $quotation->po_file = $quote->po_file;
         $quotation->expired_date = $request->expired_date;
         $quotation->estimated_date = $request->estimated_date;
         $quotation->tax = $request->tax;
@@ -247,7 +253,7 @@ class QuotationController extends Controller
         } else {
             $quotation->diskon = 0;
         }
-        $quotation->fee =0;
+        $quotation->fee = 0;
         $quotation->total_no_tax = $request->total_no_tax;
         $quotation->harga_total = $request->harga_total;
         $quoteSave = $quotation->save();
@@ -310,7 +316,7 @@ class QuotationController extends Controller
     {
         $quote = Quotation::where('id', $id)->first();
         $dquote = DetailQuotation::where('id_quotation', $id)->get();
-        $tax = $quote->total_no_tax * $quote->tax / 100;
+        $tax = $quote->subtotal * $quote->tax / 100;
         // dd($termncon);
         return view("pages.sales.quotation.detail-print", compact('quote', 'dquote', 'tax'));
     }
@@ -359,6 +365,7 @@ class QuotationController extends Controller
         $pic = Pic::where('id', $quotation->id_pic)->first();
         $client = Client::where('id', $pic->id_client)->first();
         $quotation->status = $request->status;
+        $quotation->status_date = Carbon::today();
         $quotation->note = $request->note;
         if ($request->status == "100") {
             $action = new Activities;
@@ -458,7 +465,8 @@ class QuotationController extends Controller
         }
     }
 
-    public function insert_fee(Request $request, $id){
+    public function insert_fee(Request $request, $id)
+    {
         $quote = Quotation::find($id);
         $quote->fee = $request->fee;
         $quoteSave = $quote->save();
@@ -466,13 +474,90 @@ class QuotationController extends Controller
             return redirect('/quotation/' . $quote->id)->with('message', 'fee telah di tambahkan');
         }
     }
-    public function delete_fee(Request $request, $id){
+    public function delete_fee(Request $request, $id)
+    {
         $quote = Quotation::find($id);
         $quote->fee = 0;
         $quoteSave = $quote->save();
         if ($quoteSave) {
             return 1;
-        }else {
+        } else {
+            return 0;
+        }
+    }
+
+    public function upload_po(Request $request, $id)
+    {
+        $quote = Quotation::find($id);
+
+        if (!$quote) {
+            return response()->json(['error' => 'Quotation not found.'], 404);
+        }
+        if ($request->hasFile('uploadPO')) {
+            $foto = $request->file('uploadPO');
+
+            // Validate the file to ensure it's a PDF
+            $request->validate([
+                'uploadPO' => 'required|file|mimes:pdf|max:2048',
+            ]);
+
+            // Get file extension
+            $file_ext = $foto->getClientOriginalExtension();
+
+            // Sanitize the quote number to create a valid filename
+            $sanitized_file_name = preg_replace('/[^A-Za-z0-9\-]/', '_', $quote->no_quote);
+
+            // Construct file name
+            $file_name = $sanitized_file_name . '.' . $file_ext;
+
+            // Set upload path
+            $upload_path = 'asset/po';
+
+            // Move the file to the upload path
+            $foto->move(public_path($upload_path), $file_name);
+
+            // Update the quote with the new file path
+            $quote->po_file = $upload_path . '/' . $file_name;
+            $quote->save();
+
+            return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');
+        } else {
+            return response()->json(['error' => 'No file uploaded.'], 400);
+        }
+    }
+    public function download_po($id)
+    {
+        $quote = Quotation::find($id);
+
+        if (!$quote) {
+            return response()->json(['error' => 'Quotation not found.'], 404);
+        }
+
+        $file_path = public_path($quote->po_file);
+
+        if (!file_exists($file_path)) {
+            return response()->json(['error' => 'File not found at path: ' . $file_path], 404);
+        }
+
+        return response()->download($file_path);
+    }
+    public function delete_po($id)
+    {
+        $quote = Quotation::find($id);
+
+        if (!$quote) {
+            return response()->json(['error' => 'Quotation not found.'], 404);
+        }
+
+        $file_path = public_path($quote->po_file);
+
+        if (file_exists($file_path)) {
+            unlink($file_path);
+            $quote->po_file = null;
+            $quote->save();
+
+            return 1;
+        } else {
             return 0;
         }
     }

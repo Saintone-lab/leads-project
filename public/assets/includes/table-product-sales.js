@@ -16,7 +16,7 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "fxp_parts" },
+                { data: "image" },
                 { data: "brand" },
                 { data: "pn" },
                 { data: "description" },
@@ -28,6 +28,24 @@ $(function () {
                 {
                     targets: 9,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                },
+                {
+                    targets: 3,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            if (data === null || data === "") {
+                                return "-";
+                            }
+                            return (
+                                '<a class="text-dark" target="_blank" href="' +
+                                data +
+                                '">' +
+                                "photo" +
+                                "</a>"
+                            );
+                        }
+                        return data;
+                    },
                 },
                 {
                     // For Responsive

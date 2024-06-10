@@ -2,8 +2,8 @@ $(function () {
     var dt_table_product = $(".datatable-product-equivalent");
     var Url = "/db/product/serial/";
     var path = window.location.pathname;
-    var id = path.substring(path.lastIndexOf('/') + 1);
-    
+    var id = path.substring(path.lastIndexOf("/") + 1);
+
     // console.log("ID:", id); // Output: ID: 2
 
     if (dt_table_product.length) {
@@ -29,21 +29,45 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "fxp_parts" },
+                {
+                    data: "image",
+                },
                 { data: "brand" },
                 { data: "pn" },
                 { data: "price" },
                 {
                     data: "",
-                    render: function(data, type, row) {
-                        return '<a href="#" data-id="' + row.id + '" class="btn btn-sm btn-label-danger delete-equivalent"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i></a>';
-                    }
+                    render: function (data, type, row) {
+                        return (
+                            '<a href="#" data-id="' +
+                            row.id +
+                            '" class="btn btn-sm btn-label-danger delete-equivalent"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i></a>'
+                        );
+                    },
                 },
             ],
             columnDefs: [
                 {
                     targets: 6,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                },
+                {
+                    targets: 3,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            if (data === null || data === "") {
+                                return "-";
+                            }
+                            return (
+                                '<a class="text-dark" target="_blank" href="' +
+                                data +
+                                '">' +
+                                "PHOTOS" +
+                                "</a>"
+                            );
+                        }
+                        return data;
+                    },
                 },
                 {
                     // For Responsive

@@ -135,6 +135,12 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Accounting</span>
             </li>
+            <li class="menu-item {{ request()->is('contract') ? 'active' : '' }}">
+                <a href="{{route('contract.index')}}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
+                    <div data-i18n="Request SC/CO">Request SC/CO</div>
+                </a>
+            </li>
             <li class="menu-item {{ request()->is('selling/contract') ? 'active' : '' }}">
                 <a href="{{route('index.selling')}}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-file-sign"></i>

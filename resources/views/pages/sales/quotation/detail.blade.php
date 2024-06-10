@@ -230,12 +230,24 @@
             </div>
             <div class="card mb-3">
                 <div class="card-body">
-                    <a href="#" data-id="{{ $quote->id }}"
-                        class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
-                        {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
+                    @if (Auth::user()->id == '1')
+                        <a href="#" data-id="{{ $quote->id }}"
+                            class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
+                            {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
+                    @endif
                     @if ($quote->status != '100')
                         <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"
                             data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
+                    @else
+                        @if ($quote->po_file != null)
+                            <a href="{{ route('download-po.quotation', $quote->id) }}"
+                                class="btn btn-primary d-grid w-100 waves-effect mb-3"> Download PO</a>
+                            <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-file"
+                                data-id="{{ $quote->id }}">Delete File</a>
+                        @else
+                            <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
+                                data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
+                        @endif
                     @endif
                 </div>
             </div>
@@ -265,13 +277,19 @@
                             // Inisialisasi variabel
                             $sellingContract = null;
                             $orderContract = null;
+                            $requestedSellingContract = null;
+                            $requestedOrderContract = null;
 
                             // Loop untuk menemukan kontrak dengan tipe Selling dan Order
                             if (isset($quote) && $quote->contract) {
                                 foreach ($quote->contract as $contract) {
-                                    if ($contract->type == 'Selling') {
+                                    if ($contract->type == 'Selling' && $contract->level == '0') {
+                                        $requestedSellingContract = $contract;
+                                    } elseif ($contract->type == 'Selling' && $contract->level == '1') {
                                         $sellingContract = $contract;
-                                    } elseif ($contract->type == 'Order') {
+                                    } elseif ($contract->type == 'Order' && $contract->level == '0') {
+                                        $requestedOrderContract = $contract;
+                                    } elseif ($contract->type == 'Order' && $contract->level == '1') {
                                         $orderContract = $contract;
                                     }
                                 }
@@ -282,20 +300,31 @@
                                 href="{{ route('contract.show', $sellingContract->id) }}">
                                 Go To Selling Contract
                             </a>
-                        @else
-                            <button type="button" class="btn btn-outline-dark d-grid w-100 waves-effect mb-3">
-                                Belum Punya Selling Contract
+                        @elseif ($requestedSellingContract)
+                            <button type="button" class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
+                                Waiting Accounting Apply
                             </button>
+                        @else
+                            <a href="#" data-id="{{ $quote->id }}"
+                                class="btn btn-outline-dark d-grid w-100 waves-effect mb-3 request-selling">Request Selling
+                                Contract</a>
                         @endif
-                        @if ($orderContract)
-                            <a class="btn btn-google-plus d-grid w-100 mb-3 waves-effect"
-                                href="{{ route('contract.show', $orderContract->id) }}">
-                                Go To Confirm Order
-                            </a>
-                        @else
-                            <button type="button" class="btn btn-outline-dark d-grid w-100 waves-effect mb-3">
-                                Belum Punya Confirm Order
-                            </button>
+                        @if (Auth::user()->id == '1')
+                            @if ($orderContract)
+                                <a class="btn btn-google-plus d-grid w-100 mb-3 waves-effect"
+                                    href="{{ route('contract.show', $orderContract->id) }}">
+                                    Go To Confirm Order
+                                </a>
+                            @elseif ($requestedOrderContract)
+                                <button type="button" class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
+                                    Waiting Accounting Apply
+                                </button>
+                            @else
+                                <a href="#" data-id="{{ $quote->id }}"
+                                    class="btn btn-outline-dark d-grid w-100 waves-effect mb-3 request-order">Request
+                                    Confirm
+                                    Order</a>
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -355,6 +384,7 @@
     {{-- End : Button Invoice --}}
     @include('pages.sales.quotation.modal-status')
     @include('components.modal.quotation.convert-po')
+    @include('components.modal.quotation.upload-po')
     @include('components.modal.accounting.selling-contract')
     @include('components.modal.accounting.confirm-order')
     @include('components.modal.quotation.insert-fee')
@@ -362,13 +392,16 @@
 @endsection
 @push('after-style')
     <!-- Page CSS -->
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/dropzone/dropzone.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice.css" />
 @endpush
 @push('after-script')
+    <script src="{{ asset('assets') }}/vendor/libs/dropzone/dropzone.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
 @endpush
 @push('page-script')
+    <script src="{{ asset('assets') }}/js/forms-file-upload.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
 @endpush
 @push('script')
@@ -599,6 +632,174 @@
                     Swal.fire({
                         title: "Cancelled",
                         text: "Your Delete is cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.delete-file', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure to Delete this file?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('quotation') }}/' + id + '/delete_po',
+                        'type': 'DELETE',
+                        'data': {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Your file has been deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/quotation/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your Delete is cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.request-selling', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure to Request this?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Request it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('request/selling-contract') }}/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Requested!",
+                                    text: "Your file has been Requested.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/quotation/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Request!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your Request is cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.request-order', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure to Request this?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Request it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('request/confirm-order') }}/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Requested!",
+                                    text: "Your file has been Requested.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/quotation/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Request!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your Request is cancelled :)",
                         icon: "error",
                         customClass: {
                             confirmButton: "btn btn-success waves-effect",

@@ -79,6 +79,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/quotation/{id}/change_status', [QuotationController::class, 'change_status'])->name('status.change.quotation');
     Route::post('/quotation/{id}/convert_flag', [QuotationController::class, 'convert_flag'])->name('convert-flag.quotation');
     Route::post('/quotation/{id}/convert_po', [QuotationController::class, 'convert_po'])->name('convert-po.quotation');
+    Route::post('/quotation/{id}/upload_po', [QuotationController::class, 'upload_po'])->name('upload-po.quotation');
+    Route::get('/quotation/{id}/download_po', [QuotationController::class, 'download_po'])->name('download-po.quotation');
+    Route::delete('/quotation/{id}/delete_po', [QuotationController::class, 'delete_po'])->name('delete-po.quotation');
     Route::post('/quotation/{id}/insert_fee', [QuotationController::class, 'insert_fee'])->name('insert_fee.quotation');
     Route::post('/quotation/{id}/delete_fee', [QuotationController::class, 'delete_fee'])->name('delete_fee.quotation');
     Route::get('/quotation/revision/{id}', [QuotationController::class, 'edit_revisi'])->name('revisi.quotation');
@@ -172,17 +175,21 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk Selling Contract dan Confirm Order
     Route::resource('/contract', ContractController::class);
     Route::post('/contract/selling-contract/{id}', [ContractController::class, 'create_selling_contract'])->name('selling.contract');
-    Route::post('/contract/confirm-rder/{id}', [ContractController::class, 'create_confirm_order'])->name('confirm.order');
+    Route::post('/contract/confirm-order/{id}', [ContractController::class, 'create_confirm_order'])->name('confirm.order');
+    Route::post('/request/selling-contract/{id}', [ContractController::class, 'request_selling_contract'])->name('request.selling');
+    Route::post('/request/confirm-order/{id}', [ContractController::class, 'request_confirm_order'])->name('request.order');
     Route::get('/contract/print/{id}', [ContractController::class, 'contract_print'])->name('contract.print');
     Route::get('/selling/contract', [ContractController::class, 'index_selling'])->name('index.selling');
     Route::get('/order/contract', [ContractController::class, 'index_order'])->name('index.order');
+    Route::post('/contract/accept/{id}', [ContractController::class, 'accept_contract'])->name('accept.contract');
     Route::get('/db/selling-contract/tax', function () {
         $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'p.id_client')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
-            ->where('contract.type','Selling')
-            ->where('q.tax','11')
+            ->where('contract.type', 'Selling')
+            ->where('contract.level', '1')
+            ->where('q.tax', '11')
             ->get([
                 'contract.*',
                 'q.harga_total',
@@ -196,8 +203,9 @@ Route::group(["middleware" => "auth"], function () {
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'p.id_client')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
-            ->where('contract.type','Selling')
-            ->where('q.tax','0')
+            ->where('contract.type', 'Selling')
+            ->where('contract.level', '1')
+            ->where('q.tax', '0')
             ->get([
                 'contract.*',
                 'q.harga_total',
@@ -211,8 +219,9 @@ Route::group(["middleware" => "auth"], function () {
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'p.id_client')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
-            ->where('contract.type','Order')
-            ->where('q.tax','11')
+            ->where('contract.type', 'Order')
+            ->where('contract.level', '1')
+            ->where('q.tax', '11')
             ->get([
                 'contract.*',
                 'q.harga_total',
@@ -226,8 +235,23 @@ Route::group(["middleware" => "auth"], function () {
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'p.id_client')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
-            ->where('contract.type','Order')
-            ->where('q.tax','0')
+            ->where('contract.type', 'Order')
+            ->where('contract.level', '1')
+            ->where('q.tax', '0')
+            ->get([
+                'contract.*',
+                'q.harga_total',
+                'u.name',
+                'c.company'
+            ]);
+        return response()->json(['data' => $contract]);
+    });
+    Route::get('/db/request-contract', function () {
+        $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.level', '0')
             ->get([
                 'contract.*',
                 'q.harga_total',
@@ -267,6 +291,15 @@ Route::group(["middleware" => "auth"], function () {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('po_date', $monthNow)->where('quotation.id_sales', $id)->where('status', '100')->get(['quotation.*', 'client.company']);
+        return response()->json(['data' => $quotation]);
+    });
+    Route::get('/db/quotation/invoice', function () {
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+        ->join('client', 'client.id', '=', 'pic.id_client')
+        ->join('users', 'users.id', '=', 'quotation.id_sales')
+        ->where('status', '100')
+        ->whereNotNull('quotation.po_file')
+        ->get(['quotation.*', 'client.company','users.name']);;
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/po', function () {

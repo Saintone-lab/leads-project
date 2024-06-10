@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('no_pr')->nullable();
             $table->string('title');
             $table->integer('status');
+            $table->date('status_date');
             $table->string('note');
             $table->enum('flag',['Reftech','Kojisha']);
             $table->date('estimated_date');

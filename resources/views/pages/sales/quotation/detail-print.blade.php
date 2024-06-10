@@ -149,18 +149,26 @@
                             <td class="align-top text-end">RP {{ number_format($product->amount, 0, '', '.') }}</td>
                         </tr>
                     @endforeach
+                    <tr class="" style="height: 10px !important;">
+                        <td colspan="5" class="align-top" style="font-size: 1px;"> </td>
+                    </tr>
                     <tr class="">
-                        <td colspan="3" rowspan="2" class="align-top pt-4">
+                        <td rowspan="2" class="align-top note text-start">
+                            <p class="mb-0">Note</p>
                         </td>
-                        <td colspan="2" class="text-end pt-4 pb-0">
+                        <td colspan="2" rowspan="2" class="align-top note">
+                            <pre style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap; font-size: 12px;"
+                                class="fw-semibold mb-0">: {{ $quote->termncon[0]->note }}</pre>
+                        </td>
+                        <td colspan="2" class="text-end py-0">
                             <p class="mb-2">Subtotal:</p>
-                            <p class="mb-2">Tax {{$quote->tax == '11' ? '(11%)' : ''}}:</p>
+                            <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
                             <p class="mb-2">Shipping Cost:</p>
                             @if ($quote->diskon != 0)
                                 <p class="mb-2">Discount:</p>
                             @endif
                         </td>
-                        <td colspan="2" class="pt-4 pb-0">
+                        <td colspan="2" class= py-0">
                             <p class="fw-semibold mb-2 text-end">Rp
                                 {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                             <p class="fw-semibold mb-2 text-end">
@@ -173,30 +181,14 @@
                             @endif
                         </td>
                     </tr>
-
-                    <tr class="total">
-                        <td colspan="2" class="">
+                    <tr>
+                        <td colspan="1"></td>
+                        <td colspan="1" class="total">
                             <p class="mb-0 text-end">Total:</p>
                         </td>
-                        <td colspan="2" class="">
+                        <td colspan="2" class="total">
                             <p class="fw-semibold mb-0 text-end">Rp
                                 {{ number_format($quote->harga_total, 0, '', '.') }}</p>
-                        </td>
-                    </tr>
-                    <tr class="" style="height: 10px !important;">
-                        <td colspan="5" class="align-top" style="font-size: 1px;"> </td>
-                    </tr>
-                    <tr class="">
-                        <td colspan="3" rowspan="2" class="align-top pt-4">
-                        </td>
-                        <td colspan="2" class="note text-end align-top">
-                            <p class="mb-0">Note:</p>
-                        </td>
-                        <td colspan="2" class="note">
-                            <pre style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap; font-size: 12px;"
-                                class="fw-semibold mb-0">
-                                {{ $quote->termncon[0]->note }}
-                            </pre>
                         </td>
                     </tr>
                 </tbody>

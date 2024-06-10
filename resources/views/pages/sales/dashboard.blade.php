@@ -905,9 +905,9 @@
                         </div>
                     </div>
                     <div class="card-body pb-3">
-                        <ul class="nav nav-tabs nav-tabs-widget pb-3 gap-4 mx-1 d-flex flex-nowrap" role="tablist">
+                        <ul class="nav nav-tabs nav-tabs-widget pb-3 gap-2 d-flex flex-nowrap" role="tablist">
                             @foreach ($sales as $user)
-                                <li class="nav-item" role="presentation">
+                                <li class="nav-item" role="presentation" style="width: 80%;">
                                     <div class="nav-link btn {{ $user->id == 1 ? 'active' : '' }} d-flex flex-column align-items-center justify-content-center"
                                         role="tab" data-bs-toggle="tab"
                                         data-bs-target="#navs-sales-{{ $user->id }}"

@@ -227,7 +227,7 @@ class ProductController extends Controller
     {
 
         $rule = [
-            'fxp' =>
+            'image' =>
                 'required',
 
             'brand' =>
@@ -241,7 +241,7 @@ class ProductController extends Controller
         ];
 
         $message = [
-            'fxp.required' => 'Field fxp Wajib Diisi',
+            'image.required' => 'Field Image Wajib Diisi',
             'brand.required' => 'Field brand Wajib Diisi',
             'pn.required' => 'Field pn Wajib Diisi',
             'price.required' => 'Field price Wajib Diisi',
@@ -251,11 +251,11 @@ class ProductController extends Controller
 
         $equiv = new SerialProduct;
         $equiv->id_product = $id;
-        $equiv->fxp_parts = $request->fxp;
         $equiv->brand = $request->brand;
+        $equiv->fxp_parts = "-";
         $equiv->pn = $request->pn;
         $equiv->price = $request->price;
-        $equiv->image = 'image';
+        $equiv->image = $request->image;
         $equivSave = $equiv->save();
 
         if ($equivSave) {
