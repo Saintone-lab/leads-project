@@ -20,7 +20,9 @@ class ReportsTableSeeder extends Seeder
             [
                 'id_technician' => '9',
                 'id_pic' => '1',
+                'id_machine' => '2',
                 'no_service' => '001-S/CWU/I/2024',
+                'type' => 'Service',
                 'unit' => 'Kaeser ASD',
                 'serial_number' => '-',
                 'running' => '3500',

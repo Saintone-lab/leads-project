@@ -33,11 +33,11 @@
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <div class="form-floating form-floating-outline">
-                            <select id="select2Basic" class="select2 form-select form-select-lg" data-allow-clear="true"
-                                name="id_pic">
+                            <select class="select2 form-select form-select-lg invoice-item-pic" data-allow-clear="true"
+                                name="id_pic" id="selectPic">
                                 <option selected>----- Select Company | Pic || Sales -----</option>
                                 @foreach ($pic as $charge)
-                                    <option value="{{ $charge->id }}"
+                                    <option data-id="{{ $charge->client->id }}" value="{{ $charge->id }}"
                                         {{ @$report->id_pic == $charge->id ? 'selected' : '' }}>
                                         {{ $charge->client->company }} | {{ $charge->name_pic }} ||
                                         {{ $charge->client->sales->name }}</option>
@@ -45,32 +45,47 @@
                             </select>
                             <label for="select2Basic">Client</label>
                         </div>
-
                         <input type="text" name="technician" id="" value="{{ Auth::user()->id }}" hidden>
                     </div>
-                    <div class="col-md-2"></div>
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <div class="form-floating form-floating-outline">
-                            <input class="form-control" type="date" value="{{ now()->format('Y-m-d') }}" disabled>
-                            <input type="date" name="date" id="date" value="{{ now()->format('Y-m-d') }}"
-                                hidden>
+                            <select class="form-select" id="exampleFormControlSelect1" aria-label="Default select example"
+                                name="type">
+                                <option selected="" disabled>---- Choose Service Type ----</option>
+                                <option value="Visit" {{@$report->type == 'Visit' ? 'Selected' : ''}}>Visit</option>
+                                <option value="Service" {{@$report->type == 'Service' ? 'Selected' : ''}}>Service</option>
+                                <option value="General" {{@$report->type == 'General' ? 'Selected' : ''}}>General Checkup</option>
+                            </select>
+                            <label for="exampleFormControlSelect1">Service Type</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3 mb-3">
+                        <div class="form-floating form-floating-outline">
+                            <input class="form-control" type="date" name="date" id="date"
+                                value="{{ now()->format('Y-m-d') }}">
+                            {{-- <input type="date" name="date" id="date" value="{{ now()->format('Y-m-d') }}"
+                                hidden> --}}
                             <label for="date">Date</label>
                         </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="form-floating form-floating-outline">
-                            <input type="text" class="form-control" id="unit" name="unit"
-                                placeholder="Type Unit Type Here ...." value="{{ old('unit', @$report->unit ?? '') }}">
-                            <label for="basic-default-fullname">Unit Type</label>
+                    <div class="col-8 col-md-6 mb-3">
+                        <div class="form-floating form-floating-outline mb-2">
+                            <select id="machine-dropdown" class="select2 form-select invoice-item-machine" data-id="1"
+                                data-allow-clear="true" name="machine" disabled>
+                                <option> ---- Choose Machine Here ---- </option>
+                            </select>
+                            <label for="machine-dropdown">Machine</label>
                         </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="form-floating form-floating-outline">
-                            <input type="text" class="form-control" id="serial_number" name="serial_number"
-                                placeholder="Type Serial Number Here ...."
-                                value="{{ old('serial_number', @$report->serial_number ?? '') }}">
-                            <label for="basic-default-fullname">Serial Number</label>
-                        </div>
+                    <div class="col-4 mb-3">
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#createMachine">
+                            <button type="button" class="btn btn-primary btn-lg">
+                                + Machine
+                            </button>
+                        </a>
+                    </div>
+                    <div class="col-12 col-md-2">
+
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <div class="form-floating form-floating-outline">
@@ -158,6 +173,7 @@
             </div>
         </div>
     </form>
+    @include('components.modal.machine.form-technician')
 @endsection
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
@@ -185,7 +201,8 @@
                 });
             }
         }
-        $(() => {
+        $(document).ready(function() {
+            var selectedMachineId = '{{ $report->id_machine ?? '' }}';
             initNumericInput();
             $('#formFileMultiple').on('change', function() {
                 var files = this.files;
@@ -235,6 +252,39 @@
                     reader.readAsDataURL(file);
                 }
             });
+            $('#selectPic').on('change', function() {
+                var clientId = $(this).find(':selected').data('id');
+                var Url = '/machine/dropdown/' + clientId;
+
+                $.ajax({
+                    url: Url,
+                    type: 'GET',
+                    success: function(response) {
+                        // Clear and populate the machine dropdown
+                        var machineDropdown = $('#machine-dropdown');
+                        machineDropdown.empty();
+                        machineDropdown.append(
+                            '<option selected="" disabled> ---- Choose Machine Here ---- </option>');
+
+                        $.each(response, function(key, value) {
+                            var option = $('<option></option>').attr('value', value.id)
+                                .text(value.brand + " " + value.serial_number);
+                            if (value.id == selectedMachineId) {
+                                option.attr('selected', 'selected');
+                            }
+                            machineDropdown.append(option);
+                        });
+
+                        // Enable the machine dropdown
+                        machineDropdown.prop('disabled', false);
+                    }
+                });
+            });
+
+            // Trigger change event if updating to pre-select the machine
+            if (selectedMachineId) {
+                $('#selectPic').trigger('change');
+            }
         });
     </script>
 @endpush

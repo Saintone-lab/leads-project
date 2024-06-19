@@ -79,7 +79,7 @@
                             <th></th>
                             <th></th>
                             <th>ID</th>
-                            <th>Fxp Parts</th>
+                            <th>Photo</th>
                             <th>Brand</th>
                             <th>PN</th>
                             <th>Desc</th>

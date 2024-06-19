@@ -16,9 +16,9 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('id_technician');
             $table->foreignId('id_pic');
+            $table->foreignId('id_machine');
             $table->string('no_service');
-            $table->string('unit');
-            $table->string('serial_number');
+            $table->enum('type',['Visit', 'Service','General']);
             $table->integer('running');
             $table->integer('load');
             $table->string('jobdesc');

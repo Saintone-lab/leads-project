@@ -20,7 +20,7 @@ $(function () {
                 { data: "id" },
                 { data: "no_quote" },
                 { data: "company" },
-                { data: "total_no_tax" },
+                { data: "subtotal" },
                 { data: "status" },
                 { data: "name" },
                 { data: "" },

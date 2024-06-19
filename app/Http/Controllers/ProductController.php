@@ -79,7 +79,7 @@ class ProductController extends Controller
         $productSave = $product->save();
 
         if ($productSave) {
-            return redirect('/product')->with('message', 'data telah ditambahkan');
+            return redirect('/product/' .$product->id)->with('message', 'data telah ditambahkan');
         }
     }
 
@@ -262,6 +262,44 @@ class ProductController extends Controller
             return redirect('/product/' . $id)->with('message', 'data telah ditambahkan');
         }
     }
+    public function updateEquivalent(Request $request, $id)
+    {
+
+        $rule = [
+            'image' =>
+                'required',
+
+            'brand' =>
+                'required',
+
+            'pn' =>
+                'required',
+
+            'price' =>
+                'required',
+        ];
+
+        $message = [
+            'image.required' => 'Field Image Wajib Diisi',
+            'brand.required' => 'Field brand Wajib Diisi',
+            'pn.required' => 'Field pn Wajib Diisi',
+            'price.required' => 'Field price Wajib Diisi',
+        ];
+        $this->validate($request, $rule, $message);
+        // dd($request);
+
+        $equiv = SerialProduct::find($id);
+        $equiv->brand = $request->brand;
+        $equiv->fxp_parts = "-";
+        $equiv->pn = $request->pn;
+        $equiv->price = $request->price;
+        $equiv->image = $request->image;
+        $equivSave = $equiv->save();
+
+        if ($equivSave) {
+            return redirect('/product/' . $equiv->id_product)->with('message', 'data telah diupdate');
+        }
+    }
     public function destroyEquivalent($id)
     {
         $equivalent = SerialProduct::find($id);
@@ -272,5 +310,12 @@ class ProductController extends Controller
         } else {
             return 0;
         }
+    }
+
+    public function indexMaster(){
+        $commodity = Product::count();
+        $dproduct = DetailProduct::count();
+        $sproduct = SerialProduct::count();
+        return view('pages.warehouse.master.index', compact('commodity', 'dproduct', 'sproduct'));
     }
 }

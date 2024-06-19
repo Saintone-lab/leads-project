@@ -42,7 +42,8 @@
                     <div data-i18n="Reports">Reports</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('overview') ||  request()->is('overview/*') ||  request()->is('overview/*/*') ? 'active' : '' }}">
+            <li
+                class="menu-item {{ request()->is('overview') || request()->is('overview/*') || request()->is('overview/*/*') ? 'active' : '' }}">
                 <a href="{{ url('/overview') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-account-eye-outline"></i>
                     <div data-i18n="Overview">Overview</div>
@@ -75,8 +76,9 @@
                     </li>
                 </ul>
             </li>
-            
-            <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') || request()->is('po/sales/*') ? 'open' : '' }}">
+
+            <li
+                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') || request()->is('po/sales/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                     <div data-i18n="Quotation">Quotation</div>
@@ -131,24 +133,24 @@
                     <div data-i18n="Service Report">Service Report</div>
                 </a>
             </li>
-            
+
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Accounting</span>
             </li>
             <li class="menu-item {{ request()->is('contract') ? 'active' : '' }}">
-                <a href="{{route('contract.index')}}" class="menu-link">
+                <a href="{{ route('contract.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
                     <div data-i18n="Request SC/CO">Request SC/CO</div>
                 </a>
             </li>
             <li class="menu-item {{ request()->is('selling/contract') ? 'active' : '' }}">
-                <a href="{{route('index.selling')}}" class="menu-link">
+                <a href="{{ route('index.selling') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-file-sign"></i>
                     <div data-i18n="Selling Contract">Selling Contract</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('order/contract')  ? 'active' : '' }}">
-                <a href="{{route('index.order')}}" class="menu-link">
+            <li class="menu-item {{ request()->is('order/contract') ? 'active' : '' }}">
+                <a href="{{ route('index.order') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-file-document-check-outline"></i>
                     <div data-i18n="Confirm Order">Confirm Order</div>
                 </a>
@@ -158,6 +160,12 @@
                 <span class="menu-header-text">E-Stock</span>
             </li>
 
+            <li class="menu-item {{ request()->is('master/product') ? 'active' : '' }}">
+                <a href="{{ route('master.product') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-package"></i>
+                    <div data-i18n="Master">Master</div>
+                </a>
+            </li>
             <li class="menu-item {{ request()->is('product') || request()->is('product/*') ? 'active' : '' }}">
                 <a href="{{ route('product.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
@@ -227,7 +235,8 @@
                     <div data-i18n="Reports">Reports</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('overview') ||  request()->is('overview/*') ||  request()->is('overview/*/*') ? 'active' : '' }}">
+            <li
+                class="menu-item {{ request()->is('overview') || request()->is('overview/*') || request()->is('overview/*/*') ? 'active' : '' }}">
                 <a href="{{ url('/overview') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-account-eye-outline"></i>
                     <div data-i18n="Overview">Overview</div>
@@ -261,7 +270,8 @@
                 </ul>
             </li>
 
-            <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') ? 'open' : '' }}">
+            <li
+                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                     <div data-i18n="Quotation">Quotation</div>
@@ -326,7 +336,7 @@
             <li class="menu-item {{ request()->is('product') || request()->is('product/*') ? 'active' : '' }}">
                 <a href="{{ route('product.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
-                    <div data-i18n="Product">Product</div>
+                    <div data-i18n="Spare Part">Spare Part</div>
                 </a>
             </li>
 
@@ -337,6 +347,12 @@
                 </a>
             </li>
         @elseif(auth::user()->role == 'Logistic')
+            <li class="menu-item {{ request()->is('master/product') ? 'active' : '' }}">
+                <a href="{{ route('master.product') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-package"></i>
+                    <div data-i18n="Master">Master</div>
+                </a>
+            </li>
             <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
                 <a href="{{ url('/') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package-variant"></i>

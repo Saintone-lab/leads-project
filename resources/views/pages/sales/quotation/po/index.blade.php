@@ -18,7 +18,6 @@
                         <th>Description</th>
                         <th>Date Quotation</th>
                         <th>Status</th>
-                        <th>Date Expired</th>
                         <th>Stats</th>
                         <th>Actions</th>
                     </tr>

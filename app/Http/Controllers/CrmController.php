@@ -6,6 +6,7 @@ use App\Models\Activities;
 use App\Models\Client;
 use App\Models\CrmStatus;
 use App\Models\Issues;
+use App\Models\Machine;
 use App\Models\Pic;
 use App\Models\Quotation;
 use App\Models\Reports;
@@ -56,17 +57,19 @@ class CrmController extends Controller
     public function show($id)
     {
         $existing = Client::find($id);
+        $machines = Machine::where('id_client', $id)->get();
         $charge = PIC::where('id_client', $id)->get();
-        $callhis = Activities::where('id_client', $id)->whereIn('name',['Daily Call', 'Follow Up', 'CRM'])->get();
-        $visit = Activities::where('id_client', $id)->where('name','Visit')->get();
+        $callhis = Activities::where('id_client', $id)->whereIn('name', ['Daily Call', 'Follow Up', 'CRM'])->get();
+        $visit = Activities::where('id_client', $id)->where('name', 'Visit')->get();
         $quote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->get('quotation.*');
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
         $crmhis = $this->data($id);
-        // dd($callhis);
+        $machinehis = $this->getServicePerMonth($id);
+        // dd($machinehis);
         $service = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')->where('pic.id_client', $id)->get('reports.*');
         // dd($quote);
-        return view('pages.sales.existing.detail', compact('existing', 'callhis', 'quote', 'sales', 'charge', 'issue', 'crmhis', 'service', 'visit'));
+        return view('pages.sales.existing.detail', compact('existing', 'callhis', 'quote', 'sales', 'charge', 'issue', 'crmhis', 'service', 'visit', 'machines'));
     }
 
     /**
@@ -304,8 +307,17 @@ class CrmController extends Controller
     }
     protected function data($id)
     {
-        // Misalkan Anda memiliki data semester yang dimulai pada tanggal berikut
-        $startSemester = Carbon::parse('2024-01-01');
+        $currentMonth = date('n'); // 'n' returns the month without leading zeros
+        $currentYear = date('Y');
+
+        // Determine the start date based on the current month
+        if ($currentMonth >= 1 && $currentMonth <= 6) {
+            // January to June
+            $startSemester =  Carbon::parse($currentYear . '-01-01'); // 1 January of the current year
+        } else {
+            // July to December
+            $startSemester = Carbon::parse($currentYear . '-07-01'); // 1 July of the current year
+        }
         // Misalkan semester berlangsung selama 16 minggu
         $numOfWeeks = 26;
 
@@ -355,5 +367,47 @@ class CrmController extends Controller
         ];
 
         return $dataPerMonth;
+    }
+    public function getServicePerMonth($id)
+    {
+
+        $machines = Machine::where('id_client', $id)->with('reports')->get();
+        // dd($machines);
+        $results = [];
+
+        // Fungsi untuk mengubah angka bulan menjadi nama bulan menggunakan Carbon
+        function getMonthName($monthNumber)
+        {
+            return Carbon::create()->month($monthNumber)->format('F'); // Menghasilkan nama bulan penuh seperti January, February, dll.
+        }
+
+        foreach ($machines as $machine) {
+            $serviceReportsByMonth = [];
+
+            // Inisialisasi array bulan
+            for ($i = 1; $i <= 12; $i++) {
+                $serviceReportsByMonth[getMonthName($i)] = [
+                    'month' => getMonthName($i),
+                    'service' => 'no service'
+                ];
+            }
+
+            // Isi array bulan dengan data dari laporan servis yang ada
+            foreach ($machine->reports as $report) {
+                $month = Carbon::parse($report->date)->month; // Angka bulan (1-12)
+                $monthName = getMonthName($month);
+                $serviceReportsByMonth[$monthName] = [
+                    'month' => $monthName,
+                    'service' => $report->no_service // Ganti dengan field yang sesuai
+                ];
+            }
+
+            $results[] = [
+                'machine' => $machine->brand, // Ganti dengan field yang sesuai
+                'Service' => array_values($serviceReportsByMonth)
+            ];
+        }
+
+        return response()->json($results);
     }
 }

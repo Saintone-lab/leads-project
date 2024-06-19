@@ -37,10 +37,10 @@ $(function () {
                                 return "-";
                             }
                             return (
-                                '<a class="text-dark" target="_blank" href="' +
+                                '<a class="text-dark badge bg-label-primary" target="_blank" href="' +
                                 data +
                                 '">' +
-                                "photo" +
+                                "Photo" +
                                 "</a>"
                             );
                         }

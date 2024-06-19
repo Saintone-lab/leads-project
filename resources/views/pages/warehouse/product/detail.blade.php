@@ -23,224 +23,237 @@
                 <div class="card-body">
                     <p class="card-text">
                     <div class="row mb-1">
-                        <div class="col-3">
-                            Comodity
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-3">
+                                    Comodity
+                                </div>
+                                <div class="col-9">
+                                    : {{ $product->commodity }}
+                                </div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-3">
+                                    Short Description
+                                </div>
+                                <div class="col-9">
+                                    : {{ $product->detail_desc }}
+                                </div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-3">
+                                    Genuine / OEM
+                                </div>
+                                <div class="col-9">
+                                    : {{ $product->go }}
+                                </div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-3">
+                                    Category
+                                </div>
+                                <div class="col-9">
+                                    : {{ $product->category }}
+                                </div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-3">
+                                    Dimension
+                                </div>
+                                <div class="col-9">
+                                    : {{ $product->dimension }}
+                                </div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-3">
+                                    Stock Awal
+                                </div>
+                                <div class="col-9">
+                                    : {{ $product->first_stock }} ({{ $product->date }})
+                                </div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-3">
+                                    Stock
+                                </div>
+                                <div class="col-9">
+                                    : {{ $product->stock }} {{ $product->unit }}
+                                </div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-3">
+                                    Note
+                                </div>
+                                <div class="col-9">
+                                    <pre class="mb-1"
+                                        style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $product->note }}
+                                </pre>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-9">
-                            : {{ $product->commodity }}
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="row mb-1">
+                                    <div class="col-3">
+                                        Description
+                                    </div>
+                                    <div class="col-9">
+                                        <pre class="mb-1"
+                                            style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $product->description }}
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="row mb-1">
-                        <div class="col-3">
-                            Description
-                        </div>
-                        <div class="col-9">
-                            : {{ $product->description }}
-                        </div>
-                    </div>
-                    <div class="row mb-1">
-                        <div class="col-3">
-                            Short Description
-                        </div>
-                        <div class="col-9">
-                            : {{ $product->detail_desc }}
-                        </div>
-                    </div>
-                    <div class="row mb-1">
-                        <div class="col-3">
-                            Genuine / OEM
-                        </div>
-                        <div class="col-9">
-                            : {{ $product->go }}
-                        </div>
-                    </div>
-                    <div class="row mb-1">
-                        <div class="col-3">
-                            Category
-                        </div>
-                        <div class="col-9">
-                            : {{ $product->category }}
-                        </div>
-                    </div>
-                    <div class="row mb-1">
-                        <div class="col-3">
-                            Dimension
-                        </div>
-                        <div class="col-9">
-                            : {{ $product->dimension }}
-                        </div>
-                    </div>
-                    <div class="row mb-1">
-                        <div class="col-3">
-                            Stock Awal
-                        </div>
-                        <div class="col-9">
-                            : {{ $product->first_stock }} ({{ $product->date }})
-                        </div>
-                    </div>
-                    <div class="row mb-1">
-                        <div class="col-3">
-                            Stock
-                        </div>
-                        <div class="col-9">
-                            : {{ $product->stock }} {{ $product->unit }}
-                        </div>
-                    </div>
-                    <div class="row mb-1">
-                        <div class="col-3">
-                            Note
-                        </div>
-                        <div class="col-9">
-                            <pre class="mb-1"
-                                style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $product->note }}
-                            </pre>
-                        </div>
-                    </div>
+                    </p>
                 </div>
-                </p>
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-5 col-12 ">
-            <div class="d-flex justify-content-between mb-2">
-                <h5 class="fw-bold pb-1 mb-2">
-                    Replacement
-                </h5>
-                <a type="button" data-bs-toggle="modal" data-bs-target="#createReplacement-{{ $product->id }}">
-                    <button type="button" class="btn btn-primary">
-                        + New Replacement
-                    </button>
-                </a>
-            </div>
-            <div class="card">
-                <div class="table-responsive text-nowrap h-100">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Replacement</th>
-                                <th>Stock</th>
-                                @if (Auth::user()->role == 'Admin')
-                                    <th>Modal</th>
-                                    <th>Action</th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody class="table-border-bottom-0">
-                            @forelse ($details as $detail)
+        <div class="row">
+            <div class="col-md-5 col-12 ">
+                <div class="d-flex justify-content-between mb-2">
+                    <h5 class="fw-bold pb-1 mb-2">
+                        Replacement
+                    </h5>
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#createReplacement-{{ $product->id }}">
+                        <button type="button" class="btn btn-primary">
+                            + New Replacement
+                        </button>
+                    </a>
+                </div>
+                <div class="card">
+                    <div class="table-responsive text-nowrap h-100">
+                        <table class="table table-striped">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        {{ $detail->replacement }}
-                                    </td>
-                                    <td>
-                                        {{ $detail->stock }} {{ $detail->product->unit }}
-                                    </td>
+                                    <th>Replacement</th>
+                                    <th>Stock</th>
                                     @if (Auth::user()->role == 'Admin')
-                                        <td>
-                                            Rp.{{ number_format($detail->modal, 0, '', '.') }}
-                                        </td>
-                                        <td>
-                                            <a href="#" data-id="{{ $detail->id }}"
-                                                class="btn btn-sm btn-label-danger delete-replacement">
-                                                <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                                            </a>
-                                        </td>
+                                        <th>Modal</th>
+                                        <th>Action</th>
                                     @endif
                                 </tr>
-                            @empty
+                            </thead>
+                            <tbody class="table-border-bottom-0">
+                                @forelse ($details as $detail)
+                                    <tr>
+                                        <td>
+                                            {{ $detail->replacement }}
+                                        </td>
+                                        <td>
+                                            {{ $detail->stock }} {{ $detail->product->unit }}
+                                        </td>
+                                        @if (Auth::user()->role == 'Admin')
+                                            <td>
+                                                Rp.{{ number_format($detail->modal, 0, '', '.') }}
+                                            </td>
+                                            <td>
+                                                <a href="#" data-id="{{ $detail->id }}"
+                                                    class="btn btn-sm btn-label-danger delete-replacement">
+                                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                                </a>
+                                            </td>
+                                        @endif
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            Kamu belum punya Replacement.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md col-12 flex-1 mb-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <h5 class="fw-bold pb-1 mb-2">
+                        Equivalent
+                    </h5>
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#createEquivalent-{{ $product->id }}">
+                        <button type="button" class="btn btn-primary">
+                            + New Equivalent
+                        </button>
+                    </a>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <table class="datatable-product-equivalent table table-striped">
+                            <thead>
                                 <tr>
-                                    <td colspan="4" class="text-center">
-                                        Kamu belum punya Replacement.
-                                    </td>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Image</th>
+                                    <th>Brand</th>
+                                    <th>PN</th>
+                                    <th>Price</th>
+                                    <th></th>
                                 </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md col-12 flex-1 mb-3">
-            <div class="d-flex justify-content-between mb-2">
-                <h5 class="fw-bold pb-1 mb-2">
-                    Equivalent
-                </h5>
-                <a type="button" data-bs-toggle="modal" data-bs-target="#createEquivalent-{{ $product->id }}">
-                    <button type="button" class="btn btn-primary">
-                        + New Equivalent
-                    </button>
-                </a>
+        <div class="row">
+            <div class="col-12 col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <table class="datatable-product-in-detail table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>invoice</th>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="card">
-                <div class="card-body">
-                    <table class="datatable-product-equivalent table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Image</th>
-                                <th>Brand</th>
-                                <th>PN</th>
-                                <th>Price</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                    </table>
+            <div class="col-12 col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <table class="datatable-product-out-detail table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>invoice</th>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-12 col-lg-6">
-            <div class="card">
-                <div class="card-body">
-                    <table class="datatable-product-in-detail table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>invoice</th>
-                                <th>Product</th>
-                                <th>Qty</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-lg-6">
-            <div class="card">
-                <div class="card-body">
-                    <table class="datatable-product-out-detail table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>invoice</th>
-                                <th>Product</th>
-                                <th>Qty</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
     </div>
     @include('components.modal.warehouse.product.form')
     @include('components.modal.warehouse.product.stock')
     @include('components.modal.warehouse.replacement.form')
     @include('components.modal.warehouse.equivalent.form')
+    @foreach ($serials as $serial)
+        @include('components.modal.warehouse.equivalent.form')
+    @endforeach
 @endsection()
 @push('after-style')
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
     <link rel="stylesheet"
         href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
@@ -462,7 +475,8 @@
                 input.val(input_val);
                 var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
                 console.log(id);
-                $(`#price`).val(nomorInt);
+                console.log(nomorInt);
+                $(`#price-${id}`).val(nomorInt);
             });
         });
     </script>

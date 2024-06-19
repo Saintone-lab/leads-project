@@ -20,7 +20,8 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT r.*, c.company, u.name FROM reports r 
+        $query = "SELECT r.*, c.company, u.name, CONCAT(m.brand, ' ', m.type) AS brand_type FROM reports r 
+        JOIN machine m on r.id_machine = m.id
         LEFT JOIN pic p on p.id = r.id_pic
         LEFT JOIN client c on c.id = p.id_client
         INNER JOIN users u on u.id = r.id_technician

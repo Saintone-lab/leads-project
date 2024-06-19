@@ -29,15 +29,15 @@ class QuotationController extends Controller
     public function index()
     {
         $quotation = Quotation::where('id_sales', Auth::user()->id)->get();
-        $forecast = Quotation::where('id_sales', Auth::user()->id)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('total_no_tax');
-        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('status', '80')->sum('total_no_tax');
-        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->sum('total_no_tax');
-        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->sum('total_no_tax');
+        $forecast = Quotation::where('id_sales', Auth::user()->id)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('subtotal');
+        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('status', '80')->sum('subtotal');
+        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->sum('subtotal');
+        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->sum('subtotal');
         $quotationAdmin = Quotation::get();
-        $forecastAdmin = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->sum('total_no_tax');
-        $prospectAdmin = Quotation::where('status', '80')->sum('total_no_tax');
-        $poAdmin = Quotation::where('status', '100')->sum('total_no_tax');
-        $lossAdmin = Quotation::where('status', '0')->sum('total_no_tax');
+        $forecastAdmin = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->sum('subtotal');
+        $prospectAdmin = Quotation::where('status', '80')->sum('subtotal');
+        $poAdmin = Quotation::where('status', '100')->sum('subtotal');
+        $lossAdmin = Quotation::where('status', '0')->sum('subtotal');
         // dd();
         return view('pages.sales.quotation.index', compact('quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
     }
@@ -405,10 +405,10 @@ class QuotationController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $quotation = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->get();
-        $forecast = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('total_no_tax');
-        $prospect = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->where('status', '80')->sum('total_no_tax');
-        $po = Quotation::where('id_sales', $id)->whereMonth('po_date', $monthNow)->where('status', '100')->sum('total_no_tax');
-        $loss = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->where('status', '0')->sum('total_no_tax');
+        $forecast = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('subtotal');
+        $prospect = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->where('status', '80')->sum('subtotal');
+        $po = Quotation::where('id_sales', $id)->whereMonth('po_date', $monthNow)->where('status', '100')->sum('subtotal');
+        $loss = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->where('status', '0')->sum('subtotal');
         return view('pages.sales.quotation.sales', compact('quotation', 'forecast', 'prospect', 'po', 'loss'));
     }
 

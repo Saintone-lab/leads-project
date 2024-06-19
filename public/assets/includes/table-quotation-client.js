@@ -28,7 +28,7 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "no_quote" },
-                { data: "harga_total" },
+                { data: "subtotal" },
                 { data: "title" },
                 { data: "estimated_date" },
                 { data: "status" },

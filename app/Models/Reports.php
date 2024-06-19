@@ -16,9 +16,9 @@ class Reports extends Model
     ];
     protected $fillable = [
         'id_pic',
+        'id_machine',
         'id_technician',
-        'unit',
-        'serial_number',
+        'type',
         'running',
         'load',
         'jobdesc',
@@ -30,6 +30,10 @@ class Reports extends Model
     public function pic()
     {
         return $this->belongsTo('App\Models\Pic', 'id_pic', 'id');
+    }
+    public function machine()
+    {
+        return $this->belongsTo('App\Models\Machine', 'id_machine', 'id');
     }
     
     public function technician()

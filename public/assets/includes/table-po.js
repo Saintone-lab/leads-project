@@ -28,11 +28,10 @@ $(function () {
                 { data: "id" },
                 { data: "no_quote" },
                 { data: "company" },
-                { data: "harga_total" },
+                { data: "subtotal" },
                 { data: "title" },
                 { data: "estimated_date" },
                 { data: "status" },
-                { data: "expired_date" },
                 { data: "status" },
                 { data: "" },
             ],
@@ -125,7 +124,7 @@ $(function () {
                 },
                 {
                     // Label Status Percent
-                    targets: 10,
+                    targets: 9,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $titleTool = full["note"];

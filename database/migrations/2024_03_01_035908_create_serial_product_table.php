@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('serial_product', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_product');
-            // $table->string('fxp_parts');
+            $table->string('fxp_parts');
             $table->string('brand');
             $table->string('pn');
             $table->string('image');

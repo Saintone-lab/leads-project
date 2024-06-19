@@ -29,8 +29,8 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "no_service" },
-                { data: "unit" },
-                { data: "name" },
+                { data: "brand_type" },
+                { data: "running" },
                 { data: "date" },
             ],
             columnDefs: [
@@ -75,9 +75,17 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var detailRoute = route("service-reports.show", $dataId);
+                            var detailRoute = route(
+                                "service-reports.show",
+                                $dataId
+                            );
+                            var dataSub = data.substring(0, 5);
                             return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                                '<a class="text-dark" href="' +
+                                detailRoute +
+                                '">' +
+                                dataSub +
+                                "</a>"
                             );
                         }
                         return data;

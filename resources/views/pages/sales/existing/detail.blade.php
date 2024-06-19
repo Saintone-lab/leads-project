@@ -161,6 +161,84 @@
                 </div>
             @endforeach
         </div>
+        <div class="col-md-12 mt-4">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold pb-1 mb-3">
+                    Machine
+                </h5>
+                <a type="button" data-bs-toggle="modal" data-bs-target="#createMachine">
+                    <button type="button" class="btn btn-primary">
+                        + Create New machine
+                    </button>
+                </a>
+            </div>
+            <div class="row">
+                @foreach ($machines as $machine)
+                    <div class="col-6 col-md-4">
+                        <div class="card mb-2">
+                            <div class="card-header pb-0">
+                                <div class="text-end text-muted">
+                                    <a type="button" data-bs-toggle="modal"
+                                        data-bs-target="#createMachine{{ $machine->id }}">
+                                        <button type="button" class="btn btn-sm btn-label-warning">
+                                            Edit
+                                        </button>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-label-danger delete-machine"
+                                        data-id="{{ $machine->id }}">
+                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Brand
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->brand }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Type
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->type }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Serial Number
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->serial_number }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Bar
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->bar }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Running Hour
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->running }}
+                                    </div>
+                                </div>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
     </div>
     <div class="row mb-3">
         <div class="d-flex justify-content-between mb-2">
@@ -174,7 +252,6 @@
             </a>
         </div>
         <div class="card">
-
             <div class="table-responsive text-nowrap">
                 <table class="table table-striped">
                     <thead>
@@ -191,7 +268,7 @@
                             {{-- {{print_r($crmhis)}} --}}
                             @foreach ($bulan as $data => $data_bulan)
                                 <th
-                                    colspan="{{ $data_bulan == 'January 2024' ? $mon1 : '' }}{{ $data_bulan == 'February 2024' ? $mon2 : '' }}{{ $data_bulan == 'March 2024' ? $mon3 : '' }}{{ $data_bulan == 'April 2024' ? $mon4 : '' }}{{ $data_bulan == 'May 2024' ? $mon5 : '' }}{{ $data_bulan == 'June 2024' ? $mon6 : '' }}">
+                                    colspan="{{ $data_bulan == 'January 2024' || $data_bulan == 'July 2024'  ? $mon1 : '' }}{{ $data_bulan == 'February 2024' || $data_bulan == 'August 2024' ? $mon2 : '' }}{{ $data_bulan == 'March 2024' || $data_bulan == 'September 2024' ? $mon3 : '' }}{{ $data_bulan == 'April 2024' || $data_bulan == 'October 2024' ? $mon4 : '' }}{{ $data_bulan == 'May 2024' || $data_bulan == 'November 2024' ? $mon5 : '' }}{{ $data_bulan == 'June 2024' || $data_bulan == 'December 2024' ? $mon6 : '' }}">
                                     {{ $data_bulan }}</th>
                             @endforeach
                         </tr>
@@ -368,6 +445,54 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-6 my-3">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold pb-1 mb-2">
+                    Service Visit History
+                </h5>
+            </div>
+            <div class="card">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-visit-history table table-striped" id="dataTableCrm">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>No Service</th>
+                                <th>Unit</th>
+                                <th>Teknisi</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 my-3">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold pb-1 mb-2">
+                    Service General Checkup History
+                </h5>
+            </div>
+            <div class="card">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-general-history table table-striped" id="dataTableCrm">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>No Service</th>
+                                <th>Unit</th>
+                                <th>Teknisi</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="row">
         @if (Auth::user()->detail[0]->area == 'Bekasi' ||
@@ -481,10 +606,14 @@
     </div>
     @include('pages.sales.existing.form')
     @include('components.modal.pic.existing.form-create')
+    @include('components.modal.machine.form')
     @include('pages.sales.activities.form-existing')
     @include('pages.sales.activities.form-visit')
     @foreach ($charge as $pic)
         @include('components.modal.pic.existing.form-update')
+    @endforeach
+    @foreach ($machines as $machine)
+        @include('components.modal.machine.form-edit')
     @endforeach
 @endsection()
 @push('after-style')
@@ -514,6 +643,8 @@
     <script src="{{ asset('assets') }}/includes/table-crm-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-po-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-service-history.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-general-history.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-visit-history.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
 @endpush
 @push('script')
@@ -611,6 +742,62 @@
             //         });
             //     }
             // });
+        });
+        $(document).on('click', '.delete-machine', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('machine') }}/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Your file has been deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    location.reload();
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
         });
         $(document).on('click', '.delete-existing', function() {
             var id = $(this).data('id');

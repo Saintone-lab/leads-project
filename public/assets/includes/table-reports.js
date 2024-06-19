@@ -28,7 +28,7 @@ $(function () {
                 { data: "no_service" },
                 { data: "company" },
                 { data: "jobdesc" },
-                { data: "unit" },
+                { data: "brand_type" },
                 { data: "date" },
                 { data: "" },
             ],

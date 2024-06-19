@@ -18,7 +18,7 @@ $(function () {
                 { data: "id" },
                 { data: "company" },
                 { data: "title" },
-                { data: "total_no_tax" },
+                { data: "subtotal" },
                 { data: "status" },
                 { data: "" },
             ],

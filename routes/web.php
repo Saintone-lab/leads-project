@@ -8,6 +8,7 @@ use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExistingController;
+use App\Http\Controllers\MachineController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\PicController;
 use App\Http\Controllers\ProductController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\StockController;
 use App\Models\Activities;
 use App\Models\Contract;
 use App\Models\DetailProduct;
+use App\Models\Machine;
 use App\Models\Pic;
 use App\Models\ProductIn;
 use App\Models\Quotation;
@@ -137,8 +139,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/product', ProductController::class);
     Route::post('/product/equivalent/store/{id}', [ProductController::class, 'storeEquivalent'])->name('product.equivalent');
     Route::post('/product/replacement/store/{id}', [ProductController::class, 'storeReplacement'])->name('product.replacement');
+    Route::patch('/product/equivalent/update/{id}', [ProductController::class, 'updateEquivalent'])->name('product.equivalent.update');
     Route::delete('/product/equivalent/{id}', [ProductController::class, 'destroyEquivalent'])->name('product.equivalent.destroy');
     Route::delete('/product/replacement/{id}', [ProductController::class, 'destroyReplacement'])->name('product.replacement.destroy');
+    Route::get('/master/product', [ProductController::class, 'indexMaster'])->name('master.product');
 
     // Route untuk Product In
     Route::resource('/product-in', ProductInController::class);
@@ -171,6 +175,14 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/employee', EmployeeController::class);
     Route::post('/employee/position/{id}', [EmployeeController::class, 'newPosition'])->name('new.position');
     Route::patch('/employee/target/{id}', [EmployeeController::class, 'updateTarget'])->name('update.target');
+
+    // Route untuk machine
+    Route::resource('/machine', MachineController::class);
+    Route::post('/machine/technician/store', [MachineController::class, 'storeTechnician'])->name('store.machine-technician');
+    Route::get('/machine/dropdown/{id}', function ($id) {
+        $machine = Machine::where('id_client', $id)->get();
+        return response()->json($machine);
+    });
 
     // Route untuk Selling Contract dan Confirm Order
     Route::resource('/contract', ContractController::class);
@@ -295,11 +307,12 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/quotation/invoice', function () {
         $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
-        ->join('client', 'client.id', '=', 'pic.id_client')
-        ->join('users', 'users.id', '=', 'quotation.id_sales')
-        ->where('status', '100')
-        ->whereNotNull('quotation.po_file')
-        ->get(['quotation.*', 'client.company','users.name']);;
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->get(['quotation.*', 'client.company', 'users.name']);
+        ;
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/po', function () {
@@ -331,7 +344,7 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/product/serial/{id}', function ($id) {
         // Menggunakan Eloquent untuk mengambil data serial_product berdasarkan id
-        $serialProduct = SerialProduct::where('id_product', $id)->get();
+        $serialProduct = SerialProduct::where('id_product', $id)->join('product', 'product.id', '=', 'serial_product.id_product')->get(['serial_product.*', 'product.id AS idp']);
         // Mengembalikan data dalam bentuk JSON
         return response()->json(['data' => $serialProduct]);
     });
@@ -418,8 +431,45 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/client/service-history/{id}', function ($id) {
         $data = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')
             ->join('users', 'users.id', '=', 'reports.id_technician')
+            ->join('machine', 'machine.id', '=', 'reports.id_machine')
             ->where('pic.id_client', $id)
-            ->select('reports.*', 'users.name')
+            ->where('reports.type', 'Service')
+            ->select(
+                'reports.*',
+                'users.name',
+                DB::raw("CONCAT(machine.brand, ' ', machine.type) AS brand_type")
+            )
+            ->groupBy('reports.id')
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/client/visit-history/{id}', function ($id) {
+        $data = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')
+            ->join('users', 'users.id', '=', 'reports.id_technician')
+            ->join('machine', 'machine.id', '=', 'reports.id_machine')
+            ->where('pic.id_client', $id)
+            ->where('reports.type', 'Visit')
+            ->select(
+                'reports.*',
+                'users.name',
+                DB::raw("CONCAT(machine.brand, ' ', machine.type) AS brand_type")
+            )
+            ->groupBy('reports.id')
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/client/general-history/{id}', function ($id) {
+        $data = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')
+            ->join('users', 'users.id', '=', 'reports.id_technician')
+            ->join('machine', 'machine.id', '=', 'reports.id_machine')
+            ->where('pic.id_client', $id)
+            ->where('reports.type', 'General')
+            ->select(
+                'reports.*',
+                'users.name',
+                DB::raw("CONCAT(machine.brand, ' ', machine.type) AS brand_type")
+            )
+            ->groupBy('reports.id')
             ->get();
         return response()->json(['data' => $data]);
     });

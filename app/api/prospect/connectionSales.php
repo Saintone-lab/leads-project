@@ -25,7 +25,7 @@ if (Auth::check()) {
         LEFT JOIN client c on c.id = p.id_client
         INNER JOIN users u on u.id = q.id_sales
         WHERE u.id = $user->id AND q.status = '80'
-        GROUP BY id ORDER BY q.expired_date ASC";
+        GROUP BY id ORDER BY id ASC";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

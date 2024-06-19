@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\ImageService;
 use App\Models\Pic;
 use App\Models\Reports;
@@ -34,13 +35,14 @@ class ServiceReportsController extends Controller
      */
     public function create()
     {
+        $clients = Client::all();
         $dateNow = Carbon::now();
         $numberS = Reports::whereYear('date', $dateNow)->where('id_technician', Auth::user()->id)->count();
         $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::all();
-        return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow'));
+        return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow', 'clients'));
     }
 
     /**
@@ -53,8 +55,6 @@ class ServiceReportsController extends Controller
     {
         $rule = [
             'no_service => required',
-            'unit => required',
-            'serial_number => required',
             'running => required',
             'load => required',
             'jobdesc => required',
@@ -62,8 +62,6 @@ class ServiceReportsController extends Controller
         ];
         $customMessages = [
             'no_service.required' => 'Field No Service Wajib Diisi!',
-            'unit.required' => 'Field Unit Wajib Diisi',
-            'serial_number.required' => 'Field Serial Number Wajib Diisi',
             'running.required' => 'Field Running Wajib Diisi!',
             'load.required' => 'Field Load Wajib Diisi!',
             'jobdesc.required' => 'Field Jobdesc Wajib Diisi!',
@@ -76,10 +74,10 @@ class ServiceReportsController extends Controller
         $reports = new Reports();
         $reports->id_technician = $request->technician;
         $reports->id_pic = $request->id_pic;
+        $reports->id_machine = $request->machine;
         $reports->no_service = $request->no_service;
-        $reports->serial_number = $request->serial_number;
+        $reports->type = $request->type;
         $reports->running = $request->running;
-        $reports->unit = $request->unit;
         $reports->load = $request->load;
         $reports->jobdesc = $request->jobdesc;
         $reports->desc = $request->desc;
@@ -150,9 +148,10 @@ class ServiceReportsController extends Controller
         $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
+        $clients = Client::all();
         $pic = Pic::all();
         // dd($image);
-        return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow', 'report', 'image'));
+        return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow', 'report', 'image','clients'));
     }
 
     /**
@@ -166,8 +165,6 @@ class ServiceReportsController extends Controller
     {
         $rule = [
             'no_service => required',
-            'unit => required',
-            'serial_number => required',
             'running => required',
             'load => required',
             'jobdesc => required',
@@ -175,8 +172,6 @@ class ServiceReportsController extends Controller
         ];
         $customMessages = [
             'no_service.required' => 'Field No Service Wajib Diisi!',
-            'unit.required' => 'Field Unit Wajib Diisi',
-            'serial_number.required' => 'Field Serial Number Wajib Diisi',
             'running.required' => 'Field Running Wajib Diisi!',
             'load.required' => 'Field Load Wajib Diisi!',
             'jobdesc.required' => 'Field Jobdesc Wajib Diisi!',
@@ -189,10 +184,10 @@ class ServiceReportsController extends Controller
         $reports = Reports::find($id);
         $reports->id_technician = $request->technician;
         $reports->id_pic = $request->id_pic;
+        $reports->type = $request->type;
+        $reports->id_machine = $request->machine;
         $reports->no_service = $request->no_service;
-        $reports->serial_number = $request->serial_number;
         $reports->running = $request->running;
-        $reports->unit = $request->unit;
         $reports->load = $request->load;
         $reports->jobdesc = $request->jobdesc;
         $reports->desc = $request->desc;
