@@ -16,9 +16,8 @@
                         <th>Company</th>
                         <th>Total Price</th>
                         <th>Description</th>
-                        <th>Date Quotation</th>
+                        <th>Date PO</th>
                         <th>Status</th>
-                        <th>Stats</th>
                         <th>Actions</th>
                     </tr>
                 </thead>

@@ -19,20 +19,42 @@
                     <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
                     <p class="mb-1">Bandung – Jawa Barat 40218</p>
                     <p class="mb-1">
-                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1"></i>022 54417653
-                    </p>
-                    <p class="mb-1">
-                        <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>service@reftech.id
+                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022
+                        54417653{{ '  |  ' }}<i
+                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
                     </p>
                 </div>
             </div>
-            <div>
+            <div class="text-end">
                 <h3 class="fw-bold">SERVICE REPORT</h3>
                 <div>
                     <span class="fw-bolder">#{{ $service->no_service }}</span>
                 </div>
                 <div class="mt-1">
                     <span class="text-muted">{{ $service->date }}</span>
+                </div>
+                <div class="mt-1">
+                    @php
+                        $badgeClass = '';
+                        $label = $service->type;
+
+                        switch ($service->type) {
+                            case 'Visit':
+                                $badgeClass = 'success';
+                                break;
+                            case 'Service':
+                                $badgeClass = 'danger';
+                                break;
+                            case 'General':
+                                $badgeClass = 'primary';
+                                $label = 'General Check';
+                                break;
+                            default:
+                                $badgeClass = '';
+                                break;
+                        }
+                    @endphp
+                    <span class="badge fs-6 rounded-pill bg-label-{{ $badgeClass }}">{{ $label }}</span>
                 </div>
             </div>
         </div>
@@ -75,11 +97,13 @@
         <div class="row my-2">
             <div class="col-8">
                 <h5 class="my-2">Description</h5>
-                <pre class="mb-1" style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->desc }}</pre>
+                <pre class="mb-1"
+                    style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->desc }}</pre>
             </div>
             <div class="col-4">
                 <h5 class="my-2">Recomendation</h5>
-                <pre class="mb-1" style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->recomendation }}</pre>
+                <pre class="mb-1"
+                    style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $service->recomendation }}</pre>
             </div>
         </div>
         <hr>

@@ -30,7 +30,7 @@ $(function () {
                 { data: "estimated_date" },
                 { data: "no_quote" },
                 { data: "status" },
-                { data: "subtotal" },
+                { data: "nett" },
             ],
             columnDefs: [
                 {

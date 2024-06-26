@@ -17,11 +17,12 @@ class DetailQuotation extends Model
         'disc',
         'price',
         'amount',
+        'fee',
     ];
 
     
     public function quotation()
     {
-        return $this->belongsTo('App\Model\Quotation', 'id_quotation', 'id');
+        return $this->belongsTo('App\Models\Quotation', 'id_quotation', 'id');
     }
 }

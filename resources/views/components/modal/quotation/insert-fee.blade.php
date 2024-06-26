@@ -1,4 +1,4 @@
-<form action="{{ route('insert_fee.quotation', $quote->id)}}" method="post" enctype="multipart/form-data">
+<form action="{{ route('insert_fee.quotation', $quote->id) }}" method="post" enctype="multipart/form-data">
     @csrf
     <div class="modal-onboarding modal fade animate__animated" id="insertFee" tabindex="-1" style="display: none;"
         aria-hidden="true">
@@ -15,19 +15,42 @@
                         </div>
                         <form>
                             <div class="row">
-                                <div class="col-12  mb-3">
-                                    <div class="form-floating form-floating-outline">
-                                        <p class="mb-2 repeater-title">Fee</p>
-                                        <div class="input-group" data-price="1">
-                                            <span class="input-group-text">Rp. </span>
-                                            <input type="text" class="form-control invoice-item-price-label"
-                                                id="priceLabel-1" data-id="1" name="harga"
-                                                placeholder="Put Fee Here" data-type="currency" min="0"
-                                                pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                                @blur="focused = false" value="{{ old('price[]') }}">
-                                            <input class="form-control invoice-item-price" type="number"
-                                                name="fee" id="price-1" value="{{ old('price[]') }}" hidden>
+                                @php
+                                    $row = 0;
+                                @endphp
+                                @foreach ($dquote as $detail)
+                                    @php
+                                        $row ++;
+                                    @endphp
+                                    <div class="col-4">
+                                        <p class="text-start">Fee {{ $detail->product }}</p>
+                                    </div>
+                                    <div class="col-8 mb-3">
+                                        <div class="form-floating form-floating-outline">
+                                            <div class="input-group" data-price="{{ $row }}">
+                                                <span class="input-group-text">Rp. </span>
+                                                <input type="text" class="form-control invoice-item-price-label"
+                                                    id="priceLabel-{{ $row }}" data-id="{{ $row }}"
+                                                    name="harga[]" placeholder="Put Fee Here" data-type="currency"
+                                                    min="0" pattern="^[0-9]\d{0,2}(\.\d{3})*$"
+                                                    @focus="focused = true" @blur="focused = false"
+                                                    value="{{ old('price[]', $detail->fee != 0 ? number_format($detail->fee, 0, ',', '.') : 0) }}">
+                                                <input class="form-control invoice-item-price" type="number"
+                                                    name="fee[]" id="price-{{ $row }}"
+                                                    value="{{ old('price[]', $detail->fee != 0 ? $detail->fee : 0) }}" hidden>
+                                            </div>
                                         </div>
+                                    </div>
+                                @endforeach
+                                <div class="col-4">
+                                    <h5 class="text-start">Total</h5>
+                                </div>
+                                <div class="col-8 mb-3">
+                                    <div class="form-floating-outline">
+                                        <input type="text" id="totalLabel"
+                                            class="form-control form-control-sm invoice-item-total-label" value="Rp {{ old('total[]', $quote->fee != 0 ? number_format($quote->fee, 0, ',', '.') : 0) }}" disabled>
+                                        <input class="form-control invoice-item-total" type="number" name="total"
+                                            id="total" value="{{ old('total[]', $quote->fee != 0 ? $quote->fee : 0) }}" hidden>
                                     </div>
                                 </div>
                             </div>

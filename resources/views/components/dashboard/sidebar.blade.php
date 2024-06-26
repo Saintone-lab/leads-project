@@ -137,23 +137,48 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Accounting</span>
             </li>
-            <li class="menu-item {{ request()->is('contract') ? 'active' : '' }}">
-                <a href="{{ route('contract.index') }}" class="menu-link">
+            <li
+                class="menu-item {{ request()->is('contract') || request()->is('selling/contract') || request()->is('order/contract') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
-                    <div data-i18n="Request SC/CO">Request SC/CO</div>
+                    <div data-i18n="SC/CO">SC/CO</div>
                 </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('contract') ? 'active' : '' }}">
+                        <a href="{{ route('contract.index') }}" class="menu-link">
+                            <div data-i18n="Request">Request</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('selling/contract') ? 'active' : '' }}">
+                        <a href="{{ route('index.selling') }}" class="menu-link">
+                            <div data-i18n="Selling Contract">Selling Contract</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('order/contract') ? 'active' : '' }}">
+                        <a href="{{ route('index.order') }}" class="menu-link">
+                            <div data-i18n="Confirm Order">Confirm Order</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
-            <li class="menu-item {{ request()->is('selling/contract') ? 'active' : '' }}">
-                <a href="{{ route('index.selling') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-file-sign"></i>
-                    <div data-i18n="Selling Contract">Selling Contract</div>
-                </a>
-            </li>
-            <li class="menu-item {{ request()->is('order/contract') ? 'active' : '' }}">
-                <a href="{{ route('index.order') }}" class="menu-link">
+            <li
+                class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') || request()->is('request/invoice') || request()->is('request/invoice/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-file-document-check-outline"></i>
-                    <div data-i18n="Confirm Order">Confirm Order</div>
+                    <div data-i18n="Invoice">Invoice</div>
                 </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('request/invoice') || request()->is('request/invoice/*')  ? 'active' : '' }}">
+                        <a href="{{ route('invoice.request') }}" class="menu-link">
+                            <div data-i18n="Request">Request</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') ? 'active' : '' }}">
+                        <a href="{{ route('invoice.index') }}" class="menu-link">
+                            <div data-i18n="invoice">invoice</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
 
             <li class="menu-header fw-light mt-4">

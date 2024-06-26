@@ -54,26 +54,26 @@ class DashboardController extends Controller
             ->count();
         $quotation = Quotation::whereMonth("estimated_date", $monthNow)->where("id_sales", Auth::user()->id)->get();
         $po = Quotation::whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->get();
-        $poTotalPrice = Quotation::whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->sum('subtotal');
-        $poTotalPriceAdmin = Quotation::whereMonth("po_date", $monthNow)->where("status", "100")->sum('subtotal');
+        $poTotalPrice = Quotation::whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->sum('nett');
+        $poTotalPriceAdmin = Quotation::whereMonth("po_date", $monthNow)->where("status", "100")->sum('nett');
         $formattedTotalPrice = $this->formatNumber($poTotalPrice);
         $formattedTotalPriceAdmin = $this->formatNumber($poTotalPriceAdmin);
         $sales = User::where('role', 'Sales')->get();
         $totalPO = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->sum('subtotal');
+            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->sum('nett');
         });
         $totalProspect = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->where('status', '80')->sum('subtotal');
+            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->where('status', '80')->sum('nett');
             return number_format($total, 2, ',', '.');
         });
         $totalForecast = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('subtotal');
+            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
             return number_format($total, 2, ',', '.');
         });
         $filteredPO = $sales->map(function ($sale) {
@@ -126,12 +126,12 @@ class DashboardController extends Controller
         $totalPO = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->sum('subtotal');
+            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->sum('nett');
         });
         $totalForecast = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('subtotal');
+            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
             return number_format($total, 2, ',', '.');
         });
         $filteredPO = $sales->map(function ($sale) {

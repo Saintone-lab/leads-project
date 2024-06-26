@@ -1,6 +1,6 @@
 $(function () {
     var dt_table_master = $(".datatable-master");
-    var Url = "/db/product";
+    var Url = "/db/product/master";
 
     if (dt_table_master.length) {
         $('[data-toggle="tooltip"]').tooltip();
@@ -29,7 +29,13 @@ $(function () {
                 { data: "commodity" },
                 { data: "description" },
                 { data: "go" },
-                { data: "all_stock" },
+                { 
+                    data: "all_stock",
+                    render: function(data, type, row) {
+                        return data != null ? data.toString() : ''; // Konversi data menjadi string
+                    },
+                    className: "text-end" // Tambahkan kelas CSS untuk rata kanan
+                }
             ],
             columnDefs: [
                 {
@@ -102,7 +108,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6,],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -158,7 +164,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6,],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -195,7 +201,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6,],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -232,7 +238,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -269,7 +275,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6,],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {

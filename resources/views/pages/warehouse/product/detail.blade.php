@@ -153,6 +153,13 @@
                                                     class="btn btn-sm btn-label-danger delete-replacement">
                                                     <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
                                                 </a>
+                                                <a type="button" data-bs-toggle="modal"
+                                                    data-bs-target="#editReplacement-{{ $detail->id }}">
+                                                    <button type="button" class="btn btn-sm btn-label-primary">
+                                                        <i
+                                                            class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i>
+                                                    </button>
+                                                </a>
                                             </td>
                                         @endif
                                     </tr>
@@ -246,6 +253,10 @@
     @include('components.modal.warehouse.equivalent.form')
     @foreach ($serials as $serial)
         @include('components.modal.warehouse.equivalent.form')
+    @endforeach
+    @include('components.modal.warehouse.equivalent.form')
+    @foreach ($details as $detail)
+        @include('components.modal.warehouse.replacement.form-price')
     @endforeach
 @endsection()
 @push('after-style')
@@ -477,6 +488,26 @@
                 console.log(id);
                 console.log(nomorInt);
                 $(`#price-${id}`).val(nomorInt);
+            });
+            $(".invoice-item-modal-label").on('keyup', function() {
+                var input = $(this)
+                var id = input.data('id');
+                var input_val = input.val();
+
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                console.log(id);
+                console.log(nomorInt);
+                $(`#modal-${id}`).val(nomorInt);
             });
         });
     </script>

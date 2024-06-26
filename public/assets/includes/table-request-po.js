@@ -80,7 +80,7 @@ $(function () {
                     searchable: false,
                     render: function (data, type, full, meta) {
                         var $dataId = full["id"];
-                        var $detailUrl = route("quotation.show", $dataId);
+                        var $detailUrl = route("before.accept", $dataId);
                         return (
                             '<div class="d-inline-block">' +
                             '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +

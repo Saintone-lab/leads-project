@@ -28,7 +28,7 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "no_quote" },
-                { data: "subtotal" },
+                { data: "nett" },
                 { data: "title" },
                 { data: "estimated_date" },
                 { data: "status" },

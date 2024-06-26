@@ -30,7 +30,7 @@ $(function () {
                 { data: "id" },
                 { data: "no_quote" },
                 { data: "company" },
-                { data: "subtotal" },
+                { data: "nett" },
                 { data: "title" },
                 { data: "estimated_date" },
                 { data: "status" },

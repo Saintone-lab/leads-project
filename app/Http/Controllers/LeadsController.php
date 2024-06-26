@@ -185,8 +185,6 @@ class LeadsController extends Controller
     public function update(Request $request, $id)
     {
         $rule = [
-            'sales' => 'required',
-
             'company' =>
                 'required',
 
@@ -216,7 +214,6 @@ class LeadsController extends Controller
         ];
 
         $message = [
-            'sales.required'=> 'Field Sales Wajib Diisi',
             'company.required'=> 'Field company Wajib Diisi',
             'email.required'=> 'Field Email Wajib Diisi',
             'phone.required'=> 'Field Phone Wajib Diisi',
@@ -233,7 +230,6 @@ class LeadsController extends Controller
         
         //masukan data ke table leads(client)
         $leads = Client::find($id);
-        $leads->id_sales = $request->sales;
         $leads->company = $request->company;
         $leads->email = $request->email;
         $leads->phone = $request->phone;

@@ -8,6 +8,7 @@ use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExistingController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\MachineController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\PicController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\StockController;
 use App\Models\Activities;
 use App\Models\Contract;
 use App\Models\DetailProduct;
+use App\Models\Invoice;
 use App\Models\Machine;
 use App\Models\Pic;
 use App\Models\ProductIn;
@@ -139,6 +141,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/product', ProductController::class);
     Route::post('/product/equivalent/store/{id}', [ProductController::class, 'storeEquivalent'])->name('product.equivalent');
     Route::post('/product/replacement/store/{id}', [ProductController::class, 'storeReplacement'])->name('product.replacement');
+    Route::patch('/product/replacement/update/{id}', [ProductController::class, 'updateReplacement'])->name('product.replacement.update');
     Route::patch('/product/equivalent/update/{id}', [ProductController::class, 'updateEquivalent'])->name('product.equivalent.update');
     Route::delete('/product/equivalent/{id}', [ProductController::class, 'destroyEquivalent'])->name('product.equivalent.destroy');
     Route::delete('/product/replacement/{id}', [ProductController::class, 'destroyReplacement'])->name('product.replacement.destroy');
@@ -210,6 +213,12 @@ Route::group(["middleware" => "auth"], function () {
             ]);
         return response()->json(['data' => $contract]);
     });
+
+    Route::resource('/invoice', InvoiceController::class);
+    Route::get('/request/invoice/{id}', [InvoiceController::class, 'before_accept'])->name('before.accept');
+    Route::get('/request/invoice', [InvoiceController::class, 'request'])->name('invoice.request');
+    Route::get('/print/invoice/{id}', [InvoiceController::class, 'print_invoice'])->name('print.invoice');
+
     Route::get('/db/selling-contract/non-tax', function () {
         $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
@@ -302,21 +311,38 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/po/sales/{id}', function ($id) {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('po_date', $monthNow)->where('quotation.id_sales', $id)->where('status', '100')->get(['quotation.*', 'client.company']);
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('po_date', $monthNow)->where('quotation.id_sales', $id)->where('status', '100')->orderBy('po_date', 'asc')->get(['quotation.*', 'client.company']);
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/quotation/invoice', function () {
         $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
             ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')
             ->whereNotNull('quotation.po_file')
+            ->whereNull('invoice.no_invoice')
             ->get(['quotation.*', 'client.company', 'users.name']);
         ;
         return response()->json(['data' => $quotation]);
     });
+    Route::get('/db/invoice', function () {
+        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->whereNotNull('invoice.no_invoice')
+            ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
+        ;
+        return response()->json(['data' => $invoice]);
+    });
     Route::get('/db/po', function () {
         require_once base_path('app/api/po/connection.php');
+    });
+    Route::get('/db/po/admin', function () {
+        require_once base_path('app/api/po/connectionAdmin.php');
     });
     Route::get('/db/prospect', function () {
         require_once base_path('app/api/prospect/connection.php');
@@ -326,6 +352,9 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/loss', function () {
         require_once base_path('app/api/lossQ/connection.php');
+    });
+    Route::get('/db/loss/admin', function () {
+        require_once base_path('app/api/lossQ/connectionAdmin.php');
     });
     Route::get('/db/reports', function () {
         require_once base_path('app/api/reports/connection.php');
@@ -338,6 +367,9 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/product', function () {
         require_once base_path('app/api/product/connection.php');
+    });
+    Route::get('/db/product/master', function () {
+        require_once base_path('app/api/product/master/connection.php');
     });
     Route::get('/db/product/stock', function () {
         require_once base_path('app/api/product/stock/connection.php');

@@ -79,8 +79,6 @@ class CustomersController extends Controller
     public function update(Request $request, $id)
     {
         $rule = [
-            'sales' => 'required',
-
             'company' =>
                 'required',
 
@@ -110,7 +108,6 @@ class CustomersController extends Controller
         ];
 
         $message = [
-            'sales.required'=> 'Field Sales Wajib Diisi',
             'company.required'=> 'Field company Wajib Diisi',
             'email.required'=> 'Field Email Wajib Diisi',
             'phone.required'=> 'Field Phone Wajib Diisi',
@@ -127,7 +124,6 @@ class CustomersController extends Controller
         
         //masukan data ke table Cust(client)
         $customers = Client::find($id);
-        $customers->id_sales = $request->sales;
         $customers->company = $request->company;
         $customers->email = $request->email;
         $customers->phone = $request->phone;

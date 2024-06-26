@@ -29,10 +29,9 @@ $(function () {
                 { data: "id" },
                 { data: "no_quote" },
                 { data: "company" },
-                { data: "subtotal" },
+                { data: "nett", className: "text-end" },
                 { data: "title" },
-                { data: "estimated_date" },
-                { data: "status" },
+                { data: "po_date" },
                 { data: "status" },
                 { data: "" },
             ],
@@ -77,97 +76,50 @@ $(function () {
                     targets: 4,
                 },
                 {
-                    // Label Status Name
-                    targets: 8,
-                    render: function (data, type, full, meta) {
-                        var $status_number = full["status"];
-                        var $status = {
-                            20: {
-                                title: "Send WA / Email",
-                                class: "bg-label-secondary",
-                            },
-                            30: {
-                                title: "Inquiry Accepted",
-                                class: " bg-label-dark",
-                            },
-                            40: {
-                                title: "Progress Follow Up",
-                                class: " bg-label-info",
-                            },
-                            60: {
-                                title: "Negotiation / Revisi",
-                                class: " bg-label-primary",
-                            },
-                            80: {
-                                title: "Hot Prospect",
-                                class: " bg-label-warning",
-                            },
-                            100: {
-                                title: "Done PO",
-                                class: " bg-label-success",
-                            },
-                            0: {
-                                title: "Loss",
-                                class: " bg-label-danger",
-                            },
-                        };
-                        if (typeof $status[$status_number] === "undefined") {
-                            return data;
-                        }
-                        return (
-                            '<span class="badge rounded-pill ' +
-                            $status[$status_number].class +
-                            '">' +
-                            $status[$status_number].title +
-                            "</span>"
-                        );
-                    },
-                },
-                {
                     // Label Status Percent
-                    targets: 9,
+                    targets: 8,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $titleTool = full["note"];
                         var $status = {
                             20: {
-                                title: "20%",
+                                title: "Send WA / Email",
                                 class: "bg-label-secondary",
                                 colorTip: "tooltip-secondary",
                                 titleTip: $titleTool,
                             },
                             30: {
-                                title: "30%",
+                                title: "Inquiry Accepted",
                                 class: " bg-label-dark",
                                 colorTip: "tooltip-dark",
                                 titleTip: $titleTool,
                             },
                             40: {
-                                title: "40%",
+                                title: "Progress Follow Up",
                                 class: " bg-label-info",
                                 colorTip: "tooltip-info",
                                 titleTip: $titleTool,
                             },
                             60: {
-                                title: "60%",
+                                title: "Negotiation / Revisi",
                                 class: " bg-label-primary",
                                 colorTip: "tooltip-primary",
                                 titleTip: $titleTool,
                             },
                             80: {
-                                title: "80%",
+                                title: "Hot Prospect",
                                 class: " bg-label-warning",
                                 colorTip: "tooltip-warning",
                                 titleTip: $titleTool,
                             },
                             100: {
-                                title: "100%",
+                                title: "Done PO",
                                 class: " bg-label-success",
                                 colorTip: "tooltip-success",
                                 titleTip: $titleTool,
                             },
                             0: {
-                                title: "0%",
+                                title: "Loss",
                                 class: " bg-label-danger",
                                 colorTip: "tooltip-danger",
                                 titleTip: $titleTool,

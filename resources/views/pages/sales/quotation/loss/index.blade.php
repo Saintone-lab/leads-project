@@ -4,6 +4,29 @@
     <h4 class="fw-bold py-3 mb-4">
         Quotation
     </h4>
+    @if (Auth::user()->role == 'Admin')
+    <div class="card mb-3">
+        <div class="card-datatable table-responsive pt-0">
+            <table class="datatable-loss-quote-admin table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Quote No.</th>
+                        <th>Company</th>
+                        <th>Total Price</th>
+                        <th>Description</th>
+                        <th>Date Quotation</th>
+                        <th>Status</th>
+                        <th>Assigned</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    @else
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
             <table class="datatable-loss-quote table table-striped">
@@ -26,6 +49,7 @@
             </table>
         </div>
     </div>
+    @endif
 @endsection()
 
 @push('after-style')
@@ -50,6 +74,7 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-loss.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-loss-admin.js"></script>
 @endpush
 
 @push('script')

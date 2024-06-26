@@ -211,6 +211,25 @@ class ProductController extends Controller
             return redirect('/product/' . $id)->with('message', 'data telah ditambahkan');
         }
     }
+    public function updateReplacement(Request $request, $id){
+        $rule = [
+            'modal' =>
+                'required',
+        ];
+
+        $message = [
+            'modal.required' => 'Field modal Wajib Diisi',
+        ];
+        $this->validate($request, $rule, $message);
+        // dd($request->all());
+        $replace = DetailProduct::find($id);
+        $replace->modal = $request->modal;
+        $replaceSave = $replace->save();
+
+        if ($replaceSave) {
+            return redirect('/product/' . $replace->id_product)->with('message', 'data telah ditambahkan');
+        }
+    }
     public function destroyReplacement($id)
     {
         $replacement = DetailProduct::find($id);

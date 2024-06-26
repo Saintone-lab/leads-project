@@ -21,10 +21,9 @@
                                 <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
                                 <p class="mb-1">Bandung – Jawa Barat 40218</p>
                                 <p class="mb-1">
-                                    <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
-                                </p>
-                                <p class="mb-1">
-                                    <i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>service@reftech.id
+                                    <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022
+                                    54417653{{ '  |  ' }}<i
+                                        class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
                                 </p>
                             </div>
                         </div>
@@ -35,6 +34,29 @@
                             </div>
                             <div class="mt-1">
                                 <span class="text-muted">{{ $service->date }}</span>
+                            </div>
+                            <div class="mt-1">
+                                @php
+                                    $badgeClass = '';
+                                    $label = $service->type;
+
+                                    switch ($service->type) {
+                                        case 'Visit':
+                                            $badgeClass = 'success';
+                                            break;
+                                        case 'Service':
+                                            $badgeClass = 'danger';
+                                            break;
+                                        case 'General':
+                                            $badgeClass = 'primary';
+                                            $label = 'General Check';
+                                            break;
+                                        default:
+                                            $badgeClass = '';
+                                            break;
+                                    }
+                                @endphp
+                                <span class="badge fs-6 rounded-pill bg-label-{{ $badgeClass }}">{{ $label }}</span>
                             </div>
                         </div>
                     </div>
@@ -56,7 +78,7 @@
                             <p class="mb-1">Running & Load </p>
                         </div>
                         <div class="col-lg-4 col-8">
-                            <p class="mb-1">: {{ $service->machine->brand }} {{$service->machine->type}}</p>
+                            <p class="mb-1">: {{ $service->machine->brand }} {{ $service->machine->type }}</p>
                             <p class="mb-1">: {{ $service->machine->serial_number }}</p>
                             <p class="mb-1">: {{ $service->running }} | {{ $service->load }}</p>
                         </div>

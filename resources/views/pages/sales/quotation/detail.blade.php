@@ -64,7 +64,7 @@
                                     <p class="mb-1">
                                         <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62 812-1000-0997
                                         {{ ' | ' }}<i
-                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
+                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@kojisha.com
                                     </p>
                                 </div>
                             </div>
@@ -228,38 +228,53 @@
                     @endif
                 </div>
             </div>
-            <div class="card mb-3">
-                <div class="card-body">
-                    @if (Auth::user()->id == '1')
-                        <a href="#" data-id="{{ $quote->id }}"
-                            class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
-                            {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
-                    @endif
-                    @if ($quote->status != '100')
-                        <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"
-                            data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
-                    @else
-                        @if ($quote->po_file != null)
-                            <a href="{{ route('download-po.quotation', $quote->id) }}"
-                                class="btn btn-primary d-grid w-100 waves-effect mb-3"> Download PO</a>
-                            <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-file"
-                                data-id="{{ $quote->id }}">Delete File</a>
-                        @else
-                            <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
-                                data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
+            @if (Auth::user()->role == 'Sales')
+                <div class="card mb-3">
+                    <div class="card-body">
+                        @if (Auth::user()->id == '1')
+                            <a href="#" data-id="{{ $quote->id }}"
+                                class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
+                                {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
                         @endif
-                    @endif
+                        @if ($quote->status != '100')
+                            <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"
+                                data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
+                        @else
+                            @if ($quote->po_file != null)
+                                @if (@$invoice && $invoice->no_invoice == null)
+                                    <button type="button" class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
+                                        Waiting Accounting Apply
+                                    </button>
+                                @elseif(@$invoice && $invoice->no_invoice)
+                                    <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
+                                        href="{{ route('invoice.show', $invoice->id) }}">
+                                        Go To Invoice
+                                    </a>
+                                @endif
+                                <div class="d-flex justify-content-between mb-4">
+                                    <a href="{{ route('download-po.quotation', $quote->id) }}"
+                                        class="btn btn-primary d-grid w-100 waves-effect"> Download PO</a>
+                                    <a href="#" class="btn btn-label-danger d-grid waves-effect delete-file mx-2"
+                                        data-id="{{ $quote->id }}"> <i
+                                            class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                    </a>
+                                </div>
+                            @else
+                                <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
+                                    data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
+                            @endif
+                        @endif
+                    </div>
                 </div>
-            </div>
+            @endif
             <div class="card mb-3">
                 <div class="card-body">
-                    @if (Auth::user()->role == 'Sales')
-                        <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
-                            data-bs-toggle="modal" data-bs-target="#insertFee">Insert Fee</button>
-                    @endif
                     <div class="row">
-                        <div class="d-flex justify-content-between mb-2">
-                            <h5>Fee : Rp. {{ number_format($quote->fee, 0, ',', '.') }}</h5>
+                        <div class="d-flex justify-content-between mb-4">
+                            <div class="total mb-0">
+                                <h5>Fee : Rp. {{ number_format($quote->fee, 0, ',', '.') }}</h5>
+                                <h5 class="mb-0">Nett : Rp. {{ number_format($quote->nett, 0, ',', '.') }}</h5>
+                            </div>
                             @if (Auth::user()->role == 'Sales' && $quote->fee != '0')
                                 <a href="#" data-id="{{ $quote->id }}"
                                     class="btn btn-sm btn-label-danger delete-fee">
@@ -268,6 +283,20 @@
                             @endif
                         </div>
                     </div>
+                    @if (Auth::user()->role == 'Sales' && $quote->fee == '0')
+                        <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
+                            data-bs-toggle="modal" data-bs-target="#insertFee">Insert Fee</button>
+                    @elseif(Auth::user()->role == 'Sales' && $quote->fee != '0')
+                        <div class="mt-6">
+                            <button type="button" class="btn btn-warning me-3 waves-effect w-75" data-bs-toggle="modal"
+                                data-bs-target="#insertFee"><i
+                                    class="menu-icon tf-icons mdi mdi-14px mdi-square-edit-outline me-1"></i>Update
+                                Fee</button>
+                            <button type="button" class="btn btn-secondary waves-effect waves-light w-px-50"
+                                data-bs-toggle="modal" data-bs-target="#detailFee"><i
+                                    class="menu-icon tf-icons mdi mdi-14px mdi-list-box-outline me-1"></i></button>
+                        </div>
+                    @endif
                 </div>
             </div>
             @if (Auth::user()->role == 'Sales')
@@ -388,6 +417,7 @@
     @include('components.modal.accounting.selling-contract')
     @include('components.modal.accounting.confirm-order')
     @include('components.modal.quotation.insert-fee')
+    @include('components.modal.quotation.detail-fee')
     </div>
 @endsection
 @push('after-style')
@@ -433,7 +463,16 @@
             console.log(id);
             $(`#price-${id}`).val(nomorInt);
         });
-
+        $(".invoice-item-price-label").on('keyup', function() {
+            var total = 0; // Mengatur ulang total pada setiap event keyup
+            $('.invoice-item-price').each((index, element) => {
+                let value = $(element).val();
+                value = value ? parseInt(value) : 0;
+                total += value;
+            });
+            $('#totalLabel').val(`${formatter.format(total)}`);
+            $('#total').val(total);
+        });
         $(document).on('click', '.delete-quotation', function() {
             var id = $(this).data('id');
             Swal.fire({

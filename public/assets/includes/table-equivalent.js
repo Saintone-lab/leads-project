@@ -44,7 +44,7 @@ $(function () {
                             '" class="btn btn-sm btn-label-danger delete-equivalent m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i></a>' +
                             '<a type="button" href="#" data-bs-toggle="modal" data-bs-target="#editEquivalent-'+ row.id +'" data-id="' +
                             row.id +
-                            '" class="btn btn-sm btn-label-warning"><i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i></a>'
+                            '" class="btn btn-sm btn-label-primary"><i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i></a>'
                         );
                     },
                 },

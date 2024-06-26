@@ -41,7 +41,7 @@
                                 <label for="crm">CRM</label>
                             </div>
                         </div>
-                        @if (@$users->detail[0]->area == 'Bekasi')
+                        @if (@$users->detail[0]->area != 'Bandung')
                             <div class="col-6">
                                 <div class="form-floating form-floating-outline">
                                     <input class="form-control" type="number" id="visit" name="visit"

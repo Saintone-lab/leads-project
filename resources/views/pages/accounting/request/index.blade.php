@@ -23,25 +23,6 @@
             </table>
         </div>
     </div>
-    <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-request-invoice table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Quotation No.</th>
-                        <th>Company</th>
-                        <th>Total Price</th>
-                        <th>Date</th>
-                        <th>Sales</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
     @foreach ($contracts as $contract)
         @php
             // Inisialisasi variabel

@@ -18,6 +18,9 @@
     .invoice-print {
         font-size: 14px !important;
     }
+    .invoice-print .title-invoice{
+        color: blue !important;
+    }
 
     .invoice-print table {
         /* max-width: fit-content !important; */

@@ -18,7 +18,7 @@ $(function () {
                 { data: "id" },
                 { data: "company" },
                 { data: "title" },
-                { data: "subtotal" },
+                { data: "nett" },
                 { data: "status" },
                 { data: "" },
             ],

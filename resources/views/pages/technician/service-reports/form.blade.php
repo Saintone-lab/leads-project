@@ -54,7 +54,7 @@
                                 <option selected="" disabled>---- Choose Service Type ----</option>
                                 <option value="Visit" {{@$report->type == 'Visit' ? 'Selected' : ''}}>Visit</option>
                                 <option value="Service" {{@$report->type == 'Service' ? 'Selected' : ''}}>Service</option>
-                                <option value="General" {{@$report->type == 'General' ? 'Selected' : ''}}>General Checkup</option>
+                                <option value="General" {{@$report->type == 'General' ? 'Selected' : ''}}>General Check</option>
                             </select>
                             <label for="exampleFormControlSelect1">Service Type</label>
                         </div>

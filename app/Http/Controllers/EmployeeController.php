@@ -260,7 +260,7 @@ class EmployeeController extends Controller
                 if(isset($request->visit)){
                     $target->visit = $request->visit;
                 }else{
-                    $request->visit = NULL;
+                    $request->visit = 0;
                 }
                 $target->quote = $request->quote;
                 $target->po = $request->po;
@@ -319,6 +319,7 @@ class EmployeeController extends Controller
         $this->validate($request, $rule, $customMessages);
         $sales = User::find($id);
         $lastDetail = $sales->detail->last();
+        dd($lastDetail);
         $target = Target::where('id_sales', $id)->first();
         $target->dc = $request->dc;
         $target->crm = $request->crm;

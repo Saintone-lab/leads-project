@@ -31,7 +31,7 @@ $(function () {
                 { data: "po_date" },
                 { data: "no_quote" },
                 { data: "status" },
-                { data: "subtotal" },
+                { data: "nett" },
             ],
             columnDefs: [
                 {

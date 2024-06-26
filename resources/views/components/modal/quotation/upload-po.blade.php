@@ -19,8 +19,17 @@
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <label for="formFile" class="form-label">Upload PO</label>
-                                            <input class="form-control" type="file" id="formFile" name="uploadPO" accept=".pdf">
+                                            <input class="form-control" type="file" id="formFile" name="uploadPO"
+                                                accept=".pdf">
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <div class="form-floating form-floating-outline">
+                                        <input class="form-control form-control-sm" type="text"
+                                            placeholder="Put No Purchase Order Here ...." id="po" name="po"
+                                            value="">
+                                        <label for="po">No Purchase Order</label>
                                     </div>
                                 </div>
                             </div>

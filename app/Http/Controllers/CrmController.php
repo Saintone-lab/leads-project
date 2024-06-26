@@ -93,8 +93,6 @@ class CrmController extends Controller
     public function update(Request $request, $id)
     {
         $rule = [
-            'sales' => 'required',
-
             'company' =>
                 'required',
 
@@ -124,7 +122,6 @@ class CrmController extends Controller
         ];
 
         $message = [
-            'sales.required' => 'Field Sales Wajib Diisi',
             'company.required' => 'Field company Wajib Diisi',
             'email.required' => 'Field Email Wajib Diisi',
             'phone.required' => 'Field Phone Wajib Diisi',
@@ -140,7 +137,6 @@ class CrmController extends Controller
         $this->validate($request, $rule, $message);
 
         $existings = Client::find($id);
-        $existings->id_sales = $request->sales;
         $existings->company = $request->company;
         $existings->email = $request->email;
         $existings->phone = $request->phone;

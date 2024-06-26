@@ -24,6 +24,7 @@ class DetailQuotationTableSeeder extends Seeder
                 "qty"=> "2",
                 "disc"=> "10",
                 "amount"=> "600000",
+                "fee"=> "0",
             ],
             [
                 "id_quotation" => "1",
@@ -33,6 +34,7 @@ class DetailQuotationTableSeeder extends Seeder
                 "qty"=> "1",
                 "disc"=> "10",
                 "amount"=> "900000",
+                "fee"=> "0",
             ],
             [
                 "id_quotation" => "2",
@@ -42,6 +44,7 @@ class DetailQuotationTableSeeder extends Seeder
                 "qty"=> "1",
                 "disc"=> "10",
                 "amount"=> "3000000",
+                "fee"=> "0",
             ],
             [
                 "id_quotation" => "3",
@@ -51,6 +54,7 @@ class DetailQuotationTableSeeder extends Seeder
                 "qty"=> "3",
                 "disc"=> "10",
                 "amount"=> "1500000",
+                "fee"=> "0",
             ],
             [
                 "id_quotation" => "4",
@@ -60,6 +64,7 @@ class DetailQuotationTableSeeder extends Seeder
                 "qty"=> "2",
                 "disc"=> "10",
                 "amount"=> "50000000",
+                "fee"=> "0",
             ],
             [
                 "id_quotation" => "5",
@@ -69,6 +74,7 @@ class DetailQuotationTableSeeder extends Seeder
                 "qty"=> "4",
                 "disc"=> "5",
                 "amount"=> "200000000",
+                "fee"=> "0",
             ],
         ];
         DetailQuotation::insert($dQuotation);

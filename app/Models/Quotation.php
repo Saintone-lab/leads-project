@@ -28,6 +28,7 @@ class Quotation extends Model
         'tax',
         'diskon',
         'fee',
+        'nett',
         'po_file',
         'shipping',
         'no_quote',
@@ -66,5 +67,9 @@ class Quotation extends Model
     public function contract()
     {
         return $this->hasMany('App\Models\Contract', 'id_quotation');
+    }
+    public function invoice()
+    {
+        return $this->hasMany('App\Models\Invoice', 'id_quotation');
     }
 }

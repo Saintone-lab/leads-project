@@ -27,12 +27,14 @@ return new class extends Migration
             $table->date('estimated_date');
             $table->date('expired_date');
             $table->date('po_date')->nullable();
-            $table->date('po_file')->nullable();
+            $table->date('upload_date')->nullable();
+            $table->string('po_file')->nullable();
             $table->integer('tax');
             $table->integer('shipping');
             $table->string('no_quote');
             $table->integer('diskon');
             $table->integer('fee');
+            $table->integer('nett');
             $table->integer('subtotal');
             $table->integer('total_no_tax');
             $table->integer('harga_total');

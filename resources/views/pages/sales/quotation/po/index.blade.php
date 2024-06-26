@@ -6,7 +6,7 @@
     </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-po-quote table table-striped">
+            <table class="datatable-po-{{ Auth::user()->role == 'Admin' ? 'admin' : 'quote'}} table table-striped">
                 <thead>
                     <tr>
                         <th></th>
@@ -16,10 +16,12 @@
                         <th>Company</th>
                         <th>Total Price</th>
                         <th>Description</th>
-                        <th>Date Quotation</th>
+                        <th>Date PO</th>
                         <th>Status</th>
-                        <th>Stats</th>
                         <th>Actions</th>
+                        @if ( Auth::user()->role == 'Admin')
+                            <th>Assigned</th>
+                        @endif
                     </tr>
                 </thead>
             </table>
@@ -49,6 +51,7 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-po.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-po-admin.js"></script>
 @endpush
 
 @push('script')
