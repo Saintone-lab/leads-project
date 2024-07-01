@@ -20,7 +20,7 @@
                         <p class="mb-1">Bandung – Jawa Barat 40218</p>
                         <p class="mb-1">
                             <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
-                            {{ '  |  ' }}<i
+                            {{ '   ' }}<i
                                 class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@reftech.id
                         </p>
                         <p class="mb-1">
@@ -59,7 +59,7 @@
                         <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
                         <p class="mb-1">
                             <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62 812-1000-0997
-                            {{ ' | ' }}<i
+                            {{ '  ' }}<i
                                 class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
                         </p>
                     </div>
@@ -168,7 +168,7 @@
                                 <p class="mb-2">Discount:</p>
                             @endif
                         </td>
-                        <td colspan="2" class= py-0">
+                        <td colspan="2" class=py-0">
                             <p class="fw-semibold mb-2 text-end">Rp
                                 {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                             <p class="fw-semibold mb-2 text-end">

@@ -252,6 +252,19 @@
             </a>
         </div>
         <div class="card">
+            <div class="card-body">
+                <div class="table-responsive text-nowrap">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Dalam Masa Perbaikan</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {{-- <div class="card">
             <div class="table-responsive text-nowrap">
                 <table class="table table-striped">
                     <thead>
@@ -265,7 +278,6 @@
                                 $mon5 = count($crmhis['May 2024']);
                                 $mon6 = count($crmhis['June 2024']);
                             @endphp
-                            {{-- {{print_r($crmhis)}} --}}
                             @foreach ($bulan as $data => $data_bulan)
                                 <th
                                     colspan="{{ $data_bulan == 'January 2024' || $data_bulan == 'July 2024'  ? $mon1 : '' }}{{ $data_bulan == 'February 2024' || $data_bulan == 'August 2024' ? $mon2 : '' }}{{ $data_bulan == 'March 2024' || $data_bulan == 'September 2024' ? $mon3 : '' }}{{ $data_bulan == 'April 2024' || $data_bulan == 'October 2024' ? $mon4 : '' }}{{ $data_bulan == 'May 2024' || $data_bulan == 'November 2024' ? $mon5 : '' }}{{ $data_bulan == 'June 2024' || $data_bulan == 'December 2024' ? $mon6 : '' }}">
@@ -344,7 +356,7 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div> --}}
     </div>
     <div class="row">
         <div class="col-md-6 my-3">

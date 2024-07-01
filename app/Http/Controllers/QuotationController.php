@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Contract;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Pic;
 use App\Models\Product;
 use App\Models\Quotation;
@@ -133,6 +134,7 @@ class QuotationController extends Controller
                 $dQuote->product = $request->product[$item];
                 $dQuote->detail_product = $request->detail_product[$item];
                 $dQuote->price = $request->price[$item];
+                $dQuote->fee = 0;
                 $dQuote->qty = $request->qty[$item];
                 $dQuote->info_qty = $request->info_qty[$item];
                 $dQuote->disc = $request->disc[$item];
@@ -176,13 +178,14 @@ class QuotationController extends Controller
         $quote = Quotation::where('id', $id)->first();
         $invoice = Invoice::where('id_quotation', $id)->first();
         $dquote = DetailQuotation::where('id_quotation', $id)->get();
+        $payments = Payment::where('id_quotation', $id)->get();
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn']);
         $noQuote = substr($quote->no_quote, 0, 3);
         $today = Carbon::now();
         $tax = $quote->subtotal * $quote->tax / 100;
         $thisYear = $today->year;
         // dd($formattedNumberSP);
-        return view("pages.sales.quotation.detail", compact('quote', 'dquote', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP' ,'invoice'));
+        return view("pages.sales.quotation.detail", compact('quote', 'dquote', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments'));
     }
 
     /**
@@ -594,6 +597,87 @@ class QuotationController extends Controller
             $quote->po_file = null;
             $quote->upload_date = null;
             $quote->save();
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public function add_payment(Request $request, $id)
+    {
+        $quote = Quotation::find($id);
+        if (!$quote) {
+            return redirect('/quotation/' . $id)->with('error', 'Quotation not found.');
+        }
+
+        $paymentCount = Payment::where('id_quotation', $id)->count();
+        $payment = new Payment;
+
+        if ($request->hasFile('file')) {
+            $foto = $request->file('file');
+
+            // Validate the file to ensure it's a PDF, JPG, JPEG, or PNG
+            $request->validate([
+                'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            ]);
+
+            // Get file extension
+            $file_ext = $foto->getClientOriginalExtension();
+
+            // Sanitize the quote number to create a valid filename
+            $sanitized_file_name = preg_replace('/[^A-Za-z0-9\-]/', '_', $quote->no_quote);
+
+            // Construct file name
+            $file_name = $sanitized_file_name . '-' . ($paymentCount + 1) . '.' . $file_ext;
+
+            // Set upload path
+            $upload_path = 'asset/payment';
+
+            // Move the file to the upload path
+            $foto->move(public_path($upload_path), $file_name);
+
+            // Update the payment with the new file path
+            $payment->id_quotation = $id;
+            $payment->file = $upload_path . '/' . $file_name;
+            $payment->amount = $request->amount;
+            $payment->note = $request->note;
+            $payment->save();
+
+            return redirect('/quotation/' . $id)->with('message', 'File has been uploaded.');
+        } else {
+            return response()->json(['error' => 'No file uploaded.'], 400);
+        }
+    }
+    public function download_payment($id)
+    {
+        $payment = Payment::find($id);
+
+        if (!$payment) {
+            return response()->json(['error' => 'Quotation not found.'], 404);
+        }
+
+        $file_path = public_path($payment->file);
+
+        if (!file_exists($file_path)) {
+            return response()->json(['error' => 'File not found at path: ' . $file_path], 404);
+        }
+
+        return response()->download($file_path);
+    }
+    
+    public function delete_payment($id)
+    {
+        $payment = Payment::find($id);
+
+        if (!$payment) {
+            return response()->json(['error' => 'Quotation not found.'], 404);
+        }
+
+        $file_path = public_path($payment->file);
+
+        if (file_exists($file_path)) {
+            unlink($file_path);
+            $payment->delete();
             return 1;
         } else {
             return 0;

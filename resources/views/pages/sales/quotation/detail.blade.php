@@ -24,8 +24,8 @@
                                     <p class="mb-1">Bandung – Jawa Barat 40218</p>
                                     <p class="mb-1">
                                         <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
-                                        {{ '  |  ' }}<i
-                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
+                                        {{ '   ' }}<i
+                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@reftech.id
                                     </p>
                                     <p class="mb-1">
                                     </p>
@@ -63,8 +63,8 @@
                                     <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
                                     <p class="mb-1">
                                         <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62 812-1000-0997
-                                        {{ ' | ' }}<i
-                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@kojisha.com
+                                        {{ '   ' }}<i
+                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
                                     </p>
                                 </div>
                             </div>
@@ -251,7 +251,7 @@
                                         Go To Invoice
                                     </a>
                                 @endif
-                                <div class="d-flex justify-content-between mb-4">
+                                <div class="d-flex justify-content-between mb-3">
                                     <a href="{{ route('download-po.quotation', $quote->id) }}"
                                         class="btn btn-primary d-grid w-100 waves-effect"> Download PO</a>
                                     <a href="#" class="btn btn-label-danger d-grid waves-effect delete-file mx-2"
@@ -266,6 +266,20 @@
                         @endif
                     </div>
                 </div>
+                @if ($quote->status == 100)
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-3">
+                                <button type="button" class="btn btn-success d-grid w-100 waves-effect"
+                                    data-bs-toggle="modal" data-bs-target="#addPayment">Add Payment</button>
+                                <button type="button" class="btn btn-secondary waves-effect waves-light mx-2"
+                                    data-bs-toggle="modal" data-bs-target="#detailPayment">
+                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-list-box-outline m-0"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             @endif
             <div class="card mb-3">
                 <div class="card-body">
@@ -418,6 +432,8 @@
     @include('components.modal.accounting.confirm-order')
     @include('components.modal.quotation.insert-fee')
     @include('components.modal.quotation.detail-fee')
+    @include('components.modal.quotation.add-payment')
+    @include('components.modal.quotation.detail-payment')
     </div>
 @endsection
 @push('after-style')
@@ -472,6 +488,23 @@
             });
             $('#totalLabel').val(`${formatter.format(total)}`);
             $('#total').val(total);
+        });
+        $(".invoice-item-amount-label").on('keyup', function() {
+            var input = $(this)
+            var input_val = input.val();
+
+            // original length
+            var original_len = input_val.length;
+
+            // add commas to number
+            // remove all non-digits
+            input_val = formatNumber(input_val);
+            input_val = input_val;
+
+            // send updated string to input
+            input.val(input_val);
+            var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+            $(`#amount`).val(nomorInt);
         });
         $(document).on('click', '.delete-quotation', function() {
             var id = $(this).data('id');

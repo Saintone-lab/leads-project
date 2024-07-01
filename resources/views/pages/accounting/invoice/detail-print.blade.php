@@ -19,7 +19,7 @@
                     <p class="mb-1">Bandung – Jawa Barat 40218</p>
                     <p class="mb-1">
                         <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
-                        {{ '  |  ' }}<i
+                        {{ '   ' }}<i
                             class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@reftech.id
                     </p>
                     <p class="mb-1">
@@ -112,17 +112,20 @@
                         </tr>
                     @endforeach
                     <tr>
-                        <td colspan="3" class="align-top px-4 py-5">
+                        <td colspan="2" class="align-top px-4 py-5">
                             <span>Thanks for your business</span>
                         </td>
-                        <td colspan="2" class="text-end px-4 py-5">
+                        <td colspan="2" class="text-end pl-4 py-5" style="padding-right: 0 !important;">
                             <p class="mb-2">Subtotal:</p>
                             <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
                             <p class="mb-2">Discount Quote:</p>
+                            @foreach ($payments as $payment)
+                                <p class="mb-2 py-2" style="background-color: yellow">{{ $payment->note }}:</p>
+                            @endforeach
                             <p class="mb-2">Shipping Cost:</p>
                             <p class="mb-0">Total:</p>
                         </td>
-                        <td colspan="2" class="px-4 py-5">
+                        <td colspan="3" class="pr-4 py-5" style="padding-left: 0 !important;">
                             <p class="fw-semibold mb-2 text-end">RP
                                 {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                             <p class="fw-semibold mb-2 text-end">
@@ -130,10 +133,14 @@
                             <p class="fw-semibold mb-2 text-end">RP
                                 {{ number_format($quote->diskon, 0, '', '.') }}
                             </p>
+                            @foreach ($payments as $payment)
+                                <p class="fw-semibold mb-2 text-end  py-2" style="background-color: yellow"> RP
+                                    {{ number_format($payment->amount, 0, '', '.') }}</p>
+                            @endforeach
                             <p class="fw-semibold mb-2 text-end">RP
                                 {{ number_format($quote->shipping, 0, '', '.') }}</p>
                             <p class="fw-semibold mb-0 text-end">RP
-                                {{ number_format($quote->harga_total, 0, '', '.') }}</p>
+                                {{ number_format($remaining, 0, '', '.') }}</p>
                         </td>
                     </tr>
                     <tr>

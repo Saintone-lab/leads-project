@@ -224,11 +224,14 @@
                 <div class="card-body">
                     <a href="{{ route('download-po.quotation', $quote->id) }}"
                         class="btn btn-primary d-grid w-100 waves-effect mb-3"> Download PO</a>
+                    <button type="button" class="btn btn-secondary w-100 waves-effect waves-light"
+                        data-bs-toggle="modal" data-bs-target="#detailPayment"> Detail Payment </button>
                 </div>
             </div>
             {{-- End : Button Invoice --}}
         </div>
         @include('components.modal.invoice.accept')
+        @include('components.modal.quotation.detail-payment')
     @endsection
     @push('after-style')
         <!-- Page CSS -->

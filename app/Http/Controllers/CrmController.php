@@ -64,12 +64,14 @@ class CrmController extends Controller
         $quote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->get('quotation.*');
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
-        $crmhis = $this->data($id);
+        // $crmhis = $this->data($id);
         $machinehis = $this->getServicePerMonth($id);
         // dd($machinehis);
         $service = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')->where('pic.id_client', $id)->get('reports.*');
         // dd($quote);
-        return view('pages.sales.existing.detail', compact('existing', 'callhis', 'quote', 'sales', 'charge', 'issue', 'crmhis', 'service', 'visit', 'machines'));
+        return view('pages.sales.existing.detail', compact('existing', 'callhis', 'quote', 'sales', 'charge', 'issue', 
+        // 'crmhis', 
+        'service', 'visit', 'machines'));
     }
 
     /**

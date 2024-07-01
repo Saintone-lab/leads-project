@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Quotation;
 use Illuminate\Http\Request;
 
@@ -48,13 +49,21 @@ class InvoiceController extends Controller
      */
     public function show($id)
     {
+        $totalAmount = 0;
         $invoice = Invoice::find($id);
-        $quote = Quotation::where('id',$invoice->id_quotation)->first();
+        $quote = Quotation::where('id', $invoice->id_quotation)->first();
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
-        $price = $this->terbilang($quote->harga_total);
+        $payments = Payment::where('id_quotation', $quote->id)->get();
+
+        foreach ($payments as $payment) {
+            $totalAmount += $payment->amount;
+        }
+
+        $remaining = $quote->harga_total - $totalAmount;
+        $price = $this->terbilang($remaining);
         $tax = $quote->total_no_tax * $quote->tax / 100;
-        // dd($price);
-        return view('pages.accounting.invoice.detail', compact('quote', 'dquote', 'price', 'tax', 'invoice'));
+
+        return view('pages.accounting.invoice.detail', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining'));
     }
 
     /**
@@ -105,29 +114,39 @@ class InvoiceController extends Controller
     {
         //
     }
-    public function request(){
+    public function request()
+    {
         return view('pages.accounting.invoice.index-request');
     }
     public function before_accept($id)
     {
         $quote = Quotation::find($id);
         $dquote = DetailQuotation::where('id_quotation', $id)->get();
+        $payments = Payment::where('id_quotation', $id)->get();
         $invoice = Invoice::where('id_quotation', $id)->first();
         $price = $this->terbilang($quote->harga_total);
         $tax = $quote->total_no_tax * $quote->tax / 100;
         // dd($price);
-        return view('pages.accounting.invoice.before-accept', compact('quote', 'dquote', 'price', 'tax', 'invoice'));
+        return view('pages.accounting.invoice.before-accept', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments'));
     }
-    
+
     public function print_invoice($id)
     {
+        $totalAmount = 0;
         $invoice = Invoice::find($id);
         $quote = Quotation::where('id', $invoice->id_quotation)->first();
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
-        $price = $this->terbilang($quote->harga_total);
+        $payments = Payment::where('id_quotation', $quote->id)->get();
+
+        foreach ($payments as $payment) {
+            $totalAmount += $payment->amount;
+        }
+
+        $remaining = $quote->harga_total - $totalAmount;
+        $price = $this->terbilang($remaining);
         $tax = $quote->subtotal * $quote->tax / 100;
         // dd($termncon);
-        return view("pages.accounting.invoice.detail-print", compact('quote', 'dquote', 'tax','invoice','price'));
+        return view("pages.accounting.invoice.detail-print", compact('quote', 'dquote', 'tax', 'invoice', 'price', 'payments', 'remaining'));
     }
 
     private function terbilang($number)
