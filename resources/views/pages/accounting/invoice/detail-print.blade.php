@@ -151,7 +151,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="row mt-5">
+        <div class="row mt-4">
             <div class="col-6 m-4">
                 <h5 class="my-4">Payment by Transfer or Giro shall be made in Full amount to :</h5>
                 <div class="row">

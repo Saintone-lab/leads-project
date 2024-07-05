@@ -1,11 +1,10 @@
 $(function () {
-    var dt_table_leads_admin = $(".datatable-leads-admin");
-    var Url = "db/leads/admin";
+    var dt_table_crm_admin = $(".datatable-crm-admin");
+    var Url = "db/crm/admin";
 
-    if (dt_table_leads_admin.length) {
-        $('[data-toggle="tooltip"]').tooltip();
-        var dt_leads_admin = dt_table_leads_admin.DataTable({
-            // ajax: assetsPath + "api/leads/connection.php",
+    if (dt_table_crm_admin.length) {
+        var dt_crm = dt_table_crm_admin.DataTable({
+            // ajax: assetsPath + "api/crm/connection.php",
             ajax: {
                 type: "GET",
                 url: Url,
@@ -13,26 +12,60 @@ $(function () {
                     "Content-Type": "application/json",
                 },
 
-                success: function (hasil, Url) {
-                    console.log("Url:", Url);
-                    console.log(hasil);
-                },
-                error: function (error) {
-                    console.log("Url:", Url);
-                    console.error("Error:", error);
-                    console.log("error disini");
-                },
+                // success: function (hasil, Url) {
+                //     console.log("Url:", Url);
+                //     console.log(hasil);
+                // },
+                // error: function (error) {
+                //     console.log("Url:", Url);
+                //     console.error("Error:", error);
+                //     console.log("error disini");
+                // },
             },
             columns: [
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
                 { data: "company" },
-                { data: "area" },
-                { data: "ru" },
-                { data: "issue" },
-                { data: "date" },
-                { data: "follow_up" },
+                { data: "status" },
+                { data: "email" },
+                { data: "phone" },
+                {
+                    data: "note",
+                    render: function (data, type, row) {
+                        // Jika data adalah null atau undefined, kembalikan '-'
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            // Jika data memiliki nilai, kembalikan nilainya
+                            return type === "display" ? data : "-";
+                        }
+                    },
+                },
+                {
+                    data: "date",
+                    render: function (data, type, row) {
+                        // Jika data adalah null atau undefined, kembalikan '-'
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            // Jika data memiliki nilai, kembalikan nilainya
+                            return type === "display" ? data : "-";
+                        }
+                    },
+                },
+                {
+                    data: "follow_up",
+                    render: function (data, type, row) {
+                        // Jika data adalah null atau undefined, kembalikan '-'
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            // Jika data memiliki nilai, kembalikan nilainya
+                            return type === "display" ? data : "-";
+                        }
+                    },
+                },
                 { data: "name" },
             ],
             columnDefs: [
@@ -76,7 +109,7 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var detailRoute = route("detail.leads", $dataId);
+                            var detailRoute = route("existing.show", $dataId);
                             return (
                                 '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
                             );
@@ -85,100 +118,27 @@ $(function () {
                     },
                 },
                 {
-                    // Label
-                    targets: 5,
+                    targets: 4,
                     render: function (data, type, full, meta) {
-                        var $status_ru = full["ru"];
-                        var $status = {
-                            User: {
-                                title: "User",
-                                class: "bg-success",
-                            },
-                            Reseller: {
-                                title: "Reseller",
-                                class: " bg-warning",
-                            },
-                        };
-                        if (typeof $status[$status_ru] === "undefined") {
-                            return data;
-                        }
-                        return (
-                            '<span class="badge ' +
-                            $status[$status_ru].class +
-                            '">' +
-                            $status[$status_ru].title +
-                            "</span>"
-                        );
-                    },
-                },
-                {
-                    // Label
-                    targets: 6,
-                    render: function (data, type, full, meta) {
-                        var $status_number = full["id_issues"];
-                        var $titleTool = full["note"];
-                        var $status = {
-                            1: {
-                                title: "New Client",
-                                class: "bg-label-warning",
-                                colorTip: "tooltip-warning",
-                                titleTip: $titleTool,
-                            },
-                            2: {
-                                title: "Not Responded",
-                                class: " bg-label-danger",
-                                colorTip: "tooltip-danger",
-                                titleTip: $titleTool,
-                            },
-                            3: {
-                                title: "Send Introduction",
-                                class: " bg-label-info",
-                                colorTip: "tooltip-info",
-                                titleTip: $titleTool,
-                            },
-                            4: {
-                                title: "Send Quote",
-                                class: " bg-label-primary",
-                                colorTip: "tooltip-primary",
-                                titleTip: $titleTool,
-                            },
-                            5: {
-                                title: "Done PO",
-                                class: " bg-label-success",
-                                colorTip: "tooltip-success",
-                                titleTip: $titleTool,
-                            },
-                            6: {
-                                title: "Loss",
-                                class: " bg-label-danger",
-                                colorTip: "tooltip-danger",
-                                titleTip: $titleTool,
-                            },
-                        };
-                        if (typeof $status[$status_number] === "undefined") {
-                            return data;
-                        }
-                        return (
-                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
-                            $status[$status_number].colorTip +
-                            '" title="' +
-                            $status[$status_number].titleTip +
-                            '" class="badge ' +
-                            $status[$status_number].class +
-                            '">' +
-                            $status[$status_number].title +
-                            "</span>"
-                        );
-                    },
-                },
-                {
-                    targets: [7, 8],
-                    render: function (data, type, row) {
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            return type === "display" ? data : "-";
-                        }
+                        // Tambahkan dropdown ke dalam kolom
+                        var dropdown =
+                            '<select class="form-select status-dropdown" data-id="' +
+                            full.id +
+                            '">';
+                        dropdown +=
+                            '<option value="1" ' +
+                            (data === "1" ? "selected" : "") +
+                            ">Bangkrupt</option>";
+                        dropdown +=
+                            '<option value="2" ' +
+                            (data === "2" ? "selected" : "") +
+                            ">Normal</option>";
+                        dropdown +=
+                            '<option value="3" ' +
+                            (data === "3" ? "selected" : "") +
+                            ">Hot</option>";
+                        dropdown += "</select>";
+                        return dropdown;
                     },
                 },
             ],
@@ -197,7 +157,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -253,7 +213,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -290,7 +250,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -327,7 +287,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -364,7 +324,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -398,18 +358,7 @@ $(function () {
                         },
                     ],
                 },
-                {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Leads</span>',
-                    className: "btn btn-primary",
-                    attr: {
-                        "data-bs-target": "#createLeads",
-                        "data-bs-toggle": "modal",
-                    },
-                },
             ],
-            drawCallback: function (settings) {
-                $('[data-toggle="tooltip"]').tooltip();
-            },
             responsive: {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal({
@@ -445,11 +394,6 @@ $(function () {
                 },
             },
         });
-        $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Leads</h5>'
-        );
+        $("div.head-label").html('<h5 class="card-title mb-0">Table CRM</h5>');
     }
-    dt_table_leads_admin.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
 });

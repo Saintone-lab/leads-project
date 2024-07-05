@@ -1167,56 +1167,114 @@
             </div>
         </div>
         @include('components.modal.warehouse.product.form')
+    @elseif(Auth::user()->role == 'Coordinator')
+        <h4 class="fw-3">Request Visit</h4>
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-visit-coordinator table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>company</th>
+                            <th>Machine</th>
+                            <th>Date Request</th>
+                            <th>Sales</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <h4 class="fw-3">Visit Schedule</h4>
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-visit-accept table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>company</th>
+                            <th>Machine</th>
+                            <th>Date</th>
+                            <th>Sales</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        @foreach ($visits as $visit)
+            @include('components.modal.req-visit.form-accept')
+        @endforeach
     @endif
 @endsection
 @push('after-style')
+    {{-- All --}}
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
     <link rel="stylesheet"
         href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
     <link rel="stylesheet"
         href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/apex-charts/apex-charts.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/swiper/swiper.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/fullcalendar/fullcalendar.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
+
+    {{-- sales --}}
+    @if (Auth::user()->role == 'Sales')
+        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-calendar.css" />
+        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/swiper/swiper.css" />
+        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/fullcalendar/fullcalendar.css" />
+        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.css" />
+        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
+    @endif
+
+    {{-- admin --}}
+    @if (Auth::user()->role == 'Admin')
+        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/cards-statistics.css" />
+        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/cards-analytics.css" />
+        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/apex-charts/apex-charts.css" />
+    @endif
+
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/quill/editor.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
 
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/cards-statistics.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/cards-analytics.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-calendar.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css" />
-    <link rel="stylesheet" type="text/css"
-        href="{{ url('https://cdn.datatables.net/searchpanes/2.3.0/css/searchPanes.dataTables.min.css') }}">
-    <link rel="stylesheet" type="text/css"
-        href="{{ url('https://cdn.datatables.net/select/2.0.0/css/select.dataTables.min.css') }}">
 @endpush
 
 @push('after-script')
     <!-- Vendors JS -->
-    <script src="{{ asset('assets') }}/vendor/libs/fullcalendar/fullcalendar.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/FormValidation.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
-    <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
-    <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
-    <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
-    <script src="{{ asset('assets') }}/vendor/libs/apex-charts/apexcharts.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
-    <script src="{{ url('https://cdn.datatables.net/searchpanes/2.3.0/js/dataTables.searchPanes.min.js') }}"></script>
-    <script src="{{ url('https://cdn.datatables.net/select/2.0.0/js/select.dataTables.min.js') }}"></script>
+    {{-- sales --}}
+    {{-- sales --}}
+    @if (Auth::user()->role == 'Sales')
+        <script src="{{ asset('assets') }}/vendor/libs/fullcalendar/fullcalendar.js"></script>
+        <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
+        <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
+        <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
+        <script src="{{ asset('assets') }}/vendor/libs/apex-charts/apexcharts.js"></script>
+    @endif
 @endpush
 @push('page-script')
-    <!-- Page JS -->
+<!-- Page JS -->
+<script src="{{ asset('assets') }}/js/ui-modals.js"></script>
+
+    @if (Auth::user()->role == 'Sales')
     <script src="{{ asset('assets') }}/js/dashboards-crm.js"></script>
     <script src="{{ asset('assets') }}/js/app-calendar-events.js"></script>
     <script src="{{ asset('assets') }}/js/app-calendar.js"></script>
     <script src="{{ asset('assets') }}/includes/chart/card-monthly.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-prospect.js"></script>
     <script src="{{ asset('assets') }}/includes/table-prospect-sales.js"></script>
+    @endif
+
+    <script src="{{ asset('assets') }}/includes/table-prospect.js"></script>
+
     <script src="{{ asset('assets') }}/includes/table-product-sales.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-logistic.js"></script>
-    <script src="{{ asset('assets') }}/js/ui-modals.js"></script>
+
+    <script src="{{ asset('assets') }}/includes/table-req-visit-service.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-req-visit-accept.js"></script>
 @endpush

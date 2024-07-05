@@ -120,14 +120,22 @@ class InvoiceController extends Controller
     }
     public function before_accept($id)
     {
+        
+        $totalAmount = 0;
         $quote = Quotation::find($id);
-        $dquote = DetailQuotation::where('id_quotation', $id)->get();
-        $payments = Payment::where('id_quotation', $id)->get();
-        $invoice = Invoice::where('id_quotation', $id)->first();
-        $price = $this->terbilang($quote->harga_total);
+        $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
+        $payments = Payment::where('id_quotation', $quote->id)->get();
+
+        foreach ($payments as $payment) {
+            $totalAmount += $payment->amount;
+        }
+
+        $remaining = $quote->harga_total - $totalAmount;
+        $price = $this->terbilang($remaining);
         $tax = $quote->total_no_tax * $quote->tax / 100;
+        $invoice = Invoice::where('id_quotation', $id)->first();
         // dd($price);
-        return view('pages.accounting.invoice.before-accept', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments'));
+        return view('pages.accounting.invoice.before-accept', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining'));
     }
 
     public function print_invoice($id)

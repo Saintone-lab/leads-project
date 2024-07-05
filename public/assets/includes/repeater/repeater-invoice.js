@@ -18,6 +18,8 @@ $(function(){
                 var amount = $(this).find(".invoice-item-amount");
                 var amountLabel = $(this).find(".amount-label");
                 var fromControl = $(this).find(".form-control, .form-select");
+                var stock = $(this).find(".info-stock-label");
+                var weight = $(this).find(".info-weight-label");
                 var formLabel = $(this).find(".form-label");
     
                 fromControl.each(function (i) {
@@ -30,6 +32,8 @@ $(function(){
                     var idDisc = "disc-" + row;
                     var idInfo = "info-qty-" + row;
                     var idAmount = "amount-" + row;
+                    var idStock = "info-stock-" + row;
+                    var idWeight = "info-weight-" + row;
                     var idAmountLabel = "amount-label-" + row;
                     $(product[i]).attr("data-id", row);
                     // $(product[i]).attr("name", nameProduct);
@@ -48,6 +52,8 @@ $(function(){
                     $(amount[i]).attr("id", idAmount);
                     $(amountLabel[i]).attr("id", idAmountLabel);
                     $(amount[i]).attr("data-id", row);
+                    $(stock[i]).attr("id", idStock);
+                    $(weight[i]).attr("id", idWeight);
                     col++;
                 });
     

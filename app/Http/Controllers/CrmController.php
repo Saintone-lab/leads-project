@@ -56,6 +56,9 @@ class CrmController extends Controller
      */
     public function show($id)
     {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearsNow = $dateNow->year;
         $existing = Client::find($id);
         $machines = Machine::where('id_client', $id)->get();
         $charge = PIC::where('id_client', $id)->get();
@@ -64,14 +67,26 @@ class CrmController extends Controller
         $quote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->get('quotation.*');
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
-        // $crmhis = $this->data($id);
+        $crmhis = $this->data($id);
         $machinehis = $this->getServicePerMonth($id);
-        // dd($machinehis);
+        // dd($yearsNow);
         $service = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')->where('pic.id_client', $id)->get('reports.*');
         // dd($quote);
-        return view('pages.sales.existing.detail', compact('existing', 'callhis', 'quote', 'sales', 'charge', 'issue', 
-        // 'crmhis', 
-        'service', 'visit', 'machines'));
+        return view('pages.sales.existing.detail', compact(
+            'existing',
+            'callhis',
+            'quote',
+            'sales',
+            'charge',
+            'issue',
+            'crmhis',
+            'service',
+            'visit',
+            'machines',
+            'monthNow',
+            'yearsNow'
+        )
+        );
     }
 
     /**
@@ -311,7 +326,7 @@ class CrmController extends Controller
         // Determine the start date based on the current month
         if ($currentMonth >= 1 && $currentMonth <= 6) {
             // January to June
-            $startSemester =  Carbon::parse($currentYear . '-01-01'); // 1 January of the current year
+            $startSemester = Carbon::parse($currentYear . '-01-01'); // 1 January of the current year
         } else {
             // July to December
             $startSemester = Carbon::parse($currentYear . '-07-01'); // 1 July of the current year

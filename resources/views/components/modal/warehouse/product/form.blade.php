@@ -45,7 +45,7 @@
                         </div>
                     </div>
                     <div class="row g-2 mb-3">
-                        <div class="col mb-2">
+                        <div class="col-6 col-md-3 mb-2">
                             <div class="form-floating form-floating-outline">
                                 <select class="form-select invoice-item-info" id="unit"
                                     aria-label="Default select example" name="unit">
@@ -64,7 +64,13 @@
                                 <label for="exampleFormControlSelect1">Unit</label>
                             </div>
                         </div>
-                        <div class="col mb-2">
+                        <div class="col-6 col-md-3 mb-2 ">
+                            <div class="input-group h-100">
+                                <input type="number" name="weight" class="form-control" placeholder="Put Weight Here" aria-label="Put Weight Here" aria-describedby="basic-addon43" value="{{@$product->weight ?? ''}}">
+                                <span class="input-group-text" id="basic-addon43">gr</span>
+                              </div>
+                        </div>
+                        <div class="col-21 col-md-6 mb-2">
                             <div class="form-floating form-floating-outline">
                                 <select class="form-select" id="category" aria-label="Default select example"
                                     name="category">

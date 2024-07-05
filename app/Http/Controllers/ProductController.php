@@ -71,6 +71,7 @@ class ProductController extends Controller
         $product->detail_desc = $request->detail_desc;
         $product->category = $request->category;
         $product->go = $request->go;
+        $product->weight = $request->weight;
         $product->first_stock = 0;
         $product->stock = 0;
         $product->unit = $request->unit;
@@ -143,6 +144,7 @@ class ProductController extends Controller
         $product->detail_desc = $request->detail_desc;
         $product->category = $request->category;
         $product->unit = $request->unit;
+        $product->weight = $request->weight;
         $product->go = $request->go;
         $product->note = $request->note;
         $productSave = $product->save();

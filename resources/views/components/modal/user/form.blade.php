@@ -152,6 +152,7 @@
                                             <option value="Accounting">Accounting</option>
                                             <option value="Logistic">Logistic</option>
                                             <option value="Supervisor">Supervisor</option>
+                                            <option value="Coordinator">Service Coordinator</option>
                                         </select>
                                         <label for="exampleFormControlSelect1">Role select</label>
                                     </div>

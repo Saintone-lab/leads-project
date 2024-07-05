@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\DetailProduct;
 use App\Models\Product;
 use App\Models\Quotation;
+use App\Models\ReqVisit;
 use App\Models\SerialProduct;
 use App\Models\Target;
 use App\Models\User;
@@ -116,8 +117,9 @@ class DashboardController extends Controller
         $targett = $sales->map(function ($sale) {
             return $sale->target()->pluck('total')->sum();
         });
+        $visits = ReqVisit::whereNull('date')->get();
         // dd($targett);
-        return view("pages.sales.dashboard", compact('visit','dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredVisit', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'dataCRM', 'dataVisit', 'commodity', 'sproduct', 'targett'));
+        return view("pages.sales.dashboard", compact('visit','dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredVisit', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'dataCRM', 'dataVisit', 'commodity', 'sproduct', 'targett', 'visits'));
     }
 
     public function overviewIndex()

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('dimension');
             $table->integer('first_stock');
             $table->integer('stock');
+            $table->integer('weight');
             $table->string('unit');
             $table->string('note');
             $table->date('date');

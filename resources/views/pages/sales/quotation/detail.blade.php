@@ -161,19 +161,19 @@
                                 </td>
                                 <td colspan="2" class="text-end px-4 py-5">
                                     <p class="mb-2">Subtotal:</p>
-                                    <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
                                     <p class="mb-2">Discount Quote:</p>
+                                    <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
                                     <p class="mb-2">Shipping Cost:</p>
                                     <p class="mb-0">Total:</p>
                                 </td>
                                 <td colspan="2" class="px-4 py-5">
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($quote->subtotal, 0, '', '.') }}</p>
-                                    <p class="fw-semibold mb-2 text-end">
-                                        {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($quote->diskon, 0, '', '.') }}
                                     </p>
+                                    <p class="fw-semibold mb-2 text-end">
+                                        {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($quote->shipping, 0, '', '.') }}</p>
                                     <p class="fw-semibold mb-0 text-end">RP
@@ -270,13 +270,16 @@
                     <div class="card mb-3">
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-3">
-                                <button type="button" class="btn btn-success d-grid w-100 waves-effect"
-                                    data-bs-toggle="modal" data-bs-target="#addPayment">Add Payment</button>
-                                <button type="button" class="btn btn-secondary waves-effect waves-light mx-2"
+                                @if ($remaining != 0)
+                                    <button type="button" class="btn btn-success d-grid w-100 waves-effect"
+                                        data-bs-toggle="modal" data-bs-target="#addPayment">Add Payment</button>
+                                @endif
+                                <button type="button" class="btn btn-secondary waves-effect waves-light mx-2 {{$remaining == 0 ? 'w-100' : '' }}"
                                     data-bs-toggle="modal" data-bs-target="#detailPayment">
-                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-list-box-outline m-0"></i>
+                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-list-box-outline m-0"> {{$remaining == 0 ? 'Detail' : '' }}</i>
                                 </button>
                             </div>
+                            <h5>Remaining : Rp {{number_format($remaining, 0, '.', ',')}}</h5>
                         </div>
                     </div>
                 @endif

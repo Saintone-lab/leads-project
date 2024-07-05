@@ -30,7 +30,7 @@
     </div> --}}
     <div class="card">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-crm table table-striped" id="dataTableCrm">
+            <table class="datatable-{{Auth::user()->role == 'Admin' ? 'crm-admin' : 'crm'}} table table-striped" id="dataTableCrm">
                 <thead>
                     <tr>
                         <th></th>
@@ -43,6 +43,9 @@
                         <th>Note</th>
                         <th>Last Contact</th>
                         <th>Next Follow Up</th>
+                        @if (Auth::user()->role == 'Admin')
+                            <th>Assigned</th>
+                        @endif
                     </tr>
                 </thead>
             </table>
@@ -79,6 +82,7 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
     <script src="{{ asset('assets') }}/includes/table-crm.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-crm-admin.js"></script>
 @endpush
 @push('script')
     <script>

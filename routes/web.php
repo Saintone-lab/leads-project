@@ -16,6 +16,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductInController;
 use App\Http\Controllers\ProductOutController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\ReqVisitController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceReportsController;
 use App\Http\Controllers\StockController;
@@ -154,7 +155,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/product-in', ProductInController::class);
     Route::get('/product-in/print/{id}', [ProductInController::class, 'productIn_print'])->name('productIn.print');
     Route::get('/product-in/replacement/{id}', function ($id) {
-        $product = DetailProduct::where('id_product', $id)->get();
+        $product = DetailProduct::where('id_product', $id)->join('product as p', 'p.id', '=', 'detail_product.id_product')->get(['detail_product.*', 'p.weight', 'p.stock as pStock']);
         return response()->json($product);
     });
     Route::get('/product-out/replacement/{id}', function ($id) {
@@ -222,6 +223,30 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/request/invoice', [InvoiceController::class, 'request'])->name('invoice.request');
     Route::get('/print/invoice/{id}', [InvoiceController::class, 'print_invoice'])->name('print.invoice');
 
+    Route::resource('/req-visit', ReqVisitController::class);
+    Route::post('/req-visit/reports/{id}', [ReqVisitController::class, 'reportsWithRequest'])->name('req-visit.reports');
+    Route::get('/db/req-visit/{id}', function ($id) {
+        $userId = Auth::user()->id;
+        $visits = DB::table('req_visit as r')
+            ->join('machine as m', 'r.id_machine', '=', 'm.id')
+            ->join('client as c', 'm.id_client', '=', 'c.id')
+            ->join('users as u', 'c.id_sales', '=', 'u.id')
+            ->select('r.*', 'c.company', 'u.name', DB::raw("CONCAT(m.brand, ' ', m.type) AS machine"))
+            ->where('u.id', $userId)
+            ->where('c.id', $id)
+            ->orderBy('r.req_date', 'ASC')
+            ->get();
+
+        return response()->json(['data' => $visits]);
+    });
+    Route::get('/db/reqVisit/accept', function () {
+        require_once base_path('app/api/reqVisit/connectionAccept.php');
+    });
+    Route::get('/db/reqVisit/coordinator', function () {
+        require_once base_path('app/api/reqVisit/connectionSerCo.php');
+    });
+
+    // Database Connection
     Route::get('/db/selling-contract/non-tax', function () {
         $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
@@ -298,6 +323,9 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/crm', function () {
         require_once base_path('app/api/crm/connection.php');
+    });
+    Route::get('/db/crm/admin', function () {
+        require_once base_path('app/api/crm/connectionAdmin.php');
     });
     Route::get('/db/quotation', function () {
         require_once base_path('app/api/quotation/connection.php');

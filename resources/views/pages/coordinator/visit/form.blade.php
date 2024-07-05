@@ -1,12 +1,9 @@
 @extends('layouts.sales.app')
-@section('title', 'Create Service Reports')
+@section('title', 'Create Service Reports With Request')
 @section('content')
-    <form action="{{ @$report ? route('service-reports.update', @$report->id) : route('service-reports.store') }}"
+    <form action="{{route('req-visit.reports', $visit->id) }}"
         method="post" enctype="multipart/form-data" id="serviceReports" name="service-reports">
         @csrf
-        @if (@$report)
-            @method('PATCH')
-        @endif
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -43,7 +40,7 @@
                                         {{ $charge->client->sales->name }}</option>
                                 @endforeach
                             </select>
-                            <label for="select2Basic">Client</label>
+                            <label for="select2Basic">PIC</label>
                         </div>
                         <input type="text" name="technician" id="" value="{{ Auth::user()->id }}" hidden>
                     </div>
@@ -52,9 +49,10 @@
                             <select class="form-select" id="exampleFormControlSelect1" aria-label="Default select example"
                                 name="type">
                                 <option selected="" disabled>---- Choose Service Type ----</option>
-                                <option value="Visit" {{@$report->type == 'Visit' ? 'Selected' : ''}}>Visit</option>
-                                <option value="Service" {{@$report->type == 'Service' ? 'Selected' : ''}}>Service</option>
-                                <option value="General" {{@$report->type == 'General' ? 'Selected' : ''}}>General Check</option>
+                                <option value="Visit" selected>Visit</option>
+                                <option value="Service">Service</option>
+                                <option value="General">General Check
+                                </option>
                             </select>
                             <label for="exampleFormControlSelect1">Service Type</label>
                         </div>
@@ -62,7 +60,7 @@
                     <div class="col-12 col-md-3 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input class="form-control" type="date" name="date" id="date"
-                                value="{{ now()->format('Y-m-d') }}">
+                                value="{{ $visit->date }}">
                             {{-- <input type="date" name="date" id="date" value="{{ now()->format('Y-m-d') }}"
                                 hidden> --}}
                             <label for="date">Date</label>
@@ -70,10 +68,8 @@
                     </div>
                     <div class="col-8 col-md-6 mb-3">
                         <div class="form-floating form-floating-outline mb-2">
-                            <select id="machine-dropdown" class="select2 form-select invoice-item-machine" data-id="1"
-                                data-allow-clear="true" name="machine" disabled>
-                                <option> ---- Choose Machine Here ---- </option>
-                            </select>
+                            <input type="text" name="" id="machine-dropdown" class="form-control"
+                                value="{{ $visit->machine->brand }} {{ $visit->machine->type }}" disabled>
                             <label for="machine-dropdown">Machine</label>
                         </div>
                     </div>
@@ -252,39 +248,6 @@
                     reader.readAsDataURL(file);
                 }
             });
-            $('#selectPic').on('change', function() {
-                var clientId = $(this).find(':selected').data('id');
-                var Url = '/machine/dropdown/' + clientId;
-
-                $.ajax({
-                    url: Url,
-                    type: 'GET',
-                    success: function(response) {
-                        // Clear and populate the machine dropdown
-                        var machineDropdown = $('#machine-dropdown');
-                        machineDropdown.empty();
-                        machineDropdown.append(
-                            '<option selected="" disabled> ---- Choose Machine Here ---- </option>');
-
-                        $.each(response, function(key, value) {
-                            var option = $('<option></option>').attr('value', value.id)
-                                .text(value.brand + " " + value.type);
-                            if (value.id == selectedMachineId) {
-                                option.attr('selected', 'selected');
-                            }
-                            machineDropdown.append(option);
-                        });
-
-                        // Enable the machine dropdown
-                        machineDropdown.prop('disabled', false);
-                    }
-                });
-            });
-
-            // Trigger change event if updating to pre-select the machine
-            if (selectedMachineId) {
-                $('#selectPic').trigger('change');
-            }
         });
     </script>
 @endpush

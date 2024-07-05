@@ -245,101 +245,166 @@
             <h5 class="fw-bold m-0 pt-2">
                 CRM Existing
             </h5>
-            <a type="button" data-bs-toggle="modal" data-bs-target="#createAction{{ $existing->id }}">
-                <button type="button" class="btn btn-primary">
-                    + New Action
-                </button>
-            </a>
+            @if (Auth::user()->role == 'Sales')
+                <div class="button-crm">
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#createReqVisit">
+                        <button type="button" class="btn btn-label-instagram">
+                            + New Visit
+                        </button>
+                    </a>
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#createAction{{ $existing->id }}">
+                        <button type="button" class="btn btn-primary">
+                            + New Action
+                        </button>
+                    </a>
+                </div>
+            @endif
         </div>
         <div class="card">
-            <div class="card-body">
-                <div class="table-responsive text-nowrap">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th class="text-center">Dalam Masa Perbaikan</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-        </div>
-        {{-- <div class="card">
             <div class="table-responsive text-nowrap">
                 <table class="table table-striped">
                     <thead>
                         <tr class="text-center">
                             @php
-                                $bulan = array_keys($crmhis);
-                                $mon1 = count($crmhis['January 2024']);
-                                $mon2 = count($crmhis['February 2024']);
-                                $mon3 = count($crmhis['March 2024']);
-                                $mon4 = count($crmhis['April 2024']);
-                                $mon5 = count($crmhis['May 2024']);
-                                $mon6 = count($crmhis['June 2024']);
+                                if ($monthNow <= 6) {
+                                    $bulan = array_keys($crmhis);
+                                    $mon1 = count($crmhis['January ' . $yearsNow]);
+                                    $mon2 = count($crmhis['February ' . $yearsNow]);
+                                    $mon3 = count($crmhis['March ' . $yearsNow]);
+                                    $mon4 = count($crmhis['April ' . $yearsNow]);
+                                    $mon5 = count($crmhis['May ' . $yearsNow]);
+                                    $mon6 = count($crmhis['June ' . $yearsNow]);
+                                } elseif ($monthNow >= 7) {
+                                    $bulan = array_keys($crmhis);
+                                    $mon1 = count($crmhis['July ' . $yearsNow]);
+                                    $mon3 = count($crmhis['August ' . $yearsNow]);
+                                    $mon4 = count($crmhis['September ' . $yearsNow]);
+                                    $mon5 = count($crmhis['October ' . $yearsNow]);
+                                    $mon2 = count($crmhis['November ' . $yearsNow]);
+                                    $mon6 = count($crmhis['December ' . $yearsNow]);
+                                }
                             @endphp
                             @foreach ($bulan as $data => $data_bulan)
                                 <th
-                                    colspan="{{ $data_bulan == 'January 2024' || $data_bulan == 'July 2024'  ? $mon1 : '' }}{{ $data_bulan == 'February 2024' || $data_bulan == 'August 2024' ? $mon2 : '' }}{{ $data_bulan == 'March 2024' || $data_bulan == 'September 2024' ? $mon3 : '' }}{{ $data_bulan == 'April 2024' || $data_bulan == 'October 2024' ? $mon4 : '' }}{{ $data_bulan == 'May 2024' || $data_bulan == 'November 2024' ? $mon5 : '' }}{{ $data_bulan == 'June 2024' || $data_bulan == 'December 2024' ? $mon6 : '' }}">
+                                    colspan="{{ $data_bulan == 'January ' . $yearsNow || $data_bulan == 'July ' . $yearsNow ? $mon1 : '' }}{{ $data_bulan == 'February ' . $yearsNow || $data_bulan == 'August ' . $yearsNow ? $mon2 : '' }}{{ $data_bulan == 'March ' . $yearsNow || $data_bulan == 'September ' . $yearsNow ? $mon3 : '' }}{{ $data_bulan == 'April ' . $yearsNow || $data_bulan == 'October ' . $yearsNow ? $mon4 : '' }}{{ $data_bulan == 'May ' . $yearsNow || $data_bulan == 'November ' . $yearsNow ? $mon5 : '' }}{{ $data_bulan == 'June ' . $yearsNow || $data_bulan == 'December ' . $yearsNow ? $mon6 : '' }}">
                                     {{ $data_bulan }}</th>
                             @endforeach
                         </tr>
-                        <tr>
-                            @php
-                                $weeks = 0;
-                            @endphp
-                            @foreach ($crmhis['January 2024'] as $data)
+                        @if ($monthNow <= 6)
+                            <tr>
                                 @php
-                                    $weeks += 1;
+                                    $weeks = 0;
                                 @endphp
-                                <th>Week {{ $weeks }}</th>
-                            @endforeach
-                            @php
-                                $weeks = 0;
-                            @endphp
-                            @foreach ($crmhis['February 2024'] as $data)
+                                @foreach ($crmhis['January ' . $yearsNow] as $data)
+                                    @php
+                                        $weeks += 1;
+                                    @endphp
+                                    <th>Week {{ $weeks }}</th>
+                                @endforeach
                                 @php
-                                    $weeks += 1;
+                                    $weeks = 0;
                                 @endphp
-                                <th>Week {{ $weeks }}</th>
-                            @endforeach
-                            @php
-                                $weeks = 0;
-                            @endphp
-                            @foreach ($crmhis['March 2024'] as $data)
+                                @foreach ($crmhis['February ' . $yearsNow] as $data)
+                                    @php
+                                        $weeks += 1;
+                                    @endphp
+                                    <th>Week {{ $weeks }}</th>
+                                @endforeach
                                 @php
-                                    $weeks += 1;
+                                    $weeks = 0;
                                 @endphp
-                                <th>Week {{ $weeks }}</th>
-                            @endforeach
-                            @php
-                                $weeks = 0;
-                            @endphp
-                            @foreach ($crmhis['April 2024'] as $data)
+                                @foreach ($crmhis['March ' . $yearsNow] as $data)
+                                    @php
+                                        $weeks += 1;
+                                    @endphp
+                                    <th>Week {{ $weeks }}</th>
+                                @endforeach
                                 @php
-                                    $weeks += 1;
+                                    $weeks = 0;
                                 @endphp
-                                <th>Week {{ $weeks }}</th>
-                            @endforeach
-                            @php
-                                $weeks = 0;
-                            @endphp
-                            @foreach ($crmhis['May 2024'] as $data)
+                                @foreach ($crmhis['April ' . $yearsNow] as $data)
+                                    @php
+                                        $weeks += 1;
+                                    @endphp
+                                    <th>Week {{ $weeks }}</th>
+                                @endforeach
                                 @php
-                                    $weeks += 1;
+                                    $weeks = 0;
                                 @endphp
-                                <th>Week {{ $weeks }}</th>
-                            @endforeach
-                            @php
-                                $weeks = 0;
-                            @endphp
-                            @foreach ($crmhis['June 2024'] as $data)
+                                @foreach ($crmhis['May ' . $yearsNow] as $data)
+                                    @php
+                                        $weeks += 1;
+                                    @endphp
+                                    <th>Week {{ $weeks }}</th>
+                                @endforeach
                                 @php
-                                    $weeks += 1;
+                                    $weeks = 0;
                                 @endphp
-                                <th>Week {{ $weeks }}</th>
-                            @endforeach
-                        </tr>
+                                @foreach ($crmhis['June ' . $yearsNow] as $data)
+                                    @php
+                                        $weeks += 1;
+                                    @endphp
+                                    <th>Week {{ $weeks }}</th>
+                                @endforeach
+                            </tr>
+                        @elseif($monthNow >= 7)
+                            <tr>
+                                @php
+                                    $weeks = 0;
+                                @endphp
+                                @foreach ($crmhis['July ' . $yearsNow] as $data)
+                                    @php
+                                        $weeks += 1;
+                                    @endphp
+                                    <th>Week {{ $weeks }}</th>
+                                @endforeach
+                                @php
+                                    $weeks = 0;
+                                @endphp
+                                @foreach ($crmhis['August ' . $yearsNow] as $data)
+                                    @php
+                                        $weeks += 1;
+                                    @endphp
+                                    <th>Week {{ $weeks }}</th>
+                                @endforeach
+                                @php
+                                    $weeks = 0;
+                                @endphp
+                                @foreach ($crmhis['September ' . $yearsNow] as $data)
+                                    @php
+                                        $weeks += 1;
+                                    @endphp
+                                    <th>Week {{ $weeks }}</th>
+                                @endforeach
+                                @php
+                                    $weeks = 0;
+                                @endphp
+                                @foreach ($crmhis['October ' . $yearsNow] as $data)
+                                    @php
+                                        $weeks += 1;
+                                    @endphp
+                                    <th>Week {{ $weeks }}</th>
+                                @endforeach
+                                @php
+                                    $weeks = 0;
+                                @endphp
+                                @foreach ($crmhis['November ' . $yearsNow] as $data)
+                                    @php
+                                        $weeks += 1;
+                                    @endphp
+                                    <th>Week {{ $weeks }}</th>
+                                @endforeach
+                                @php
+                                    $weeks = 0;
+                                @endphp
+                                @foreach ($crmhis['December ' . $yearsNow] as $data)
+                                    @php
+                                        $weeks += 1;
+                                    @endphp
+                                    <th>Week {{ $weeks }}</th>
+                                @endforeach
+                            </tr>
+                        @endif
                     </thead>
                     <tbody>
                         <tr>
@@ -356,9 +421,33 @@
                     </tbody>
                 </table>
             </div>
-        </div> --}}
+        </div>
     </div>
     <div class="row">
+        <div class="col-md-12 my-3">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold m-0 pt-2">
+                    Request Visit
+                </h5>
+            </div>
+            <div class="card">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-visit table table-striped" id="dataTableCrm">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>machine</th>
+                                <th>Date Req</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
         <div class="col-md-6 my-3">
             <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold pb-1 mb-2">
@@ -619,6 +708,7 @@
     @include('pages.sales.existing.form')
     @include('components.modal.pic.existing.form-create')
     @include('components.modal.machine.form')
+    @include('components.modal.req-visit.form-create')
     @include('pages.sales.activities.form-existing')
     @include('pages.sales.activities.form-visit')
     @foreach ($charge as $pic)
@@ -639,6 +729,7 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
 @endpush
 @push('after-script')
     <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
@@ -648,6 +739,7 @@
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
 @endpush
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
@@ -657,7 +749,9 @@
     <script src="{{ asset('assets') }}/includes/table-service-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-general-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-visit-history.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-req-visit.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
+    <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush
 @push('script')
     <script>

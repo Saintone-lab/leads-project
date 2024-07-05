@@ -145,6 +145,13 @@
                                                         name="price[]" id="price-{{ $id }}"
                                                         value="{{ old('price[]', @$quote->price ?? '') }}" hidden>
                                                 </div>
+                                                <div class="d-flex justify-content-between mb-3">
+                                                    <p>Stock : <span class="info-stock-label" id="info-stock-1"></span>
+                                                    </p>
+                                                    <p>Weight : <span class="info-weight-label" id="info-weight-1"></span>
+                                                        g
+                                                    </p>
+                                                </div>
                                             </div>
                                             <div class="col-md-1 col-12 mb-md-0 mb-3">
                                                 <p class="mb-2 repeater-title">Qty</p>
@@ -217,7 +224,8 @@
                                                     <option> ---- Choose Part Number Here ---- </option>
                                                     @foreach ($product as $products)
                                                         <option value="{{ $products->brand }} {{ $products->pn }}"
-                                                            data-replacement="{{ $products->id }}">
+                                                            data-replacement="{{ $products->id }}"
+                                                            data-commodity="{{ $products->comId }}">
                                                             {{ $products->brand }} {{ $products->pn }}
                                                             ({{ $products->detail_desc }})
                                                             ||
@@ -232,7 +240,7 @@
                                         </div>
                                         <div class="col-md-3 col-12 mb-md-0 mb-3">
                                             <p class="mb-2 repeater-title">Price</p>
-                                            <div class="input-group" data-price="1">
+                                            <div class="input-group mb-3" data-price="1">
                                                 <span class="input-group-text">Rp. </span>
                                                 <input type="text" class="form-control invoice-item-price-label"
                                                     id="priceLabel-1" data-id="1" name="harga"
@@ -241,6 +249,11 @@
                                                     @blur="focused = false" value="{{ old('price[]') }}">
                                                 <input class="form-control invoice-item-price" type="number"
                                                     name="price[]" id="price-1" value="{{ old('price[]') }}" hidden>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-3">
+                                                <p>Stock : <span class="info-stock-label" id="info-stock-1"></span></p>
+                                                <p>Weight : <span class="info-weight-label" id="info-weight-1"></span> g
+                                                </p>
                                             </div>
                                         </div>
                                         <div class="col-md-1 col-12 mb-md-0 mb-3">
@@ -369,6 +382,24 @@
                                                     <span> With PPN <small class="text-muted"> 11%</small> </span>
                                                 </option>
                                             </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
+                                <div class="card-body ">
+                                    <div class="row">
+                                        <label class="col-sm-4 col-form-label text-sm-start"
+                                            for="collapsible-pincode">Weight Total :</label>
+                                        <div class="col-sm-8">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control info-weight-total-label"
+                                                    id="info-weight-total" style="background: none; border: none;"
+                                                    pattern="^[0-9]\d{0,2}(\.\d{3})*$" disabled
+                                                    value="{{ old('weight', @$quotation->weight ? $quotation->weight + ' g' : '0 g') }}">
+                                                <input type="number" name="weight" id="info-weight-total"
+                                                    value="{{ old('weight', @$quotation->weight ?? '0') }}" hidden>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -648,10 +679,29 @@
             $('.invoice-item-product').on('change', function(ev) {
                 var replacementId = $(this).find(':selected').data('replacement');
                 var Url = '/quotation/product/' + replacementId;
+                var commodity = $(this).find(':selected').data('commodity');
                 var id = $(this).data('id');
                 // console.log('Replacement ID:', replacementId);
                 // console.log('URL:', Url);
                 console.log('Textarea ID:', id);
+
+                $.ajax({
+                    url: '/product-in/replacement/' + commodity,
+                    type: 'GET',
+                    success: function(response) {
+                        console.log('AJAX Response:', response);
+                        $(`#info-stock-${id}`).text(response[0].stock);
+                        $(`#info-weight-${id}`).text(response[0].weight);
+
+                        var weightTotal = 0;
+
+                        $('.info-weight-label').each(() => {
+                            weightTotal += parseInt($(`#info-weight-${id}`).text());
+                        });
+                        console.log('Weight Total : ', weightTotal);
+                        $(`.info-weight-total-label`).val(weightTotal + ' g');
+                    }
+                });
 
                 $.ajax({
                     url: Url,
@@ -772,11 +822,32 @@
                 $('.invoice-item-product').on('change', function(ev) {
                     var replacementId = $(this).find(':selected').data('replacement');
                     var Url = '/quotation/product/' + replacementId;
+                    var commodity = $(this).find(':selected').data('commodity');
                     var id = $(this).data('id');
                     // console.log('Replacement ID:', replacementId);
                     // console.log('URL:', Url);
-                    // console.log('Textarea ID:', `#detailProduct-${id}`);
+                    console.log('Textarea ID:', id);
 
+                    $.ajax({
+                        url: '/product-in/replacement/' + commodity,
+                        type: 'GET',
+                        success: function(response) {
+                            console.log('AJAX Response:', response);
+                            $(`#info-stock-${id}`).text(response[0].stock);
+                            $(`#info-weight-${id}`).text(response[0].weight);
+
+                            var row = 0,
+                                weightTotal = 0;
+
+                            $('.info-weight-label').each(() => {
+                                row++;
+                                weightTotal += parseInt($(`#info-weight-${row}`)
+                                    .text());
+                            });
+                            console.log('Weight Total : ', weightTotal);
+                            $(`.info-weight-total-label`).val(weightTotal + ' g');
+                        }
+                    });
                     $.ajax({
                         url: Url,
                         type: 'GET',

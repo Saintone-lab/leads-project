@@ -102,7 +102,7 @@
                             <p class="mb-1">Email :</p>
                         </div>
                         <div class="col-3 text-end">
-                            <p class="mb-1"> PT Kojisha Innotiv Indonesia
+                            <p class="mb-1"> PT Reftech Jaya Optima
                             </p>
                             <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                         </div>

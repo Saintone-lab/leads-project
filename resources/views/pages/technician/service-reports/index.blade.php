@@ -1,7 +1,7 @@
 @extends('layouts.sales.app')
 @section('title', 'My Service Reports')
 @section('content')
-    @if (Auth::user()->role == 'Technician')
+    @if (Auth::user()->role == 'Technician' || Auth::user()->role == 'Coordinator')
         <h4 class="fw-bold py-3 mb-4">
             Service Reports
         </h4>

@@ -76,8 +76,8 @@
                 <p class="mb-1">Running & Load </p>
             </div>
             <div class="col-4">
-                <p class="mb-1">: {{ $service->unit }}</p>
-                <p class="mb-1">: {{ $service->serial_number }}</p>
+                <p class="mb-1">: {{ $service->machine->brand }} {{ $service->machine->type }}</p>
+                <p class="mb-1">: {{ $service->machine->serial_number }}</p>
                 <p class="mb-1">: {{ $service->running }} | {{ $service->load }}</p>
             </div>
         </div>

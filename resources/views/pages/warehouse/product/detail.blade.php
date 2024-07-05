@@ -66,6 +66,14 @@
                             </div>
                             <div class="row mb-1">
                                 <div class="col-3">
+                                    Weight
+                                </div>
+                                <div class="col-9">
+                                    : {{ $product->weight }} Gram
+                                </div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-3">
                                     Stock Awal
                                 </div>
                                 <div class="col-9">

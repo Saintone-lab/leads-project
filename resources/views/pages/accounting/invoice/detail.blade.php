@@ -205,8 +205,16 @@
                     </button>
                 </div>
             </div>
+            <div class="card">
+                <div class="card-body">
+                    <button type="button" class="btn btn-secondary w-100 waves-effect waves-light mb-3"
+                        data-bs-toggle="modal" data-bs-target="#detailPayment"> Detail Payment </button>
+                    <h5>Remaining : Rp {{ number_format($remaining, 0, '.', ',') }}</h5>
+                </div>
+            </div>
             {{-- End : Button Invoice --}}
         </div>
+        @include('components.modal.quotation.detail-payment')
     @endsection
     @push('after-style')
         <!-- Page CSS -->

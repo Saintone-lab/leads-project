@@ -22,6 +22,7 @@ class Product extends Model
         'dimension',
         'frist_stock',
         'stock',
+        'weight',
         'unit',
         'note',
     ];

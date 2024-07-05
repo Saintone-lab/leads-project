@@ -224,8 +224,9 @@
                 <div class="card-body">
                     <a href="{{ route('download-po.quotation', $quote->id) }}"
                         class="btn btn-primary d-grid w-100 waves-effect mb-3"> Download PO</a>
-                    <button type="button" class="btn btn-secondary w-100 waves-effect waves-light"
+                    <button type="button" class="btn btn-secondary w-100 waves-effect waves-light mb-3"
                         data-bs-toggle="modal" data-bs-target="#detailPayment"> Detail Payment </button>
+                        <h5>Remaining : Rp {{number_format($remaining, 0,'.', ',')}}</h5>
                 </div>
             </div>
             {{-- End : Button Invoice --}}

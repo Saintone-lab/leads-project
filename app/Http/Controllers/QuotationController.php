@@ -58,7 +58,7 @@ class QuotationController extends Controller
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::all();
         $sales = User::where('role', 'sales')->get();
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
+        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId','s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
         // dd($product);
         return view('pages.sales.quotation.form', compact('pic', 'sales', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
@@ -166,6 +166,7 @@ class QuotationController extends Controller
      */
     public function show($id)
     {
+        $totalAmount = 0;
         $dateNow = Carbon::now();
         $numberSP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $dateNow)->where('q.tax', '11')->where('contract.type', 'Selling')->groupBy('contract.id')->get('contract.id');
         $numberSNP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $dateNow)->where('q.tax', '0')->where('contract.type', 'Selling')->groupBy('contract.id')->get('contract.id');
@@ -184,8 +185,13 @@ class QuotationController extends Controller
         $today = Carbon::now();
         $tax = $quote->subtotal * $quote->tax / 100;
         $thisYear = $today->year;
+        foreach ($payments as $payment) {
+            $totalAmount += $payment->amount;
+        }
+
+        $remaining = $quote->harga_total - $totalAmount;
         // dd($formattedNumberSP);
-        return view("pages.sales.quotation.detail", compact('quote', 'dquote', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments'));
+        return view("pages.sales.quotation.detail", compact('quote', 'dquote', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining'));
     }
 
     /**
