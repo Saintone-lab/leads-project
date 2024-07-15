@@ -32,8 +32,6 @@ $(function () {
                 { data: "title" },
                 { data: "estimated_date" },
                 { data: "status" },
-                // { data: "expired_date" },
-                { data: "status" },
                 { data: "name" },
                 { data: "" },
             ],
@@ -77,56 +75,56 @@ $(function () {
                     responsivePriority: 1,
                     targets: 4,
                 },
-                {
-                    // Label Status Name
-                    targets: 8,
-                    render: function (data, type, full, meta) {
-                        var $status_number = full["status"];
-                        var $status = {
-                            20: {
-                                title: "Send WA / Email",
-                                class: "bg-label-secondary",
-                            },
-                            30: {
-                                title: "Inquiry Accepted",
-                                class: " bg-label-dark",
-                            },
-                            40: {
-                                title: "Progress Follow Up",
-                                class: " bg-label-info",
-                            },
-                            60: {
-                                title: "Negotiation / Revisi",
-                                class: " bg-label-primary",
-                            },
-                            80: {
-                                title: "Hot Prospect",
-                                class: " bg-label-warning",
-                            },
-                            100: {
-                                title: "Done PO",
-                                class: " bg-label-success",
-                            },
-                            0: {
-                                title: "Loss",
-                                class: " bg-label-danger",
-                            },
-                        };
-                        if (typeof $status[$status_number] === "undefined") {
-                            return data;
-                        }
-                        return (
-                            '<span class="badge rounded-pill ' +
-                            $status[$status_number].class +
-                            '">' +
-                            $status[$status_number].title +
-                            "</span>"
-                        );
-                    },
-                },
+                // {
+                //     // Label Status Name
+                //     targets: 8,
+                //     render: function (data, type, full, meta) {
+                //         var $status_number = full["status"];
+                //         var $status = {
+                //             20: {
+                //                 title: "Send WA / Email",
+                //                 class: "bg-label-secondary",
+                //             },
+                //             30: {
+                //                 title: "Inquiry Accepted",
+                //                 class: " bg-label-dark",
+                //             },
+                //             40: {
+                //                 title: "Progress Follow Up",
+                //                 class: " bg-label-info",
+                //             },
+                //             60: {
+                //                 title: "Negotiation / Revisi",
+                //                 class: " bg-label-primary",
+                //             },
+                //             80: {
+                //                 title: "Hot Prospect",
+                //                 class: " bg-label-warning",
+                //             },
+                //             100: {
+                //                 title: "Done PO",
+                //                 class: " bg-label-success",
+                //             },
+                //             0: {
+                //                 title: "Loss",
+                //                 class: " bg-label-danger",
+                //             },
+                //         };
+                //         if (typeof $status[$status_number] === "undefined") {
+                //             return data;
+                //         }
+                //         return (
+                //             '<span class="badge rounded-pill ' +
+                //             $status[$status_number].class +
+                //             '">' +
+                //             $status[$status_number].title +
+                //             "</span>"
+                //         );
+                //     },
+                // },
                 {
                     // Label Status Percent
-                    targets: 9  ,
+                    targets: 8,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $titleTool = full["note"];

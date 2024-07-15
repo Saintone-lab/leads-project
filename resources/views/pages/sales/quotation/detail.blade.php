@@ -162,6 +162,7 @@
                                 <td colspan="2" class="text-end px-4 py-5">
                                     <p class="mb-2">Subtotal:</p>
                                     <p class="mb-2">Discount Quote:</p>
+                                    <p class="mb-2">Subtotal After Discount:</p>
                                     <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
                                     <p class="mb-2">Shipping Cost:</p>
                                     <p class="mb-0">Total:</p>
@@ -171,6 +172,9 @@
                                         {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($quote->diskon, 0, '', '.') }}
+                                    </p>
+                                    <p class="fw-semibold mb-2 text-end">RP
+                                        {{ number_format($afterDisc, 0, '', '.') }}
                                     </p>
                                     <p class="fw-semibold mb-2 text-end">
                                         {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
@@ -183,7 +187,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="card-body">
+                <div class="card-body mt-2">
                     <h5 class="my-4">Term & Condition</h5>
                     <div class="row">
                         <div class="col-3 fw-medium">
@@ -207,222 +211,236 @@
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
-                        href="{{ route('print.quotation', $quote->id) }}">
-                        Print
-                    </a>
-                    @if (Auth::user()->role == 'Sales')
-                        @if ($quote->status != '100')
-                            <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
-                                data-bs-toggle="modal" data-bs-target="#changeStatus-{{ $quote->id }}">Change
-                                Status</button>
-                        @endif
-                    @endif
-                    <a href="{{ route('pdf.quotation', $quote->id) }}" type="button"
-                        class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">Download</a>
-                    @if (Auth::user()->role == 'Sales')
-                        <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-quotation"
-                            data-id="{{ $quote->id }}">Delete</a>
-                    @endif
-                </div>
-            </div>
-            @if (Auth::user()->role == 'Sales')
+            @if ($quote->level == '1')
                 <div class="card mb-3">
                     <div class="card-body">
-                        @if (Auth::user()->id == '1')
-                            <a href="#" data-id="{{ $quote->id }}"
-                                class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
-                                {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
-                        @endif
-                        @if ($quote->status != '100')
-                            <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"
-                                data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
-                        @else
-                            @if ($quote->po_file != null)
-                                @if (@$invoice && $invoice->no_invoice == null)
-                                    <button type="button" class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
-                                        Waiting Accounting Apply
-                                    </button>
-                                @elseif(@$invoice && $invoice->no_invoice)
-                                    <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
-                                        href="{{ route('invoice.show', $invoice->id) }}">
-                                        Go To Invoice
-                                    </a>
-                                @endif
-                                <div class="d-flex justify-content-between mb-3">
-                                    <a href="{{ route('download-po.quotation', $quote->id) }}"
-                                        class="btn btn-primary d-grid w-100 waves-effect"> Download PO</a>
-                                    <a href="#" class="btn btn-label-danger d-grid waves-effect delete-file mx-2"
-                                        data-id="{{ $quote->id }}"> <i
-                                            class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                                    </a>
-                                </div>
-                            @else
-                                <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
-                                    data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
+                        <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
+                            href="{{ route('print.quotation', $quote->id) }}">
+                            Download
+                        </a>
+                        @if (Auth::user()->role == 'Sales')
+                            @if ($quote->status != '100')
+                                <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
+                                    data-bs-toggle="modal" data-bs-target="#changeStatus-{{ $quote->id }}">Change
+                                    Status</button>
                             @endif
+                        @endif
+                        @if (Auth::user()->role == 'Sales')
+                            <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-quotation"
+                                data-id="{{ $quote->id }}">Delete</a>
                         @endif
                     </div>
                 </div>
-                @if ($quote->status == 100)
+                @if (Auth::user()->role == 'Sales')
                     <div class="card mb-3">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between mb-3">
-                                @if ($remaining != 0)
-                                    <button type="button" class="btn btn-success d-grid w-100 waves-effect"
-                                        data-bs-toggle="modal" data-bs-target="#addPayment">Add Payment</button>
-                                @endif
-                                <button type="button" class="btn btn-secondary waves-effect waves-light mx-2 {{$remaining == 0 ? 'w-100' : '' }}"
-                                    data-bs-toggle="modal" data-bs-target="#detailPayment">
-                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-list-box-outline m-0"> {{$remaining == 0 ? 'Detail' : '' }}</i>
-                                </button>
-                            </div>
-                            <h5>Remaining : Rp {{number_format($remaining, 0, '.', ',')}}</h5>
-                        </div>
-                    </div>
-                @endif
-            @endif
-            <div class="card mb-3">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="d-flex justify-content-between mb-4">
-                            <div class="total mb-0">
-                                <h5>Fee : Rp. {{ number_format($quote->fee, 0, ',', '.') }}</h5>
-                                <h5 class="mb-0">Nett : Rp. {{ number_format($quote->nett, 0, ',', '.') }}</h5>
-                            </div>
-                            @if (Auth::user()->role == 'Sales' && $quote->fee != '0')
+                            @if (Auth::user()->id == '1' && !isset($invoice))
                                 <a href="#" data-id="{{ $quote->id }}"
-                                    class="btn btn-sm btn-label-danger delete-fee">
-                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                                </a>
+                                    class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
+                                    {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
+                            @endif
+                            @if ($quote->status != '100')
+                                <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"
+                                    data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
+                            @else
+                                @if ($quote->po_file != null)
+                                    @if (@$invoice && $invoice->no_invoice == null)
+                                        <button type="button"
+                                            class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
+                                            Waiting Accounting Apply
+                                        </button>
+                                    @elseif(@$invoice && $invoice->no_invoice)
+                                        <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
+                                            href="{{ route('invoice.show', $invoice->id) }}">
+                                            Go To Invoice
+                                        </a>
+                                    @endif
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <a href="{{ route('download-po.quotation', $quote->id) }}"
+                                            class="btn btn-primary d-grid w-100 waves-effect"> Download PO</a>
+                                        <a href="#"
+                                            class="btn btn-label-danger d-grid waves-effect delete-file mx-2"
+                                            data-id="{{ $quote->id }}"> <i
+                                                class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                        </a>
+                                    </div>
+                                @else
+                                    <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
+                                        data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
+                                @endif
                             @endif
                         </div>
                     </div>
-                    @if (Auth::user()->role == 'Sales' && $quote->fee == '0')
-                        <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
-                            data-bs-toggle="modal" data-bs-target="#insertFee">Insert Fee</button>
-                    @elseif(Auth::user()->role == 'Sales' && $quote->fee != '0')
-                        <div class="mt-6">
-                            <button type="button" class="btn btn-warning me-3 waves-effect w-75" data-bs-toggle="modal"
-                                data-bs-target="#insertFee"><i
-                                    class="menu-icon tf-icons mdi mdi-14px mdi-square-edit-outline me-1"></i>Update
-                                Fee</button>
-                            <button type="button" class="btn btn-secondary waves-effect waves-light w-px-50"
-                                data-bs-toggle="modal" data-bs-target="#detailFee"><i
-                                    class="menu-icon tf-icons mdi mdi-14px mdi-list-box-outline me-1"></i></button>
+                    @if ($quote->status == 100)
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-3">
+                                    @if ($remaining != 0)
+                                        <button type="button" class="btn btn-success d-grid w-100 waves-effect"
+                                            data-bs-toggle="modal" data-bs-target="#addPayment">Add Payment</button>
+                                    @endif
+                                    <button type="button"
+                                        class="btn btn-secondary waves-effect waves-light mx-2 {{ $remaining == 0 ? 'w-100' : '' }}"
+                                        data-bs-toggle="modal" data-bs-target="#detailPayment">
+                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-list-box-outline m-0">
+                                            {{ $remaining == 0 ? 'Detail' : '' }}</i>
+                                    </button>
+                                </div>
+                                <h5>Remaining : Rp {{ number_format($remaining, 0, '.', ',') }}</h5>
+                            </div>
                         </div>
                     @endif
-                </div>
-            </div>
-            @if (Auth::user()->role == 'Sales')
-                <div class="card">
+                @endif
+                <div class="card mb-3">
                     <div class="card-body">
-                        @php
-                            // Inisialisasi variabel
-                            $sellingContract = null;
-                            $orderContract = null;
-                            $requestedSellingContract = null;
-                            $requestedOrderContract = null;
+                        <div class="row">
+                            <div class="d-flex justify-content-between mb-4">
+                                <div class="total mb-0">
+                                    <h5>Fee : Rp. {{ number_format($quote->fee, 0, ',', '.') }}</h5>
+                                    <h5 class="mb-0">Nett : Rp. {{ number_format($quote->nett, 0, ',', '.') }}</h5>
+                                </div>
+                                @if (Auth::user()->role == 'Sales' && $quote->fee != '0')
+                                    <a href="#" data-id="{{ $quote->id }}"
+                                        class="btn btn-sm btn-label-danger delete-fee">
+                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                        @if (Auth::user()->role == 'Sales' && $quote->fee == '0')
+                            <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
+                                data-bs-toggle="modal" data-bs-target="#insertFee">Insert Fee</button>
+                        @elseif(Auth::user()->role == 'Sales' && $quote->fee != '0')
+                            <div class="mt-6">
+                                <button type="button" class="btn btn-warning me-3 waves-effect w-75"
+                                    data-bs-toggle="modal" data-bs-target="#insertFee"><i
+                                        class="menu-icon tf-icons mdi mdi-14px mdi-square-edit-outline me-1"></i>Update
+                                    Fee</button>
+                                <button type="button" class="btn btn-secondary waves-effect waves-light w-px-50"
+                                    data-bs-toggle="modal" data-bs-target="#detailFee"><i
+                                        class="menu-icon tf-icons mdi mdi-14px mdi-list-box-outline me-1"></i></button>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                @if (Auth::user()->role == 'Sales')
+                    <div class="card">
+                        <div class="card-body">
+                            @php
+                                // Inisialisasi variabel
+                                $sellingContract = null;
+                                $orderContract = null;
+                                $requestedSellingContract = null;
+                                $requestedOrderContract = null;
 
-                            // Loop untuk menemukan kontrak dengan tipe Selling dan Order
-                            if (isset($quote) && $quote->contract) {
-                                foreach ($quote->contract as $contract) {
-                                    if ($contract->type == 'Selling' && $contract->level == '0') {
-                                        $requestedSellingContract = $contract;
-                                    } elseif ($contract->type == 'Selling' && $contract->level == '1') {
-                                        $sellingContract = $contract;
-                                    } elseif ($contract->type == 'Order' && $contract->level == '0') {
-                                        $requestedOrderContract = $contract;
-                                    } elseif ($contract->type == 'Order' && $contract->level == '1') {
-                                        $orderContract = $contract;
+                                // Loop untuk menemukan kontrak dengan tipe Selling dan Order
+                                if (isset($quote) && $quote->contract) {
+                                    foreach ($quote->contract as $contract) {
+                                        if ($contract->type == 'Selling' && $contract->level == '0') {
+                                            $requestedSellingContract = $contract;
+                                        } elseif ($contract->type == 'Selling' && $contract->level == '1') {
+                                            $sellingContract = $contract;
+                                        } elseif ($contract->type == 'Order' && $contract->level == '0') {
+                                            $requestedOrderContract = $contract;
+                                        } elseif ($contract->type == 'Order' && $contract->level == '1') {
+                                            $orderContract = $contract;
+                                        }
                                     }
                                 }
-                            }
-                        @endphp
-                        @if ($sellingContract)
-                            <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
-                                href="{{ route('contract.show', $sellingContract->id) }}">
-                                Go To Selling Contract
-                            </a>
-                        @elseif ($requestedSellingContract)
-                            <button type="button" class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
-                                Waiting Accounting Apply
-                            </button>
-                        @else
-                            <a href="#" data-id="{{ $quote->id }}"
-                                class="btn btn-outline-dark d-grid w-100 waves-effect mb-3 request-selling">Request Selling
-                                Contract</a>
-                        @endif
-                        @if (Auth::user()->id == '1')
-                            @if ($orderContract)
-                                <a class="btn btn-google-plus d-grid w-100 mb-3 waves-effect"
-                                    href="{{ route('contract.show', $orderContract->id) }}">
-                                    Go To Confirm Order
+                            @endphp
+                            @if ($sellingContract)
+                                <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
+                                    href="{{ route('contract.show', $sellingContract->id) }}">
+                                    Go To Selling Contract
                                 </a>
-                            @elseif ($requestedOrderContract)
+                            @elseif ($requestedSellingContract)
                                 <button type="button" class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
                                     Waiting Accounting Apply
                                 </button>
                             @else
                                 <a href="#" data-id="{{ $quote->id }}"
-                                    class="btn btn-outline-dark d-grid w-100 waves-effect mb-3 request-order">Request
-                                    Confirm
-                                    Order</a>
+                                    class="btn btn-outline-dark d-grid w-100 waves-effect mb-3 request-selling">Request
+                                    Selling
+                                    Contract</a>
                             @endif
-                        @endif
+                            @if (Auth::user()->id == '1')
+                                @if ($orderContract)
+                                    <a class="btn btn-google-plus d-grid w-100 mb-3 waves-effect"
+                                        href="{{ route('contract.show', $orderContract->id) }}">
+                                        Go To Confirm Order
+                                    </a>
+                                @elseif ($requestedOrderContract)
+                                    <button type="button" class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
+                                        Waiting Accounting Apply
+                                    </button>
+                                @else
+                                    <a href="#" data-id="{{ $quote->id }}"
+                                        class="btn btn-outline-dark d-grid w-100 waves-effect mb-3 request-order">Request
+                                        Confirm
+                                        Order</a>
+                                @endif
+                            @endif
+                        </div>
                     </div>
-                </div>
-            @endif
+                @endif
 
-            <!-- Cek apakah ada kontrak bertipe Selling -->
-            @if (Auth::user()->role == 'Admin')
-                <div class="card">
-                    <div class="card-body">
-                        @php
-                            // Inisialisasi variabel
-                            $sellingContract = null;
-                            $orderContract = null;
+                <!-- Cek apakah ada kontrak bertipe Selling -->
+                @if (Auth::user()->role == 'Admin')
+                    <div class="card">
+                        <div class="card-body">
+                            @php
+                                // Inisialisasi variabel
+                                $sellingContract = null;
+                                $orderContract = null;
 
-                            // Loop untuk menemukan kontrak dengan tipe Selling dan Order
-                            if (isset($quote) && $quote->contract) {
-                                foreach ($quote->contract as $contract) {
-                                    if ($contract->type == 'Selling') {
-                                        $sellingContract = $contract;
-                                    } elseif ($contract->type == 'Order') {
-                                        $orderContract = $contract;
+                                // Loop untuk menemukan kontrak dengan tipe Selling dan Order
+                                if (isset($quote) && $quote->contract) {
+                                    foreach ($quote->contract as $contract) {
+                                        if ($contract->type == 'Selling') {
+                                            $sellingContract = $contract;
+                                        } elseif ($contract->type == 'Order') {
+                                            $orderContract = $contract;
+                                        }
                                     }
                                 }
-                            }
-                        @endphp
-                        @if ($sellingContract)
-                            <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
-                                href="{{ route('contract.show', $sellingContract->id) }}">
-                                Go To Selling Contract
-                            </a>
-                        @else
-                            <button type="button" class="btn btn-facebook d-grid w-100 waves-effect mb-3"
-                                data-bs-toggle="modal" data-bs-target="#sellingContract">
-                                Create Selling Contract
-                            </button>
-                        @endif
+                            @endphp
+                            @if ($sellingContract)
+                                <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
+                                    href="{{ route('contract.show', $sellingContract->id) }}">
+                                    Go To Selling Contract
+                                </a>
+                            @else
+                                <button type="button" class="btn btn-facebook d-grid w-100 waves-effect mb-3"
+                                    data-bs-toggle="modal" data-bs-target="#sellingContract">
+                                    Create Selling Contract
+                                </button>
+                            @endif
 
-                        <!-- Cek apakah ada kontrak bertipe Order -->
-                        @if ($orderContract)
-                            <a class="btn btn-google-plus d-grid w-100 mb-3 waves-effect"
-                                href="{{ route('contract.show', $orderContract->id) }}">
-                                Go To Confirm Order
-                            </a>
-                        @else
-                            <button type="button" class="btn btn-google-plus d-grid w-100 waves-effect mb-3"
-                                data-bs-toggle="modal" data-bs-target="#confirmOrder">
-                                Create Confirm Order
-                            </button>
-                        @endif
-                        {{-- <button type="button" class="btn btn-google-plus d-grid w-100 waves-effect mb-3"
+                            <!-- Cek apakah ada kontrak bertipe Order -->
+                            @if ($orderContract)
+                                <a class="btn btn-google-plus d-grid w-100 mb-3 waves-effect"
+                                    href="{{ route('contract.show', $orderContract->id) }}">
+                                    Go To Confirm Order
+                                </a>
+                            @else
+                                <button type="button" class="btn btn-google-plus d-grid w-100 waves-effect mb-3"
+                                    data-bs-toggle="modal" data-bs-target="#confirmOrder">
+                                    Create Confirm Order
+                                </button>
+                            @endif
+                            {{-- <button type="button" class="btn btn-google-plus d-grid w-100 waves-effect mb-3"
                         data-bs-toggle="modal" data-bs-target="#convertPo">Create Contract Order</button> --}}
+                        </div>
+                @endif
+            @else
+                <div class="card">
+                    <div class="card-body">
+                        <a href="#" class="btn btn-primary d-grid w-100 waves-effect unarchive-quotation mb-3"
+                        data-id="{{ $quote->id }}">Un Archive</a>
+                        <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-archive"
+                        data-id="{{ $quote->id }}">Delete Archive</a>
                     </div>
+                </div>
             @endif
         </div>
         {{-- @endif --}}

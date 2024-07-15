@@ -65,8 +65,10 @@ class ReqVisitController extends Controller
         $visit->id_machine = $request->machine;
         $visit->id_service = null;
         $visit->date = null;
+        $visit->visit_date = null;
         $visit->req_date = $request->date;
         $visit->note = $request->note;
+        $visit->visit_note = null;
         $visit->desc = null;
         $visit->status = "Waiting";
         $visitSave = $visit->save();
@@ -223,6 +225,30 @@ class ReqVisitController extends Controller
         }
         if ($status) {
             return redirect('service-reports/' . $reports->id)->with('success', 'Data Has been created');
+        }
+    }
+    public function visited(Request $request, $id)
+    {
+        $rule = [
+            'date' =>
+                'required',
+
+            'note' =>
+                'required',
+        ];
+
+        $message = [
+            'date.required' => 'Field Date Wajib Diisi',
+            'note.required' => 'Field note Wajib Diisi',
+        ];
+        $this->validate($request, $rule, $message);
+        $visit = ReqVisit::find($id);
+        $visit->visit_date = $request->date;
+        $visit->visit_note = $request->note;
+        $visit->status = "Finish";
+        $visitSave = $visit->save();
+        if ($visitSave) {
+            return redirect('/')->with('message', 'data telah dibuat');
         }
     }
 

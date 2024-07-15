@@ -118,8 +118,9 @@ class DashboardController extends Controller
             return $sale->target()->pluck('total')->sum();
         });
         $visits = ReqVisit::whereNull('date')->get();
+        $visited = ReqVisit::whereNotNull('date')->whereNull('visit_date')->get();
         // dd($targett);
-        return view("pages.sales.dashboard", compact('visit','dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredVisit', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'dataCRM', 'dataVisit', 'commodity', 'sproduct', 'targett', 'visits'));
+        return view("pages.sales.dashboard", compact('visit','dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredVisit', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'dataCRM', 'dataVisit', 'commodity', 'sproduct', 'targett', 'visits', 'visited'));
     }
 
     public function overviewIndex()

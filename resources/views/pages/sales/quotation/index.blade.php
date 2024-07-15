@@ -88,8 +88,10 @@
                         <th>Total Price</th>
                         <th>Description</th>
                         <th>Date Quotation</th>
-                        <th>Status</th>
                         {{-- <th>Date Expired</th> --}}
+                        @if (Auth::user()->role == 'Sales')
+                        <th>Status</th>
+                        @endif
                         <th>Stats</th>
                         @if (Auth::user()->role == 'Admin')
                             <th>Assign</th>

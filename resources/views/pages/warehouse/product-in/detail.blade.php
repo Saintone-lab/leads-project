@@ -127,11 +127,11 @@
                 <div class="card-body">
                     <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
                         href="{{route('productIn.print', $product->id)}}">
-                        Print
-                    </a>
-                    <a href="javascript{0}" type="button" class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">
                         Download
                     </a>
+                    {{-- <a href="javascript{0}" type="button" class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">
+                        Download
+                    </a> --}}
                     @if (Auth::user()->role == 'Admin')
                         <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
                             data-bs-toggle="modal" data-bs-target="#editPrice-{{ $product->id }}">

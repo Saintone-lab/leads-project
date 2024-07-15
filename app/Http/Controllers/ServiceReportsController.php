@@ -79,41 +79,13 @@ class ServiceReportsController extends Controller
         $reports->type = $request->type;
         $reports->running = $request->running;
         $reports->load = $request->load;
+        $reports->date = $request->date;
         $reports->jobdesc = $request->jobdesc;
         $reports->desc = $request->desc;
         $reports->recomendation = $request->recomendation;
-        $reports->date = $request->date;
         $reports->sign_client = NULL;
         $status = $reports->save();
         // dd($reports);
-
-        // masukan data ke image reports
-        foreach ($request->description as $item => $value) {
-            $photo = new ReportsPict();
-            $photo->id_reports = $reports->id;
-            $photo->keterangan = $value; // Gunakan $value, bukan $request->description
-
-            if ($request->hasFile('image')) {
-                $foto = $request->file('image')[$item]; // Akses file sesuai dengan iterasi saat ini
-                // Proses setiap file gambar
-                $image_ext = $foto->getClientOriginalExtension();
-                $image_name = Str::random(8);
-
-                $upload_path = 'asset/reports';
-                $imagename = $upload_path . '/' . $image_name . '.' . $image_ext;
-
-                // Pemrosesan gambar
-                $img = Image::make($foto->path());
-                $img->fit(500, 800, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
-                $img->save($imagename);
-
-                $photo['picture'] = $imagename;
-            }
-
-            $status = $photo->save(); // Simpan objek setelah pemrosesan setiap file
-        }
         if ($status) {
             return redirect('service-reports/' . $reports->id)->with('success', 'Data Has been created');
         }
@@ -129,7 +101,7 @@ class ServiceReportsController extends Controller
     {
         $service = Reports::where('id', $id)->first();
         $pict = ReportsPict::where('id_reports', $id)->get();
-        // dd($service);
+        // dd($pict);
         return view('pages.technician.service-reports.detail', compact('service', 'pict'));
     }
 
@@ -151,7 +123,7 @@ class ServiceReportsController extends Controller
         $clients = Client::all();
         $pic = Pic::all();
         // dd($image);
-        return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow', 'report', 'image','clients'));
+        return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow', 'report', 'image', 'clients'));
     }
 
     /**
@@ -190,47 +162,12 @@ class ServiceReportsController extends Controller
         $reports->running = $request->running;
         $reports->load = $request->load;
         $reports->jobdesc = $request->jobdesc;
+        $reports->date = $request->date;
         $reports->desc = $request->desc;
         $reports->recomendation = $request->recomendation;
         $reports->date = $request->date;
         $status = $reports->save();
         // dd($reports);
-
-        $photos = ReportsPict::where('id_reports', $id)->get();
-        if ($request->hasFile('image')) {
-            foreach ($photos as $picture => $value) {
-                $value->delete();
-            }
-            // masukan data ke image reports
-            foreach ($request->description as $item => $value) {
-                $photo = new ReportsPict();
-                $photo->id_reports = $reports->id;
-                $photo->keterangan = $value; // Gunakan $value, bukan $request->description
-
-                $foto = $request->file('image')[$item]; // Akses file sesuai dengan iterasi saat ini
-                // Proses setiap file gambar
-                $image_ext = $foto->getClientOriginalExtension();
-                $image_name = Str::random(8);
-
-                $upload_path = 'asset/reports';
-                $imagename = $upload_path . '/' . $image_name . '.' . $image_ext;
-
-                // Pemrosesan gambar
-                $img = Image::make($foto->path());
-                $img->fit(500, 800, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
-                $img->save($imagename);
-
-                $photo['picture'] = $imagename;
-                $status = $photo->save(); // Simpan objek setelah pemrosesan setiap file
-            }
-        } else {
-            foreach ($photos as $item => $value) {
-                $value->keterangan = $request->description[$item]; // Gunakan $value, bukan $request->description
-                $status = $value->save(); // Simpan objek setelah pemrosesan setiap file
-            }
-        }
         if ($status) {
             return redirect('service-reports/' . $reports->id)->with('success', 'Data Has been updated');
         }
@@ -309,6 +246,52 @@ class ServiceReportsController extends Controller
         if ($status) {
             return 1;
         } else {
+            return 0;
+        }
+    }
+
+    public function inputImage(Request $request, $id)
+    {
+        foreach ($request->description as $item => $value) {
+            $photo = new ReportsPict();
+            $photo->id_reports = $id;
+            $photo->keterangan = $value; // Gunakan $value, bukan $request->description
+
+            if ($request->hasFile('image')) {
+                $foto = $request->file('image')[$item]; // Akses file sesuai dengan iterasi saat ini
+                // Proses setiap file gambar
+                $image_ext = $foto->getClientOriginalExtension();
+                $image_name = Str::random(8);
+
+                $upload_path = 'asset/reports';
+                $imagename = $upload_path . '/' . $image_name . '.' . $image_ext;
+
+                // Pemrosesan gambar
+                $img = Image::make($foto->path());
+                $img->fit(500, 800, function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+                $img->save($imagename);
+
+                $photo['picture'] = $imagename;
+            }
+
+            $status = $photo->save(); // Simpan objek setelah pemrosesan setiap file
+        }
+        if ($status) {
+            return redirect('service-reports/' . $id)->with('success', 'Data Has been created');
+        }
+    }
+
+    public function deleteImage($id)
+    {
+        $photos = ReportsPict::where('id_reports', $id)->get();
+        foreach ($photos as $picture) {
+            $status = $picture->delete();
+        }
+        if ($status) {
+            return 1;
+        }else{
             return 0;
         }
     }

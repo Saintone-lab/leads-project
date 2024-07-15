@@ -24,7 +24,7 @@ if (Auth::check()) {
                   INNER JOIN machine m ON r.id_machine = m.id
                   INNER JOIN client c ON m.id_client = c.id
                   INNER JOIN users u ON c.id_sales = u.id
-                  WHERE r.date IS NOT NULL AND r.id_service IS NULL
+                  WHERE r.date IS NOT NULL AND r.visit_date IS NULL
                   ORDER BY r.req_date ASC";
 
         $stmt = $pdo->prepare($query);

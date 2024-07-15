@@ -6,7 +6,12 @@
     </h4>
     <div class="row">
         @php
-            $item = 1;
+            if ($report->semester == '1') {
+                $item = 1;
+            } else {
+                $item = 7;
+            }
+            
         @endphp
         @foreach ($getDC as $DC)
             <div class="col-lg-6 mb-3">

@@ -80,7 +80,7 @@
                     <div class="col-4 mb-3">
                         <a type="button" data-bs-toggle="modal" data-bs-target="#createMachine">
                             <button type="button" class="btn btn-primary btn-lg">
-                                + Machine
+                                +
                             </button>
                         </a>
                     </div>
@@ -121,48 +121,6 @@
                             <textarea class="form-control" id="recomendation" name="recomendation" placeholder="Recomendation here..."
                                 style="min-height: 100px;" value="{{ old('recomendation') }}">{{ @$report->recomendation ?? '' }}</textarea>
                             <label for="recomendation">Recomendation</label>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="mb-3">
-                            <label for="formFileMultiple" class="form-label">Picture</label>
-                            <input class="form-control" type="file" id="formFileMultiple" name="image[]"
-                                multiple="" accept="image/*">
-                            <div class="d-flex justify-content-between" id="image-preview">
-                                @php
-                                    $i = 1;
-                                @endphp
-                                @if (@$image)
-                                    @foreach ($image as $item)
-                                        <div class="image-container">
-                                            <img src="{{ url('') . '/' . $item->picture }}" alt=""
-                                                srcset="">
-                                            <p>Photo {{ $i }} - {{ $item->keterangan }}</p>
-                                        </div>
-                                        @php
-                                            $i++;
-                                        @endphp
-                                    @endforeach
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 mb-3">
-                        <div id="dynamicInputsContainer">
-                            @php
-                                $i = 1;
-                            @endphp
-                            @if (@$image)
-                                @foreach ($image as $item)
-                                    <input class="form-control mb-2" type="text" name="description[]"
-                                        placeholder="Deskripsi untuk File {{ $i }}"
-                                        value="{{ @$item->keterangan }}">
-                                    @php
-                                        $i++;
-                                    @endphp
-                                @endforeach
-                            @endif
-                            <!-- Elemen input dinamis akan ditambahkan di sini -->
                         </div>
                     </div>
                     <div class="mt-4">
@@ -268,7 +226,7 @@
 
                         $.each(response, function(key, value) {
                             var option = $('<option></option>').attr('value', value.id)
-                                .text(value.brand + " " + value.type);
+                                .text(value.brand + " " + value.type + " " + value.serial_number);
                             if (value.id == selectedMachineId) {
                                 option.attr('selected', 'selected');
                             }

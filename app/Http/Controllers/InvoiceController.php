@@ -7,6 +7,9 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Quotation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+use Intervention\Image\Facades\Image;
 
 class InvoiceController extends Controller
 {
@@ -61,9 +64,10 @@ class InvoiceController extends Controller
 
         $remaining = $quote->harga_total - $totalAmount;
         $price = $this->terbilang($remaining);
-        $tax = $quote->total_no_tax * $quote->tax / 100;
+        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
+        $afterDisc = $quote->subtotal - $quote->diskon;
 
-        return view('pages.accounting.invoice.detail', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining'));
+        return view('pages.accounting.invoice.detail', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
 
     /**
@@ -152,9 +156,57 @@ class InvoiceController extends Controller
 
         $remaining = $quote->harga_total - $totalAmount;
         $price = $this->terbilang($remaining);
-        $tax = $quote->subtotal * $quote->tax / 100;
+        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
+        $afterDisc = $quote->subtotal - $quote->diskon;
         // dd($termncon);
-        return view("pages.accounting.invoice.detail-print", compact('quote', 'dquote', 'tax', 'invoice', 'price', 'payments', 'remaining'));
+        return view("pages.accounting.invoice.detail-print", compact('quote', 'dquote', 'tax', 'invoice', 'price', 'payments', 'remaining', 'afterDisc'));
+    }
+    
+    public function hand_sign(Request $request, $id)
+    {
+        $photo = Invoice::find($id);
+
+        if ($request->hasFile('sign')) {
+            $foto = $request->file('sign'); // Akses file sesuai dengan iterasi saat ini
+            // Proses setiap file gambar
+            $image_ext = $foto->getClientOriginalExtension();
+            $image_name = Str::random(8);
+
+            $upload_path = 'asset/invoice';
+            $imagename = $upload_path . '/' . $image_name . '.' . $image_ext;
+
+            // Pemrosesan gambar
+            $img = Image::make($foto->path());
+            $img->fit(800, 500, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $img->save($imagename);
+
+            $photo['sign'] = $imagename;
+        }
+        // dd($photo);
+        $status = $photo->save();
+
+        if ($status) {
+            return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
+    public function delete_hand_sign($id)
+    {
+        $invoice = Invoice::find($id);
+
+        $delsign = File::delete($invoice->sign);
+        if ($delsign) {
+            $invoice->sign = NULL;
+        }
+        // dd($photo);
+        $status = $invoice->save();
+
+        if ($status) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     private function terbilang($number)

@@ -117,34 +117,48 @@
                         </td>
                         <td colspan="2" class="text-end pl-4 py-5" style="padding-right: 0 !important;">
                             <p class="mb-2">Subtotal:</p>
+                            @if ($quote->diskon != 0)
+                                <p class="mb-2">Discount Quote:</p>
+                                <p class="mb-2">Subtotal After Discount:</p>
+                            @endif
                             <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
-                            <p class="mb-2">Discount Quote:</p>
                             @foreach ($payments as $payment)
                                 <p class="mb-2 py-2" style="background-color: yellow">{{ $payment->note }}:</p>
                             @endforeach
-                            <p class="mb-2">Shipping Cost:</p>
+                            @if ($quote->shipping != 0)
+                                <p class="mb-2">Shipping Cost:</p>
+                            @endif
                             <p class="mb-0">Total:</p>
                         </td>
                         <td colspan="3" class="pr-4 py-5" style="padding-left: 0 !important;">
                             <p class="fw-semibold mb-2 text-end">RP
                                 {{ number_format($quote->subtotal, 0, '', '.') }}</p>
+                            @if ($quote->diskon != 0)
+                                <p class="fw-semibold mb-2 text-end">RP
+                                    {{ number_format($quote->diskon, 0, '', '.') }}
+                                </p>
+                                <p class="fw-semibold mb-2 text-end">RP
+                                    {{ number_format($afterDisc, 0, '', '.') }}
+                                </p>
+                            @endif
                             <p class="fw-semibold mb-2 text-end">
                                 {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
-                            <p class="fw-semibold mb-2 text-end">RP
-                                {{ number_format($quote->diskon, 0, '', '.') }}
-                            </p>
+                            @if ($quote->shipping != 0)
+                                <p class="fw-semibold mb-2 text-end">RP
+                                    {{ number_format($quote->shipping, 0, '', '.') }}
+                                </p>
+                            @endif
                             @foreach ($payments as $payment)
                                 <p class="fw-semibold mb-2 text-end  py-2" style="background-color: yellow"> RP
                                     {{ number_format($payment->amount, 0, '', '.') }}</p>
                             @endforeach
-                            <p class="fw-semibold mb-2 text-end">RP
-                                {{ number_format($quote->shipping, 0, '', '.') }}</p>
                             <p class="fw-semibold mb-0 text-end">RP
                                 {{ number_format($remaining, 0, '', '.') }}</p>
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="3" class="fs-5 fw-medium" style="background-color: rgb(248, 248, 248);"> Say
+                        <td colspan="3" class="fw-medium"
+                            style="background-color: rgb(248, 248, 248); font-size: 13px;"> Say
                             amount:
                             # {{ $price }} Rupiah</td>
                     </tr>

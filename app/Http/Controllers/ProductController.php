@@ -21,7 +21,17 @@ class ProductController extends Controller
         $commodity = Product::count();
         $dproduct = DetailProduct::count();
         $sproduct = SerialProduct::count();
-        return view('pages.warehouse.product.index', compact('commodity', 'dproduct', 'sproduct'));
+        $replace = DetailProduct::all();
+        $asset = $replace->sum(function ($replacement) {
+            return $replacement->modal * $replacement->stock;
+        });
+        $equiv = SerialProduct::join('product', 'product.id', '=', 'serial_product.id_product')->groupBy('product.id')->get();
+        $revenue = $equiv->sum(function ($equivalent) {
+            return $equivalent->price * $equivalent->stock;
+        });
+        // dd($revenue);
+
+        return view('pages.warehouse.product.index', compact('commodity', 'dproduct', 'sproduct', 'asset', 'revenue'));
     }
 
     /**
@@ -80,7 +90,7 @@ class ProductController extends Controller
         $productSave = $product->save();
 
         if ($productSave) {
-            return redirect('/product/' .$product->id)->with('message', 'data telah ditambahkan');
+            return redirect('/product/' . $product->id)->with('message', 'data telah ditambahkan');
         }
     }
 
@@ -213,7 +223,8 @@ class ProductController extends Controller
             return redirect('/product/' . $id)->with('message', 'data telah ditambahkan');
         }
     }
-    public function updateReplacement(Request $request, $id){
+    public function updateReplacement(Request $request, $id)
+    {
         $rule = [
             'modal' =>
                 'required',
@@ -235,7 +246,7 @@ class ProductController extends Controller
     public function destroyReplacement($id)
     {
         $replacement = DetailProduct::find($id);
-        
+
         $delReplace = $replacement->delete();
 
         if ($delReplace) {
@@ -333,7 +344,8 @@ class ProductController extends Controller
         }
     }
 
-    public function indexMaster(){
+    public function indexMaster()
+    {
         $commodity = Product::count();
         $dproduct = DetailProduct::count();
         $sproduct = SerialProduct::count();

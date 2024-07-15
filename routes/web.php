@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ApiTableController;
+use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\CrmController;
@@ -116,7 +117,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/service-reports', ServiceReportsController::class);
     Route::get('/service-reports/print/{id}', [ServiceReportsController::class, 'print_reports'])->name('service-reports.print');
     Route::post('/service-reports/sign/{id}', [ServiceReportsController::class, 'hand_sign'])->name('service-reports.sign');
+    Route::post('/service-reports/image/{id}', [ServiceReportsController::class, 'inputImage'])->name('service-reports.image');
     Route::delete('/service-reports/del-sign/{id}', [ServiceReportsController::class, 'delete_hand_sign'])->name('service-reports.del-sign');
+    Route::delete('/service-reports/del-image/{id}', [ServiceReportsController::class, 'deleteImage'])->name('service-reports.del-image');
 
     // Route untuk service Reports
     Route::resource('/audit-tools', AuditController::class);
@@ -222,9 +225,12 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/request/invoice/{id}', [InvoiceController::class, 'before_accept'])->name('before.accept');
     Route::get('/request/invoice', [InvoiceController::class, 'request'])->name('invoice.request');
     Route::get('/print/invoice/{id}', [InvoiceController::class, 'print_invoice'])->name('print.invoice');
+    Route::post('/invoice/sign/{id}', [InvoiceController::class, 'hand_sign'])->name('invoice.sign');
+    Route::delete('/invoice/del-sign/{id}', [InvoiceController::class, 'delete_hand_sign'])->name('invoice.del-sign');
 
     Route::resource('/req-visit', ReqVisitController::class);
-    Route::post('/req-visit/reports/{id}', [ReqVisitController::class, 'reportsWithRequest'])->name('req-visit.reports');
+    Route::post('/req-visit/visited/{id}', [ReqVisitController::class, 'reportsWithRequest'])->name('req-visit.visited');
+    Route::post('/req-visit/reports/{id}', [ReqVisitController::class, 'visited'])->name('req-visit.reports');
     Route::get('/db/req-visit/{id}', function ($id) {
         $userId = Auth::user()->id;
         $visits = DB::table('req_visit as r')
@@ -239,12 +245,28 @@ Route::group(["middleware" => "auth"], function () {
 
         return response()->json(['data' => $visits]);
     });
+    Route::get('/db/req-visit', function () {
+        $userId = Auth::user()->id;
+        $visits = DB::table('req_visit as r')
+            ->join('machine as m', 'r.id_machine', '=', 'm.id')
+            ->join('client as c', 'm.id_client', '=', 'c.id')
+            ->join('users as u', 'c.id_sales', '=', 'u.id')
+            ->select('r.*', 'c.company', 'u.name', DB::raw("CONCAT(m.brand, ' ', m.type) AS machine"))
+            ->where('u.id', $userId)
+            ->orderBy('r.req_date', 'ASC')
+            ->get();
+
+        return response()->json(['data' => $visits]);
+    });
     Route::get('/db/reqVisit/accept', function () {
         require_once base_path('app/api/reqVisit/connectionAccept.php');
     });
     Route::get('/db/reqVisit/coordinator', function () {
         require_once base_path('app/api/reqVisit/connectionSerCo.php');
     });
+
+    
+    Route::get('/archive/quotation', [ArchiveController::class, 'archive_quotation'])->name('archive.quotation');
 
     // Database Connection
     Route::get('/db/selling-contract/non-tax', function () {
@@ -333,16 +355,19 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/quotation/admin', function () {
         require_once base_path('app/api/quotation/connectionAdmin.php');
     });
+    Route::get('/db/quotation/archive', function () {
+        require_once base_path('app/api/quotation/connectionArchive.php');
+    });
     Route::get('/db/quotation/sales/{id}', function ($id) {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $id)->get(['quotation.*', 'client.company']);
+            $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $id)->where('quotation.level', '1')->get(['quotation.*', 'client.company']);
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/po/sales/{id}', function ($id) {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('po_date', $monthNow)->where('quotation.id_sales', $id)->where('status', '100')->orderBy('po_date', 'asc')->get(['quotation.*', 'client.company']);
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('po_date', $monthNow)->where('quotation.id_sales', $id)->where('status', '100')->orderBy('po_date', 'asc')->where('quotation.level', '1')->get(['quotation.*', 'client.company']);
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/quotation/invoice', function () {
@@ -412,7 +437,7 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $serialProduct]);
     });
     Route::get('/db/product/quotation/{id}', function ($id) {
-        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->get('quotation.*');
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('q.level', '1')->get('quotation.*');
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/product/in/detail/{id}', function ($id) {
@@ -452,7 +477,7 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN s.semester = "2" THEN 12 
             END
         AND YEAR(q.po_date) = s.year
-        AND u.id = ' . $sales->id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(q.total_no_tax), 0) FROM quotation AS q 
+        AND u.id = ' . $sales->id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(q.nett), 0) FROM quotation AS q 
         JOIN users AS u ON q.id_sales = u.id
         WHERE MONTH(q.po_date) BETWEEN 
             CASE 
@@ -569,7 +594,7 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN s.semester = "2" THEN 12 
             END
         AND YEAR(q.po_date) = s.year
-        AND u.id = ' . Auth::user()->id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(q.total_no_tax), 0) FROM quotation AS q 
+        AND u.id = ' . Auth::user()->id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(q.nett), 0) FROM quotation AS q 
         JOIN users AS u ON q.id_sales = u.id
         WHERE MONTH(q.po_date) BETWEEN 
             CASE 

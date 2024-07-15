@@ -19,7 +19,7 @@ return new class extends Migration
             $table->longText("term")->nullable();
             $table->string("no_po");
             $table->string("no_invoice")->nullable();
-            // $table->string("file")->nullable();
+            $table->string("sign")->nullable();
             $table->timestamps();
         });
     }

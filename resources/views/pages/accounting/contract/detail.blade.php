@@ -172,8 +172,27 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="card-body">
+                    <h5 class="my-4">Term & Condition</h5>
+                    <div class="row">
+                        <div class="col-3 fw-medium">
+                            <p class="mb-1">Validity Of Quotation</p>
+                            <p class="mb-1">Price </p>
+                            <p class="mb-1">Delivery Process </p>
+                            <p class="mb-1">Payment </p>
+                            <p class="mb-1">Note </p>
+                        </div>
+                        <div class="col">
+                            <p class="mb-1">: {{ $quote->termncon[0]->validity }}</p>
+                            <p class="mb-1">: {{ $quote->termncon[0]->pricing }}</p>
+                            <p class="mb-1">: {{ $quote->termncon[0]->delivery_process }}</p>
+                            <p class="mb-1">: {{ $quote->termncon[0]->payment }}</p>
+                            <p class="mb-1">: {{ $quote->termncon[0]->note }}</p>
+                        </div>
+                    </div>
+                </div>
                 @if ($contract->type == 'Selling')
-                    <div class="row mt-5">
+                    <div class="row mt-3">
                         <div class="col-4 my-5 text-center">
                             <p class="fs-normal fw-medium">Authorized By,</p>
                             <img src="{{ asset('/asset') }}/contract\sign-irene.jpeg" alt="" srcset=""
@@ -216,7 +235,7 @@
                 <div class="card-body">
                     @if ($contract->level == '0')
                         <button type="button" class="btn btn-primary d-grid w-100 waves-effect mb-3"
-                            data-bs-toggle="modal" data-bs-target="#acceptContract{{$contract->id}}">
+                            data-bs-toggle="modal" data-bs-target="#acceptContract{{ $contract->id }}">
                             Accept
                         </button>
                         <a href="#" class="btn btn-outline-danger d-grid w-100 mb-3 waves-effect delete-contract"
@@ -224,7 +243,7 @@
                     @elseif($contract->level == '1')
                         <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
                             href="{{ route('contract.print', $contract->id) }}">
-                            Print
+                            Download
                         </a>
                         <a href="#" class="btn btn-outline-danger d-grid w-100 mb-3 waves-effect delete-contract"
                             data-id="{{ $contract->id }}" data-quote="{{ $quote->id }}">Delete</a>

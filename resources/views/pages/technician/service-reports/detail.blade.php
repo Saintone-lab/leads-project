@@ -56,7 +56,8 @@
                                             break;
                                     }
                                 @endphp
-                                <span class="badge fs-6 rounded-pill bg-label-{{ $badgeClass }}">{{ $label }}</span>
+                                <span
+                                    class="badge fs-6 rounded-pill bg-label-{{ $badgeClass }}">{{ $label }}</span>
                             </div>
                         </div>
                     </div>
@@ -147,14 +148,14 @@
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-body">
                     <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
                         href="{{ route('service-reports.print', $service->id) }}">
-                        Print
+                        Download
                     </a>
-                    <a href="#" type="button"
-                        class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">Download</a>
+                    {{-- <a href="#" type="button"
+                    class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">Download</a> --}}
                     @if (isset($service->sign_client))
                         <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-hand-sign mb-3"
                             data-id="{{ $service->id }}">Delete Hand Sign</a>
@@ -166,7 +167,7 @@
                             </button>
                         </a>
                     @endif
-                    @if (Auth::user()->role == 'Technician')
+                    @if (Auth::user()->role == 'Technician' || Auth::user()->role == 'Coordinator')
                         <a href="{{ route('service-reports.edit', $service->id) }}"
                             class="btn btn-outline-warning d-grid w-100 waves-effect mb-3">Edit</a>
                         <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-service"
@@ -174,10 +175,27 @@
                     @endif
                 </div>
             </div>
+
+            <div class="card">
+                <div class="card-body">
+                    @if ($pict->isNotEmpty())
+                        <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-image mb-3"
+                            data-id="{{ $service->id }}">Delete Image Reports</a>
+                    @else
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#inputImage"
+                            class="d-grid w-100 waves-effect mb-3">
+                            <button type="button" class="btn btn-primary">
+                                Input Image Reports
+                            </button>
+                        </a>
+                    @endif
+                </div>
+            </div>
         </div>
         {{-- End : Button Invoice --}}
     </div>
     @include('components.modal.service.sign')
+    @include('components.modal.service.image')
 @endsection
 @push('after-style')
     <!-- Page CSS -->
@@ -226,6 +244,88 @@
                 reader.readAsDataURL(file);
             });
         });
+        $(document).ready(function() {
+            $('#formFileMultiplePict').on('change', function() {
+                var files = this.files;
+                var dynamicInputsContainer = $('#dynamicInputsPhotoContainer');
+                console.log(dynamicInputsContainer);
+
+                dynamicInputsContainer.empty();
+
+                for (var i = 0; i < files.length; i++) {
+                    var dynamicInput =
+                        '<input class="form-control mb-2" type="text" name="description[]" placeholder="Deskripsi untuk File ' +
+                        (i + 1) + '">';
+                    dynamicInputsContainer.append(dynamicInput);
+                }
+
+                if (files.length !== 3 && files.length !== 6 && files.length !== 9) {
+                    alert('Gambar Wajib Kelipatan 3! 3/6/9 Maksimal 9');
+                    this.value = ''; // Menghapus file yang tidak memenuhi syarat
+                    dynamicInputsContainer.empty();
+                    return; // Menghentikan eksekusi lebih lanjut jika jumlah file tidak memenuhi syarat
+                }
+
+                console.log(files);
+                const previewContainer = document.getElementById('photo-preview');
+                previewContainer.innerHTML = '';
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        const image = new Image();
+                        image.src = e.target.result;
+
+                        image.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+
+                            // Tentukan ukuran baru untuk gambar
+                            const MAX_WIDTH = 150;
+                            const MAX_HEIGHT = 150;
+                            let width = image.width;
+                            let height = image.height;
+
+                            if (width > height) {
+                                if (width > MAX_WIDTH) {
+                                    height *= MAX_WIDTH / width;
+                                    width = MAX_WIDTH;
+                                }
+                            } else {
+                                if (height > MAX_HEIGHT) {
+                                    width *= MAX_HEIGHT / height;
+                                    height = MAX_HEIGHT;
+                                }
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+
+                            ctx.drawImage(image, 0, 0, width, height);
+
+                            const resizedImageURL = canvas.toDataURL(file.type);
+
+                            const imageContainer = document.createElement('div');
+                            const imageElement = document.createElement('img');
+                            const description = document.createElement('p');
+
+                            imageContainer.className =
+                                'photo-container'; // Tambahkan kelas sesuai kebutuhan
+                            imageElement.src = resizedImageURL;
+                            description.textContent = 'Photo ' + (i + 1);
+
+                            imageContainer.appendChild(imageElement);
+                            imageContainer.appendChild(description);
+                            previewContainer.appendChild(imageContainer);
+                        };
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
         $(document).on('click', '.delete-hand-sign', function() {
             var id = $(this).data('id');
             Swal.fire({
@@ -243,6 +343,62 @@
                 if (result.value) {
                     $.ajax({
                         'url': '{{ url('service-reports') }}/del-sign/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Your file has been deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/service-reports/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.delete-image', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('service-reports') }}/del-image/' + id,
                         'type': 'POST',
                         'data': {
                             '_method': 'DELETE',

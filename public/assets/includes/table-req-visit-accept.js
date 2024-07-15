@@ -93,9 +93,7 @@ $(function () {
                         var $dataId = full["id"];
                         var $newReports = route("req-visit.edit", $dataId);
                         return (
-                            '<a href="' +
-                            $newReports +
-                            '" class="btn btn-primary waves-effect"> + Reports</a>'
+                            '<a type="button" data-bs-toggle="modal" data-bs-target="#acceptVisit'+ $dataId +'" class="btn btn-primary text-white"> Visit </a>'
                         );
                     },
                 },

@@ -29,6 +29,7 @@ return new class extends Migration
             $table->date('po_date')->nullable();
             $table->date('upload_date')->nullable();
             $table->string('po_file')->nullable();
+            $table->enum('level',['0', '1']);
             $table->integer('tax');
             $table->integer('shipping');
             $table->string('no_quote');

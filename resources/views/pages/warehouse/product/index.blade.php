@@ -41,8 +41,8 @@
                     <div class="col-sm-6 col-lg-3">
                         <div class="d-flex justify-content-between align-items-start border-end pb-3 pb-sm-0 card-widget-3">
                             <div>
-                                <p class="mb-2">Pruchase Order</p>
-                                <h4 class="mb-2">1</h4>
+                                <p class="mb-2">Asset</p>
+                                <h4 class="mb-2">Rp {{number_format($asset, '0', ',', '.')}}</h4>
                                 <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
                             </div>
                             <div class="avatar me-sm-4">
@@ -55,8 +55,8 @@
                     <div class="col-sm-6 col-lg-3">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="mb-2">Loss Order</p>
-                                <h4 class="mb-2">2</h4>
+                                <p class="mb-2">Revenue</p>
+                                <h4 class="mb-2">Rp {{number_format($revenue, '0', ',', '.')}}</h4>
                                 <p class="mb-0"><span class="badge rounded-pill bg-label-danger"></span></p>
                             </div>
                             <div class="avatar">

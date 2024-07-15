@@ -13,6 +13,7 @@ class Invoice extends Model
     protected $fillable = [
         'id_quotation',
         'term',
+        'sign',
         'no_po',
         'no_invoice',
     ];

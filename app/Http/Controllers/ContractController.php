@@ -74,7 +74,7 @@ class ContractController extends Controller
         $formattedNumberCNP = str_pad($numberCNP->count() + 1, 3, '0', STR_PAD_LEFT);
         $contract = Contract::find($id);
         $quote = Quotation::where('id', $contract->id_quotation)->first();
-        $tax = $quote->total_no_tax * $quote->tax / 100;
+        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         return view('pages.accounting.contract.detail', compact('contract', 'quote', 'dquote', 'tax', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP'));
     }
@@ -162,7 +162,7 @@ class ContractController extends Controller
     {
         $sellcon = Contract::find($id);
         $quote = Quotation::where('id', $sellcon->id_quotation)->first();
-        $tax = $quote->total_no_tax * $quote->tax / 100;
+        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         return view('pages.accounting.contract.detail-print', compact('sellcon', 'quote', 'dquote', 'tax'));
     }

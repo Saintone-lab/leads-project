@@ -364,11 +364,19 @@
                     <div data-i18n="Spare Part">Spare Part</div>
                 </a>
             </li>
-
             <li class="menu-item">
                 <a href="{{ url('pending-po') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-cart-arrow-down"></i>
                     <div data-i18n="Pending PO">Pending PO</div>
+                </a>
+            </li>
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Archive</span>
+            </li>
+            <li class="menu-item">
+                <a href="{{ route('archive.quotation') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-delete-variant"></i>
+                    <div data-i18n="Archive Quotation">Archive Quotation</div>
                 </a>
             </li>
         @elseif(auth::user()->role == 'Logistic')

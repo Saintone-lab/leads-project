@@ -19,7 +19,9 @@ return new class extends Migration
             $table->foreignId("id_service")->nullable();
             $table->date("date")->nullable();
             $table->date("req_date");
+            $table->date("visit_date")->nullable();
             $table->longText("note");
+            $table->longText("visit_note")->nullable();
             $table->longText("desc")->nullable();
             $table->enum('status',['Waiting', 'Pending', 'On Process', 'Finish']);
             $table->timestamps();

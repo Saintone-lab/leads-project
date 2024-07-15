@@ -458,9 +458,31 @@
                 </div>
             </div>
             {{-- End:: Diagram --}}
+            {{-- Prospect Table --}}
+            <div class="col-md-6 col-12">
+                <div class="card mb-3">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-visit-sales table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Company</th>
+                                    <th>Machine</th>
+                                    <th>Request</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {{-- End:: Prospect Table --}}
 
             {{-- Prospect Table --}}
-            <div class="col-lg-6 col-md-6 col-12">
+            <div class="col-12">
                 <div class="card mb-3">
                     <div class="card-datatable table-responsive pt-0">
                         <table class="datatable-prospect-quote-sales table table-striped">
@@ -1209,6 +1231,9 @@
         @foreach ($visits as $visit)
             @include('components.modal.req-visit.form-accept')
         @endforeach
+        @foreach ($visited as $visit)
+            @include('components.modal.req-visit.form-visited')
+        @endforeach
     @endif
 @endsection
 @push('after-style')
@@ -1259,15 +1284,16 @@
     @endif
 @endpush
 @push('page-script')
-<!-- Page JS -->
-<script src="{{ asset('assets') }}/js/ui-modals.js"></script>
+    <!-- Page JS -->
+    <script src="{{ asset('assets') }}/js/ui-modals.js"></script>
 
     @if (Auth::user()->role == 'Sales')
-    <script src="{{ asset('assets') }}/js/dashboards-crm.js"></script>
-    <script src="{{ asset('assets') }}/js/app-calendar-events.js"></script>
-    <script src="{{ asset('assets') }}/js/app-calendar.js"></script>
-    <script src="{{ asset('assets') }}/includes/chart/card-monthly.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-prospect-sales.js"></script>
+        <script src="{{ asset('assets') }}/js/dashboards-crm.js"></script>
+        <script src="{{ asset('assets') }}/js/app-calendar-events.js"></script>
+        <script src="{{ asset('assets') }}/js/app-calendar.js"></script>
+        <script src="{{ asset('assets') }}/includes/chart/card-monthly.js"></script>
+        <script src="{{ asset('assets') }}/includes/table-prospect-sales.js"></script>
+        <script src="{{ asset('assets') }}/includes/table-req-visit-sales.js"></script>
     @endif
 
     <script src="{{ asset('assets') }}/includes/table-prospect.js"></script>

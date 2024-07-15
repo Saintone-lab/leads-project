@@ -106,6 +106,7 @@ class QuotationController extends Controller
         $quotation->expired_date = $request->expired_date;
         $quotation->po_date = NULL;
         $quotation->po_file = NULL;
+        $quotation->level = '1';
         $quotation->estimated_date = $request->estimated_date;
         if ($request->tax != NULL) {
             $quotation->tax = $request->tax;
@@ -183,7 +184,9 @@ class QuotationController extends Controller
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn']);
         $noQuote = substr($quote->no_quote, 0, 3);
         $today = Carbon::now();
-        $tax = $quote->subtotal * $quote->tax / 100;
+        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
+        $afterDisc = $quote->subtotal - $quote->diskon;
+        // dd($quote->diskon);
         $thisYear = $today->year;
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
@@ -191,7 +194,7 @@ class QuotationController extends Controller
 
         $remaining = $quote->harga_total - $totalAmount;
         // dd($formattedNumberSP);
-        return view("pages.sales.quotation.detail", compact('quote', 'dquote', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining'));
+        return view("pages.sales.quotation.detail", compact('quote', 'dquote', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
 
     /**
@@ -253,6 +256,7 @@ class QuotationController extends Controller
         $quotation->note = $quote->note;
         $quotation->po_date = $quote->po_date;
         $quotation->po_file = $quote->po_file;
+        $quotation->level = $quote->level;
         $quotation->expired_date = $request->expired_date;
         $quotation->estimated_date = $request->estimated_date;
         $quotation->tax = $request->tax;
@@ -310,6 +314,18 @@ class QuotationController extends Controller
     public function destroy($id)
     {
         $quotation = Quotation::find($id);
+
+        $quotation->level = '0';
+        $delQuote = $quotation->save();
+
+        if ($delQuote) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    public function delete_quote($id){
+        $quotation = Quotation::find($id);
         $detailQuote = DetailQuotation::where('id_quotation', $id)->get();
 
         $delQuote = $quotation->delete();
@@ -323,15 +339,15 @@ class QuotationController extends Controller
         } else {
             return 0;
         }
-
     }
     public function print_quote($id)
     {
         $quote = Quotation::where('id', $id)->first();
         $dquote = DetailQuotation::where('id_quotation', $id)->get();
-        $tax = $quote->subtotal * $quote->tax / 100;
+        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
+        $afterDisc = $quote->subtotal - $quote->diskon;
         // dd($termncon);
-        return view("pages.sales.quotation.detail-print", compact('quote', 'dquote', 'tax'));
+        return view("pages.sales.quotation.detail-print", compact('quote', 'dquote', 'tax', 'afterDisc'));
     }
 
     public function pdf_quote($id)
@@ -563,6 +579,7 @@ class QuotationController extends Controller
             $invoice->no_po = $request->po;
             $invoice->no_invoice = NULL;
             $invoice->term = NULL;
+            $invoice->sign = NULL;
             $invoice->save();
 
             return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');

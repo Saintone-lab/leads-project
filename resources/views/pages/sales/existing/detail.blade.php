@@ -249,7 +249,7 @@
                 <div class="button-crm">
                     <a type="button" data-bs-toggle="modal" data-bs-target="#createReqVisit">
                         <button type="button" class="btn btn-label-instagram">
-                            + New Visit
+                            + Request Visit
                         </button>
                     </a>
                     <a type="button" data-bs-toggle="modal" data-bs-target="#createAction{{ $existing->id }}">

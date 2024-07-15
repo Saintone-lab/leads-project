@@ -11,6 +11,7 @@ class ReqVisit extends Model
     protected $table = "req_visit";
     protected $date = [
         'req_date',
+        'visit_date',
         'date',
         'created_at',
         'updated_at'
@@ -19,6 +20,7 @@ class ReqVisit extends Model
         'id_machine',
         'id_service',
         'note',
+        'visit_note',
         'desc',
         'status',
     ];

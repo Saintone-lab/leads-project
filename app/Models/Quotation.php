@@ -30,6 +30,7 @@ class Quotation extends Model
         'fee',
         'nett',
         'po_file',
+        'level',
         'shipping',
         'no_quote',
         'termcon',
