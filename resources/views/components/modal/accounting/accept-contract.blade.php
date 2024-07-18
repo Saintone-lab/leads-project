@@ -19,10 +19,22 @@
                                 <div class="form-floating form-floating-outline">
                                     <input type="text" class="form-control" id="no_contract" name="no_contract"
                                         placeholder="John Doe"
-                                        value="{{$result}}/{{ $contract->quotation->tax == '11' ? 'P' : 'NP' }}/{{ $contract->type == 'Selling' ? 'SELLCTX/RJO' : 'CO/KII' }}/{{ $thisYear }}">
+                                        value="{{ $result }}/{{ $contract->quotation->tax == '11' ? 'P' : 'NP' }}/{{ $contract->type == 'Selling' ? 'SELLCTX/RJO' : 'CO/KII' }}/{{ $thisYear }}">
                                     <label for="no_contract">No Contract</label>
                                 </div>
                             </div>
+                            <p class="text-danger text-start">
+                                Last No :
+                                @if ($contract->type == 'Selling' && $contract->quotation->tax == '11')
+                                    {{ @$numberLastSP->no_contract }}
+                                @elseif ($contract->type == 'Selling' && $contract->quotation->tax == '0')
+                                    {{ @$numberLastSNP->no_contract }}
+                                @elseif ($contract->type == 'Order' && $contract->quotation->tax == '11')
+                                    {{ @$numberLastCP->no_contract }}
+                                @elseif ($contract->type == 'Order' && $contract->quotation->tax == '0')
+                                    {{ @$numberLastCNP->no_contract }}
+                                @endif
+                            </p>
                         </div>
                     </div>
                 </div>

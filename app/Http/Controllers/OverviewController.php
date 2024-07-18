@@ -147,6 +147,28 @@ class OverviewController extends Controller
         $user = User::find($id);
         return view('pages.admin.overview.semester', compact('user'));
     }
+    public function detailSemesterOverview($sales, $date)
+    {
+        $user = User::find($sales);
+        $dates = $date;
+        $dateOver = '01-' . $date;
+        $dateCarbon = Carbon::createFromFormat('d-m-Y', $dateOver);
+
+        $month = $dateCarbon->month;
+        $year = $dateCarbon->year;
+        $quotation = Quotation::where('status', '100')->where('id_sales', $sales)->whereMonth('po_date', $month)->whereYear('po_date', $year)->get();
+        // admin
+        $target = Target::where('id_sales', $sales)->first();
+        $totalDC = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $month)->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->where('client.id_sales', $sales)->count();
+        $totalCRM = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $month)->where('status', 'Responded')->where('name', 'CRM')->where('client.id_sales', $sales)->count();
+        $totalVisit = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $month)->where('status', 'Responded')->where('name', 'Visit')->where('client.id_sales', $sales)->count();
+        $totalQuote = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->whereMonth('po_date', $month)->where('id_sales', $sales)->where('level', '1')->count();
+        $totalPO = Quotation::where('status', '100')->whereMonth('po_date', $month)->where('id_sales', $sales)->where('level', '1')->count();
+        $amountSales = Quotation::whereMonth('po_date', $month)->where('status', '100')->where('id_sales', $sales)->where('level', '1')->sum('nett');
+        $amountProspect = Quotation::whereMonth('estimated_date', $month)->where('status', '80')->where('id_sales', $sales)->where('level', '1')->sum('nett');
+        $amountQuote = Quotation::whereMonth('estimated_date', $month)->whereIn('status', ['20', '30', '40', '60', '80'])->where('id_sales', $sales)->where('level', '1')->sum('nett');
+        return view('pages.admin.overview.kpi', compact('user', 'dates', 'quotation', "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "amountSales", "amountQuote", "amountProspect", "target"));
+    }
 
     public function overviewAdmin($semester, $sales)
     {
@@ -161,8 +183,9 @@ class OverviewController extends Controller
         $getTotalForecast = $this->getMonthlyDataTotalForecastSales($report->semester, $report->year, $sales);
         $getTotalPO = $this->getMonthlyDataTotalPOSales($report->semester, $report->year, $sales);
         $targett = Target::where('id_sales', $sales)->pluck('total')->sum();
+        $user = User::find($sales);
         // dd($getPO);
-        return view('pages.admin.overview.detail', compact('report', 'getDC', 'getCRM', 'getVisit', 'getQuote', 'getPO', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'targett'));
+        return view('pages.admin.overview.detail', compact('report', 'getDC', 'getCRM', 'getVisit', 'getQuote', 'getPO', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'targett', 'user'));
     }
     protected function getMonthlyDataDC($semester, $year)
     {
@@ -457,6 +480,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('COUNT(*) as total'))
                 ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
+                ->where('level', '1')
                 ->groupBy('month')
                 ->orderBy('month')
                 ->pluck('total', 'month');
@@ -486,6 +510,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('COUNT(*) as total'))
                 ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
+                ->where('level', '1')
                 ->groupBy('month')
                 ->orderBy('month')
                 ->pluck('total', 'month');
@@ -520,6 +545,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('COUNT(*) as total'))
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
+                ->where('level', '1')
                 ->where('status', '100')
                 ->groupBy('month')
                 ->orderBy('month')
@@ -550,6 +576,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('COUNT(*) as total'))
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
+                ->where('level', '1')
                 ->where('status', '100')
                 ->groupBy('month')
                 ->orderBy('month')
@@ -586,6 +613,7 @@ class OverviewController extends Controller
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('quotation.id_sales', Auth::user()->id)
                 ->where('status', '100')
+                ->where('level', '1')
                 ->get();
             // dd(Auth::user()->id);
             $fullMonthData = [];
@@ -617,6 +645,7 @@ class OverviewController extends Controller
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('quotation.id_sales', Auth::user()->id)
                 ->where('status', '100')
+                ->where('level', '1')
                 ->get();
             // dd($dCallPerMonth);
             $fullMonthData = [];
@@ -651,6 +680,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(nett) as total'))
                 ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
+                ->where('level', '1')
                 ->whereIn('status', ['20', '30', '40', '60', '80', '100'])
                 ->groupBy('month')
                 ->orderBy('month')
@@ -681,6 +711,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('month(estimated_date) as month'), DB::raw('SUM(nett) as total'))
                 ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
+                ->where('level', '1')
                 ->whereIn('status', ['20', '30', '40', '60', '80', '100'])
                 ->groupBy(DB::raw('MONTH(estimated_date)'))
                 ->orderBy('month')
@@ -715,6 +746,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(nett) as total'))
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
+                ->where('level', '1')
                 ->where('status', '100')
                 ->groupBy('month')
                 ->orderBy('month')
@@ -745,6 +777,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(nett) as total'))
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
+                ->where('level', '1')
                 ->where('status', '100')
                 ->groupBy('month')
                 ->orderBy('month')
@@ -1063,6 +1096,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('COUNT(*) as total'))
                 ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
+                ->where('level', '1')
                 ->groupBy('month')
                 ->orderBy('month')
                 ->pluck('total', 'month');
@@ -1092,6 +1126,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('COUNT(*) as total'))
                 ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
+                ->where('level', '1')
                 ->groupBy('month')
                 ->orderBy('month')
                 ->pluck('total', 'month');
@@ -1127,6 +1162,7 @@ class OverviewController extends Controller
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
                 ->where('status', '100')
+                ->where('level', '1')
                 ->groupBy('month')
                 ->orderBy('month')
                 ->pluck('total', 'month');
@@ -1157,6 +1193,7 @@ class OverviewController extends Controller
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
                 ->where('status', '100')
+                ->where('level', '1')
                 ->groupBy('month')
                 ->orderBy('month')
                 ->pluck('total', 'month');
@@ -1192,6 +1229,7 @@ class OverviewController extends Controller
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('quotation.id_sales', $sales)
                 ->where('status', '100')
+                ->where('level', '1')
                 ->get();
             // dd($sales);
             $fullMonthData = [];
@@ -1223,6 +1261,7 @@ class OverviewController extends Controller
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('quotation.id_sales', $sales)
                 ->where('status', '100')
+                ->where('level', '1')
                 ->get();
             // dd($dCallPerMonth);
             $fullMonthData = [];
@@ -1257,6 +1296,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(nett) as total'))
                 ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
+                ->where('level', '1')
                 ->whereIn('status', ['20', '30', '40', '60', '80', '100'])
                 ->groupBy('month')
                 ->orderBy('month')
@@ -1287,6 +1327,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(nett) as total'))
                 ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
+                ->where('level', '1')
                 ->whereIn('status', ['20', '30', '40', '60', '80'])
                 ->groupBy('month')
                 ->orderBy('month')
@@ -1322,6 +1363,7 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(nett) as total'))
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
+                ->where('level', '1')
                 ->where('status', '100')
                 ->groupBy('month')
                 ->orderBy('month')
@@ -1352,11 +1394,12 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(nett) as total'))
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
+                ->where('level', '1')
                 ->where('status', '100')
                 ->groupBy('month')
                 ->orderBy('month')
                 ->pluck('total', 'month');
-                // dd($dCallPerMonth);
+            // dd($dCallPerMonth);
 
             $fullMonthData = [];
             for ($month = 7; $month <= 12; $month++) {

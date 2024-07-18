@@ -128,6 +128,7 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk Overview
     Route::resource('/overview', OverviewController::class);
     Route::get('/overview/sales/{id}', [OverviewController::class, 'semesterOverviewSales'])->name('overview.semester');
+    Route::get('/detail-overview/{sales}/{date}', [OverviewController::class, 'detailSemesterOverview'])->name('detail-overview.semester');
     Route::get('/overview/{semester}/{sales}', [OverviewController::class, 'overviewAdmin'])->name('overview-sales.semester');
     // Route untuk PO
     Route::get('/pending-po', function () {
@@ -265,8 +266,10 @@ Route::group(["middleware" => "auth"], function () {
         require_once base_path('app/api/reqVisit/connectionSerCo.php');
     });
 
-    
+
     Route::get('/archive/quotation', [ArchiveController::class, 'archive_quotation'])->name('archive.quotation');
+    Route::post('/un-archive/quotation/{id}', [ArchiveController::class, 'unarchive_quotation'])->name('unarchive.quotation');
+    Route::delete('/delete-archive/quotation/{id}', [ArchiveController::class, 'delete_archive_quotation'])->name('delete-archive.quotation');
 
     // Database Connection
     Route::get('/db/selling-contract/non-tax', function () {
@@ -361,7 +364,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/quotation/sales/{id}', function ($id) {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-            $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $id)->where('quotation.level', '1')->get(['quotation.*', 'client.company']);
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $id)->where('quotation.level', '1')->get(['quotation.*', 'client.company']);
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/po/sales/{id}', function ($id) {
@@ -437,7 +440,7 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $serialProduct]);
     });
     Route::get('/db/product/quotation/{id}', function ($id) {
-        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('q.level', '1')->get('quotation.*');
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('quotation.level', '1')->get('quotation.*');
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/product/in/detail/{id}', function ($id) {
@@ -505,6 +508,35 @@ Route::group(["middleware" => "auth"], function () {
         AND YEAR(q.estimated_date) = s.year
         AND u.id = ' . $sales->id . ') AS quote'))
             ->get();
+        return response()->json(['data' => $data]);
+    });
+
+    // Detail Overview
+    Route::get('/db/overview/call/{sales}/{date}', function ($sales, $date) {
+        $dateRep = "01-" . $date;
+        $dateCarbon = Carbon::createFromFormat('d-m-Y', $dateRep);
+
+        $month = $dateCarbon->month;
+        $year = $dateCarbon->year;
+        $data = Activities::join('client', 'activities.id_client', '=', 'client.id')->where('client.id_sales', $sales)->whereIn('name', ['Daily Call', 'Follow Up'])->whereMonth('date', $month)->whereYear('date', $year)->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/overview/crm/{sales}/{date}', function ($sales, $date) {
+        $dateRep = "01-" . $date;
+        $dateCarbon = Carbon::createFromFormat('d-m-Y', $dateRep);
+
+        $month = $dateCarbon->month;
+        $year = $dateCarbon->year;
+        $data = Activities::join('client', 'activities.id_client', '=', 'client.id')->where('client.id_sales', $sales)->where('name', 'CRM')->whereMonth('date', $month)->whereYear('date', $year)->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/overview/quotation/{sales}/{date}', function ($sales, $date) {
+        $dateRep = "01-" . $date;
+        $dateCarbon = Carbon::createFromFormat('d-m-Y', $dateRep);
+
+        $month = $dateCarbon->month;
+        $year = $dateCarbon->year;
+        $data = Quotation::join('pic', 'quotation.id_pic', '=', 'pic.id')->join('client', 'pic.id_client', '=', 'client.id')->where('quotation.id_sales', $sales)->whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->get(['no_quote', 'client.company', 'nett', 'title' ,'estimated_date', 'status', 'quotation.note', 'quotation.id']);
         return response()->json(['data' => $data]);
     });
 

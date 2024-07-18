@@ -27,7 +27,7 @@
                                 @endphp
                                 @forelse ($getPOModal[$item]['data'] as $key => $quoteData)
                                     @php
-                                        $totalQ = $quoteData['total_no_tax'];
+                                        $totalQ = $quoteData['nett'];
                                         $totalP += $totalQ;
                                         $quoteObj = \App\Models\Quotation::where('id', $quoteData['id'])->first();
                                     @endphp
@@ -40,7 +40,7 @@
                                         <td>{{ $quoteObj->title }}</td>
                                         <td>{{ \Carbon\Carbon::parse($quoteObj->estimated_date)->format('d-m-Y') }}</td>
                                         <td class="text-end">Rp
-                                            {{ number_format($quoteObj->total_no_tax, 0, '', '.') }}</td>
+                                            {{ number_format($quoteObj->nett, 0, '', '.') }}</td>
                                     </tr>
                                     @php
                                         $key++;

@@ -64,7 +64,7 @@ class CrmController extends Controller
         $charge = PIC::where('id_client', $id)->get();
         $callhis = Activities::where('id_client', $id)->whereIn('name', ['Daily Call', 'Follow Up', 'CRM'])->get();
         $visit = Activities::where('id_client', $id)->where('name', 'Visit')->get();
-        $quote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->get('quotation.*');
+        $quote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('level', '1')->get('quotation.*');
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
         $crmhis = $this->data($id);

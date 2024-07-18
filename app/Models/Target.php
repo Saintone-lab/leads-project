@@ -16,9 +16,15 @@ class Target extends Model
     protected $fillable = [
         'id_sales',
         'dc',
-        'intro',
+        'statDc',
+        'crm',
+        'statCrm',
+        'visit',
+        'statVisit',
         'quote',
+        'statQuote',
         'po',
+        'statPo',
         'total'
     ];
 

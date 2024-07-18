@@ -78,6 +78,7 @@ class EmployeeController extends Controller
         $users->address = $request->address;
         $users->sign = NULL;
         $users->code = $request->code;
+        $users->active = $request->active;
         $users->role = $request->role;
         $users->email = $request->email;
         $users->password = Hash::make($request->password);
@@ -108,7 +109,7 @@ class EmployeeController extends Controller
             if(isset($request->visit)){
                 $target->visit = $request->visit;
             }else{
-                $request->visit = NULL;
+                $target->visit = 0;
             }
             $target->quote = $request->quote;
             $target->po = $request->po;
@@ -189,6 +190,7 @@ class EmployeeController extends Controller
         $users->address = $request->address;
         $users->sign = NULL;
         $users->code = $request->code;
+        $users->active = $request->active;
         $users->email = $request->email;
         // $users->password = Hash::make($request->password);
         // $users->phone = '+62' . $request->phone;

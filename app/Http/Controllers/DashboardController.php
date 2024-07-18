@@ -53,39 +53,39 @@ class DashboardController extends Controller
             ->where('status', 'Responded')
             ->where('activities.name', 'Visit')
             ->count();
-        $quotation = Quotation::whereMonth("estimated_date", $monthNow)->where("id_sales", Auth::user()->id)->get();
-        $po = Quotation::whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->get();
-        $poTotalPrice = Quotation::whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->sum('nett');
-        $poTotalPriceAdmin = Quotation::whereMonth("po_date", $monthNow)->where("status", "100")->sum('nett');
+        $quotation = Quotation::whereMonth("estimated_date", $monthNow)->where("id_sales", Auth::user()->id)->where('level', '1')->get();
+        $po = Quotation::whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->where('level', '1')->get();
+        $poTotalPrice = Quotation::whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->where('level', '1')->sum('nett');
+        $poTotalPriceAdmin = Quotation::whereMonth("po_date", $monthNow)->where("status", "100")->where('level', '1')->sum('nett');
         $formattedTotalPrice = $this->formatNumber($poTotalPrice);
         $formattedTotalPriceAdmin = $this->formatNumber($poTotalPriceAdmin);
-        $sales = User::where('role', 'Sales')->get();
+        $sales = User::where('role', 'Sales')->where('active', '1')->get();
         $totalPO = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->sum('nett');
+            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->where('level', '1')->sum('nett');
         });
         $totalProspect = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->where('status', '80')->sum('nett');
+            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->where('status', '80')->where('level', '1')->sum('nett');
             return number_format($total, 2, ',', '.');
         });
         $totalForecast = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
+            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->sum('nett');
             return number_format($total, 2, ',', '.');
         });
         $filteredPO = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->count();
+            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->where('level', '1')->count();
         });
         $filteredQuote = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('estimated_date', $monthNow)->count();
+            return $sale->quotation()->whereMonth('estimated_date', $monthNow)->where('level', '1')->count();
         });
         $filteredDC = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
@@ -117,10 +117,13 @@ class DashboardController extends Controller
         $targett = $sales->map(function ($sale) {
             return $sale->target()->pluck('total')->sum();
         });
+        $targetSales = $sales->map(function ($sale) {
+            return $sale->target()->groupBy('id_sales')->get();
+        });
         $visits = ReqVisit::whereNull('date')->get();
         $visited = ReqVisit::whereNotNull('date')->whereNull('visit_date')->get();
-        // dd($targett);
-        return view("pages.sales.dashboard", compact('visit','dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredVisit', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'dataCRM', 'dataVisit', 'commodity', 'sproduct', 'targett', 'visits', 'visited'));
+        // dd($targetSales);
+        return view("pages.sales.dashboard", compact('targetSales', 'visit', 'dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredVisit', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'dataCRM', 'dataVisit', 'commodity', 'sproduct', 'targett', 'visits', 'visited'));
     }
 
     public function overviewIndex()
@@ -129,23 +132,23 @@ class DashboardController extends Controller
         $totalPO = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->sum('nett');
+            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->where('level', '1')->sum('nett');
         });
         $totalForecast = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
+            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->sum('nett');
             return number_format($total, 2, ',', '.');
         });
         $filteredPO = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->count();
+            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->where('level', '1')->count();
         });
         $filteredQuote = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
             $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('estimated_date', $monthNow)->count();
+            return $sale->quotation()->whereMonth('estimated_date', $monthNow)->where('level', '1')->count();
         });
         $filteredDC = $sales->map(function ($sale) {
             $dateNow = Carbon::now();
@@ -423,6 +426,7 @@ class DashboardController extends Controller
                         ->where(DB::raw('WEEK(estimated_date, 4)'), $weekKey)
                         ->where('id_sales', $salesId)
                         ->pluck('total')
+                        ->where('level', '1')
                         ->first(); // Mengambil total aktivitas
 
                     // Menambahkan data aktivitas per minggu ke dalam array $weeklyData

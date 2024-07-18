@@ -56,22 +56,22 @@
                                 <label for="email">E-mail</label>
                             </div>
                         </div>
-                        {{-- @if (empty($users)) --}}
-                            <div class="col-md-6 mt-2">
-                                <div class="input-group input-group-merge">
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="password" id="password"
-                                            class="form-control  @error('password') is-invalid @enderror"
-                                            name="password" required autocomplete="current-password" name="password"
-                                            placeholder="············" aria-describedby="password">
-                                        <label for="password">Password</label>
-                                    </div>
-                                    <span class="input-group-text cursor-pointer">
-                                        <i class="mdi mdi-eye-off-outline"></i>
-                                    </span>
+                        @if (empty($users))
+                        <div class="col-md-6 mt-2">
+                            <div class="input-group input-group-merge">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="password" id="password"
+                                        class="form-control  @error('password') is-invalid @enderror" name="password"
+                                        required autocomplete="current-password" name="password"
+                                        placeholder="············" aria-describedby="password">
+                                    <label for="password">Password</label>
                                 </div>
+                                <span class="input-group-text cursor-pointer">
+                                    <i class="mdi mdi-eye-off-outline"></i>
+                                </span>
                             </div>
-                        {{-- @endif --}}
+                        </div>
+                        @endif
                         <h5 class="text-muted mb-0">
                             Profile
                         </h5>
@@ -166,6 +166,18 @@
                                 <label for="code">Code</label>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="input-group input-group-merge">
+                                <div class="form-floating form-floating-outline">
+                                    <select class="form-select" id="ddSales" aria-label="Default select example"
+                                        name="active">
+                                        <option value="1" {{@$users->active == '1' ? 'selected' : ''}}>Active</option>
+                                        <option value="0" {{@$users->active == '0' ? 'selected' : ''}}>Non Active</option>
+                                    </select>
+                                    <label for="exampleFormControlSelect1">Active Status</label>
+                                </div>
+                            </div>
+                        </div>
                         @if (empty($users))
                             <div class="row mt-2 gy-4" id="inputTarget">
                                 <h5 class="text-muted mb-0">
@@ -181,10 +193,10 @@
                                 </div>
                                 <div class="col-6 mt-2">
                                     <div class="form-floating form-floating-outline">
-                                        <input class="form-control" type="number" id="intro" name="intro"
-                                            value="{{ old('intro', @$users->target[0]->intro ?? '') }}"
+                                        <input class="form-control" type="number" id="crm" name="crm"
+                                            value="{{ old('crm', @$users->target[0]->crm ?? '') }}"
                                             placeholder="61256996" />
-                                        <label for="intro">Introduce</label>
+                                        <label for="crm">CRM</label>
                                     </div>
                                 </div>
                                 <div class="col-6">

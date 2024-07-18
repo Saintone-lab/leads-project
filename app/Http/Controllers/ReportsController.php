@@ -22,9 +22,17 @@ class ReportsController extends Controller
         $target = Target::where('id_sales', Auth::user()->id)->first();
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
+        $totalDC = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $monthNow)->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->where('client.id_sales', Auth::user()->id)->count();
+        $totalCRM = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'CRM')->where('client.id_sales', Auth::user()->id)->count();
+        $totalVisit = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'Visit')->where('client.id_sales', Auth::user()->id)->count();
+        $totalQuote = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->whereMonth('po_date', $monthNow)->where('id_sales', Auth::user()->id)->where('level', '1')->count();
+        $totalPO = Quotation::where('status', '100')->whereMonth('po_date', $monthNow)->where('id_sales', Auth::user()->id)->where('level', '1')->count();
+        $amountSales = Quotation::whereMonth('po_date', $monthNow)->where('status', '100')->where('id_sales', Auth::user()->id)->where('level', '1')->sum('nett');
+        $amountProspect = Quotation::whereMonth('estimated_date', $monthNow)->where('status', '80')->where('id_sales', Auth::user()->id)->where('level', '1')->sum('nett');
+        $amountQuote = Quotation::whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->where('id_sales', Auth::user()->id)->where('level', '1')->sum('nett');
         // dd($dataDc);
-        $quotation = Quotation::where('status', '100')->whereMonth('po_date', $monthNow)->where('id_sales', Auth::user()->id)->get();
-        return view("pages.sales.report.index", compact("quotation", "dataDc", "dataQuote", "dataPo", "target", "dataCRM", "dataVisit"));
+        $quotation = Quotation::where('status', '100')->whereMonth('po_date', $monthNow)->where('id_sales', Auth::user()->id)->where('level', '1')->get();
+        return view("pages.sales.report.index", compact("quotation", "dataDc", "dataQuote", "dataPo", "target", "dataCRM", "dataVisit", "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "amountSales", "amountQuote", "amountProspect"));
     }
 
     protected function getWeekDataDC()
@@ -164,6 +172,7 @@ class ReportsController extends Controller
         $dCallPerWeek = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date), "-W", WEEK(estimated_date, 4)) as estimated_date'), DB::raw('WEEK(estimated_date, 4) as week'), DB::raw('COUNT(*) as total'))
             ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
             ->where('id_sales', Auth::user()->id)
+            ->where('level', '1')
             ->groupBy('week')
             ->orderBy('week')
             ->pluck('total', 'week');
@@ -197,6 +206,7 @@ class ReportsController extends Controller
         $dCallPerWeek = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date), "-W", WEEK(po_date, 4)) as po_date'), DB::raw('WEEK(po_date, 4) as week'), DB::raw('COUNT(*) as total'))
             ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
             ->where('id_sales', Auth::user()->id)
+            ->where('level', '1')
             ->where('status', '100')
             ->groupBy('week')
             ->orderBy('week')

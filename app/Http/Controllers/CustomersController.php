@@ -53,7 +53,7 @@ class CustomersController extends Controller
         $customers = Client::where('id', $id)->first();
         $charge = Pic::where('id_client', $id)->get();
         $callhis = Activities::where('id_client', $id)->get();
-        $quote = Quotation::join('pic','pic.id','=','quotation.id_pic')->where('pic.id_client', $id)->get();
+        $quote = Quotation::join('pic','pic.id','=','quotation.id_pic')->where('pic.id_client', $id)->where('level', '1')->get();
         $sales = User::where('role', 'sales')->get();
         return view('pages.sales.clients.customers.detail', compact('customers', 'callhis', 'quote', 'sales', 'charge'));
     }

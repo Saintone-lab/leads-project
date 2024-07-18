@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Contract;
 use App\Models\DetailQuotation;
+use App\Models\Invoice;
 use App\Models\Quotation;
+use App\Models\Termncon;
 use Illuminate\Http\Request;
 
 class ArchiveController extends Controller
@@ -32,6 +34,8 @@ class ArchiveController extends Controller
         $quotation = Quotation::find($id);
         $detailQuote = DetailQuotation::where('id_quotation', $id)->get();
         $contract = Contract::where('id_quotation', $id)->get();
+        $termncon = Termncon::where('id_quotation', $id)->get();
+        $invoice = Invoice::where('id_quotation', $id)->get();
 
         $delQuote = $quotation->delete();
 
@@ -41,8 +45,14 @@ class ArchiveController extends Controller
         foreach ($contract as $contracts) {
             $delContract = $contracts->delete();
         }
+        foreach ($termncon as $termncons) {
+            $deltermncon = $termncons->delete();
+        }
+        foreach ($invoice as $invoices) {
+            $delinvoice = $invoices->delete();
+        }
 
-        if ($delQuote || $delDetQuote || $delContract) {
+        if ($delQuote || $delDetQuote || $delContract || $deltermncon || $delinvoice) {
             return 1;
         } else {
             return 0;

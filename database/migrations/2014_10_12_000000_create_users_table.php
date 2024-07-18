@@ -26,6 +26,7 @@ return new class extends Migration
             $table->date('birthday');
             $table->string('address');
             $table->string('code');
+            $table->enum('active',['0','1']);
             $table->enum('role',['Sales', 'Technician', 'Admin', 'Logistic', 'Accounting', 'Supervisor', 'Coordinator']);
             $table->date('date_in');
             $table->rememberToken();

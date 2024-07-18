@@ -30,16 +30,16 @@ class QuotationController extends Controller
      */
     public function index()
     {
-        $quotation = Quotation::where('id_sales', Auth::user()->id)->get();
-        $forecast = Quotation::where('id_sales', Auth::user()->id)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
-        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('status', '80')->sum('nett');
-        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->sum('nett');
-        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->sum('nett');
+        $quotation = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->get();
+        $forecast = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
+        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('status', '80')->sum('nett');
+        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->where('level', '1')->sum('nett');
+        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->where('level', '1')->sum('nett');
         $quotationAdmin = Quotation::get();
-        $forecastAdmin = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
-        $prospectAdmin = Quotation::where('status', '80')->sum('nett');
-        $poAdmin = Quotation::where('status', '100')->sum('nett');
-        $lossAdmin = Quotation::where('status', '0')->sum('nett');
+        $forecastAdmin = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->sum('nett');
+        $prospectAdmin = Quotation::where('status', '80')->where('level', '1')->sum('nett');
+        $poAdmin = Quotation::where('status', '100')->where('level', '1')->sum('nett');
+        $lossAdmin = Quotation::where('status', '0')->where('level', '1')->sum('nett');
         // dd();
         return view('pages.sales.quotation.index', compact('quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
     }
@@ -123,7 +123,7 @@ class QuotationController extends Controller
             $quotation->diskon = 0;
         }
         $quotation->fee = 0;
-        $quotation->nett = $request->subtotal;
+        $quotation->nett = $request->subtotal - $request->diskon;
         $quotation->total_no_tax = $request->total_no_tax;
         $quotation->harga_total = $request->harga_total;
         $quoteSave = $quotation->save();
@@ -270,7 +270,7 @@ class QuotationController extends Controller
             $quotation->diskon = 0;
         }
         $quotation->fee = $quote->fee;
-        $quotation->nett = $quote->nett;
+        $quotation->nett = $request->subtotal - $request->diskon;
         $quotation->total_no_tax = $request->total_no_tax;
         $quotation->harga_total = $request->harga_total;
         $quoteSave = $quotation->save();
@@ -319,22 +319,6 @@ class QuotationController extends Controller
         $delQuote = $quotation->save();
 
         if ($delQuote) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-    public function delete_quote($id){
-        $quotation = Quotation::find($id);
-        $detailQuote = DetailQuotation::where('id_quotation', $id)->get();
-
-        $delQuote = $quotation->delete();
-
-        foreach ($detailQuote as $dQuote) {
-            $delDetQuote = $dQuote->delete();
-        }
-
-        if ($delQuote || $delDetQuote) {
             return 1;
         } else {
             return 0;

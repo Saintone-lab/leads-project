@@ -13,6 +13,10 @@
             }
         @endphp
         @foreach ($getDC as $DC)
+        @php
+            $dateRep = "0".$item."-".$report->year
+
+        @endphp
             <div class="col-lg-6 mb-3">
                 <div class="card" data-id="{{ $item }}">
                     <div class="card-header">
@@ -24,8 +28,8 @@
                                     <i class="mdi mdi-dots-vertical mdi-24px"></i>
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="salesOverview" style="">
-                                    <a class="dropdown-item waves-effect" data-bs-toggle="modal"
-                                        data-bs-target="#overviewPO{{ $DC['monthKey'] }}">Detail</a>
+                                    <a href="{{ route('detail-overview.semester', ['sales' => $user->id, 'date' => $dateRep]) }}"
+                                        class="dropdown-item waves-effect">Detail</a>
                                 </div>
                             </div>
                         </div>

@@ -358,11 +358,18 @@
                                         <label class="col-sm-4 col-form-label text-sm-start" for="collapsible-pincode">Sub
                                             Total :</label>
                                         <div class="col-sm-8">
-                                            <p class="mb-0 subtotal-label" id="subtotal-label" data-id="1">
-                                                {{ old('subtotal', @$quotation->subtotal ? 'RP ' . number_format(@$quotation->subtotal, 0, '', '.') : '') }}
-                                            </p>
-                                            <input type="number" id="subtotal" class="form-control" name="subtotal"
-                                                value="{{ old('subtotal', @$quotation->subtotal ?? '') }}" hidden>
+                                            @if (@$dquotation)
+                                                <input type="number" id="subtotal" class="form-control"
+                                                    name="subtotal"
+                                                    value="{{ old('subtotal', @$quotation->subtotal ?? '') }}">
+                                            @else
+                                                <p class="mb-0 subtotal-label" id="subtotal-label" data-id="1">
+                                                    {{ old('subtotal', @$quotation->subtotal ? 'RP ' . number_format(@$quotation->subtotal, 0, '', '.') : '') }}
+                                                </p>
+                                                <input type="number" id="subtotal" class="form-control"
+                                                    name="subtotal"
+                                                    value="{{ old('subtotal', @$quotation->subtotal ?? '') }}" hidden>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -455,12 +462,19 @@
                                             for="collapsible-pincode">Total
                                             :</label>
                                         <div class="col-sm-8">
-                                            <p class="mb-0 harga-total-label" id="hargaTotalLabel" data-id="1">
-                                                {{ old('harga_total', @$quotation->harga_total ? 'RP ' . number_format(@$quotation->harga_total, 0, '', '.') : '') }}
-                                            </p>
-                                            <input type="number" id="hargaTotal" class="form-control"
-                                                name="harga_total"
-                                                value="{{ old('harga_total', @$quotation->harga_total ?? '') }}" hidden>
+                                            @if (@$dquotation)
+                                                <input type="number" id="hargaTotal" class="form-control"
+                                                    name="harga_total"
+                                                    value="{{ old('harga_total', @$quotation->harga_total ?? '') }}">
+                                            @else
+                                                <p class="mb-0 harga-total-label" id="hargaTotalLabel" data-id="1">
+                                                    {{ old('harga_total', @$quotation->harga_total ? 'RP ' . number_format(@$quotation->harga_total, 0, '', '.') : '') }}
+                                                </p>
+                                                <input type="number" id="hargaTotal" class="form-control"
+                                                    name="harga_total"
+                                                    value="{{ old('harga_total', @$quotation->harga_total ?? '') }}"
+                                                    hidden>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

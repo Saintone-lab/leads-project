@@ -27,6 +27,8 @@ class User extends Authenticatable
         'birthday',
         'address',
         'area',
+        'code',
+        'active',
         'role',
         'date_in',
         'remember_token'

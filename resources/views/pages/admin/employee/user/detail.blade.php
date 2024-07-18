@@ -102,6 +102,12 @@
                                     </p>
                                 </div>
                                 <div class="col-8">: {{ $users->code }} </div>
+                                <div class="col-4">
+                                    <p class="mb-1">
+                                        Status
+                                    </p>
+                                </div>
+                                <div class="col-8">: {{ $users->active == '1' ? 'Active' : 'Non Active' }} </div>
                             </div>
                         </div>
                     </div>
@@ -176,6 +182,7 @@
             $("#phone").on("input", function() {
                 $(this).val($(this).val().replace(/[^0-9]/g, ''));
             });
+
             function formatNumber(n) {
                 return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
             }
