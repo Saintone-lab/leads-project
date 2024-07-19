@@ -99,6 +99,7 @@ class QuotationController extends Controller
         $quotation->id_pic = $request->id_pic;
         $quotation->id_sales = $request->id_sales;
         $quotation->id_service = NULL;
+        $quotation->destination = $request->destination;
         $quotation->no_pr = NULL;
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
@@ -246,6 +247,7 @@ class QuotationController extends Controller
         $quotation->id_pic = $request->id_pic;
         $quotation->id_sales = $request->id_sales;
         $quotation->id_service = NULL;
+        $quotation->destination = $request->destination;
         if ($request->no_pr != NULL) {
             $quotation->no_pr = $request->no_pr;
         } else {
@@ -563,6 +565,7 @@ class QuotationController extends Controller
             $invoice->no_po = $request->po;
             $invoice->no_invoice = NULL;
             $invoice->term = NULL;
+            $invoice->invoiceTo = NULL;
             $invoice->sign = NULL;
             $invoice->save();
 

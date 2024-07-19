@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string("machine")->nullable();
             $table->string("note")->nullable();
             $table->string("address");
+            $table->string("subAddress");
             $table->string("area", 20);
             $table->timestamps();
 

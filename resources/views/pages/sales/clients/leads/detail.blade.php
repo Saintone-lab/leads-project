@@ -25,10 +25,18 @@
                     <p class="card-text">
                     <div class="row mb-1">
                         <div class="col-3">
-                            Adress
+                            Address
                         </div>
                         <div class="col-9">
                             : {{ $leads->address }}
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-3">
+                            Sub Address
+                        </div>
+                        <div class="col-9">
+                            : {{ $leads->subAddress }}
                         </div>
                     </div>
                     <div class="row mb-1">

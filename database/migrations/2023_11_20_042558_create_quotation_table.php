@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('id_sales');
             $table->foreignId('id_service')->nullable();
             $table->string('no_pr')->nullable();
+            $table->enum('destination',['1', '2']);
             $table->string('title');
             $table->integer('status');
             $table->date('status_date');

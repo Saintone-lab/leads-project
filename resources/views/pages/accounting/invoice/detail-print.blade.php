@@ -49,12 +49,16 @@
                 <div class="col-2 fw-medium">
                     <p class="mb-1">Bill To </p>
                     <p class="mb-1">Phone </p>
-                    <p class="mb-1">Adress</p>
+                    <p class="mb-1">Address</p>
                 </div>
                 <div class="col-4">
                     <p class="mb-1">: {{ $quote->pic->client->company }}</p>
                     <p class="mb-1">: {{ $quote->pic->client->phone }}</p>
-                    <p class="mb-1">: {{ $quote->pic->client->address }}</p>
+                    @if ($invoice->invoiceTo == '1')
+                        <p class="mb-1">: {{ $quote->pic->client->address }}</p>
+                    @else
+                        <p class="mb-1">: {{ $quote->pic->client->subAddress }}</p>
+                    @endif
                 </div>
                 <div class="col-3 fw-medium text-end">
                     <p class="mb-1">Purchase Order :</p>

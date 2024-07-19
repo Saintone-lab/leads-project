@@ -226,7 +226,7 @@
                         class="btn btn-primary d-grid w-100 waves-effect mb-3"> Download PO</a>
                     <button type="button" class="btn btn-secondary w-100 waves-effect waves-light mb-3"
                         data-bs-toggle="modal" data-bs-target="#detailPayment"> Detail Payment </button>
-                        <h5>Remaining : Rp {{number_format($remaining, 0,'.', ',')}}</h5>
+                    <h5>Remaining : Rp {{ number_format($remaining, 0, '.', ',') }}</h5>
                 </div>
             </div>
             {{-- End : Button Invoice --}}
@@ -236,13 +236,16 @@
     @endsection
     @push('after-style')
         <!-- Page CSS -->
+        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
         <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice.css" />
         <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
     @endpush
     @push('after-script')
+        <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
     @endpush
     @push('page-script')
+        <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
         <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
     @endpush
     @push('script')

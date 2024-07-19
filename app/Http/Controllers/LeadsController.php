@@ -74,20 +74,23 @@ class LeadsController extends Controller
             'address' =>
                 'required',
 
+            'subAddress' =>
+                'required',
+
             'area' =>
                 'required',
 
-            'namePic' =>
-                'required',
+            // 'namePic' =>
+            //     'required',
 
-            'emailPic' =>
-                'required',
+            // 'emailPic' =>
+            //     'required',
 
-            'phonePic' =>
-                'required',
+            // 'phonePic' =>
+            //     'required',
 
-            'position' =>
-                'required',
+            // 'position' =>
+            //     'required',
         ];
 
         $message = [
@@ -99,11 +102,12 @@ class LeadsController extends Controller
             'source.required'=> 'Field Source Wajib Diisi',
             'mobile.required'=> 'Field Mobile Wajib Diisi',
             'address.required'=> 'Field Address Wajib Diisi',
+            'subAddress.required'=> 'Field Sub Address Wajib Diisi',
             'area.required'=> 'Field Area Wajib Diisi',
-            'namePic.required'=> 'Field Nama PIC Wajib Diisi',
-            'emailPic.required'=> 'Field Email PIC Wajib Diisi',
-            'phonePic.required'=> 'Field Nomor PIC Wajib Diisi',
-            'position.required'=> 'Field Posisi PIC Wajib Diisi',
+            // 'namePic.required'=> 'Field Nama PIC Wajib Diisi',
+            // 'emailPic.required'=> 'Field Email PIC Wajib Diisi',
+            // 'phonePic.required'=> 'Field Nomor PIC Wajib Diisi',
+            // 'position.required'=> 'Field Posisi PIC Wajib Diisi',
         ];
         
         $this->validate($request, $rule, $message);
@@ -128,19 +132,20 @@ class LeadsController extends Controller
         }
         $leads->mobile = $request->mobile;
         $leads->address = $request->address;
+        $leads->subAddress = $request->subAddress;
         $leads->area = $request->area;
         $leadsave = $leads->save();
 
         // masukan data ke table PIC
-        $pic = new Pic;
-        $pic->id_client = $leads->id;
-        $pic->name_pic = $request->namePic;
-        $pic->position = $request->position;
-        $pic->email_pic = $request->emailPic;
-        $pic->phone_pic = $request->phonePic;
-        $picsave = $pic->save();
+        // $pic = new Pic;
+        // $pic->id_client = $leads->id;
+        // $pic->name_pic = $request->namePic;
+        // $pic->position = $request->position;
+        // $pic->email_pic = $request->emailPic;
+        // $pic->phone_pic = $request->phonePic;
+        // $picsave = $pic->save();
 
-        if ($leadsave && $picsave) {
+        if ($leadsave) {
             return redirect('leads')->with('message', 'data telah ditambahkan');
         }
     }
@@ -239,6 +244,7 @@ class LeadsController extends Controller
         $leads->machine = $request->machine;
         $leads->mobile = $request->mobile;
         $leads->address = $request->address;
+        $leads->subAddress = $request->subAddress;
         $leads->area = $request->area;
         $leadsave = $leads->save();
 

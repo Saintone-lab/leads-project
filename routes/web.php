@@ -22,6 +22,7 @@ use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceReportsController;
 use App\Http\Controllers\StockController;
 use App\Models\Activities;
+use App\Models\Client;
 use App\Models\Contract;
 use App\Models\DetailProduct;
 use App\Models\Invoice;
@@ -101,6 +102,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/quotation/product/{id}', function ($id) {
         $product = SerialProduct::join('product as p', 'p.id', '=', 'serial_product.id_product')->where('serial_product.id', $id)->get(['p.description AS detail', 'serial_product.price']);
         return response()->json($product);
+    });
+    Route::get('/quotation/client/{id}', function ($id){
+        $client = Client::join('pic', 'pic.id_client', '=', 'client.id')->where('pic.id',$id)->get('client.*');
+        return response()->json($client);
     });
 
     // Route untuk Visit

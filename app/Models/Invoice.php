@@ -16,6 +16,7 @@ class Invoice extends Model
         'sign',
         'no_po',
         'no_invoice',
+        'invoiceTo',
     ];
 
     

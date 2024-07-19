@@ -102,6 +102,7 @@ class InvoiceController extends Controller
         $invoice = Invoice::find($id);
         $invoice->no_invoice = $request->invoice;
         $invoice->term = $request->payment;
+        $invoice->invoiceTo = $request->destination;
         $invoiceSave = $invoice->save();
         if ($invoiceSave) {
             return redirect('/invoice/' . $id)->with('message', 'Invoice has been accepted');

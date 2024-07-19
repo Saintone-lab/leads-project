@@ -21,6 +21,7 @@ class Quotation extends Model
         'id_pic',
         'id_sales',
         'id_service',
+        'destination',
         'no_pr',
         'status',
         'note',

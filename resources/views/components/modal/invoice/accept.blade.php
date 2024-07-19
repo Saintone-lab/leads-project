@@ -1,8 +1,8 @@
 <form action="{{ route('invoice.update', $invoice->id) }}" method="post" enctype="multipart/form-data">
     @csrf
     @method('PATCH')
-    <div class="modal-onboarding modal fade animate__animated" id="acceptInvoice-{{$quote->id}}" tabindex="-1" style="display: none;"
-        aria-hidden="true">
+    <div class="modal-onboarding modal fade animate__animated" id="acceptInvoice-{{ $quote->id }}" tabindex="-1"
+        style="display: none;" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content text-center">
                 <div class="modal-header border-0">
@@ -30,6 +30,20 @@
                                             placeholder="Put Terms & Payments Here ...." id="payment" name="payment"
                                             value="">
                                         <label for="payment">Terms & Payments</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <div class="form-floating form-floating-outline">
+                                        <select class="select2 form-select" id="selectAddress"
+                                            aria-label="Default select example" name="address" data-allow-clear="true">
+                                            <option value="1"
+                                                {{ old('address', $quote->destination) == '1' ? 'selected' : '' }}>
+                                                {{ $quote->pic->client->address }}</option>
+                                            <option value="2"
+                                                {{ old('address', $quote->destination) == '2' ? 'selected' : '' }}>
+                                                {{ $quote->pic->client->subAddress }}</option>
+                                        </select>
+                                        <label for="selectAddress">Choose Address</label>
                                     </div>
                                 </div>
                             </div>

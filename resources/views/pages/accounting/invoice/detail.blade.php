@@ -60,7 +60,11 @@
                         <div class="col-4">
                             <p class="mb-1">: {{ $quote->pic->client->company }}</p>
                             <p class="mb-1">: {{ $quote->pic->client->phone }}</p>
-                            <p class="mb-1">: {{ $quote->pic->client->address }}</p>
+                            @if ($invoice->invoiceTo == '1')
+                                <p class="mb-1">: {{ $quote->pic->client->address }}</p>
+                            @else
+                                <p class="mb-1">: {{ $quote->pic->client->subAddress }}</p>
+                            @endif
                         </div>
                         <div class="col-3 fw-medium text-end">
                             <p class="mb-1">Purchase Order :</p>
@@ -355,61 +359,61 @@
                     reader.readAsDataURL(file);
                 });
             });
-        $(document).on('click', '.delete-hand-sign', function() {
-            var id = $(this).data('id');
-            Swal.fire({
-                title: "Are you sure?",
-                text: "You won't be able to revert this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Yes, delete it!",
-                customClass: {
-                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
-                    cancelButton: "btn btn-label-secondary waves-effect",
-                },
-                buttonsStyling: false,
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        'url': '{{ url('invoice') }}/del-sign/' + id,
-                        'type': 'POST',
-                        'data': {
-                            '_method': 'DELETE',
-                            '_token': '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response == 1) {
-                                Swal.fire({
-                                    icon: "success",
-                                    title: "Deleted!",
-                                    text: "Your file has been deleted.",
-                                    customClass: {
-                                        confirmButton: "btn btn-success waves-effect",
-                                    },
-                                })
-                                window.setTimeout(function() {
-                                    window.location.href = '/invoice/' + id;
-                                }, 2000);
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops...',
-                                    text: 'Data Failed to Delete!'
-                                });
+            $(document).on('click', '.delete-hand-sign', function() {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!",
+                    customClass: {
+                        confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                        cancelButton: "btn btn-label-secondary waves-effect",
+                    },
+                    buttonsStyling: false,
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            'url': '{{ url('invoice') }}/del-sign/' + id,
+                            'type': 'POST',
+                            'data': {
+                                '_method': 'DELETE',
+                                '_token': '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                if (response == 1) {
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "Deleted!",
+                                        text: "Your file has been deleted.",
+                                        customClass: {
+                                            confirmButton: "btn btn-success waves-effect",
+                                        },
+                                    })
+                                    window.setTimeout(function() {
+                                        window.location.href = '/invoice/' + id;
+                                    }, 2000);
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: 'Data Failed to Delete!'
+                                    });
+                                }
                             }
-                        }
-                    });
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    Swal.fire({
-                        title: "Cancelled",
-                        text: "Your imaginary file is safe :)",
-                        icon: "error",
-                        customClass: {
-                            confirmButton: "btn btn-success waves-effect",
-                        },
-                    });
-                }
+                        });
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            title: "Cancelled",
+                            text: "Your imaginary file is safe :)",
+                            icon: "error",
+                            customClass: {
+                                confirmButton: "btn btn-success waves-effect",
+                            },
+                        });
+                    }
+                });
             });
-        });
         </script>
     @endpush

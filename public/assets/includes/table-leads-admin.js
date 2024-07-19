@@ -13,15 +13,15 @@ $(function () {
                     "Content-Type": "application/json",
                 },
 
-                success: function (hasil, Url) {
-                    console.log("Url:", Url);
-                    console.log(hasil);
-                },
-                error: function (error) {
-                    console.log("Url:", Url);
-                    console.error("Error:", error);
-                    console.log("error disini");
-                },
+                // success: function (hasil, Url) {
+                //     console.log("Url:", Url);
+                //     console.log(hasil);
+                // },
+                // error: function (error) {
+                //     console.log("Url:", Url);
+                //     console.error("Error:", error);
+                //     console.log("error disini");
+                // },
             },
             columns: [
                 { data: "" },

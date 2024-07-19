@@ -40,8 +40,8 @@
                     <div class="row mb-2">
                         <div class="col-12 col-lg-3 mb-3">
                             <div class="form-floating form-floating-outline">
-                                <select id="select2Basic" class="select2 form-select form-select-lg" data-allow-clear="true"
-                                    name="id_pic">
+                                <select id="select2Basic" class="select2 form-select form-select-lg invoice-item-client"
+                                    data-allow-clear="true" name="id_pic">
                                     @foreach ($pic as $charge)
                                         <option value="{{ $charge->id }}"
                                             {{ @$quotation->id_pic == $charge->id ? 'selected' : '' }}>
@@ -51,14 +51,23 @@
                                 <label for="select2Basic">Client</label>
                             </div>
                         </div>
-                        <div class="col-6 col-lg-3">
+                        <div class="col-12 col-lg-3">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <select id="address-dropdown" class="select2 form-select invoice-item-destination"
+                                    data-allow-clear="true" name="destination" disabled>
+                                    <option> ---- Choose Destination Address Here ---- </option>
+                                </select>
+                                <label for="address-dropdown">Destination Address</label>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="text" placeholder="Put Title Quotation Here ...."
                                     id="title" name="title" value="{{ old('title', @$quotation->title ?? '') }}">
                                 <label for="title">Title Quotation</label>
                             </div>
                         </div>
-                        <div class="col-6 col-lg-3">
+                        <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="date" id="estimatedDate" name="estimated_date"
                                     {{-- {{ @$quotation->estimated_date ? '' : '_label' }}  naikin nanti --}}
@@ -71,7 +80,7 @@
                                 <label for="estimatedDate">Quote Date</label>
                             </div>
                         </div>
-                        <div class="col-6 col-lg-3">
+                        <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="date" id="expiredDate" name="expired_date"
                                     value="{{ old('expired_date', @$quotation->expired_date ?? '') }}">
@@ -638,6 +647,14 @@
                 }
             });
 
+            function initializeSelect2Address() {
+                $('.invoice-item-destination').select2({
+                    placeholder: ' ---- Choose Destination Here ---- ',
+                    allowClear: true,
+                    width: '100%',
+                });
+            }
+
             function formatNumber(n) {
                 return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
             }
@@ -690,6 +707,31 @@
                 return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
 
+            $(`.invoice-item-client`).on('change', function(ev) {
+                var clientId = $(this).val();
+                $.ajax({
+                    url: '/quotation/client/' + clientId,
+                    type: 'GET',
+                    success: function(response) {
+                        // Mengosongkan dropdown detail produk
+                        $(`.invoice-item-destination`).empty();
+                        // Mengisi dropdown detail produk dengan hasil yang diterima
+                        $.each(response, function(key, value) {
+                            $(`.invoice-item-destination`).append(
+                                '<option value="' +
+                                1 + '">' + value.address +
+                                '</option>' +
+                                '<option value="' +
+                                2 + '">' + value.subAddress +
+                                '</option>'
+                            );
+                        });
+                        // Mengaktifkan dropdown detail produk
+                        $(`.invoice-item-destination`).prop('disabled', false);
+                    }
+                });
+            });
+
             $('.invoice-item-product').on('change', function(ev) {
                 var replacementId = $(this).find(':selected').data('replacement');
                 var Url = '/quotation/product/' + replacementId;
@@ -737,6 +779,7 @@
                         // menghitung amount
                         amount = (hasil - (hasil * disc / 100));
                         // memasukan data amount dan subtotal
+                        $(`#qty-${id}`).val(1);
                         $(`#amount-${id}`).val(amount);
                         $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
                         $('.amount-label').each(() => {
@@ -883,6 +926,7 @@
                             // menghitung amount
                             amount = (hasil - (hasil * disc / 100));
                             // memasukan data amount dan subtotal
+                            $(`#qty-${id}`).val(1);
                             $(`#amount-${id}`).val(amount);
                             $(`#amount-label-${id}`).html(
                                 `${formatter.format(amount)}`);

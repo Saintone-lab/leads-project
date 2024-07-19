@@ -144,8 +144,15 @@
                                 <label for="addressTextarea1">Address</label>
                             </div>
                         </div>
+                        <div class="col mb-2">
+                            <div class="form-floating form-floating-outline mb-4">
+                                <textarea class="form-control h-px-100" name="subAddress" id="addressTextarea2"
+                                    placeholder="Contoh: Jl Taman Kopo Indah 5 Kota...">{{ old('subAddress', @$leads->subAddress ?? '') }}</textarea>
+                                <label for="addressTextarea2">Sub Address</label>
+                            </div>
+                        </div>  
                     </div>
-                    @empty($leads)
+                    {{-- @empty($leads)
                     <div class="divider divider-dark mx-3">
                         <div class="divider-text"><span class="fw-semibold">Personal In Charge</span></div>
                     </div>
@@ -185,7 +192,7 @@
                             </div>
                         </div>
                     </div>
-                    @endempty
+                    @endempty --}}
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-label-secondary waves-effect"

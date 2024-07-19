@@ -30,6 +30,7 @@ class Client extends Model
         'role',
         'mobile',
         'address',
+        'subAddress',
         'area'
     ];
 

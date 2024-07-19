@@ -165,7 +165,7 @@ class PicController extends Controller
         $picsave = $pic->save();
 
         if ($picsave) {
-            return redirect('/leads/' . $id)->with('message', 'data telah ditambahkan');
+            return redirect('/leads/detail/' . $id)->with('message', 'data telah ditambahkan');
         }
     }
 
