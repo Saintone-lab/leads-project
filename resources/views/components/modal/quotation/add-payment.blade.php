@@ -15,7 +15,7 @@
                         </div>
                         <form>
                             <div class="row">
-                                <div class="col-12">
+                                {{-- <div class="col-12">
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <label for="formFile" class="form-label">Upload Payment Confirmation</label>
@@ -23,28 +23,32 @@
                                                 accept=".pdf, .jpg, .jpeg, .png">
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
                                 <div class="col-12 mb-3">
                                     <div class="form-floating form-floating-outline">
                                         <div class="input-group">
                                             <span class="input-group-text">Rp. </span>
                                             <input type="text" class="form-control invoice-item-amount-label"
-                                                id="amountLabel"
-                                                name="harga[]" placeholder="Put Fee Here" data-type="currency"
-                                                min="0" pattern="^[0-9]\d{0,2}(\.\d{3})*$"
+                                                id="amountLabel" name="harga[]" placeholder="Put Fee Here"
+                                                data-type="currency" min="0" pattern="^[0-9]\d{0,2}(\.\d{3})*$"
                                                 @focus="focused = true" @blur="focused = false"
-                                                value="{{ old('amount')}}">
-                                            <input class="form-control invoice-item-amount" type="number" name="amount"
-                                                id="amount"
-                                                value="{{ old('amount') }}"
-                                                hidden>
+                                                value="{{ old('amount') }}">
+                                            <input class="form-control invoice-item-amount" type="number"
+                                                name="amount" id="amount" value="{{ old('amount') }}" hidden>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-12 mb-3">
+                                <div class="col-8 mb-3">
                                     <div class="form-floating form-floating-outline">
                                         <textarea class="form-control h-px-100" placeholder="Write your note here...." name="note" id="note"></textarea>
                                         <label for="note">Note</label>
+                                    </div>
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <div class="input-group h-px-100">
+                                        <input type="number" class="form-control" placeholder="Percent"
+                                            aria-label="Percent" name="percent" aria-describedby="basic-addon43">
+                                        <span class="input-group-text" id="basic-addon43">%</span>
                                     </div>
                                 </div>
                             </div>

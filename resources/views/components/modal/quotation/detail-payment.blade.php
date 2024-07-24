@@ -32,7 +32,7 @@
                                     </td>
                                     @if (Auth::user()->role == 'Sales')
                                         <td>
-                                            <a href="#" data-id="4"
+                                            <a href="#" data-id="{{$payment->id}}" data-quote="{{$quote->id}}"
                                                 class="btn btn-sm btn-label-danger delete-payments waves-effect">
                                                 <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
                                             </a>

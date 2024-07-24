@@ -66,21 +66,26 @@
                                 <p class="mb-1">: {{ $quote->pic->client->subAddress }}</p>
                             @endif
                         </div>
-                        <div class="col-3 fw-medium text-end">
-                            <p class="mb-1">Purchase Order :</p>
-                        </div>
-                        <div class="col-3 text-end">
-                            <p class="mb-1"> {{ $invoice->no_po }}
-                            </p>
-                        </div>
-                        <div class="col-6"></div>
-                        <div class="col-6 text-center">
-                            <div class="title" style="border: 1px solid black; background-color: #F9F9F9;">
-                                <p class="fs-5 text-black fw-medium m-0">Term Of Payment:</p>
-                            </div>
-                            <div class="term" style="border: 1px solid black; border-top: 0;">
-                                <pre
-                                    style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $invoice->term }}</pre>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-6 fw-medium text-end">
+                                    <p class="mb-1">Purchase Order :</p>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="mb-1"> {{ $invoice->no_po }}
+                                    </p>
+                                </div>
+                                <div class="col-12 text-center">
+                                    <div class="termpay">
+                                        <div class="title" style="border: 1px solid black; background-color: #F9F9F9;">
+                                            <p class="fs-5 text-black fw-medium m-0">Term Of Payment:</p>
+                                        </div>
+                                        <div class="term" style="border: 1px solid black; border-top: 0;">
+                                            <pre
+                                                style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $invoice->term }}</pre>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -125,49 +130,162 @@
                                 <td colspan="2" class="align-top px-4 py-5">
                                     <span>Thanks for your business</span>
                                 </td>
-                                <td colspan="2" class="text-end pl-4 py-5" style="padding-right: 0 !important;">
-                                    <p class="mb-2">Subtotal:</p>
-                                    @if ($quote->diskon != 0)
-                                        <p class="mb-2">Discount Quote:</p>
-                                        <p class="mb-2">Subtotal After Discount:</p>
-                                    @endif
-                                    <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
-                                    @foreach ($payments as $payment)
-                                        <p class="mb-2 py-2" style="background-color: yellow">{{ $payment->note }}:</p>
-                                    @endforeach
-                                    @if ($quote->shipping != 0)
-                                        <p class="mb-2">Shipping Cost:</p>
-                                    @endif
-                                    <p class="mb-0">Total:</p>
-                                </td>
-                                <td colspan="3" class="pr-4 py-5" style="padding-left: 0 !important;">
-                                    <p class="fw-semibold mb-2 text-end">RP
-                                        {{ number_format($quote->subtotal, 0, '', '.') }}</p>
-                                    @if ($quote->diskon != 0)
+                                @if ($invoice->type == 'CT')
+                                    <td colspan="2" class="text-end pl-4 py-5" style="padding-right: 0 !important;">
+                                        <p class="mb-2">Total:</p>
+                                        @if ($quote->diskon != 0)
+                                            <p class="mb-2">Discount:</p>
+                                            <p class="mb-2">Total After Discount:</p>
+                                        @endif
+                                        @if ($quote->shipping != 0)
+                                            <p class="mb-2">Shipping Cost:</p>
+                                        @endif
+                                        @if ($quote->tax != 0)
+                                            <p class="mb-2">VAT {{ $quote->tax == '11' ? '11%' : '' }}:</p>
+                                            <p class="mb-0">Total Include VAT:</p>
+                                        @endif
+                                    </td>
+                                    <td colspan="3" class="pr-4 py-5" style="padding-left: 0 !important;">
                                         <p class="fw-semibold mb-2 text-end">RP
-                                            {{ number_format($quote->diskon, 0, '', '.') }}
-                                        </p>
-                                        <p class="fw-semibold mb-2 text-end">RP
-                                            {{ number_format($afterDisc, 0, '', '.') }}
-                                        </p>
-                                    @endif
-                                    <p class="fw-semibold mb-2 text-end">
-                                        {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
-                                    @if ($quote->shipping != 0)
-                                        <p class="fw-semibold mb-2 text-end">RP
-                                            {{ number_format($quote->shipping, 0, '', '.') }}
-                                        </p>
-                                    @endif
-                                    @foreach ($payments as $payment)
-                                        <p class="fw-semibold mb-2 text-end  py-2" style="background-color: yellow"> RP
-                                            {{ number_format($payment->amount, 0, '', '.') }}</p>
-                                    @endforeach
-                                    <p class="fw-semibold mb-0 text-end">RP
-                                        {{ number_format($remaining, 0, '', '.') }}</p>
-                                </td>
+                                            {{ number_format($quote->subtotal, 0, '', '.') }}</p>
+                                        @if ($quote->diskon != 0)
+                                            <p class="fw-semibold mb-2 text-end">RP
+                                                {{ number_format($quote->diskon, 0, '', '.') }}
+                                            </p>
+                                            <p class="fw-semibold mb-2 text-end">RP
+                                                {{ number_format($afterDisc, 0, '', '.') }}
+                                            </p>
+                                        @endif
+                                        @if ($quote->shipping != 0)
+                                            <p class="fw-semibold mb-2 text-end">RP
+                                                {{ number_format($quote->shipping, 0, '', '.') }}
+                                            </p>
+                                        @endif
+                                        @if ($quote->tax != 0)
+                                            <p class="fw-semibold mb-2 text-end">
+                                                {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
+                                            <p class="fw-semibold mb-2 text-end">
+                                                {{ $tax == '0' ? '0' : 'RP ' . number_format($quote->harga_total, 0, '', '.') }}
+                                            </p>
+                                        @endif
+                                    </td>
+                                @elseif ($invoice->type == 'DP')
+                                    <td colspan="2" class="text-end pl-4 py-5" style="padding-right: 0 !important;">
+                                        <p class="mb-2">Total:</p>
+                                        @if ($quote->diskon != 0)
+                                            <p class="mb-2">Discount:</p>
+                                            <p class="mb-2">Total After Discount:</p>
+                                        @endif
+                                        @if ($quote->shipping != 0)
+                                            <p class="mb-2">Shipping Cost:</p>
+                                        @endif
+                                        <p class="mb-2 py-2" style="background-color: yellow">{{ $payments[0]->note }}
+                                            {{ $payments[0]->percent }}%:</p>
+                                        @if ($payments->count() >= 1)
+                                            <p class="mb-2">VAT {{ $quote->tax == '11' ? '11%' : '' }}:</p>
+                                        @else
+                                            <p class="mb-2">VAT {{ $quote->tax == '11' ? '11%' : '' }}:</p>
+                                        @endif
+                                        <p class="mb-0">Total Include VAT:</p>
+                                    </td>
+                                    <td colspan="3" class="pr-4 py-5" style="padding-left: 0 !important;">
+                                        @php
+                                            $amount1 = $payments[0]->amount / (1 + $quote->tax / 100);
+                                            $vat = $amount1 * ($quote->tax / 100);
+                                        @endphp
+                                        <p class="fw-semibold mb-2
+                                        text-end">RP
+                                            {{ number_format($quote->total_no_tax, 0, '', '.') }}</p>
+                                        @if ($quote->diskon != 0)
+                                            <p class="fw-semibold mb-2 text-end">RP
+                                                {{ number_format($quote->diskon, 0, '', '.') }}
+                                            </p>
+                                            <p class="fw-semibold mb-2 text-end">RP
+                                                {{ number_format($afterDisc, 0, '', '.') }}
+                                            </p>
+                                        @endif
+                                        @if ($quote->shipping != 0)
+                                            <p class="fw-semibold mb-2 text-end">RP
+                                                {{ number_format($quote->shipping, 0, '', '.') }}
+                                            </p>
+                                        @endif
+                                        <p class="fw-semibold mb-2 text-end  py-2" style="background-color: yellow">
+                                            RP
+                                            {{ number_format($amount1, 0, '', '.') }}</p>
+                                        @if ($quote->tax != 0)
+                                            <p class="fw-semibold mb-2 text-end">
+                                                {{ $vat == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
+                                            <p class="fw-semibold mb-0 text-end">RP
+                                                {{ number_format($payments[0]->amount, 0, '', '.') }}</p>
+                                        @else
+                                            <p class="fw-semibold mb-0 text-end">RP
+                                                {{ number_format($payments[0]->amount, 0, '', '.') }}</p>
+                                        @endif
+                                    </td>
+                                @elseif ($invoice->type == 'BP')
+                                    <td colspan="2" class="text-end pl-4 py-5" style="padding-right: 0 !important;">
+                                        <p class="mb-2">Total:</p>
+                                        @if ($quote->diskon != 0)
+                                            <p class="mb-2">Discount:</p>
+                                            <p class="mb-2">Total After Discount:</p>
+                                        @endif
+                                        @if ($quote->shipping != 0)
+                                            <p class="mb-2">Shipping Cost:</p>
+                                        @endif
+                                        <p class="mb-2 py-2">{{ $payments[0]->note }}
+                                            {{ $payments[0]->percent }}%:</p>
+                                        <p class="mb-2 py-2" style="background-color: yellow">{{ @$payments[1]->note }}
+                                            {{ @$payments[1]->percent }}%:</p>
+                                        @if ($payments->count() >= 1)
+                                            <p class="mb-2">VAT {{ $quote->tax == '11' ? '11%' : '' }}:</p>
+                                        @else
+                                            <p class="mb-2">VAT {{ $quote->tax == '11' ? '11%' : '' }}:</p>
+                                        @endif
+                                        <p class="mb-0">Total Include VAT:</p>
+                                    </td>
+                                    <td colspan="3" class="pr-4 py-5" style="padding-left: 0 !important;">
+                                        @php
+                                            $amount1 = $payments[0]->amount / (1 + $quote->tax / 100);
+                                            $amount2 = @$payments[1]->amount ?? 0 / (1 + $quote->tax / 100);
+                                            $vat = $amount2 * ($quote->tax / 100);
+                                        @endphp
+                                        <p class="fw-semibold mb-2
+                                    text-end">RP
+                                            {{ number_format($quote->total_no_tax, 0, '', '.') }}</p>
+                                        @if ($quote->diskon != 0)
+                                            <p class="fw-semibold mb-2 text-end">RP
+                                                {{ number_format($quote->diskon, 0, '', '.') }}
+                                            </p>
+                                            <p class="fw-semibold mb-2 text-end">RP
+                                                {{ number_format($afterDisc, 0, '', '.') }}
+                                            </p>
+                                        @endif
+                                        @if ($quote->shipping != 0)
+                                            <p class="fw-semibold mb-2 text-end">RP
+                                                {{ number_format($quote->shipping, 0, '', '.') }}
+                                            </p>
+                                        @endif
+                                        <p class="fw-semibold mb-2 text-end  py-2">
+                                            RP
+                                            {{ number_format($amount1, 0, '', '.') }}</p>
+                                        <p class="fw-semibold mb-2 text-end  py-2" style="background-color: yellow">
+                                            RP
+                                            {{ number_format($amount2, 0, '', '.') }}</p>
+                                        @if ($quote->tax != 0)
+                                            <p class="fw-semibold mb-2 text-end">
+                                                {{ $vat == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
+                                            <p class="fw-semibold mb-0 text-end">RP
+                                                {{ number_format($payments[1]->amount, 0, '', '.') }}</p>
+                                        @else
+                                            <p class="fw-semibold mb-0 text-end">RP
+                                                {{ number_format($payments[1]->amount, 0, '', '.') }}</p>
+                                        @endif
+                                    </td>
+                                @endif
                             </tr>
                             <tr>
-                                <td colspan="3" class="fs-5 fw-medium" style="background-color: rgb(248, 248, 248);"> Say
+                                <td colspan="3" class="fs-5 fw-medium" style="background-color: rgb(248, 248, 248);">
+                                    Say
                                     amount:
                                     # {{ $price }} Rupiah</td>
                             </tr>
@@ -184,12 +302,21 @@
                                 <p class="mb-1">Acc No. </p>
                                 <p class="mb-1">Swift Code </p>
                             </div>
-                            <div class="col">
-                                <p class="mb-1">: Bank BCA (IDR) - Asia Afrika Kota Bandung</p>
-                                <p class="mb-1">: PT. REFTECH JAYA Optima</p>
-                                <p class="mb-1">: 008 - 6289 - 789</p>
-                                <p class="mb-1">: CENAIDJA</p>
-                            </div>
+                            @if ($invoice->quote->tax != 0)
+                                <div class="col">
+                                    <p class="mb-1">: Bank BCA (IDR) - Asia Afrika Kota Bandung</p>
+                                    <p class="mb-1">: ARIEP RACHMAN</p>
+                                    <p class="mb-1">: 166 - 2242 - 271</p>
+                                    <p class="mb-1">: -</p> 
+                                </div>
+                            @else
+                                <div class="col">
+                                    <p class="mb-1">: Bank BCA (IDR) - Asia Afrika Kota Bandung</p>
+                                    <p class="mb-1">: PT. REFTECH JAYA Optima</p>
+                                    <p class="mb-1">: 008 - 6289 - 789</p>
+                                    <p class="mb-1">: CENAIDJA</p>
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <div class="col"></div>
@@ -202,7 +329,6 @@
                         @else
                             <div class="pb-5"></div>
                         @endif
-                        {{-- <div class="pb-5"></div> --}}
                         <p class="pt-3 fw-bolder">Ariep Rachman</p>
                         <p>Director</p>
                     </div>
@@ -359,7 +485,7 @@
                     reader.readAsDataURL(file);
                 });
             });
-            $(document).on('click', '.delete-hand-sign', function() {
+            $(document).on('click', '.delete-invoice', function() {
                 var id = $(this).data('id');
                 Swal.fire({
                     title: "Are you sure?",
@@ -375,7 +501,7 @@
                 }).then(function(result) {
                     if (result.value) {
                         $.ajax({
-                            'url': '{{ url('invoice') }}/del-sign/' + id,
+                            'url': '{{ url('invoice') }}/' + id,
                             'type': 'POST',
                             'data': {
                                 '_method': 'DELETE',
@@ -392,7 +518,7 @@
                                         },
                                     })
                                     window.setTimeout(function() {
-                                        window.location.href = '/invoice/' + id;
+                                        window.location.href = '/quotation';
                                     }, 2000);
                                 } else {
                                     Swal.fire({

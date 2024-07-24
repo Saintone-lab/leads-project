@@ -223,6 +223,10 @@
                                 <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
                                     data-bs-toggle="modal" data-bs-target="#changeStatus-{{ $quote->id }}">Change
                                     Status</button>
+                            @else
+                                <a class="btn btn-danger d-grid w-100 mb-3 waves-effect" href="#">
+                                    Return Quotation
+                                </a>
                             @endif
                         @endif
                         @if (Auth::user()->role == 'Sales')
@@ -234,7 +238,7 @@
                 @if (Auth::user()->role == 'Sales')
                     <div class="card mb-3">
                         <div class="card-body">
-                            @if (Auth::user()->id == '1' && !isset($invoice))
+                            @if (Auth::user()->id == '1' || Auth::user()->id == '16')
                                 <a href="#" data-id="{{ $quote->id }}"
                                     class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
                                     {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
@@ -244,16 +248,35 @@
                                     data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
                             @else
                                 @if ($quote->po_file != null)
-                                    @if (@$invoice && $invoice->no_invoice == null)
+                                    @if ($invoice->count() > 1 && $invoice[0]->no_invoice == null)
                                         <button type="button"
                                             class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
                                             Waiting Accounting Apply
                                         </button>
-                                    @elseif(@$invoice && $invoice->no_invoice)
+                                    @elseif($invoice->count() > 1 && $invoice[0]->no_invoice)
                                         <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
-                                            href="{{ route('invoice.show', $invoice->id) }}">
-                                            Go To Invoice
+                                            href="{{ route('invoice.show', $invoice[0]->id) }}">
+                                            Go To Invoice {{ $invoice[0]->type == 'CT' ? '' : 'DP' }}
                                         </a>
+                                        @if (@$payments)
+                                            @if ($invoice->count() == 1)
+                                                <button type="button"
+                                                    class="btn btn-outline-dark d-grid w-100 waves-effect mb-3"
+                                                    data-bs-toggle="modal" data-bs-target="#request-bp">
+                                                    Request Invoice BP
+                                                </button>
+                                            @elseif ($invoice[1]->no_invoice == null)
+                                                <button type="button"
+                                                    class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
+                                                    Waiting Accounting Apply
+                                                </button>
+                                            @elseif ($invoice[1]->no_invoice)
+                                                <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
+                                                    href="{{ route('invoice.show', $invoice[1]->id) }}">
+                                                    Go To Invoice BP
+                                                </a>
+                                            @endif
+                                        @endif
                                     @endif
                                     <div class="d-flex justify-content-between mb-3">
                                         <a href="{{ route('download-po.quotation', $quote->id) }}"
@@ -271,7 +294,7 @@
                             @endif
                         </div>
                     </div>
-                    @if ($quote->status == 100)
+                    @if ($quote->status == 100 && isset($invoice))
                         <div class="card mb-3">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between mb-3">
@@ -436,9 +459,9 @@
                 <div class="card">
                     <div class="card-body">
                         <a href="#" class="btn btn-primary d-grid w-100 waves-effect unarchive-quotation mb-3"
-                        data-id="{{ $quote->id }}">Un Archive</a>
+                            data-id="{{ $quote->id }}">Un Archive</a>
                         <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-archive"
-                        data-id="{{ $quote->id }}">Delete Archive</a>
+                            data-id="{{ $quote->id }}">Delete Archive</a>
                     </div>
                 </div>
             @endif
@@ -449,6 +472,7 @@
     @include('pages.sales.quotation.modal-status')
     @include('components.modal.quotation.convert-po')
     @include('components.modal.quotation.upload-po')
+    @include('components.modal.quotation.request-bp')
     @include('components.modal.accounting.selling-contract')
     @include('components.modal.accounting.confirm-order')
     @include('components.modal.quotation.insert-fee')
@@ -917,7 +941,7 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        'url': '{{ url('un-archive') }}/quotation/' + id ,
+                        'url': '{{ url('un-archive') }}/quotation/' + id,
                         'type': 'POST',
                         'data': {
                             '_method': 'POST',
@@ -973,7 +997,7 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        'url': '{{ url('delete-archive') }}/quotation/' + id ,
+                        'url': '{{ url('delete-archive') }}/quotation/' + id,
                         'type': 'POST',
                         'data': {
                             '_method': 'DELETE',
@@ -991,6 +1015,63 @@
                                 })
                                 window.setTimeout(function() {
                                     window.location.href = '/quotation';
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.delete-payments', function() {
+            var id = $(this).data('id');
+            var quote = $(this).data('quote');
+            Swal.fire({
+                title: "Are you sure Delete this payment?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('quotation') }}/' + id + '/delete_payment',
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Your file has been deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/quotation/' + quote;
                                 }, 2000);
                             } else {
                                 Swal.fire({

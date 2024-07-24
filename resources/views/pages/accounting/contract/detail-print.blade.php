@@ -210,8 +210,8 @@
             </div>
         </div>
         @if ($sellcon->type == 'Selling')
-            <div class="row mt-3">
-                <div class="col-4 my-5 text-center">
+            <div class="row mt-5">
+                <div class="col-4 my-3 text-center">
                     <p class="fs-normal fw-medium">Authorized By,</p>
                     <img src="{{ asset('/asset') }}/contract\sign-irene.jpeg" alt="" srcset=""
                         style="width: 100px; height: 77px;">
@@ -219,7 +219,7 @@
                     <p>PT. Reftech Jaya Optima</p>
                 </div>
                 <div class="col-4"></div>
-                <div class="col-4 my-5 text-center">
+                <div class="col-4 mb-3 text-center">
                     <p class="fs-normal fw-medium">Accepted By Customer,</p>
                     <div class="pb-5"></div>
                     <p class="pt-5">{{ $quote->pic->name_pic }}</p>
@@ -228,7 +228,7 @@
             </div>
         @else
             <div class="row mt-5">
-                <div class="col-4 my-5 text-center">
+                <div class="col-4 my-3 text-center">
                     <p class="fs-normal fw-medium">Authorized By,</p>
                     <img src="{{ asset('/asset') }}/contract\sign-dedeh.png" alt="" srcset=""
                         style="width: 100px; height: 77px;">
@@ -236,7 +236,7 @@
                     <p>Director</p>
                 </div>
                 <div class="col-4"></div>
-                <div class="col-4 my-5 text-center">
+                <div class="col-4 mb-3 text-center">
                     <p class="fs-normal fw-medium">Accepted By Customer,</p>
                     <div class="pb-5"></div>
                     <p class="pt-5">{{ $quote->pic->name_pic }}</p>

@@ -12,6 +12,7 @@ class Payment extends Model
     protected $fillable = [
         'id_quotation',
         'file',
+        'percent',
         'amount',
         'note',
     ];

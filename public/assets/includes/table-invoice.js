@@ -27,6 +27,15 @@ $(function () {
                 { data: "id" },
                 { data: "no_invoice" },
                 { data: "company" },
+                {
+                    data: "type",
+                    render: function (data, type, row) {
+                        if (data === "CT") {
+                            return "Full Payment";
+                        }
+                        return data;
+                    },
+                },
                 { data: "harga_total" },
                 { data: "po_date" },
                 { data: "name" },

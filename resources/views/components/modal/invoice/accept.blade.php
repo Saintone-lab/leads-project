@@ -19,8 +19,8 @@
                                 <div class="col-12 mb-3">
                                     <div class="form-floating form-floating-outline">
                                         <input class="form-control form-control-sm" type="text"
-                                            placeholder="Put No Invoice Here ...." id="invoice" name="invoice"
-                                            value="">
+                                            value="{{ $quote->tax != 0 ? $nextCodeP . '/SJ-P/RJO/' . $monthCode . '/' . $year : $nextCodeNP . '/SJ-NP/RJO/' . $monthCode . '/' . $year }}"
+                                            placeholder="Put No Invoice Here ...." id="invoice" name="invoice">
                                         <label for="invoice">No Invoice</label>
                                     </div>
                                 </div>
@@ -35,7 +35,8 @@
                                 <div class="col-12 mb-3">
                                     <div class="form-floating form-floating-outline">
                                         <select class="select2 form-select" id="selectAddress"
-                                            aria-label="Default select example" name="address" data-allow-clear="true">
+                                            aria-label="Default select example" name="destination"
+                                            data-allow-clear="true">
                                             <option value="1"
                                                 {{ old('address', $quote->destination) == '1' ? 'selected' : '' }}>
                                                 {{ $quote->pic->client->address }}</option>
@@ -45,6 +46,9 @@
                                         </select>
                                         <label for="selectAddress">Choose Address</label>
                                     </div>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <p class="text-muted fw-medium text-start">Last Invoice : {{$quote->tax != 0 ? $lastInvoiceP->no_invoice : $lastInvoiceNP->no_invoice }}</p>
                                 </div>
                             </div>
                         </form>

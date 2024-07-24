@@ -58,7 +58,7 @@ class QuotationController extends Controller
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::all();
         $sales = User::where('role', 'sales')->get();
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId','s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
+        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
         // dd($product);
         return view('pages.sales.quotation.form', compact('pic', 'sales', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
@@ -178,14 +178,14 @@ class QuotationController extends Controller
         $formattedNumberSNP = str_pad($numberSNP->count() + 1, 3, '0', STR_PAD_LEFT);
         $formattedNumberCP = str_pad($numberCP->count() + 1, 3, '0', STR_PAD_LEFT);
         $formattedNumberCNP = str_pad($numberCNP->count() + 1, 3, '0', STR_PAD_LEFT);
-        $quote = Quotation::where('id', $id)->first();
-        $invoice = Invoice::where('id_quotation', $id)->first();
+        $quote = Quotation::find($id);
+        $invoice = Invoice::where('id_quotation', $id)->get();
         $dquote = DetailQuotation::where('id_quotation', $id)->get();
         $payments = Payment::where('id_quotation', $id)->get();
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn']);
         $noQuote = substr($quote->no_quote, 0, 3);
         $today = Carbon::now();
-        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
+        $tax = ($quote->total_no_tax - $quote->diskon) * $quote->tax / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
         // dd($quote->diskon);
         $thisYear = $today->year;
@@ -525,6 +525,24 @@ class QuotationController extends Controller
         }
     }
 
+    public function request_bp(Request $request, $id)
+    {
+        $invoice = new Invoice;
+        $invoice->id_quotation = $id;
+        $invoice->no_po = $request->po;
+        $invoice->no_invoice = NULL;
+        $invoice->type = 'BP';
+        $invoice->term = NULL;
+        $invoice->invoiceTo = NULL;
+        $invoice->sign = NULL;
+        $invoiceSave = $invoice->save();
+        if ($invoiceSave) {
+            return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');
+        } else {
+            return response()->json(['error' => 'No file uploaded.'], 400);
+        }
+
+    }
     public function upload_po(Request $request, $id)
     {
         $quote = Quotation::find($id);
@@ -560,14 +578,17 @@ class QuotationController extends Controller
             $quote->upload_date = Carbon::today();
             $quote->save();
             // create invoice quote
-            $invoice = new Invoice;
-            $invoice->id_quotation = $id;
-            $invoice->no_po = $request->po;
-            $invoice->no_invoice = NULL;
-            $invoice->term = NULL;
-            $invoice->invoiceTo = NULL;
-            $invoice->sign = NULL;
-            $invoice->save();
+            if (Auth::user()->id != '16') {
+                $invoice = new Invoice;
+                $invoice->id_quotation = $id;
+                $invoice->no_po = $request->po;
+                $invoice->no_invoice = NULL;
+                $invoice->type = 'CT';
+                $invoice->term = NULL;
+                $invoice->invoiceTo = NULL;
+                $invoice->sign = NULL;
+                $invoice->save();
+            }
 
             return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');
         } else {
@@ -620,43 +641,61 @@ class QuotationController extends Controller
             return redirect('/quotation/' . $id)->with('error', 'Quotation not found.');
         }
 
-        $paymentCount = Payment::where('id_quotation', $id)->count();
+        // $paymentCount = Payment::where('id_quotation', $id)->count();
+        $invoice = Invoice::where('id_quotation', $id)->get();
         $payment = new Payment;
 
-        if ($request->hasFile('file')) {
-            $foto = $request->file('file');
+        // if ($request->hasFile('file')) {
+        //     $foto = $request->file('file');
 
-            // Validate the file to ensure it's a PDF, JPG, JPEG, or PNG
-            $request->validate([
-                'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            ]);
+        //     // Validate the file to ensure it's a PDF, JPG, JPEG, or PNG
+        //     $request->validate([
+        //         'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        //     ]);
 
-            // Get file extension
-            $file_ext = $foto->getClientOriginalExtension();
+        //     // Get file extension
+        //     $file_ext = $foto->getClientOriginalExtension();
 
-            // Sanitize the quote number to create a valid filename
-            $sanitized_file_name = preg_replace('/[^A-Za-z0-9\-]/', '_', $quote->no_quote);
+        //     // Sanitize the quote number to create a valid filename
+        //     $sanitized_file_name = preg_replace('/[^A-Za-z0-9\-]/', '_', $quote->no_quote);
 
-            // Construct file name
-            $file_name = $sanitized_file_name . '-' . ($paymentCount + 1) . '.' . $file_ext;
+        //     // Construct file name
+        //     $file_name = $sanitized_file_name . '-' . ($paymentCount + 1) . '.' . $file_ext;
 
-            // Set upload path
-            $upload_path = 'asset/payment';
+        //     // Set upload path
+        //     $upload_path = 'asset/payment';
 
-            // Move the file to the upload path
-            $foto->move(public_path($upload_path), $file_name);
+        //     // Move the file to the upload path
+        //     $foto->move(public_path($upload_path), $file_name);
 
-            // Update the payment with the new file path
-            $payment->id_quotation = $id;
-            $payment->file = $upload_path . '/' . $file_name;
-            $payment->amount = $request->amount;
-            $payment->note = $request->note;
-            $payment->save();
+        //     // Update the payment with the new file path
+        //     $payment->id_quotation = $id;
+        //     $payment->file = $upload_path . '/' . $file_name;
+        //     $payment->amount = $request->amount;
+        //     $payment->percent = $request->percent;
+        //     $payment->note = $request->note;
+        //     $payment->save();
 
-            return redirect('/quotation/' . $id)->with('message', 'File has been uploaded.');
+        //     return redirect('/quotation/' . $id)->with('message', 'File has been uploaded.');
+        // } else {
+        //     return response()->json(['error' => 'No file uploaded.'], 400);
+        // }
+        $targetInvoice = $invoice->count() - 1;
+        if ($invoice->count() == 1) {
+            $invoice[$targetInvoice]->type = 'DP';
+            $invoice[$targetInvoice]->save();
         } else {
-            return response()->json(['error' => 'No file uploaded.'], 400);
+            $invoice[$targetInvoice]->type = 'BP';
+            $invoice[$targetInvoice]->save();
         }
+        $payment->id_quotation = $id;
+        $payment->file = 'photo';
+        $payment->amount = $request->amount;
+        $payment->percent = $request->percent;
+        $payment->note = $request->note;
+        $payment->save();
+
+        return redirect('/quotation/' . $id)->with('message', 'File has been uploaded.');
     }
     public function download_payment($id)
     {
@@ -674,20 +713,26 @@ class QuotationController extends Controller
 
         return response()->download($file_path);
     }
-    
+
     public function delete_payment($id)
     {
         $payment = Payment::find($id);
+        $invoice = Invoice::where('id_quotation', $payment->id_quotation)->first();
 
         if (!$payment) {
             return response()->json(['error' => 'Quotation not found.'], 404);
         }
+        $paymentDel = $payment->delete();
+        $invoice->type = 'CT';
+        $invoice->save();
 
-        $file_path = public_path($payment->file);
+        // $file_path = public_path($payment->file);
 
-        if (file_exists($file_path)) {
-            unlink($file_path);
-            $payment->delete();
+        // if (file_exists($file_path)) {
+        //     unlink($file_path);
+        //     $payment->delete();
+        //     return 1;
+        if ($paymentDel) {
             return 1;
         } else {
             return 0;

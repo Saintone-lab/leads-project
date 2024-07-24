@@ -27,7 +27,7 @@ class ReportsController extends Controller
         $totalDC = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $monthNow)->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->where('client.id_sales', Auth::user()->id)->count();
         $totalCRM = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'CRM')->where('client.id_sales', Auth::user()->id)->count();
         $totalVisit = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'Visit')->where('client.id_sales', Auth::user()->id)->count();
-        $totalQuote = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->whereMonth('po_date', $monthNow)->where('id_sales', Auth::user()->id)->where('level', '1')->count();
+        $totalQuote = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->whereMonth('estimated_date', $monthNow)->where('id_sales', Auth::user()->id)->where('level', '1')->count();
         $totalPO = Quotation::where('status', '100')->whereMonth('po_date', $monthNow)->where('id_sales', Auth::user()->id)->where('level', '1')->count();
         $amountSales = Quotation::whereMonth('po_date', $monthNow)->where('status', '100')->where('id_sales', Auth::user()->id)->where('level', '1')->sum('nett');
         $amountProspect = Quotation::whereMonth('estimated_date', $monthNow)->where('status', '80')->where('id_sales', Auth::user()->id)->where('level', '1')->sum('nett');

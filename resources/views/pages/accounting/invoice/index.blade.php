@@ -14,6 +14,7 @@
                         <th>ID</th>
                         <th>Invoice No.</th>
                         <th>Company</th>
+                        <th>type</th>
                         <th>Total Price</th>
                         <th>Date</th>
                         <th>Sales</th>

@@ -14,14 +14,15 @@ class Invoice extends Model
         'id_quotation',
         'term',
         'sign',
+        'type',
         'no_po',
         'no_invoice',
         'invoiceTo',
     ];
 
     
-    public function client()
+    public function quote()
     {
-        return $this->belongsTo('App\Models\Client', 'id_client', 'id');
+        return $this->belongsTo('App\Models\Quotation', 'id_quotation', 'id');
     }
 }

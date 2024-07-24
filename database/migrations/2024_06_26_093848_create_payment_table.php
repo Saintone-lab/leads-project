@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId("id_quotation");
             $table->longText("file");
             $table->integer("amount");
+            $table->integer("percent");
             $table->string('note');
             $table->timestamps();
         });

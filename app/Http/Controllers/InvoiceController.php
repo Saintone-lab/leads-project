@@ -6,6 +6,7 @@ use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Quotation;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -57,14 +58,16 @@ class InvoiceController extends Controller
         $quote = Quotation::where('id', $invoice->id_quotation)->first();
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
+        // dd($payments);
 
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
         }
 
         $remaining = $quote->harga_total - $totalAmount;
-        $price = $this->terbilang($remaining);
-        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
+        $harga = Payment::where('id_quotation', $quote->id)->orderBy('created_at', 'DESC')->first();
+        $price = $this->terbilang(@$harga->amount);
+        $tax = ($quote->total_no_tax - $quote->diskon) * $quote->tax / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
 
         return view('pages.accounting.invoice.detail', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc'));
@@ -117,7 +120,21 @@ class InvoiceController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $invoice = Invoice::find($id);
+        if ($invoice->type == "DP") {
+            $allInvoice = Invoice::where('id_quotation', $invoice->id_quotation)->get();
+            foreach ($allInvoice as $item) {
+                $invoiceDel = $item->delete();
+            }
+        } else {
+            $invoiceDel = $invoice->delete();
+        }
+
+        if ($invoiceDel) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
     public function request()
     {
@@ -125,7 +142,37 @@ class InvoiceController extends Controller
     }
     public function before_accept($id)
     {
-        
+        $dateNow = Carbon::now();
+        $year = $dateNow->year;
+        $month = $dateNow->month;
+        $monthCode = $this->convertToRoman($month);
+        $lastInvoiceP = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
+        $lastInvoiceNP = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
+        function generateNextInvoiceNumber($lastInvoice, $defaultCode)
+        {
+            if ($lastInvoice) {
+                // Ekstrak 3 digit numerik pertama dari no_invoice
+                preg_match('/^\d{3}/', $lastInvoice->no_invoice, $matches);
+
+                if (!empty($matches)) {
+                    $lastNumber = $matches[0]; // Bagian numerik yang diekstrak, misal "004"
+                    $newNumber = str_pad((int) $lastNumber + 1, 3, '0', STR_PAD_LEFT); // Increment dan pad angka
+
+                    return $newNumber;
+                } else {
+                    // Jika tidak ada bagian numerik yang ditemukan, gunakan default
+                    return $defaultCode;
+                }
+            } else {
+                // Jika tidak ada invoice sebelumnya, mulai dari awal
+                return $defaultCode;
+            }
+        }
+
+        // Generate next invoice numbers
+        $nextCodeP = generateNextInvoiceNumber($lastInvoiceP, '001');
+        $nextCodeNP = generateNextInvoiceNumber($lastInvoiceNP, '001');
+
         $totalAmount = 0;
         $quote = Quotation::find($id);
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
@@ -137,10 +184,10 @@ class InvoiceController extends Controller
 
         $remaining = $quote->harga_total - $totalAmount;
         $price = $this->terbilang($remaining);
-        $tax = $quote->total_no_tax * $quote->tax / 100;
-        $invoice = Invoice::where('id_quotation', $id)->first();
+        $tax = ($quote->total_no_tax - $quote->diskon) * $quote->tax / 100;
+        $invoice = Invoice::where('id_quotation', $id)->orderBy('created_at', 'desc')->first();
         // dd($price);
-        return view('pages.accounting.invoice.before-accept', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining'));
+        return view('pages.accounting.invoice.before-accept', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoiceP', 'lastInvoiceNP', 'nextCodeP', 'nextCodeNP', 'year', 'monthCode'));
     }
 
     public function print_invoice($id)
@@ -156,13 +203,14 @@ class InvoiceController extends Controller
         }
 
         $remaining = $quote->harga_total - $totalAmount;
-        $price = $this->terbilang($remaining);
+        $harga = Payment::where('id_quotation', $quote->id)->orderBy('created_at', 'DESC')->first();
+        $price = $this->terbilang($harga->amount);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
         // dd($termncon);
         return view("pages.accounting.invoice.detail-print", compact('quote', 'dquote', 'tax', 'invoice', 'price', 'payments', 'remaining', 'afterDisc'));
     }
-    
+
     public function hand_sign(Request $request, $id)
     {
         $photo = Invoice::find($id);
@@ -209,7 +257,6 @@ class InvoiceController extends Controller
             return 0;
         }
     }
-
     private function terbilang($number)
     {
         $number = abs($number);
@@ -239,5 +286,25 @@ class InvoiceController extends Controller
         }
 
         return ucwords(trim($result));
+    }
+
+    protected function convertToRoman($month)
+    {
+        $romanMonth = [
+            1 => 'I',
+            2 => 'II',
+            3 => 'III',
+            4 => 'IV',
+            5 => 'V',
+            6 => 'VI',
+            7 => 'VII',
+            8 => 'VIII',
+            9 => 'IX',
+            10 => 'X',
+            11 => 'XI',
+            12 => 'XII',
+        ];
+
+        return $romanMonth[$month];
     }
 }

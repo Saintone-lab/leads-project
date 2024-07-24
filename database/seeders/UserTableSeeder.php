@@ -248,7 +248,7 @@ class UserTableSeeder extends Seeder
                 "name" => "Ari Sudewo",
                 "phone" => "+62895329683129",
                 "email" => "wowo@reftech.id",
-                'password' => Hash::make('logistik123'),
+                'password' => Hash::make('sales123'),
                 "image" => "asset/profile/Ax0J8lRK.png",
                 "sign" => null,
                 'birthday' => \Carbon\Carbon::today(),

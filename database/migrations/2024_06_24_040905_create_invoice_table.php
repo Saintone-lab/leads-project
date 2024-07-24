@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId("id_quotation");
             $table->longText("term")->nullable();
             $table->string("no_po");
+            $table->enum("type",['CT', 'DP', 'BP']);
             $table->string("no_invoice")->nullable();
             $table->string("sign")->nullable();
             $table->enum('invoiceTo', ['1','2'])->nullable();

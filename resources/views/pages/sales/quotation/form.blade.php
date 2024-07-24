@@ -774,12 +774,12 @@
                             harga = response[0].price,
                             disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(
                                 `#disc-${id}`).val());
+                        $(`#qty-${id}`).val(1);
                         // menghitung hasil
                         hasil = harga * $(`#qty-${id}`).val();
                         // menghitung amount
                         amount = (hasil - (hasil * disc / 100));
                         // memasukan data amount dan subtotal
-                        $(`#qty-${id}`).val(1);
                         $(`#amount-${id}`).val(amount);
                         $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
                         $('.amount-label').each(() => {
@@ -908,8 +908,9 @@
                     $.ajax({
                         url: Url,
                         type: 'GET',
+
                         success: function(response) {
-                            // console.log('AJAX Response:', response);
+                            console.log('AJAX Response:', response);
                             $(`#detailProduct-${id}`).val(response[0].detail);
                             $(`#priceLabel-${id}`).val(formatPrice(response[0].price));
                             $(`#price-${id}`).val(response[0].price);
@@ -921,15 +922,15 @@
                                 disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 :
                                 parseInt($(
                                     `#disc-${id}`).val());
+                            $(`#qty-${id}`).val(1);
                             // menghitung hasil
                             hasil = harga * $(`#qty-${id}`).val();
                             // menghitung amount
                             amount = (hasil - (hasil * disc / 100));
                             // memasukan data amount dan subtotal
-                            $(`#qty-${id}`).val(1);
                             $(`#amount-${id}`).val(amount);
                             $(`#amount-label-${id}`).html(
-                                `${formatter.format(amount)}`);
+                            `${formatter.format(amount)}`);
                             $('.amount-label').each(() => {
                                 row++;
                                 sTotal += parseInt($(`#amount-${row}`).val())
