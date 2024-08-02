@@ -223,10 +223,6 @@
                                 <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
                                     data-bs-toggle="modal" data-bs-target="#changeStatus-{{ $quote->id }}">Change
                                     Status</button>
-                            @else
-                                <a class="btn btn-danger d-grid w-100 mb-3 waves-effect" href="#">
-                                    Return Quotation
-                                </a>
                             @endif
                         @endif
                         @if (Auth::user()->role == 'Sales')
@@ -238,7 +234,7 @@
                 @if (Auth::user()->role == 'Sales')
                     <div class="card mb-3">
                         <div class="card-body">
-                            @if (Auth::user()->id == '1' || Auth::user()->id == '16')
+                            @if ((Auth::user()->id == '1' || Auth::user()->id == '16') && $invoice->count() < 1)
                                 <a href="#" data-id="{{ $quote->id }}"
                                     class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
                                     {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
@@ -248,12 +244,12 @@
                                     data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
                             @else
                                 @if ($quote->po_file != null)
-                                    @if ($invoice->count() > 1 && $invoice[0]->no_invoice == null)
+                                    @if ($invoice->count() >= 1 && $invoice[0]->no_invoice == null)
                                         <button type="button"
                                             class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
                                             Waiting Accounting Apply
                                         </button>
-                                    @elseif($invoice->count() > 1 && $invoice[0]->no_invoice)
+                                    @elseif($invoice->count() >= 1 && $invoice[0]->no_invoice)
                                         <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
                                             href="{{ route('invoice.show', $invoice[0]->id) }}">
                                             Go To Invoice {{ $invoice[0]->type == 'CT' ? '' : 'DP' }}
@@ -310,6 +306,15 @@
                                     </button>
                                 </div>
                                 <h5>Remaining : Rp {{ number_format($remaining, 0, '.', ',') }}</h5>
+                            </div>
+                        </div>
+                    @endif
+                @elseif(Auth::user()->role == 'Admin')
+                    @if ($quote->po_file != null)
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <a href="{{ route('download-po.quotation', $quote->id) }}"
+                                    class="btn btn-primary d-grid w-100 waves-effect"> Download PO</a>
                             </div>
                         </div>
                     @endif

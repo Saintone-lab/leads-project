@@ -10,6 +10,7 @@ $(function(){
             show: function () {
                 var commodity = $(this).find(".invoice-item-commodity");
                 var replacement = $(this).find(".invoice-item-replacement");
+                var warehouse = $(this).find(".invoice-item-warehouse");
                 var equivalent = $(this).find(".invoice-item-equivalent");
                 var price = $(this).find(".invoice-item-price");
                 var priceLabel = $(this).find(".invoice-item-price-label");
@@ -22,6 +23,7 @@ $(function(){
     
                 fromControl.each(function (i) {
                     var id = "form-repeater-" + row + "-" + col;
+                    var idWarehouse = "warehouse-" + row;
                     var idPrice = "price-" + row;
                     var idPriceLabel = "price-label-" + row;
                     var idQty = "qty-" + row;
@@ -33,6 +35,7 @@ $(function(){
                     $(commodity[i]).attr("data-id", row);
                     $(replacement[i]).attr("id", idReplacement);
                     $(replacement[i]).attr("data-id", row);
+                    $(warehouse[i]).attr("id", idWarehouse);
                     $(equivalent[i]).attr("id", idEquivalent);
                     $(equivalent[i]).attr("data-id", row);
                     $(price[i]).attr("id", idPrice);

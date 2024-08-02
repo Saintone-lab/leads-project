@@ -76,12 +76,21 @@ class ProductInController extends Controller
                 $dProductIn->qty = $request->qty[$item];
                 $dProductIn->modal = $request->price[$item];
                 $dProductIn->amount = $request->amount[$item];
+                $dProductIn->warehuose = $request->warehuose[$item];
                 $productD = DetailProduct::where('id', $request->replacement[$item])->first();
-                $productD->modal = (($productD->stock * $productD->modal) + ($request->qty[$item] * $request->price[$item])) / ($productD->stock + $request->qty[$item]);
-                $productD->stock = $productD->stock + $request->qty[$item];
+                $productD->modal = ((($productD->stock + $productD->warehouse_stock) * $productD->modal) + ($request->qty[$item] * $request->price[$item])) / (($productD->stock + $productD->warehouse_stock) + $request->qty[$item]);
+                if ($request->warehouse[$item] == 'BDG') {
+                    $productD->stock = $productD->stock + $request->qty[$item];
+                } else {
+                    $productD->warehouse_stock = $productD->warehouse_stock + $request->qty[$item];
+                }
                 $productD->save();
                 $product = Product::where('id', $productD->id_product)->first();
-                $product->stock = $product->stock + $request->qty[$item];
+                if ($request->warehouse[$item] == 'BDG') {
+                    $product->stock = $product->stock + $request->qty[$item];
+                } else {
+                    $product->warehouse_stock = $product->warehouse_stock + $request->qty[$item];
+                }
                 // dd($product);
                 $product->save();
                 $dProductSave = $dProductIn->save();
@@ -163,9 +172,17 @@ class ProductInController extends Controller
         $delProductIn = $product->delete();
 
         foreach ($detail as $dProductIn) {
-            $dProductIn->detailProduct->stock = $dProductIn->detailProduct->stock - $dProductIn->qty;
+            if ($dProductIn->warehouse == 'BDG') {
+                $dProductIn->detailProduct->stock = $dProductIn->detailProduct->stock - $dProductIn->qty;
+            } else {
+                $dProductIn->detailProduct->warehouse_stock = $dProductIn->detailProduct->warehouse_stock - $dProductIn->qty;
+            }
             $dProductIn->detailProduct->save();
-            $dProductIn->detailProduct->product->stock = $dProductIn->detailProduct->product->stock - $dProductIn->qty;
+            if ($dProductIn->warehouse == 'BDG') {
+                $dProductIn->detailProduct->product->stock = $dProductIn->detailProduct->product->stock - $dProductIn->qty;
+            } else {
+                $dProductIn->detailProduct->product->warehouse_stock = $dProductIn->detailProduct->product->warehouse_stock - $dProductIn->qty;
+            }
             $dProductIn->detailProduct->product->save();
             $delDetProductIn = $dProductIn->delete();
         }
@@ -176,11 +193,12 @@ class ProductInController extends Controller
             return 0;
         }
     }
-    
-    public function productIn_print($id){
+
+    public function productIn_print($id)
+    {
         $product = ProductIn::find($id);
         $detail = DetailProductIn::where('id_product_in', $product->id)->get();
         $tax = $product->total_no_tax * $product->tax / 100;
-        return view('pages.warehouse.product-in.detail-print', compact('product','detail', 'tax'));
+        return view('pages.warehouse.product-in.detail-print', compact('product', 'detail', 'tax'));
     }
 }

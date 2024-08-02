@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('category');
             $table->string('dimension');
             $table->integer('first_stock');
+            $table->integer('warehouse_stock');
             $table->integer('stock');
             $table->integer('weight');
             $table->string('unit');

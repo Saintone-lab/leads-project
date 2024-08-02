@@ -77,15 +77,31 @@
                                     Stock Awal
                                 </div>
                                 <div class="col-9">
-                                    : {{ $product->first_stock }} ({{ $product->date }})
+                                    : {{ $product->first_stock }} {{ $product->unit }} ({{ $product->date }})
                                 </div>
                             </div>
                             <div class="row mb-1">
                                 <div class="col-3">
-                                    Stock
+                                    Warehouse Stock
+                                </div>
+                                <div class="col-9">
+                                    : {{ $product->warehouse_stock }} {{ $product->unit }}
+                                </div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-3">
+                                    Office Stock
                                 </div>
                                 <div class="col-9">
                                     : {{ $product->stock }} {{ $product->unit }}
+                                </div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-3">
+                                    All Stock
+                                </div>
+                                <div class="col-9">
+                                    : {{ $allStock }} {{ $product->unit }}
                                 </div>
                             </div>
                             <div class="row mb-1">

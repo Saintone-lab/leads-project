@@ -83,6 +83,7 @@ class ProductController extends Controller
         $product->go = $request->go;
         $product->weight = $request->weight;
         $product->first_stock = 0;
+        $product->warehouse_stock = 0;
         $product->stock = 0;
         $product->unit = $request->unit;
         $product->note = $request->note;
@@ -103,9 +104,10 @@ class ProductController extends Controller
     public function show($id)
     {
         $product = Product::find($id);
+        $allStock = $product->stock + $product->warehouse_stock;
         $details = DetailProduct::where('id_product', $id)->get();
         $serials = SerialProduct::where('id_product', $id)->get();
-        return view('pages.warehouse.product.detail', compact('product', 'details', 'serials'));
+        return view('pages.warehouse.product.detail', compact('product', 'details', 'serials', 'allStock'));
     }
 
     /**

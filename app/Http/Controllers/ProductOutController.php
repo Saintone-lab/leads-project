@@ -81,11 +81,20 @@ class ProductOutController extends Controller
                 $dProductIn->qty = $request->qty[$item];
                 $dProductIn->price = $request->price[$item];
                 $dProductIn->amount = $request->amount[$item];
+                $dProductIn->warehouse = $request->warehouse[$item];
                 $productD = DetailProduct::where('id', $request->replacement[$item])->first();
-                $productD->stock = $productD->stock - $request->qty[$item];
+                if ($request->warehouse[$item] == 'BDG') {
+                    $productD->stock = $productD->stock - $request->qty[$item];
+                } else {
+                    $productD->warehouse_stock = $productD->warehouse_stock - $request->qty[$item];
+                }
                 $productD->save();
                 $product = Product::where('id', $productD->id_product)->first();
-                $product->stock = $product->stock - $request->qty[$item];
+                if ($request->warehouse[$item] == 'BDG') {
+                    $product->stock = $product->stock - $request->qty[$item];
+                } else {
+                    $product->warehouse_stock = $product->warehouse_stock - $request->qty[$item];
+                }
                 // dd($product);
                 $product->save();
                 $dProductSave = $dProductIn->save();

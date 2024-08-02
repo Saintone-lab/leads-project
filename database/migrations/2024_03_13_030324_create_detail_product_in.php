@@ -15,9 +15,10 @@ return new class extends Migration
     {
         Schema::create('detail_product_in', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_detail_product');
             $table->foreignId('id_product_in');
+            $table->foreignId('id_detail_product');
             $table->integer('qty');
+            $table->enum('warehouse',['BDG','BKS']);
             $table->integer('modal');
             $table->integer('amount');
             $table->timestamps();

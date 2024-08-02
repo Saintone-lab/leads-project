@@ -22,11 +22,12 @@ $(function () {
                 { data: "description" },
                 { data: "go" },
                 { data: "stock" },
+                { data: "warehouse_stock" },
                 { data: "price" },
             ],
             columnDefs: [
                 {
-                    targets: 9,
+                    targets: 10,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
                 {

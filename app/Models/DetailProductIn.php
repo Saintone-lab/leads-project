@@ -17,6 +17,7 @@ class DetailProductIn extends Model
         'id_detail_product',
         'id_product_in',
         'qty',
+        'warehouse',
         'modal',
     ];
     public function productIn()

@@ -20,6 +20,7 @@ class Product extends Model
         'detail_desc',
         'go',
         'dimension',
+        'warehouse_stock',
         'frist_stock',
         'stock',
         'weight',

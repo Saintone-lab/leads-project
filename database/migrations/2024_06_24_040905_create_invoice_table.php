@@ -19,9 +19,11 @@ return new class extends Migration
             $table->longText("term")->nullable();
             $table->string("no_po");
             $table->enum("type",['CT', 'DP', 'BP']);
+            $table->enum("flag", ['Reftech', 'Kojisha']);
             $table->string("no_invoice")->nullable();
             $table->string("sign")->nullable();
             $table->enum('invoiceTo', ['1','2'])->nullable();
+            $table->date('date');
             $table->timestamps();
         });
     }

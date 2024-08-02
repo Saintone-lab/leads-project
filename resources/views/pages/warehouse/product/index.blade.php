@@ -84,7 +84,8 @@
                             <th>PN</th>
                             <th>Desc</th>
                             <th>G/O</th>
-                            <th>Stock</th>
+                            <th>Stock BDG</th>
+                            <th>Stock BKS</th>
                             <th>Price</th>
                         </tr>
                     </thead>
@@ -98,11 +99,13 @@
                             <th>ID</th>
                             <th>Product</th>
                             <th>Part Number</th>
+                            <th>ID</th>
                             <th>Price</th>
                             <th>Desc</th>
                             <th>Dimension</th>
                             <th>G/O</th>
-                            <th>Stock</th>
+                            <th>Stock BDG</th>
+                            <th>Stock BKS</th>
                         </tr>
                     </thead>
                 </table>

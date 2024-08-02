@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('replacement');
             $table->integer('modal');
             $table->integer('stock');
+            $table->integer('warehouse_stock');
             $table->timestamps();
         });
     }

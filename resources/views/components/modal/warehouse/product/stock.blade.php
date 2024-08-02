@@ -52,12 +52,19 @@
                             <p>Recent Stock</p>
                         </div>
                         <div class="col-8 mb-2">
-                            <div class="form-floating form-floating-outline">
-                                <input type="number" id="stock" class="form-control recent-stock-label"
+                            <div class="form-floating form-floating-outline mb-3">
+                                <input type="number" id="stock" class="form-control recent-office-stock-label"
                                     name="stock" value="{{ old('stock', $product->stock) }}" disabled>
-                                <input type="number" id="stock" class="form-control recent-stock"
-                                    name="recent_stock" value="{{ old('stock', $product->stock) }}" hidden>
-                                <label for="Recent Stock">Recent Stock</label>
+                                <input type="number" id="stock" class="form-control recent-office-stock"
+                                    name="office_recent_stock" value="{{ old('stock', $product->stock) }}" hidden>
+                                <label for="Recent Stock">Recent Office Stock</label>
+                            </div>
+                            <div class="form-floating form-floating-outline">
+                                <input type="number" id="stock" class="form-control recent-warehouse-stock-label"
+                                    name="stock" value="{{ old('stock', $product->warehouse_stock) }}" disabled>
+                                <input type="number" id="stock" class="form-control recent-warehouse-stock"
+                                    name="warehouse_recent_stock" value="{{ old('stock', $product->warehouse_stock) }}" hidden>
+                                <label for="Recent Stock">Recent Warehouse Stock</label>
                             </div>
                         </div>
                     </div>
@@ -71,14 +78,22 @@
                                 <p style="margin: auto">{{ $detail->replacement }}</p>
                             </div>
                             <div class="col-6 mb-2">
-                                <div class="form-floating form-floating-outline">
-                                    <input type="number" id="stock" class="form-control replace-stock"
-                                        name="replace_stock[]" data-id="{{ $i }}"
+                                <div class="form-floating form-floating-outline mb-3">
+                                    <input type="number" id="stock" class="form-control office-stock"
+                                        name="office_stock[]" data-id="{{ $i }}"
                                         value="{{ old('stock', $detail->stock) }}">
+                                    <label for="Recent Stock"> Office Stock</label>
+                                </div>
+                                <div class="form-floating form-floating-outline">
+                                    <input type="number" id="stock" class="form-control warehouse-stock"
+                                        name="warehouse_stock[]" data-id="{{ $i }}"
+                                        value="{{ old('stock', $detail->warehouse_stock) }}">
+                                    <label for="warehouse"> Warehouse Stock</label>
                                 </div>
                             </div>
                             <div class="col-2"></div>
                         </div>
+                        <hr>
                         @php
                             $i++;
                         @endphp
@@ -99,13 +114,21 @@
 @push('script')
     <script>
         $(() => {
-            $('.replace-stock').on('keyup change', function() {
+            $('.office-stock').on('keyup change', function() {
                 var total = 0;
-                $('.replace-stock').each(function() {
+                $('.office-stock').each(function() {
                     total += parseInt($(this).val());
                 });
-                $('.recent-stock-label').val(total);
-                $('.recent-stock').val(total);
+                $('.recent-office-stock-label').val(total);
+                $('.recent-office-stock').val(total);
+            });
+            $('.warehouse-stock').on('keyup change', function() {
+                var total = 0;
+                $('.warehouse-stock').each(function() {
+                    total += parseInt($(this).val());
+                });
+                $('.recent-warehouse-stock-label').val(total);
+                $('.recent-warehouse-stock').val(total);
             });
         });
     </script>

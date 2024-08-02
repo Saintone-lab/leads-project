@@ -67,10 +67,11 @@ class InvoiceController extends Controller
         $remaining = $quote->harga_total - $totalAmount;
         $harga = Payment::where('id_quotation', $quote->id)->orderBy('created_at', 'DESC')->first();
         $price = $this->terbilang(@$harga->amount);
+        $fullPrice = $this->terbilang($quote->harga_total);
         $tax = ($quote->total_no_tax - $quote->diskon) * $quote->tax / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
 
-        return view('pages.accounting.invoice.detail', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc'));
+        return view('pages.accounting.invoice.detail', compact('quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
 
     /**
@@ -135,6 +136,9 @@ class InvoiceController extends Controller
         } else {
             return 0;
         }
+    }
+    public function index_kojisha(){
+        return view('pages.accounting.invoice.index-kojisha');
     }
     public function request()
     {
@@ -204,50 +208,64 @@ class InvoiceController extends Controller
 
         $remaining = $quote->harga_total - $totalAmount;
         $harga = Payment::where('id_quotation', $quote->id)->orderBy('created_at', 'DESC')->first();
-        $price = $this->terbilang($harga->amount);
+        $price = $this->terbilang(@$harga->amount);
+        $fullPrice = $this->terbilang($quote->harga_total);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
         // dd($termncon);
-        return view("pages.accounting.invoice.detail-print", compact('quote', 'dquote', 'tax', 'invoice', 'price', 'payments', 'remaining', 'afterDisc'));
+        return view("pages.accounting.invoice.detail-print", compact('quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
     }
 
     public function hand_sign(Request $request, $id)
     {
         $photo = Invoice::find($id);
+        $quote = Quotation::where('id', $photo->id_quotation)->first();
 
-        if ($request->hasFile('sign')) {
-            $foto = $request->file('sign'); // Akses file sesuai dengan iterasi saat ini
-            // Proses setiap file gambar
-            $image_ext = $foto->getClientOriginalExtension();
-            $image_name = Str::random(8);
-
-            $upload_path = 'asset/invoice';
-            $imagename = $upload_path . '/' . $image_name . '.' . $image_ext;
-
-            // Pemrosesan gambar
-            $img = Image::make($foto->path());
-            $img->fit(800, 500, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $img->save($imagename);
-
-            $photo['sign'] = $imagename;
+        if($photo->flag == "Reftech" && $quote->nett >= 5000000){
+            $photo->sign = 'asset/sign/reftech-m.jpeg';
+        }elseif ($photo->flag == "Reftech" && $quote->nett < 5000000) {
+            $photo->sign = 'asset/sign/reftech-nm.jpeg';
+        }elseif ($photo->flag == "Kojisha" && $quote->nett >= 5000000) {
+            $photo->sign = 'asset/sign/kojisha-m.jpeg';
+        }elseif ($photo->flag == "Kojisha" && $quote->nett < 5000000) {
+            $photo->sign = 'asset/sign/kojisha-nm.jpeg';
         }
+        // if ($request->hasFile('sign')) {
+        //     $foto = $request->file('sign'); // Akses file sesuai dengan iterasi saat ini
+        //     // Proses setiap file gambar
+        //     $image_ext = $foto->getClientOriginalExtension();
+        //     $image_name = Str::random(8);
+
+        //     $upload_path = 'asset/invoice';
+        //     $imagename = $upload_path . '/' . $image_name . '.' . $image_ext;
+
+        //     // Pemrosesan gambar
+        //     $img = Image::make($foto->path());
+        //     $img->fit(800, 500, function ($constraint) {
+        //         $constraint->aspectRatio();
+        //     });
+        //     $img->save($imagename);
+
+        //     $photo['sign'] = $imagename;
+        // }
         // dd($photo);
+
         $status = $photo->save();
 
         if ($status) {
-            return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
+            return 1;
+        }else{
+            0;
         }
     }
     public function delete_hand_sign($id)
     {
         $invoice = Invoice::find($id);
 
-        $delsign = File::delete($invoice->sign);
-        if ($delsign) {
+        // $delsign = File::delete($invoice->sign);
+        // if ($delsign) {
             $invoice->sign = NULL;
-        }
+        // }
         // dd($photo);
         $status = $invoice->save();
 
@@ -257,6 +275,18 @@ class InvoiceController extends Controller
             return 0;
         }
     }
+    public function change_date(Request $request, $id)
+    {
+        $invoice = Invoice::find($id);
+
+        $invoice->date = $request->date;
+        $invoiceSave = $invoice->save();
+
+        if ($invoiceSave) {
+            return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
+
     private function terbilang($number)
     {
         $number = abs($number);
@@ -270,7 +300,7 @@ class InvoiceController extends Controller
         } elseif ($number < 100) {
             $result = $this->terbilang((int) ($number / 10)) . " puluh " . $this->terbilang($number % 10);
         } elseif ($number < 200) {
-            $result = " seratus" . $this->terbilang($number - 100);
+            $result = " seratus " . $this->terbilang($number - 100);
         } elseif ($number < 1000) {
             $result = $this->terbilang((int) ($number / 100)) . " ratus " . $this->terbilang($number % 100);
         } elseif ($number < 2000) {

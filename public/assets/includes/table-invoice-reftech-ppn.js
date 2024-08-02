@@ -1,10 +1,10 @@
 $(function () {
-    var dt_table_invoice = $(".datatable-invoice");
-    var Url = "/db/invoice";
+    var dt_table_invoice_ppn = $(".datatable-invoice-ppn");
+    var Url = "/db/invoice/ppn/reftech";
 
-    if (dt_table_invoice.length) {
+    if (dt_table_invoice_ppn.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_invoice = dt_table_invoice.DataTable({
+        var dt_invoice_ppn = dt_table_invoice_ppn.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -39,7 +39,6 @@ $(function () {
                 { data: "harga_total" },
                 { data: "po_date" },
                 { data: "name" },
-                { data: "" },
             ],
             columnDefs: [
                 {
@@ -74,7 +73,7 @@ $(function () {
                     visible: false,
                 },
                 {
-                    targets: 5,
+                    targets: 6,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
                 {
@@ -82,26 +81,39 @@ $(function () {
                     targets: 3,
                 },
                 {
-                    // Actions
-                    targets: -1,
-                    title: "Actions",
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, full, meta) {
-                        var $dataId = full["id"];
-                        var $detailUrl = route("invoice.show", $dataId);
-                        return (
-                            '<div class="d-inline-block">' +
-                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
-                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<li><a href="' +
-                            $detailUrl +
-                            '" class="dropdown-item">Details</a></li>' +
-                            "</ul>" +
-                            "</div>"
-                        );
+                    targets: 3,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $dataId = full["id"];
+                            var detailRoute = route("invoice.show", $dataId);
+                            return (
+                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                            );
+                        }
+                        return data;
                     },
                 },
+                // {
+                //     // Actions
+                //     targets: -1,
+                //     title: "Actions",
+                //     orderable: false,
+                //     searchable: false,
+                //     render: function (data, type, full, meta) {
+                //         var $dataId = full["id"];
+                //         var $detailUrl = route("", $dataId);
+                //         return (
+                //             '<div class="d-inline-block">' +
+                //             '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
+                //             '<ul class="dropdown-menu dropdown-menu-end m-0">' +
+                //             '<li><a href="' +
+                //             $detailUrl +
+                //             '" class="dropdown-item">Details</a></li>' +
+                //             "</ul>" +
+                //             "</div>"
+                //         );
+                //     },
+                // },
             ],
             drawCallback: function (settings) {
                 console.log("drawCallback");
@@ -109,7 +121,7 @@ $(function () {
             },
             order: [[2, "desc"]],
             displayLength: 7,
-            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 head-invoice text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 head-invoice-ppn text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
                 {
@@ -359,11 +371,11 @@ $(function () {
                 },
             },
         });
-        $("div.hl-2.head-invoice").html(
-            '<h5 class="card-title mb-0">Table invoice</h5>'
+        $("div.hl-2.head-invoice-ppn").html(
+            '<h5 class="card-title mb-0">Table invoice Reftech PPN</h5>'
         );
     }
-    dt_table_invoice.on("draw", function () {
+    dt_table_invoice_ppn.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

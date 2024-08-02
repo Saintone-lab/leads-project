@@ -80,10 +80,13 @@
                                 <label for="estimatedDate">Quote Date</label>
                             </div>
                         </div>
+                        @php
+                            $nextMonth = now()->addDays(30);
+                        @endphp
                         <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="date" id="expiredDate" name="expired_date"
-                                    value="{{ old('expired_date', @$quotation->expired_date ?? '') }}">
+                                    value="{{ old('expired_date', @$quotation->expired_date ?? $nextMonth->format('Y-m-d')) }}">
                                 <label for="expiredDate">Expired Date</label>
                             </div>
                         </div>

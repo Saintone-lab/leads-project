@@ -18,6 +18,7 @@ class DetailProductOut extends Model
         'id_serial_product',
         'id_product_out',
         'qty',
+        'warehouse',
         'price',
         'amount',
     ];

@@ -15,8 +15,10 @@ class Invoice extends Model
         'term',
         'sign',
         'type',
+        'flag',
         'no_po',
         'no_invoice',
+        'date',
         'invoiceTo',
     ];
 

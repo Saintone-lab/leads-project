@@ -28,8 +28,8 @@
                         </div>
                         <div class="col-6 col-lg-3">
                             <div class="form-floating form-floating-outline">
-                                <select class="form-select" id="vers"
-                                    aria-label="Default select example" name="vers">
+                                <select class="form-select" id="vers" aria-label="Default select example"
+                                    name="vers">
                                     <option disabled>----- Select Offline / Online ------</option>
                                     <option value="Online">Online</option>
                                     <option value="Offline">Offline</option>
@@ -55,7 +55,7 @@
                         <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
                             <div class="d-flex border rounded position-relative pe-0">
                                 <div class="row w-100 p-3">
-                                    <div class="col-md-4 col-12 mb-md-0 mb-3">
+                                    <div class="col-md-6 col-12 mb-md-0 mb-3">
                                         <label for="product" class="mb-2">Product</label>
                                         <div class="form-floating form-floating-outline mb-2">
                                             <select id="equivalent-dropdown"
@@ -73,9 +73,6 @@
                                             </select>
                                             <label for="equivalent-dropdown">Equivalent || Commodity</label>
                                         </div>
-                                    </div>
-                                    <div class="col-md-3 col-12 mb-md-0 mb-3">
-                                        <label for="product" class="mb-2">Detail Product</label>
                                         <div class="form-floating form-floating-outline mb-2">
                                             <select id="replacement-dropdown-1"
                                                 class="select2 form-select invoice-item-replacement" data-id="1"
@@ -91,6 +88,19 @@
                                             name="qty[]" id="qty-1" data-id="1" min="1"
                                             value="{{ old('qty[]') }}">
                                         <p class="info-max-label" id="info-max-1"></p>
+                                    </div>
+                                    <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                        <p class="mb-2 repeater-title">Warehouse</p>
+                                        <div class="form-floating form-floating-outline">
+                                            <select class="form-select invoice-item-warehouse" id="warehouse-1"
+                                                data-id="1" aria-label="Default select example" name="warehouse[]">
+                                                <option>---Info---</option>
+                                                <option value="BDG">BDG
+                                                </option>
+                                                <option value="BKS">BKS
+                                                </option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div class="col-md-2 col-12 mb-md-0 mb-3">
                                         <p class="mb-2 repeater-title">Price</p>
@@ -141,7 +151,8 @@
                                 <input type="text" class="form-control invoice-item-shipping-label"
                                     id="shipping-label" data-id="1" min="0" placeholder="Put shipping Here"
                                     data-type="currency" pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                    @blur="focused = false" value="{{ old('shipping', @$pOut->shipping ? number_format(@$pOut->shipping, 0, '', '.') : '0')}}">
+                                    @blur="focused = false"
+                                    value="{{ old('shipping', @$pOut->shipping ? number_format(@$pOut->shipping, 0, '', '.') : '0') }}">
                                 <input class="form-control invoice-item-shipping" type="number" name="shipping"
                                     id="shipping" value="{{ old('shipping', @$pOut->shipping ?? '0') }}" hidden>
                             </div>
@@ -290,11 +301,12 @@
                                 value.id + '">' + value.replacement +
                                 '</option>');
                         });
-
-                        if (response[0].stock >= 1) {
-                            $(`#info-max-${comId}`).text('Max : ' + response[0].stock);
+                        var allStock = response[0].stock + response[0].warehouse_stock;
+                        if (response[0].stock >= 1 || response[0].warehouse_stock >= 1) {
+                            $(`#info-max-${comId}`).text('Max : ' + response[0].stock + ' - ' +
+                                response[0].warehouse_stock);
                             $(`#qty-${comId}`).prop('disabled', false);
-                            $(`#qty-${comId}`).attr('max', response[0].stock);
+                            $(`#qty-${comId}`).attr('max', allStock);
                         } else {
                             $(`#info-max-${comId}`).text('Max : 0');
                             $(`#qty-${comId}`).attr('max', 0);
@@ -318,10 +330,12 @@
                     type: 'GET',
                     success: function(response) {
                         console.log(response);
-                        if (response.stock >= 1) {
-                            $(`#info-max-${comId}`).text('Max : ' + response.stock);
+                        var allStock = response.stock + response.warehouse_stock;
+                        if (response.stock >= 1 || response.warehouse_stock >= 1) {
+                            $(`#info-max-${comId}`).text('Max : ' + response.stock + ' - ' +
+                                response.warehouse_stock);
                             $(`#qty-${comId}`).prop('disabled', false);
-                            $(`#qty-${comId}`).attr('max', response.stock);
+                            $(`#qty-${comId}`).attr('max', allStock);
                         } else {
                             $(`#info-max-${comId}`).text('Max : 0');
                             $(`#qty-${comId}`).attr('max', 0);
@@ -403,11 +417,15 @@
                                     '</option>');
                             });
 
-                            if (response[0].stock >= 1) {
+                            var allStock = response[0].stock + response[0]
+                                .warehouse_stock;
+                            if (response[0].stock >= 1 || response[0].warehouse_stock >=
+                                1) {
                                 $(`#info-max-${comId}`).text('Max : ' + response[0]
-                                    .stock);
+                                    .stock + ' - ' +
+                                    response[0].warehouse_stock);
                                 $(`#qty-${comId}`).prop('disabled', false);
-                                $(`#qty-${comId}`).attr('max', response[0].stock);
+                                $(`#qty-${comId}`).attr('max', allStock);
                             } else {
                                 $(`#info-max-${comId}`).text('Max : 0');
                                 $(`#qty-${comId}`).attr('max', 0);
@@ -431,16 +449,18 @@
                         type: 'GET',
                         success: function(response) {
                             console.log(response);
-                            if (response.stock >= 1) {
-                                $(`#info-max-${comId}`).text('Max : ' + response.stock);
-                                $(`#qty-${comId}`).prop('disabled', false);
-                                $(`#qty-${comId}`).attr('max', response.stock);
-                            } else {
-                                $(`#info-max-${comId}`).text('Max : 0');
-                                $(`#qty-${comId}`).attr('max', 0);
-                                $(`#qty-${comId}`).prop('disabled', true);
-                                $(`#qty-${comId}`).attr('value', 0);
-                            }
+                        var allStock = response.stock + response.warehouse_stock;
+                        if (response.stock >= 1 || response.warehouse_stock >= 1) {
+                            $(`#info-max-${comId}`).text('Max : ' + response.stock + ' - ' +
+                                response.warehouse_stock);
+                            $(`#qty-${comId}`).prop('disabled', false);
+                            $(`#qty-${comId}`).attr('max', allStock);
+                        } else {
+                            $(`#info-max-${comId}`).text('Max : 0');
+                            $(`#qty-${comId}`).attr('max', 0);
+                            $(`#qty-${comId}`).prop('disabled', true);
+                            $(`#qty-${comId}`).attr('value', 0);
+                        }
                         }
                     });
                 });

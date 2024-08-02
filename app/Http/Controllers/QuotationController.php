@@ -56,10 +56,10 @@ class QuotationController extends Controller
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::all();
+        $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
         $sales = User::where('role', 'sales')->get();
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
-        // dd($product);
+        // dd($pic);
         return view('pages.sales.quotation.form', compact('pic', 'sales', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 
@@ -187,7 +187,7 @@ class QuotationController extends Controller
         $today = Carbon::now();
         $tax = ($quote->total_no_tax - $quote->diskon) * $quote->tax / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
-        // dd($quote->diskon);
+        // dd($invoice[0]->no_invoice);
         $thisYear = $today->year;
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
@@ -527,11 +527,14 @@ class QuotationController extends Controller
 
     public function request_bp(Request $request, $id)
     {
+        $quote = Quotation::find($id);
         $invoice = new Invoice;
         $invoice->id_quotation = $id;
         $invoice->no_po = $request->po;
         $invoice->no_invoice = NULL;
+        $invoice->flag = $quote->flag;
         $invoice->type = 'BP';
+        $invoice->date = Carbon::today();
         $invoice->term = NULL;
         $invoice->invoiceTo = NULL;
         $invoice->sign = NULL;
@@ -582,8 +585,10 @@ class QuotationController extends Controller
                 $invoice = new Invoice;
                 $invoice->id_quotation = $id;
                 $invoice->no_po = $request->po;
+                $invoice->flag = $quote->flag;
                 $invoice->no_invoice = NULL;
                 $invoice->type = 'CT';
+                $invoice->date = Carbon::today();
                 $invoice->term = NULL;
                 $invoice->invoiceTo = NULL;
                 $invoice->sign = NULL;

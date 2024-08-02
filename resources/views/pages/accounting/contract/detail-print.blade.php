@@ -144,26 +144,43 @@
                         </td>
                         <td colspan="2" class="text-end pt-4 pb-0">
                             <p class="mb-2">Subtotal:</p>
-                            <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
-                            <p class="mb-2">Shipping Cost:</p>
                             @if ($quote->diskon != 0)
                                 <p class="mb-2">Discount:</p>
+                                <p class="mb-2">Total After Discount:</p>
                             @endif
+                            <p class="mb-2">{{ $quote->tax == '11' ? 'Vat (11%)' : 'Vat' }}:</p>
+                            <p class="mb-2">Shipping Cost:</p>
                         </td>
-                        <td colspan="2" class="pt-4 pb-0">
-                            <p class="fw-semibold mb-2 text-end">Rp
+                        </td>
+                        @php
+                            if ($quote->diskon > 0) {
+                                $afterDisc = $quote->subtotal - $quote->diskon;
+                            } else {
+                                $afterDisc = $quote->subtotal;
+                            }
+
+                            if ($quote->tax > 0) {
+                                $vat = $afterDisc * $quote->tax / 100;
+                            } else {
+                                $vat = 0;
+                            }
+                        @endphp
+                        <td colspan="2" class="text-end pt-4 pb-0">
+                            <p class="fw-semibold mb-2">RP
                                 {{ number_format($quote->subtotal, 0, '', '.') }}</p>
-                            <p class="fw-semibold mb-2 text-end">
-                                {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
-                            <p class="fw-semibold mb-2 text-end">Rp
-                                {{ number_format($quote->shipping, 0, '', '.') }}</p>
                             @if ($quote->diskon != 0)
-                                <p class="fw-semibold mb-2 text-end">Rp
-                                    {{ number_format($quote->diskon, 0, '', '.') }}</p>
+                                <p class="fw-semibold mb-2">RP
+                                    {{ number_format($quote->diskon, 0, '', '.') }}
+                                <p class="fw-semibold mb-2">RP
+                                    {{ number_format($quote->subtotal - $quote->diskon, 0, '', '.') }}
                             @endif
+                            <p class="fw-semibold mb-2">
+                                {{ $tax == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
+                            </p>
+                            <p class="fw-semibold mb-2">RP
+                                {{ number_format($quote->shipping, 0, '', '.') }}</p>
                         </td>
                     </tr>
-
                     <tr class="total">
                         <td colspan="2" class="">
                             <p class="mb-0 text-end">Total:</p>

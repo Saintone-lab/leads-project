@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('id_detail_product');
             $table->foreignId('id_serial_product');
             $table->integer('qty');
+            $table->enum('warehouse',['BDG','BKS']);
             $table->integer('price');
             $table->integer('amount');
             $table->timestamps();

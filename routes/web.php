@@ -18,9 +18,11 @@ use App\Http\Controllers\ProductInController;
 use App\Http\Controllers\ProductOutController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ReqVisitController;
+use App\Http\Controllers\ReturnController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceReportsController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\WarehouseController;
 use App\Models\Activities;
 use App\Models\Client;
 use App\Models\Contract;
@@ -229,11 +231,17 @@ Route::group(["middleware" => "auth"], function () {
     });
 
     Route::resource('/invoice', InvoiceController::class);
+    Route::get('/invoice/index/kojisha', [InvoiceController::class, 'index_kojisha'])->name('invoice.index_kojisha');
     Route::get('/request/invoice/{id}', [InvoiceController::class, 'before_accept'])->name('before.accept');
     Route::get('/request/invoice', [InvoiceController::class, 'request'])->name('invoice.request');
-    Route::get('/print/invoice/{id}', [InvoiceController::class, 'print_invoice'])->name('print.invoice');
+    Route::get('/invoice/print/{id}', [InvoiceController::class, 'print_invoice'])->name('print.invoice');
     Route::post('/invoice/sign/{id}', [InvoiceController::class, 'hand_sign'])->name('invoice.sign');
+    Route::post('/invoice/date/{id}', [InvoiceController::class, 'change_date'])->name('invoice.date');
     Route::delete('/invoice/del-sign/{id}', [InvoiceController::class, 'delete_hand_sign'])->name('invoice.del-sign');
+    
+    Route::resource('/return', ReturnController::class);
+    
+    Route::resource('/warehouse', WarehouseController::class);
 
     Route::resource('/req-visit', ReqVisitController::class);
     Route::post('/req-visit/visited/{id}', [ReqVisitController::class, 'reportsWithRequest'])->name('req-visit.visited');
@@ -391,12 +399,56 @@ Route::group(["middleware" => "auth"], function () {
         ;
         return response()->json(['data' => $quotation]);
     });
-    Route::get('/db/invoice', function () {
+    Route::get('/db/invoice/ppn/reftech', function () {
         $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
             ->join('pic', 'pic.id', '=', 'quotation.id_pic')
             ->join('client', 'client.id', '=', 'pic.id_client')
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')
+            ->where('invoice.flag', 'Reftech')
+            ->where('quotation.tax', '11')
+            ->whereNotNull('quotation.po_file')
+            ->whereNotNull('invoice.no_invoice')
+            ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
+        ;
+        return response()->json(['data' => $invoice]);
+    });
+    Route::get('/db/invoice/nonppn/reftech', function () {
+        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->where('invoice.flag', 'Reftech')
+            ->where('quotation.tax', '0')
+            ->whereNotNull('quotation.po_file')
+            ->whereNotNull('invoice.no_invoice')
+            ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
+        ;
+        return response()->json(['data' => $invoice]);
+    });
+    Route::get('/db/invoice-ppn/kojisha', function () {
+        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->where('invoice.flag', 'Kojisha')
+            ->where('quotation.tax', '11')
+            ->whereNotNull('quotation.po_file')
+            ->whereNotNull('invoice.no_invoice')
+            ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
+        ;
+        return response()->json(['data' => $invoice]);
+    });
+    Route::get('/db/invoice-nonppn/kojisha', function () {
+        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->where('invoice.flag', 'Kojisha')
+            ->where('quotation.tax', '0')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);

@@ -75,12 +75,14 @@ class StockController extends Controller
 
         // dd($request->all());
         $product->first_stock = $request->first_stock;
-        $product->stock = $request->recent_stock;
+        $product->stock = $request->office_recent_stock;
+        $product->warehouse_stock = $request->warehouse_recent_stock;
         $product->date = $request->date;
         $productSave = $product->save();
         if ($productSave) {
             foreach ($details as $item => $detail) {
-                $detail->stock = $request->replace_stock[$item];
+                $detail->stock = $request->office_stock[$item];
+                $detail->stock = $request->warehouse_stock[$item];
                 $detailSave = $detail->save();
             }
         }

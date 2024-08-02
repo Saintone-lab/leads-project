@@ -72,10 +72,26 @@
                                     <div class="col-md-1 col-12 mb-md-0 mb-3">
                                         <p class="mb-2 repeater-title">Qty</p>
                                         <input type="number" class="form-control mb-3 invoice-item-qty" placeholder="Min 1"
-                                            name="qty[]" id="qty-1" data-id="1" min="1"
-                                            value="{{ old('qty[]') }}">
+                                        name="qty[]" id="qty-1" data-id="1" min="1"
+                                        value="{{ old('qty[]') }}">
                                     </div>
-                                    <div class="col-md-3 col-12 mb-md-0 mb-3">
+                                    <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                        <p class="mb-2 repeater-title">warehouse</p>
+                                        <div class="form-floating form-floating-outline mb-4">
+                                            <select class="form-select invoice-item-warehouse" id="warehouse-1"
+                                                data-id="1" aria-label="Default select example"
+                                                name="warehouse[]">
+                                                <option>---Info---</option>
+                                                <option value="BDG"
+                                                    >BDG
+                                                </option>
+                                                <option value="BKS"
+                                                    >BKS
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-12 mb-md-0 mb-3">
                                         <p class="mb-2 repeater-title">Price</p>
                                         <div class="input-group" data-price="1">
                                             <span class="input-group-text">Rp. </span>

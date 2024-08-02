@@ -1,12 +1,12 @@
 @extends('layouts.sales.app')
-@section('title', 'Request Invoice')
+@section('title', 'Invoice Reftech')
 @section('content')
     <h4 class="fw-bold py-3 mb-4">
-        Request Invoice
+        Invoice Reftech
     </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-invoice table table-striped">
+            <table class="datatable-invoice-ppn table table-striped">
                 <thead>
                     <tr>
                         <th></th>
@@ -18,7 +18,27 @@
                         <th>Total Price</th>
                         <th>Date</th>
                         <th>Sales</th>
-                        <th>Action</th>
+                        {{-- <th>Action</th> --}}
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-datatable table-responsive pt-0">
+            <table class="datatable-invoice-nonppn table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Invoice No.</th>
+                        <th>Company</th>
+                        <th>type</th>
+                        <th>Total Price</th>
+                        <th>Date</th>
+                        <th>Sales</th>
+                        {{-- <th>Action</th> --}}
                     </tr>
                 </thead>
             </table>
@@ -49,7 +69,8 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-invoice.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-invoice-reftech-ppn.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-invoice-reftech-nonppn.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
     @endpush
 

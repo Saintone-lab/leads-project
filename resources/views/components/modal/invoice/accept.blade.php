@@ -47,9 +47,13 @@
                                         <label for="selectAddress">Choose Address</label>
                                     </div>
                                 </div>
-                                <div class="col-12 mb-3">
-                                    <p class="text-muted fw-medium text-start">Last Invoice : {{$quote->tax != 0 ? $lastInvoiceP->no_invoice : $lastInvoiceNP->no_invoice }}</p>
-                                </div>
+                                {{-- @if (!is_null($lastInvoiceP->no_invoice) || !is_null($lastInvoiceNP->no_invoice))
+                                    <div class="col-12 mb-3">
+                                        <p class="text-muted fw-medium text-start">Last Invoice :
+                                            {{ $quote->tax != 0 ? $lastInvoiceP->no_invoice : $lastInvoiceNP->no_invoice }}
+                                        </p>
+                                    </div>
+                                @endif --}}
                             </div>
                         </form>
                     </div>

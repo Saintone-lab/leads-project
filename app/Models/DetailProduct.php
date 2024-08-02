@@ -17,6 +17,7 @@ class DetailProduct extends Model
         'replacement',
         'hpp',
         'stock',
+        'warehouse_stock',
     ];
     
     public function product()

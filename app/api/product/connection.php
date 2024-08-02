@@ -24,13 +24,15 @@ if (Auth::check()) {
         p.*,
         s.pn,
         s.price,
+        s.id AS id_pn,
         p.id AS id_p, 
         p.stock AS all_stock, 
         -- CONCAT(p.commodity, IFNULL(CONCAT(' || ', s.pn), '')) AS product, 
         IFNULL(
             GROUP_CONCAT(CONCAT(dp.replacement, '( Rp ', FORMAT(dp.modal, 2), ')' ) SEPARATOR ' || '), 
             'Tidak Ada Replacement'
-                ) AS modal_replacements  
+                ) AS modal_replacements,
+                CONCAT(p.stock, ' - ', p.warehouse_stock ) AS stok
             FROM 
                 product p
             LEFT JOIN 

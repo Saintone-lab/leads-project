@@ -28,11 +28,13 @@ $(function () {
                 { data: "id" },
                 { data: "commodity" },
                 { data: "pn" },
+                { data: "id_pn" },
                 { data: "price" },
                 { data: "description" },
                 { data: "dimension" },
                 { data: "go" },
-                { data: "all_stock" },
+                { data: "stock" },
+                { data: "warehouse_stock" },
             ],
             columnDefs: [
                 {
@@ -90,7 +92,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 5,
+                    targets: 6,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
             ],

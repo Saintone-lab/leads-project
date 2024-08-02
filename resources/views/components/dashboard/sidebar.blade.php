@@ -173,9 +173,14 @@
                             <div data-i18n="Request">Request</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->is('invoice') || request()->is('/invoice/*') ? 'active' : '' }}">
                         <a href="{{ route('invoice.index') }}" class="menu-link">
-                            <div data-i18n="invoice">invoice</div>
+                            <div data-i18n="Invoice Reftech">Invoice Reftech</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('invoice/index/kojisha') || request()->is('invoice/*') ? 'active' : '' }}">
+                        <a href="{{ route('invoice.index_kojisha') }}" class="menu-link">
+                            <div data-i18n="Invoice Kojisha">Invoice Kojisha</div>
                         </a>
                     </li>
                 </ul>
