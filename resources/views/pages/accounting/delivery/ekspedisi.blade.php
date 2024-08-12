@@ -13,7 +13,7 @@
                                     <span class="app-brand-logo demo">
                                         <span style="color: var(--bs-primary)">
                                             <img class="text-md"
-                                                src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
+                                                src="{{ asset('/asset') }}/logo/Reftech-Log.png"
                                                 alt="" srcset="" width="60%">
                                         </span>
                                     </span>
@@ -63,7 +63,6 @@
                         </div>
                     @endif
                 </div>
-                <hr class="my-0">
                 <div class="card-body mb-3">
                     @php
                         if ($invoice->doTo == '1') {
@@ -85,10 +84,10 @@
                                             <p class="mb-1">: {{ $quote->pic->client->company }}</p>
                                             @if ($invoice->invoiceTo == '1')
                                                 <pre
-                                                    style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $address }}</pre>
+                                                    style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $address }}</pre>
                                             @else
                                                 <pre
-                                                    style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $address }}</pre>
+                                                    style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $address }}</pre>
                                             @endif
                                         </div>
                                     </div>
@@ -105,11 +104,11 @@
                             <tr>
                                 <td class="text-center">
                                     <pre
-                                        style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $invoice->no_po }}</pre>
+                                        style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $invoice->no_po }}</pre>
                                 </td>
                                 <td class="text-center">
                                     <pre
-                                        style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ Carbon\Carbon::parse($invoice->dateDo)->format('d-m-Y') }}</pre>
+                                        style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ Carbon\Carbon::parse($invoice->dateDo)->format('d-m-Y') }}</pre>
                                 </td>
                             </tr>
                         </table>
@@ -152,7 +151,7 @@
                                         </div>
                                         <div class="term" style="border: 1px solid black; border-top: 0;">
                                             <pre
-                                                style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $invoice->term }}</pre>
+                                                style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $invoice->term }}</pre>
                                         </div>
                                     </div>
                                 </div>

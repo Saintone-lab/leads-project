@@ -7,9 +7,8 @@
                 <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
                     <span class="app-brand-logo demo">
                         <span style="color: var(--bs-primary)">
-                            <img class="text-md"
-                                src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
-                                alt="" srcset="" width="60%">
+                            <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt=""
+                                srcset="" width="60%">
                         </span>
                     </span>
                 </div>
@@ -119,9 +118,11 @@
                         <td colspan="3" style="border:none;"></td>
                         <td style="border:none;" class="total">Total</td>
                         @if (Auth::user()->role == 'Logistic')
-                            <td style="border:none;" class="total">: RP {{ str_repeat('*', strlen((string) $product->total)) }}</td>
+                            <td style="border:none;" class="total">: RP
+                                {{ str_repeat('*', strlen((string) $product->total)) }}</td>
                         @else
-                            <td style="border:none;" class="total">: RP {{ number_format($product->total, 0, '', '.') }}</td>
+                            <td style="border:none;" class="total">: RP
+                                {{ number_format($product->total, 0, '', '.') }}</td>
                         @endif
                     </tr>
                 </tbody>

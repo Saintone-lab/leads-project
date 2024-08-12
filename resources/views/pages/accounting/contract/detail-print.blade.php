@@ -8,9 +8,8 @@
                     <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
                         <span class="app-brand-logo demo">
                             <span style="color: var(--bs-primary)">
-                                <img class="text-md"
-                                    src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
-                                    alt="" srcset="" width="60%">
+                                <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt=""
+                                    srcset="" width="60%">
                             </span>
                         </span>
                     </div>
@@ -128,7 +127,11 @@
                             <td class="align-top">{{ $no }}</td>
                             <td class="text-nowrap align-top">
                                 <p class="mb-0 fw-semibold" style="font-size: 12px">
-                                    {{ $product->product }}
+                                    @if ($product->id_equivalent == '0')
+                                        -
+                                    @else
+                                        {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
+                                    @endif
                                 </p>
                                 <pre class="mb-0"
                                     style="font-size: 10px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
@@ -160,7 +163,7 @@
                             }
 
                             if ($quote->tax > 0) {
-                                $vat = $afterDisc * $quote->tax / 100;
+                                $vat = ($afterDisc * $quote->tax) / 100;
                             } else {
                                 $vat = 0;
                             }

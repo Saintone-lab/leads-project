@@ -31,6 +31,14 @@
                     </div>
                     <div class="row mb-1">
                         <div class="col-3">
+                            Sub Adress
+                        </div>
+                        <div class="col-9">
+                            : {{ $existing->subAddress }}
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-3">
                             Area
                         </div>
                         <div class="col-9">

@@ -225,6 +225,26 @@
             </div>
         </div>
         <div class="col-12 mb-3">
+            <div class="card" id="quote">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-overview-po table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Quote No.</th>
+                                <th>Company</th>
+                                <th>Description</th>
+                                <th>Date Quotation</th>
+                                <th>Total Price</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {{-- <div class="col-12 mb-3">
             <div class="card" id="po">
                 <div class="table-responsive text-nowrap">
                     <table class="table">
@@ -275,7 +295,7 @@
                     </table>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 @endsection
 
@@ -306,6 +326,7 @@
     <script src="{{ asset('assets') }}/includes/table-overview-call.js"></script>
     <script src="{{ asset('assets') }}/includes/table-overview-crm.js"></script>
     <script src="{{ asset('assets') }}/includes/table-overview-quotation.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-overview-po.js"></script>
 @endpush
 
 @push('script')

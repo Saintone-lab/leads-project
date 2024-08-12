@@ -13,7 +13,7 @@
                                     <span class="app-brand-logo demo">
                                         <span style="color: var(--bs-primary)">
                                             <img class="text-md"
-                                                src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
+                                                src="{{ asset('/asset') }}/logo/Reftech-Log.png"
                                                 alt="" srcset="" width="60%">
                                         </span>
                                     </span>
@@ -620,6 +620,14 @@
                     <a class="btn btn-whatsapp d-grid w-100 mb-3 waves-effect"
                         href="{{ route('invoice.do_ekspedisi', $invoice->id) }}">
                         Delivery Order Ekspidisi
+                    </a>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <a class="btn btn-primary d-grid w-100 mb-3 waves-effect"
+                        href="{{ route('invoice.do_teknisi', $invoice->id) }}">
+                        Cetak Surat
                     </a>
                 </div>
             </div>

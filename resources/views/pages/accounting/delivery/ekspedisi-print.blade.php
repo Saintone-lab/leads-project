@@ -9,9 +9,8 @@
                     <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
                         <span class="app-brand-logo demo">
                             <span style="color: var(--bs-primary)">
-                                <img class="text-md"
-                                    src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
-                                    alt="" srcset="" width="60%">
+                                <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt=""
+                                    srcset="" width="60%">
                             </span>
                         </span>
                     </div>
@@ -57,9 +56,14 @@
                         </p>
                     </div>
                 </div>
+                <div class="text-end">
+                    <h1 class="fw-bold" style="color: blue;">Delivery Order</h1>
+                    <div>
+                        <span class="fw-bolder">#{{ $invoice->no_invoice }}</span>
+                    </div>
+                </div>
             </div>
         @endif
-        <hr>
         <div class="mb-4">
             @php
                 if ($invoice->doTo == '1') {
@@ -74,17 +78,17 @@
                         <td colspan="2" style="vertical-align: top; width: 50%;">
                             <div class="row">
                                 <div class="col-4 fw-medium">
-                                    <p class="mb-1">Customers </p>
+                                    <p class="mb-1" style="font-size: 15px">Customers </p>
                                     <p class="mb-1">Adress</p>
                                 </div>
                                 <div class="col-8">
-                                    <p class="mb-1">: {{ $quote->pic->client->company }}</p>
+                                    <p class="mb-1" style="font-size: 15px">: {{ $quote->pic->client->company }}</p>
                                     @if ($invoice->invoiceTo == '1')
                                         <pre
-                                            style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $address }}</pre>
+                                            style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $address }}</pre>
                                     @else
                                         <pre
-                                            style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $address }}</pre>
+                                            style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $address }}</pre>
                                     @endif
                                 </div>
                             </div>
@@ -101,11 +105,11 @@
                     <tr>
                         <td class="text-center">
                             <pre
-                                style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $invoice->no_po }}</pre>
+                                style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $invoice->no_po }}</pre>
                         </td>
                         <td class="text-center">
                             <pre
-                                style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ Carbon\Carbon::parse($invoice->date)->format('d-m-Y') }}</pre>
+                                style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ Carbon\Carbon::parse($invoice->date)->format('d-m-Y') }}</pre>
                         </td>
                     </tr>
                 </table>

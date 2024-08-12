@@ -345,7 +345,7 @@ class InvoiceController extends Controller
         $status = $invoice->save();
 
         if ($status) {
-            return redirect('/invoice/do_ekspedisi/' . $id)->with('massage', 'Data telah terkirim');
+            return redirect('/invoice/do_teknisi/' . $id)->with('massage', 'Data telah terkirim');
         }
     }
     private function terbilang($number)

@@ -141,9 +141,11 @@ class UserController extends Controller
         $users->email = $request->email;
         $users->birthday = $request->birthday;
         $users->address = $request->address;
-        $users->nip = $request->nip;
-        $users->active = $request->active;
-        $users->code = $request->code;
+        if (Auth::user()->role == 'Admin') {
+            $users->nip = $request->nip;
+            $users->code = $request->code;
+            $users->active = $request->active;
+        }
         $users->phone = '+62' . $request->phone;
         if ($request->hasFile('image')) {
             if ($users->image != 'asset/profile/profile.jpg') {

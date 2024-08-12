@@ -8,9 +8,8 @@
                     <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
                         <span class="app-brand-logo demo">
                             <span style="color: var(--bs-primary)">
-                                <img class="text-md"
-                                    src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
-                                    alt="" srcset="" width="60%">
+                                <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt=""
+                                    srcset="" width="60%">
                             </span>
                         </span>
                     </div>
@@ -478,7 +477,7 @@
             @else
                 <div class="col-4 my-5 text-center">
                     <p>Bandung, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
-                            <p class="fs-normal fw-bolder">PT. Kojisha Innotiv Indonesia </p>
+                    <p class="fs-normal fw-bolder">PT. Kojisha Innotiv Indonesia </p>
                     @if (isset($invoice->sign))
                         <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset=""
                             height="77">

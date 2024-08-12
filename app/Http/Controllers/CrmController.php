@@ -163,6 +163,7 @@ class CrmController extends Controller
         $existings->machine = $request->machine;
         $existings->mobile = $request->mobile;
         $existings->address = $request->address;
+        $existings->subAddress = $request->subAddress;
         $existings->area = $request->area;
         $existingsave = $existings->save();
 

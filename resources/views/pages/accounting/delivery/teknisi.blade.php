@@ -34,7 +34,7 @@
                                                                 <span class="app-brand-logo demo">
                                                                     <span style="color: var(--bs-primary)">
                                                                         <img class="text-md"
-                                                                            src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
+                                                                            src="{{ asset('/asset') }}/logo/Reftech-Log.png"
                                                                             alt="" srcset="" width="60%">
                                                                     </span>
                                                                 </span>
@@ -92,13 +92,17 @@
                                                         <p class="mb-1">Date</p>
                                                         <p class="mb-1">Order No</p>
                                                         <p class="mb-1">Customer</p>
-                                                        <p class="mb-1">Delivery No</p>
+                                                        <p class="mb-1">Delivery To</p>
                                                     </div>
                                                     <div class="col-8">
                                                         <p class="mb-1">: {{ $invoice->dateDo }}</p>
                                                         <p class="mb-1">: {{ $invoice->no_po }}</p>
                                                         <p class="mb-1">: {{ $quote->pic->client->company }}</p>
-                                                        <p class="mb-1">: {{ $invoice->no_invoice }}</p>
+                                                        @if ($invoice->doTo == '1')
+                                                            <p class="mb-1">: {{ $quote->pic->client->address }}</p>
+                                                        @else
+                                                            <p class="mb-1">: {{ $quote->pic->client->subAddress }}</p>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
@@ -193,7 +197,7 @@
             </div>
         </div>
         @include('components.modal.accounting.delivery.form-teknisi')
-        @endsection
+    @endsection
     @push('after-style')
         <!-- Page CSS -->
         <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice.css" />
@@ -211,17 +215,17 @@
             $('#backButton').click(function() {
                 window.history.back();
             });
-            
+
             const dateInput = document.getElementById('dateInput');
             const resetCheckbox = document.getElementById('checkDate');
-    
+
             // Saat checkbox di-check
             resetCheckbox.addEventListener('change', function() {
                 if (this.checked) {
                     dateInput.value = ''; // Hapus nilai date
                 }
             });
-    
+
             // Saat input tanggal diisi
             dateInput.addEventListener('input', function() {
                 if (this.value) {

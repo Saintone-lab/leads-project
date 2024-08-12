@@ -131,7 +131,7 @@
                                                         @foreach ($product as $products)
                                                             <option value="{{ $products->id }}"
                                                                 data-replacement="{{ $products->id }}"
-                                                                {{ $quote->product == "{$products->brand} {$products->pn}" ? 'selected' : '' }}>
+                                                                {{ $quote->id_equivalent == "{$products->id}" ? 'selected' : '' }}>
                                                                 {{ $products->brand }} {{ $products->pn }}
                                                                 ({{ $products->detail_desc }})
                                                                 ||
