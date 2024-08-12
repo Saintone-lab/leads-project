@@ -143,7 +143,7 @@
                                     <td class="align-top">{{ $no }}</td>
                                     <td class="text-nowrap align-top">
                                         <p class="mb-0 fw-semibold" style="font-size: 12px">
-                                            {{ $product->product }}
+                                            {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
                                         </p>
                                         <pre class="mb-0"
                                             style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>

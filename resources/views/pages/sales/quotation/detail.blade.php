@@ -103,7 +103,7 @@
                         <div class="col-4">
                             <p class="mb-1">: {{ $quote->pic->client->company }}</p>
                             <p class="mb-1">: {{ $quote->pic->name_pic }}</p>
-                            <p class="mb-1">: {{ $quote->pic->client->phone }}</p>
+                            <p class="mb-1">: {{ $quote->pic->phone_pic }}</p>
                         </div>
                         <div class="col-3 fw-medium text-end">
                             <p class="mb-1">Sales :</p>
@@ -143,7 +143,11 @@
                                     <td class="align-top">{{ $no }}</td>
                                     <td class="text-nowrap align-top">
                                         <p class="mb-0 fw-semibold" style="font-size: 12px">
-                                            {{ $product->product }}
+                                            @if ($product->id_equivalent == '0')
+                                                -
+                                            @else
+                                                {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
+                                            @endif
                                         </p>
                                         <pre class="mb-0"
                                             style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>

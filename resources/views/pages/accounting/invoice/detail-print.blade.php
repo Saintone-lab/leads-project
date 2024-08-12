@@ -461,18 +461,35 @@
                 </div>
             </div>
             <div class="col"></div>
-            <div class="col-4 my-5 text-center">
-                <p>Bandung, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
-                <p class="fs-normal fw-bolder">PT. Reftech Jaya Optima</p>
-                @if (isset($invoice->sign))
-                    <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset="" height="77">
-                @else
-                    <div style="padding: 40px 0;"></div>
-                @endif
-                {{-- <div class="pb-5"></div> --}}
-                <p class="pt-3 fw-bolder">Ariep Rachman</p>
-                <p>Director</p>
-            </div>
+            @if ($invoice->flag == 'Reftech')
+                <div class="col-4 my-5 text-center">
+                    <p>Bandung, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
+                    <p class="fs-normal fw-bolder">PT. Reftech Jaya Optima</p>
+                    @if (isset($invoice->sign))
+                        <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset=""
+                            height="77">
+                    @else
+                        <div style="padding: 40px 0;"></div>
+                    @endif
+                    {{-- <div class="pb-5"></div> --}}
+                    <p class="pt-3 fw-bolder">Ariep Rachman</p>
+                    <p>Director</p>
+                </div>
+            @else
+                <div class="col-4 my-5 text-center">
+                    <p>Bandung, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
+                            <p class="fs-normal fw-bolder">PT. Kojisha Innotiv Indonesia </p>
+                    @if (isset($invoice->sign))
+                        <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset=""
+                            height="77">
+                    @else
+                        <div style="padding: 40px 0;"></div>
+                    @endif
+                    {{-- <div class="pb-5"></div> --}}
+                    <p class="pt-3 fw-bolder">Dedeh Sulastri</p>
+                    <p>Director</p>
+                </div>
+            @endif
         </div>
     </div>
 </div>

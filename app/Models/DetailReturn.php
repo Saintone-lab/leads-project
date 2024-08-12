@@ -22,4 +22,8 @@ class DetailReturn extends Model
     {
         return $this->belongsTo('App\Models\ReturnQ', 'id_return', 'id');
     }
+    public function equivalent()
+    {
+        return $this->belongsTo('App\Models\SerialProduct', 'id_pn', 'id');
+    }
 }

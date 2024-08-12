@@ -204,7 +204,7 @@
                                     <td class="align-top">{{ $no }}</td>
                                     <td class="text-nowrap align-top">
                                         <p class="mb-0 fw-semibold" style="font-size: 12px">
-                                            {{ $product->product }}
+                                            {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
                                         </p>
                                         <pre class="mb-0"
                                             style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
@@ -303,7 +303,8 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-semibold" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="2" class="text-end py-0"
+                                            `style="padding-right: 10px !important;">
                                             <p class="m-0">Total After Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -523,19 +524,35 @@
                         </div>
                     </div>
                     <div class="col"></div>
-                    <div class="col-4 my-5 text-center">
-                        <p>Bandung, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
-                        <p class="fs-normal fw-bolder">PT. Reftech Jaya Optima</p>
-                        @if (isset($invoice->sign))
-                            <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset=""
-                                height="77">
-                        @else
-                            <div style="padding: 40px 0;"></div>
-                        @endif
-                        {{-- <div class="pb-5"></div> --}}
-                        <p class="pt-3 fw-bolder">Ariep Rachman</p>
-                        <p>Director</p>
-                    </div>
+                    @if ($invoice->flag == 'Reftech')
+                        <div class="col-4 my-5 text-center">
+                            <p>Bandung, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
+                            <p class="fs-normal fw-bolder">PT. Reftech Jaya Optima</p>
+                            @if (isset($invoice->sign))
+                                <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset=""
+                                    height="77">
+                            @else
+                                <div style="padding: 40px 0;"></div>
+                            @endif
+                            {{-- <div class="pb-5"></div> --}}
+                            <p class="pt-3 fw-bolder">Ariep Rachman</p>
+                            <p>Director</p>
+                        </div>
+                    @else
+                        <div class="col-4 my-5 text-center">
+                            <p>Bandung, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
+                            <p class="fs-normal fw-bolder">PT. Kojisha Innotiv Indonesia </p>
+                            @if (isset($invoice->sign))
+                                <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset=""
+                                    height="77">
+                            @else
+                                <div style="padding: 40px 0;"></div>
+                            @endif
+                            {{-- <div class="pb-5"></div> --}}
+                            <p class="pt-3 fw-bolder">Dedeh Sulastri</p>
+                            <p>Director</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -548,10 +565,21 @@
                         href="{{ route('print.invoice', $invoice->id) }}">
                         Download
                     </a>
-                    <a class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect"
-                        href="{{ route('return.show', $invoice->id) }}">
-                        Request Return Invoice
-                    </a>
+                    @if (!isset($return) && Auth::user()->role == 'Sales')
+                        <a class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect"
+                            href="{{ route('return.edit', $invoice->id) }}">
+                            Request Return Invoice
+                        </a>
+                    @elseif(@$return->lvl == '0' && Auth::user()->role == 'Sales')
+                        <button type="button" class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
+                            Waiting Warehouse Accept
+                        </button>
+                    @elseif(@$return->lvl == '1')
+                        <a class="btn btn-instagram d-grid w-100 mb-3 waves-effect"
+                            href="{{ route('return.show', $return->id) }}">
+                            Return Invoice
+                        </a>
+                    @endif
                     <a type="button" data-bs-toggle="modal" data-bs-target="#changeDate"
                         class="d-grid w-100 waves-effect mb-3">
                         <button type="button" class="btn btn-secondary">
@@ -576,11 +604,23 @@
                     @endif
                 </div>
             </div>
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-body">
                     <button type="button" class="btn btn-secondary w-100 waves-effect waves-light mb-3"
                         data-bs-toggle="modal" data-bs-target="#detailPayment"> Detail Payment </button>
                     <h5>Remaining : Rp {{ number_format($remaining, 0, '.', ',') }}</h5>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <a class="btn btn-success d-grid w-100 mb-3 waves-effect"
+                        href="{{ route('invoice.do_teknisi', $invoice->id) }}">
+                        Delivery Order Teknisi
+                    </a>
+                    <a class="btn btn-whatsapp d-grid w-100 mb-3 waves-effect"
+                        href="{{ route('invoice.do_ekspedisi', $invoice->id) }}">
+                        Delivery Order Ekspidisi
+                    </a>
                 </div>
             </div>
             {{-- End : Button Invoice --}}

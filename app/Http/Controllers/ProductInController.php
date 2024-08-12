@@ -76,7 +76,7 @@ class ProductInController extends Controller
                 $dProductIn->qty = $request->qty[$item];
                 $dProductIn->modal = $request->price[$item];
                 $dProductIn->amount = $request->amount[$item];
-                $dProductIn->warehuose = $request->warehuose[$item];
+                $dProductIn->warehouse = $request->warehouse[$item];
                 $productD = DetailProduct::where('id', $request->replacement[$item])->first();
                 $productD->modal = ((($productD->stock + $productD->warehouse_stock) * $productD->modal) + ($request->qty[$item] * $request->price[$item])) / (($productD->stock + $productD->warehouse_stock) + $request->qty[$item]);
                 if ($request->warehouse[$item] == 'BDG') {

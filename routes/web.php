@@ -33,6 +33,7 @@ use App\Models\Pic;
 use App\Models\ProductIn;
 use App\Models\Quotation;
 use App\Models\Reports;
+use App\Models\ReturnQ;
 use App\Models\SalesReports;
 use App\Models\SerialProduct;
 use App\Models\User;
@@ -231,15 +232,50 @@ Route::group(["middleware" => "auth"], function () {
     });
 
     Route::resource('/invoice', InvoiceController::class);
-    Route::get('/invoice/index/kojisha', [InvoiceController::class, 'index_kojisha'])->name('invoice.index_kojisha');
+    Route::get('/index/invoice/kojisha', [InvoiceController::class, 'index_kojisha'])->name('invoice.index_kojisha');
     Route::get('/request/invoice/{id}', [InvoiceController::class, 'before_accept'])->name('before.accept');
     Route::get('/request/invoice', [InvoiceController::class, 'request'])->name('invoice.request');
     Route::get('/invoice/print/{id}', [InvoiceController::class, 'print_invoice'])->name('print.invoice');
     Route::post('/invoice/sign/{id}', [InvoiceController::class, 'hand_sign'])->name('invoice.sign');
     Route::post('/invoice/date/{id}', [InvoiceController::class, 'change_date'])->name('invoice.date');
+    Route::get('/invoice/do_ekspedisi/{id}', [InvoiceController::class, 'do_ekspedisi'])->name('invoice.do_ekspedisi');
+    Route::get('/invoice/print_ekspedisi/{id}', [InvoiceController::class, 'print_ekspedisi'])->name('invoice.print_ekspedisi');
+    Route::post('/invoice/form_ekspedisi/{id}', [InvoiceController::class, 'form_ekspedisi'])->name('invoice.form_ekspedisi');
+    Route::get('/invoice/do_teknisi/{id}', [InvoiceController::class, 'do_teknisi'])->name('invoice.do_teknisi');
+    Route::get('/invoice/print_teknisi/{id}', [InvoiceController::class, 'print_teknisi'])->name('invoice.print_teknisi');
+    Route::post('/invoice/form_teknisi/{id}', [InvoiceController::class, 'form_teknisi'])->name('invoice.form_teknisi');
     Route::delete('/invoice/del-sign/{id}', [InvoiceController::class, 'delete_hand_sign'])->name('invoice.del-sign');
     
     Route::resource('/return', ReturnController::class);
+    Route::post('/accept/return/{id}', [ReturnController::class, 'accept_return'])->name('return.accept');
+    Route::get('/db/request-return', function () {
+        $return = ReturnQ::join('quotation as q', 'q.id', '=', 'return.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('return.lvl', '0')
+            ->get([
+                'return.*',
+                'u.name',
+                'c.company',
+                'q.no_quote'
+            ]);
+        return response()->json(['data' => $return]);
+    });
+    Route::get('/db/return', function () {
+        $return = ReturnQ::join('quotation as q', 'q.id', '=', 'return.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('return.lvl', '1')
+            ->get([
+                'return.*',
+                'u.name',
+                'c.company',
+                'q.no_quote'
+            ]);
+        return response()->json(['data' => $return]);
+    });
     
     Route::resource('/warehouse', WarehouseController::class);
 

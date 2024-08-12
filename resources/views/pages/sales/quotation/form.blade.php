@@ -42,6 +42,7 @@
                             <div class="form-floating form-floating-outline">
                                 <select id="select2Basic" class="select2 form-select form-select-lg invoice-item-client"
                                     data-allow-clear="true" name="id_pic">
+                                    <option> ---- Choose Pic Company Here ---- </option>
                                     @foreach ($pic as $charge)
                                         <option value="{{ $charge->id }}"
                                             {{ @$quotation->id_pic == $charge->id ? 'selected' : '' }}>
@@ -128,7 +129,7 @@
                                                         data-id="{{ $id }}">
                                                         <option value="">---- Choose Part Number Here ----</option>
                                                         @foreach ($product as $products)
-                                                            <option value="{{ $products->brand }} {{ $products->pn }}"
+                                                            <option value="{{ $products->id }}"
                                                                 data-replacement="{{ $products->id }}"
                                                                 {{ $quote->product == "{$products->brand} {$products->pn}" ? 'selected' : '' }}>
                                                                 {{ $products->brand }} {{ $products->pn }}
@@ -235,7 +236,7 @@
                                                     data-allow-clear="true" name="product[]" data-id="1">
                                                     <option> ---- Choose Part Number Here ---- </option>
                                                     @foreach ($product as $products)
-                                                        <option value="{{ $products->brand }} {{ $products->pn }}"
+                                                        <option value="{{ $products->id }}"
                                                             data-replacement="{{ $products->id }}"
                                                             data-commodity="{{ $products->comId }}">
                                                             {{ $products->brand }} {{ $products->pn }}
@@ -560,18 +561,6 @@
                                 stringLength: {
                                     min: 6,
                                     message: "Name must be more than 6 characters",
-                                },
-                            },
-                        },
-                        "product[]": {
-                            selector: '[name="product[]"]',
-                            validators: {
-                                notEmpty: {
-                                    message: "Please enter product",
-                                },
-                                stringLength: {
-                                    min: 3,
-                                    message: "Area must be more than 3 characters (product)",
                                 },
                             },
                         },

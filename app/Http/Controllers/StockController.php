@@ -82,7 +82,7 @@ class StockController extends Controller
         if ($productSave) {
             foreach ($details as $item => $detail) {
                 $detail->stock = $request->office_stock[$item];
-                $detail->stock = $request->warehouse_stock[$item];
+                $detail->warehouse_stock = $request->warehouse_stock[$item];
                 $detailSave = $detail->save();
             }
         }

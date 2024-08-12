@@ -23,4 +23,12 @@ class SerialProduct extends Model
     {
         return $this->belongsTo('App\Models\Product', 'id_product', 'id');
     }
+    public function quotation()
+    {
+        return $this->hasMany('App\Models\Quotation', 'id_equivalent');
+    }
+    public function detail_return()
+    {
+        return $this->hasMany('App\Models\DetailReturn', 'id_pn');
+    }
 }

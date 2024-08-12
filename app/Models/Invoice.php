@@ -19,7 +19,9 @@ class Invoice extends Model
         'no_po',
         'no_invoice',
         'date',
+        'dateDo',
         'invoiceTo',
+        'doTo',
     ];
 
     

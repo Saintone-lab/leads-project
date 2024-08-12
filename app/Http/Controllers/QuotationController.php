@@ -59,7 +59,7 @@ class QuotationController extends Controller
         $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
         $sales = User::where('role', 'sales')->get();
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
-        // dd($pic);
+        // dd($product);
         return view('pages.sales.quotation.form', compact('pic', 'sales', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 
@@ -133,7 +133,7 @@ class QuotationController extends Controller
             foreach ($request->product as $item => $value) {
                 $dQuote = new DetailQuotation;
                 $dQuote->id_quotation = $quotation->id;
-                $dQuote->product = $request->product[$item];
+                $dQuote->id_equivalent = $request->product[$item];
                 $dQuote->detail_product = $request->detail_product[$item];
                 $dQuote->price = $request->price[$item];
                 $dQuote->fee = 0;
@@ -281,7 +281,7 @@ class QuotationController extends Controller
             foreach ($request->product as $item => $value) {
                 $dQuote = new DetailQuotation;
                 $dQuote->id_quotation = $quotation->id;
-                $dQuote->product = $request->product[$item];
+                $dQuote->id_equivalent = $request->product[$item];
                 $dQuote->detail_product = $request->detail_product[$item];
                 $dQuote->price = $request->price[$item];
                 $dQuote->qty = $request->qty[$item];
@@ -535,6 +535,7 @@ class QuotationController extends Controller
         $invoice->flag = $quote->flag;
         $invoice->type = 'BP';
         $invoice->date = Carbon::today();
+        $invoice->dateDo = Carbon::today();
         $invoice->term = NULL;
         $invoice->invoiceTo = NULL;
         $invoice->sign = NULL;
@@ -589,6 +590,7 @@ class QuotationController extends Controller
                 $invoice->no_invoice = NULL;
                 $invoice->type = 'CT';
                 $invoice->date = Carbon::today();
+                $invoice->dateDo = Carbon::today();
                 $invoice->term = NULL;
                 $invoice->invoiceTo = NULL;
                 $invoice->sign = NULL;

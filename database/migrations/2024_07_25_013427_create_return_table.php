@@ -17,7 +17,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_quotation');
             $table->string('no_return');
+            $table->integer('subtotal');
+            $table->integer('tax');
             $table->integer('total');
+            $table->date('date');
+            $table->enum('lvl',['0','1']);
             $table->longText('note');
             $table->timestamps();
         });

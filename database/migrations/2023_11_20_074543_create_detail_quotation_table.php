@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('detail_quotation', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_quotation');
-            $table->string('product', 25); // detail
+            $table->foreignId('id_equivalent');
+            // $table->string('product', 25); // detail
             $table->longText('detail_product'); // detail
             $table->integer('qty'); // detail
             $table->string('info_qty')->nullable(); // detail

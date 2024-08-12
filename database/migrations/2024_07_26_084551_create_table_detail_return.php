@@ -19,8 +19,8 @@ return new class extends Migration
             $table->foreignId("id_pn");
             $table->longText('detail_product');
             $table->integer('qty');
+            $table->string('info_qty');
             $table->integer('price');
-            $table->longText('note');
             $table->timestamps();
         });
     }

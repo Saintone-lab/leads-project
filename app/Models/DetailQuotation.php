@@ -11,7 +11,8 @@ class DetailQuotation extends Model
     protected $table = "detail_quotation";
     protected $fillable = [
         'id_quotation',
-        'product',
+        'id_equivalent',
+        // 'product',
         'detail_product',
         'qty',
         'disc',
@@ -24,5 +25,9 @@ class DetailQuotation extends Model
     public function quotation()
     {
         return $this->belongsTo('App\Models\Quotation', 'id_quotation', 'id');
+    }
+    public function equivalent()
+    {
+        return $this->belongsTo('App\Models\SerialProduct', 'id_equivalent', 'id');
     }
 }

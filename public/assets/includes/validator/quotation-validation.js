@@ -27,11 +27,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                             notEmpty: {
                                 message: "Please enter product",
                             },
-                            stringLength: {
-                                min: 3,
-                                message:
-                                    "Area must be more than 3 characters (product)",
-                            },
                         },
                     },
                     "detail_product[]": {

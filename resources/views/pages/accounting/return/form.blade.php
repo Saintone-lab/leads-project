@@ -1,14 +1,15 @@
 @extends('layouts.sales.app')
 @section('title', 'Return Quotation')
 @section('content')
-    <form action="{{ route('product-out.store') }}" method="post" enctype="multipart/form-data">
+    <form action="{{ route('return.update', $invoice->id) }}" method="post" enctype="multipart/form-data">
+        @method('PATCH')
         @csrf
         <h4 class="fw-bold py-3 mb-4">
             Return Of {{ $invoice->no_invoice }}
         </h4>
         <div class="form-floating mb-3">
             <input type="text" class="form-control form-control-lg fw-bold fs-3" id="floatingInputFilled"
-                placeholder="xxx/xx/xx/xxxx xxxx" aria-describedby="floatingInputFilledHelp" name="return">
+                placeholder="xxx/xx/xx/xxxx xxxx" aria-describedby="floatingInputFilledHelp" name="no_return">
             <label for="floatingInputFilled">No Return</label>
             <span class="form-floating-focused"></span>
         </div>
@@ -41,7 +42,7 @@
                             <div class="form-floating form-floating-outline mb-4">
                                 <input class="form-control" type="date" id="Date" name="date"
                                     {{-- {{ @$productIn->date ? '' : '_label' }}  naikin nanti --}}
-                                    value="{{ old('date', @$invoice->date ?? now()->format('Y-m-d')) }}"
+                                    value="{{ old('date', now()->format('Y-m-d')) }}"
                                     {{-- {{ @$productIn->date ? '' : 'disabled' }} --}}>
                                 {{-- @if (empty($productIn->date))
                                     <input type="date" name="estimated_date" id=""
@@ -52,6 +53,9 @@
                         </div>
                     </div>
                     <div class="mb-3" data-repeater-list="group-a">
+                        @php
+                            $row = 1;
+                        @endphp
                         @foreach ($dQuote as $product)
                             <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
                                 <div class="d-flex border rounded position-relative pe-0">
@@ -59,41 +63,59 @@
                                         <div class="col-md-6 col-12 mb-md-0 mb-3">
                                             <label for="p" class="mb-2">Product</label>
                                             <div class="form-floating form-floating-outline mb-2">
-                                                <input class="form-control" type="text" name="product" id="product" value="{{$product->product}}" disabled>
+                                                <input class="form-control" type="text" name="product" id="product"
+                                                    value="{{ $product->equivalent->brand }} {{ $product->equivalent->pn }}"
+                                                    disabled>
+                                                <input type="text" name="equivalent[]" id="equivalent"
+                                                    value="{{ $product->id_equivalent }}" hidden>
                                                 <label for="product">product</label>
                                             </div>
                                             <div class="form-floating form-floating-outline mb-2">
-                                                <input class="form-control" type="text" name="detail_product" id="detail_product" value="{{$product->detail_product}}" disabled>
+                                                <input class="form-control" type="text" name="detail_product"
+                                                    id="detail_product" value="{{ $product->detail_product }}" disabled>
+                                                <input type="text" name="detail_equivalent[]" id="detail_equivalent"
+                                                    value="{{ $product->detail_product }}" hidden>
                                                 <label for="detail_product">detail product</label>
                                             </div>
                                         </div>
                                         <div class="col-md-1 col-2 mb-md-0 mb-3">
                                             <p class="mb-2 repeater-title">Qty</p>
-                                            <input type="number" class="form-control mb-3 invoice-item-qty"
-                                                placeholder="Min 1" name="qty[]" id="qty-1" data-id="1"
-                                                min="1" value="0">
-                                            <p class="info-max-label" id="info-max-1"></p>
+                                            <input type="number" class="form-control mb-3 invoice-item-qty" name="qty[]"
+                                                id="qty-{{ $row }}" data-id="{{ $row }}" min="0"
+                                                value="0" max="{{ $product->qty }}">
+                                            <input type="text" name="info_qty[]" id="info_qty"
+                                                value="{{ $product->info_qty }}" hidden>
+                                            <p class="info-max-label" id="info-max-{{ $row }}">Max :
+                                                {{ $product->qty }}</p>
                                         </div>
                                         <div class="col-md-3 col-5 mb-md-0 mb-3">
                                             <p class="mb-2 repeater-title">Price</p>
-                                            <div class="input-group" data-price="1">
+                                            <div class="input-group" data-price="{{$row}}">
+                                                <span class="input-group-text">Rp. </span>
+                                                <p class="form-control invoice-item-price-label h-px-25 mb-0" id="price-label"> {{ $product->price }}
+                                                </p>
+                                            </div>
+                                            {{-- <div class="input-group" data-price="{{ $row }}">
                                                 <span class="input-group-text">Rp. </span>
                                                 <input type="text" class="form-control invoice-item-price-label"
-                                                    id="price-label" data-id="1" min="0"
+                                                    id="price-label" data-id="{{ $row }}"
                                                     placeholder="Put Price Here" data-type="currency"
                                                     pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
                                                     @blur="focused = false" value="{{ $product->price }}">
-                                                <input class="form-control invoice-item-price" type="number" name="price[]"
-                                                    id="price-1" value="{{ $product->price }}" hidden>
-                                            </div>
+                                            </div> --}}
+                                            <input class="form-control invoice-item-price" type="number" name="price[]"
+                                                id="price-{{ $row }}" value="{{ $product->price }}" hidden>
                                         </div>
                                         <div class="col-md-2 col-5 pe-0">
                                             <p class="mb-2 repeater-title">Amount</p>
-                                            <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
-                                                {{ old(strval('amount[]')) }}</p>
-                                            <input type="number" class="form-control invoice-item-amount" name="amount[]"
-                                                id="amount-1" data-id="1" min="12" value="{{ old('amount[]') }}"
-                                                hidden>
+                                            <p class="mb-0 amount-label" id="amount-label-{{ $row }}"
+                                                data-id="{{ $row }}">
+                                                Rp
+                                                {{ old('amount', @$product->amount ? number_format(@$product->amount, 0, '', '.') : '0') }}
+                                            </p>
+                                            <input type="number" class="invoice-item-amount" name="amount[]"
+                                                id="amount-{{ $row }}" data-id="{{ $row }}"
+                                                value="{{ old('amount', @$quote->amount ?? '0') }}" hidden>
                                         </div>
                                     </div>
                                     <div
@@ -103,6 +125,9 @@
                                     </div>
                                 </div>
                             </div>
+                            @php
+                                $row++;
+                            @endphp
                         @endforeach
                     </div>
                     {{-- <div class="row mb-3">
@@ -117,18 +142,27 @@
                         <div class="col-lg-8"></div>
                         <div class="col-lg-4 col-12">
                             <h5 class="my-2">
-                                Shipping
+                                Subtotal
                             </h5>
                             <div class="input-group" data-shipping="1">
                                 <span class="input-group-text">Rp. </span>
-                                <input type="text" class="form-control invoice-item-shipping-label"
-                                    id="shipping-label" data-id="1" min="0" placeholder="Put shipping Here"
-                                    data-type="currency" pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                    @blur="focused = false"
-                                    value="{{ old('shipping', @$pOut->shipping ? number_format(@$pOut->shipping, 0, '', '.') : '0') }}">
-                                <input class="form-control invoice-item-shipping" type="number" name="shipping"
-                                    id="shipping" value="{{ old('shipping', @$pOut->shipping ?? '0') }}" hidden>
+                                <p class="form-control invoice-item-subtotal-label h-px-25 mb-0" id="subtotal-label"> 0
+                                </p>
                             </div>
+                            <input class="form-control invoice-item-subtotal" type="number" name="subtotal"
+                                id="subtotal" value="0" hidden>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-lg-8"></div>
+                        <div class="col-lg-4 col-12">
+                            <h5 class="my-2">
+                                Tax
+                            </h5>
+                            <p class="form-control invoice-item-tax-label h-px-25 mb-0" id="tax-label">
+                                {{ $quote->tax }} </p>
+                            <input class="form-control invoice-item-tax" type="number" name="tax" id="tax"
+                                value="{{ $quote->tax }}" hidden>
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -139,8 +173,7 @@
                             </h5>
                             <div class="input-group" data-total="1">
                                 <span class="input-group-text">Rp. </span>
-                                <p class="form-control invoice-item-total-label h-px-25 mb-0" id="total-label"> Total
-                                    Price Here </p>
+                                <p class="form-control invoice-item-total-label h-px-25 mb-0" id="total-label"> 0 </p>
                                 <input class="form-control invoice-item-total" type="number" name="total"
                                     id="total" value="{{ old('total') }}" hidden>
                             </div>
@@ -160,7 +193,7 @@
                             class="btn btn-lg btn-outline-secondary w-px-120">
                             Back
                         </a>
-                        <button :disabled="focused" type="submit" class="btn btn-lg btn-primary w-px-120">
+                        <button type="submit" class="btn btn-lg btn-primary w-px-120">
                             Save
                         </button>
                     </div>
@@ -174,9 +207,6 @@
 @endpush
 @push('after-script')
     <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
-    <script src="{{ asset('assets') }}/includes/repeater/jquery-repeater-invoice.js"></script>
-    <script src="{{ asset('assets') }}/includes/repeater/repeater-invoice-productOut.js"></script>
-    <script src="{{ asset('assets') }}/js/app-invoice-add.js"></script>
 @endpush
 @push('page-script')
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
@@ -192,49 +222,6 @@
             function formatNumber(n) {
                 return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
             }
-
-            // function initializeSelect2Commodity() {
-            //     $('.invoice-item-commodity').select2({
-            //         placeholder: ' ---- Choose Commodity Here ---- ',
-            //         allowClear: true,
-            //         width: '100%',
-            //     });
-            // }
-
-            // function initializeSelect2Replacement() {
-            //     $('.invoice-item-replacement').select2({
-            //         placeholder: ' ---- Choose Replacement Here ---- ',
-            //         allowClear: true,
-            //         width: '100%',
-            //     });
-            // }
-
-            // function initializeSelect2Equivalent() {
-            //     $('.invoice-item-equivalent').select2({
-            //         placeholder: ' ---- Choose Equivalent Here ---- ',
-            //         allowClear: true,
-            //         width: '100%',
-            //     });
-            // }
-
-            $(".invoice-item-shipping-label").on('keyup', function() {
-                var input = $(this)
-                var input_val = input.val();
-
-                // original length
-                var original_len = input_val.length;
-
-                // add commas to number
-                // remove all non-digits
-                input_val = formatNumber(input_val);
-                input_val = input_val;
-
-                // send updated string to input
-                input.val(input_val);
-                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
-                // console.log(id);
-                $(`#shipping`).val(nomorInt);
-            });
 
             $(".invoice-item-price-label").on('keyup', function() {
                 var input = $(this)
@@ -256,66 +243,6 @@
                 $(`#price-${id}`).val(nomorInt);
             });
 
-            $(`.invoice-item-equivalent`).on('change', function(ev) {
-                var replacementId = $('invoice-item-replacement').val();
-                var productId = $(this).val();
-                var comId = $(this).data('id');
-                var commodity = $(this).find(':selected').data('commodity');
-                $.ajax({
-                    url: '/product-in/replacement/' + commodity,
-                    type: 'GET',
-                    success: function(response) {
-                        // Mengosongkan dropdown detail produk
-                        $(`#replacement-dropdown-${comId}`).empty();
-                        // Mengisi dropdown detail produk dengan hasil yang diterima
-                        $.each(response, function(key, value) {
-                            $(`#replacement-dropdown-${comId}`).append(
-                                '<option value="' +
-                                value.id + '">' + value.replacement +
-                                '</option>');
-                        });
-
-                        if (response[0].stock >= 1) {
-                            $(`#info-max-${comId}`).text('Max : ' + response[0].stock);
-                            $(`#qty-${comId}`).prop('disabled', false);
-                            $(`#qty-${comId}`).attr('max', response[0].stock);
-                        } else {
-                            $(`#info-max-${comId}`).text('Max : 0');
-                            $(`#qty-${comId}`).attr('max', 0);
-                            $(`#qty-${comId}`).prop('disabled', true);
-                            $(`#qty-${comId}`).attr('value', 0);
-                        }
-                        // Mengaktifkan dropdown detail produk
-                        $(`#replacement-dropdown-${comId}`).prop('disabled', false);
-                    }
-                });
-            });
-
-            $(`.invoice-item-replacement`).on('change', function(ev) {
-                var replacementId = $(this).val();
-                var Url = '/product-out/replacement/' + replacementId;
-                var comId = $(this).data('id');
-                console.log(Url);
-                console.log(replacementId);
-                $.ajax({
-                    url: Url,
-                    type: 'GET',
-                    success: function(response) {
-                        console.log(response);
-                        if (response.stock >= 1) {
-                            $(`#info-max-${comId}`).text('Max : ' + response.stock);
-                            $(`#qty-${comId}`).prop('disabled', false);
-                            $(`#qty-${comId}`).attr('max', response.stock);
-                        } else {
-                            $(`#info-max-${comId}`).text('Max : 0');
-                            $(`#qty-${comId}`).attr('max', 0);
-                            $(`#qty-${comId}`).prop('disabled', true);
-                            $(`#qty-${comId}`).attr('value', 0);
-                        }
-                    }
-                });
-            });
-
             $('.invoice-item-price-label, .invoice-item-qty').on('keyup change click', function(
                 ev) {
                 var id = $(this).data('id');
@@ -327,144 +254,32 @@
                 amount = harga * $(`#qty-${id}`).val();
                 $(`#amount-${id}`).val(amount);
                 $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+                $('.amount-label').each(() => {
+                    row++;
+                    sTotal += parseInt($(`#amount-${row}`).val())
+                });
+                console.log(sTotal);
+                $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                $('#subtotal').val(sTotal);
             });
 
             // Logic Harga Total
-            $('#shipping-label, .invoice-item-price-label, .invoice-item-qty')
+            $('.invoice-item-price-label, .invoice-item-qty')
                 .on('keyup change',
                     () => {
                         var row = 0,
                             total = 0,
                             hTotal = 0,
-                            shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
+                            tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
                         $('.amount-label').each(() => {
                             row++;
                             total += parseInt($(`#amount-${row}`).val())
                         });
-                        hTotal = parseInt(total + shipping);
+                        hTotal = parseInt(total + (total * tax / 100));
                         $('#total-label').html(`${formatter.format(hTotal)}`);
                         $('#total').val(hTotal);
                         console.log('Harga total: ' + hTotal);
                     });
-            // Logic Subtotal dan Amount Setelah Tambah Product
-            $('.btn-add').on('click', () => {
-                $(".invoice-item-price-label").on('keyup', function() {
-                    var input = $(this)
-                    var id = input.data('id');
-                    var input_val = input.val();
-
-                    // original length
-                    var original_len = input_val.length;
-
-                    // add commas to number
-                    // remove all non-digits
-                    input_val = formatNumber(input_val);
-                    input_val = input_val;
-
-                    // send updated string to input
-                    input.val(input_val);
-                    var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
-                    // console.log(id);
-                    $(`#price-${id}`).val(nomorInt);
-                });
-
-                $(`.invoice-item-equivalent`).on('change', function(ev) {
-                    var replacementId = $('invoice-item-replacement').val();
-                    var productId = $(this).val();
-                    var comId = $(this).data('id');
-                    var commodity = $(this).find(':selected').data('commodity');
-                    $.ajax({
-                        url: '/product-in/replacement/' + commodity,
-                        type: 'GET',
-                        success: function(response) {
-                            // Mengosongkan dropdown detail produk
-                            $(`#replacement-dropdown-${comId}`).empty();
-                            // Mengisi dropdown detail produk dengan hasil yang diterima
-                            $.each(response, function(key, value) {
-                                $(`#replacement-dropdown-${comId}`).append(
-                                    '<option value="' +
-                                    value.id + '">' + value.replacement +
-                                    '</option>');
-                            });
-
-                            if (response[0].stock >= 1) {
-                                $(`#info-max-${comId}`).text('Max : ' + response[0]
-                                    .stock);
-                                $(`#qty-${comId}`).prop('disabled', false);
-                                $(`#qty-${comId}`).attr('max', response[0].stock);
-                            } else {
-                                $(`#info-max-${comId}`).text('Max : 0');
-                                $(`#qty-${comId}`).attr('max', 0);
-                                $(`#qty-${comId}`).prop('disabled', true);
-                                $(`#qty-${comId}`).attr('value', 0);
-                            }
-                            // Mengaktifkan dropdown detail produk
-                            $(`#replacement-dropdown-${comId}`).prop('disabled', false);
-                        }
-                    });
-                });
-
-                $(`.invoice-item-replacement`).on('change', function(ev) {
-                    var replacementId = $(this).val();
-                    var Url = '/product-out/replacement/' + replacementId;
-                    var comId = $(this).data('id');
-                    console.log(Url);
-                    console.log(replacementId);
-                    $.ajax({
-                        url: Url,
-                        type: 'GET',
-                        success: function(response) {
-                            console.log(response);
-                            if (response.stock >= 1) {
-                                $(`#info-max-${comId}`).text('Max : ' + response.stock);
-                                $(`#qty-${comId}`).prop('disabled', false);
-                                $(`#qty-${comId}`).attr('max', response.stock);
-                            } else {
-                                $(`#info-max-${comId}`).text('Max : 0');
-                                $(`#qty-${comId}`).attr('max', 0);
-                                $(`#qty-${comId}`).prop('disabled', true);
-                                $(`#qty-${comId}`).attr('value', 0);
-                            }
-                        }
-                    });
-                });
-
-                $('.invoice-item-price-label, .invoice-item-qty').on('keyup change click', function(
-                    ev) {
-                    var id = $(this).data('id');
-                    var sTotal = 0,
-                        row = 0;
-                    var amount = 0,
-                        valHarga = $(`#price-${id}`).val(),
-                        harga = Number(valHarga);
-                    console.log("Harga nya adalah : " + harga);
-                    amount = harga * $(`#qty-${id}`).val();
-                    $(`#amount-${id}`).val(amount);
-                    $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
-                });
-
-                $('#shipping-label, .invoice-item-price-label, .invoice-item-qty')
-                    .on('keyup change',
-                        () => {
-                            var row = 0,
-                                total = 0,
-                                hTotal = 0,
-                                shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($(
-                                    '#shipping').val());
-                            $('.amount-label').each(() => {
-                                row++;
-                                total += parseInt($(`#amount-${row}`).val())
-                            });
-                            console.log('Ini Total: ' + total);
-                            hTotal = parseInt(total + shipping);
-                            $('#total-label').html(`${formatter.format(hTotal)}`);
-                            $('#total').val(hTotal);
-                            console.log('Harga total: ' + hTotal);
-                        });
-                // initializeSelect2Commodity();
-                // initializeSelect2Replacement();
-                // initializeSelect2Equivalent();
-            })
         });
     </script>
 @endpush

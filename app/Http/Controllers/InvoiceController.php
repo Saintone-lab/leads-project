@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Quotation;
+use App\Models\ReturnQ;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -56,9 +58,10 @@ class InvoiceController extends Controller
         $totalAmount = 0;
         $invoice = Invoice::find($id);
         $quote = Quotation::where('id', $invoice->id_quotation)->first();
+        $return = ReturnQ::where('id_quotation', $invoice->id_quotation)->first();
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
-        // dd($payments);
+        // dd($return);
 
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
@@ -71,7 +74,7 @@ class InvoiceController extends Controller
         $tax = ($quote->total_no_tax - $quote->diskon) * $quote->tax / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
 
-        return view('pages.accounting.invoice.detail', compact('quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc'));
+        return view('pages.accounting.invoice.detail', compact('return','quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
 
     /**
@@ -287,6 +290,64 @@ class InvoiceController extends Controller
         }
     }
 
+    public function do_ekspedisi($id){
+        $invoice = Invoice::find($id);
+        $quote = Quotation::find($invoice->id_quotation);
+        $dQuote = DetailQuotation::where('id_quotation',$invoice->id_quotation)->get();
+        $client = Client::where('id', $quote->pic->id_client)->first();
+        // dd($client);
+
+        return view("pages.accounting.delivery.ekspedisi", compact('quote', 'invoice', 'dQuote', 'client'));
+    }
+    public function print_ekspedisi($id){
+        $invoice = Invoice::find($id);
+        $quote = Quotation::find($invoice->id_quotation);
+        $dQuote = DetailQuotation::where('id_quotation',$invoice->id_quotation)->get();
+
+        return view("pages.accounting.delivery.ekspedisi-print", compact('quote', 'invoice', 'dQuote'));
+    }
+
+    public function do_teknisi($id){
+        $invoice = Invoice::find($id);
+        $quote = Quotation::find($invoice->id_quotation);
+        $dQuote = DetailQuotation::where('id_quotation',$invoice->id_quotation)->get();
+
+        return view("pages.accounting.delivery.teknisi", compact('quote', 'invoice', 'dQuote'));
+    }
+    public function print_teknisi($id){
+        $invoice = Invoice::find($id);
+        $quote = Quotation::find($invoice->id_quotation);
+        $dQuote = DetailQuotation::where('id_quotation',$invoice->id_quotation)->get();
+
+        return view("pages.accounting.delivery.teknisi-print", compact('quote', 'invoice', 'dQuote'));
+    }
+    public function form_ekspedisi(Request $request, $id){
+        $invoice = Invoice::find($id);
+
+        $invoice->dateDo = $request->date;
+        $invoice->doTo = $request->destination;
+        $status = $invoice->save();
+
+        if ($status) {
+            return redirect('/invoice/do_ekspedisi/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
+    public function form_teknisi(Request $request, $id){
+        $invoice = Invoice::find($id);
+
+        if ($request->check == '1') {
+            $invoice->dateDo = NULL;
+        } else {
+            $invoice->dateDo = $request->date;
+        }
+        
+        $invoice->doTo = $request->destination;
+        $status = $invoice->save();
+
+        if ($status) {
+            return redirect('/invoice/do_ekspedisi/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
     private function terbilang($number)
     {
         $number = abs($number);

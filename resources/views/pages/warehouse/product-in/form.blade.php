@@ -72,21 +72,18 @@
                                     <div class="col-md-1 col-12 mb-md-0 mb-3">
                                         <p class="mb-2 repeater-title">Qty</p>
                                         <input type="number" class="form-control mb-3 invoice-item-qty" placeholder="Min 1"
-                                        name="qty[]" id="qty-1" data-id="1" min="1"
-                                        value="{{ old('qty[]') }}">
+                                            name="qty[]" id="qty-1" data-id="1" min="1"
+                                            value="{{ old('qty[]') }}">
                                     </div>
                                     <div class="col-md-1 col-12 mb-md-0 mb-3">
                                         <p class="mb-2 repeater-title">warehouse</p>
                                         <div class="form-floating form-floating-outline mb-4">
                                             <select class="form-select invoice-item-warehouse" id="warehouse-1"
-                                                data-id="1" aria-label="Default select example"
-                                                name="warehouse[]">
+                                                data-id="1" aria-label="Default select example" name="warehouse[]">
                                                 <option>---Info---</option>
-                                                <option value="BDG"
-                                                    >BDG
+                                                <option value="BDG">BDG
                                                 </option>
-                                                <option value="BKS"
-                                                    >BKS
+                                                <option value="BKS">BKS
                                                 </option>
                                             </select>
                                         </div>
@@ -113,7 +110,8 @@
                                             hidden>
                                     </div>
                                 </div>
-                                <div class="d-flex flex-column align-items-center justify-content-between border-start p-2">
+                                <div
+                                    class="d-flex flex-column align-items-center justify-content-between border-start p-2">
                                     <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
                                         data-repeater-delete=""></i>
                                 </div>

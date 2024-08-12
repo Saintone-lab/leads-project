@@ -162,7 +162,7 @@
                 </ul>
             </li>
             <li
-                class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') || request()->is('request/invoice') || request()->is('request/invoice/*') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') || request()->is('request/invoice') || request()->is('request/invoice/*') ||  request()->is('index/invoice/kojisha') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-file-document-check-outline"></i>
                     <div data-i18n="Invoice">Invoice</div>
@@ -173,12 +173,12 @@
                             <div data-i18n="Request">Request</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('invoice') || request()->is('/invoice/*') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') ? 'active' : '' }}">
                         <a href="{{ route('invoice.index') }}" class="menu-link">
                             <div data-i18n="Invoice Reftech">Invoice Reftech</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('invoice/index/kojisha') || request()->is('invoice/*') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->is('index/invoice/kojisha') ? 'active' : '' }}">
                         <a href="{{ route('invoice.index_kojisha') }}" class="menu-link">
                             <div data-i18n="Invoice Kojisha">Invoice Kojisha</div>
                         </a>
@@ -414,6 +414,12 @@
                 <a href="{{ route('stock.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package-variant-closed-check"></i>
                     <div data-i18n="Stock">Stock</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('return') || request()->is('return/*') ? 'active' : '' }}">
+                <a href="{{ route('return.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-package-variant-closed-check"></i>
+                    <div data-i18n="Return">Return</div>
                 </a>
             </li>
         @else
