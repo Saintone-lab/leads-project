@@ -245,6 +245,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/invoice/print_teknisi/{id}', [InvoiceController::class, 'print_teknisi'])->name('invoice.print_teknisi');
     Route::post('/invoice/form_teknisi/{id}', [InvoiceController::class, 'form_teknisi'])->name('invoice.form_teknisi');
     Route::delete('/invoice/del-sign/{id}', [InvoiceController::class, 'delete_hand_sign'])->name('invoice.del-sign');
+    Route::get('/invoice/label_detail/{id}', [InvoiceController::class, 'label_detail'])->name('invoice.label_detail');
+    Route::get('/invoice/label_print/{id}', [InvoiceController::class, 'label_print'])->name('invoice.label_print');
 
     Route::resource('/return', ReturnController::class);
     Route::post('/accept/return/{id}', [ReturnController::class, 'accept_return'])->name('return.accept');
@@ -643,11 +645,11 @@ Route::group(["middleware" => "auth"], function () {
             ->join('client', 'pic.id_client', '=', 'client.id')
             ->where('quotation.id_sales', $sales)
             ->where('quotation.status', '100')
-            ->whereMonth('estimated_date', $month)
-            ->whereYear('estimated_date', $year)
-            ->get(['no_quote', 'client.company', 'nett', 'title', 'estimated_date', 'status', 'quotation.note', 'quotation.id']);
+            ->whereMonth('po_date', $month)
+            ->whereYear('po_date', $year)
+            ->get(['no_quote', 'client.company', 'nett', 'title', 'po_date', 'status', 'quotation.note', 'quotation.id']);
 
-        $totalNett = Quotation::whereMonth('po_date', $month)->whereYear('estimated_date', $year)->where('status', '100')->where('id_sales', $sales)->where('level', '1')->sum('nett');
+        $totalNett = Quotation::whereMonth('po_date', $month)->whereYear('po_date', $year)->where('status', '100')->where('id_sales', $sales)->where('level', '1')->sum('nett');
         $formattedTotalNett = number_format($totalNett, 0, ',', '.');
         return response()->json([
             'data' => $data,

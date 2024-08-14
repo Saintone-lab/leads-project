@@ -12,8 +12,7 @@
                                 <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
                                     <span class="app-brand-logo demo">
                                         <span style="color: var(--bs-primary)">
-                                            <img class="text-md"
-                                                src="{{ asset('/asset') }}/logo/Reftech-Log.png"
+                                            <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png"
                                                 alt="" srcset="" width="60%">
                                         </span>
                                     </span>
@@ -136,7 +135,7 @@
                     </div>
                     {{-- <div class="row">
                         <div class="col-6">
-                            <h6 class="fw-semibold fs-4 mb-3">Invoice To:</h6>
+                            <h6 class="fw-medium fs-4 mb-3">Invoice To:</h6>
                         </div>
                         <div class="col-6 mb-2">
                         </div>
@@ -203,7 +202,7 @@
                                 <tr style="font-size: 13px">
                                     <td class="align-top">{{ $no }}</td>
                                     <td class="text-nowrap align-top">
-                                        <p class="mb-0 fw-semibold" style="font-size: 12px">
+                                        <p class="mb-0 fw-medium" style="font-size: 12px">
                                             {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
                                         </p>
                                         <pre class="mb-0"
@@ -217,7 +216,7 @@
                                     </td>
                                 </tr>
                             @endforeach
-                            <tr class="fw-semibold" style="font-size: 13px">
+                            <tr class="fw-medium" style="font-size: 13px">
                                 <td colspan="3" rowspan="9" id="dynamicRows" style="border-bottom :none !important;">
                                 </td>
                                 <td colspan="2" id="price" class="text-end pl-4 py-0"
@@ -229,9 +228,16 @@
                                         {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                                 </td>
                             </tr>
+                            @php
+                                if ($invoice->flag == 'Reftech') {
+                                    $bgColor = 'rgb(224, 248, 248)';
+                                } else {
+                                    $bgColor = 'rgb(255, 232, 210)';
+                                }
+                            @endphp
                             @if ($invoice->type == 'CT')
                                 @if ($quote->diskon != 0)
-                                    <tr class="fw-semibold" style="font-size: 13px">
+                                    <tr class="fw-medium" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Discount</p>
                                         </td>
@@ -241,7 +247,7 @@
                                             </p>
                                         </td>
                                     </tr>
-                                    <tr class="fw-semibold" style="font-size: 13px">
+                                    <tr class="fw-medium" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Total After Discount</p>
                                         </td>
@@ -253,7 +259,7 @@
                                     </tr>
                                 @endif
                                 @if ($quote->shipping != 0)
-                                    <tr class="fw-semibold" style="font-size: 13px">
+                                    <tr class="fw-medium" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Shipping Cost</p>
                                         </td>
@@ -265,7 +271,7 @@
                                     </tr>
                                 @endif
                                 @if ($quote->tax != 0)
-                                    <tr class="fw-semibold py-0" style="font-size: 13px">
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
                                         </td>
@@ -274,12 +280,14 @@
                                                 {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
                                         </td>
                                     </tr>
-                                    <tr class="fw-semibold py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
-                                            <p class="m-0">Total Include VAT</p>
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="background-color: {{$bgColor}}; padding-left:20px; padding-right:10px;">
+                                            <p class="m-0 fw-bold">Total Include VAT</p>
                                         </td>
-                                        <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                            <p class="m-0 text-end">
+                                        <td class="pr-4 py-0"
+                                            style="background-color: {{$bgColor}}; padding-right:20px;">
+                                            <p class="m-0 text-end fw-bold">
                                                 {{ $tax == '0' ? '0' : 'RP ' . number_format($quote->harga_total, 0, '', '.') }}
                                             </p>
                                         </td>
@@ -292,7 +300,7 @@
                                     $vat = $amount1 * ($quote->tax / 100);
                                 @endphp
                                 @if ($quote->diskon != 0)
-                                    <tr class="fw-semibold" style="font-size: 13px">
+                                    <tr class="fw-medium" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Discount</p>
                                         </td>
@@ -302,7 +310,7 @@
                                             </p>
                                         </td>
                                     </tr>
-                                    <tr class="fw-semibold" style="font-size: 13px">
+                                    <tr class="fw-medium" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0"
                                             `style="padding-right: 10px !important;">
                                             <p class="m-0">Total After Discount</p>
@@ -315,7 +323,7 @@
                                     </tr>
                                 @endif
                                 @if ($quote->shipping != 0)
-                                    <tr class="fw-semibold" style="font-size: 13px">
+                                    <tr class="fw-medium" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Shipping Cost</p>
                                         </td>
@@ -326,7 +334,7 @@
                                         </td>
                                     </tr>
                                 @endif
-                                <tr class="fw-semibold" style="font-size: 13px">
+                                <tr class="fw-medium" style="font-size: 13px">
                                     <td colspan="2" class="text-end py-0 px-0">
                                         <p class="m-0"
                                             style="background-color: yellow; padding-left:20px; padding-right:10px;">
@@ -334,14 +342,14 @@
                                             {{ $payments[0]->percent }}%:</p>
                                     </td>
                                     <td class="px-0 py-0" style="padding-left: 0 !important;">
-                                        <p class="fw-semibold m-0 text-end"
+                                        <p class="fw-medium m-0 text-end"
                                             style="background-color: yellow; padding-right:20px;">
                                             RP
                                             {{ number_format($amount1, 0, '', '.') }}</p>
                                     </td>
                                 </tr>
                                 @if ($quote->tax != 0)
-                                    <tr class="fw-semibold py-0" style="font-size: 13px">
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
                                         </td>
@@ -350,23 +358,27 @@
                                                 {{ $vat == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
                                         </td>
                                     </tr>
-                                    <tr class="fw-semibold py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
-                                            <p class="m-0">Total Include VAT</p>
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="background-color: {{$bgColor}}; padding-left:20px; padding-right:10px;">
+                                            <p class="m-0 fw-bold">Total Include VAT</p>
                                         </td>
-                                        <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                            <p class="m-0 text-end">
+                                        <td class="pr-4 py-0"
+                                            style="background-color: {{$bgColor}}; padding-right:20px;">
+                                            <p class="m-0 text-end fw-bold">
                                                 Rp {{ number_format($payments[0]->amount, 0, '', '.') }}
                                             </p>
                                         </td>
                                     </tr>
                                 @else
-                                    <tr class="fw-semibold py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="background-color: {{$bgColor}}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0">Total</p>
                                         </td>
-                                        <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                            <p class="m-0 text-end">
+                                        <td class="pr-4 py-0"
+                                            style="background-color: {{$bgColor}}; padding-right:20px;">
+                                            <p class="m-0 text-end fw-bold">
                                                 {{ number_format($payments[0]->amount, 0, '', '.') }}
                                             </p>
                                         </td>
@@ -379,7 +391,7 @@
                                     $vat = $amount2 * ($quote->tax / 100);
                                 @endphp
                                 @if ($quote->diskon != 0)
-                                    <tr class="fw-semibold" style="font-size: 13px">
+                                    <tr class="fw-medium" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Discount</p>
                                         </td>
@@ -389,7 +401,7 @@
                                             </p>
                                         </td>
                                     </tr>
-                                    <tr class="fw-semibold" style="font-size: 13px">
+                                    <tr class="fw-medium" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Total After Discount</p>
                                         </td>
@@ -401,7 +413,7 @@
                                     </tr>
                                 @endif
                                 @if ($quote->shipping != 0)
-                                    <tr class="fw-semibold" style="font-size: 13px">
+                                    <tr class="fw-medium" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Shipping Cost</p>
                                         </td>
@@ -412,7 +424,7 @@
                                         </td>
                                     </tr>
                                 @endif
-                                <tr class="fw-semibold" style="font-size: 13px">
+                                <tr class="fw-medium" style="font-size: 13px">
                                     <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
                                         <p class="m-0">
                                             {{ $payments[0]->note }}
@@ -424,7 +436,7 @@
                                             {{ number_format($amount1, 0, '', '.') }}</p>
                                     </td>
                                 </tr>
-                                <tr class="fw-semibold" style="font-size: 13px">
+                                <tr class="fw-medium" style="font-size: 13px">
                                     <td colspan="2" class="text-end py-0 px-0">
                                         <p class="m-0"
                                             style="background-color: yellow; padding-left:20px; padding-right:10px;">
@@ -438,7 +450,7 @@
                                     </td>
                                 </tr>
                                 @if ($quote->tax != 0)
-                                    <tr class="fw-semibold py-0" style="font-size: 13px">
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
                                         </td>
@@ -447,23 +459,27 @@
                                                 {{ $vat == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
                                         </td>
                                     </tr>
-                                    <tr class="fw-semibold py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="background-color: {{$bgColor}}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0">Total Include VAT</p>
                                         </td>
-                                        <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                            <p class="m-0 text-end">
+                                        <td class="pr-4 py-0"
+                                            style="background-color: {{$bgColor}}; padding-right:20px;">
+                                            <p class="m-0 text-end fw-bold">
                                                 RP {{ number_format($payments[1]->amount, 0, '', '.') }}
                                             </p>
                                         </td>
                                     </tr>
                                 @else
-                                    <tr class="fw-semibold py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="background-color: {{$bgColor}}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0">Total</p>
                                         </td>
-                                        <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                            <p class="m-0 text-end">
+                                        <td class="pr-4 py-0"
+                                            style="background-color: {{$bgColor}}; padding-right:20px;">
+                                            <p class="m-0 text-end fw-bold">
                                                 Rp {{ number_format($payments[1]->amount, 0, '', '.') }}
                                             </p>
                                         </td>
@@ -612,7 +628,7 @@
                 </div>
             </div>
             <div class="card mb-3">
-                <div class="card-body">
+                <div class="card-body">-
                     <a class="btn btn-success d-grid w-100 mb-3 waves-effect"
                         href="{{ route('invoice.do_teknisi', $invoice->id) }}">
                         Delivery Order Teknisi
@@ -626,8 +642,8 @@
             <div class="card mb-3">
                 <div class="card-body">
                     <a class="btn btn-primary d-grid w-100 mb-3 waves-effect"
-                        href="{{ route('invoice.do_teknisi', $invoice->id) }}">
-                        Cetak Surat
+                        href="{{ route('invoice.label_detail', $invoice->id) }}">
+                        Cetak Sampul Surat
                     </a>
                 </div>
             </div>

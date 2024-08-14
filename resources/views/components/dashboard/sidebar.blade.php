@@ -30,12 +30,12 @@
                     <div data-i18n="Dashboards">Dashboards</div>
                 </a>
             </li>
-            <li class="menu-item">
+            {{-- <li class="menu-item">
                 <a href="#" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-phone-incoming-outgoing-outline"></i>
                     <div data-i18n="Activities">Activities</div>
                 </a>
-            </li>
+            </li> --}}
             <li class="menu-item {{ request()->is('reports') ? 'active' : '' }}">
                 <a href="{{ url('/reports') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-finance"></i>
@@ -253,12 +253,12 @@
                     <div data-i18n="Dashboards">Dashboards</div>
                 </a>
             </li>
-            <li class="menu-item">
+            {{-- <li class="menu-item">
                 <a href="#" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-phone-incoming-outgoing-outline"></i>
                     <div data-i18n="Activities">Activities</div>
                 </a>
-            </li>
+            </li> --}}
             <li class="menu-item {{ request()->is('reports') ? 'active' : '' }}">
                 <a href="{{ url('/reports') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-finance"></i>

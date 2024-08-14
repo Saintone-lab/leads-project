@@ -236,7 +236,7 @@
                                 <th>Quote No.</th>
                                 <th>Company</th>
                                 <th>Description</th>
-                                <th>Date Quotation</th>
+                                <th>Date PO</th>
                                 <th>Total Price</th>
                             </tr>
                         </thead>

@@ -63,6 +63,20 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
+                                <div class="input-group input-group-merge">
+                                    <div class="form-floating form-floating-outline">
+                                        <input type="password" id="password"
+                                            class="form-control  @error('password') is-invalid @enderror" name="password"
+                                            required autocomplete="current-password" name="password"
+                                            placeholder="············" aria-describedby="password">
+                                        <label for="password">Password</label>
+                                    </div>
+                                    <span class="input-group-text cursor-pointer">
+                                        <i class="mdi mdi-eye-off-outline"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
                                 <div class="form-floating form-floating-outline">
                                     <input class="form-control" type="text" id="name" name="name"
                                         value="{{ old('name', Auth::user()->name ?? '') }}" placeholder="john doe" />
@@ -131,4 +145,20 @@
 @push('page-script')
     <!-- Page JS -->
     <script src="{{ asset('assets') }}/js/pages-account-settings-account.js"></script>
+@endpush
+@push('script')
+    <script>
+        $(document).ready(function() {
+            $(".cursor-pointer").click(function() {
+                $(this).children().toggleClass("mdi-eye-off-outline mdi-eye-outline");
+                toggleInputType($('#password'));
+            });
+
+            function toggleInputType(inputElement) {
+                var currentType = inputElement.attr("type");
+                var newType = (currentType === "password") ? "text" : "password";
+                inputElement.attr("type", newType);
+            }
+        });
+    </script>
 @endpush

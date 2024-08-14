@@ -140,11 +140,12 @@ class UserController extends Controller
         $users->name = $request->name;
         $users->email = $request->email;
         $users->birthday = $request->birthday;
+        $users->password = Hash::make($request->password);
         $users->address = $request->address;
         if (Auth::user()->role == 'Admin') {
-            $users->nip = $request->nip;
-            $users->code = $request->code;
-            $users->active = $request->active;
+            // $users->nip = $request->nip;
+            // $users->code = $request->code;
+            // $users->active = $request->active;
         }
         $users->phone = '+62' . $request->phone;
         if ($request->hasFile('image')) {

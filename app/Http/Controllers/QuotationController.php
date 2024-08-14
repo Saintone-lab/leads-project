@@ -219,6 +219,7 @@ class QuotationController extends Controller
     public function update(Request $request, $id)
     {
         $quote = Quotation::where('id', $id)->first();
+        $detquote = DetailQuotation::where('id_quotation', $id)->get();
         $rule = [
             'no_quote' => 'required',
             'title' => 'required',
@@ -247,7 +248,7 @@ class QuotationController extends Controller
         $quotation->id_pic = $request->id_pic;
         $quotation->id_sales = $request->id_sales;
         $quotation->id_service = NULL;
-        $quotation->destination = $request->destination;
+        $quotation->destination = $quote->destination;
         if ($request->no_pr != NULL) {
             $quotation->no_pr = $request->no_pr;
         } else {
@@ -285,6 +286,7 @@ class QuotationController extends Controller
                 $dQuote->detail_product = $request->detail_product[$item];
                 $dQuote->price = $request->price[$item];
                 $dQuote->qty = $request->qty[$item];
+                $dQuote->fee = 0;
                 $dQuote->info_qty = $request->info_qty[$item];
                 $dQuote->disc = $request->disc[$item];
                 $dQuote->amount = $request->amount[$item];

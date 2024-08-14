@@ -38,7 +38,7 @@ $(function () {
                 { data: "no_quote" },
                 { data: "company" },
                 { data: "title" },
-                { data: "estimated_date" },
+                { data: "po_date" },
                 { data: "nett" },
             ],
             columnDefs: [

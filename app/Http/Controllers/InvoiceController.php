@@ -74,7 +74,7 @@ class InvoiceController extends Controller
         $tax = ($quote->total_no_tax - $quote->diskon) * $quote->tax / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
 
-        return view('pages.accounting.invoice.detail', compact('return','quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc'));
+        return view('pages.accounting.invoice.detail', compact('return', 'quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
 
     /**
@@ -140,7 +140,8 @@ class InvoiceController extends Controller
             return 0;
         }
     }
-    public function index_kojisha(){
+    public function index_kojisha()
+    {
         return view('pages.accounting.invoice.index-kojisha');
     }
     public function request()
@@ -223,16 +224,15 @@ class InvoiceController extends Controller
     {
         $photo = Invoice::find($id);
         $quote = Quotation::where('id', $photo->id_quotation)->first();
+        $harga = Payment::where('id_quotation', $quote->id)->orderBy('created_at', 'DESC')->first();
+        $jumlah = isset($harga) ? $harga->amount : $quote->harga_total;
 
-        if($photo->flag == "Reftech" && $quote->nett >= 5000000){
-            $photo->sign = 'asset/sign/reftech-m.jpeg';
-        }elseif ($photo->flag == "Reftech" && $quote->nett < 5000000) {
-            $photo->sign = 'asset/sign/reftech-nm.jpeg';
-        }elseif ($photo->flag == "Kojisha" && $quote->nett >= 5000000) {
-            $photo->sign = 'asset/sign/kojisha-m.jpeg';
-        }elseif ($photo->flag == "Kojisha" && $quote->nett < 5000000) {
-            $photo->sign = 'asset/sign/kojisha-nm.jpeg';
+        if ($photo->flag == "Reftech") {
+            $photo->sign = $jumlah >= 5000000 ? 'asset/sign/reftech-m.jpeg' : 'asset/sign/reftech-nm.jpeg';
+        } elseif ($photo->flag == "Kojisha") {
+            $photo->sign = $jumlah >= 5000000 ? 'asset/sign/kojisha-m.jpeg' : 'asset/sign/kojisha-nm.jpeg';
         }
+
         // if ($request->hasFile('sign')) {
         //     $foto = $request->file('sign'); // Akses file sesuai dengan iterasi saat ini
         //     // Proses setiap file gambar
@@ -257,7 +257,7 @@ class InvoiceController extends Controller
 
         if ($status) {
             return 1;
-        }else{
+        } else {
             0;
         }
     }
@@ -267,7 +267,7 @@ class InvoiceController extends Controller
 
         // $delsign = File::delete($invoice->sign);
         // if ($delsign) {
-            $invoice->sign = NULL;
+        $invoice->sign = NULL;
         // }
         // dd($photo);
         $status = $invoice->save();
@@ -290,38 +290,43 @@ class InvoiceController extends Controller
         }
     }
 
-    public function do_ekspedisi($id){
+    public function do_ekspedisi($id)
+    {
         $invoice = Invoice::find($id);
         $quote = Quotation::find($invoice->id_quotation);
-        $dQuote = DetailQuotation::where('id_quotation',$invoice->id_quotation)->get();
+        $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
         $client = Client::where('id', $quote->pic->id_client)->first();
         // dd($client);
 
         return view("pages.accounting.delivery.ekspedisi", compact('quote', 'invoice', 'dQuote', 'client'));
     }
-    public function print_ekspedisi($id){
+    public function print_ekspedisi($id)
+    {
         $invoice = Invoice::find($id);
         $quote = Quotation::find($invoice->id_quotation);
-        $dQuote = DetailQuotation::where('id_quotation',$invoice->id_quotation)->get();
+        $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
 
         return view("pages.accounting.delivery.ekspedisi-print", compact('quote', 'invoice', 'dQuote'));
     }
 
-    public function do_teknisi($id){
+    public function do_teknisi($id)
+    {
         $invoice = Invoice::find($id);
         $quote = Quotation::find($invoice->id_quotation);
-        $dQuote = DetailQuotation::where('id_quotation',$invoice->id_quotation)->get();
+        $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
 
         return view("pages.accounting.delivery.teknisi", compact('quote', 'invoice', 'dQuote'));
     }
-    public function print_teknisi($id){
+    public function print_teknisi($id)
+    {
         $invoice = Invoice::find($id);
         $quote = Quotation::find($invoice->id_quotation);
-        $dQuote = DetailQuotation::where('id_quotation',$invoice->id_quotation)->get();
+        $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
 
         return view("pages.accounting.delivery.teknisi-print", compact('quote', 'invoice', 'dQuote'));
     }
-    public function form_ekspedisi(Request $request, $id){
+    public function form_ekspedisi(Request $request, $id)
+    {
         $invoice = Invoice::find($id);
 
         $invoice->dateDo = $request->date;
@@ -332,7 +337,8 @@ class InvoiceController extends Controller
             return redirect('/invoice/do_ekspedisi/' . $id)->with('massage', 'Data telah terkirim');
         }
     }
-    public function form_teknisi(Request $request, $id){
+    public function form_teknisi(Request $request, $id)
+    {
         $invoice = Invoice::find($id);
 
         if ($request->check == '1') {
@@ -340,13 +346,28 @@ class InvoiceController extends Controller
         } else {
             $invoice->dateDo = $request->date;
         }
-        
+
         $invoice->doTo = $request->destination;
         $status = $invoice->save();
 
         if ($status) {
             return redirect('/invoice/do_teknisi/' . $id)->with('massage', 'Data telah terkirim');
         }
+    }
+
+    public function label_detail($id)
+    {
+        $invoice = Invoice::find($id);
+        $quote = Quotation::find($invoice->id_quotation);
+
+        return view("pages.accounting.label.detail", compact('quote', 'invoice'));
+    }
+    public function label_print($id)
+    {
+        $invoice = Invoice::find($id);
+        $quote = Quotation::find($invoice->id_quotation);
+
+        return view("pages.accounting.label.detail-print", compact('quote', 'invoice'));
     }
     private function terbilang($number)
     {
