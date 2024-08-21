@@ -161,12 +161,15 @@
                             </thead>
                             <tbody class="table-border-bottom-0">
                                 @forelse ($details as $detail)
+                                @php
+                                    $allRep = $detail->stock + $detail->warehouse_stock;
+                                @endphp
                                     <tr>
                                         <td>
                                             {{ $detail->replacement }}
                                         </td>
                                         <td>
-                                            {{ $detail->stock }} {{ $detail->product->unit }}
+                                            {{ $allRep }} {{ $detail->product->unit }}
                                         </td>
                                         @if (Auth::user()->role == 'Admin')
                                             <td>

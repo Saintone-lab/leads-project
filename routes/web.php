@@ -7,6 +7,7 @@ use App\Http\Controllers\ContractController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExistingController;
 use App\Http\Controllers\InvoiceController;
@@ -87,6 +88,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/po', [QuotationController::class, 'po_quote'])->name('quotation.po');
     Route::get('/loss', [QuotationController::class, 'loss_quote'])->name('quotation.loss');
     Route::get('/quotation/{id}/change_status', [QuotationController::class, 'change_status'])->name('status.change.quotation');
+    Route::post('/quotation/{id}/cancel_po', [QuotationController::class, 'cancel_po'])->name('status.cancel.quotation');
     Route::post('/quotation/{id}/convert_flag', [QuotationController::class, 'convert_flag'])->name('convert-flag.quotation');
     Route::post('/quotation/{id}/convert_po', [QuotationController::class, 'convert_po'])->name('convert-po.quotation');
     Route::post('/quotation/{id}/request_bp', [QuotationController::class, 'request_bp'])->name('request-bp.quotation');
@@ -247,6 +249,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/invoice/del-sign/{id}', [InvoiceController::class, 'delete_hand_sign'])->name('invoice.del-sign');
     Route::get('/invoice/label_detail/{id}', [InvoiceController::class, 'label_detail'])->name('invoice.label_detail');
     Route::get('/invoice/label_print/{id}', [InvoiceController::class, 'label_print'])->name('invoice.label_print');
+    
+    Route::resource('/delivery', DeliveryController::class);
+    Route::get('/delivery/print/{id}', [DeliveryController::class, 'print_delivery'])->name('print.delivery');
+    Route::post('/delivery/change_date/{id}', [DeliveryController::class, 'change_date'])->name('change_date.delivery');
 
     Route::resource('/return', ReturnController::class);
     Route::post('/accept/return/{id}', [ReturnController::class, 'accept_return'])->name('return.accept');

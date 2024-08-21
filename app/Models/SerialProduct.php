@@ -31,4 +31,8 @@ class SerialProduct extends Model
     {
         return $this->hasMany('App\Models\DetailReturn', 'id_pn');
     }
+    public function detail_delivery()
+    {
+        return $this->hasMany('App\Models\DetailDelivery', 'id_pn');
+    }
 }

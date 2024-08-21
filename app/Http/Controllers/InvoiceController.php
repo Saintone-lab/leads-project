@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Delivery;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -71,10 +72,13 @@ class InvoiceController extends Controller
         $harga = Payment::where('id_quotation', $quote->id)->orderBy('created_at', 'DESC')->first();
         $price = $this->terbilang(@$harga->amount);
         $fullPrice = $this->terbilang($quote->harga_total);
-        $tax = ($quote->total_no_tax - $quote->diskon) * $quote->tax / 100;
+        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
 
-        return view('pages.accounting.invoice.detail', compact('return', 'quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc'));
+        $doTek = Delivery::where('id_invoice', $id)->where('type','teknisi')->get();
+        $doEks = Delivery::where('id_invoice', $id)->where('type','ekspedisi')->get();
+
+        return view('pages.accounting.invoice.detail', compact('return', 'quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
     }
 
     /**
@@ -107,9 +111,10 @@ class InvoiceController extends Controller
         ];
         $this->validate($request, $rule, $message);
         $invoice = Invoice::find($id);
+        $quote = Quotation::find($invoice->id_quotation);
         $invoice->no_invoice = $request->invoice;
         $invoice->term = $request->payment;
-        $invoice->invoiceTo = $request->destination;
+        $invoice->invoiceTo = $quote->destination;
         $invoiceSave = $invoice->save();
         if ($invoiceSave) {
             return redirect('/invoice/' . $id)->with('message', 'Invoice has been accepted');
@@ -192,7 +197,7 @@ class InvoiceController extends Controller
 
         $remaining = $quote->harga_total - $totalAmount;
         $price = $this->terbilang($remaining);
-        $tax = ($quote->total_no_tax - $quote->diskon) * $quote->tax / 100;
+        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         $invoice = Invoice::where('id_quotation', $id)->orderBy('created_at', 'desc')->first();
         // dd($price);
         return view('pages.accounting.invoice.before-accept', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoiceP', 'lastInvoiceNP', 'nextCodeP', 'nextCodeNP', 'year', 'monthCode'));
@@ -283,6 +288,7 @@ class InvoiceController extends Controller
         $invoice = Invoice::find($id);
 
         $invoice->date = $request->date;
+        $invoice->invoiceTo = $request->destination;
         $invoiceSave = $invoice->save();
 
         if ($invoiceSave) {

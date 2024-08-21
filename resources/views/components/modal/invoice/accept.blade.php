@@ -17,9 +17,17 @@
                         <form>
                             <div class="row">
                                 <div class="col-12 mb-3">
+                                    @php
+                                        if ($quote->flag == 'Reftech') {
+                                            $code = 'RJO';
+                                        } else {
+                                            $code = 'KII';
+                                        }
+                                        
+                                    @endphp
                                     <div class="form-floating form-floating-outline">
                                         <input class="form-control form-control-sm" type="text"
-                                            value="{{ $quote->tax != 0 ? $nextCodeP . '/SJ-P/RJO/' . $monthCode . '/' . $year : $nextCodeNP . '/SJ-NP/RJO/' . $monthCode . '/' . $year }}"
+                                            value="{{ $quote->tax != 0 ? $nextCodeP . '/SJ-P/'. $code . '/' . $monthCode . '/' . $year : $nextCodeNP . '/SJ-NP/'. $code .'/' . $monthCode . '/' . $year }}"
                                             placeholder="Put No Invoice Here ...." id="invoice" name="invoice">
                                         <label for="invoice">No Invoice</label>
                                     </div>
@@ -30,21 +38,6 @@
                                             placeholder="Put Terms & Payments Here ...." id="payment" name="payment"
                                             value="">
                                         <label for="payment">Terms & Payments</label>
-                                    </div>
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <div class="form-floating form-floating-outline">
-                                        <select class="select2 form-select" id="selectAddress"
-                                            aria-label="Default select example" name="destination"
-                                            data-allow-clear="true">
-                                            <option value="1"
-                                                {{ old('address', $quote->destination) == '1' ? 'selected' : '' }}>
-                                                {{ $quote->pic->client->address }}</option>
-                                            <option value="2"
-                                                {{ old('address', $quote->destination) == '2' ? 'selected' : '' }}>
-                                                {{ $quote->pic->client->subAddress }}</option>
-                                        </select>
-                                        <label for="selectAddress">Choose Address</label>
                                     </div>
                                 </div>
                                 {{-- @if (!is_null($lastInvoiceP->no_invoice) || !is_null($lastInvoiceNP->no_invoice))

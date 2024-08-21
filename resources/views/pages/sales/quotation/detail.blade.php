@@ -12,8 +12,7 @@
                                 <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
                                     <span class="app-brand-logo demo">
                                         <span style="color: var(--bs-primary)">
-                                            <img class="text-md"
-                                                src="{{ asset('/asset') }}/logo/Reftech-Log.png"
+                                            <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png"
                                                 alt="" srcset="" width="60%">
                                         </span>
                                     </span>
@@ -227,6 +226,11 @@
                                 <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
                                     data-bs-toggle="modal" data-bs-target="#changeStatus-{{ $quote->id }}">Change
                                     Status</button>
+                            @endif
+                            @if ($quote->status == '100')
+                                <a href="#" class="btn btn-secondary d-grid w-100 waves-effect cancel-po mb-3"
+                                    data-id="{{ $quote->id }}">Cancel
+                                    PO</a>
                             @endif
                         @endif
                         @if (Auth::user()->role == 'Sales')
@@ -653,6 +657,62 @@
             //         });
             //     }
             // });
+        });
+        $(document).on('click', '.cancel-po', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure to Convert this?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Convert it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('quotation') }}/' + id + '/cancel_po',
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Converted!",
+                                    text: "Your file has been converted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/quotation/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Convert!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your Convert is cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
         });
         $(document).on('click', '.convert-flag', function() {
             var id = $(this).data('id');

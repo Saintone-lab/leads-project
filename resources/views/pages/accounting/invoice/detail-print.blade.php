@@ -13,11 +13,11 @@
                             </span>
                         </span>
                     </div>
-                    <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
-                    <div style="font-size: 10px">
-                        <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
-                        <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                        <p class="mb-1">
+                    <p class="mb-1 fw-bolder text-black">PT Reftech Jaya Optima</p>
+                    <div style="font-size: 12px">
+                        <p class="mb-1 text-black">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
+                        <p class="mb-1 text-black">Bandung – Jawa Barat 40218</p>
+                        <p class="mb-1 text-black">
                             <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
                             {{ '   ' }}<i
                                 class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@reftech.id
@@ -27,12 +27,12 @@
                     </div>
                 </div>
                 <div class="text-end">
-                    <h1 class="fw-bold title-invoice">INVOICE</h1>
+                    <h1 class="fw-bold title-reftech">INVOICE dasd</h1>
                     <div>
-                        <span class="fw-bolder">#{{ $invoice->no_invoice }}</span>
+                        <span class="fw-bolder text-black">#{{ $invoice->no_invoice }}</span>
                     </div>
                     <div class="mt-1">
-                        <span class="text-muted">{{ Carbon\Carbon::parse($invoice->date)->format('d-m-Y') }}</span>
+                        <span class="text-black">{{ Carbon\Carbon::parse($invoice->date)->format('d-m-Y') }}</span>
                     </div>
                 </div>
             </div>
@@ -47,11 +47,11 @@
                             </span>
                         </span>
                     </div>
-                    <p class="mb-1 fw-bolder">PT Kojisha Innotiv Indonesia</p>
+                    <p class="mb-1 fw-bolder text-black">PT Kojisha Innotiv Indonesia</p>
                     <div style="font-size: 10px">
-                        <p class="mb-1">Jl. Nancep No. 45A, Setu</p>
-                        <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
-                        <p class="mb-1">
+                        <p class="mb-1 text-black">Jl. Nancep No. 45A, Setu</p>
+                        <p class="mb-1 text-black">Cibitung - Kab. Bekasi 17320</p>
+                        <p class="text-black">
                             <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62 812-1000-0997
                             {{ ' | ' }}<i
                                 class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
@@ -59,7 +59,7 @@
                     </div>
                 </div>
                 <div class="text-end">
-                    <h1 class="fw-bold title-invoice">INVOICE</h1>
+                    <h1 class="fw-bold title-kojisha">INVOICE</h1>
                     <div>
                         <span class="fw-bolder">#{{ $invoice->no_invoice }}</span>
                     </div>
@@ -78,12 +78,20 @@
                         <div class="row">
                             <div class="col-4 fw-medium">
                                 <p class="mb-1">Bill To </p>
-                                <p class="mb-1">Phone </p>
-                                <p class="mb-1">Adress</p>
                             </div>
                             <div class="col-8">
                                 <p class="mb-1">: {{ $quote->pic->client->company }}</p>
+                            </div>
+                            <div class="col-4 fw-medium">
+                                <p class="mb-1">Phone </p>
+                            </div>
+                            <div class="col-8">
                                 <p class="mb-1">: {{ $quote->pic->client->phone }}</p>
+                            </div>
+                            <div class="col-4 fw-medium">
+                                <p class="mb-1">Adress</p>
+                            </div>
+                            <div class="col-8">
                                 @if ($invoice->invoiceTo == '1')
                                     <pre
                                         style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $quote->pic->client->address }}</pre>
@@ -110,8 +118,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2" class="text-center">
-                        <pre
+                    <td colspan="2" class="text-center" style="height: 10px">
+                        <pre class="mb-0"
                             style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $invoice->term }}</pre>
                     </td>
                 </tr>
@@ -131,29 +139,57 @@
                 </thead>
                 <tbody>
                     @php
-                        $no = 0;
+                        $no = 1;
                     @endphp
-                    @foreach ($dquote as $product)
-                        @php
-                            $no++;
-                        @endphp
-                        <tr style="font-size: 13px">
-                            <td class="align-top">{{ $no }}</td>
-                            <td class="text-nowrap align-top">
+                    <tr style="font-size: 13px">
+                        <td class="align-top">
+                            @foreach ($dquote as $product)
+                                <p>
+                                    {{ $no }}
+                                </p>
+                                @php
+                                    $no++;
+                                @endphp
+                            @endforeach
+                        </td>
+                        <td class="text-nowrap align-top">
+                            @foreach ($dquote as $product)
                                 <p class="mb-0 fw-semibold" style="font-size: 12px">
                                     {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
                                 </p>
                                 <pre class="mb-0"
                                     style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
-                            </td>
-                            <td class="align-top text-end">RP {{ number_format($product->price, 0, '', '.') }}
-                            </td>
-                            <td class="align-top">{{ $product->qty }} {{ $product->info_qty }} </td>
-                            <td class="align-top">{{ $product->disc }}%</td>
-                            <td class="align-top text-end">RP {{ number_format($product->amount, 0, '', '.') }}
-                            </td>
-                        </tr>
-                    @endforeach
+                            @endforeach
+                        </td>
+                        <td class="align-top text-end">
+                            @foreach ($dquote as $product)
+                                <p>
+                                    {{ number_format($product->price, 0, '', '.') }}
+                                </p>
+                            @endforeach
+                        </td>
+                        <td class="align-top">
+                            @foreach ($dquote as $product)
+                                <p>
+                                    {{ $product->qty }} {{ $product->info_qty }}
+                                </p>
+                            @endforeach
+                        </td>
+                        <td class="align-top">
+                            @foreach ($dquote as $product)
+                                <p>
+                                    {{ $product->disc }}%
+                                </p>
+                            @endforeach
+                        </td>
+                        <td class="align-top text-end">
+                            @foreach ($dquote as $product)
+                                <p>
+                                    {{ number_format($product->amount, 0, '', '.') }}
+                                </p>
+                            @endforeach
+                        </td>
+                    </tr>
                     <tr class="fw-semibold" style="font-size: 13px">
                         <td colspan="3" rowspan="9" id="dynamicRows" style="border-bottom :none !important;">
                         </td>
@@ -162,8 +198,11 @@
                             <p class="m-0">Total</p>
                         </td>
                         <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
-                            <p class="text-end m-0">RP
-                                {{ number_format($quote->subtotal, 0, '', '.') }}</p>
+                            <div class="d-flex justify-content-between">
+                                <p class="d-flex m-0 mx-2">IDR</p>
+                                <p class="text-end m-0">
+                                    {{ number_format($quote->subtotal, 0, '', '.') }}</p>
+                            </div>
                         </td>
                     </tr>
                     @php
@@ -180,9 +219,12 @@
                                     <p class="m-0">Discount</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">RP
-                                        {{ number_format($quote->diskon, 0, '', '.') }}
-                                    </p>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 mx-2">IDR</p>
+                                        <p class="d-flex m-0 text-end">
+                                            {{ number_format($quote->diskon, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                             <tr class="fw-medium" style="font-size: 13px">
@@ -190,9 +232,12 @@
                                     <p class="m-0">Total After Discount</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">RP
-                                        {{ number_format($afterDisc, 0, '', '.') }}
-                                    </p>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 mx-2">IDR</p>
+                                        <p class="m-0 text-end">
+                                            {{ number_format($afterDisc, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         @endif
@@ -202,9 +247,12 @@
                                     <p class="m-0">Shipping Cost</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">RP
-                                        {{ number_format($quote->shipping, 0, '', '.') }}
-                                    </p>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 mx-2">IDR</p>
+                                        <p class="m-0 text-end">
+                                            {{ number_format($quote->shipping, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         @endif
@@ -214,20 +262,26 @@
                                     <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">
-                                        {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 mx-2">IDR</p>
+                                        <p class="m-0 text-end">
+                                            {{ $tax == '0' ? '0' : ' ' . number_format($tax, 0, '', '.') }}</p>
+                                    </div>
                                 </td>
                             </tr>
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="2" class="text-end py-0"
-                                    style="background-color:  {{$bgColor}}; padding-left:20px; padding-right:10px;">
+                                    style="background-color:  {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                     <p class="m-0 fw-bold">Total Include VAT</p>
                                 </td>
-                                <td class="pr-4 py-0"
-                                    style="background-color:  {{$bgColor}}; padding-right:20px;">
-                                    <p class="m-0 text-end fw-bold">
-                                        {{ $tax == '0' ? '0' : 'RP ' . number_format($quote->harga_total, 0, '', '.') }}
-                                    </p>
+                                <td class="py-0"
+                                    style="background-color:  {{ $bgColor }}; padding:0 20px 0 10px;">
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 fw-bold">IDR</p>
+                                        <p class="m-0 text-end fw-bold">
+                                            {{ $tax == '0' ? '0' : ' ' . number_format($quote->harga_total, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         @endif
@@ -243,9 +297,12 @@
                                     <p class="m-0">Discount</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">RP
-                                        {{ number_format($quote->diskon, 0, '', '.') }}
-                                    </p>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 mx-2">IDR</p>
+                                        <p class="m-0 text-end">
+                                            {{ number_format($quote->diskon, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                             <tr class="fw-medium" style="font-size: 13px">
@@ -253,9 +310,12 @@
                                     <p class="m-0">Total After Discount</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">RP
-                                        {{ number_format($afterDisc, 0, '', '.') }}
-                                    </p>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 mx-2">IDR</p>
+                                        <p class="m-0 text-end">
+                                            {{ number_format($afterDisc, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         @endif
@@ -265,9 +325,12 @@
                                     <p class="m-0">Shipping Cost</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">RP
-                                        {{ number_format($quote->shipping, 0, '', '.') }}
-                                    </p>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 mx-2">IDR</p>
+                                        <p class="m-0 text-end">
+                                            {{ number_format($quote->shipping, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         @endif
@@ -279,10 +342,12 @@
                                     {{ $payments[0]->percent }}%:</p>
                             </td>
                             <td class="px-0 py-0" style="padding-left: 0 !important;">
-                                <p class="fw-medium m-0 text-end"
-                                    style="background-color: yellow; padding-right:20px;">
-                                    RP
-                                    {{ number_format($amount1, 0, '', '.') }}</p>
+                                <div class="d-flex justify-content-between">
+                                    <p class="d-flex m-0 mx-2">IDR</p>
+                                    <p class="fw-medium m-0 text-end"
+                                        style="background-color: yellow; padding-right:20px;">
+                                        {{ number_format($amount1, 0, '', '.') }}</p>
+                                </div>
                             </td>
                         </tr>
                         @if ($quote->tax != 0)
@@ -291,33 +356,42 @@
                                     <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">
-                                        {{ $vat == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 mx-2">IDR</p>
+                                        <p class="m-0 text-end">
+                                            {{ $vat == '0' ? '0' : ' ' . number_format($vat, 0, '', '.') }}</p>
+                                    </div>
                                 </td>
                             </tr>
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="2" class="text-end py-0"
-                                    style="background-color:  {{$bgColor}}; padding-left:20px; padding-right:10px;">
+                                    style="background-color:  {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                     <p class="m-0 fw-bold">Total Include VAT</p>
                                 </td>
-                                <td class="pr-4 py-0"
-                                    style="background-color:  {{$bgColor}}; padding-right:20px;">
-                                    <p class="m-0 text-end fw-bold">
-                                        Rp {{ number_format($payments[0]->amount, 0, '', '.') }}
-                                    </p>
+                                <td class="py-0"
+                                    style="background-color:  {{ $bgColor }}; padding:0 20px 0 10px;">
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 fw-bold">IDR</p>
+                                        <p class="m-0 text-end fw-bold">
+                                            {{ number_format($payments[0]->amount, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         @else
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="2" class="text-end py-0"
-                                    style="background-color: {{$bgColor}}; padding-left:20px; padding-right:10px;">
+                                    style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                     <p class="m-0">Total</p>
                                 </td>
-                                <td class="pr-4 py-0"
-                                    style="background-color: {{$bgColor}}; padding-right:20px;">
-                                    <p class="m-0 text-end fw-bold">
-                                        {{ number_format($payments[0]->amount, 0, '', '.') }}
-                                    </p>
+                                <td class="py-0"
+                                    style="background-color:  {{ $bgColor }}; padding:0 20px 0 10px;">
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 fw-bold">IDR</p>
+                                        <p class="m-0 text-end fw-bold">
+                                            {{ number_format($payments[0]->amount, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         @endif
@@ -333,9 +407,12 @@
                                     <p class="m-0">Discount</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">RP
-                                        {{ number_format($quote->diskon, 0, '', '.') }}
-                                    </p>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 mx-2">IDR</p>
+                                        <p class="m-0 text-end">
+                                            {{ number_format($quote->diskon, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                             <tr class="fw-medium" style="font-size: 13px">
@@ -343,9 +420,12 @@
                                     <p class="m-0">Total After Discount</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">RP
-                                        {{ number_format($afterDisc, 0, '', '.') }}
-                                    </p>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 mx-2">IDR</p>
+                                        <p class="m-0 text-end">
+                                            {{ number_format($afterDisc, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         @endif
@@ -355,9 +435,12 @@
                                     <p class="m-0">Shipping Cost</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">RP
-                                        {{ number_format($quote->shipping, 0, '', '.') }}
-                                    </p>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 mx-2">IDR</p>
+                                        <p class="m-0 text-end">
+                                            {{ number_format($quote->shipping, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         @endif
@@ -368,9 +451,11 @@
                                     {{ $payments[0]->percent }}%:</p>
                             </td>
                             <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                <p class="m-0 text-end">
-                                    RP
-                                    {{ number_format($amount1, 0, '', '.') }}</p>
+                                <div class="d-flex justify-content-between">
+                                    <p class="d-flex m-0 mx-2">IDR</p>
+                                    <p class="m-0 text-end">
+                                        {{ number_format($amount1, 0, '', '.') }}</p>
+                                </div>
                             </td>
                         </tr>
                         <tr class="fw-medium" style="font-size: 13px">
@@ -381,9 +466,11 @@
                                     {{ $payments[1]->percent }}%:</p>
                             </td>
                             <td class="px-0 py-0" style="padding-left: 0 !important;">
-                                <p class="m-0 text-end" style="background-color: yellow; padding-right:20px;">
-                                    RP
-                                    {{ number_format($amount2, 0, '', '.') }}</p>
+                                <div class="d-flex justify-content-between">
+                                    <p class="d-flex m-0 mx-2">IDR</p>
+                                    <p class="m-0 text-end" style="background-color: yellow; padding-right:20px;">
+                                        {{ number_format($amount2, 0, '', '.') }}</p>
+                                </div>
                             </td>
                         </tr>
                         @if ($quote->tax != 0)
@@ -392,33 +479,42 @@
                                     <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">
-                                        {{ $vat == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 mx-2">IDR</p>
+                                        <p class="m-0 text-end">
+                                            {{ $vat == '0' ? '0' : ' ' . number_format($vat, 0, '', '.') }}</p>
+                                    </div>
                                 </td>
                             </tr>
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="2" class="text-end py-0"
-                                    style="background-color: {{$bgColor}}; padding-left:20px; padding-right:10px;">
+                                    style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                     <p class="m-0">Total Include VAT</p>
                                 </td>
-                                <td class="pr-4 py-0"
-                                    style="background-color:  {{$bgColor}}; padding-right:20px;">
-                                    <p class="m-0 text-end fw-bold">
-                                        RP {{ number_format($payments[1]->amount, 0, '', '.') }}
-                                    </p>
+                                <td class="py-0"
+                                    style="background-color:  {{ $bgColor }};  padding:0 20px 0 10px;">
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 fw-bold">IDR</p>
+                                        <p class="m-0 text-end fw-bold">
+                                            {{ number_format($payments[1]->amount, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         @else
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="2" class="text-end py-0"
-                                    style="background-color: {{$bgColor}}; padding-left:20px; padding-right:10px;">
+                                    style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                     <p class="m-0">Total</p>
                                 </td>
-                                <td class="pr-4 py-0"
-                                    style="background-color: {{$bgColor}}; padding-right:20px;">
-                                    <p class="m-0 text-end fw-bold">
-                                        Rp {{ number_format($payments[1]->amount, 0, '', '.') }}
-                                    </p>
+                                <td class="py-0"
+                                    style="background-color:  {{ $bgColor }};  padding:0 20px 0 10px;">
+                                    <div class="d-flex justify-content-between">
+                                        <p class="d-flex m-0 fw-bold">IDR</p>
+                                        <p class="m-0 text-end fw-bold">
+                                            {{ number_format($payments[1]->amount, 0, '', '.') }}
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         @endif
@@ -427,17 +523,19 @@
             </table>
         </div>
         @if (@$harga)
-            <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
+            <p class="fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:100%; font-size:14px;">
+                Say
                 amount: #
-                {{ $price }} Rupiah</p>
+                {{ strtoupper($price) }} RUPIAH</p>
         @else
-            <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
+            <p class="fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:100%; font-size:14px;">
+                Say
                 amount: #
-                {{ $fullPrice }} Rupiah</p>
+                {{ strtoupper($fullPrice) }} RUPIAH</p>
         @endif
-        <div class="row mt-4">
-            <div class="col-6 m-4">
-                <h5 class="my-4">Payment by Transfer or Giro shall be made in Full amount to :</h5>
+        <div class="row">
+            <div class="col-7">
+                <p class="mt-4 fw-bold fs-6">Payment by Transfer or Giro shall be made in Full amount to :</p>
                 <div class="row">
                     <div class="col-3 fw-medium">
                         <p class="mb-1">Payable to</p>
@@ -478,8 +576,8 @@
             </div>
             <div class="col"></div>
             @if ($invoice->flag == 'Reftech')
-                <div class="col-4 my-5 text-center">
-                    <p>Bandung, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
+                <div class="col-4 mt-4 text-center">
+                    <p class="mb-0">Bandung, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
                     <p class="fs-normal fw-bolder">PT. Reftech Jaya Optima</p>
                     @if (isset($invoice->sign))
                         <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset=""
@@ -488,12 +586,12 @@
                         <div style="padding: 40px 0;"></div>
                     @endif
                     {{-- <div class="pb-5"></div> --}}
-                    <p class="pt-3 fw-bolder">Ariep Rachman</p>
+                    <p class="pt-3 fw-bolder mb-0">Ariep Rachman</p>
                     <p>Director</p>
                 </div>
             @else
-                <div class="col-4 my-5 text-center">
-                    <p>Bandung, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
+                <div class="col-4 mt-4 text-center">
+                    <p class="mb-0">Bandung, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
                     <p class="fs-normal fw-bolder">PT. Kojisha Innotiv Indonesia </p>
                     @if (isset($invoice->sign))
                         <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset=""
@@ -502,7 +600,7 @@
                         <div style="padding: 40px 0;"></div>
                     @endif
                     {{-- <div class="pb-5"></div> --}}
-                    <p class="pt-3 fw-bolder">Dedeh Sulastri</p>
+                    <p class="pt-3 fw-bolder mb-0">Dedeh Sulastri</p>
                     <p>Director</p>
                 </div>
             @endif
@@ -511,7 +609,7 @@
 </div>
 @push('after-style')
     <!-- Page CSS -->
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice-print.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice-print-header.css" />
     <link rel="stylesheet" href="style.css">
 @endpush
 @push('after-script')

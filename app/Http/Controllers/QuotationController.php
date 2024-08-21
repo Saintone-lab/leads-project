@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Activities;
 use App\Models\Client;
 use App\Models\Contract;
+use App\Models\Delivery;
+use App\Models\DetailDelivery;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -185,7 +187,7 @@ class QuotationController extends Controller
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn']);
         $noQuote = substr($quote->no_quote, 0, 3);
         $today = Carbon::now();
-        $tax = ($quote->total_no_tax - $quote->diskon) * $quote->tax / 100;
+        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
         // dd($invoice[0]->no_invoice);
         $thisYear = $today->year;
@@ -742,6 +744,46 @@ class QuotationController extends Controller
         //     $payment->delete();
         //     return 1;
         if ($paymentDel) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public function cancel_po($id)
+    {
+        $quote = Quotation::find($id);
+        $invoices = Invoice::where('id_quotation', $id)->get();
+        $deliveries = Delivery::whereIn('id_invoice', $invoices->pluck('id'))->get();
+        $detDeliveries = DetailDelivery::whereIn('id_delivery', $deliveries->pluck('id'))->get();
+
+        // Edit Quotation
+        $quote->status = '80';
+        $quote->po_date = NULL;
+        $file_path = public_path($quote->po_file);
+        if (file_exists($file_path)) {
+            unlink($file_path);
+        }
+        $quote->po_file = NULL;
+        $status = $quote->save();
+
+        // Hapus Detail Delivery
+        foreach ($detDeliveries as $detDelivery) {
+            $detDelivery->delete();
+        }
+
+        // Hapus Delivery
+        foreach ($deliveries as $delivery) {
+            $delivery->delete();
+        }
+
+        // Hapus Invoice
+        foreach ($invoices as $invoice) {
+            $invoice->delete();
+        }
+
+
+        if ($status) {
             return 1;
         } else {
             return 0;

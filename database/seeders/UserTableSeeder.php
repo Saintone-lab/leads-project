@@ -270,7 +270,7 @@ class UserTableSeeder extends Seeder
                 'address' => '-',
                 'code' => 'FTW',
                 'active' => '1',
-                'roles' => 'Logistik',
+                'roles' => 'Logistic',
                 'date_in' => \Carbon\Carbon::today(),
             ],
             [
@@ -285,7 +285,7 @@ class UserTableSeeder extends Seeder
                 'address' => '-',
                 'code' => 'LYZ',
                 'active' => '1',
-                'roles' => 'Logistik',
+                'roles' => 'Logistic',
                 'date_in' => \Carbon\Carbon::today(),
             ],
         ];

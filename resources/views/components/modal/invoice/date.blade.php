@@ -27,6 +27,21 @@
                                     value="{{ old('estimated_date', @$invoice->date ?? now()->format('Y-m-d')) }}">
                             </div>
                         </div>
+                        <div class="col-12 mb-3">
+                            <div class="form-floating form-floating-outline">
+                                <select class="select2 form-select" id="selectAddress"
+                                    aria-label="Default select example" name="destination"
+                                    data-allow-clear="true">
+                                    <option value="1"
+                                        {{ old('address', $invoice->invoiceTo) == '1' ? 'selected' : '' }}>
+                                        {{ $quote->pic->client->address }}</option>
+                                    <option value="2"
+                                        {{ old('address', $invoice->invoiceTo) == '2' ? 'selected' : '' }}>
+                                        {{ $quote->pic->client->subAddress }}</option>
+                                </select>
+                                <label for="selectAddress">Choose Address</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

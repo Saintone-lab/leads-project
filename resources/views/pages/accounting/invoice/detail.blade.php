@@ -64,7 +64,7 @@
                                 </div>
                             </div>
                             <div class="text-end">
-                                <h1 class="fw-bold" style="color: blue;">INVOICE</h1>
+                                <h1 class="fw-bold" style="color: rgb(175, 29, 23);">INVOICE</h1>
                                 <div>
                                     <span class="fw-bolder">#{{ $invoice->no_invoice }}</span>
                                 </div>
@@ -282,11 +282,11 @@
                                     </tr>
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0"
-                                            style="background-color: {{$bgColor}}; padding-left:20px; padding-right:10px;">
+                                            style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0 fw-bold">Total Include VAT</p>
                                         </td>
                                         <td class="pr-4 py-0"
-                                            style="background-color: {{$bgColor}}; padding-right:20px;">
+                                            style="background-color: {{ $bgColor }}; padding-right:20px;">
                                             <p class="m-0 text-end fw-bold">
                                                 {{ $tax == '0' ? '0' : 'RP ' . number_format($quote->harga_total, 0, '', '.') }}
                                             </p>
@@ -360,11 +360,11 @@
                                     </tr>
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0"
-                                            style="background-color: {{$bgColor}}; padding-left:20px; padding-right:10px;">
+                                            style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0 fw-bold">Total Include VAT</p>
                                         </td>
                                         <td class="pr-4 py-0"
-                                            style="background-color: {{$bgColor}}; padding-right:20px;">
+                                            style="background-color: {{ $bgColor }}; padding-right:20px;">
                                             <p class="m-0 text-end fw-bold">
                                                 Rp {{ number_format($payments[0]->amount, 0, '', '.') }}
                                             </p>
@@ -373,11 +373,11 @@
                                 @else
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0"
-                                            style="background-color: {{$bgColor}}; padding-left:20px; padding-right:10px;">
+                                            style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0">Total</p>
                                         </td>
                                         <td class="pr-4 py-0"
-                                            style="background-color: {{$bgColor}}; padding-right:20px;">
+                                            style="background-color: {{ $bgColor }}; padding-right:20px;">
                                             <p class="m-0 text-end fw-bold">
                                                 {{ number_format($payments[0]->amount, 0, '', '.') }}
                                             </p>
@@ -461,11 +461,11 @@
                                     </tr>
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0"
-                                            style="background-color: {{$bgColor}}; padding-left:20px; padding-right:10px;">
+                                            style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0">Total Include VAT</p>
                                         </td>
                                         <td class="pr-4 py-0"
-                                            style="background-color: {{$bgColor}}; padding-right:20px;">
+                                            style="background-color: {{ $bgColor }}; padding-right:20px;">
                                             <p class="m-0 text-end fw-bold">
                                                 RP {{ number_format($payments[1]->amount, 0, '', '.') }}
                                             </p>
@@ -474,11 +474,11 @@
                                 @else
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0"
-                                            style="background-color: {{$bgColor}}; padding-left:20px; padding-right:10px;">
+                                            style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0">Total</p>
                                         </td>
                                         <td class="pr-4 py-0"
-                                            style="background-color: {{$bgColor}}; padding-right:20px;">
+                                            style="background-color: {{ $bgColor }}; padding-right:20px;">
                                             <p class="m-0 text-end fw-bold">
                                                 Rp {{ number_format($payments[1]->amount, 0, '', '.') }}
                                             </p>
@@ -627,31 +627,71 @@
                     <h5>Remaining : Rp {{ number_format($remaining, 0, '.', ',') }}</h5>
                 </div>
             </div>
-            <div class="card mb-3">
-                <div class="card-body">-
-                    <a class="btn btn-success d-grid w-100 mb-3 waves-effect"
-                        href="{{ route('invoice.do_teknisi', $invoice->id) }}">
-                        Delivery Order Teknisi
-                    </a>
-                    <a class="btn btn-whatsapp d-grid w-100 mb-3 waves-effect"
+            @if (Auth::user()->role == 'Admin')
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#doTeknisi"
+                            class="d-grid w-100 waves-effect mb-3">
+                            <button type="button" class="btn btn-success">
+                                Create Delivery Order Teknisi
+                            </button>
+                        </a>
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#doEkspedisi"
+                            class="d-grid w-100 waves-effect mb-3">
+                            <button type="button" class="btn btn-whatsapp">
+                                Create Delivery Order Ekspedisi
+                            </button>
+                        </a>
+                        {{-- <a class="btn btn-whatsapp d-grid w-100 mb-3 waves-effect"
                         href="{{ route('invoice.do_ekspedisi', $invoice->id) }}">
-                        Delivery Order Ekspidisi
-                    </a>
+                        Delivery Order Ekspedisi
+                    </a> --}}
+                    </div>
                 </div>
-            </div>
-            <div class="card mb-3">
-                <div class="card-body">
-                    <a class="btn btn-primary d-grid w-100 mb-3 waves-effect"
-                        href="{{ route('invoice.label_detail', $invoice->id) }}">
-                        Cetak Sampul Surat
-                    </a>
+                @php
+                    $eks = 0;
+                    $tek = 0;
+                @endphp
+                @if ($doTek->count() >= 1 || $doEks->count() >= 1)
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            @foreach ($doTek as $teknisi)
+                                @php
+                                    $tek++;
+                                @endphp
+                                <a class="btn btn-whatsapp d-grid w-100 mb-3 waves-effect"
+                                    href="{{ route('delivery.show', $teknisi->id) }}">
+                                    Delivery Order Teknisi ({{ $tek }})
+                                </a>
+                            @endforeach
+                            @foreach ($doEks as $ekspedisi)
+                                @php
+                                    $eks++;
+                                @endphp
+                                <a class="btn btn-whatsapp d-grid w-100 mb-3 waves-effect"
+                                    href="{{ route('delivery.show', $ekspedisi->id) }}">
+                                    Delivery Order Ekspedisi ({{ $eks }})
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <a class="btn btn-primary d-grid w-100 mb-3 waves-effect"
+                            href="{{ route('invoice.label_detail', $invoice->id) }}">
+                            Cetak Sampul Surat
+                        </a>
+                    </div>
                 </div>
-            </div>
+            @endif
             {{-- End : Button Invoice --}}
         </div>
         @include('components.modal.quotation.detail-payment')
         @include('components.modal.accounting.sign')
-        @include('components.modal.accounting.date')
+        @include('components.modal.invoice.date')
+        @include('components.modal.accounting.delivery.create-teknisi')
+        @include('components.modal.accounting.delivery.create-ekspedisi')
     @endsection
     @push('after-style')
         <!-- Page CSS -->
@@ -727,6 +767,23 @@
                 window.history.back();
             });
             $(() => {
+
+                const dateInput = document.getElementById('dateInput');
+                const resetCheckbox = document.getElementById('checkDate');
+
+                // Saat checkbox di-check
+                resetCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        dateInput.value = ''; // Hapus nilai date
+                    }
+                });
+
+                // Saat input tanggal diisi
+                dateInput.addEventListener('input', function() {
+                    if (this.value) {
+                        resetCheckbox.checked = false; // Uncheck checkbox
+                    }
+                });
                 $('#formFileMultiple').on('change', function() {
                     var files = this.files;
                     var dynamicInputsContainer = $('#dynamicInputsContainer');

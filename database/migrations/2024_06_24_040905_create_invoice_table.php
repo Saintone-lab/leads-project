@@ -23,8 +23,8 @@ return new class extends Migration
             $table->string("no_invoice")->nullable();
             $table->string("sign")->nullable();
             $table->enum('invoiceTo', ['1','2'])->nullable();
-            $table->enum('doTo', ['1','2'])->nullable();
-            $table->date('dateDo');
+            // $table->enum('doTo', ['1','2'])->nullable();
+            // $table->date('dateDo');
             $table->date('date');
             $table->timestamps();
         });
