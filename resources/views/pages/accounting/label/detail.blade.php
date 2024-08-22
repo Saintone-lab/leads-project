@@ -21,7 +21,8 @@
                                 <p class="mb-1 mx-2 fw-bolder text-black">PT Reftech Jaya Optima</p>
                                 <p class="mb-1 mx-2 fw-bolder fs-tiny"><span class="text-danger">Compressor</span> | <span
                                         class="text-success">Sparepart</span> | <span class="text-grey">Rental</span> |
-                                    <span class="text-info">Service</span></p>
+                                    <span class="text-info">Service</span>
+                                </p>
                                 <p class="mb-1 mx-2 fw-bolder fs-tiny"
                                     style="border-bottom: 1px solid black; width:fit-content;">
                                     Office :</p>
@@ -69,7 +70,11 @@
                                     <p class="mb-0 fw-semibold p-4 py-0">ALAMAT</p>
                                 </div>
                                 <div class="col-8">
-                                    <p class="mb-0 ">: {{ $quote->pic->client->address }}</p>
+                                    @if ($invoice->invoiceTo == '1')
+                                        <p class="mb-0 ">: {{ $quote->pic->client->address }}</p>
+                                    @else
+                                        <p class="mb-0 ">: {{ $quote->pic->client->subAddress }}</p>
+                                    @endif
                                 </div>
                                 <div class="col-4 px-0">
                                     <p class="mb-0 fw-semibold p-4 py-0">Attn.</p>
@@ -168,7 +173,11 @@
                                     <p class="mb-0 fw-semibold p-4 py-0">ALAMAT</p>
                                 </div>
                                 <div class="col-8">
-                                    <p class="mb-0 ">: {{ $quote->pic->client->address }}</p>
+                                    @if ($invoice->invoiceTo == '1')
+                                        <p class="mb-0 ">: {{ $quote->pic->client->address }}</p>
+                                    @else
+                                        <p class="mb-0 ">: {{ $quote->pic->client->subAddress }}</p>
+                                    @endif
                                 </div>
                                 <div class="col-4 px-0">
                                     <p class="mb-0 fw-semibold p-4 py-0">Attn.</p>
@@ -215,7 +224,7 @@
                 </div>
             </div>
         </div>
-        @include('components.modal.accounting.delivery.form-teknisi')
+        @include('components.modal.accounting.delivery.change-date-label')
     @endsection
     @push('after-style')
         <!-- Page CSS -->

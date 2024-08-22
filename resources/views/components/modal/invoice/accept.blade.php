@@ -23,14 +23,23 @@
                                         } else {
                                             $code = 'KII';
                                         }
-                                        
+
                                     @endphp
                                     <div class="form-floating form-floating-outline">
                                         <input class="form-control form-control-sm" type="text"
-                                            value="{{ $quote->tax != 0 ? $nextCodeP . '/SJ-P/'. $code . '/' . $monthCode . '/' . $year : $nextCodeNP . '/SJ-NP/'. $code .'/' . $monthCode . '/' . $year }}"
+                                            value="{{ $quote->tax != 0 ? $nextCodeP . '/SJ-P/' . $code . '/' . $monthCode . '/' . $year : $nextCodeNP . '/SJ-NP/' . $code . '/' . $monthCode . '/' . $year }}"
                                             placeholder="Put No Invoice Here ...." id="invoice" name="invoice">
                                         <label for="invoice">No Invoice</label>
                                     </div>
+
+                                    <p class="text-danger text-start">
+                                        Last No :
+                                        @if ($quote->tax == '11')
+                                            {{ @$lastInvoiceP->no_invoice }}
+                                        @elseif ($quote->tax == '0')
+                                            {{ @$lastInvoiceNP->no_invoice }}
+                                        @endif
+                                    </p>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <div class="form-floating form-floating-outline">

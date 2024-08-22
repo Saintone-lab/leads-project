@@ -167,4 +167,21 @@ class DeliveryController extends Controller
             return redirect('/delivery/' . $id)->with('massage', 'Data telah terkirim');
         }
     }
+    public function change_date_label(Request $request, $id)
+    {
+        $invoice = Invoice::find($id);
+
+        if (@$request->check == '1') {
+            $invoice->date = NULL;
+        } else {
+            $invoice->date = $request->date;
+        }
+
+        $invoice->invoiceTo = $request->destination;
+        $status = $invoice->save();
+
+        if ($status) {
+            return redirect('/invoice/label_detail/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
 }

@@ -27,7 +27,7 @@
                     </div>
                 </div>
                 <div class="text-end">
-                    <h1 class="fw-bold title-reftech">INVOICE dasd</h1>
+                    <h1 class="fw-bold title-reftech">INVOICE</h1>
                     <div>
                         <span class="fw-bolder text-black">#{{ $invoice->no_invoice }}</span>
                     </div>

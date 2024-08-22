@@ -161,7 +161,14 @@
                     <div class="row">
                         <div class="col-4 my-5 text-center">
                             <div class="pb-5"></div>
-                            <p class="fw-bold mx-3 mb-0" style="border-top: 1px solid black ">PT. Reftech Jaya Optima</p>
+                            @if ($delivery->invoice->flag == 'Reftech')
+                                <p class="fw-bold mx-3 mb-0" style="border-top: 1px solid black ">PT. Reftech Jaya Optima
+                                </p>
+                            @else
+                                <p class="fw-bold mx-3 mb-0" style="border-top: 1px solid black ">PT. Kojisha Innotiv
+                                    Indonesia
+                                </p>
+                            @endif
                             <p>Shipper</p>
                         </div>
                         <div class="col-4"></div>
@@ -337,7 +344,9 @@
                                                 </div>
                                             </div>
                                             <p class="mb-0">Distribusi : Putih dan Pink → Pelanggan, <span
-                                                    class="fw-bold">Kuning → Accounting PT. Reftech</span></p>
+                                                    class="fw-bold">Kuning → Accounting
+                                                    {{ $delivery->invoice->flag == 'Reftech' ? 'PT. Reftech' : 'PT. Kojisha' }}</span>
+                                            </p>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -357,7 +366,7 @@
                         Download
                     </a>
                     <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-delivery mb-3"
-                        data-id="{{ $delivery->id }}" data-in="{{$invoice->id}}">Delete</a>
+                        data-id="{{ $delivery->id }}" data-in="{{ $invoice->id }}">Delete</a>
                     <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">
                         Back
                     </button>
@@ -393,64 +402,65 @@
                 window.history.back();
             });
             $(() => {
-                
-            $(document).on('click', '.delete-delivery', function() {
-                var id = $(this).data('id');
-                var invoice = $(this).data('in');
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "You won't be able to revert this!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Yes, delete it!",
-                    customClass: {
-                        confirmButton: "btn btn-primary me-3 waves-effect waves-light",
-                        cancelButton: "btn btn-label-secondary waves-effect",
-                    },
-                    buttonsStyling: false,
-                }).then(function(result) {
-                    if (result.value) {
-                        $.ajax({
-                            'url': '{{ url('delivery') }}/' + id,
-                            'type': 'POST',
-                            'data': {
-                                '_method': 'DELETE',
-                                '_token': '{{ csrf_token() }}'
-                            },
-                            success: function(response) {
-                                if (response == 1) {
-                                    Swal.fire({
-                                        icon: "success",
-                                        title: "Deleted!",
-                                        text: "Your file has been deleted.",
-                                        customClass: {
-                                            confirmButton: "btn btn-success waves-effect",
-                                        },
-                                    })
-                                    window.setTimeout(function() {
-                                        window.location.href = '/invoice/' + invoice;
-                                    }, 2000);
-                                } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Oops...',
-                                        text: 'Data Failed to Delete!'
-                                    });
+
+                $(document).on('click', '.delete-delivery', function() {
+                    var id = $(this).data('id');
+                    var invoice = $(this).data('in');
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "You won't be able to revert this!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, delete it!",
+                        customClass: {
+                            confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                            cancelButton: "btn btn-label-secondary waves-effect",
+                        },
+                        buttonsStyling: false,
+                    }).then(function(result) {
+                        if (result.value) {
+                            $.ajax({
+                                'url': '{{ url('delivery') }}/' + id,
+                                'type': 'POST',
+                                'data': {
+                                    '_method': 'DELETE',
+                                    '_token': '{{ csrf_token() }}'
+                                },
+                                success: function(response) {
+                                    if (response == 1) {
+                                        Swal.fire({
+                                            icon: "success",
+                                            title: "Deleted!",
+                                            text: "Your file has been deleted.",
+                                            customClass: {
+                                                confirmButton: "btn btn-success waves-effect",
+                                            },
+                                        })
+                                        window.setTimeout(function() {
+                                            window.location.href = '/invoice/' +
+                                                invoice;
+                                        }, 2000);
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Oops...',
+                                            text: 'Data Failed to Delete!'
+                                        });
+                                    }
                                 }
-                            }
-                        });
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        Swal.fire({
-                            title: "Cancelled",
-                            text: "Your imaginary file is safe :)",
-                            icon: "error",
-                            customClass: {
-                                confirmButton: "btn btn-success waves-effect",
-                            },
-                        });
-                    }
+                            });
+                        } else if (result.dismiss === Swal.DismissReason.cancel) {
+                            Swal.fire({
+                                title: "Cancelled",
+                                text: "Your imaginary file is safe :)",
+                                icon: "error",
+                                customClass: {
+                                    confirmButton: "btn btn-success waves-effect",
+                                },
+                            });
+                        }
+                    });
                 });
-            });
             });
         </script>
     @endpush

@@ -240,6 +240,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/invoice/print/{id}', [InvoiceController::class, 'print_invoice'])->name('print.invoice');
     Route::post('/invoice/sign/{id}', [InvoiceController::class, 'hand_sign'])->name('invoice.sign');
     Route::post('/invoice/date/{id}', [InvoiceController::class, 'change_date'])->name('invoice.date');
+    Route::post('/invoice/date-label/{id}', [DeliveryController::class, 'change_date_label'])->name('invoice.date_label');
     Route::get('/invoice/do_ekspedisi/{id}', [InvoiceController::class, 'do_ekspedisi'])->name('invoice.do_ekspedisi');
     Route::get('/invoice/print_ekspedisi/{id}', [InvoiceController::class, 'print_ekspedisi'])->name('invoice.print_ekspedisi');
     Route::post('/invoice/form_ekspedisi/{id}', [InvoiceController::class, 'form_ekspedisi'])->name('invoice.form_ekspedisi');
@@ -453,6 +454,7 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.tax', '11')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
+            ->orderBy('no_invoice', 'ASC')
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
         ;
         return response()->json(['data' => $invoice]);
@@ -467,6 +469,7 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.tax', '0')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
+            ->orderBy('no_invoice', 'ASC')
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
         ;
         return response()->json(['data' => $invoice]);
@@ -481,6 +484,7 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.tax', '11')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
+            ->orderBy('no_invoice', 'ASC')
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
         ;
         return response()->json(['data' => $invoice]);
@@ -495,6 +499,7 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.tax', '0')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
+            ->orderBy('no_invoice', 'ASC')
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
         ;
         return response()->json(['data' => $invoice]);

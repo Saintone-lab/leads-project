@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_pic');
             $table->foreignId('id_sales');
+            $table->foreignId('id_admin')->nullable();
             $table->foreignId('id_service')->nullable();
             $table->string('no_pr')->nullable();
             $table->enum('destination',['1', '2']);
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->integer('status');
             $table->date('status_date');
             $table->string('note');
+            $table->longText('comment');
             $table->enum('flag',['Reftech','Kojisha']);
             $table->date('estimated_date');
             $table->date('expired_date');

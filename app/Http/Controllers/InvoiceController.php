@@ -161,6 +161,7 @@ class InvoiceController extends Controller
         $monthCode = $this->convertToRoman($month);
         $lastInvoiceP = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
         $lastInvoiceNP = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
+        // dd($lastInvoiceNP);
         function generateNextInvoiceNumber($lastInvoice, $defaultCode)
         {
             if ($lastInvoice) {

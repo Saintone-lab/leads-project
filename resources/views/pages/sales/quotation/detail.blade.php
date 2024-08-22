@@ -399,7 +399,7 @@
                                     Selling
                                     Contract</a>
                             @endif
-                            @if (Auth::user()->id == '1')
+                            @if (Auth::user()->id == '1' || Auth::user()->id == '16')
                                 @if ($orderContract)
                                     <a class="btn btn-google-plus d-grid w-100 mb-3 waves-effect"
                                         href="{{ route('contract.show', $orderContract->id) }}">

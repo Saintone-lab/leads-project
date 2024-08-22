@@ -539,7 +539,6 @@ class QuotationController extends Controller
         $invoice->flag = $quote->flag;
         $invoice->type = 'BP';
         $invoice->date = Carbon::today();
-        $invoice->dateDo = Carbon::today();
         $invoice->term = NULL;
         $invoice->invoiceTo = NULL;
         $invoice->sign = NULL;
@@ -594,7 +593,6 @@ class QuotationController extends Controller
                 $invoice->no_invoice = NULL;
                 $invoice->type = 'CT';
                 $invoice->date = Carbon::today();
-                $invoice->dateDo = Carbon::today();
                 $invoice->term = NULL;
                 $invoice->invoiceTo = NULL;
                 $invoice->sign = NULL;

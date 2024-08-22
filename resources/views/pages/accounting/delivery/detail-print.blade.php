@@ -83,7 +83,8 @@
                                         <p class="mb-1">Adress</p>
                                     </div>
                                     <div class="col-8">
-                                        <p class="mb-1" style="font-size: 15px">: {{ $invoice->quote->pic->client->company }}
+                                        <p class="mb-1" style="font-size: 15px">:
+                                            {{ $invoice->quote->pic->client->company }}
                                         </p>
                                         @if ($invoice->invoiceTo == '1')
                                             <pre
@@ -165,7 +166,14 @@
             <div class="row">
                 <div class="col-4 my-5 text-center">
                     <div class="pb-5"></div>
-                    <p class="fw-bold mx-3 mb-0" style="border-top: 1px solid black ">PT. Reftech Jaya Optima</p>
+                    @if ($delivery->invoice->flag == 'Reftech')
+                        <p class="fw-bold mx-3 mb-0" style="border-top: 1px solid black ">PT. Reftech Jaya Optima
+                        </p>
+                    @else
+                        <p class="fw-bold mx-3 mb-0" style="border-top: 1px solid black ">PT. Kojisha Innotiv
+                            Indonesia
+                        </p>
+                    @endif
                     <p>Shipper</p>
                 </div>
                 <div class="col-4"></div>
@@ -333,7 +341,9 @@
                                     </div>
                                 </div>
                                 <p class="mb-0">Distribusi : Putih dan Pink → Pelanggan, <span
-                                        class="fw-bold">Kuning → Accounting PT. Reftech</span></p>
+                                        class="fw-bold">Kuning → Accounting
+                                        {{ $delivery->invoice->flag == 'Reftech' ? 'PT. Reftech' : 'PT. Kojisha' }}</span></span>
+                                </p>
                             </td>
                         </tr>
                     </tbody>
