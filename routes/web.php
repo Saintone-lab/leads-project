@@ -93,6 +93,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/quotation/{id}/convert_po', [QuotationController::class, 'convert_po'])->name('convert-po.quotation');
     Route::post('/quotation/{id}/request_bp', [QuotationController::class, 'request_bp'])->name('request-bp.quotation');
     Route::post('/quotation/{id}/upload_po', [QuotationController::class, 'upload_po'])->name('upload-po.quotation');
+    Route::post('/quotation/{id}/mentions', [QuotationController::class, 'add_mention'])->name('add_mention.quotation');
     Route::get('/quotation/{id}/download_po', [QuotationController::class, 'download_po'])->name('download-po.quotation');
     Route::delete('/quotation/{id}/delete_po', [QuotationController::class, 'delete_po'])->name('delete-po.quotation');
     Route::post('/quotation/{id}/insert_fee', [QuotationController::class, 'insert_fee'])->name('insert_fee.quotation');
@@ -248,9 +249,11 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/invoice/print_teknisi/{id}', [InvoiceController::class, 'print_teknisi'])->name('invoice.print_teknisi');
     Route::post('/invoice/form_teknisi/{id}', [InvoiceController::class, 'form_teknisi'])->name('invoice.form_teknisi');
     Route::delete('/invoice/del-sign/{id}', [InvoiceController::class, 'delete_hand_sign'])->name('invoice.del-sign');
+    Route::post('/invoice/pph/{id}', [InvoiceController::class, 'add_pph'])->name('invoice.pph');
+    Route::delete('/invoice/del-pph/{id}', [InvoiceController::class, 'delete_pph'])->name('invoice.del-pph');
     Route::get('/invoice/label_detail/{id}', [InvoiceController::class, 'label_detail'])->name('invoice.label_detail');
     Route::get('/invoice/label_print/{id}', [InvoiceController::class, 'label_print'])->name('invoice.label_print');
-    
+
     Route::resource('/delivery', DeliveryController::class);
     Route::get('/delivery/print/{id}', [DeliveryController::class, 'print_delivery'])->name('print.delivery');
     Route::post('/delivery/change_date/{id}', [DeliveryController::class, 'change_date'])->name('change_date.delivery');
@@ -421,6 +424,12 @@ Route::group(["middleware" => "auth"], function () {
         require_once base_path('app/api/quotation/connectionArchive.php');
     });
     Route::get('/db/quotation/sales/{id}', function ($id) {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $id)->where('quotation.level', '1')->get(['quotation.*', 'client.company']);
+        return response()->json(['data' => $quotation]);
+    });
+    Route::get('/db/quotation/mentions/{id}', function ($id) {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $id)->where('quotation.level', '1')->get(['quotation.*', 'client.company']);
@@ -643,7 +652,7 @@ Route::group(["middleware" => "auth"], function () {
 
         $month = $dateCarbon->month;
         $year = $dateCarbon->year;
-        $data = Quotation::join('pic', 'quotation.id_pic', '=', 'pic.id')->join('client', 'pic.id_client', '=', 'client.id')->where('quotation.id_sales', $sales)->whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->get(['no_quote', 'client.company', 'nett', 'title', 'estimated_date', 'status', 'quotation.note', 'quotation.id']);
+        $data = Quotation::join('pic', 'quotation.id_pic', '=', 'pic.id')->join('client', 'pic.id_client', '=', 'client.id')->where('level', '1')->where('quotation.id_sales', $sales)->whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->get(['no_quote', 'client.company', 'nett', 'title', 'estimated_date', 'status', 'quotation.note', 'quotation.id']);
         return response()->json(['data' => $data]);
     });
     Route::get('/db/overview/po/{sales}/{date}', function ($sales, $date) {
@@ -656,6 +665,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('client', 'pic.id_client', '=', 'client.id')
             ->where('quotation.id_sales', $sales)
             ->where('quotation.status', '100')
+            ->where('level', '1')
             ->whereMonth('po_date', $month)
             ->whereYear('po_date', $year)
             ->get(['no_quote', 'client.company', 'nett', 'title', 'po_date', 'status', 'quotation.note', 'quotation.id']);
@@ -669,7 +679,7 @@ Route::group(["middleware" => "auth"], function () {
     });
 
     Route::get('/db/client/po-history/{id}', function ($id) {
-        $data = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('quotation.status', '100')->where('pic.id_client', $id)->get('quotation.*');
+        $data = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('level', '1')->where('quotation.status', '100')->where('pic.id_client', $id)->get('quotation.*');
         return response()->json(['data' => $data]);
     });
     Route::get('/db/client/crm-history/{id}', function ($id) {

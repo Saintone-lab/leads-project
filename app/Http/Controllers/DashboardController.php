@@ -472,6 +472,7 @@ class DashboardController extends Controller
                         ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                         ->where(DB::raw('WEEK(po_date, 4)'), $weekKey)
                         ->where('status', '100')
+                        ->where('level', '1')
                         ->where('id_sales', $salesId)
                         ->pluck('total')
                         ->first(); // Mengambil total aktivitas

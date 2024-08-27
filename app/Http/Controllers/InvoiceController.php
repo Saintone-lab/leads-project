@@ -73,10 +73,12 @@ class InvoiceController extends Controller
         $price = $this->terbilang(@$harga->amount);
         $fullPrice = $this->terbilang($quote->harga_total);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
+        // $pph = $quote->subtotal * $invoice->pph / 100;
+        // dd($pph);
         $afterDisc = $quote->subtotal - $quote->diskon;
 
-        $doTek = Delivery::where('id_invoice', $id)->where('type','teknisi')->get();
-        $doEks = Delivery::where('id_invoice', $id)->where('type','ekspedisi')->get();
+        $doTek = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->get();
+        $doEks = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->get();
 
         return view('pages.accounting.invoice.detail', compact('return', 'quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
     }
@@ -221,6 +223,7 @@ class InvoiceController extends Controller
         $price = $this->terbilang(@$harga->amount);
         $fullPrice = $this->terbilang($quote->harga_total);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
+        // $pph = $quote->subtotal * $invoice->pph / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
         // dd($termncon);
         return view("pages.accounting.invoice.detail-print", compact('quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
@@ -289,7 +292,7 @@ class InvoiceController extends Controller
         $invoice = Invoice::find($id);
 
         $invoice->date = $request->date;
-        $invoice->invoiceTo = $request->destination;
+        // $invoice->invoiceTo = $request->destination;
         $invoiceSave = $invoice->save();
 
         if ($invoiceSave) {
@@ -375,6 +378,35 @@ class InvoiceController extends Controller
         $quote = Quotation::find($invoice->id_quotation);
 
         return view("pages.accounting.label.detail-print", compact('quote', 'invoice'));
+    }
+
+    public function add_pph(Request $request, $id)
+    {
+        $invoice = Invoice::find($id);
+        $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
+        foreach ($dQuote as $item => $value) {
+            $value->pph = $request->pph[$item];
+            $status = $value->save();
+        }
+        if ($status) {
+            return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
+
+    public function delete_pph($id)
+    {
+        $invoice = Invoice::find($id);
+        $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
+        foreach ($dQuote as $item => $value) {
+            $value->pph = 0;
+            $status = $value->save();
+        }
+        if ($status) {
+            return 1;
+        } else {
+            return 0;
+        }
+
     }
     private function terbilang($number)
     {

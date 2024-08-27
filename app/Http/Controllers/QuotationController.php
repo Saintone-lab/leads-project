@@ -143,6 +143,7 @@ class QuotationController extends Controller
                 $dQuote->info_qty = $request->info_qty[$item];
                 $dQuote->disc = $request->disc[$item];
                 $dQuote->amount = $request->amount[$item];
+                $dQuote->pph = 0;
                 $dQuoteSave = $dQuote->save();
             }
             if ($dQuoteSave) {
@@ -185,6 +186,7 @@ class QuotationController extends Controller
         $dquote = DetailQuotation::where('id_quotation', $id)->get();
         $payments = Payment::where('id_quotation', $id)->get();
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn']);
+        $admin = User::where('role', 'Admin')->get();
         $noQuote = substr($quote->no_quote, 0, 3);
         $today = Carbon::now();
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
@@ -197,7 +199,7 @@ class QuotationController extends Controller
 
         $remaining = $quote->harga_total - $totalAmount;
         // dd($formattedNumberSP);
-        return view("pages.sales.quotation.detail", compact('quote', 'dquote', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
+        return view("pages.sales.quotation.detail", compact('quote', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
 
     /**
@@ -292,6 +294,7 @@ class QuotationController extends Controller
                 $dQuote->info_qty = $request->info_qty[$item];
                 $dQuote->disc = $request->disc[$item];
                 $dQuote->amount = $request->amount[$item];
+                $dQuote->pph = 0;
                 $dQuoteSave = $dQuote->save();
             }
             if ($dQuoteSave) {
@@ -423,11 +426,11 @@ class QuotationController extends Controller
     {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        $quotation = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->get();
-        $forecast = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
-        $prospect = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->where('status', '80')->sum('nett');
-        $po = Quotation::where('id_sales', $id)->whereMonth('po_date', $monthNow)->where('status', '100')->sum('nett');
-        $loss = Quotation::where('id_sales', $id)->whereMonth('estimated_date', $monthNow)->where('status', '0')->sum('nett');
+        $quotation = Quotation::where('id_sales', $id->where('level', '1'))->whereMonth('estimated_date', $monthNow)->get();
+        $forecast = Quotation::where('id_sales', $id)->where('level', '1')->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
+        $prospect = Quotation::where('id_sales', $id)->where('level', '1')->whereMonth('estimated_date', $monthNow)->where('status', '80')->sum('nett');
+        $po = Quotation::where('id_sales', $id)->where('level', '1')->whereMonth('po_date', $monthNow)->where('status', '100')->sum('nett');
+        $loss = Quotation::where('id_sales', $id)->where('level', '1')->whereMonth('estimated_date', $monthNow)->where('status', '0')->sum('nett');
         return view('pages.sales.quotation.sales', compact('quotation', 'forecast', 'prospect', 'po', 'loss'));
     }
 
@@ -435,7 +438,7 @@ class QuotationController extends Controller
     {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        $quotation = Quotation::where('id_sales', $id)->whereMonth('po_date', $monthNow)->get();
+        $quotation = Quotation::where('id_sales', $id)->where('level', '1')->whereMonth('po_date', $monthNow)->get();
         return view('pages.sales.quotation.po.sales', compact('quotation'));
     }
 
@@ -623,7 +626,7 @@ class QuotationController extends Controller
     public function delete_po($id)
     {
         $quote = Quotation::find($id);
-        $invoice = Invoice::where('id_quotation', $id)->first();
+        $invoice = Invoice::where('id_quotation', $id)->get();
 
         if (!$quote) {
             return response()->json(['error' => 'Quotation not found.'], 404);
@@ -632,7 +635,9 @@ class QuotationController extends Controller
         $file_path = public_path($quote->po_file);
 
         if (file_exists($file_path)) {
-            $invoice->delete();
+            foreach ($invoice as $key => $value) {
+                $invoice->delete();
+            }
             unlink($file_path);
             $quote->po_file = null;
             $quote->upload_date = null;
@@ -785,6 +790,16 @@ class QuotationController extends Controller
             return 1;
         } else {
             return 0;
+        }
+    }
+
+    public function add_mention(Request $request, $id){
+        $quote = Quotation::find($id);
+        $quote->mention = $request->mention;
+        $quote->note = $request->note;
+        $status = $quote->save();
+        if ($status) {
+            return redirect('/quotation/'. $id)->with('massage','Data berhasil di buat');
         }
     }
 

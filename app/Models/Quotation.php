@@ -20,6 +20,7 @@ class Quotation extends Model
     protected $fillable = [
         'id_pic',
         'id_sales',
+        'id_admin',
         'id_service',
         'destination',
         'no_pr',

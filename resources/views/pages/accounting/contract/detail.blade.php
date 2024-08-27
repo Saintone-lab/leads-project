@@ -102,7 +102,7 @@
                             <p class="mb-1">Email :</p>
                         </div>
                         <div class="col-3 text-end">
-                            <p class="mb-1"> PT Reftech Jaya Optima
+                            <p class="mb-1"> {{$contract->type == 'Selling' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia'}}
                             </p>
                             <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                         </div>

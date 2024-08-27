@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('info_qty')->nullable(); // detail
             $table->integer('disc');
             $table->integer('fee');
+            $table->integer('pph');
             $table->integer('price'); // detail
             $table->integer('amount'); // detail
             $table->timestamps();

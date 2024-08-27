@@ -17,17 +17,29 @@
                                         </span>
                                     </span>
                                 </div>
-                                <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
-                                <div style="font-size: 10px">
-                                    <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
-                                    <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                                    <p class="mb-1">
-                                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
-                                        {{ '   ' }}<i
-                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@reftech.id
-                                    </p>
-                                    <p class="mb-1">
-                                    </p>
+                                <div class="d-flex justify-content-between">
+                                    <div class="info">
+                                        <p class="mb-1 fw-bolder">Office Address :</p>
+                                        <div style="font-size: 10px">
+                                            <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
+                                            <p class="mb-1">Bandung – Jawa Barat 40218</p>
+                                            <p class="mb-1">
+                                                <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022
+                                                54417653
+                                                {{ '   ' }}<i
+                                                    class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@reftech.id
+                                            </p>
+                                            <p class="mb-1">
+                                            </p>
+                                            <p class="mb-1 text-black fw-medium p-1"
+                                                style="background-color: rgb(224, 221, 255)">NPWP : 73.728.571.8-429.000</p>
+                                        </div>
+                                    </div>
+                                    <div class="npwp_add">
+                                        <p class="mb-1 fw-bolder">NPWP Address :</p>
+                                        <pre
+                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">Komp. Negia Kencana Residence Blok B, No.2 Pasanggrahan, Ujung Berung Kota Bandung - Jawa Barat 40199</pre>
+                                    </div>
                                 </div>
                             </div>
                             <div class="text-end">
@@ -52,15 +64,28 @@
                                         </span>
                                     </span>
                                 </div>
-                                <p class="mb-1 fw-bolder">PT Kojisha Innotiv Indonesia</p>
-                                <div style="font-size: 10px">
-                                    <p class="mb-1">Jl. Nancep No. 45A, Setu</p>
-                                    <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
-                                    <p class="mb-1">
-                                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62 812-1000-0997
-                                        {{ ' | ' }}<i
-                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
-                                    </p>
+
+                                <div class="d-flex justify-content-between">
+                                    <div class="info">
+                                        <p class="mb-1 fw-bolder">Office Address :</p>
+                                        <div style="font-size: 10px">
+                                            <p class="mb-1">Jl. Nancep No. 45A, Setu</p>
+                                            <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
+                                            <p class="mb-1">
+                                                <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62
+                                                812-1000-0997
+                                                {{ ' | ' }}<i
+                                                    class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
+                                            </p>
+                                            <p class="mb-1 text-black fw-medium p-1"
+                                                style="background-color: rgb(255, 235, 221)">NPWP : 73.728.571.8-429.000</p>
+                                        </div>
+                                    </div>
+                                    <div class="npwp_add">
+                                        <p class="mb-1 fw-bolder">NPWP Address :</p>
+                                        <pre
+                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">Komp. Negia Kencana Residence Blok B, No.2 Pasanggrahan, Ujung Berung Kota Bandung - Jawa Barat 40199</pre>
+                                    </div>
                                 </div>
                             </div>
                             <div class="text-end">
@@ -95,7 +120,7 @@
                                         <div class="col-4 fw-medium">
                                             <p class="mb-1">Bill To </p>
                                             <p class="mb-1">Phone </p>
-                                            <p class="mb-1">Adress</p>
+                                            <p class="mb-1">Address</p>
                                         </div>
                                         <div class="col-8">
                                             <p class="mb-1">: {{ $quote->pic->client->company }}</p>
@@ -193,11 +218,14 @@
                         </thead>
                         <tbody>
                             @php
+                                $totalPph = 0;
                                 $no = 0;
                             @endphp
                             @foreach ($dquote as $product)
                                 @php
                                     $no++;
+                                    $pph = ($product->amount * $product->pph) / 100;
+                                    $totalPph += $pph;
                                 @endphp
                                 <tr style="font-size: 13px">
                                     <td class="align-top">{{ $no }}</td>
@@ -217,11 +245,13 @@
                                 </tr>
                             @endforeach
                             <tr class="fw-medium" style="font-size: 13px">
-                                <td colspan="3" rowspan="9" id="dynamicRows" style="border-bottom :none !important;">
+                                <td colspan="3" rowspan="9" id="dynamicRows"
+                                    style="border-bottom :none !important;">
                                 </td>
                                 <td colspan="2" id="price" class="text-end pl-4 py-0"
                                     style="padding-right: 10px !important;">
-                                    <p class="m-0">Total</p>
+                                    <p class="m-0">{{ $totalPph == 0 ? 'Total' : 'Subtotal' }}</p>
+                                    {{-- <p class="m-0">Total</p> --}}
                                 </td>
                                 <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
                                     <p class="text-end m-0">RP
@@ -270,7 +300,7 @@
                                         </td>
                                     </tr>
                                 @endif
-                                @if ($quote->tax != 0)
+                                @if ($quote->tax != 0 || $totalPph > 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
@@ -280,20 +310,32 @@
                                                 {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
                                         </td>
                                     </tr>
+                                    @if ($totalPph > 0)
+                                        <tr class="fw-medium py-0" style="font-size: 13px">
+                                            <td colspan="2" class="text-end py-0"
+                                                style="padding-right: 10px !important;">
+                                                <p class="m-0">PPH</p>
+                                            </td>
+                                            <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                                <p class="m-0 text-end">
+                                                    {{ $totalPph == '0' ? '0' : 'RP ' . number_format($totalPph, 0, '', '.') }}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    @endif
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0"
                                             style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
-                                            <p class="m-0 fw-bold">Total Include VAT</p>
-                                        </td>
+                                            <p class="m-0 fw-bold">Total</p>
+                                        </td>$
                                         <td class="pr-4 py-0"
                                             style="background-color: {{ $bgColor }}; padding-right:20px;">
                                             <p class="m-0 text-end fw-bold">
-                                                {{ $tax == '0' ? '0' : 'RP ' . number_format($quote->harga_total, 0, '', '.') }}
+                                                {{ 'RP ' . number_format($quote->harga_total - $totalPph, 0, '', '.') }}
                                             </p>
                                         </td>
                                     </tr>
                                 @endif
-                                </td>
                             @elseif ($invoice->type == 'DP')
                                 @php
                                     $amount1 = $payments[0]->amount / (1 + $quote->tax / 100);
@@ -611,6 +653,21 @@
             </div>
             <div class="card mb-3">
                 <div class="card-body">
+                    @if ($totalPph > 0)
+                        <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-pph mb-3"
+                            data-id="{{ $invoice->id }}">Delete PPH</a>
+                    @else
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#addPph"
+                            class="d-grid w-100 waves-effect mb-3">
+                            <button type="button" class="btn btn-twitter">
+                                Input PPH
+                            </button>
+                        </a>
+                    @endif
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-body">
                     @if (isset($invoice->sign))
                         <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-hand-sign mb-3"
                             data-id="{{ $invoice->id }}">Delete Hand Sign</a>
@@ -690,6 +747,7 @@
         @include('components.modal.quotation.detail-payment')
         @include('components.modal.accounting.sign')
         @include('components.modal.invoice.date')
+        @include('components.modal.invoice.pph')
         @include('components.modal.accounting.delivery.create-teknisi')
         @include('components.modal.accounting.delivery.create-ekspedisi')
     @endsection
@@ -963,6 +1021,62 @@
                                     })
                                     window.setTimeout(function() {
                                         window.location.href = '/quotation';
+                                    }, 2000);
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: 'Data Failed to Delete!'
+                                    });
+                                }
+                            }
+                        });
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            title: "Cancelled",
+                            text: "Your imaginary file is safe :)",
+                            icon: "error",
+                            customClass: {
+                                confirmButton: "btn btn-success waves-effect",
+                            },
+                        });
+                    }
+                });
+            });
+            $(document).on('click', '.delete-pph', function() {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!",
+                    customClass: {
+                        confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                        cancelButton: "btn btn-label-secondary waves-effect",
+                    },
+                    buttonsStyling: false,
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            'url': '{{ url('invoice') }}/del-pph/' + id,
+                            'type': 'POST',
+                            'data': {
+                                '_method': 'DELETE',
+                                '_token': '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                if (response == 1) {
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "Deleted!",
+                                        text: "Your file has been deleted.",
+                                        customClass: {
+                                            confirmButton: "btn btn-success waves-effect",
+                                        },
+                                    })
+                                    window.setTimeout(function() {
+                                        window.location.href = '/invoice/' + id;
                                     }, 2000);
                                 } else {
                                     Swal.fire({

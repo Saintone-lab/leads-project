@@ -156,7 +156,7 @@ class OverviewController extends Controller
 
         $month = $dateCarbon->month;
         $year = $dateCarbon->year;
-        $quotation = Quotation::where('status', '100')->where('id_sales', $sales)->whereMonth('po_date', $month)->whereYear('po_date', $year)->get();
+        $quotation = Quotation::where('status', '100')->where('id_sales', $sales)->where('level', '1')->whereMonth('po_date', $month)->whereYear('po_date', $year)->get();
         // admin
         $target = Target::where('id_sales', $sales)->first();
         $totalDC = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $month)->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->where('client.id_sales', $sales)->count();

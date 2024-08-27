@@ -226,6 +226,9 @@
                                 <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
                                     data-bs-toggle="modal" data-bs-target="#changeStatus-{{ $quote->id }}">Change
                                     Status</button>
+                                <button type="button" class="btn btn-twitter d-grid w-100 waves-effect mb-3"
+                                    data-bs-toggle="modal" data-bs-target="#addMention"> Mention
+                                </button>
                             @endif
                             @if ($quote->status == '100')
                                 <a href="#" class="btn btn-secondary d-grid w-100 waves-effect cancel-po mb-3"
@@ -491,6 +494,7 @@
     @include('components.modal.quotation.insert-fee')
     @include('components.modal.quotation.detail-fee')
     @include('components.modal.quotation.add-payment')
+    @include('components.modal.quotation.mentions')
     @include('components.modal.quotation.detail-payment')
     </div>
 @endsection
