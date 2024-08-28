@@ -161,8 +161,10 @@ class InvoiceController extends Controller
         $year = $dateNow->year;
         $month = $dateNow->month;
         $monthCode = $this->convertToRoman($month);
-        $lastInvoiceP = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
-        $lastInvoiceNP = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
+        $lastInvoicePRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->where('invoice.flag', 'Reftech')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
+        $lastInvoiceNPRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->where('invoice.flag', 'Reftech')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
+        $lastInvoicePKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->where('invoice.flag', 'Kojisha')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
+        $lastInvoiceNPKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->where('invoice.flag', 'Kojisha')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
         // dd($lastInvoiceNP);
         function generateNextInvoiceNumber($lastInvoice, $defaultCode)
         {
@@ -184,10 +186,12 @@ class InvoiceController extends Controller
                 return $defaultCode;
             }
         }
-
         // Generate next invoice numbers
-        $nextCodeP = generateNextInvoiceNumber($lastInvoiceP, '001');
-        $nextCodeNP = generateNextInvoiceNumber($lastInvoiceNP, '001');
+        $nextCodePR = generateNextInvoiceNumber($lastInvoicePRef, '001');
+        $nextCodeNPR = generateNextInvoiceNumber($lastInvoiceNPRef, '001');
+        $nextCodePK = generateNextInvoiceNumber($lastInvoicePKoj, '001');
+        $nextCodeNPK = generateNextInvoiceNumber($lastInvoiceNPKoj, '001');
+        // dd($nextCodeNPK);
 
         $totalAmount = 0;
         $quote = Quotation::find($id);
@@ -203,7 +207,7 @@ class InvoiceController extends Controller
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         $invoice = Invoice::where('id_quotation', $id)->orderBy('created_at', 'desc')->first();
         // dd($price);
-        return view('pages.accounting.invoice.before-accept', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoiceP', 'lastInvoiceNP', 'nextCodeP', 'nextCodeNP', 'year', 'monthCode'));
+        return view('pages.accounting.invoice.before-accept', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));
     }
 
     public function print_invoice($id)
@@ -226,7 +230,7 @@ class InvoiceController extends Controller
         // $pph = $quote->subtotal * $invoice->pph / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
         // dd($termncon);
-        return view("pages.accounting.invoice.detail-print", compact('quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
+        return view("pages.accounting.invoice.detail-print", compact('harga','quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
     }
 
     public function hand_sign(Request $request, $id)

@@ -78,13 +78,13 @@
                                                     class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
                                             </p>
                                             <p class="mb-1 text-black fw-medium p-1"
-                                                style="background-color: rgb(255, 235, 221)">NPWP : 73.728.571.8-429.000</p>
+                                                style="background-color: rgb(255, 235, 221)">NPWP : 96.484.859.2-413.000</p>
                                         </div>
                                     </div>
                                     <div class="npwp_add">
                                         <p class="mb-1 fw-bolder">NPWP Address :</p>
                                         <pre
-                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">Komp. Negia Kencana Residence Blok B, No.2 Pasanggrahan, Ujung Berung Kota Bandung - Jawa Barat 40199</pre>
+                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">Jl. Nancep No. 45, Setu Cisaat RT. 001 RW. 003 Cibening, Setu</pre>
                                     </div>
                                 </div>
                             </div>
@@ -598,7 +598,7 @@
                         </div>
                     @else
                         <div class="col-4 my-5 text-center">
-                            <p>Bandung, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
+                            <p>Bekasi, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
                             <p class="fs-normal fw-bolder">PT. Kojisha Innotiv Indonesia </p>
                             @if (isset($invoice->sign))
                                 <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset=""

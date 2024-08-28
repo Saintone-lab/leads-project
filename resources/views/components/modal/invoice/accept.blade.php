@@ -24,20 +24,40 @@
                                             $code = 'KII';
                                         }
 
+                                        if ($quote->flag == 'Reftech') {
+                                            $nextCode = 'RJO';
+                                        } else {
+                                            $code = 'KII';
+                                        }
+
+                                        if ($quote->tax == '11' && $invoice->flag == 'Reftech') {
+                                            $nextCode = $nextCodePR;
+                                        } elseif ($quote->tax == '0' && $invoice->flag == 'Reftech') {
+                                            $nextCode = $nextCodeNPR;
+                                        } elseif ($quote->tax == '11' && $invoice->flag == 'Kojisha') {
+                                            $nextCode = $nextCodePK;
+                                        } elseif ($quote->tax == '0' && $invoice->flag == 'Kojisha') {
+                                            $nextCode = $nextCodeNPK;
+                                        }
+
                                     @endphp
                                     <div class="form-floating form-floating-outline">
                                         <input class="form-control form-control-sm" type="text"
-                                            value="{{ $quote->tax != 0 ? $nextCodeP . '/SJ-P/' . $code . '/' . $monthCode . '/' . $year : $nextCodeNP . '/SJ-NP/' . $code . '/' . $monthCode . '/' . $year }}"
+                                            value="{{ $quote->tax != 0 ? $nextCode . '/SJ-P/' . $code . '/' . $monthCode . '/' . $year : $nextCode . '/SJ-NP/' . $code . '/' . $monthCode . '/' . $year }}"
                                             placeholder="Put No Invoice Here ...." id="invoice" name="invoice">
                                         <label for="invoice">No Invoice</label>
                                     </div>
 
                                     <p class="text-danger text-start">
                                         Last No :
-                                        @if ($quote->tax == '11')
-                                            {{ @$lastInvoiceP->no_invoice }}
-                                        @elseif ($quote->tax == '0')
-                                            {{ @$lastInvoiceNP->no_invoice }}
+                                        @if ($quote->tax == '11' && $invoice->flag == 'Reftech')
+                                            {{ @$lastInvoicePR->no_invoice }}
+                                        @elseif ($quote->tax == '0' && $invoice->flag == 'Reftech')
+                                            {{ @$lastInvoiceNPR->no_invoice }}
+                                        @elseif($quote->tax == '11' && $invoice->flag == 'Kojisha')
+                                            {{ @$lastInvoicePK->no_invoice }}
+                                        @elseif ($quote->tax == '0' && $invoice->flag == 'Kojisha')
+                                            {{ @$lastInvoiceNPK->no_invoice }}
                                         @endif
                                     </p>
                                 </div>

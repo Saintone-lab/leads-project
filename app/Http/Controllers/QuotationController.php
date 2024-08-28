@@ -101,6 +101,8 @@ class QuotationController extends Controller
         $quotation->id_pic = $request->id_pic;
         $quotation->id_sales = $request->id_sales;
         $quotation->id_service = NULL;
+        $quotation->is_primary = "1";
+        $quotation->num_rev = 0;
         $quotation->destination = $request->destination;
         $quotation->no_pr = NULL;
         $quotation->status = "20";
@@ -130,6 +132,8 @@ class QuotationController extends Controller
         $quotation->total_no_tax = $request->total_no_tax;
         $quotation->harga_total = $request->harga_total;
         $quoteSave = $quotation->save();
+        $quotation->primary_id = $quotation->id;
+        $quotation->save();
         if ($quoteSave) {
             // Masukan Data Ke Tabel Detail Quotataion
             foreach ($request->product as $item => $value) {
@@ -182,6 +186,9 @@ class QuotationController extends Controller
         $formattedNumberCP = str_pad($numberCP->count() + 1, 3, '0', STR_PAD_LEFT);
         $formattedNumberCNP = str_pad($numberCNP->count() + 1, 3, '0', STR_PAD_LEFT);
         $quote = Quotation::find($id);
+        $quotations = Quotation::where('primary_id', $quote->primary_id)->get();
+        $lastQuote = Quotation::where('primary_id', $quote->primary_id)->orderByDesc('num_rev')->first();
+        $primQuote = Quotation::where('primary_id', $quote->primary_id)->where('is_primary', '1')->first();
         $invoice = Invoice::where('id_quotation', $id)->get();
         $dquote = DetailQuotation::where('id_quotation', $id)->get();
         $payments = Payment::where('id_quotation', $id)->get();
@@ -199,9 +206,8 @@ class QuotationController extends Controller
 
         $remaining = $quote->harga_total - $totalAmount;
         // dd($formattedNumberSP);
-        return view("pages.sales.quotation.detail", compact('quote', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
+        return view("pages.sales.quotation.detail", compact('quote', 'lastQuote', 'primQuote', 'quotations', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -223,6 +229,7 @@ class QuotationController extends Controller
     public function update(Request $request, $id)
     {
         $quote = Quotation::where('id', $id)->first();
+        $lastQuote = Quotation::where('primary_id', $quote->primary_id)->orderByDesc('num_rev')->first();
         $detquote = DetailQuotation::where('id_quotation', $id)->get();
         $rule = [
             'no_quote' => 'required',
@@ -248,10 +255,16 @@ class QuotationController extends Controller
         $this->validate($request, $rule, $message);
         // dd($request->all());
         // Masukan Data ke Tabel Quotataion
+        $quote->is_primary = '0';
+        $quote->save();
+
         $quotation = new Quotation();
         $quotation->id_pic = $request->id_pic;
         $quotation->id_sales = $request->id_sales;
         $quotation->id_service = NULL;
+        $quotation->primary_id = $quote->primary_id;
+        $quotation->is_primary = '1';
+        $quotation->num_rev = $lastQuote->num_rev + 1;
         $quotation->destination = $quote->destination;
         if ($request->no_pr != NULL) {
             $quotation->no_pr = $request->no_pr;
@@ -800,6 +813,22 @@ class QuotationController extends Controller
         $status = $quote->save();
         if ($status) {
             return redirect('/quotation/'. $id)->with('massage','Data berhasil di buat');
+        }
+    }
+
+    public function change_primary(Request $request, $id){
+        $quote = Quotation::find($id);
+        $quotations = Quotation::where("primary_id", $quote->primary_id)->get();
+        foreach ($quotations as $quotation) {
+            $quotation->is_primary = '0';
+            $quotation->save();
+        }
+        $quote->is_primary = '1';
+        $quoteSave = $quote->save();
+        if ($quoteSave) {
+            return response()->json(['success' => 'Status berhasil diperbarui']);
+        } else {
+            return response()->json(['error' => 'Gagal menyimpan perubahan status'], 500);
         }
     }
 

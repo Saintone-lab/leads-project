@@ -19,20 +19,27 @@ return new class extends Migration
             $table->foreignId('id_sales');
             $table->foreignId('id_admin')->nullable();
             $table->foreignId('id_service')->nullable();
+            $table->integer('primary_id');
+            $table->enum('is_primary',['1', '2']);
+            $table->integer('num_rev');
             $table->string('no_pr')->nullable();
             $table->enum('destination',['1', '2']);
             $table->string('title');
             $table->integer('status');
-            $table->date('status_date');
             $table->string('note');
             $table->longText('comment');
             $table->enum('flag',['Reftech','Kojisha']);
+
+            //Quote Date
+            $table->date('status_date');
             $table->date('estimated_date');
             $table->date('expired_date');
             $table->date('po_date')->nullable();
             $table->date('upload_date')->nullable();
+
             $table->string('po_file')->nullable();
             $table->enum('level',['0', '1']);
+            //price 
             $table->integer('tax');
             $table->integer('shipping');
             $table->string('no_quote');

@@ -16,11 +16,11 @@
             @if (Auth::user()->code == 'YH')
                 <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
                     aria-describedby="floatingInputFilledHelp" name="no_quote"
-                    value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote . '-REV-' : $formattedNumberQ . '-P-BDG-RJO-' . Auth::user()->code . '-' . $formattedMonthNow . '-' . \Carbon\Carbon::now()->year) }}">
+                    value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote : $formattedNumberQ . '-P-BDG-RJO-' . Auth::user()->code . '-' . $formattedMonthNow . '-' . \Carbon\Carbon::now()->year) }}">
             @else
                 <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
                     aria-describedby="floatingInputFilledHelp" name="no_quote"
-                    value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote . '-REV-' : $formattedNumberQ . '-P/BDG/RJO-' . Auth::user()->code . '/' . $formattedMonthNow . '/' . \Carbon\Carbon::now()->year) }}">
+                    value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote : $formattedNumberQ . '-P/BDG/RJO-' . Auth::user()->code . '/' . $formattedMonthNow . '/' . \Carbon\Carbon::now()->year) }}">
             @endif
             <label for="floatingInputFilled">Number Quotation</label>
             <span class="form-floating-focused"></span>

@@ -1,6 +1,13 @@
 @extends('layouts.sales.app')
 @section('title', 'Detail Quotation')
 @section('content')
+    @php
+        if ($quote->flag == 'Reftech') {
+            $bgColor = 'rgb(224, 248, 248)';
+        } else {
+            $bgColor = 'rgb(255, 232, 210)';
+        }
+    @endphp
     <div class="row invoice-preview">
         {{-- Invoice --}}
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
@@ -35,6 +42,12 @@
                                 <div>
                                     <span class="fw-bolder">#{{ $quote->no_quote }}</span>
                                 </div>
+                                @if ($quote->num_rev >= 1)
+                                    <div class="mt-1">
+                                        <span class="fw-bolder py-1 px-2" style="background-color: {{ $bgColor }}; border-radius: 10px;">REV -
+                                            {{ $quote->num_rev }}</span>
+                                    </div>
+                                @endif
                                 <div class="mt-1">
                                     <span
                                         class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
@@ -72,6 +85,12 @@
                                 <div>
                                     <span class="fw-bolder">#{{ $quote->no_quote }}</span>
                                 </div>
+                                @if ($quote->num_rev >= 1)
+                                    <div class="mt-1">
+                                        <span class="fw-bolder py-1 px-2" style="background-color: {{ $bgColor }}; border-radius: 10px;">REV -
+                                            {{ $quote->num_rev }}</span>
+                                    </div>
+                                @endif
                                 <div class="mt-1">
                                     <span
                                         class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
@@ -214,6 +233,26 @@
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="form-floating form-floating-outline mb-2">
+                        <select class="form-select change-primary" name="changePrimary" id="changePrimary"
+                            aria-label="Default select example">
+                            @foreach ($quotations as $item)
+                                <option data-id="{{ $item->id }}" value="{{ $item->id }}"
+                                    {{ $item->is_primary == '1' ? 'Selected' : '' }}>
+                                    {{ $item->no_quote }}{{ $item->num_rev >= 1 ? '-REV-' . $item->num_rev : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <label for="changePrimary">Primary Quote</label>
+                    </div>
+                    <a class="btn btn-outline-primary d-grid w-100 mb-3 waves-effect"
+                        href="{{ route('revisi.quotation', $primQuote->id) }}">
+                        + Revisi Quotation
+                    </a>
+                </div>
+            </div>
             @if ($quote->level == '1')
                 <div class="card mb-3">
                     <div class="card-body">
@@ -1164,6 +1203,28 @@
                             confirmButton: "btn btn-success waves-effect",
                         },
                     });
+                }
+            });
+        });
+        $(document).on('change', '.change-primary', function() {
+            var selectedValue = $(this).val();
+            var rowId = $(this).data('id');
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            $.ajax({
+                type: 'POST',
+                url: '/quotation/' + selectedValue + '/change_primary',
+                data: {
+                    status: selectedValue,
+                    _token: csrfToken
+                },
+                success: function(response) {
+                    console.log('Perubahan status berhasil dikirim ke server');
+                    // Handle response jika perlu
+                },
+                error: function(error) {
+                    console.error('Gagal mengirim permintaan ke server:', error);
+                    // Handle error jika perlu
                 }
             });
         });
