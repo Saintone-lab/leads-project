@@ -29,7 +29,7 @@
                         </div>
                     </div>
                     <div class="text-end">
-                        <h1 class="fw-bold" style="color: blue;">Delivery Order</h1>
+                        <h1 class="fw-bold title-invoice" style="color: blue;">Delivery Order</h1>
                         <div>
                             <span class="fw-bolder">#{{ $invoice->no_invoice }}</span>
                         </div>
@@ -58,7 +58,7 @@
                         </div>
                     </div>
                     <div class="text-end">
-                        <h1 class="fw-bold" style="color: blue;">Delivery Order</h1>
+                        <h1 class="fw-bold title-invoice" style="color: blue;">Delivery Order</h1>
                         <div>
                             <span class="fw-bolder">#{{ $invoice->no_invoice }}</span>
                         </div>
@@ -150,7 +150,9 @@
                                     <pre class="mb-0"
                                         style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->desc }}</pre>
                                 </td>
-                                <td class="align-top">{{ $product->qty }} {{ $product->info_qty }} </td>
+                                <td class="align-top">
+                                    <p> {{ $product->qty }} {{ $product->info_qty }} </p>
+                                </td>
                             </tr>
                             @php
                                 $qty += $product->qty;
@@ -158,7 +160,9 @@
                         @endforeach
                         <tr>
                             <td colspan="3"></td>
-                            <td>{{ $qty }} {{ $product->info_qty }} </td>
+                            <td>
+                                <p>{{ $qty }} {{ $product->info_qty }}</p>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -354,7 +358,7 @@
 </div>
 @push('after-style')
     <!-- Page CSS -->
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice-print.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice-print-do.css" />
     <link rel="stylesheet" href="style.css">
 @endpush
 @push('after-script')

@@ -15,15 +15,17 @@ return new class extends Migration
     {
         Schema::create('product_in', function (Blueprint $table) {
             $table->id();
-            $table->string('invoice');
-            $table->string('supplier');
-            $table->string('note');
+            $table->string('no_do')->nullable();
+            $table->string('invoice')->nullable();
+            $table->string('supplier')->nullable();
+            $table->string('note')->nullable();
             $table->date('date');
-            $table->integer('subtotal');
-            $table->integer('total_no_tax');
-            $table->integer('shipping');
-            $table->integer('tax');
-            $table->integer('total');
+            $table->date('date_invoice')->nullable();
+            $table->integer('subtotal')->nullable();
+            $table->integer('total_no_tax')->nullable();
+            $table->integer('shipping')->nullable();
+            $table->integer('tax')->nullable();
+            $table->integer('total')->nullable();
             $table->timestamps();
         });
     }

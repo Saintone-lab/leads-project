@@ -1,5 +1,12 @@
 @extends('layouts.sales.app')
 @section('title', $quote->no_quote)
+@php
+    if ($quote->flag == 'Reftech') {
+        $bgColor = 'rgb(224, 248, 248)';
+    } else {
+        $bgColor = 'rgb(255, 232, 210)';
+    }
+@endphp
 <div class="invoice-print p-4">
     <div class="container-fluid flex-grow-1 container-p-y">
         @if ($quote->flag == 'Reftech')
@@ -8,9 +15,8 @@
                     <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
                         <span class="app-brand-logo demo">
                             <span style="color: var(--bs-primary)">
-                                <img class="text-md"
-                                    src="{{ asset('/asset') }}/logo/Reftech-Log.png"
-                                    alt="" srcset="" width="60%">
+                                <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt=""
+                                    srcset="" width="60%">
                             </span>
                         </span>
                     </div>
@@ -32,6 +38,13 @@
                     <div>
                         <span class="fw-bolder">#{{ $quote->no_quote }}</span>
                     </div>
+                    @if ($quote->num_rev >= 1)
+                        <div class="mt-1">
+                            <span class="fw-bolder py-1 px-2"
+                                style="background-color: {{ $bgColor }}; border-radius: 10px;">REV -
+                                {{ $quote->num_rev }}</span>
+                        </div>
+                    @endif
                     <div class="mt-1">
                         <span
                             class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
@@ -69,6 +82,13 @@
                     <div>
                         <span class="fw-bolder">#{{ $quote->no_quote }}</span>
                     </div>
+                    @if ($quote->num_rev >= 1)
+                        <div class="mt-1">
+                            <span class="fw-bolder py-1 px-2"
+                                style="background-color: {{ $bgColor }}; border-radius: 10px;">REV -
+                                {{ $quote->num_rev }}</span>
+                        </div>
+                    @endif
                     <div class="mt-1">
                         <span
                             class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>

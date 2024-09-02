@@ -19,7 +19,14 @@ class ArchiveController extends Controller
     public function unarchive_quotation($id)
     {
         $quotation = Quotation::find($id);
+        $quotes = Quotation::where('primary_id', $quotation->primary_id)->get();
 
+        foreach ($quotes as $quote) {
+            $quote->is_primary = '0';
+            $quote->save();
+        }
+
+        $quotation->is_primary = '1';
         $quotation->level = '1';
         $delQuote = $quotation->save();
 

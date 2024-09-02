@@ -51,13 +51,13 @@
                                     <p class="text-danger text-start">
                                         Last No :
                                         @if ($quote->tax == '11' && $invoice->flag == 'Reftech')
-                                            {{ @$lastInvoicePR->no_invoice }}
+                                            {{ @$lastInvoicePRef->no_invoice }}
                                         @elseif ($quote->tax == '0' && $invoice->flag == 'Reftech')
-                                            {{ @$lastInvoiceNPR->no_invoice }}
+                                            {{ @$lastInvoiceNPRef->no_invoice }}
                                         @elseif($quote->tax == '11' && $invoice->flag == 'Kojisha')
-                                            {{ @$lastInvoicePK->no_invoice }}
+                                            {{ @$lastInvoicePKoj->no_invoice }}
                                         @elseif ($quote->tax == '0' && $invoice->flag == 'Kojisha')
-                                            {{ @$lastInvoiceNPK->no_invoice }}
+                                            {{ @$lastInvoiceNPKoj->no_invoice }}
                                         @endif
                                     </p>
                                 </div>

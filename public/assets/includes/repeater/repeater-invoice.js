@@ -1,7 +1,10 @@
 $(function(){
     var invoiceRepeater = $('.form-invoice-repeater')
     if (invoiceRepeater.length) {
-        var row = 2;
+        var wrapperDivs = document.querySelectorAll('div.repeater-wrapper');
+        var countWrap =  wrapperDivs.length;
+        console.log(countWrap + 1);
+        var row = countWrap + 1;
         var col = 1;
         invoiceRepeater.on("submit", function (e) {
             e.preventDefault();
@@ -38,9 +41,11 @@ $(function(){
                     $(product[i]).attr("data-id", row);
                     // $(product[i]).attr("name", nameProduct);
                     $(price[i]).attr("id", idPrice);
+                    $(price[i]).val('');
                     $(detailProduct[i]).attr("id", idDetailProduct);
                     $(priceLabel[i]).attr("id", idPriceLabel);
                     $(priceLabel[i]).attr("data-id", row);
+                    $(priceLabel[i]).val('');
                     $(qty[i]).attr("id", idQty);
                     $(qty[i]).attr("data-id", row);
                     $(info[i]).attr("id", idInfo);
@@ -51,6 +56,8 @@ $(function(){
                     $(disc[i]).attr("data-id", row).val(0);
                     $(amount[i]).attr("id", idAmount);
                     $(amountLabel[i]).attr("id", idAmountLabel);
+                    $(amount[i]).val('');
+                    $(amountLabel[i]).val('');
                     $(amount[i]).attr("data-id", row);
                     $(stock[i]).attr("id", idStock);
                     $(weight[i]).attr("id", idWeight);

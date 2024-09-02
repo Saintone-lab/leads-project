@@ -175,6 +175,8 @@ Route::group(["middleware" => "auth"], function () {
         $product = DetailProduct::where('id_product', $id)->join('product as p', 'p.id', '=', 'detail_product.id_product')->get(['detail_product.*', 'p.weight', 'p.stock as pStock']);
         return response()->json($product);
     });
+    Route::post('/product-in/logistik', [ProductInController::class, 'logistic_store'])->name('product-in.logistic-store');
+    Route::post('/product-in/invoicing/{id}', [ProductInController::class, 'invoicing'])->name('product-in.invoicing');
     Route::get('/product-out/replacement/{id}', function ($id) {
         $product = DetailProduct::findOrFail($id);
         return response()->json($product);
@@ -427,19 +429,19 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/quotation/sales/{id}', function ($id) {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $id)->where('quotation.level', '1')->get(['quotation.*', 'client.company']);
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $id)->where('quotation.level', '1')->where('quotation.is_primary', '1')->get(['quotation.*', 'client.company']);
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/quotation/mentions/{id}', function ($id) {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $id)->where('quotation.level', '1')->get(['quotation.*', 'client.company']);
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $id)->where('quotation.level', '1')->where('quotation.is_primary', '1')->get(['quotation.*', 'client.company']);
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/po/sales/{id}', function ($id) {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('po_date', $monthNow)->where('quotation.id_sales', $id)->where('status', '100')->orderBy('po_date', 'asc')->where('quotation.level', '1')->get(['quotation.*', 'client.company']);
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->join('client', 'client.id', '=', 'pic.id_client')->whereMonth('po_date', $monthNow)->where('quotation.id_sales', $id)->where('status', '100')->orderBy('po_date', 'asc')->where('quotation.level', '1')->where('quotation.is_primary', '1')->get(['quotation.*', 'client.company']);
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/quotation/invoice', function () {
@@ -557,7 +559,7 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $serialProduct]);
     });
     Route::get('/db/product/quotation/{id}', function ($id) {
-        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('quotation.level', '1')->get('quotation.*');
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('quotation.level', '1')->where('quotation.is_primary', '1')->get('quotation.*');
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/product/in/detail/{id}', function ($id) {
@@ -567,6 +569,15 @@ Route::group(["middleware" => "auth"], function () {
             ->leftJoin('detail_product as dp', 'd.id_detail_product', '=', 'dp.id')
             ->leftJoin('product as pr', 'dp.id_product', '=', 'pr.id')
             ->where('pr.id', $id)
+            ->get();
+        return response()->json(['data' => $products]);
+    });
+    Route::get('/db/product/in/logistik', function (){
+        $products = DB::table('product_in as p')
+            ->select('p.*', DB::raw('SUM(d.qty) as total_qty'))
+            ->leftJoin('detail_product_in as d', 'd.id_product_in', '=', 'p.id')
+            ->whereNull('p.invoice')
+            ->groupBy('p.id')
             ->get();
         return response()->json(['data' => $products]);
     });
@@ -653,7 +664,7 @@ Route::group(["middleware" => "auth"], function () {
 
         $month = $dateCarbon->month;
         $year = $dateCarbon->year;
-        $data = Quotation::join('pic', 'quotation.id_pic', '=', 'pic.id')->join('client', 'pic.id_client', '=', 'client.id')->where('level', '1')->where('quotation.id_sales', $sales)->whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->get(['no_quote', 'client.company', 'nett', 'title', 'estimated_date', 'status', 'quotation.note', 'quotation.id']);
+        $data = Quotation::join('pic', 'quotation.id_pic', '=', 'pic.id')->join('client', 'pic.id_client', '=', 'client.id')->where('level', '1')->where('is_primary', '1')->where('quotation.id_sales', $sales)->whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->get(['no_quote', 'client.company', 'nett', 'title', 'estimated_date', 'status', 'quotation.note', 'quotation.id']);
         return response()->json(['data' => $data]);
     });
     Route::get('/db/overview/po/{sales}/{date}', function ($sales, $date) {
@@ -666,12 +677,12 @@ Route::group(["middleware" => "auth"], function () {
             ->join('client', 'pic.id_client', '=', 'client.id')
             ->where('quotation.id_sales', $sales)
             ->where('quotation.status', '100')
-            ->where('level', '1')
+            ->where('level', '1')->where('is_primary', '1')
             ->whereMonth('po_date', $month)
             ->whereYear('po_date', $year)
             ->get(['no_quote', 'client.company', 'nett', 'title', 'po_date', 'status', 'quotation.note', 'quotation.id']);
 
-        $totalNett = Quotation::whereMonth('po_date', $month)->whereYear('po_date', $year)->where('status', '100')->where('id_sales', $sales)->where('level', '1')->sum('nett');
+        $totalNett = Quotation::whereMonth('po_date', $month)->whereYear('po_date', $year)->where('status', '100')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $formattedTotalNett = number_format($totalNett, 0, ',', '.');
         return response()->json([
             'data' => $data,
@@ -680,7 +691,7 @@ Route::group(["middleware" => "auth"], function () {
     });
 
     Route::get('/db/client/po-history/{id}', function ($id) {
-        $data = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('level', '1')->where('quotation.status', '100')->where('pic.id_client', $id)->get('quotation.*');
+        $data = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('level', '1')->where('is_primary', '1')->where('quotation.status', '100')->where('pic.id_client', $id)->get('quotation.*');
         return response()->json(['data' => $data]);
     });
     Route::get('/db/client/crm-history/{id}', function ($id) {

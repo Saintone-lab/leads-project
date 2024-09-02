@@ -1,23 +1,18 @@
 @extends('layouts.sales.app')
 @section('title', 'Product In')
 @section('content')
-    <form action="{{ route(Auth::user()->role == 'Logistic' ? 'product-in.logistic-store' : 'product-in.store') }}" method="post" enctype="multipart/form-data">
+    @php
+        $no = 0;
+    @endphp
+    <form action="{{ route('product-in.invoicing', $productIn->id) }}" method="post" enctype="multipart/form-data">
         @csrf
-        @if (Auth::user()->role == 'Admin')
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control-lg fw-bold fs-3" id="floatingInputFilled"
-                    placeholder="xxx/xx/xx/xxxx xxxx" aria-describedby="floatingInputFilledHelp" name="invoice">
-                <label for="floatingInputFilled">No Invoice</label>
-                <span class="form-floating-focused"></span>
-            </div>
-        @else
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control-lg fw-bold fs-3" id="floatingInputFilled"
-                    placeholder="xxx/xx/xx/xxxx xxxx" aria-describedby="floatingInputFilledHelp" name="no_do">
-                <label for="floatingInputFilled">No Delivery Order</label>
-                <span class="form-floating-focused"></span>
-            </div>
-        @endif
+        <h5>Edit Barang Masuk <span class="fw-bolder fs-4">{{$productIn->no_do}}</span></h5>
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control form-control-lg fw-bold fs-3" id="floatingInputFilled"
+                placeholder="xxx/xx/xx/xxxx xxxx" aria-describedby="floatingInputFilledHelp" name="invoice">
+            <label for="floatingInputFilled">No Invoice</label>
+            <span class="form-floating-focused"></span>
+        </div>
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -35,8 +30,7 @@
                             <div class="form-floating form-floating-outline mb-4">
                                 <input class="form-control" type="text" placeholder="Put Supplier Quotation Here ...."
                                     id="supplier-input" name="suplier"
-                                    value="{{ old('supplier', @$productIn->supplier ?? '') }}"
-                                    {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
+                                    value="{{ old('supplier', @$productIn->supplier ?? '') }}">
                                 <label for="supplier-input">Suplier</label>
                             </div>
                         </div>
@@ -47,96 +41,93 @@
                                 <input class="form-control" type="date" id="Date" name="date"
                                     {{-- {{ @$productIn->date ? '' : '_label' }}  naikin nanti --}}
                                     value="{{ old('date', @$productIn->date ?? now()->format('Y-m-d')) }}"
-                                    {{-- {{ @$productIn->date ? '' : 'disabled' }} --}}>
-                                @if (empty($productIn->date))
-                                    <input type="date" name="estimated_date" id=""
-                                        value="{{ now()->format('Y-m-d') }}" hidden>
-                                @endif
+                                    {{-- {{ @$productIn->date ? '' : 'disabled' }} --}} disabled>
                                 <label for="Date">Date Product In</label>
                             </div>
                         </div>
                         <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline mb-4">
-                                <input class="form-control" type="date" id="Date" name="date"
+                                <input class="form-control" type="date" id="Date" name="date_invoice"
                                     {{-- {{ @$productIn->date ? '' : '_label' }}  naikin nanti --}}
-                                    value="{{ old('date', @$productIn->date ?? now()->format('Y-m-d')) }}"
-                                    {{-- {{ @$productIn->date ? '' : 'disabled' }} --}} {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
+                                    value="{{ old('date', @$productIn->date_invoice ?? now()->format('Y-m-d')) }}"
+                                    {{-- {{ @$productIn->date ? '' : 'disabled' }} --}}>
                                 <label for="Date">Date Invoice</label>
                             </div>
                         </div>
                     </div>
                     <div class="mb-3" data-repeater-list="group-a">
-                        <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
-                            <div class="d-flex border rounded position-relative pe-0">
-                                <div class="row w-100 p-3">
-                                    <div class="col-md-6 col-12 mb-md-0 mb-3">
-                                        <label for="product" class="mb-2">Product</label>
-                                        <div class="form-floating form-floating-outline mb-2">
-                                            <select id="replacement-dropdown-1"
-                                                class="select2 form-select invoice-item-replacement" data-allow-clear="true"
-                                                name="replacement[]" data-id="1">
-                                                <option> ---- Choose Commodity || Replacement Here ---- </option>
-                                                @foreach ($detProduct as $products)
-                                                    <option value="{{ $products->id }}">
-                                                        {{ $products->product->commodity }}
-                                                        ({{ $products->product->detail_desc }})
+                        @foreach ($dProductIn as $product)
+                            @php
+                                $no++;
+                            @endphp
+                            <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
+                                <div class="d-flex border rounded position-relative pe-0">
+                                    <div class="row w-100 p-3">
+                                        <div class="col-md-6 col-12 mb-md-0 mb-3">
+                                            <label for="product" class="mb-2">Product</label>
+                                            <div class="form-floating form-floating-outline mb-2">
+                                                <select id="replacement-dropdown-1"
+                                                    class="select2 form-select invoice-item-replacement"
+                                                    data-allow-clear="true" name="replacement[]" data-id="1" disabled>
+                                                    <option selected>
+                                                        {{ $product->detailProduct->product->commodity }}
+                                                        ({{ $product->detailProduct->product->detail_desc }})
                                                         ||
-                                                        {{ $products->replacement }} -
-                                                        {{ $products->product->go == 'Genuine' ? 'G' : 'R' }}
+                                                        {{ $product->detailProduct->replacement }} -
+                                                        {{ $product->detailProduct->product->go == 'Genuine' ? 'G' : 'R' }}
                                                     </option>
-                                                @endforeach
-                                            </select>
-                                            <label for="replacement-dropdown">Commodity || Replacement</label>
+                                                </select>
+                                                <label for="replacement-dropdown">Commodity || Replacement</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                            <p class="mb-2 repeater-title">Qty</p>
+                                            <input type="number" class="form-control mb-3 invoice-item-qty"
+                                                placeholder="Min 1" name="qty[]" id="qty-{{ $no }}"
+                                                data-id="{{ $no }}" min="1" value="{{ $product->qty }}" disabled>
+                                        </div>
+                                        <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                            <p class="mb-2 repeater-title">warehouse</p>
+                                            <div class="form-floating form-floating-outline mb-4">
+                                                <select class="form-select invoice-item-warehouse" id="warehouse-1"
+                                                    data-id="1" aria-label="Default select example" name="warehouse[]"
+                                                    disabled>
+                                                    <option selected> {{ $product->warehouse }} </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 col-12 mb-md-0 mb-3">
+                                            <p class="mb-2 repeater-title">Price</p>
+                                            <div class="input-group" data-price="{{ $no }}">
+                                                <span class="input-group-text">Rp. </span>
+                                                <input type="text" class="form-control invoice-item-price-label"
+                                                    id="price-label" data-id="{{$no}}" min="0"
+                                                    placeholder="Put Price Here" data-type="currency"
+                                                    pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                                    @blur="focused = false" value="{{ old('price[]') }}">
+                                                <input class="form-control invoice-item-price" type="number" name="price[]"
+                                                    id="price-{{ $no }}" value="{{ old('price[]') }}" hidden>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 col-12 pe-0">
+                                            <p class="mb-2 repeater-title">Amount</p>
+                                            <p class="mb-0 amount-label" id="amount-label-{{ $no }}"
+                                                data-id="{{ $no }}">
+                                                {{ old(strval('amount[]')) }}</p>
+                                            <input type="number" class="form-control invoice-item-amount"
+                                                name="amount[]" id="amount-{{ $no }}"
+                                                data-id="{{ $no }}" min="0"
+                                                value="{{ old('amount[]') }}" hidden>
                                         </div>
                                     </div>
-                                    <div class="col-md-1 col-12 mb-md-0 mb-3">
-                                        <p class="mb-2 repeater-title">Qty</p>
-                                        <input type="number" class="form-control mb-3 invoice-item-qty" placeholder="Min 1"
-                                            name="qty[]" id="qty-1" data-id="1" min="1"
-                                            value="{{ old('qty[]') }}">
+                                    <div
+                                        class="d-flex flex-column align-items-center justify-content-between border-start p-2">
+                                        <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
+                                            data-repeater-delete=""></i>
                                     </div>
-                                    <div class="col-md-1 col-12 mb-md-0 mb-3">
-                                        <p class="mb-2 repeater-title">warehouse</p>
-                                        <div class="form-floating form-floating-outline mb-4">
-                                            <select class="form-select invoice-item-warehouse" id="warehouse-1"
-                                                data-id="1" aria-label="Default select example" name="warehouse[]">
-                                                <option>---Info---</option>
-                                                <option value="BDG">BDG
-                                                </option>
-                                                <option value="BKS">BKS
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-2 col-12 mb-md-0 mb-3">
-                                        <p class="mb-2 repeater-title">Price</p>
-                                        <div class="input-group" data-price="1">
-                                            <span class="input-group-text">Rp. </span>
-                                            <input type="text" class="form-control invoice-item-price-label"
-                                                id="price-label" data-id="1" min="0"
-                                                placeholder="Put Price Here" data-type="currency"
-                                                pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                                @blur="focused = false" value="{{ old('price[]') }}" {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
-                                            <input class="form-control invoice-item-price" type="number" name="price[]"
-                                                id="price-1" value="{{ old('price[]') }}" hidden>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-2 col-12 pe-0">
-                                        <p class="mb-2 repeater-title">Amount</p>
-                                        <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
-                                            {{ old(strval('amount[]')) }}</p>
-                                        <input type="number" class="form-control invoice-item-amount" name="amount[]"
-                                            id="amount-1" data-id="1" min="0" value="{{ old('amount[]') }}"
-                                            hidden>
-                                    </div>
-                                </div>
-                                <div
-                                    class="d-flex flex-column align-items-center justify-content-between border-start p-2">
-                                    <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
-                                        data-repeater-delete=""></i>
                                 </div>
                             </div>
-                        </div>
+                        @endforeach
                     </div>
                     <div class="row mb-3">
                         <div class="col-12 mb-2">
@@ -175,7 +166,7 @@
                                 <input type="text" class="form-control invoice-item-shipping-label"
                                     id="shipping-label" data-id="1" min="0" placeholder="Put shipping Here"
                                     data-type="currency" pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                    @blur="focused = false" value="{{ old('shipping') }}" {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
+                                    @blur="focused = false" value="{{ old('shipping') }}">
                                 <input class="form-control invoice-item-shipping" type="number" name="shipping"
                                     id="shipping" value="{{ old('shipping') }}" hidden>
                             </div>
@@ -189,7 +180,7 @@
                             </h5>
                             <div class="form-floating form-floating-outline mb-4">
                                 <select class="form-select invoice-item-tax" id="tax" name="tax"
-                                    aria-label="Default select example" {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
+                                    aria-label="Default select example">
                                     <option selected disabled>----- Choose Tax Here -----</option>
                                     <option value="11">11%</option>
                                     <option value="0">0%</option>
@@ -218,7 +209,7 @@
                             <h5 class="my-2">
                                 Note
                             </h5>
-                            <textarea class="form-control h-px-100" rows="2" placeholder="Write your note here...." name="note" {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>-</textarea>
+                            <textarea class="form-control h-px-100" rows="2" placeholder="Write your note here...." name="note">-</textarea>
                         </div>
                     </div>
                     <div class="float-end">
@@ -310,6 +301,8 @@
             $('.invoice-item-price-label, .invoice-item-qty').on('keyup change click', function(
                 ev) {
                 var id = $(this).data('id');
+                console.log(id);
+
                 var sTotal = 0,
                     row = 0;
                 var amount = 0,

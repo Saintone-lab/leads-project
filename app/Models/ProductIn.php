@@ -12,9 +12,11 @@ class ProductIn extends Model
     protected $date = [
         'created_at',
         'updated_at',
+        'date_invoice',
         'date'
     ];
     protected $fillable = [
+        'no_do',
         'invoice',
         'supplier',
         'note',

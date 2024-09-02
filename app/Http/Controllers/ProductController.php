@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\SerialProduct;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
@@ -227,18 +228,11 @@ class ProductController extends Controller
     }
     public function updateReplacement(Request $request, $id)
     {
-        $rule = [
-            'modal' =>
-                'required',
-        ];
-
-        $message = [
-            'modal.required' => 'Field modal Wajib Diisi',
-        ];
-        $this->validate($request, $rule, $message);
-        // dd($request->all());
         $replace = DetailProduct::find($id);
-        $replace->modal = $request->modal;
+        $replace->replacement = $request->replacement;
+        if (Auth::user()->role == 'Admin') {
+            $replace->modal = $request->modal;
+        }
         $replaceSave = $replace->save();
 
         if ($replaceSave) {

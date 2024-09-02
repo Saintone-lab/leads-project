@@ -155,15 +155,15 @@
                                     <th>Stock</th>
                                     @if (Auth::user()->role == 'Admin')
                                         <th>Modal</th>
-                                        <th>Action</th>
                                     @endif
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody class="table-border-bottom-0">
                                 @forelse ($details as $detail)
-                                @php
-                                    $allRep = $detail->stock + $detail->warehouse_stock;
-                                @endphp
+                                    @php
+                                        $allRep = $detail->stock + $detail->warehouse_stock;
+                                    @endphp
                                     <tr>
                                         <td>
                                             {{ $detail->replacement }}
@@ -175,20 +175,20 @@
                                             <td>
                                                 Rp.{{ number_format($detail->modal, 0, '', '.') }}
                                             </td>
-                                            <td>
-                                                <a href="#" data-id="{{ $detail->id }}"
-                                                    class="btn btn-sm btn-label-danger delete-replacement">
-                                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                                                </a>
-                                                <a type="button" data-bs-toggle="modal"
-                                                    data-bs-target="#editReplacement-{{ $detail->id }}">
-                                                    <button type="button" class="btn btn-sm btn-label-primary">
-                                                        <i
-                                                            class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i>
-                                                    </button>
-                                                </a>
-                                            </td>
                                         @endif
+                                        <td>
+                                            <a href="#" data-id="{{ $detail->id }}"
+                                                class="btn btn-sm btn-label-danger delete-replacement">
+                                                <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                            </a>
+                                            <a type="button" data-bs-toggle="modal"
+                                                data-bs-target="#editReplacement-{{ $detail->id }}">
+                                                <button type="button" class="btn btn-sm btn-label-primary">
+                                                    <i
+                                                        class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i>
+                                                </button>
+                                            </a>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>

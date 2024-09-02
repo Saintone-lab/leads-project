@@ -32,16 +32,16 @@ class QuotationController extends Controller
      */
     public function index()
     {
-        $quotation = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->get();
-        $forecast = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
-        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('status', '80')->sum('nett');
-        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->where('level', '1')->sum('nett');
-        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->where('level', '1')->sum('nett');
+        $quotation = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->get();
+        $forecast = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
+        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->where('status', '80')->sum('nett');
+        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
         $quotationAdmin = Quotation::get();
-        $forecastAdmin = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->sum('nett');
-        $prospectAdmin = Quotation::where('status', '80')->where('level', '1')->sum('nett');
-        $poAdmin = Quotation::where('status', '100')->where('level', '1')->sum('nett');
-        $lossAdmin = Quotation::where('status', '0')->where('level', '1')->sum('nett');
+        $forecastAdmin = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $prospectAdmin = Quotation::where('status', '80')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $poAdmin = Quotation::where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $lossAdmin = Quotation::where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
         // dd();
         return view('pages.sales.quotation.index', compact('quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
     }
@@ -323,7 +323,7 @@ class QuotationController extends Controller
             }
         }
         if ($termnconSave) {
-            return redirect('quotation')->with("success", "Data Revisi Quotation Telah Ditambahkan");
+            return redirect('/quotation/' . $quotation->id)->with("success", "Data Revisi Quotation Telah Ditambahkan");
         }
     }
 
@@ -336,8 +336,16 @@ class QuotationController extends Controller
     public function destroy($id)
     {
         $quotation = Quotation::find($id);
+        $quote = Quotation::where('primary_id', $quotation->primary_id)->where('num_rev', $quotation->num_rev - 1)->first();
+        $quotes = Quotation::where('primary_id', $quotation->primary_id)->get();
+
+        if (count($quotes) > 1) {
+            $quote->is_primary = '1';
+            $quote->save();
+        }
 
         $quotation->level = '0';
+        $quote->is_primary = '0';
         $delQuote = $quotation->save();
 
         if ($delQuote) {
@@ -439,11 +447,11 @@ class QuotationController extends Controller
     {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        $quotation = Quotation::where('id_sales', $id->where('level', '1'))->whereMonth('estimated_date', $monthNow)->get();
-        $forecast = Quotation::where('id_sales', $id)->where('level', '1')->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
-        $prospect = Quotation::where('id_sales', $id)->where('level', '1')->whereMonth('estimated_date', $monthNow)->where('status', '80')->sum('nett');
-        $po = Quotation::where('id_sales', $id)->where('level', '1')->whereMonth('po_date', $monthNow)->where('status', '100')->sum('nett');
-        $loss = Quotation::where('id_sales', $id)->where('level', '1')->whereMonth('estimated_date', $monthNow)->where('status', '0')->sum('nett');
+        $quotation = Quotation::where('id_sales', $id)->where('level', '1')->where('is_primary', '1')->whereMonth('estimated_date', $monthNow)->get();
+        $forecast = Quotation::where('id_sales', $id)->where('level', '1')->where('is_primary', '1')->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
+        $prospect = Quotation::where('id_sales', $id)->where('level', '1')->where('is_primary', '1')->whereMonth('estimated_date', $monthNow)->where('status', '80')->sum('nett');
+        $po = Quotation::where('id_sales', $id)->where('level', '1')->where('is_primary', '1')->whereMonth('po_date', $monthNow)->where('status', '100')->sum('nett');
+        $loss = Quotation::where('id_sales', $id)->where('level', '1')->where('is_primary', '1')->whereMonth('estimated_date', $monthNow)->where('status', '0')->sum('nett');
         return view('pages.sales.quotation.sales', compact('quotation', 'forecast', 'prospect', 'po', 'loss'));
     }
 
@@ -451,7 +459,7 @@ class QuotationController extends Controller
     {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        $quotation = Quotation::where('id_sales', $id)->where('level', '1')->whereMonth('po_date', $monthNow)->get();
+        $quotation = Quotation::where('id_sales', $id)->where('level', '1')->where('is_primary', '1')->whereMonth('po_date', $monthNow)->get();
         return view('pages.sales.quotation.po.sales', compact('quotation'));
     }
 

@@ -24,7 +24,8 @@ if (Auth::check()) {
         LEFT JOIN detail_product_in AS d ON d.id_product_in = p.id 
         LEFT JOIN detail_product AS dp ON d.id_detail_product = dp.id 
         LEFT JOIN product AS pr ON dp.id_product = pr.id
-        WHERE p.tax = '0'";
+        WHERE p.invoice IS NOT NULL AND p.tax = '0'
+        ";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

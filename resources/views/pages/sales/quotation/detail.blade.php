@@ -44,7 +44,8 @@
                                 </div>
                                 @if ($quote->num_rev >= 1)
                                     <div class="mt-1">
-                                        <span class="fw-bolder py-1 px-2" style="background-color: {{ $bgColor }}; border-radius: 10px;">REV -
+                                        <span class="fw-bolder py-1 px-2"
+                                            style="background-color: {{ $bgColor }}; border-radius: 10px;">REV -
                                             {{ $quote->num_rev }}</span>
                                     </div>
                                 @endif
@@ -87,7 +88,8 @@
                                 </div>
                                 @if ($quote->num_rev >= 1)
                                     <div class="mt-1">
-                                        <span class="fw-bolder py-1 px-2" style="background-color: {{ $bgColor }}; border-radius: 10px;">REV -
+                                        <span class="fw-bolder py-1 px-2"
+                                            style="background-color: {{ $bgColor }}; border-radius: 10px;">REV -
                                             {{ $quote->num_rev }}</span>
                                     </div>
                                 @endif
@@ -233,26 +235,30 @@
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <div class="form-floating form-floating-outline mb-2">
-                        <select class="form-select change-primary" name="changePrimary" id="changePrimary"
-                            aria-label="Default select example">
-                            @foreach ($quotations as $item)
-                                <option data-id="{{ $item->id }}" value="{{ $item->id }}"
-                                    {{ $item->is_primary == '1' ? 'Selected' : '' }}>
-                                    {{ $item->no_quote }}{{ $item->num_rev >= 1 ? '-REV-' . $item->num_rev : '' }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <label for="changePrimary">Primary Quote</label>
+
+            @if ($quote->id_sales == Auth::user()->id && $quote->status != 100)
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="form-floating form-floating-outline mb-2">
+                            <select class="form-select change-primary" name="changePrimary" id="changePrimary"
+                                aria-label="Default select example">
+                                @foreach ($quotations as $item)
+                                    <option data-id="{{ $item->id }}" value="{{ $item->id }}"
+                                        {{ $item->is_primary == '1' ? 'Selected' : '' }}>
+                                        {{ $item->no_quote }}{{ $item->num_rev >= 1 ? '-REV-' . $item->num_rev : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <label for="changePrimary">Primary Quote</label>
+                        </div>
+                        <a class="btn btn-outline-primary d-grid w-100 mb-3 waves-effect"
+                            href="{{ route('revisi.quotation', $primQuote->id) }}">
+                            + Revisi Quotation
+                        </a>
                     </div>
-                    <a class="btn btn-outline-primary d-grid w-100 mb-3 waves-effect"
-                        href="{{ route('revisi.quotation', $primQuote->id) }}">
-                        + Revisi Quotation
-                    </a>
                 </div>
-            </div>
+            @endif
+
             @if ($quote->level == '1')
                 <div class="card mb-3">
                     <div class="card-body">
@@ -1220,11 +1226,12 @@
                 },
                 success: function(response) {
                     console.log('Perubahan status berhasil dikirim ke server');
-                    // Handle response jika perlu
+                    window.setTimeout(function() {
+                        window.location.href = '/quotation/' + selectedValue;
+                    }, 10);
                 },
                 error: function(error) {
                     console.error('Gagal mengirim permintaan ke server:', error);
-                    // Handle error jika perlu
                 }
             });
         });

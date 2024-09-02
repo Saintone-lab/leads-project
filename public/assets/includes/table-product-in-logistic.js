@@ -333,13 +333,6 @@ $(function () {
                         },
                     ],
                 },
-                {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Invoice Product</span>',
-                    className: "btn btn-primary btn-new",
-                    action: function (e, dt, node, config) {
-                        window.location = route("product-in.create");
-                    },
-                },
             ],
             drawCallback: function (settings) {
                 $('[data-toggle="tooltip"]').tooltip();

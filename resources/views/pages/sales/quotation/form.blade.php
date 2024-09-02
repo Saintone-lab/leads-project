@@ -41,7 +41,7 @@
                         <div class="col-12 col-lg-3 mb-3">
                             <div class="form-floating form-floating-outline">
                                 <select id="select2Basic" class="select2 form-select form-select-lg invoice-item-client"
-                                    data-allow-clear="true" name="id_pic">
+                                    data-allow-clear="true" name="id_pic" {{@$quotation ? 'disabled' : ''}}>
                                     <option> ---- Choose Pic Company Here ---- </option>
                                     @foreach ($pic as $charge)
                                         <option value="{{ $charge->id }}"
@@ -52,15 +52,23 @@
                                 <label for="select2Basic">Client</label>
                             </div>
                         </div>
+                        @if (@$quotation)
+                            <input type="text" name="id_pic" id="idPic" value="{{$quotation->id_pic}}" hidden>
+                        @endif
                         <div class="col-12 col-lg-3">
                             <div class="form-floating form-floating-outline mb-2">
                                 <select id="address-dropdown" class="select2 form-select invoice-item-destination"
                                     data-allow-clear="true" name="destination" disabled>
-                                    <option> ---- Choose Destination Address Here ---- </option>
+                                    @if (@$quotation)
+                                        <option selected> {{$quotation->destination == '1' ? $quotation->pic->client->address : $quotation->pic->client->subAddress}} </option>
+                                    @endif
                                 </select>
                                 <label for="address-dropdown">Destination Address</label>
                             </div>
                         </div>
+                        @if (@$quotation)
+                            <input type="text" name="destination" id="destination" value="{{$quotation->destination}}" hidden>
+                        @endif
                         <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="text" placeholder="Put Title Quotation Here ...."
@@ -96,7 +104,7 @@
                         <div class="col-md-6">
                             <div class="form-floating form-floating-outline mb-4">
                                 <input class="form-control" type="text" placeholder="Put your No PR Here ...."
-                                    id="no-pr-input" name="no_pr" {{ @$quotation ? '' : 'disabled' }}>
+                                    id="no-pr-input" name="no_pr" value="{{@$quotation ? '-' : ''}}" {{ @$quotation ? '' : 'disabled' }}>
                                 <label for="no-pr-input">No PR</label>
                             </div>
                         </div>

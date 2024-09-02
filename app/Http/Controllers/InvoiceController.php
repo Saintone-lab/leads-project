@@ -165,7 +165,7 @@ class InvoiceController extends Controller
         $lastInvoiceNPRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->where('invoice.flag', 'Reftech')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
         $lastInvoicePKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->where('invoice.flag', 'Kojisha')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
         $lastInvoiceNPKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->where('invoice.flag', 'Kojisha')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
-        // dd($lastInvoiceNP);
+        // dd($lastInvoicePKoj);
         function generateNextInvoiceNumber($lastInvoice, $defaultCode)
         {
             if ($lastInvoice) {
@@ -191,6 +191,7 @@ class InvoiceController extends Controller
         $nextCodeNPR = generateNextInvoiceNumber($lastInvoiceNPRef, '001');
         $nextCodePK = generateNextInvoiceNumber($lastInvoicePKoj, '001');
         $nextCodeNPK = generateNextInvoiceNumber($lastInvoiceNPKoj, '001');
+        // dd($nextCodePK);
         // dd($nextCodeNPK);
 
         $totalAmount = 0;
