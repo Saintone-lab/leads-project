@@ -31,14 +31,15 @@
                                             </p>
                                             <p class="mb-1">
                                             </p>
-                                            <p class="mb-1 text-black fw-medium p-1"
-                                                style="background-color: rgb(224, 221, 255)">NPWP : 73.728.571.8-429.000</p>
                                         </div>
                                     </div>
                                     <div class="npwp_add">
                                         <p class="mb-1 fw-bolder">NPWP Address :</p>
                                         <pre
                                             style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">Komp. Negia Kencana Residence Blok B, No.2 Pasanggrahan, Ujung Berung Kota Bandung - Jawa Barat 40199</pre>
+                                        <p class="mb-1 text-black fw-medium p-1"
+                                            style="background-color: rgb(224, 221, 255); font-size: 10px">NPWP :
+                                            73.728.571.8-429.000</p>
                                     </div>
                                 </div>
                             </div>
@@ -49,7 +50,7 @@
                                 </div>
                                 <div class="mt-1">
                                     <span
-                                        class="text-muted">{{ Carbon\Carbon::parse($invoice->date)->format('d-m-Y') }}</span>
+                                        class="text-black">{{ Carbon\Carbon::parse($invoice->date)->format('d-m-Y') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -77,14 +78,14 @@
                                                 {{ ' | ' }}<i
                                                     class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
                                             </p>
-                                            <p class="mb-1 text-black fw-medium p-1"
-                                                style="background-color: rgb(255, 235, 221)">NPWP : 96.484.859.2-413.000</p>
                                         </div>
                                     </div>
                                     <div class="npwp_add">
                                         <p class="mb-1 fw-bolder">NPWP Address :</p>
                                         <pre
                                             style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">Jl. Nancep No. 45, Setu Cisaat RT. 001 RW. 003 Cibening, Setu</pre>
+                                        <p class="mb-1 text-black fw-medium p-1"
+                                            style="background-color: rgb(255, 235, 221)">NPWP : 96.484.859.2-413.000</p>
                                     </div>
                                 </div>
                             </div>
@@ -158,51 +159,6 @@
                             </tr>
                         </table>
                     </div>
-                    {{-- <div class="row">
-                        <div class="col-6">
-                            <h6 class="fw-medium fs-4 mb-3">Invoice To:</h6>
-                        </div>
-                        <div class="col-6 mb-2">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-2 fw-medium">
-                            <p class="mb-1">Bill To </p>
-                            <p class="mb-1">Phone </p>
-                            <p class="mb-1">Adress</p>
-                        </div>
-                        <div class="col-4">
-                            <p class="mb-1">: {{ $quote->pic->client->company }}</p>
-                            <p class="mb-1">: {{ $quote->pic->client->phone }}</p>
-                            @if ($invoice->invoiceTo == '1')
-                                <p class="mb-1">: {{ $quote->pic->client->address }}</p>
-                            @else
-                                <p class="mb-1">: {{ $quote->pic->client->subAddress }}</p>
-                            @endif
-                        </div>
-                        <div class="col-6">
-                            <div class="row">
-                                <div class="col-6 fw-medium text-end">
-                                    <p class="mb-1">Purchase Order :</p>
-                                </div>
-                                <div class="col-6 text-end">
-                                    <p class="mb-1"> {{ $invoice->no_po }}
-                                    </p>
-                                </div>
-                                <div class="col-12 text-center">
-                                    <div class="termpay">
-                                        <div class="title" style="border: 1px solid black; background-color: #F9F9F9;">
-                                            <p class="fs-5 text-black fw-medium m-0">Term Of Payment:</p>
-                                        </div>
-                                        <div class="term" style="border: 1px solid black; border-top: 0;">
-                                            <pre
-                                                style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $invoice->term }}</pre>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
                 </div>
                 <div class="table-responsive">
                     <table class="table table-bordered m-0" style="border: 1px solid rgb(60, 60, 60)">
@@ -250,7 +206,7 @@
                                 </td>
                                 <td colspan="2" id="price" class="text-end pl-4 py-0"
                                     style="padding-right: 10px !important;">
-                                    <p class="m-0">{{ $totalPph == 0 ? 'Total' : 'Subtotal' }}</p>
+                                    <p class="m-0">{{ $quote->tax != 0 || $invoice->pph != 0 || $quote->shipping != 0 ? 'Subtotal' : 'Total' }}</p>
                                     {{-- <p class="m-0">Total</p> --}}
                                 </td>
                                 <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -323,11 +279,13 @@
                                             </td>
                                         </tr>
                                     @endif
+                                @endif
+                                @if ($quote->tax != 0 || $totalPph > 0 || $quote->shipping != 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0"
                                             style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0 fw-bold">Total</p>
-                                        </td>$
+                                        </td>
                                         <td class="pr-4 py-0"
                                             style="background-color: {{ $bgColor }}; padding-right:20px;">
                                             <p class="m-0 text-end fw-bold">

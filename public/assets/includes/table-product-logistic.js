@@ -32,7 +32,8 @@ $(function () {
                 { data: "description" },
                 { data: "dimension" },
                 { data: "go" },
-                { data: "all_stock" },
+                { data: "stock" },
+                { data: "warehouse_stock" },
             ],
             columnDefs: [
                 {

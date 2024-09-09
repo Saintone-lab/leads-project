@@ -20,14 +20,15 @@ return new class extends Migration
             $table->foreignId('id_admin')->nullable();
             $table->foreignId('id_service')->nullable();
             $table->integer('primary_id');
-            $table->enum('is_primary',['1', '2']);
+            $table->enum('is_primary',['0', '1']);
             $table->integer('num_rev');
             $table->string('no_pr')->nullable();
             $table->enum('destination',['1', '2']);
             $table->string('title');
             $table->integer('status');
             $table->string('note');
-            $table->longText('comment');
+            $table->longText('comment')->nullable();
+            $table->longText('commentAdmin')->nullable();
             $table->enum('flag',['Reftech','Kojisha']);
 
             //Quote Date

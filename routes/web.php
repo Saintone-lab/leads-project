@@ -26,6 +26,7 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\WarehouseController;
 use App\Models\Activities;
 use App\Models\Client;
+use App\Models\Comment;
 use App\Models\Contract;
 use App\Models\DetailProduct;
 use App\Models\Invoice;
@@ -88,6 +89,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/po', [QuotationController::class, 'po_quote'])->name('quotation.po');
     Route::get('/loss', [QuotationController::class, 'loss_quote'])->name('quotation.loss');
     Route::get('/quotation/{id}/change_status', [QuotationController::class, 'change_status'])->name('status.change.quotation');
+    Route::post('/quotation/{id}/add_comment', [QuotationController::class, 'add_comment'])->name('add-comment.quotation');
+    Route::post('/quotation/{id}/view_comment', [QuotationController::class, 'view_comment'])->name('view-comment.quotation');
+    Route::post('/quotation/{id}/change_po', [QuotationController::class, 'change_po'])->name('change-po.quotation');
     Route::post('/quotation/{id}/cancel_po', [QuotationController::class, 'cancel_po'])->name('status.cancel.quotation');
     Route::post('/quotation/{id}/convert_flag', [QuotationController::class, 'convert_flag'])->name('convert-flag.quotation');
     Route::post('/quotation/{id}/convert_po', [QuotationController::class, 'convert_po'])->name('convert-po.quotation');
@@ -456,6 +460,15 @@ Route::group(["middleware" => "auth"], function () {
         ;
         return response()->json(['data' => $quotation]);
     });
+    Route::get('/db/comment/sales', function () {
+        $comment = Comment::join('users', 'users.id', '=', 'comment.id_user')
+            ->join('change_status', 'change_status.id', '=', 'comment.id_status')
+            ->join('quotation', 'quotation.id', '=', 'change_status.id_quotation')
+            ->where('comment.level', '1')
+            ->where('quotation.id_sales', Auth::user()->id)
+            ->get(['comment.*', 'quotation.no_quote', 'users.name', 'quotation.id as id_q', 'change_status.status']);
+        return response()->json(['data' => $comment]);
+    });
     Route::get('/db/invoice/ppn/reftech', function () {
         $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
             ->join('pic', 'pic.id', '=', 'quotation.id_pic')
@@ -572,7 +585,7 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json(['data' => $products]);
     });
-    Route::get('/db/product/in/logistik', function (){
+    Route::get('/db/product/in/logistik', function () {
         $products = DB::table('product_in as p')
             ->select('p.*', DB::raw('SUM(d.qty) as total_qty'))
             ->leftJoin('detail_product_in as d', 'd.id_product_in', '=', 'p.id')

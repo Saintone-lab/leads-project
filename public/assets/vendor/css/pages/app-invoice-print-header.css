@@ -18,6 +18,7 @@
     .invoice-print h4,
     .invoice-print h5,
     .invoice-print h6,
+    .invoice-print span,
     .invoice-print hr {
         color: black !important;
     }

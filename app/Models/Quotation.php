@@ -39,6 +39,8 @@ class Quotation extends Model
         'shipping',
         'no_quote',
         'termcon',
+        'comment',
+        'commentAdmin',
         'subtotal',
         'total_no_tax',
         'harga_total'
@@ -77,5 +79,9 @@ class Quotation extends Model
     public function invoice()
     {
         return $this->hasMany('App\Models\Invoice', 'id_quotation');
+    }
+    public function status()
+    {
+        return $this->hasMany('App\Models\ChangeStatus', 'id_quotation');
     }
 }

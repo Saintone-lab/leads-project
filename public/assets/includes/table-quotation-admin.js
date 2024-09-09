@@ -33,7 +33,6 @@ $(function () {
                 { data: "estimated_date" },
                 { data: "status" },
                 { data: "name" },
-                { data: "" },
             ],
             columnDefs: [
                 {
@@ -75,59 +74,28 @@ $(function () {
                     responsivePriority: 1,
                     targets: 4,
                 },
-                // {
-                //     // Label Status Name
-                //     targets: 8,
-                //     render: function (data, type, full, meta) {
-                //         var $status_number = full["status"];
-                //         var $status = {
-                //             20: {
-                //                 title: "Send WA / Email",
-                //                 class: "bg-label-secondary",
-                //             },
-                //             30: {
-                //                 title: "Inquiry Accepted",
-                //                 class: " bg-label-dark",
-                //             },
-                //             40: {
-                //                 title: "Progress Follow Up",
-                //                 class: " bg-label-info",
-                //             },
-                //             60: {
-                //                 title: "Negotiation / Revisi",
-                //                 class: " bg-label-primary",
-                //             },
-                //             80: {
-                //                 title: "Hot Prospect",
-                //                 class: " bg-label-warning",
-                //             },
-                //             100: {
-                //                 title: "Done PO",
-                //                 class: " bg-label-success",
-                //             },
-                //             0: {
-                //                 title: "Loss",
-                //                 class: " bg-label-danger",
-                //             },
-                //         };
-                //         if (typeof $status[$status_number] === "undefined") {
-                //             return data;
-                //         }
-                //         return (
-                //             '<span class="badge rounded-pill ' +
-                //             $status[$status_number].class +
-                //             '">' +
-                //             $status[$status_number].title +
-                //             "</span>"
-                //         );
-                //     },
-                // },
                 {
-                    // Label Status Percent
+                    targets: 3,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $dataId = full["id"];
+                            var detailRoute = route("quotation.show", $dataId);
+                            return (
+                                '<a class="text-dark view-quote" href="' +
+                                detailRoute +
+                                '">' +
+                                data +
+                                "</a>"
+                            );
+                        }
+                        return data;
+                    },
+                },
+                {
                     targets: 8,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
-                        var $titleTool = full["note"];
+                        var $titleTool = full["tip"];
                         var $status = {
                             20: {
                                 title: "20%",
@@ -185,31 +153,6 @@ $(function () {
                             '">' +
                             $status[$status_number].title +
                             "</span>"
-                        );
-                    },
-                },
-                {
-                    // Actions
-                    targets: -1,
-                    title: "Actions",
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, full, meta) {
-                        var $dataId = full["id"];
-                        var $detailQUrl = route("quotation.show", $dataId);
-                        var $revQUrl = route("revisi.quotation", $dataId);
-                        return (
-                            '<div class="d-inline-block">' +
-                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
-                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<li><a href="' +
-                            $detailQUrl +
-                            '" class="dropdown-item">Details</a></li>' +
-                            '<li><a href="' +
-                            $revQUrl +
-                            '" class="dropdown-item">Revisi</a></li>' +
-                            "</ul>" +
-                            "</div>"
                         );
                     },
                 },
@@ -477,9 +420,7 @@ $(function () {
                 },
             },
         });
-        $("div.hl-1").html(
-            '<h5 class="card-title mb-0">Quotations</h5>'
-        );
+        $("div.hl-1").html('<h5 class="card-title mb-0">Quotations</h5>');
     }
     dt_table_quotation_admin.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();

@@ -11,7 +11,7 @@
     <div class="row invoice-preview">
         {{-- Invoice --}}
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
-            <div class="card invoice-preview-card">
+            <div class="card invoice-preview-card mb-3">
                 <div class="card-body">
                     @if ($quote->flag == 'Reftech')
                         <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
@@ -231,12 +231,110 @@
                     </div>
                 </div>
             </div>
+            @if ($status->count() >= 1)
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="mb-0">Activity Timeline</h5>
+                        </div>
+                    </div>
+                    <div class="card-body pt-4" id="viewComment">
+                        <ul class="timeline card-timeline mb-0">
+                            @foreach ($status as $stats)
+                                @php
+                                    if ($stats->status == '20') {
+                                        $status = 'Send Quotation';
+                                        $color = 'secondary';
+                                    } elseif ($stats->status == '30') {
+                                        $status = 'Inquiry Accepted';
+                                        $color = 'dark';
+                                    } elseif ($stats->status == '40') {
+                                        $status = 'Progress Follow Up';
+                                        $color = 'info';
+                                    } elseif ($stats->status == '60') {
+                                        $status = 'Negotiation / Revisi';
+                                        $color = 'primary';
+                                    } elseif ($stats->status == '80') {
+                                        $status = 'Hot Prospect';
+                                        $color = 'warning';
+                                    } elseif ($stats->status == '100') {
+                                        $status = 'Done PO';
+                                        $color = 'success';
+                                    } elseif ($stats->status == '0') {
+                                        $status = 'Loss';
+                                        $color = 'danger';
+                                    } else {
+                                        $status = 'Quotation Created';
+                                        $color = 'secondary';
+                                    }
+                                @endphp
+                                <li class="timeline-item timeline-item-transparent clearfix">
+                                    <span class="timeline-point timeline-point-{{ $color }}"></span>
+                                    <div class="timeline-event">
+                                        <div class="timeline-header mb-1">
+                                            <h6 class="mb-0">{{ $status }}</h6>
+                                            <small
+                                                class="text-muted">{{ $stats->date->diffInHours(Carbon\Carbon::now()) > 24 ? $stats->date->format('d M y h:i:s') : $stats->date->diffForHumans() }}
+                                            </small>
+                                        </div>
+                                        <p class="mb-3">
+                                            {{ $stats->note }}
+                                        </p>
+                                        @foreach ($stats->comment as $item)
+                                            <div class="d-flex justify-content-between align-items-center px-2 mb-2{{ $item->id_user == Auth::user()->id ? ' rounded bg-label-primary float-end' : '' }}"
+                                                style="width : 80%;">
+                                                <div class="d-flex align-items-center mb-1">
+                                                    <img src="{{ url('') . '/' . $item->user->image }}" alt="ini photo"
+                                                        style="width: 50px;" class="mx-2 rounded-pill">
+                                                    <p class="mb-0">
+                                                        <span class="fw-medium">{{ $item->user->name }}</span>:
+                                                        {{ $item->comment }}
+                                                    </p>
+                                                </div>
+                                                <small
+                                                    class="text-muted">{{ $item->date->diffInHours(Carbon\Carbon::now()) > 24 ? $item->date->format('d M y h:i:s') : $item->date->diffForHumans() }}</small>
+                                            </div>
+                                        @endforeach
+                                        {{-- <div class="d-flex align-items-center mb-1">
+                                        <div class="badge bg-lighter rounded-3">
+                                            <img src="../../assets//img/icons/misc/pdf.png" alt="img" width="15"
+                                                class="me-2">
+                                            <span class="h6 mb-0">invoices.pdf</span>
+                                        </div>
+                                    </div>  --}}
+                                        @php
+                                            $lastStat = App\Models\ChangeStatus::where('id_quotation', $quote->primary_id)
+                                                ->orderByDesc('id')
+                                                ->first();
+                                        @endphp
+                                    </div>
+                                </li>
+                                @if ($stats->id == $lastStat->id)
+                                    <form action="{{ route('add-comment.quotation', $quote->id) }}" method="post"
+                                        enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="form-floating mt-3">
+                                            <input type="text" class="form-control" id="floatingInputFilled"
+                                                placeholder="Comment" name="comment"
+                                                aria-describedby="floatingInputFilledHelp">
+                                            <label for="floatingInputFilled">Comment</label>
+                                            <span class="form-floating-focused"></span>
+                                        </div>
+                                        <button type="submit"
+                                            class="btn btn-primary waves-effect waves-light float-end">Submit</button>
+                                    </form>
+                                @endif
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
         </div>
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
 
-            @if ($quote->id_sales == Auth::user()->id && $quote->status != 100)
+            @if ($quote->id_sales == Auth::user()->id && $quote->status != 100 && $quote->level == 1)
                 <div class="card mb-3">
                     <div class="card-body">
                         <div class="form-floating form-floating-outline mb-2">
@@ -271,9 +369,9 @@
                                 <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
                                     data-bs-toggle="modal" data-bs-target="#changeStatus-{{ $quote->id }}">Change
                                     Status</button>
-                                <button type="button" class="btn btn-twitter d-grid w-100 waves-effect mb-3"
+                                {{-- <button type="button" class="btn btn-twitter d-grid w-100 waves-effect mb-3"
                                     data-bs-toggle="modal" data-bs-target="#addMention"> Mention
-                                </button>
+                                </button> --}}
                             @endif
                             @if ($quote->status == '100')
                                 <a href="#" class="btn btn-secondary d-grid w-100 waves-effect cancel-po mb-3"
@@ -281,6 +379,9 @@
                                     PO</a>
                             @endif
                         @endif
+                        {{-- <button type="button" class="btn btn-reddit d-grid w-100 waves-effect mb-3"
+                            data-bs-toggle="modal" data-bs-target="#addComment"> Comment
+                        </button> --}}
                         @if (Auth::user()->role == 'Sales')
                             <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-quotation"
                                 data-id="{{ $quote->id }}">Delete</a>
@@ -339,6 +440,11 @@
                                                 class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
                                         </a>
                                     </div>
+
+                                    <button type="button" class="btn btn-outline-dark d-grid w-100 waves-effect mb-3"
+                                        data-bs-toggle="modal" data-bs-target="#changePo">
+                                        Change No PO
+                                    </button>
                                 @else
                                     <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
                                         data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
@@ -533,6 +639,7 @@
     @include('pages.sales.quotation.modal-status')
     @include('components.modal.quotation.convert-po')
     @include('components.modal.quotation.upload-po')
+    @include('components.modal.quotation.change-po')
     @include('components.modal.quotation.request-bp')
     @include('components.modal.accounting.selling-contract')
     @include('components.modal.accounting.confirm-order')
@@ -548,6 +655,13 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/dropzone/dropzone.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice.css" />
+    <style>
+        .clearfix::after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+    </style>
 @endpush
 @push('after-script')
     <script src="{{ asset('assets') }}/vendor/libs/dropzone/dropzone.js"></script>

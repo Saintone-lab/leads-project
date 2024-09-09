@@ -80,5 +80,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\ProductOut', 'id_user');
     }
+    public function status()
+    {
+        return $this->hasMany('App\Models\ChangeStatus', 'id_user');
+    }
     
 }

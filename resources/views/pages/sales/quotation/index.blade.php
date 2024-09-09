@@ -96,7 +96,6 @@
                         @if (Auth::user()->role == 'Admin')
                             <th>Assign</th>
                         @endif
-                        <th>Actions</th>
                     </tr>
                 </thead>
             </table>

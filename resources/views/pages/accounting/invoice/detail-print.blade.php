@@ -27,14 +27,15 @@
                                 </p>
                                 <p class="mb-1">
                                 </p>
-                                <p class="mb-1 text-black fw-medium p-1" style="background-color: rgb(224, 221, 255)">
-                                    NPWP : 73.728.571.8-429.000</p>
                             </div>
                         </div>
                         <div class="npwp_add">
                             <p class="mb-1 fw-bolder">NPWP Address :</p>
                             <pre
                                 style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">Komp. Negia Kencana Residence Blok B, No.2 Pasanggrahan, Ujung Berung Kota Bandung - Jawa Barat 40199</pre>
+                            <p class="mb-1 text-black fw-medium p-1"
+                                style="background-color: rgb(224, 221, 255); font-size :10px;">
+                                NPWP : 73.728.571.8-429.000</p>
                         </div>
                     </div>
                 </div>
@@ -44,7 +45,7 @@
                         <span class="fw-bolder">#{{ $invoice->no_invoice }}</span>
                     </div>
                     <div class="mt-1">
-                        <span class="text-muted">{{ Carbon\Carbon::parse($invoice->date)->format('d-m-Y') }}</span>
+                        <span class="fw-medium">{{ Carbon\Carbon::parse($invoice->date)->format('d-m-Y') }}</span>
                     </div>
                 </div>
             </div>
@@ -71,15 +72,15 @@
                                     812-1000-0997
                                     {{ ' | ' }}<i
                                         class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
-                                </p>
-                                <p class="mb-1 text-black fw-medium p-1" style="background-color: rgb(255, 235, 221)">
-                                    NPWP : 96.484.859.2-413.000</p>
                             </div>
                         </div>
                         <div class="npwp_add">
                             <p class="mb-1 fw-bolder">NPWP Address :</p>
                             <pre
                                 style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">Jl. Nancep No. 45, Setu Cisaat RT. 001 RW. 003 Cibening, Setu</pre>
+                            </p>
+                            <p class="mb-1 text-black fw-medium p-1" style="background-color: rgb(255, 235, 221)">
+                                NPWP : 96.484.859.2-413.000</p>
                         </div>
                     </div>
                 </div>
@@ -105,7 +106,7 @@
                                 <p class="mb-1">Bill To </p>
                             </div>
                             <div class="col-8">
-                                <p class="mb-1">: {{ $quote->pic->client->company }}</p>
+                                <p class="mb-1 fw-bolder">: {{ $quote->pic->client->company }}</p>
                             </div>
                             <div class="col-4 fw-medium">
                                 <p class="mb-1">Phone </p>
@@ -151,14 +152,15 @@
             </table>
         </div>
         <div class="mb-2">
-            <table class="table table-bordered m-0" style="border: 1px solid rgb(60, 60, 60)">
+            <table class="table table-bordered m-0"
+                style="border: 1px solid rgb(60, 60, 60); border-collapse: collapse;">
                 <thead class="table-light">
                     <tr>
-                        <th>No.</th>
-                        <th>Item</th>
-                        <th>Price</th>
+                        <th style="width: 1%">No.</th>
+                        <th style="width: 35%">Item</th>
+                        <th style="width: 15%">Price</th>
                         <th>Qty</th>
-                        <th style="width: 5%">Disc</th>
+                        <th>Disc</th>
                         <th style="width: 20%">Amount</th>
                     </tr>
                 </thead>
@@ -167,7 +169,48 @@
                         $totalPph = 0;
                         $no = 1;
                     @endphp
-                    <tr style="font-size: 13px">
+                    @foreach ($dquote as $product)
+                        <tr style="font-size: 13px; border: none;">
+                            <td class="align-top" style="padding-bottom: 0px;">
+                                <p>
+                                    {{ $no }}
+                                </p>
+                                @php
+                                    $no++;
+                                    $pph = ($product->amount * $product->pph) / 100;
+                                    $totalPph += $pph;
+                                @endphp
+                            </td>
+                            <td class="text-nowrap align-top" style="padding-bottom: 0px;">
+                                <p class="mb-0 fw-semibold" style="font-size: 12px">
+                                    {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
+                                </p>
+                                <pre class="mb-0"
+                                    style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
+                            </td>
+                            <td class="align-top text-end" style="padding-bottom: 0px;">
+                                <p>
+                                    {{ number_format($product->price, 0, '', '.') }}
+                                </p>
+                            </td>
+                            <td class="align-top" style="padding-bottom: 0px;">
+                                <p>
+                                    {{ $product->qty }} {{ $product->info_qty }}
+                                </p>
+                            </td>
+                            <td class="align-top">
+                                <p>
+                                    {{ $product->disc }}%
+                                </p>
+                            </td>
+                            <td class="align-top text-end" style="padding-bottom: 0px;">
+                                <p>
+                                    {{ number_format($product->amount, 0, '', '.') }}
+                                </p>
+                            </td>
+                        </tr>
+                    @endforeach
+                    {{-- <tr style="font-size: 13px">
                         <td class="align-top">
                             @foreach ($dquote as $product)
                                 <p>
@@ -186,7 +229,7 @@
                                     {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
                                 </p>
                                 <pre class="mb-0"
-                                    style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
+                                    style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
                             @endforeach
                         </td>
                         <td class="align-top text-end">
@@ -217,14 +260,16 @@
                                 </p>
                             @endforeach
                         </td>
-                    </tr>
+                    </tr> --}}
 
                     <tr class="fw-medium" style="font-size: 13px">
                         <td colspan="3" rowspan="9" id="dynamicRows" style="border-bottom :none !important;">
                         </td>
                         <td colspan="2" id="price" class="text-end pl-4 py-0"
                             style="padding-right: 10px !important;">
-                            <p class="m-0">{{ $invoice->pph == 0 ? 'Total' : 'Subtotal' }}</p>
+                            <p class="m-0">
+                                {{ $quote->tax != 0 || $invoice->pph != 0 || $quote->shipping != 0 ? 'Subtotal' : 'Total' }}
+                            </p>
                         </td>
                         <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
                             <p class="text-end m-0">RP
@@ -295,11 +340,13 @@
                                     </td>
                                 </tr>
                             @endif
+                        @endif
+                        @if ($quote->tax != 0 || $totalPph > 0 || $quote->shipping != 0)
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="2" class="text-end py-0"
                                     style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                     <p class="m-0 fw-bold">Total</p>
-                                </td>$
+                                </td>
                                 <td class="pr-4 py-0"
                                     style="background-color: {{ $bgColor }}; padding-right:20px;">
                                     <p class="m-0 text-end fw-bold">

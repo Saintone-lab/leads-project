@@ -462,17 +462,16 @@
             <div class="col-md-6 col-12">
                 <div class="card mb-3">
                     <div class="card-datatable table-responsive pt-0">
-                        <table class="datatable-visit-sales table table-striped">
+                        <table class="datatable-comment table table-striped">
                             <thead>
                                 <tr>
                                     <th></th>
                                     <th></th>
                                     <th>ID</th>
-                                    <th>Company</th>
-                                    <th>Machine</th>
-                                    <th>Request</th>
-                                    <th>Date</th>
+                                    <th>No Quote</th>
                                     <th>Status</th>
+                                    <th>Admin</th>
+                                    <th>Date</th>
                                 </tr>
                             </thead>
                         </table>
@@ -1258,7 +1257,8 @@
                             <th>Desc</th>
                             <th>Dimension</th>
                             <th>G/O</th>
-                            <th>Stock</th>
+                            <th>Stock BDG</th>
+                            <th>Stock BKS</th>
                         </tr>
                     </thead>
                 </table>
@@ -1357,6 +1357,32 @@
         <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/apex-charts/apexcharts.js"></script>
+        <script>
+            $(document).on('click', '.view-quote', function(e) {
+                e.preventDefault(); // Mencegah perubahan halaman segera
+
+                var id = $(this).data('id');
+                var idQ = $(this).data('quotation');
+                var href = $(this).attr('href'); // Ambil URL tujuan
+
+                $.ajax({
+                    url: '{{ url('quotation') }}/' + id + '/view_comment',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}', // Token CSRF
+                    },
+                    success: function(response) {
+                        console.log(response); // Lakukan apa yang perlu dilakukan setelah AJAX sukses
+
+                        // Arahkan ke halaman baru setelah AJAX selesai
+                        window.location.href = href;
+                    },
+                    error: function(xhr) {
+                        console.error("Error:", xhr.responseText); // Tangani error jika ada
+                    }
+                });
+            });
+        </script>
     @endif
 @endpush
 @push('page-script')
@@ -1368,15 +1394,19 @@
         <script src="{{ asset('assets') }}/js/app-calendar-events.js"></script>
         <script src="{{ asset('assets') }}/js/app-calendar.js"></script>
         <script src="{{ asset('assets') }}/includes/chart/card-monthly.js"></script>
+        <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
         <script src="{{ asset('assets') }}/includes/table-prospect-sales.js"></script>
         <script src="{{ asset('assets') }}/includes/table-req-visit-sales.js"></script>
     @endif
 
     <script src="{{ asset('assets') }}/includes/table-prospect.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-comment.js"></script>
 
     <script src="{{ asset('assets') }}/includes/table-product-sales.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-logistic.js"></script>
 
     <script src="{{ asset('assets') }}/includes/table-req-visit-service.js"></script>
     <script src="{{ asset('assets') }}/includes/table-req-visit-accept.js"></script>
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script> --}}
+
 @endpush

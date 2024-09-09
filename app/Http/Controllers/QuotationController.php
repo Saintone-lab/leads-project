@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Activities;
+use App\Models\ChangeStatus;
 use App\Models\Client;
+use App\Models\Comment;
 use App\Models\Contract;
 use App\Models\Delivery;
 use App\Models\DetailDelivery;
@@ -102,6 +104,7 @@ class QuotationController extends Controller
         $quotation->id_sales = $request->id_sales;
         $quotation->id_service = NULL;
         $quotation->is_primary = "1";
+        $quotation->primary_id = 0;
         $quotation->num_rev = 0;
         $quotation->destination = $request->destination;
         $quotation->no_pr = NULL;
@@ -150,6 +153,12 @@ class QuotationController extends Controller
                 $dQuote->pph = 0;
                 $dQuoteSave = $dQuote->save();
             }
+            $stats = new ChangeStatus;
+            $stats->id_quotation = $quotation->id;
+            $stats->date = Carbon::now();
+            $stats->note = 'Quotation has been created';
+            $stats->status = "10";
+            $stats->save();
             if ($dQuoteSave) {
                 // Masukan Data ke dalam Tabel Term n Condition
                 $termncon = new Termncon;
@@ -203,10 +212,11 @@ class QuotationController extends Controller
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
         }
-
+        $status = ChangeStatus::where('id_quotation', $quote->primary_id)->with('comment')->get();
+        // dd($status);
         $remaining = $quote->harga_total - $totalAmount;
         // dd($formattedNumberSP);
-        return view("pages.sales.quotation.detail", compact('quote', 'lastQuote', 'primQuote', 'quotations', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
+        return view("pages.sales.quotation.detail", compact('quote', 'status', 'lastQuote', 'primQuote', 'quotations', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
     /**
      * Show the form for editing the specified resource.
@@ -320,6 +330,13 @@ class QuotationController extends Controller
                 $termncon->payment = $request->payment;
                 $termncon->note = $request->note;
                 $termnconSave = $termncon->save();
+
+                $stats = new ChangeStatus;
+                $stats->id_quotation = $quotation->primary_id;
+                $stats->date = Carbon::now();
+                $stats->note = 'Quotation Revision - '. $lastQuote->num_rev + 1;
+                $stats->status = $quotation->status;
+                $stats->save();
             }
         }
         if ($termnconSave) {
@@ -339,13 +356,16 @@ class QuotationController extends Controller
         $quote = Quotation::where('primary_id', $quotation->primary_id)->where('num_rev', $quotation->num_rev - 1)->first();
         $quotes = Quotation::where('primary_id', $quotation->primary_id)->get();
 
+        $quotation->level = '0';
+        foreach ($quotes as $item) {
+            $item->is_primary = '0';
+            $item->save();
+        }
+
         if (count($quotes) > 1) {
             $quote->is_primary = '1';
             $quote->save();
         }
-
-        $quotation->level = '0';
-        $quote->is_primary = '0';
         $delQuote = $quotation->save();
 
         if ($delQuote) {
@@ -427,9 +447,15 @@ class QuotationController extends Controller
 
             $quotation->po_date = Carbon::now();
         }
+        $changeStats = new ChangeStatus;
+        $changeStats->id_quotation = $quotation->primary_id;
+        $changeStats->date = Carbon::now();
+        $changeStats->status = $request->status;
+        $changeStats->note = $request->note;
+        $changeStats->save();
         $stats = $quotation->save();
         if ($stats || $activitiesSave || $isuSave) {
-            return redirect('quotation')->with("success", "Data Status Quotation Telah Diubah");
+            return redirect('/quotation/' . $id)->with("success", "Data Status Quotation Telah Diubah");
         }
     }
 
@@ -488,6 +514,12 @@ class QuotationController extends Controller
             $client->role = 'Customers';
             $client->save();
         }
+        $stats = new ChangeStatus;
+        $stats->id_quotation = $quotation->primary_id;
+        $stats->date = Carbon::now();
+        $stats->status = '100';
+        $stats->note = $request->note;
+        $stats->save();
         if ($quoteSave) {
             return redirect('/quotation/' . $id)->with("success", "data telah ditambahkan");
         }
@@ -620,6 +652,7 @@ class QuotationController extends Controller
                 $invoice->term = NULL;
                 $invoice->invoiceTo = NULL;
                 $invoice->sign = NULL;
+                $invoice->pph = 0;
                 $invoice->save();
             }
 
@@ -814,17 +847,19 @@ class QuotationController extends Controller
         }
     }
 
-    public function add_mention(Request $request, $id){
+    public function add_mention(Request $request, $id)
+    {
         $quote = Quotation::find($id);
         $quote->mention = $request->mention;
         $quote->note = $request->note;
         $status = $quote->save();
         if ($status) {
-            return redirect('/quotation/'. $id)->with('massage','Data berhasil di buat');
+            return redirect('/quotation/' . $id)->with('massage', 'Data berhasil di buat');
         }
     }
 
-    public function change_primary(Request $request, $id){
+    public function change_primary(Request $request, $id)
+    {
         $quote = Quotation::find($id);
         $quotations = Quotation::where("primary_id", $quote->primary_id)->get();
         foreach ($quotations as $quotation) {
@@ -840,6 +875,44 @@ class QuotationController extends Controller
         }
     }
 
+    public function change_po(Request $request, $id)
+    {
+        $invoice = Invoice::find($id);
+        $invoice->no_po = $request->no_po;
+        $invoiceSave = $invoice->save();
+        if ($invoiceSave) {
+            return redirect('/quotation/' . $id)->with('massage', 'Data berhasil di buat');
+        }
+    }
+    public function add_comment(Request $request, $id)
+    {
+        $stats = ChangeStatus::where('id_quotation', $id)->orderByDesc('date')->first();
+        $comment = new Comment;
+        $comment->id_status = $stats->id;
+        $comment->id_user = Auth::user()->id;
+        $comment->date = Carbon::now();
+        $comment->comment = $request->comment;
+        Auth::user()->role == "Admin" ? $comment->level = '1' : $comment->level = '0';
+        $commentSave = $comment->save();
+        if ($commentSave) {
+            return redirect('/quotation/' . $id . '#viewComment')->with('massage', 'Data berhasil di buat');
+        }
+    }
+    public function view_comment($id)
+    {
+        $comment = Comment::find($id);
+
+        if ($comment) {
+            $comment->level = '2';
+            $comment->save();
+
+            // Return response JSON
+            return response()->json(['message' => 'Comment updated successfully!']);
+        } else {
+            // Return error jika tidak ditemukan
+            return response()->json(['message' => 'Comment not found'], 404);
+        }
+    }
     protected function convertToRoman($month)
     {
         $romanMonth = [
