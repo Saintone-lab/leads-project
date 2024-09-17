@@ -142,7 +142,7 @@ $(function () {
                 },
             ],
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label text-center">><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            dom: '<"card-header flex-column flex-md-row"<"head-label-comment text-center">><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 15,
             lengthMenu: [15, 25, 50, 75, 100],
             drawCallback: function (settings) {
@@ -183,7 +183,7 @@ $(function () {
                 },
             },
         });
-        $("div.head-label").html(
+        $("div.head-label-comment").html(
             '<h5 class="card-title mb-0">Table Comment</h5>'
         );
     }

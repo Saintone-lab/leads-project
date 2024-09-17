@@ -1,32 +1,39 @@
 $(function () {
-    var dt_table_prospect_quote_sales = $(".datatable-prospect-quote-sales");
-    var Url = "db/prospect/sales";
+    var dt_table_prospect = $(".datatable-prospect");
+    var Url = "db/prospect/support";
 
-    if (dt_table_prospect_quote_sales.length) {
+    if (dt_table_prospect.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_prospect_sales = dt_table_prospect_quote_sales.DataTable({
+        var dt_prospect = dt_table_prospect.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
                 headers: {
                     "Content-Type": "application/json",
                 },
+                // success: function (hasil, Url) {
+                //     console.log("Url:", Url);
+                //     console.log(hasil);
+                // },
+                // error: function (error) {
+                //     console.log("Url:", Url);
+                //     console.error("Error:", error);
+                //     console.log("error disini");
+                // },
             },
             columns: [
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
                 { data: "company" },
-                { data: "title" },
-                { data: "nett" },
+                { data: "name_pic" },
+                { data: "kebutuhan" },
+                { data: "date" },
                 { data: "status" },
-                { data: "" },
+                { data: "nett" },
+                { data: "name" },
             ],
             columnDefs: [
-                {
-                    targets: 5,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
-                },
                 {
                     // For Responsive
                     className: "control",
@@ -62,65 +69,73 @@ $(function () {
                     responsivePriority: 1,
                     targets: 4,
                 },
+                // {
+                //     targets: 3,
+                //     render: function (data, type, full, row) {
+                //         if (type === "display") {
+                //             var $dataId = full["id"];
+                //             var detailRoute = route("prospect.show", $dataId);
+                //             return (
+                //                 '<a class="text-dark view-quote" href="' +
+                //                 detailRoute +
+                //                 '">' +
+                //                 data +
+                //                 "</a>"
+                //             );
+                //         }
+                //         return data;
+                //     },
+                // },
                 {
-                    // Label Status Percent
-                    targets: 6,
+                    targets: [7, 8, 9],
+                    render: function (data, type, row) {
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            return type === "display" ? data : "-";
+                        }
+                    },
+                },
+                {
+                    // Label Status Name
+                    targets: 7,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
-                        var $titleTool = full["note"];
                         var $status = {
                             20: {
-                                title: "20%",
+                                title: "Send WA / Email",
                                 class: "bg-label-secondary",
-                                colorTip: "tooltip-secondary",
-                                titleTip: $titleTool,
                             },
                             30: {
-                                title: "30%",
+                                title: "Inquiry Accepted",
                                 class: " bg-label-dark",
-                                colorTip: "tooltip-dark",
-                                titleTip: $titleTool,
                             },
                             40: {
-                                title: "40%",
+                                title: "Progress Follow Up",
                                 class: " bg-label-info",
-                                colorTip: "tooltip-info",
-                                titleTip: $titleTool,
                             },
                             60: {
-                                title: "60%",
+                                title: "Negotiation / Revisi",
                                 class: " bg-label-primary",
-                                colorTip: "tooltip-primary",
-                                titleTip: $titleTool,
                             },
                             80: {
                                 title: "Hot Prospect",
                                 class: " bg-label-warning",
-                                colorTip: "tooltip-warning",
-                                titleTip: $titleTool,
                             },
                             100: {
-                                title: "100%",
+                                title: "Done PO",
                                 class: " bg-label-success",
-                                colorTip: "tooltip-success",
-                                titleTip: $titleTool,
                             },
                             0: {
-                                title: "0%",
+                                title: "Loss",
                                 class: " bg-label-danger",
-                                colorTip: "tooltip-danger",
-                                titleTip: $titleTool,
                             },
                         };
                         if (typeof $status[$status_number] === "undefined") {
                             return data;
                         }
                         return (
-                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
-                            $status[$status_number].colorTip +
-                            '" title="' +
-                            $status[$status_number].titleTip +
-                            '" class="badge rounded-pill ' +
+                            '<span class="badge rounded-pill ' +
                             $status[$status_number].class +
                             '">' +
                             $status[$status_number].title +
@@ -129,27 +144,8 @@ $(function () {
                     },
                 },
                 {
-                    // Actions
-                    targets: -1,
-                    title: "Actions",
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, full, meta) {
-                        var $dataId = full["id"];
-                        var $detailQUrl = route("quotation.show", $dataId);
-                        return (
-                            '<div class="d-inline-block">' +
-                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
-                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<li><a href="' +
-                            $detailQUrl +
-                            '" class="dropdown-item">Details</a></li>' +
-                            '<div class="dropdown-divider"></div>' +
-                            '<li><a href="javascript:;" class="dropdown-item text-danger delete-record">Delete</a></li>' +
-                            "</ul>" +
-                            "</div>"
-                        );
-                    },
+                    targets: 8,
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
             ],
             drawCallback: function (settings) {
@@ -157,7 +153,7 @@ $(function () {
                 $('[data-toggle="tooltip"]').tooltip();
             },
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
@@ -372,6 +368,14 @@ $(function () {
                         },
                     ],
                 },
+                {
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Prospect</span>',
+                    className: "btn btn-primary",
+                    attr: {
+                        "data-bs-target": "#createProspect",
+                        "data-bs-toggle": "modal",
+                    },
+                },
             ],
             responsive: {
                 details: {
@@ -408,11 +412,9 @@ $(function () {
                 },
             },
         });
-        $("div.hl-2").html(
-            '<h5 class="card-title mb-0">Prospect</h5>'
-        );
+        $("div.hl-1").html('<h5 class="card-title mb-0">prospects</h5>');
     }
-    dt_table_prospect_quote_sales.on("draw", function () {
+    dt_table_prospect.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

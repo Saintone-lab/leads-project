@@ -201,10 +201,10 @@
                                 </tr>
                             @endforeach
                             <tr class="fw-medium" style="font-size: 13px">
-                                <td colspan="3" rowspan="9" id="dynamicRows"
+                                <td colspan="2" rowspan="9" id="dynamicRows"
                                     style="border-bottom :none !important;">
                                 </td>
-                                <td colspan="2" id="price" class="text-end pl-4 py-0"
+                                <td colspan="3" id="price" class="text-end pl-4 py-0"
                                     style="padding-right: 10px !important;">
                                     <p class="m-0">{{ $quote->tax != 0 || $invoice->pph != 0 || $quote->shipping != 0 ? 'Subtotal' : 'Total' }}</p>
                                     {{-- <p class="m-0">Total</p> --}}
@@ -224,7 +224,7 @@
                             @if ($invoice->type == 'CT')
                                 @if ($quote->diskon != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -234,7 +234,7 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Total After Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -246,7 +246,7 @@
                                 @endif
                                 @if ($quote->shipping != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Shipping Cost</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -258,7 +258,7 @@
                                 @endif
                                 @if ($quote->tax != 0 || $totalPph > 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -268,7 +268,7 @@
                                     </tr>
                                     @if ($totalPph > 0)
                                         <tr class="fw-medium py-0" style="font-size: 13px">
-                                            <td colspan="2" class="text-end py-0"
+                                            <td colspan="3" class="text-end py-0"
                                                 style="padding-right: 10px !important;">
                                                 <p class="m-0">PPH</p>
                                             </td>
@@ -282,7 +282,7 @@
                                 @endif
                                 @if ($quote->tax != 0 || $totalPph > 0 || $quote->shipping != 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0"
+                                        <td colspan="3" class="text-end py-0"
                                             style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0 fw-bold">Total</p>
                                         </td>
@@ -301,7 +301,7 @@
                                 @endphp
                                 @if ($quote->diskon != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -311,7 +311,7 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0"
+                                        <td colspan="3" class="text-end py-0"
                                             `style="padding-right: 10px !important;">
                                             <p class="m-0">Total After Discount</p>
                                         </td>
@@ -324,7 +324,7 @@
                                 @endif
                                 @if ($quote->shipping != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Shipping Cost</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -335,7 +335,7 @@
                                     </tr>
                                 @endif
                                 <tr class="fw-medium" style="font-size: 13px">
-                                    <td colspan="2" class="text-end py-0 px-0">
+                                    <td colspan="3" class="text-end py-0 px-0">
                                         <p class="m-0"
                                             style="background-color: yellow; padding-left:20px; padding-right:10px;">
                                             {{ $payments[0]->note }}
@@ -350,7 +350,7 @@
                                 </tr>
                                 @if ($quote->tax != 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -359,7 +359,7 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0"
+                                        <td colspan="3" class="text-end py-0"
                                             style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0 fw-bold">Total Include VAT</p>
                                         </td>
@@ -372,7 +372,7 @@
                                     </tr>
                                 @else
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0"
+                                        <td colspan="3" class="text-end py-0"
                                             style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0">Total</p>
                                         </td>
@@ -392,7 +392,7 @@
                                 @endphp
                                 @if ($quote->diskon != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -402,7 +402,7 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Total After Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -414,7 +414,7 @@
                                 @endif
                                 @if ($quote->shipping != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">Shipping Cost</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -425,7 +425,7 @@
                                     </tr>
                                 @endif
                                 <tr class="fw-medium" style="font-size: 13px">
-                                    <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                    <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                         <p class="m-0">
                                             {{ $payments[0]->note }}
                                             {{ $payments[0]->percent }}%:</p>
@@ -437,7 +437,7 @@
                                     </td>
                                 </tr>
                                 <tr class="fw-medium" style="font-size: 13px">
-                                    <td colspan="2" class="text-end py-0 px-0">
+                                    <td colspan="3" class="text-end py-0 px-0">
                                         <p class="m-0"
                                             style="background-color: yellow; padding-left:20px; padding-right:10px;">
                                             {{ $payments[1]->note }}
@@ -451,7 +451,7 @@
                                 </tr>
                                 @if ($quote->tax != 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -460,7 +460,7 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0"
+                                        <td colspan="3" class="text-end py-0"
                                             style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0">Total Include VAT</p>
                                         </td>
@@ -473,7 +473,7 @@
                                     </tr>
                                 @else
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0"
+                                        <td colspan="3" class="text-end py-0"
                                             style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
                                             <p class="m-0">Total</p>
                                         </td>

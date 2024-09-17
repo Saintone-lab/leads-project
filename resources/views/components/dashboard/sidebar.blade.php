@@ -162,18 +162,20 @@
                 </ul>
             </li>
             <li
-                class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') || request()->is('request/invoice') || request()->is('request/invoice/*') ||  request()->is('index/invoice/kojisha') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') || request()->is('request/invoice') || request()->is('request/invoice/*') || request()->is('index/invoice/kojisha') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-file-document-check-outline"></i>
                     <div data-i18n="Invoice">Invoice</div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('request/invoice') || request()->is('request/invoice/*')  ? 'active' : '' }}">
+                    <li
+                        class="menu-item {{ request()->is('request/invoice') || request()->is('request/invoice/*') ? 'active' : '' }}">
                         <a href="{{ route('invoice.request') }}" class="menu-link">
                             <div data-i18n="Request">Request</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') ? 'active' : '' }}">
+                    <li
+                        class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') ? 'active' : '' }}">
                         <a href="{{ route('invoice.index') }}" class="menu-link">
                             <div data-i18n="Invoice Reftech">Invoice Reftech</div>
                         </a>
@@ -184,6 +186,16 @@
                         </a>
                     </li>
                 </ul>
+            </li>
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Prospect</span>
+            </li>
+
+            <li class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') ? 'active' : '' }}">
+                <a href="{{ route('prospect.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <div data-i18n="Prospect">Prospect</div>
+                </a>
             </li>
 
             <li class="menu-header fw-light mt-4">
@@ -373,6 +385,119 @@
                 <a href="{{ url('pending-po') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-cart-arrow-down"></i>
                     <div data-i18n="Pending PO">Pending PO</div>
+                </a>
+            </li>
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Archive</span>
+            </li>
+            <li class="menu-item">
+                <a href="{{ route('archive.quotation') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-delete-variant"></i>
+                    <div data-i18n="Archive Quotation">Archive Quotation</div>
+                </a>
+            </li>
+        @elseif (auth::user()->role == 'Support')
+            <!-- Dashboards -->
+            <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
+                <a href="{{ url('/') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
+                    <div data-i18n="Dashboards">Dashboards</div>
+                </a>
+            </li>
+            {{-- <li class="menu-item">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-phone-incoming-outgoing-outline"></i>
+                    <div data-i18n="Activities">Activities</div>
+                </a>
+            </li> --}}
+            <li class="menu-item {{ request()->is('reports') ? 'active' : '' }}">
+                <a href="{{ url('/reports') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-finance"></i>
+                    <div data-i18n="Reports">Reports</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('overview') || request()->is('overview/*') || request()->is('overview/*/*') ? 'active' : '' }}">
+                <a href="{{ url('/overview') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-account-eye-outline"></i>
+                    <div data-i18n="Overview">Overview</div>
+                </a>
+            </li>
+            <!-- Layouts -->
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Client</span>
+            </li>
+            <li
+                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
+                    <div data-i18n="Client">Client</div>
+                </a>
+
+                <ul class="menu-sub">
+                    <li
+                        class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') ? 'active' : '' }}">
+                        <a href="{{ url('leads') }}" class="menu-link">
+                            <div data-i18n="Leads">Leads</div>
+                        </a>
+                    </li>
+
+                    <li
+                        class="menu-item {{ request()->is('existing') || request()->is('existing/*') ? 'active' : '' }}">
+                        <a href="{{ route('existing.index') }}" class="menu-link">
+                            <div data-i18n="Customers">Customers</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li
+                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
+                    <div data-i18n="Quotation">Quotation</div>
+                </a>
+                <ul class="menu-sub">
+                    <li
+                        class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('quotation/*') ? 'active' : '' }}">
+                        <a href="{{ route('quotation.index') }}" class="menu-link">
+                            <div data-i18n="Quotation">Quotation</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div data-i18n="Quotation Unit">Quotation Unit</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('po') ? 'active' : '' }}">
+                        <a href="{{ route('quotation.po') }}" class="menu-link">
+                            <div data-i18n="Done PO">Done PO</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('loss') ? 'active' : '' }}">
+                        <a href="{{ route('quotation.loss') }}" class="menu-link">
+                            <div data-i18n="Loss">Loss</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li
+                class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
+                <a href="{{ route('service-reports.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
+                    <div data-i18n="Service Report">Service Report</div>
+                </a>
+            </li>
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Prospect</span>
+            </li>
+
+            <li class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') ? 'active' : '' }}">
+                <a href="{{ route('prospect.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <div data-i18n="Prospect">Prospect</div>
                 </a>
             </li>
             <li class="menu-header fw-light mt-4">

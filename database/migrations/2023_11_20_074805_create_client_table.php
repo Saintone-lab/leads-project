@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId("id_sales");
             $table->foreignId("id_issues");
+            $table->foreignId("id_support")->nullable();
             $table->string('company', 50);
             $table->string('email')->nullable();
             $table->string('phone', 15);

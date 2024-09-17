@@ -1,7 +1,7 @@
 @extends('layouts.sales.app')
 @section('title', 'My Dashboard')
 @section('content')
-    @if (Auth::user()->role == 'Sales')
+    @if (Auth::user()->role == 'Sales' || Auth::user()->role == 'Support')
         <div class="row gy-4 mb-4">
             @if (Auth::user()->detail[0]->area == 'Bekasi' ||
                     Auth::user()->detail[0]->area == 'Jabodetabek' ||
@@ -436,24 +436,21 @@
         <div class="row gy-4 mb-4">
             {{-- Start Diagram --}}
             <div class="col-lg-6 col-md-6 col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between">
-                            <h5 class="mb-1">Monthly Sales</h5>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div id="monthlyOverviewChartRegita"></div>
-                        <div class="mt-1">
-                            <div class="d-flex align-items-center gap-3">
-                                <h3 class="mb-0">62%</h3>
-                                <p class="mb-0 text-muted">Your sales performance is 35% 😎 better compared to last month
-                                </p>
-                            </div>
-                            <div class="d-grid mt-3">
-                                <button class="btn btn-primary" type="button">Details</button>
-                            </div>
-                        </div>
+                <div class="card mb-3">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-prospect-sales table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Company</th>
+                                    <th>Prospect</th>
+                                    <th>Date</th>
+                                    <th>Support</th>
+                                </tr>
+                            </thead>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -666,6 +663,10 @@
             </div>
 
         </div>
+
+        @foreach ($prospects as $prospect)
+            @include('components.modal.prospect.confirm')
+        @endforeach
     @elseif (Auth::user()->role == 'Admin')
         <div class="row gy-4 mb-4">
             <div class="col-12 col-lg-4">
@@ -1142,7 +1143,7 @@
             </div>
             <div class="col-12">
                 <div class="card mb-3">
-                    <div class="card-datatable table-responsive pt-0">
+                    <div class="card-datatable table-responsive pt-0" style="font-size: 13px;">
                         <table class="datatable-prospect-quote table table-striped">
                             <thead>
                                 <tr>
@@ -1322,7 +1323,8 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
 
     {{-- sales --}}
-    @if (Auth::user()->role == 'Sales')
+    @if (Auth::user()->role == 'Sales' || Auth::user()->role == 'Support')
+        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
         <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-calendar.css" />
         <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/swiper/swiper.css" />
         <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/fullcalendar/fullcalendar.css" />
@@ -1351,7 +1353,8 @@
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
     {{-- sales --}}
     {{-- sales --}}
-    @if (Auth::user()->role == 'Sales')
+    @if (Auth::user()->role == 'Sales' || Auth::user()->role == 'Support')
+        <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/fullcalendar/fullcalendar.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
@@ -1382,6 +1385,118 @@
                     }
                 });
             });
+            $(document).on('click', '#withQuote', function() {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: "Are you sure With Quotation?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, With Quotation!",
+                    customClass: {
+                        confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                        cancelButton: "btn btn-label-secondary waves-effect",
+                    },
+                    buttonsStyling: false,
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            'url': '{{ url('prospect') }}/' + 'with_quotation/' + id,
+                            'type': 'POST',
+                            'data': {
+                                '_method': 'POST',
+                                '_token': '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                if (response == 1) {
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "Converted!",
+                                        text: "Your file has been converted.",
+                                        customClass: {
+                                            confirmButton: "btn btn-success waves-effect",
+                                        },
+                                    })
+                                    window.setTimeout(function() {
+                                        window.location.href = '/prospect/create_quotation/' + id;
+                                    }, 2000);
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: 'Data Failed With Quotation!'
+                                    });
+                                }
+                            }
+                        });
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            title: "Cancelled",
+                            text: "You cancelled :)",
+                            icon: "error",
+                            customClass: {
+                                confirmButton: "btn btn-success waves-effect",
+                            },
+                        });
+                    }
+                });
+            });
+            $(document).on('click', '#withoutQuote', function() {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: "Are you sure without Quotation?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, without Quotation!",
+                    customClass: {
+                        confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                        cancelButton: "btn btn-label-secondary waves-effect",
+                    },
+                    buttonsStyling: false,
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            'url': '{{ url('prospect') }}/' + 'without_quotation/' + id,
+                            'type': 'POST',
+                            'data': {
+                                '_method': 'POST',
+                                '_token': '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                if (response == 1) {
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "Converted!",
+                                        text: "Your file has been converted.",
+                                        customClass: {
+                                            confirmButton: "btn btn-success waves-effect",
+                                        },
+                                    })
+                                    window.setTimeout(function() {
+                                        window.location.href = '/leads/detail/' + id;
+                                    }, 2000);
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: 'Data Failed With Quotation!'
+                                    });
+                                }
+                            }
+                        });
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            title: "Cancelled",
+                            text: "You cancelled :)",
+                            icon: "error",
+                            customClass: {
+                                confirmButton: "btn btn-success waves-effect",
+                            },
+                        });
+                    }
+                });
+            });
         </script>
     @endif
 @endpush
@@ -1389,17 +1504,19 @@
     <!-- Page JS -->
     <script src="{{ asset('assets') }}/js/ui-modals.js"></script>
 
-    @if (Auth::user()->role == 'Sales')
+    @if (Auth::user()->role == 'Sales' || Auth::user()->role == 'Support')
+        <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
         <script src="{{ asset('assets') }}/js/dashboards-crm.js"></script>
         <script src="{{ asset('assets') }}/js/app-calendar-events.js"></script>
         <script src="{{ asset('assets') }}/js/app-calendar.js"></script>
         <script src="{{ asset('assets') }}/includes/chart/card-monthly.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
-        <script src="{{ asset('assets') }}/includes/table-prospect-sales.js"></script>
+        <script src="{{ asset('assets') }}/includes/table-hot-prospect-sales.js"></script>
+        <script src="{{ asset('assets') }}/includes/table-prospect-support-sales.js"></script>
         <script src="{{ asset('assets') }}/includes/table-req-visit-sales.js"></script>
     @endif
 
-    <script src="{{ asset('assets') }}/includes/table-prospect.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-hot-prospect.js"></script>
     <script src="{{ asset('assets') }}/includes/table-comment.js"></script>
 
     <script src="{{ asset('assets') }}/includes/table-product-sales.js"></script>

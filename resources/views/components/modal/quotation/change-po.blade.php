@@ -1,6 +1,6 @@
-<form action="{{ route('change-po.quotation', $quote->id) }}" method="post" enctype="multipart/form-data">
+<form action="{{ route('change-po.quotation', $invoices->id) }}" method="post" enctype="multipart/form-data">
     @csrf
-    <div class="modal-onboarding modal fade animate__animated" id="changePo" tabindex="-1" style="display: none;"
+    <div class="modal-onboarding modal fade animate__animated" id="changePo{{$invo}}" tabindex="-1" style="display: none;"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content text-center">
@@ -9,7 +9,7 @@
                 </div>
                 <div class="modal-body p-0">
                     <div class="onboarding-content mb-0">
-                        <h4 class="onboarding-title text-body"> Change no PO {{ $quote->no_quote }}</h4>
+                        <h4 class="onboarding-title text-body"> Change no PO {{ $invo == 0 ? 'DP' : 'BP' }}</h4>
                         <div class="onboarding-info mb-3">
                             {{ $quote->pic->client->company }}
                         </div>
@@ -19,7 +19,7 @@
                                     <div class="form-floating form-floating-outline">
                                         <input class="form-control form-control-sm" type="text"
                                             placeholder="Put No Purchase Order Here ...." id="po" name="po"
-                                            value="">
+                                            value="{{$invoices->no_po}}">
                                         <label for="po">No Purchase Order</label>
                                     </div>
                                 </div>

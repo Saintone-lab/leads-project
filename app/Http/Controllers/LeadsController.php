@@ -115,6 +115,7 @@ class LeadsController extends Controller
         //masukan data ke table leads(client)
         $leads = new Client;
         $leads->id_sales = Auth::id();
+        $leads->id_support = NULL;
         $leads->id_issues = 1;
         $leads->company = $request->company;
         $leads->email = $request->email;

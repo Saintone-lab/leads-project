@@ -75,6 +75,8 @@ class QuotationController extends Controller
      */
     public function store(Request $request)
     {
+        $pic = Pic::find($request->id_pic);
+        $client = Client::find($pic->id_client);
         $rule = [
             'no_quote' => 'required',
             'title' => 'required',
@@ -103,6 +105,7 @@ class QuotationController extends Controller
         $quotation->id_pic = $request->id_pic;
         $quotation->id_sales = $request->id_sales;
         $quotation->id_service = NULL;
+        $quotation->id_support = $client->id_support;
         $quotation->is_primary = "1";
         $quotation->primary_id = 0;
         $quotation->num_rev = 0;
@@ -272,6 +275,7 @@ class QuotationController extends Controller
         $quotation->id_pic = $request->id_pic;
         $quotation->id_sales = $request->id_sales;
         $quotation->id_service = NULL;
+        $quotation->id_support = $quote->id_support;
         $quotation->primary_id = $quote->primary_id;
         $quotation->is_primary = '1';
         $quotation->num_rev = $lastQuote->num_rev + 1;
@@ -334,7 +338,7 @@ class QuotationController extends Controller
                 $stats = new ChangeStatus;
                 $stats->id_quotation = $quotation->primary_id;
                 $stats->date = Carbon::now();
-                $stats->note = 'Quotation Revision - '. $lastQuote->num_rev + 1;
+                $stats->note = 'Quotation Revision - ' . $lastQuote->num_rev + 1;
                 $stats->status = $quotation->status;
                 $stats->save();
             }
@@ -354,7 +358,7 @@ class QuotationController extends Controller
     {
         $quotation = Quotation::find($id);
         $quote = Quotation::where('primary_id', $quotation->primary_id)->where('num_rev', $quotation->num_rev - 1)->first();
-        $quotes = Quotation::where('primary_id', $quotation->primary_id)->get();
+        $quotes = Quotation::where('primary_id', $quotation->primary_id)->where('level', '1')->get();
 
         $quotation->level = '0';
         foreach ($quotes as $item) {
@@ -597,6 +601,7 @@ class QuotationController extends Controller
         $invoice->date = Carbon::today();
         $invoice->term = NULL;
         $invoice->invoiceTo = NULL;
+        $invoice->pph = 0;
         $invoice->sign = NULL;
         $invoiceSave = $invoice->save();
         if ($invoiceSave) {
@@ -878,10 +883,10 @@ class QuotationController extends Controller
     public function change_po(Request $request, $id)
     {
         $invoice = Invoice::find($id);
-        $invoice->no_po = $request->no_po;
+        $invoice->no_po = $request->po;
         $invoiceSave = $invoice->save();
         if ($invoiceSave) {
-            return redirect('/quotation/' . $id)->with('massage', 'Data berhasil di buat');
+            return redirect('/quotation/' . $invoice->id_quotation)->with('massage', 'Data berhasil di buat');
         }
     }
     public function add_comment(Request $request, $id)

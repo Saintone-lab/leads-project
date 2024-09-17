@@ -17,6 +17,7 @@ use App\Http\Controllers\PicController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductInController;
 use App\Http\Controllers\ProductOutController;
+use App\Http\Controllers\ProspectController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ReqVisitController;
 use App\Http\Controllers\ReturnController;
@@ -33,6 +34,7 @@ use App\Models\Invoice;
 use App\Models\Machine;
 use App\Models\Pic;
 use App\Models\ProductIn;
+use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\Reports;
 use App\Models\ReturnQ;
@@ -340,6 +342,13 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/un-archive/quotation/{id}', [ArchiveController::class, 'unarchive_quotation'])->name('unarchive.quotation');
     Route::delete('/delete-archive/quotation/{id}', [ArchiveController::class, 'delete_archive_quotation'])->name('delete-archive.quotation');
 
+    Route::resource('/prospect', ProspectController::class);
+    Route::post('/prospect/add_sales/{id}', [ProspectController::class, 'add_sales'])->name('add_sales.prospect');
+    Route::post('/prospect/without_quotation/{id}', [ProspectController::class, 'without_quotation'])->name('without_quotation.prospect');
+    Route::post('/prospect/with_quotation/{id}', [ProspectController::class, 'with_quotation'])->name('with_quotation.prospect');
+    Route::get('/prospect/create_quotation/{id}', [ProspectController::class, 'create_quotation'])->name('create_quotation.prospect');
+    Route::post('/prospect/store_quotation/{id}', [ProspectController::class, 'store_quotation'])->name('store_quotation.prospect');
+
     // Database Connection
     Route::get('/db/selling-contract/non-tax', function () {
         $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
@@ -535,10 +544,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/po/admin', function () {
         require_once base_path('app/api/po/connectionAdmin.php');
     });
-    Route::get('/db/prospect', function () {
+    Route::get('/db/hot_prospect', function () {
         require_once base_path('app/api/prospect/connection.php');
     });
-    Route::get('/db/prospect/sales', function () {
+    Route::get('/db/hot_prospect/sales', function () {
         require_once base_path('app/api/prospect/connectionSales.php');
     });
     Route::get('/db/loss', function () {
@@ -955,6 +964,35 @@ Route::group(["middleware" => "auth"], function () {
                 ->get();
         }
         return response()->json(['data' => $product]);
+    });
+    
+    Route::get('/db/prospect/support', function () {
+        $prospect = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+        ->join('client', 'client.id', '=', 'pic.id_client')
+        ->leftJoin('users', 'users.id', '=', 'prospect.id_sales')
+        ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
+        ->get(['prospect.id','prospect.kebutuhan', 'prospect.date', 'client.company', 'users.name', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
+        return response()->json(['data' => $prospect]);
+    });
+    Route::get('/db/prospect/sales', function () {
+        $prospect = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+        ->join('client', 'client.id', '=', 'pic.id_client')
+        ->leftJoin('users as sale', 'sale.id', '=', 'prospect.id_sales')
+        ->leftJoin('users as supp', 'supp.id', '=', 'prospect.id_support')
+        ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
+        ->where('sale.id', Auth::id())
+        ->whereNull('prospect.level')
+        ->get(['prospect.id','prospect.kebutuhan', 'prospect.date', 'client.company', 'supp.name', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
+        return response()->json(['data' => $prospect]);
+    });
+    Route::get('/db/prospect/admin', function () {
+        $prospect = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+        ->join('client', 'client.id', '=', 'pic.id_client')
+        ->leftJoin('users as sale', 'sale.id', '=', 'prospect.id_sales')
+        ->leftJoin('users as supp', 'supp.id', '=', 'prospect.id_support')
+        ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
+        ->get(['prospect.id','prospect.kebutuhan', 'prospect.date', 'client.company', 'supp.name as support','sale.name as sales', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
+        return response()->json(['data' => $prospect]);
     });
 });
 Auth::routes();

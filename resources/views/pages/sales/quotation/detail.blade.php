@@ -303,7 +303,10 @@
                                         </div>
                                     </div>  --}}
                                         @php
-                                            $lastStat = App\Models\ChangeStatus::where('id_quotation', $quote->primary_id)
+                                            $lastStat = App\Models\ChangeStatus::where(
+                                                'id_quotation',
+                                                $quote->primary_id,
+                                            )
                                                 ->orderByDesc('id')
                                                 ->first();
                                         @endphp
@@ -334,7 +337,7 @@
         {{-- Button Invocie --}}
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
 
-            @if ($quote->id_sales == Auth::user()->id && $quote->status != 100 && $quote->level == 1)
+            @if ($quote->id_sales == Auth::user()->id && $quote->status != 100)
                 <div class="card mb-3">
                     <div class="card-body">
                         <div class="form-floating form-floating-outline mb-2">
@@ -344,13 +347,14 @@
                                     <option data-id="{{ $item->id }}" value="{{ $item->id }}"
                                         {{ $item->is_primary == '1' ? 'Selected' : '' }}>
                                         {{ $item->no_quote }}{{ $item->num_rev >= 1 ? '-REV-' . $item->num_rev : '' }}
+                                        {{ $item->level == '0' ? '(Archived)' : '' }}
                                     </option>
                                 @endforeach
                             </select>
                             <label for="changePrimary">Primary Quote</label>
                         </div>
                         <a class="btn btn-outline-primary d-grid w-100 mb-3 waves-effect"
-                            href="{{ route('revisi.quotation', $primQuote->id) }}">
+                            href="{{ route('revisi.quotation', @$primQuote->id ?? $lastQuote->id) }}">
                             + Revisi Quotation
                         </a>
                     </div>
@@ -440,11 +444,18 @@
                                                 class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
                                         </a>
                                     </div>
-
-                                    <button type="button" class="btn btn-outline-dark d-grid w-100 waves-effect mb-3"
-                                        data-bs-toggle="modal" data-bs-target="#changePo">
-                                        Change No PO
-                                    </button>
+                                    @php
+                                        $invo = 0;
+                                    @endphp
+                                    @foreach ($invoice as $invoices)
+                                        <button type="button" class="btn btn-outline-dark d-grid w-100 waves-effect mb-3"
+                                            data-bs-toggle="modal" data-bs-target="#changePo{{ $invo }}">
+                                            Change No PO {{ $invo == 0 ? 'DP' : 'BP' }}
+                                        </button>
+                                        @php
+                                            $invo++;
+                                        @endphp
+                                    @endforeach
                                 @else
                                     <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
                                         data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
@@ -639,7 +650,15 @@
     @include('pages.sales.quotation.modal-status')
     @include('components.modal.quotation.convert-po')
     @include('components.modal.quotation.upload-po')
-    @include('components.modal.quotation.change-po')
+    @php
+        $invo = 0;
+    @endphp
+    @foreach ($invoice as $invoices)
+        @include('components.modal.quotation.change-po')
+        @php
+            $invo++;
+        @endphp
+    @endforeach
     @include('components.modal.quotation.request-bp')
     @include('components.modal.accounting.selling-contract')
     @include('components.modal.accounting.confirm-order')

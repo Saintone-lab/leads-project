@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('address');
             $table->string('code');
             $table->enum('active',['0','1']);
-            $table->enum('role',['Sales', 'Technician', 'Admin', 'Logistic', 'Accounting', 'Supervisor', 'Coordinator']);
+            $table->enum('role',['Sales', 'Technician', 'Admin', 'Logistic', 'Accounting', 'Supervisor', 'Coordinator', 'Support']);
             $table->date('date_in');
             $table->rememberToken();
             $table->timestamps();
