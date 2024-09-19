@@ -1,5 +1,5 @@
 @extends('layouts.sales.app')
-@section('title', 'My Quotation')
+@section('title', 'My Prospect')
 @section('content')
     <div class="card mb-4">
         <div class="card-widget-separator-wrapper">
@@ -87,12 +87,9 @@
                         <th>Pic</th>
                         <th>Kebutuhan</th>
                         <th>Date </th>
-                        <th>nett </th>
+                        <th>Value </th>
                         <th>Status</th>
                         <th>Sales</th>
-                        @if (Auth::user()->role == 'Admin')
-                            <th>Support</th>
-                        @endif
                     </tr>
                 </thead>
             </table>

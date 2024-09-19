@@ -120,11 +120,13 @@
                                     <div class="row">
                                         <div class="col-4 fw-medium">
                                             <p class="mb-1">Bill To </p>
+                                            <p class="mb-1">Personal In Charge </p>
                                             <p class="mb-1">Phone </p>
                                             <p class="mb-1">Address</p>
                                         </div>
                                         <div class="col-8">
                                             <p class="mb-1">: {{ $quote->pic->client->company }}</p>
+                                            <p class="mb-1">: {{ $quote->pic->name_pic }}</p>
                                             <p class="mb-1">: {{ $quote->pic->client->phone }}</p>
                                             @if ($invoice->invoiceTo == '1')
                                                 <pre

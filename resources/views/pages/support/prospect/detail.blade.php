@@ -157,27 +157,31 @@
         </div>
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
-        <div class="col-xl-3 col-md-4 col-12 invoice-actions">
-            <div class="card">
-                <form action="{{ route('add_sales.prospect', $prospect->id) }}" method="post" enctype="multipart/form-data">
-                    @csrf
-                    <div class="card-body">
-                        <div class="form-floating form-floating-outline">
-                            <select class="form-select" id="selectSales" aria-label="Default select example" name="sales" {{@$prospect->id_sales ? 'disabled' : ''}}>
-                                <option disabled="">----- Choose Sales -----</option>
-                                @foreach ($sales as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                @endforeach
-                            </select>
-                            <label for="selectSales">Sales</label>
+        @if (Auth::user()->role != 'Support')
+            <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+                <div class="card">
+                    <form action="{{ route('add_sales.prospect', $prospect->id) }}" method="post"
+                        enctype="multipart/form-data">
+                        @csrf
+                        <div class="card-body">
+                            <div class="form-floating form-floating-outline">
+                                <select class="form-select" id="selectSales" aria-label="Default select example"
+                                    name="sales" {{ @$prospect->id_sales ? 'disabled' : '' }}>
+                                    <option disabled="">----- Choose Sales -----</option>
+                                    @foreach ($sales as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                                <label for="selectSales">Sales</label>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-footer float-end">
-                        <button type="submit" class="btn btn-primary waves-effect waves-light">Submit</button>
-                    </div>
-                </form>
+                        <div class="card-footer float-end">
+                            <button type="submit" class="btn btn-primary waves-effect waves-light">Submit</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        @endif
         {{-- End : Button Invoice --}}
     </div>
 @endsection

@@ -91,8 +91,14 @@
                                                 {{ old('source', @$leads->source) == 'Website' ? 'selected' : '' }}>
                                                 Website
                                             </option>
-                                            <option value="Iklan"
-                                                {{ old('source', @$leads->source) == 'Iklan' ? 'selected' : '' }}>Iklan
+                                            <option value="Indotrading"
+                                                {{ old('source', @$leads->source) == 'Indotrading' ? 'selected' : '' }}>Indotrading
+                                            </option>
+                                            <option value="Tokopedia"
+                                                {{ old('source', @$leads->source) == 'Tokopedia' ? 'selected' : '' }}>Tokopedia
+                                            </option>
+                                            <option value="OLX"
+                                                {{ old('source', @$leads->source) == 'OLX' ? 'selected' : '' }}>OLX
                                             </option>
                                             <option value="Google"
                                                 {{ old('source', @$leads->source) == 'Google' ? 'selected' : '' }}>

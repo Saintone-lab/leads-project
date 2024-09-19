@@ -11,6 +11,7 @@ use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExistingController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\MachineController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\PicController;
@@ -31,6 +32,7 @@ use App\Models\Comment;
 use App\Models\Contract;
 use App\Models\DetailProduct;
 use App\Models\Invoice;
+use App\Models\Library;
 use App\Models\Machine;
 use App\Models\Pic;
 use App\Models\ProductIn;
@@ -348,6 +350,16 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/prospect/with_quotation/{id}', [ProspectController::class, 'with_quotation'])->name('with_quotation.prospect');
     Route::get('/prospect/create_quotation/{id}', [ProspectController::class, 'create_quotation'])->name('create_quotation.prospect');
     Route::post('/prospect/store_quotation/{id}', [ProspectController::class, 'store_quotation'])->name('store_quotation.prospect');
+    
+    Route::resource('/library', LibraryController::class);
+    Route::get('/library/index/marktool', [LibraryController::class, 'index_marktool'])->name(name: 'marktool.index');
+    Route::get('/library/index/brosur', [LibraryController::class, 'index_brosur'])->name(name: 'brosur.index');
+    Route::get('/library/index/partlist', [LibraryController::class, 'index_partlist'])->name(name: 'partlist.index');
+    Route::get('/library/index/manbook', [LibraryController::class, 'index_manbook'])->name(name: 'manbook.index');
+    Route::post('/library/store/marktool', [LibraryController::class, 'store_marktool'])->name(name: 'store_marktool.library');
+    Route::post('/library/store/brosur', [LibraryController::class, 'store_brosur'])->name(name: 'store_brosur.library');
+    Route::post('/library/store/partlist', [LibraryController::class, 'store_partlist'])->name(name: 'store_partlist.library');
+    Route::post('/library/store/manbook', [LibraryController::class, 'store_manbook'])->name(name: 'store_manbook.library');
 
     // Database Connection
     Route::get('/db/selling-contract/non-tax', function () {
@@ -971,7 +983,7 @@ Route::group(["middleware" => "auth"], function () {
         ->join('client', 'client.id', '=', 'pic.id_client')
         ->leftJoin('users', 'users.id', '=', 'prospect.id_sales')
         ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
-        ->get(['prospect.id','prospect.kebutuhan', 'prospect.date', 'client.company', 'users.name', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
+        ->get(['prospect.id','prospect.kebutuhan', 'prospect.date', 'client.company', 'users.name','users.image', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);
     });
     Route::get('/db/prospect/sales', function () {
@@ -991,8 +1003,26 @@ Route::group(["middleware" => "auth"], function () {
         ->leftJoin('users as sale', 'sale.id', '=', 'prospect.id_sales')
         ->leftJoin('users as supp', 'supp.id', '=', 'prospect.id_support')
         ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
-        ->get(['prospect.id','prospect.kebutuhan', 'prospect.date', 'client.company', 'supp.name as support','sale.name as sales', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
+        ->get(['prospect.id','prospect.kebutuhan', 'prospect.date', 'client.company', 'supp.name as support','sale.name as sales', 'pic.name_pic', 'sale.image', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);
+    });
+
+    
+    Route::get('/db/library/marktool', function () {
+        $library = Library::where('type','Marketing Tools')->get();
+        return response()->json(['data' => $library]);
+    });
+    Route::get('/db/library/brosur', function () {
+        $library = Library::where('type','Brosur')->get();
+        return response()->json(['data' => $library]);
+    });
+    Route::get('/db/library/partlist', function () {
+        $library = Library::where('type','Partlist')->get();
+        return response()->json(['data' => $library]);
+    });
+    Route::get('/db/library/manbook', function () {
+        $library = Library::where('type','Manual Book')->get();
+        return response()->json(['data' => $library]);
     });
 });
 Auth::routes();

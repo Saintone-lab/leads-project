@@ -195,6 +195,9 @@
                 <a href="{{ route('prospect.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
                     <div data-i18n="Prospect">Prospect</div>
+                    @if (@$noSaleProspect >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{$noSaleProspect}}</div>
+                    @endif
                 </a>
             </li>
 
@@ -239,6 +242,39 @@
                     <i class="menu-icon tf-icons mdi mdi-chart-box-outline"></i>
                     <div data-i18n="Reports">Reports</div>
                 </a>
+            </li>
+
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Library</span>
+            </li>
+            <li class="menu-item {{ request()->is('library/index/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-library-shelves"></i>
+                    <div data-i18n="Library">Library</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('library/index/marktool') ? 'active' : '' }}">
+                        <a href="{{ route('marktool.index') }}" class="menu-link">
+                            <div data-i18n="Marketing Tools">Marketing Tools</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/brosur') ? 'active' : '' }}">
+                        <a href="{{ route('brosur.index') }}" class="menu-link">
+                            <div data-i18n="Brosur">Brosur</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/partlist') ? 'active' : '' }}">
+                        <a href="{{ route('partlist.index') }}" class="menu-link">
+                            <div data-i18n="Partlist">Partlist</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/manbook') ? 'active' : '' }}">
+                        <a href="{{ route('manbook.index') }}" class="menu-link">
+                            <div data-i18n="Manual Book">Manual Book</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
 
             <li class="menu-header fw-light mt-4">
@@ -387,6 +423,39 @@
                     <div data-i18n="Pending PO">Pending PO</div>
                 </a>
             </li>
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Library</span>
+            </li>
+            <li class="menu-item {{ request()->is('library/index/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-library-shelves"></i>
+                    <div data-i18n="Library">Library</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('library/index/marktool') ? 'active' : '' }}">
+                        <a href="{{ route('marktool.index') }}" class="menu-link">
+                            <div data-i18n="Marketing Tools">Marketing Tools</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/brosur') ? 'active' : '' }}">
+                        <a href="{{ route('brosur.index') }}" class="menu-link">
+                            <div data-i18n="Brosur">Brosur</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/partlist') ? 'active' : '' }}">
+                        <a href="{{ route('partlist.index') }}" class="menu-link">
+                            <div data-i18n="Partlist">Partlist</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/manbook') ? 'active' : '' }}">
+                        <a href="{{ route('manbook.index') }}" class="menu-link">
+                            <div data-i18n="Manual Book">Manual Book</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Archive</span>
             </li>
@@ -500,6 +569,40 @@
                     <div data-i18n="Prospect">Prospect</div>
                 </a>
             </li>
+
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Library</span>
+            </li>
+            <li class="menu-item {{ request()->is('library/index/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-library-shelves"></i>
+                    <div data-i18n="Library">Library</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('library/index/marktool') ? 'active' : '' }}">
+                        <a href="{{ route('marktool.index') }}" class="menu-link">
+                            <div data-i18n="Marketing Tools">Marketing Tools</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/brosur') ? 'active' : '' }}">
+                        <a href="{{ route('brosur.index') }}" class="menu-link">
+                            <div data-i18n="Brosur">Brosur</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/partlist') ? 'active' : '' }}">
+                        <a href="{{ route('partlist.index') }}" class="menu-link">
+                            <div data-i18n="Partlist">Partlist</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/manbook') ? 'active' : '' }}">
+                        <a href="{{ route('manbook.index') }}" class="menu-link">
+                            <div data-i18n="Manual Book">Manual Book</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Archive</span>
             </li>
@@ -547,6 +650,39 @@
                     <div data-i18n="Return">Return</div>
                 </a>
             </li>
+
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Library</span>
+            </li>
+            <li class="menu-item {{ request()->is('library/index/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-library-shelves"></i>
+                    <div data-i18n="Library">Library</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('library/index/marktool') ? 'active' : '' }}">
+                        <a href="{{ route('marktool.index') }}" class="menu-link">
+                            <div data-i18n="Marketing Tools">Marketing Tools</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/brosur') ? 'active' : '' }}">
+                        <a href="{{ route('brosur.index') }}" class="menu-link">
+                            <div data-i18n="Brosur">Brosur</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/partlist') ? 'active' : '' }}">
+                        <a href="{{ route('partlist.index') }}" class="menu-link">
+                            <div data-i18n="Partlist">Partlist</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/manbook') ? 'active' : '' }}">
+                        <a href="{{ route('manbook.index') }}" class="menu-link">
+                            <div data-i18n="Manual Book">Manual Book</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
         @else
             <!-- Dashboards -->
             <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
@@ -564,6 +700,39 @@
                     <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
                     <div data-i18n="Service Report">Service Report</div>
                 </a>
+            </li>
+
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Library</span>
+            </li>
+            <li class="menu-item {{ request()->is('library/index/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-library-shelves"></i>
+                    <div data-i18n="Library">Library</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('library/index/marktool') ? 'active' : '' }}">
+                        <a href="{{ route('marktool.index') }}" class="menu-link">
+                            <div data-i18n="Marketing Tools">Marketing Tools</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/brosur') ? 'active' : '' }}">
+                        <a href="{{ route('brosur.index') }}" class="menu-link">
+                            <div data-i18n="Brosur">Brosur</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/partlist') ? 'active' : '' }}">
+                        <a href="{{ route('partlist.index') }}" class="menu-link">
+                            <div data-i18n="Partlist">Partlist</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/manbook') ? 'active' : '' }}">
+                        <a href="{{ route('manbook.index') }}" class="menu-link">
+                            <div data-i18n="Manual Book">Manual Book</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
         @endif
 

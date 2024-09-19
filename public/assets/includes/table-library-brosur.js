@@ -1,10 +1,10 @@
 $(function () {
-    var dt_table_prospect = $(".datatable-prospect");
-    var Url = "db/prospect/support";
+    var dt_table_library_brosur = $(".datatable-library-brosur");
+    var Url = "/db/library/brosur";
 
-    if (dt_table_prospect.length) {
+    if (dt_table_library_brosur.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_prospect = dt_table_prospect.DataTable({
+        var dt_library_brosur = dt_table_library_brosur.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -25,13 +25,10 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "company" },
-                { data: "name_pic" },
-                { data: "kebutuhan" },
-                { data: "date" },
-                { data: "nett" },
-                { data: "status" },
                 { data: "name" },
+                { data: "models" },
+                { data: "date" },
+                { data: "" },
             ],
             columnDefs: [
                 {
@@ -67,18 +64,18 @@ $(function () {
                 },
                 {
                     responsivePriority: 1,
-                    targets: 4,
+                    targets: 3,
                 },
                 {
                     targets: 3,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var detailRoute = route("prospect.show", $dataId);
+                            var link = full["link"];
                             return (
                                 '<a class="text-dark" href="' +
-                                detailRoute +
-                                '">' +
+                                link +
+                                '" target="_blank">' +
                                 data +
                                 "</a>"
                             );
@@ -86,103 +83,34 @@ $(function () {
                         return data;
                     },
                 },
-                // {
-                //     targets: 3,
-                //     render: function (data, type, full, row) {
-                //         if (type === "display") {
-                //             var $dataId = full["id"];
-                //             var detailRoute = route("prospect.show", $dataId);
-                //             return (
-                //                 '<a class="text-dark view-quote" href="' +
-                //                 detailRoute +
-                //                 '">' +
-                //                 data +
-                //                 "</a>"
-                //             );
-                //         }
-                //         return data;
-                //     },
-                // },
                 {
-                    // Label Status Name
-                    targets: 8,
+                    // Actions
+                    targets: -1,
+                    title: "Actions",
+                    orderable: false,
+                    searchable: false,
                     render: function (data, type, full, meta) {
-                        var $status_number = full["status"];
-                        var $status = {
-                            20: {
-                                title: "Send WA / Email",
-                                class: "bg-label-secondary",
-                            },
-                            30: {
-                                title: "Inquiry Accepted",
-                                class: " bg-label-dark",
-                            },
-                            40: {
-                                title: "Progress Follow Up",
-                                class: " bg-label-info",
-                            },
-                            60: {
-                                title: "Negotiation / Revisi",
-                                class: " bg-label-primary",
-                            },
-                            80: {
-                                title: "Hot Prospect",
-                                class: " bg-label-warning",
-                            },
-                            100: {
-                                title: "Done PO",
-                                class: " bg-label-success",
-                            },
-                            0: {
-                                title: "Loss",
-                                class: " bg-label-danger",
-                            },
-                        };
-                        if (data === null || data === undefined) {
-                            return "-";
-                        }
+                        var dataId = full["id"];
                         return (
-                            '<span class="badge rounded-pill ' +
-                            $status[$status_number].class +
-                            '">' +
-                            $status[$status_number].title +
-                            "</span>"
+                            '<div class="d-flex align-items-center">' +
+                                '<a href="javascript:;" data-id="'+dataId+'" data-bs-toggle="tooltip" class="btn btn-sm btn-icon btn-text-secondary waves-effect waves-light rounded-pill delete-tools" data-bs-placement="top" aria-label="Delete Tools" data-bs-original-title="Delete Tools" >' +
+                                    '<i class="menu-icon tf-icons mdi mdi-delete mdi-20px"></i>' +
+                                '</a>' +
+                                '<a href="javascript:;" class="btn btn-sm btn-icon btn-text-secondary waves-effect waves-light rounded-pill" data-bs-target="#formLibrary'+ dataId +'" data-bs-toggle="modal">' +
+                                    '<i class="menu-icon tf-icons mdi mdi-pencil mdi-20px"></i>' +
+                                '</a>' +
+                            '</div>'
+                            // '<div class="d-inline-block">' +
+                            // '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
+                            // '<ul class="dropdown-menu dropdown-menu-end m-0">' +
+                            // '<li><a href="javascript:;" class="dropdown-item text-success" data-bs-toggle="modal" data-bs-target="#acceptinvoice'+ $dataId +'">Accept</a></li>' +
+                            // '<li><a href="javascript:;" class="dropdown-item text-danger reject-invoice" data-id="'+ $dataId +'">Reject</a></li>' +
+                            // '<li><a href="' +
+                            // $detailUrl +
+                            // '" class="dropdown-item">View</a></li>' +
+                            // "</ul>" +
+                            // "</div>"
                         );
-                    },
-                },
-                {
-                    targets: 7,
-                    render: function (data, type, full, meta) {
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            // Pastikan data dikirimkan ke fungsi render.number untuk diformat
-                            return type === "display"
-                                ? $.fn.dataTable.render
-                                      .number(".", "", 0, "Rp.")
-                                      .display(data)
-                                : data;
-                        }
-                    },
-                },
-                {
-                    // Label Status Name
-                    targets: 9,
-                    render: function (data, type, full, meta) {
-                        var name = full["name"];
-                        const domain = window.location.origin;
-                        
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            return (
-                                '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-dark" title="' +
-                                name +
-                                '">' +
-                                '<img src="'+ domain +'/' + data + '" class="w-px-40 h-auto rounded-circle" alt="Profile Image">' +
-                                "</span>"
-                            );
-                        }
                     },
                 },
             ],
@@ -191,8 +119,8 @@ $(function () {
                 $('[data-toggle="tooltip"]').tooltip();
             },
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
+            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 head-invoice text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
                 {
@@ -407,10 +335,10 @@ $(function () {
                     ],
                 },
                 {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Prospect</span>',
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Tools</span>',
                     className: "btn btn-primary",
                     attr: {
-                        "data-bs-target": "#createProspect",
+                        "data-bs-target": "#formLibrary",
                         "data-bs-toggle": "modal",
                     },
                 },
@@ -450,9 +378,11 @@ $(function () {
                 },
             },
         });
-        $("div.hl-1").html('<h5 class="card-title mb-0">prospects</h5>');
+        $("div.hl-2.head-invoice").html(
+            '<h5 class="card-title mb-0">Table Brosur</h5>'
+        );
     }
-    dt_table_prospect.on("draw", function () {
+    dt_table_library_brosur.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

@@ -31,8 +31,7 @@ $(function () {
                 { data: "date" },
                 { data: "nett" },
                 { data: "status" },
-                { data: "sales" },
-                { data: "support" },
+                { data: "image" },
             ],
             columnDefs: [
                 {
@@ -161,6 +160,22 @@ $(function () {
                                       .display(data)
                                 : data;
                         }
+                    },
+                },
+                {
+                    // Label Status Name
+                    targets: 9,
+                    render: function (data, type, full, meta) {
+                        var name = full["sales"];
+                        const domain = window.location.origin;
+                            return (
+                                '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-dark" title="' +
+                                name +
+                                '">' +
+                                '<img src="'+ domain +'/' + data + '" class="w-px-40 h-auto rounded-circle" alt="Profile Image">' +
+                                "</span>"
+                            );
+                        // }
                     },
                 },
             ],

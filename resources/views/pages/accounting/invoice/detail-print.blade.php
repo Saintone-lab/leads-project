@@ -109,6 +109,12 @@
                                 <p class="mb-1 fw-bolder">: {{ $quote->pic->client->company }}</p>
                             </div>
                             <div class="col-4 fw-medium">
+                                <p class="mb-1">Personal In Charge </p>
+                            </div>
+                            <div class="col-8">
+                                <p class="mb-1 fw-bolder">: {{ $quote->pic->name_pic }}</p>
+                            </div>
+                            <div class="col-4 fw-medium">
                                 <p class="mb-1">Phone </p>
                             </div>
                             <div class="col-8">
