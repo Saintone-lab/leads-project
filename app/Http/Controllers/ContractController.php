@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contract;
 use App\Models\DetailQuotation;
+use App\Models\Prospect;
 use App\Models\Quotation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -34,7 +35,8 @@ class ContractController extends Controller
         $formattedNumberSNP = $this->generateNextContractNumber($numberLastSNP, '001');
         $formattedNumberCP = $this->generateNextContractNumber($numberLastCP, '001');
         $formattedNumberCNP = $this->generateNextContractNumber($numberLastCNP, '001');
-        return view('pages.accounting.request.index', compact('contracts', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'numberLastSP', 'numberLastSNP', 'numberLastCP', 'numberLastCNP'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.accounting.request.index', compact('noSaleProspect', 'contracts', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'numberLastSP', 'numberLastSNP', 'numberLastCP', 'numberLastCNP'));
     }
 
     /**
@@ -91,7 +93,8 @@ class ContractController extends Controller
         $quote = Quotation::where('id', $contract->id_quotation)->first();
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
-        return view('pages.accounting.contract.detail', compact('contract', 'quote', 'dquote', 'tax', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'numberLastSP', 'numberLastSNP', 'numberLastCP', 'numberLastCNP'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.accounting.contract.detail', compact('noSaleProspect', 'contract', 'quote', 'dquote', 'tax', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'numberLastSP', 'numberLastSNP', 'numberLastCP', 'numberLastCNP'));
     }
 
     /**
@@ -167,11 +170,13 @@ class ContractController extends Controller
     }
     public function index_selling()
     {
-        return view("pages.accounting.contract.index-selling");
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view("pages.accounting.contract.index-selling", compact('noSaleProspect'));
     }
     public function index_order()
     {
-        return view("pages.accounting.contract.index-order");
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view("pages.accounting.contract.index-order", compact('noSaleProspect'));
     }
     public function contract_print($id)
     {

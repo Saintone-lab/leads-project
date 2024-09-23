@@ -125,8 +125,9 @@ class DashboardController extends Controller
         $visited = ReqVisit::whereNotNull('date')->whereNull('visit_date')->get();
         $prospects = Prospect::where('id_sales', Auth::id())->whereNull('level')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        // dd($targetSales);
-        return view("pages.sales.dashboard", compact('noSaleProspect', 'prospects', 'targetSales', 'visit', 'dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredVisit', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'dataCRM', 'dataVisit', 'commodity', 'sproduct', 'targett', 'visits', 'visited'));
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        // dd($leveledProspect);
+        return view("pages.sales.dashboard", compact('noSaleProspect', 'prospects', 'leveledProspect', 'targetSales', 'visit', 'dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredVisit', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'dataCRM', 'dataVisit', 'commodity', 'sproduct', 'targett', 'visits', 'visited'));
     }
 
     public function overviewIndex()

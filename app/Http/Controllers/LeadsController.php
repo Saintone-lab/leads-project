@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\CrmStatus;
 use App\Models\Issues;
+use App\Models\Prospect;
 use App\Models\User;
 use App\Models\Activities;
 use App\Models\Visit;
@@ -28,7 +29,9 @@ class LeadsController extends Controller
         $client = Client::where("role", "Leads")->get();
         $issue = Issues::get();
         $sales = User::where('role', 'sales')->get();
-        return view('pages.sales.clients.leads.index', compact('client', 'sales', 'issue'));
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.sales.clients.leads.index', compact('noSaleProspect','leveledProspect','client', 'sales', 'issue'));
     }
 
     /**
@@ -166,8 +169,10 @@ class LeadsController extends Controller
         $quote = Quotation::join('pic','pic.id','=','quotation.id_pic')->where('pic.id_client', $id)->where('level', '1')->get('quotation.*');
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
         // dd(Auth::user());
-        return view('pages.sales.clients.leads.detail', compact('leads', 'callhis', 'quote', 'sales', 'charge', 'issue', 'visit'));
+        return view('pages.sales.clients.leads.detail', compact('noSaleProspect','leveledProspect','leads', 'callhis', 'quote', 'sales', 'charge', 'issue', 'visit'));
     }
 
     /**

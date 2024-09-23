@@ -6,6 +6,7 @@ use App\Models\DetailProduct;
 use App\Models\DetailProductIn;
 use App\Models\Product;
 use App\Models\ProductIn;
+use App\Models\Prospect;
 use Illuminate\Http\Request;
 
 class ProductInController extends Controller
@@ -19,7 +20,8 @@ class ProductInController extends Controller
     {
         // $product = ProductIn::all();
         // dd($product);
-        return view('pages.warehouse.product-in.index');
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.warehouse.product-in.index',compact('noSaleProspect'));
     }
 
     /**
@@ -114,7 +116,8 @@ class ProductInController extends Controller
         $product = ProductIn::find($id);
         $tax = $product->subtotal * $product->tax / 100;
         $detail = DetailProductIn::where('id_product_in', $id)->get();
-        return view('pages.warehouse.product-in.detail', compact('product', 'detail', 'tax'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.warehouse.product-in.detail', compact('product', 'detail', 'noSaleProspect', 'tax'));
     }
 
     /**

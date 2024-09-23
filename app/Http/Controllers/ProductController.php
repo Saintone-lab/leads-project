@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DetailProduct;
 use App\Models\Product;
+use App\Models\Prospect;
 use App\Models\SerialProduct;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -31,8 +32,9 @@ class ProductController extends Controller
             return $equivalent->price * $equivalent->stock;
         });
         // dd($revenue);
-
-        return view('pages.warehouse.product.index', compact('commodity', 'dproduct', 'sproduct', 'asset', 'revenue'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        return view('pages.warehouse.product.index', compact('commodity', 'leveledProspect', 'noSaleProspect', 'dproduct', 'sproduct', 'asset', 'revenue'));
     }
 
     /**
@@ -108,7 +110,9 @@ class ProductController extends Controller
         $allStock = $product->stock + $product->warehouse_stock;
         $details = DetailProduct::where('id_product', $id)->get();
         $serials = SerialProduct::where('id_product', $id)->get();
-        return view('pages.warehouse.product.detail', compact('product', 'details', 'serials', 'allStock'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        return view('pages.warehouse.product.detail', compact('product', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
     }
 
     /**
@@ -345,6 +349,7 @@ class ProductController extends Controller
         $commodity = Product::count();
         $dproduct = DetailProduct::count();
         $sproduct = SerialProduct::count();
-        return view('pages.warehouse.master.index', compact('commodity', 'dproduct', 'sproduct'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.warehouse.master.index', compact('commodity', 'dproduct', 'noSaleProspect',  'sproduct'));
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Library;
+use App\Models\Prospect;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -167,160 +168,169 @@ class LibraryController extends Controller
             return 0;
         }
     }
-    public function store_marktool(Request $request)
-    {
-        $library = new Library();
-        $library->name = $request->name;
-        $library->link = $request->link;
-        $library->type = 'Marketing Tools';
-        $library->models = $request->models;
-        $library->date = Carbon::now();
-        $libSave = $library->save();
-        switch ($library->type) {
-            case 'Marketing Tools':
-                $code = 'maketing';
-                break;
+    // public function store_marktool(Request $request)
+    // {
+    //     $library = new Library();
+    //     $library->name = $request->name;
+    //     $library->link = $request->link;
+    //     $library->type = 'Marketing Tools';
+    //     $library->models = $request->models;
+    //     $library->date = Carbon::now();
+    //     $libSave = $library->save();
+    //     switch ($library->type) {
+    //         case 'Marketing Tools':
+    //             $code = 'maketing';
+    //             break;
 
-            case 'Brosur':
-                $code = 'brosur';
-                break;
+    //         case 'Brosur':
+    //             $code = 'brosur';
+    //             break;
 
-            case 'Partlist':
-                $code = 'partlist';
-                break;
+    //         case 'Partlist':
+    //             $code = 'partlist';
+    //             break;
 
-            case 'Manual Book':
-                $code = '';
-                break;
-            default:
-                $code = 'manual';
-                break;
-        }
-        if ($libSave) {
-            return redirect('/library/' . $code)->with('massage', 'Data telah terkirim');
-        }
-    }
-    public function store_brosur(Request $request)
-    {
-        $library = new Library();
-        $library->name = $request->name;
-        $library->link = $request->link;
-        $library->type = 'Brosur';
-        $library->models = $request->models;
-        $library->date = Carbon::now();
-        $libSave = $library->save();
-        switch ($library->type) {
-            case 'Marketing Tools':
-                $code = 'maketing';
-                break;
+    //         case 'Manual Book':
+    //             $code = '';
+    //             break;
+    //         default:
+    //             $code = 'manual';
+    //             break;
+    //     }
+    //     if ($libSave) {
+    //         return redirect('/library/' . $code)->with('massage', 'Data telah terkirim');
+    //     }
+    // }
+    // public function store_brosur(Request $request)
+    // {
+    //     $library = new Library();
+    //     $library->name = $request->name;
+    //     $library->link = $request->link;
+    //     $library->type = 'Brosur';
+    //     $library->models = $request->models;
+    //     $library->date = Carbon::now();
+    //     $libSave = $library->save();
+    //     switch ($library->type) {
+    //         case 'Marketing Tools':
+    //             $code = 'maketing';
+    //             break;
 
-            case 'Brosur':
-                $code = 'brosur';
-                break;
+    //         case 'Brosur':
+    //             $code = 'brosur';
+    //             break;
 
-            case 'Partlist':
-                $code = 'partlist';
-                break;
+    //         case 'Partlist':
+    //             $code = 'partlist';
+    //             break;
 
-            case 'Manual Book':
-                $code = '';
-                break;
-            default:
-                $code = 'manual';
-                break;
-        }
-        if ($libSave) {
-            return redirect('/library/' . $code)->with('massage', 'Data telah terkirim');
-        }
-    }
-    public function store_partlist(Request $request)
-    {
-        $library = new Library();
-        $library->name = $request->name;
-        $library->link = $request->link;
-        $library->type = 'Partlist';
-        $library->models = $request->models;
-        $library->date = Carbon::now();
-        $libSave = $library->save();
-        switch ($library->type) {
-            case 'Marketing Tools':
-                $code = 'maketing';
-                break;
+    //         case 'Manual Book':
+    //             $code = '';
+    //             break;
+    //         default:
+    //             $code = 'manual';
+    //             break;
+    //     }
+    //     if ($libSave) {
+    //         return redirect('/library/' . $code)->with('massage', 'Data telah terkirim');
+    //     }
+    // }
+    // public function store_partlist(Request $request)
+    // {
+    //     $library = new Library();
+    //     $library->name = $request->name;
+    //     $library->link = $request->link;
+    //     $library->type = 'Partlist';
+    //     $library->models = $request->models;
+    //     $library->date = Carbon::now();
+    //     $libSave = $library->save();
+    //     switch ($library->type) {
+    //         case 'Marketing Tools':
+    //             $code = 'maketing';
+    //             break;
 
-            case 'Brosur':
-                $code = 'brosur';
-                break;
+    //         case 'Brosur':
+    //             $code = 'brosur';
+    //             break;
 
-            case 'Partlist':
-                $code = 'partlist';
-                break;
+    //         case 'Partlist':
+    //             $code = 'partlist';
+    //             break;
 
-            case 'Manual Book':
-                $code = '';
-                break;
-            default:
-                $code = 'manual';
-                break;
-        }
-        if ($libSave) {
-            return redirect('/library/' . $code)->with('massage', 'Data telah terkirim');
-        }
-    }
-    public function store_manbook(Request $request)
-    {
-        $library = new Library();
-        $library->name = $request->name;
-        $library->link = $request->link;
-        $library->type = 'Manual Book';
-        $library->models = $request->models;
-        $library->date = Carbon::now();
-        $libSave = $library->save();
-        switch ($library->type) {
-            case 'Marketing Tools':
-                $code = 'maketing';
-                break;
+    //         case 'Manual Book':
+    //             $code = '';
+    //             break;
+    //         default:
+    //             $code = 'manual';
+    //             break;
+    //     }
+    //     if ($libSave) {
+    //         return redirect('/library/' . $code)->with('massage', 'Data telah terkirim');
+    //     }
+    // }
+    // public function store_manbook(Request $request)
+    // {
+    //     $library = new Library();
+    //     $library->name = $request->name;
+    //     $library->link = $request->link;
+    //     $library->type = 'Manual Book';
+    //     $library->models = $request->models;
+    //     $library->date = Carbon::now();
+    //     $libSave = $library->save();
+    //     switch ($library->type) {
+    //         case 'Marketing Tools':
+    //             $code = 'maketing';
+    //             break;
 
-            case 'Brosur':
-                $code = 'brosur';
-                break;
+    //         case 'Brosur':
+    //             $code = 'brosur';
+    //             break;
 
-            case 'Partlist':
-                $code = 'partlist';
-                break;
+    //         case 'Partlist':
+    //             $code = 'partlist';
+    //             break;
 
-            case 'Manual Book':
-                $code = '';
-                break;
-            default:
-                $code = 'manual';
-                break;
-        }
-        if ($libSave) {
-            return redirect('/library/' . $code)->with('massage', 'Data telah terkirim');
-        }
-    }
+    //         case 'Manual Book':
+    //             $code = '';
+    //             break;
+    //         default:
+    //             $code = 'manual';
+    //             break;
+    //     }
+    //     if ($libSave) {
+    //         return redirect('/library/' . $code)->with('massage', 'Data telah terkirim');
+    //     }
+    // }
+
     public function index_marktool()
     {
         $type = 'Marketing Tools';
         $library = Library::where('type', 'Marketing Tools')->get();
-        return view('pages.library.index-marktool', compact('type', 'library'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        return view('pages.library.index-marktool', compact('type', 'noSaleProspect', 'leveledProspect', 'library'));
     }
     public function index_brosur()
     {
         $type = 'Brosur';
         $library = Library::where('type', 'Brosur')->get();
-        return view('pages.library.index-brosur', compact('type', 'library'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        return view('pages.library.index-brosur', compact('type', 'noSaleProspect', 'leveledProspect', 'library'));
     }
     public function index_partlist()
     {
         $type = 'Partlist';
         $library = Library::where('type', 'Partlist')->get();
-        return view('pages.library.index-partlist', compact('type', 'library'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        return view('pages.library.index-partlist', compact('type', 'noSaleProspect', 'leveledProspect', 'library'));
     }
     public function index_manbook()
     {
         $type = 'Manual Book';
         $library = Library::where('type', 'Manual Book')->get();
-        return view('pages.library.index-manbook', compact('type', 'library'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        return view('pages.library.index-manbook', compact('type', 'noSaleProspect', 'leveledProspect', 'library'));
     }
 }

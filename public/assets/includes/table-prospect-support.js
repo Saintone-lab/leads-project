@@ -31,7 +31,7 @@ $(function () {
                 { data: "date" },
                 { data: "nett" },
                 { data: "status" },
-                { data: "name" },
+                { data: "image" },
             ],
             columnDefs: [
                 {

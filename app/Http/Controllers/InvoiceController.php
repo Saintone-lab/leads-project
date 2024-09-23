@@ -7,6 +7,7 @@ use App\Models\Delivery;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\ReturnQ;
 use Carbon\Carbon;
@@ -24,7 +25,20 @@ class InvoiceController extends Controller
      */
     public function index()
     {
-        return view('pages.accounting.invoice.index');
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->where('invoice.flag', 'Reftech')
+            ->where('quotation.tax', '11')
+            ->whereNotNull('quotation.po_file')
+            ->whereNotNull('invoice.no_invoice')
+            ->orderByDesc('invoice.no_invoice')
+            ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
+            dd($invoice);
+        return view('pages.accounting.invoice.index', compact('noSaleProspect'));
     }
 
     /**
@@ -79,8 +93,8 @@ class InvoiceController extends Controller
 
         $doTek = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->get();
         $doEks = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->get();
-
-        return view('pages.accounting.invoice.detail', compact('return', 'quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.accounting.invoice.detail', compact('noSaleProspect','return', 'quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
     }
 
     /**
@@ -149,11 +163,13 @@ class InvoiceController extends Controller
     }
     public function index_kojisha()
     {
-        return view('pages.accounting.invoice.index-kojisha');
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.accounting.invoice.index-kojisha', compact('noSaleProspect'));
     }
     public function request()
     {
-        return view('pages.accounting.invoice.index-request');
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.accounting.invoice.index-request', compact('noSaleProspect'));
     }
     public function before_accept($id)
     {
@@ -161,10 +177,10 @@ class InvoiceController extends Controller
         $year = $dateNow->year;
         $month = $dateNow->month;
         $monthCode = $this->convertToRoman($month);
-        $lastInvoicePRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->where('invoice.flag', 'Reftech')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
-        $lastInvoiceNPRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->where('invoice.flag', 'Reftech')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
-        $lastInvoicePKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->where('invoice.flag', 'Kojisha')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
-        $lastInvoiceNPKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->where('invoice.flag', 'Kojisha')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.created_at', 'desc')->first(['invoice.*', 'quotation.tax']);
+        $lastInvoicePRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->where('invoice.flag', 'Reftech')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.no_invoice', 'desc')->first(['invoice.*', 'quotation.tax']);
+        $lastInvoiceNPRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->where('invoice.flag', 'Reftech')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.no_invoice', 'desc')->first(['invoice.*', 'quotation.tax']);
+        $lastInvoicePKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->where('invoice.flag', 'Kojisha')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.no_invoice', 'desc')->first(['invoice.*', 'quotation.tax']);
+        $lastInvoiceNPKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->where('invoice.flag', 'Kojisha')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.no_invoice', 'desc')->first(['invoice.*', 'quotation.tax']);
         // dd($lastInvoicePKoj);
         function generateNextInvoiceNumber($lastInvoice, $defaultCode)
         {

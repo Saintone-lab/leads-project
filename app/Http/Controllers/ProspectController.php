@@ -34,7 +34,10 @@ class ProspectController extends Controller
         $prospectAdmin = Quotation::where('status', '80')->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->sum('nett');
         $poAdmin = Quotation::where('status', '100')->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->sum('nett');
         $lossAdmin = Quotation::where('status', '0')->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->sum('nett');
-        return view('pages.support.prospect.index', compact('quotation', 'quotationAdmin', 'forecast', 'prospect', 'po', 'loss', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
+        $prospects = Prospect::where('id_sales', Auth::id())->whereNull('level')->get();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        return view('pages.support.prospect.index', compact('prospects', 'quotation', 'leveledProspect', 'noSaleProspect', 'quotationAdmin', 'forecast', 'prospect', 'po', 'loss', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
 
     }
 
@@ -169,7 +172,9 @@ class ProspectController extends Controller
         $pic = Pic::where('id', $prospect->id_pic)->first();
         $client = Client::where('id', $pic->id_client)->first();
         $sales = User::where('role', 'Sales')->get();
-        return view('pages.support.prospect.detail', compact('prospect', 'pic', 'client', 'sales'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        return view('pages.support.prospect.detail', compact('prospect', 'leveledProspect', 'noSaleProspect', 'pic', 'client', 'sales'));
     }
 
     /**
@@ -208,7 +213,19 @@ class ProspectController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $prospect = Prospect::find($id);
+        $pic = Pic::find($prospect->id_pic);
+        $client = Client::find($pic->id_client);
+
+        $prospectDel = $prospect->delete();
+        $picDel = $pic->delete();
+        $clientDel = $client->delete();
+        if ($prospectDel && $picDel && $clientDel) {
+            return 1;
+        } else {
+            return 0;
+        }
+
     }
 
     public function add_sales(Request $request, $id)

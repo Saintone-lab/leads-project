@@ -8,6 +8,7 @@ use App\Models\CrmStatus;
 use App\Models\Issues;
 use App\Models\Machine;
 use App\Models\Pic;
+use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\Reports;
 use App\Models\User;
@@ -24,7 +25,9 @@ class CrmController extends Controller
      */
     public function index()
     {
-        return view("pages.sales.existing.index");
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view("pages.sales.existing.index", compact('leveledProspect','noSaleProspect'));
     }
 
     /**
@@ -72,10 +75,14 @@ class CrmController extends Controller
         // dd($yearsNow);
         $service = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')->where('pic.id_client', $id)->get('reports.*');
         // dd($quote);
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
         return view('pages.sales.existing.detail', compact(
             'existing',
             'callhis',
             'quote',
+            'leveledProspect',
+            'noSaleProspect',
             'sales',
             'charge',
             'issue',

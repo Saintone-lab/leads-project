@@ -500,9 +500,8 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.tax', '11')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
-            ->orderBy('no_invoice', 'ASC')
+            ->orderByDesc('invoice.no_invoice')
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
-        ;
         return response()->json(['data' => $invoice]);
     });
     Route::get('/db/invoice/nonppn/reftech', function () {
@@ -515,9 +514,8 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.tax', '0')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
-            ->orderBy('no_invoice', 'ASC')
+            ->orderByDesc('invoice.no_invoice')
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
-        ;
         return response()->json(['data' => $invoice]);
     });
     Route::get('/db/invoice-ppn/kojisha', function () {
@@ -530,9 +528,8 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.tax', '11')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
-            ->orderBy('no_invoice', 'ASC')
+            ->orderByDesc('invoice.no_invoice')
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
-        ;
         return response()->json(['data' => $invoice]);
     });
     Route::get('/db/invoice-nonppn/kojisha', function () {
@@ -545,9 +542,8 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.tax', '0')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
-            ->orderBy('no_invoice', 'ASC')
+            ->orderByDesc('invoice.no_invoice')
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
-        ;
         return response()->json(['data' => $invoice]);
     });
     Route::get('/db/po', function () {

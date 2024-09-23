@@ -6,6 +6,7 @@ use App\Models\DetailProduct;
 use App\Models\DetailProductOut;
 use App\Models\Product;
 use App\Models\ProductOut;
+use App\Models\Prospect;
 use App\Models\SerialProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,8 @@ class ProductOutController extends Controller
      */
     public function index()
     {
-        return view('pages.warehouse.product-out.index');
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.warehouse.product-out.index',compact('noSaleProspect'));
     }
 
     /**
@@ -115,7 +117,8 @@ class ProductOutController extends Controller
     {
         $product = ProductOut::find($id);
         $detail = DetailProductOut::where('id_product_out', $id)->get();
-        return view('pages.warehouse.product-out.detail', compact('product','detail'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.warehouse.product-out.detail', compact('product','noSaleProspect', 'detail'));
     }
 
     /**

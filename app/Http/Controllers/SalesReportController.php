@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Prospect;
 use App\Models\SalesReports;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,8 @@ class SalesReportController extends Controller
      */
     public function index()
     {
-        return view('pages.warehouse.reports.index');
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.warehouse.reports.index',compact('noSaleProspect'));
     }
 
     /**
@@ -65,7 +67,8 @@ class SalesReportController extends Controller
     public function show($id)
     {
         $reports = SalesReports::find($id);
-        return view('pages.warehouse.reports.detail', compact('reports'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.warehouse.reports.detail', compact('noSaleProspect', 'reports'));
     }
 
     /**
@@ -105,12 +108,14 @@ class SalesReportController extends Controller
     public function detailOnline($id)
     {
         $reports = SalesReports::find($id);
-        return view('pages.warehouse.reports.detail-online', compact('reports'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.warehouse.reports.detail-online', compact('noSaleProspect', 'reports'));
     }
 
     public function detailOffline($id)
     {
         $reports = SalesReports::find($id);
-        return view('pages.warehouse.reports.detail-offline', compact('reports'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.warehouse.reports.detail-offline', compact('noSaleProspect', 'reports'));
     }
 }

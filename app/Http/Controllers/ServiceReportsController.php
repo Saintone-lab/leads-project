@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\ImageService;
 use App\Models\Pic;
+use App\Models\Prospect;
 use App\Models\Reports;
 use App\Models\ReportsPict;
 use App\Models\Service;
@@ -25,7 +26,8 @@ class ServiceReportsController extends Controller
      */
     public function index()
     {
-        return view('pages.technician.service-reports.index');
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.technician.service-reports.index', compact('noSaleProspect',));
     }
 
     /**
@@ -102,7 +104,8 @@ class ServiceReportsController extends Controller
         $service = Reports::where('id', $id)->first();
         $pict = ReportsPict::where('id_reports', $id)->get();
         // dd($pict);
-        return view('pages.technician.service-reports.detail', compact('service', 'pict'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.technician.service-reports.detail', compact('noSaleProspect','service', 'pict'));
     }
 
     /**

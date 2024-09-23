@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Activities;
+use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\Target;
 use Carbon\Carbon;
@@ -22,7 +23,7 @@ class ReportsController extends Controller
         $target = Target::where('id_sales', Auth::user()->id)->first();
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        
+
         // sales
         $totalDC = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $monthNow)->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->where('client.id_sales', Auth::user()->id)->count();
         $totalCRM = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'CRM')->where('client.id_sales', Auth::user()->id)->count();
@@ -34,7 +35,9 @@ class ReportsController extends Controller
         $amountQuote = Quotation::whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->sum('nett');
         // dd($dataDc);
         $quotation = Quotation::where('status', '100')->whereMonth('po_date', $monthNow)->where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->get();
-        return view("pages.sales.report.index", compact("quotation", "dataDc", "dataQuote", "dataPo", "target", "dataCRM", "dataVisit", "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "amountSales", "amountQuote", "amountProspect"));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        return view("pages.sales.report.index", compact("noSaleProspect", 'leveledProspect', "quotation", "dataDc", "dataQuote", "dataPo", "target", "dataCRM", "dataVisit", "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "amountSales", "amountQuote", "amountProspect"));
     }
 
     protected function getWeekDataDC()

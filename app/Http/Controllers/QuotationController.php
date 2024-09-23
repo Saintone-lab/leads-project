@@ -14,6 +14,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Pic;
 use App\Models\Product;
+use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\SerialProduct;
 use App\Models\Termncon;
@@ -45,7 +46,9 @@ class QuotationController extends Controller
         $poAdmin = Quotation::where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
         $lossAdmin = Quotation::where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
         // dd();
-        return view('pages.sales.quotation.index', compact('quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        return view('pages.sales.quotation.index', compact('noSaleProspect','leveledProspect', 'quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
     }
 
     /**
@@ -216,10 +219,13 @@ class QuotationController extends Controller
             $totalAmount += $payment->amount;
         }
         $status = ChangeStatus::where('id_quotation', $quote->primary_id)->with('comment')->get();
-        // dd($status);
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')->join('comment as o', 'o.id_status', '=', 'c.id')->where('quotation.id_sales', Auth::id())->where('o.level', '1')->get(['quotation.id','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote']);
+        // dd($comment);
         $remaining = $quote->harga_total - $totalAmount;
         // dd($formattedNumberSP);
-        return view("pages.sales.quotation.detail", compact('quote', 'status', 'lastQuote', 'primQuote', 'quotations', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        return view("pages.sales.quotation.detail", compact('quote', 'status', 'comment', 'leveledProspect', 'noSaleProspect', 'lastQuote', 'primQuote', 'quotations', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
     /**
      * Show the form for editing the specified resource.
@@ -466,11 +472,15 @@ class QuotationController extends Controller
     public function po_quote()
     {
         $quotation = Quotation::all();
-        return view('pages.sales.quotation.po.index', compact('quotation'));
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        return view('pages.sales.quotation.po.index', compact('noSaleProspect','leveledProspect', 'quotation'));
     }
     public function loss_quote()
     {
-        return view('pages.sales.quotation.loss.index');
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->count();
+        return view('pages.sales.quotation.loss.index', compact('leveledProspect', 'noSaleProspect'));
     }
 
     public function sales_quotation($id)

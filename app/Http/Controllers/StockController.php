@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DetailProduct;
 use App\Models\Product;
+use App\Models\Prospect;
 use Illuminate\Http\Request;
 
 class StockController extends Controller
@@ -15,7 +16,8 @@ class StockController extends Controller
      */
     public function index()
     {
-        return view('pages.warehouse.stock.index');
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        return view('pages.warehouse.stock.index',compact('noSaleProspect'));
     }
 
     /**

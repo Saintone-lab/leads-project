@@ -196,7 +196,7 @@
                     <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
                     <div data-i18n="Prospect">Prospect</div>
                     @if (@$noSaleProspect >= 1)
-                        <div class="badge bg-danger rounded-pill ms-auto">{{$noSaleProspect}}</div>
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $noSaleProspect }}</div>
                     @endif
                 </a>
             </li>
@@ -421,6 +421,20 @@
                 <a href="{{ url('pending-po') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-cart-arrow-down"></i>
                     <div data-i18n="Pending PO">Pending PO</div>
+                </a>
+            </li>
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Prospect</span>
+            </li>
+
+            <li class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') ? 'active' : '' }}">
+                <a href="{{ route('prospect.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <div data-i18n="Prospect">Prospect</div>
+                    @if (@$leveledProspect >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
+                    @endif
                 </a>
             </li>
 

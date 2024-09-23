@@ -3,7 +3,7 @@
 @section('content')
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-library-partlist table table-striped">
+            <table class="datatable-library-{{ Auth::user()->role == 'Admin' ? 'partlist-admin' : 'partlist' }} table table-striped">
                 <thead>
                     <tr>
                         <th></th>
@@ -12,7 +12,9 @@
                         <th>Name</th>
                         <th>Model</th>
                         <th>Date</th>
-                        <th>Action</th>
+                        @if (Auth::user()->role == 'Admin')
+                            <th>Action</th>
+                        @endif
                     </tr>
                 </thead>
             </table>
@@ -49,6 +51,7 @@
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-library-partlist.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-library-partlist-admin.js"></script>
 @endpush
 
 @push('script')

@@ -200,6 +200,9 @@
                                                         <option value="Lot"
                                                             {{ $quote->info_qty == 'Lot' ? 'selected' : '' }}>Lot
                                                         </option>
+                                                        <option value="Meter"
+                                                            {{ $quote->info_qty == 'Meter' ? 'selected' : '' }}>Meter
+                                                        </option>
                                                     </select>
                                                     <label for="exampleFormControlSelect1">Info</label>
                                                 </div>
@@ -291,6 +294,7 @@
                                                     <option value="Pail">Pail</option>
                                                     <option value="Unit">Unit</option>
                                                     <option value="Lot">Lot</option>
+                                                    <option value="Meter">Meter</option>
                                                 </select>
                                                 <label for="exampleFormControlSelect1">Info</label>
                                             </div>

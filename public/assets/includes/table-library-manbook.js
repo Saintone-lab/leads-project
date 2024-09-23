@@ -28,7 +28,6 @@ $(function () {
                 { data: "name" },
                 { data: "models" },
                 { data: "date" },
-                { data: "" },
             ],
             columnDefs: [
                 {
@@ -81,36 +80,6 @@ $(function () {
                             );
                         }
                         return data;
-                    },
-                },
-                {
-                    // Actions
-                    targets: -1,
-                    title: "Actions",
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, full, meta) {
-                        var dataId = full["id"];
-                        return (
-                            '<div class="d-flex align-items-center">' +
-                                '<a href="javascript:;" data-id="'+dataId+'" data-bs-toggle="tooltip" class="btn btn-sm btn-icon btn-text-secondary waves-effect waves-light rounded-pill delete-tools" data-bs-placement="top" aria-label="Delete Tools" data-bs-original-title="Delete Tools" >' +
-                                    '<i class="menu-icon tf-icons mdi mdi-delete mdi-20px"></i>' +
-                                '</a>' +
-                                '<a href="javascript:;" class="btn btn-sm btn-icon btn-text-secondary waves-effect waves-light rounded-pill" data-bs-target="#formLibrary'+ dataId +'" data-bs-toggle="modal">' +
-                                    '<i class="menu-icon tf-icons mdi mdi-pencil mdi-20px"></i>' +
-                                '</a>' +
-                            '</div>'
-                            // '<div class="d-inline-block">' +
-                            // '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
-                            // '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            // '<li><a href="javascript:;" class="dropdown-item text-success" data-bs-toggle="modal" data-bs-target="#acceptinvoice'+ $dataId +'">Accept</a></li>' +
-                            // '<li><a href="javascript:;" class="dropdown-item text-danger reject-invoice" data-id="'+ $dataId +'">Reject</a></li>' +
-                            // '<li><a href="' +
-                            // $detailUrl +
-                            // '" class="dropdown-item">View</a></li>' +
-                            // "</ul>" +
-                            // "</div>"
-                        );
                     },
                 },
             ],
@@ -333,14 +302,6 @@ $(function () {
                             },
                         },
                     ],
-                },
-                {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Tools</span>',
-                    className: "btn btn-primary",
-                    attr: {
-                        "data-bs-target": "#formLibrary",
-                        "data-bs-toggle": "modal",
-                    },
                 },
             ],
             responsive: {
