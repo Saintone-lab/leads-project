@@ -125,9 +125,17 @@ class DashboardController extends Controller
         $visited = ReqVisit::whereNotNull('date')->whereNull('visit_date')->get();
         $prospects = Prospect::where('id_sales', Auth::id())->whereNull('level')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        $leveledProspect = Prospect::whereNULL('level')->count();
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
+        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+        ->join('users as u', 'u.id', '=', 'o.id_user')
+        ->where('quotation.id_sales', Auth::id())
+        ->where('o.level', '1')
+        ->orderBy('o.date','DESC')
+        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        
         // dd($leveledProspect);
-        return view("pages.sales.dashboard", compact('noSaleProspect', 'prospects', 'leveledProspect', 'targetSales', 'visit', 'dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredVisit', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'dataCRM', 'dataVisit', 'commodity', 'sproduct', 'targett', 'visits', 'visited'));
+        return view("pages.sales.dashboard", compact('noSaleProspect', 'comment', 'prospects', 'leveledProspect', 'targetSales', 'visit', 'dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredVisit', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'dataCRM', 'dataVisit', 'commodity', 'sproduct', 'targett', 'visits', 'visited'));
     }
 
     public function overviewIndex()

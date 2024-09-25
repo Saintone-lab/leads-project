@@ -36,8 +36,15 @@ class ReportsController extends Controller
         // dd($dataDc);
         $quotation = Quotation::where('status', '100')->whereMonth('po_date', $monthNow)->where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        $leveledProspect = Prospect::whereNULL('level')->count();
-        return view("pages.sales.report.index", compact("noSaleProspect", 'leveledProspect', "quotation", "dataDc", "dataQuote", "dataPo", "target", "dataCRM", "dataVisit", "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "amountSales", "amountQuote", "amountProspect"));
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
+        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+        ->join('users as u', 'u.id', '=', 'o.id_user')
+        ->where('quotation.id_sales', Auth::id())
+        ->where('o.level', '1')
+        ->orderBy('o.date','DESC')
+        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view("pages.sales.report.index", compact("noSaleProspect", 'comment','leveledProspect', "quotation", "dataDc", "dataQuote", "dataPo", "target", "dataCRM", "dataVisit", "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "amountSales", "amountQuote", "amountProspect"));
     }
 
     protected function getWeekDataDC()

@@ -47,8 +47,15 @@ class QuotationController extends Controller
         $lossAdmin = Quotation::where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
         // dd();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        $leveledProspect = Prospect::whereNULL('level')->count();
-        return view('pages.sales.quotation.index', compact('noSaleProspect','leveledProspect', 'quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.level', '1')
+            ->orderBy('o.date', 'DESC')
+            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view('pages.sales.quotation.index', compact('noSaleProspect', 'comment', 'leveledProspect', 'quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
     }
 
     /**
@@ -67,6 +74,13 @@ class QuotationController extends Controller
         $sales = User::where('role', 'sales')->get();
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
         // dd($product);
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.level', '1')
+            ->orderBy('o.date', 'DESC')
+            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
         return view('pages.sales.quotation.form', compact('pic', 'sales', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 
@@ -219,12 +233,18 @@ class QuotationController extends Controller
             $totalAmount += $payment->amount;
         }
         $status = ChangeStatus::where('id_quotation', $quote->primary_id)->with('comment')->get();
-        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')->join('comment as o', 'o.id_status', '=', 'c.id')->where('quotation.id_sales', Auth::id())->where('o.level', '1')->get(['quotation.id','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote']);
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.level', '1')
+            ->orderBy('o.date', 'DESC')
+            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
         // dd($comment);
         $remaining = $quote->harga_total - $totalAmount;
         // dd($formattedNumberSP);
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        $leveledProspect = Prospect::whereNULL('level')->count();
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         return view("pages.sales.quotation.detail", compact('quote', 'status', 'comment', 'leveledProspect', 'noSaleProspect', 'lastQuote', 'primQuote', 'quotations', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
     /**
@@ -473,14 +493,28 @@ class QuotationController extends Controller
     {
         $quotation = Quotation::all();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        $leveledProspect = Prospect::whereNULL('level')->count();
-        return view('pages.sales.quotation.po.index', compact('noSaleProspect','leveledProspect', 'quotation'));
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.level', '1')
+            ->orderBy('o.date', 'DESC')
+            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view('pages.sales.quotation.po.index', compact('noSaleProspect', 'comment', 'leveledProspect', 'quotation'));
     }
     public function loss_quote()
     {
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        $leveledProspect = Prospect::whereNULL('level')->count();
-        return view('pages.sales.quotation.loss.index', compact('leveledProspect', 'noSaleProspect'));
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.level', '1')
+            ->orderBy('o.date', 'DESC')
+            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view('pages.sales.quotation.loss.index', compact('leveledProspect', 'comment', 'noSaleProspect'));
     }
 
     public function sales_quotation($id)

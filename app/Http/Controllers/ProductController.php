@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DetailProduct;
 use App\Models\Product;
 use App\Models\Prospect;
+use App\Models\Quotation;
 use App\Models\SerialProduct;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -34,7 +35,14 @@ class ProductController extends Controller
         // dd($revenue);
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
         $leveledProspect = Prospect::whereNULL('level')->count();
-        return view('pages.warehouse.product.index', compact('commodity', 'leveledProspect', 'noSaleProspect', 'dproduct', 'sproduct', 'asset', 'revenue'));
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
+        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+        ->join('users as u', 'u.id', '=', 'o.id_user')
+        ->where('quotation.id_sales', Auth::id())
+        ->where('o.level', '1')
+        ->orderBy('o.date','DESC')
+        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view('pages.warehouse.product.index', compact('commodity', 'comment', 'leveledProspect', 'noSaleProspect', 'dproduct', 'sproduct', 'asset', 'revenue'));
     }
 
     /**
@@ -112,7 +120,14 @@ class ProductController extends Controller
         $serials = SerialProduct::where('id_product', $id)->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
         $leveledProspect = Prospect::whereNULL('level')->count();
-        return view('pages.warehouse.product.detail', compact('product', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
+        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+        ->join('users as u', 'u.id', '=', 'o.id_user')
+        ->where('quotation.id_sales', Auth::id())
+        ->where('o.level', '1')
+        ->orderBy('o.date','DESC')
+        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view('pages.warehouse.product.detail', compact('product', 'comment', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
     }
 
     /**

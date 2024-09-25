@@ -119,7 +119,7 @@ $(function () {
                 console.log("drawCallback");
                 $('[data-toggle="tooltip"]').tooltip();
             },
-            order: [[2, "desc"]],
+            order: [[3, "desc"]],
             displayLength: 7,
             dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 head-invoice text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             lengthMenu: [7, 10, 25, 50, 75, 100],

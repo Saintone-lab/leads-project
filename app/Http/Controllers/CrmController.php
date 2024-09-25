@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\Visit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CrmController extends Controller
 {
@@ -25,9 +26,16 @@ class CrmController extends Controller
      */
     public function index()
     {
-        $leveledProspect = Prospect::whereNULL('level')->count();
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        return view("pages.sales.existing.index", compact('leveledProspect','noSaleProspect'));
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
+        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+        ->join('users as u', 'u.id', '=', 'o.id_user')
+        ->where('quotation.id_sales', Auth::id())
+        ->where('o.level', '1')
+        ->orderBy('o.date','DESC')
+        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view("pages.sales.existing.index", compact('leveledProspect','comment','noSaleProspect'));
     }
 
     /**
@@ -76,13 +84,21 @@ class CrmController extends Controller
         $service = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')->where('pic.id_client', $id)->get('reports.*');
         // dd($quote);
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        $leveledProspect = Prospect::whereNULL('level')->count();
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
+        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+        ->join('users as u', 'u.id', '=', 'o.id_user')
+        ->where('quotation.id_sales', Auth::id())
+        ->where('o.level', '1')
+        ->orderBy('o.date','DESC')
+        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
         return view('pages.sales.existing.detail', compact(
             'existing',
             'callhis',
             'quote',
             'leveledProspect',
             'noSaleProspect',
+            'comment',
             'sales',
             'charge',
             'issue',

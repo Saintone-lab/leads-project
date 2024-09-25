@@ -434,48 +434,6 @@
         </div>
 
         <div class="row gy-4 mb-4">
-            {{-- Start Diagram --}}
-            <div class="col-lg-6 col-md-6 col-12">
-                <div class="card mb-3">
-                    <div class="card-datatable table-responsive pt-0">
-                        <table class="datatable-prospect-sales table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>Company</th>
-                                    <th>Prospect</th>
-                                    <th>Date</th>
-                                    <th>Support</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            {{-- End:: Diagram --}}
-            {{-- Prospect Table --}}
-            <div class="col-md-6 col-12">
-                <div class="card mb-3">
-                    <div class="card-datatable table-responsive pt-0">
-                        <table class="datatable-comment table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>No Quote</th>
-                                    <th>Status</th>
-                                    <th>Admin</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            {{-- End:: Prospect Table --}}
 
             {{-- Prospect Table --}}
             <div class="col-12">
@@ -1361,30 +1319,6 @@
         <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/apex-charts/apexcharts.js"></script>
         <script>
-            $(document).on('click', '.view-quote', function(e) {
-                e.preventDefault(); // Mencegah perubahan halaman segera
-
-                var id = $(this).data('id');
-                var idQ = $(this).data('quotation');
-                var href = $(this).attr('href'); // Ambil URL tujuan
-
-                $.ajax({
-                    url: '{{ url('quotation') }}/' + id + '/view_comment',
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}', // Token CSRF
-                    },
-                    success: function(response) {
-                        console.log(response); // Lakukan apa yang perlu dilakukan setelah AJAX sukses
-
-                        // Arahkan ke halaman baru setelah AJAX selesai
-                        window.location.href = href;
-                    },
-                    error: function(xhr) {
-                        console.error("Error:", xhr.responseText); // Tangani error jika ada
-                    }
-                });
-            });
             $(document).on('click', '#withQuote', function() {
                 var id = $(this).data('id');
                 Swal.fire({
@@ -1512,12 +1446,10 @@
         <script src="{{ asset('assets') }}/includes/chart/card-monthly.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
         <script src="{{ asset('assets') }}/includes/table-hot-prospect-sales.js"></script>
-        <script src="{{ asset('assets') }}/includes/table-prospect-support-sales.js"></script>
         <script src="{{ asset('assets') }}/includes/table-req-visit-sales.js"></script>
     @endif
 
     <script src="{{ asset('assets') }}/includes/table-hot-prospect.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-comment.js"></script>
 
     <script src="{{ asset('assets') }}/includes/table-product-sales.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-logistic.js"></script>

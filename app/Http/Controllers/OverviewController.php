@@ -64,7 +64,14 @@ class OverviewController extends Controller
         // dd($sales);
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
         $leveledProspect = Prospect::whereNULL('level')->count();
-        return view('pages.overview', compact('noSaleProspect', 'leveledProspect', 'sales', 'totalPO', 'totalForecast', 'filteredPO', 'filteredQuote', 'filteredDC', 'filteredCRM', 'targett'));
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
+        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+        ->join('users as u', 'u.id', '=', 'o.id_user')
+        ->where('quotation.id_sales', Auth::id())
+        ->where('o.level', '1')
+        ->orderBy('o.date','DESC')
+        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view('pages.overview', compact('noSaleProspect', 'comment','leveledProspect', 'sales', 'totalPO', 'totalForecast', 'filteredPO', 'filteredQuote', 'filteredDC', 'filteredCRM', 'targett'));
     }
 
     /**
@@ -110,7 +117,14 @@ class OverviewController extends Controller
         // dd($getTotalPO);
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
         $leveledProspect = Prospect::whereNULL('level')->count();
-        return view('pages.sales.detail-overview', compact('noSaleProspect','leveledProspect', 'report', 'getDC', 'getCRM', 'getVisit', 'getQuote', 'getPO', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'targett'));
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
+        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+        ->join('users as u', 'u.id', '=', 'o.id_user')
+        ->where('quotation.id_sales', Auth::id())
+        ->where('o.level', '1')
+        ->orderBy('o.date','DESC')
+        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view('pages.sales.detail-overview', compact('noSaleProspect','comment','leveledProspect', 'report', 'getDC', 'getCRM', 'getVisit', 'getQuote', 'getPO', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'targett'));
     }
 
     /**

@@ -350,7 +350,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/prospect/with_quotation/{id}', [ProspectController::class, 'with_quotation'])->name('with_quotation.prospect');
     Route::get('/prospect/create_quotation/{id}', [ProspectController::class, 'create_quotation'])->name('create_quotation.prospect');
     Route::post('/prospect/store_quotation/{id}', [ProspectController::class, 'store_quotation'])->name('store_quotation.prospect');
-    
+
     Route::resource('/library', LibraryController::class);
     Route::get('/library/index/marktool', [LibraryController::class, 'index_marktool'])->name(name: 'marktool.index');
     Route::get('/library/index/brosur', [LibraryController::class, 'index_brosur'])->name(name: 'brosur.index');
@@ -514,7 +514,7 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.tax', '0')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
-            ->orderByDesc('invoice.no_invoice')
+            ->orderBy('invoice.no_invoice', 'DESC')
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
         return response()->json(['data' => $invoice]);
     });
@@ -618,6 +618,15 @@ Route::group(["middleware" => "auth"], function () {
             ->leftJoin('detail_product as dp', 'd.id_detail_product', '=', 'dp.id')
             ->leftJoin('product as pr', 'dp.id_product', '=', 'pr.id')
             ->where('pr.id', $id)
+            ->get();
+        return response()->json(['data' => $products]);
+    });
+    Route::get('/db/product/quotation/detail/{id}', function ($id) {
+        $products = DB::table('quotation as q')
+            ->select('q.id','q.no_quote', 'q.estimated_date','sp.pn','dq.price', DB::raw('CONCAT(COALESCE(dq.qty, 0), " ", COALESCE(dq.info_qty, "")) AS qty'))
+            ->leftJoin('detail_quotation as dq', 'q.id', '=', 'dq.id_quotation')
+            ->leftJoin('serial_product as sp', 'sp.id', '=', 'dq.id_equivalent')
+            ->where('sp.id_product', $id)
             ->get();
         return response()->json(['data' => $products]);
     });
@@ -973,51 +982,51 @@ Route::group(["middleware" => "auth"], function () {
         }
         return response()->json(['data' => $product]);
     });
-    
+
     Route::get('/db/prospect/support', function () {
         $prospect = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
-        ->join('client', 'client.id', '=', 'pic.id_client')
-        ->leftJoin('users', 'users.id', '=', 'prospect.id_sales')
-        ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
-        ->get(['prospect.id','prospect.kebutuhan', 'prospect.date', 'client.company', 'users.name','users.image', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->leftJoin('users', 'users.id', '=', 'prospect.id_sales')
+            ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
+            ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.date', 'client.company', 'users.name', 'users.image', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);
     });
     Route::get('/db/prospect/sales', function () {
         $prospect = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
-        ->join('client', 'client.id', '=', 'pic.id_client')
-        ->leftJoin('users as sale', 'sale.id', '=', 'prospect.id_sales')
-        ->leftJoin('users as supp', 'supp.id', '=', 'prospect.id_support')
-        ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
-        ->where('sale.id', Auth::id())
-        ->whereNull('prospect.level')
-        ->get(['prospect.id','prospect.kebutuhan', 'prospect.date', 'client.company', 'supp.name', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->leftJoin('users as sale', 'sale.id', '=', 'prospect.id_sales')
+            ->leftJoin('users as supp', 'supp.id', '=', 'prospect.id_support')
+            ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
+            ->where('sale.id', Auth::id())
+            ->whereNull('prospect.level')
+            ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.date', 'client.company', 'supp.name', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);
     });
     Route::get('/db/prospect/admin', function () {
         $prospect = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
-        ->join('client', 'client.id', '=', 'pic.id_client')
-        ->leftJoin('users as sale', 'sale.id', '=', 'prospect.id_sales')
-        ->leftJoin('users as supp', 'supp.id', '=', 'prospect.id_support')
-        ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
-        ->get(['prospect.id','prospect.kebutuhan', 'prospect.date', 'client.company', 'supp.name as support','sale.name as sales', 'pic.name_pic', 'sale.image', 'quotation.status', 'quotation.nett']);
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->leftJoin('users as sale', 'sale.id', '=', 'prospect.id_sales')
+            ->leftJoin('users as supp', 'supp.id', '=', 'prospect.id_support')
+            ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
+            ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.date', 'client.company', 'supp.name as support', 'sale.name as sales', 'pic.name_pic', 'sale.image', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);
     });
 
-    
+
     Route::get('/db/library/marktool', function () {
-        $library = Library::where('type','Marketing Tools')->get();
+        $library = Library::where('type', 'Marketing Tools')->get();
         return response()->json(['data' => $library]);
     });
     Route::get('/db/library/brosur', function () {
-        $library = Library::where('type','Brosur')->get();
+        $library = Library::where('type', 'Brosur')->get();
         return response()->json(['data' => $library]);
     });
     Route::get('/db/library/partlist', function () {
-        $library = Library::where('type','Partlist')->get();
+        $library = Library::where('type', 'Partlist')->get();
         return response()->json(['data' => $library]);
     });
     Route::get('/db/library/manbook', function () {
-        $library = Library::where('type','Manual Book')->get();
+        $library = Library::where('type', 'Manual Book')->get();
         return response()->json(['data' => $library]);
     });
 });

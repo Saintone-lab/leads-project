@@ -26,18 +26,6 @@ class InvoiceController extends Controller
     public function index()
     {
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
-            ->join('pic', 'pic.id', '=', 'quotation.id_pic')
-            ->join('client', 'client.id', '=', 'pic.id_client')
-            ->join('users', 'users.id', '=', 'quotation.id_sales')
-            ->where('status', '100')
-            ->where('invoice.flag', 'Reftech')
-            ->where('quotation.tax', '11')
-            ->whereNotNull('quotation.po_file')
-            ->whereNotNull('invoice.no_invoice')
-            ->orderByDesc('invoice.no_invoice')
-            ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
-            dd($invoice);
         return view('pages.accounting.invoice.index', compact('noSaleProspect'));
     }
 

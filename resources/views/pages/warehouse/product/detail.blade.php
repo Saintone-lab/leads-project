@@ -234,7 +234,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-12 col-lg-6">
+            <div class="col-12 col-lg-6 mb-3">
                 <div class="card">
                     <div class="card-body">
                         <table class="datatable-product-in-detail table table-striped">
@@ -253,7 +253,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-lg-6">
+            <div class="col-12 col-lg-6 mb-3">
                 <div class="card">
                     <div class="card-body">
                         <table class="datatable-product-out-detail table table-striped">
@@ -265,6 +265,26 @@
                                     <th>invoice</th>
                                     <th>Product</th>
                                     <th>Qty</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <table class="datatable-product-quotation table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>no quote</th>
+                                    <th>equivalent</th>
+                                    <th>Qty</th>
+                                    <th>price</th>
                                     <th>Date</th>
                                 </tr>
                             </thead>
@@ -314,6 +334,7 @@
     <script src="{{ asset('assets') }}/includes/table-equivalent.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-in-detail.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-out-detail.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-quotation-product.js"></script>
 @endpush
 @push('script')
     <script></script>

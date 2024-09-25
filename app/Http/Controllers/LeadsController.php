@@ -29,9 +29,16 @@ class LeadsController extends Controller
         $client = Client::where("role", "Leads")->get();
         $issue = Issues::get();
         $sales = User::where('role', 'sales')->get();
-        $leveledProspect = Prospect::whereNULL('level')->count();
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        return view('pages.sales.clients.leads.index', compact('noSaleProspect','leveledProspect','client', 'sales', 'issue'));
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
+        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+        ->join('users as u', 'u.id', '=', 'o.id_user')
+        ->where('quotation.id_sales', Auth::id())
+        ->where('o.level', '1')
+        ->orderBy('o.date','DESC')
+        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view('pages.sales.clients.leads.index', compact('noSaleProspect','comment','leveledProspect','client', 'sales', 'issue'));
     }
 
     /**
@@ -170,9 +177,16 @@ class LeadsController extends Controller
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        $leveledProspect = Prospect::whereNULL('level')->count();
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
+        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+        ->join('users as u', 'u.id', '=', 'o.id_user')
+        ->where('quotation.id_sales', Auth::id())
+        ->where('o.level', '1')
+        ->orderBy('o.date','DESC')
+        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
         // dd(Auth::user());
-        return view('pages.sales.clients.leads.detail', compact('noSaleProspect','leveledProspect','leads', 'callhis', 'quote', 'sales', 'charge', 'issue', 'visit'));
+        return view('pages.sales.clients.leads.detail', compact('noSaleProspect','comment','leveledProspect','leads', 'callhis', 'quote', 'sales', 'charge', 'issue', 'visit'));
     }
 
     /**
