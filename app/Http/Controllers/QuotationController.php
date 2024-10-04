@@ -690,7 +690,7 @@ class QuotationController extends Controller
             $quote->upload_date = Carbon::today();
             $quote->save();
             // create invoice quote
-            if (Auth::user()->id != '16') {
+            if (Auth::user()->id != '16' && Auth::user()->id != '23') {
                 $invoice = new Invoice;
                 $invoice->id_quotation = $id;
                 $invoice->no_po = $request->po;
@@ -935,7 +935,8 @@ class QuotationController extends Controller
     }
     public function add_comment(Request $request, $id)
     {
-        $stats = ChangeStatus::where('id_quotation', $id)->orderByDesc('date')->first();
+        $quotation = Quotation::find($id);
+        $stats = ChangeStatus::where('id_quotation', $quotation->primary_id)->orderByDesc('date')->first();
         $comment = new Comment;
         $comment->id_status = $stats->id;
         $comment->id_user = Auth::user()->id;

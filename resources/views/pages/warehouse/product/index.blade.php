@@ -97,7 +97,8 @@
                             <th></th>
                             <th></th>
                             <th>ID</th>
-                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Brand</th>
                             <th>Part Number</th>
                             <th>Price</th>
                             <th>Desc</th>

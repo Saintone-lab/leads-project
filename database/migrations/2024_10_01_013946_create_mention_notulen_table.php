@@ -13,13 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('notulen', function (Blueprint $table) {
+        Schema::create('mention_notulen', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_notuler');
-            $table->string('title');
-            $table->longText('desc');
+            $table->foreignId("id_notulen");
+            $table->foreignId("id_mention");
             $table->enum('level', ['0','1']);
-            $table->date('date');
             $table->timestamps();
         });
     }
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('notulen');
+        Schema::dropIfExists('mention_notulen');
     }
 };

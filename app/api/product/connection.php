@@ -23,6 +23,7 @@ if (Auth::check()) {
         $query = "SELECT 
         p.*,
         s.pn,
+        s.brand,
         s.price,
         s.id AS id_pn,
         p.id AS id_p, 

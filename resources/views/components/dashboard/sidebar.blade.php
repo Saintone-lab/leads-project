@@ -36,12 +36,12 @@
                     <div data-i18n="Activities">Activities</div>
                 </a>
             </li> --}}
-            <li class="menu-item {{ request()->is('reports') ? 'active' : '' }}">
+            {{-- <li class="menu-item {{ request()->is('reports') ? 'active' : '' }}">
                 <a href="{{ url('/reports') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-finance"></i>
                     <div data-i18n="Reports">Reports</div>
                 </a>
-            </li>
+            </li> --}}
             <li
                 class="menu-item {{ request()->is('overview') || request()->is('overview/*') || request()->is('overview/*/*') ? 'active' : '' }}">
                 <a href="{{ url('/overview') }}" class="menu-link">
@@ -198,6 +198,20 @@
                     @if (@$noSaleProspect >= 1)
                         <div class="badge bg-danger rounded-pill ms-auto">{{ $noSaleProspect }}</div>
                     @endif
+                </a>
+            </li>
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Notulen</span>
+            </li>
+
+            <li class="menu-item {{ request()->is('notulen') || request()->is('notulen/*') ? 'active' : '' }}">
+                <a href="{{ route('notulen.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <div data-i18n="notulen">Notulen</div>
+                    {{-- @if (@$leveledProspect >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
+                    @endif --}}
                 </a>
             </li>
 
@@ -439,6 +453,20 @@
             </li>
 
             <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Notulen</span>
+            </li>
+
+            <li class="menu-item {{ request()->is('notulen') || request()->is('notulen/*') ? 'active' : '' }}">
+                <a href="{{ route('notulen.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <div data-i18n="notulen">Notulen</div>
+                    {{-- @if (@$leveledProspect >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
+                    @endif --}}
+                </a>
+            </li>
+
+            <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Library</span>
             </li>
             <li class="menu-item {{ request()->is('library/index/*') ? 'open' : '' }}">
@@ -665,6 +693,19 @@
                 </a>
             </li>
 
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Notulen</span>
+            </li>
+
+            <li class="menu-item {{ request()->is('notulen') || request()->is('notulen/*') ? 'active' : '' }}">
+                <a href="{{ route('notulen.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <div data-i18n="notulen">Notulen</div>
+                    {{-- @if (@$leveledProspect >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
+                    @endif --}}
+                </a>
+            </li>
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Library</span>
@@ -713,6 +754,20 @@
                 <a href="{{ route('service-reports.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
                     <div data-i18n="Service Report">Service Report</div>
+                </a>
+            </li>
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Notulen</span>
+            </li>
+
+            <li class="menu-item {{ request()->is('notulen') || request()->is('notulen/*') ? 'active' : '' }}">
+                <a href="{{ route('notulen.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <div data-i18n="notulen">Notulen</div>
+                    {{-- @if (@$leveledProspect >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
+                    @endif --}}
                 </a>
             </li>
 

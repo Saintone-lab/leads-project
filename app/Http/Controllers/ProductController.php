@@ -34,7 +34,7 @@ class ProductController extends Controller
         });
         // dd($revenue);
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        $leveledProspect = Prospect::whereNULL('level')->count();
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
         ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
         ->join('users as u', 'u.id', '=', 'o.id_user')
@@ -119,7 +119,7 @@ class ProductController extends Controller
         $details = DetailProduct::where('id_product', $id)->get();
         $serials = SerialProduct::where('id_product', $id)->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        $leveledProspect = Prospect::whereNULL('level')->count();
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
         ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
         ->join('users as u', 'u.id', '=', 'o.id_user')

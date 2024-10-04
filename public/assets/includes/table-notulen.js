@@ -1,10 +1,10 @@
 $(function () {
-    var dt_table_library_manbook_admin = $(".datatable-library-manbook-admin");
-    var Url = "/db/library/manbook";
+    var dt_table_noutlen = $(".datatable-notulen");
+    var Url = "/db/notulen";
 
-    if (dt_table_library_manbook_admin.length) {
+    if (dt_table_noutlen.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_library_manbook_admin = dt_table_library_manbook_admin.DataTable({
+        var dt_noutlen = dt_table_noutlen.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -25,10 +25,35 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "name" },
-                { data: "models" },
-                { data: "date" },
-                { data: "" },
+                { data: "title" },
+                {
+                    data: "desc",
+                    render: function (data, type, full, meta) {
+                        if (data.length > 30) {
+                            return data.substring(0, 30) + "...";
+                        } else {
+                            return data;
+                        }
+                    },
+                },
+                { data: "level" },
+                {
+                    data: "date", // Kolom data "date"
+                    render: function (data, type, row) {
+                        if (data) {
+                            // Mengubah format date menjadi dmy (DD-MM-YYYY)
+                            const dateObj = new Date(data);
+                            const day = ("0" + dateObj.getDate()).slice(-2); // Ambil hari, tambahkan nol jika perlu
+                            const month = (
+                                "0" +
+                                (dateObj.getMonth() + 1)
+                            ).slice(-2); // Ambil bulan (dimulai dari 0), tambahkan nol jika perlu
+                            const year = dateObj.getFullYear(); // Ambil tahun
+                            return `${day}-${month}-${year}`; // Format dmy
+                        }
+                        return ""; // Jika tidak ada data
+                    },
+                },
             ],
             columnDefs: [
                 {
@@ -70,12 +95,11 @@ $(function () {
                     targets: 3,
                     render: function (data, type, full, row) {
                         if (type === "display") {
-                            var $dataId = full["id"];
-                            var link = full["link"];
+                            var dataId = full["id"];
                             return (
-                                '<a class="text-dark" href="' +
-                                link +
-                                '" target="_blank">' +
+                                '<a href="javascript:;" class="text-dark" data-bs-target="#detailNotulen' +
+                                dataId +
+                                '" data-bs-toggle="modal">' +
                                 data +
                                 "</a>"
                             );
@@ -84,22 +108,26 @@ $(function () {
                     },
                 },
                 {
-                    // Actions
-                    targets: -1,
-                    title: "Actions",
-                    orderable: false,
-                    searchable: false,
+                    // Label Status Name
+                    targets: 5,
                     render: function (data, type, full, meta) {
-                        var dataId = full["id"];
+                        var $level_number = full["level"];
+                        var $level = {
+                            0: {
+                                class: " bg-danger",
+                            },
+                            1: {
+                                class: " bg-success",
+                            },
+                        };
+                        if (typeof $level[$level_number] === "undefined") {
+                            return data;
+                        }
                         return (
-                            '<div class="d-flex align-items-center">' +
-                                '<a href="javascript:;" data-id="'+dataId+'" data-bs-toggle="tooltip" class="btn btn-sm btn-icon btn-text-secondary waves-effect waves-light rounded-pill delete-tools" data-bs-placement="top" aria-label="Delete Tools" data-bs-original-title="Delete Tools" >' +
-                                    '<i class="menu-icon tf-icons mdi mdi-delete mdi-20px"></i>' +
-                                '</a>' +
-                                '<a href="javascript:;" class="btn btn-sm btn-icon btn-text-secondary waves-effect waves-light rounded-pill" data-bs-target="#formLibrary'+ dataId +'" data-bs-toggle="modal">' +
-                                    '<i class="menu-icon tf-icons mdi mdi-pencil mdi-20px"></i>' +
-                                '</a>' +
-                            '</div>'
+                            '<span class="badge badge-dot ' +
+                            $level[$level_number].class +
+                            '">' +
+                            "</span>"
                         );
                     },
                 },
@@ -110,7 +138,7 @@ $(function () {
             },
             order: [[2, "desc"]],
             displayLength: 7,
-            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 head-invoice text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 head-notulen text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
                 {
@@ -324,14 +352,6 @@ $(function () {
                         },
                     ],
                 },
-                {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Tools</span>',
-                    className: "btn btn-primary",
-                    attr: {
-                        "data-bs-target": "#formLibrary",
-                        "data-bs-toggle": "modal",
-                    },
-                },
             ],
             responsive: {
                 details: {
@@ -368,11 +388,11 @@ $(function () {
                 },
             },
         });
-        $("div.hl-2.head-invoice").html(
-            '<h5 class="card-title mb-0">Table Manual Book</h5>'
+        $("div.hl-2.head-notulen").html(
+            '<h5 class="card-title mb-0">Table Notulen</h5>'
         );
     }
-    dt_table_library_manbook_admin.on("draw", function () {
+    dt_table_noutlen.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

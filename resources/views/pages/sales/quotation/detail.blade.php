@@ -324,7 +324,7 @@
                                             <span class="form-floating-focused"></span>
                                         </div>
                                         <button type="submit"
-                                            class="btn btn-primary waves-effect waves-light float-end">Submit</button>
+                                            class="btn btn-primary waves-effect waves-light float-end">Comment</button>
                                     </form>
                                 @endif
                             @endforeach

@@ -27,6 +27,7 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "commodity" },
+                { data: "brand" },
                 { data: "pn" },
                 { data: "price" },
                 { data: "description" },
@@ -91,7 +92,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 5,
+                    targets: 6,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
             ],

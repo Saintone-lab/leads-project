@@ -109,7 +109,7 @@ class EmployeeController extends Controller
             if(isset($request->visit)){
                 $target->visit = $request->visit;
             }else{
-                $target->visit = 0;
+                $target->visit = 1;
             }
             $target->quote = $request->quote;
             $target->po = $request->po;

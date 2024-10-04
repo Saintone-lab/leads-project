@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MentionNotulen;
+use App\Models\Notulen;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NotulenController extends Controller
 {
@@ -13,7 +18,9 @@ class NotulenController extends Controller
      */
     public function index()
     {
-        //
+        $user = User::all();
+        $notulens = Notulen::join('mention_notulen as m', 'm.id_notulen', '=', 'notulen.id')->join('users as u', 'm.id_mention', '=', 'u.id')->get(['notulen.*', 'u.name', 'm.level']);
+        return view('pages.notulen.index', compact('user', 'notulens'));
     }
 
     /**
@@ -23,7 +30,6 @@ class NotulenController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -34,7 +40,25 @@ class NotulenController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // dd($request->mention);
+        $notulen = new Notulen;
+        $notulen->id_notuler = Auth::id();
+        $notulen->title = $request->title;
+        $notulen->desc = $request->desc;
+        $notulen->date = Carbon::now();
+        $notulenSave = $notulen->save();
+        foreach ($request->mention as $key => $value) {
+            $mentionTo = new MentionNotulen;
+            $mentionTo->id_notulen = $notulen->id;
+            $mentionTo->id_mention = $request->mention[$key];
+            $mentionTo->level = '0';
+            $mentionToSave = $mentionTo->save();
+        }
+        if ($notulenSave && $mentionToSave) {
+            return redirect('/notulen')->with('message', 'data telah di tambahkan');
+        } else {
+            # code...
+        }
     }
 
     /**
@@ -68,7 +92,14 @@ class NotulenController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $notulen = MentionNotulen::find($id);
+        $notulen->level = '1';
+        $notulenSave = $notulen->save();
+        if ($notulenSave) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     /**

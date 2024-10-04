@@ -5,28 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Notulen extends Model
+class MentionNotulen extends Model
 {
     use HasFactory;
     
-    protected $table = "notulen";
+    protected $table = "mention_notulen";
     protected $dates = [
-        'date',
         'created_at',
         'updated_at'
     ];
     protected $fillable = [
-        'id_notuler',
-        'title',
-        'desc',
+        'id_notulen',
+        'id_mention',
         'level'
     ];
     public function notuler()
     {
-        return $this->belongsTo('App\Models\User', 'id_notuler', 'id');
+        return $this->belongsTo('App\Models\Notulen', 'id_notulen', 'id');
     }
     public function mention()
     {
-        return $this->hasMany('App\Models\MentionNotulen', 'id_notulen');
+        return $this->belongsTo('App\Models\User', 'id_mention', 'id');
     }
 }

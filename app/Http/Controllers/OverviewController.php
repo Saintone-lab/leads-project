@@ -23,55 +23,7 @@ class OverviewController extends Controller
     public function index()
     {
         $sales = User::where('role', 'Sales')->get();
-        $totalPO = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->sum('nett');
-        });
-        $totalForecast = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
-            return number_format($total, 2, ',', '.');
-        });
-        $filteredPO = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->count();
-        });
-        $filteredQuote = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('estimated_date', $monthNow)->count();
-        });
-        $filteredDC = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            return $sale->clients->flatMap(function ($client) use ($monthNow) {
-                return $client->activities()->whereMonth('date', $monthNow)->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->get();
-            })->count();
-        });
-        $filteredCRM = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            return $sale->clients->flatMap(function ($client) use ($monthNow) {
-                return $client->activities()->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'CRM')->get();
-            })->count();
-        });
-        $targett = $sales->map(function ($sale) {
-            return $sale->target()->pluck('total')->sum();
-        });
-        // dd($sales);
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        $leveledProspect = Prospect::whereNULL('level')->count();
-        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
-        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
-        ->join('users as u', 'u.id', '=', 'o.id_user')
-        ->where('quotation.id_sales', Auth::id())
-        ->where('o.level', '1')
-        ->orderBy('o.date','DESC')
-        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
-        return view('pages.overview', compact('noSaleProspect', 'comment','leveledProspect', 'sales', 'totalPO', 'totalForecast', 'filteredPO', 'filteredQuote', 'filteredDC', 'filteredCRM', 'targett'));
+        return view('pages.overview', compact('sales'));
     }
 
     /**

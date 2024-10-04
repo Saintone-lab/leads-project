@@ -13,6 +13,7 @@ use App\Http\Controllers\ExistingController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\MachineController;
+use App\Http\Controllers\NotulenController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\PicController;
 use App\Http\Controllers\ProductController;
@@ -34,6 +35,7 @@ use App\Models\DetailProduct;
 use App\Models\Invoice;
 use App\Models\Library;
 use App\Models\Machine;
+use App\Models\Notulen;
 use App\Models\Pic;
 use App\Models\ProductIn;
 use App\Models\Prospect;
@@ -361,6 +363,18 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/library/store/partlist', [LibraryController::class, 'store_partlist'])->name(name: 'store_partlist.library');
     Route::post('/library/store/manbook', [LibraryController::class, 'store_manbook'])->name(name: 'store_manbook.library');
 
+    Route::resource('/notulen', NotulenController::class);
+
+    // Dashboard Function
+    Route::get('/dashboard/totalPo/{sales}', [DashboardController::class, 'totalPoAdmin'])->name('totalPo.dashboard');
+    Route::get('/dashboard/totalForecast/{sales}', [DashboardController::class, 'totalForecastAdmin'])->name('totalForecast.dashboard');
+    Route::get('/dashboard/totalProspect/{sales}', [DashboardController::class, 'totalProspectAdmin'])->name('totalProspect.dashboard');
+    Route::get('/dashboard/filteredPo/{sales}', [DashboardController::class, 'filteredPoAdmin'])->name('filteredPo.dashboard');
+    Route::get('/dashboard/filteredQuote/{sales}', [DashboardController::class, 'filteredQuoteAdmin'])->name('filteredQuote.dashboard');
+    Route::get('/dashboard/filteredDc/{sales}', [DashboardController::class, 'filteredDcAdmin'])->name('filteredDc.dashboard');
+    Route::get('/dashboard/filteredVisit/{sales}', [DashboardController::class, 'filteredVisitAdmin'])->name('filteredVisit.dashboard');
+    Route::get('/dashboard/filteredCRM/{sales}', [DashboardController::class, 'filteredCRMAdmin'])->name('filteredCRM.dashboard');
+    Route::get('/dashboard/target/{sales}', [DashboardController::class, 'target'])->name('target.dashboard');
     // Database Connection
     Route::get('/db/selling-contract/non-tax', function () {
         $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
@@ -1029,5 +1043,21 @@ Route::group(["middleware" => "auth"], function () {
         $library = Library::where('type', 'Manual Book')->get();
         return response()->json(['data' => $library]);
     });
-});
+    Route::get('/db/library/manbook', function () {
+        $library = Library::where('type', 'Manual Book')->get();
+        return response()->json(['data' => $library]);
+    });
+    Route::get('/db/notulen/mention', function () {
+        $notulen = Notulen::join('mention_notulen as m', 'm.id_notulen', '=', 'notulen.id')->join('users as u', 'm.id_mention', '=', 'u.id')->where('id_notuler', Auth::id())->get(['notulen.*', 'u.name', 'm.level']);
+        return response()->json(['data' => $notulen]);
+    });
+    Route::get('/db/notulen/mention/admin', function () {
+        $notulen = Notulen::join('mention_notulen as m', 'm.id_notulen', '=', 'notulen.id')->join('users as u', 'm.id_mention', '=', 'u.id')->get(['notulen.*', 'u.name', 'm.level', 'm.id as mId']);
+        return response()->json(['data' => $notulen]);
+    });
+    Route::get('/db/notulen', function () {
+        $notulen = Notulen::join('mention_notulen as m', 'm.id_notulen', '=', 'notulen.id')->join('users as u', 'm.id_mention', '=', 'u.id')->where('m.id_mention', Auth::id())->get(['notulen.*', 'u.name', 'm.level']);
+        return response()->json(['data' => $notulen]);
+    });
+}); 
 Auth::routes();

@@ -27,7 +27,6 @@
                             class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
                     </div>
                 </div>
-                <!-- Total Leads -->
                 <div class="col">
                     <div class="card h-100">
                         <div class="card-body">
@@ -39,7 +38,9 @@
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">{{ $dailyCall }} <small class="text-muted fs-tiny">/
+                                <h4 class="mb-2">
+                                    {{ $dailyCall }}
+                                    <small class="text-muted fs-tiny">/
                                         @php
                                             if (is_array($weekPerMonth)) {
                                                 $jumlahData = count($weekPerMonth);
@@ -50,14 +51,13 @@
                                         @elseif($jumlahData == 4)
                                             {{ round($target->dc) }}
                                         @endif
-                                    </small></h4>
+                                    </small>
+                                </h4>
                                 <div class="badge bg-label-secondary rounded-pill">Daily Call</div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!--/ Total Leads -->
-                <!-- Total Expenses -->
                 <div class="col">
                     <div class="card h-100">
                         <div class="card-body">
@@ -69,7 +69,9 @@
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">{{ $customers }} <small class="text-muted fs-tiny">/
+                                <h4 class="mb-2">
+                                    {{ $customers }}
+                                    <small class="text-muted fs-tiny">/
                                         @if ($jumlahData > 4)
                                             {{ round($target->crm + $target->crm / 4) }}
                                         @elseif($jumlahData == 4)
@@ -82,8 +84,6 @@
                         </div>
                     </div>
                 </div>
-                <!--/ Total Expenses -->
-                <!-- Total Expenses -->
                 <div class="col">
                     <div class="card h-100">
                         <div class="card-body">
@@ -95,7 +95,9 @@
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">{{ $visit }} <small class="text-muted fs-tiny">/
+                                <h4 class="mb-2">
+                                    {{ $visit }}
+                                    <small class="text-muted fs-tiny">/
                                         @if ($jumlahData > 4)
                                             {{ round($target->visit + $target->visit / 4) }}
                                         @elseif($jumlahData == 4)
@@ -108,8 +110,6 @@
                         </div>
                     </div>
                 </div>
-                <!--/ Total Expenses -->
-                <!-- Total Profit chart -->
                 <div class="col">
                     <div class="card h-100">
                         <div class="card-body">
@@ -121,7 +121,9 @@
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">{{ $quotation->count() }} <small class="text-muted fs-tiny">/
+                                <h4 class="mb-2">
+                                    {{ $quotation->count() }}
+                                    <small class="text-muted fs-tiny">/
                                         @if ($jumlahData > 4)
                                             {{ round($target->quote + $target->quote / 4) }}
                                         @elseif($jumlahData == 4)
@@ -134,8 +136,6 @@
                         </div>
                     </div>
                 </div>
-                <!--/ Total Profit chart -->
-                <!-- Total Growth chart -->
                 <div class="col">
                     <div class="card h-100">
                         <div class="card-body">
@@ -147,7 +147,9 @@
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">{{ $po->count() }} <small class="text-muted fs-tiny">/
+                                <h4 class="mb-2">
+                                    {{ $po->count() }}
+                                    <small class="text-muted fs-tiny">/
                                         @if ($jumlahData > 4)
                                             {{ round($target->po + $target->po / 4) }}
                                         @elseif($jumlahData == 4)
@@ -334,7 +336,9 @@
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">{{ $dailyCall }} <small class="text-muted fs-tiny">/
+                                <h4 class="mb-2">
+                                    {{ $dailyCall }}
+                                    <small class="text-muted fs-tiny">/
                                         @php
                                             if (is_array($weekPerMonth)) {
                                                 $jumlahData = count($weekPerMonth);
@@ -345,7 +349,8 @@
                                         @elseif($jumlahData == 4)
                                             {{ round($target->dc) }}
                                         @endif
-                                    </small></h4>
+                                    </small>
+                                </h4>
                                 <div class="badge bg-label-secondary rounded-pill">Daily Call</div>
                             </div>
                         </div>
@@ -364,7 +369,9 @@
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">{{ $customers }} <small class="text-muted fs-tiny">/
+                                <h4 class="mb-2">
+                                    {{ $customers }}
+                                    <small class="text-muted fs-tiny">/
                                         @if ($jumlahData > 4)
                                             {{ round($target->crm + $target->crm / 4) }}
                                         @elseif($jumlahData == 4)
@@ -390,7 +397,9 @@
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">{{ $quotation->count() }} <small class="text-muted fs-tiny">/
+                                <h4 class="mb-2">
+                                    {{ $quotation->count() }}
+                                    <small class="text-muted fs-tiny">/
                                         @if ($jumlahData > 4)
                                             {{ round($target->quote + $target->quote / 4) }}
                                         @elseif($jumlahData == 4)
@@ -416,7 +425,10 @@
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">{{ $po->count() }} <small class="text-muted fs-tiny">/
+                                <h4 class="mb-2">
+                                    {{ $po->count() }}
+
+                                    <small class="text-muted fs-tiny">/
                                         @if ($jumlahData > 4)
                                             {{ round($target->po + $target->po / 4) }}
                                         @elseif($jumlahData == 4)
@@ -434,10 +446,9 @@
         </div>
 
         <div class="row gy-4 mb-4">
-
             {{-- Prospect Table --}}
             <div class="col-12">
-                <div class="card mb-3">
+                <div class="card">
                     <div class="card-datatable table-responsive pt-0">
                         <table class="datatable-prospect-quote-sales table table-striped">
                             <thead>
@@ -459,6 +470,23 @@
             {{-- End:: Prospect Table --}}
         </div>
 
+        <div class="card mb-4">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-notulen table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Desc</th>
+                            <th>Level</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
         <div class="card app-calendar-wrapper">
             <div class="row gy-4">
                 <!-- Calendar Sidebar -->
@@ -887,7 +915,8 @@
                     <div class="card-body pb-3">
                         <ul class="nav nav-tabs nav-tabs-widget pb-3 gap-2 d-flex flex-nowrap" role="tablist">
                             @foreach ($sales as $user)
-                                <li class="nav-item" role="presentation" style="width: 80%;">
+                                <li class="nav-item change-sales" role="presentation" style="width: 80%;"
+                                    data-id="{{ $user->id }}">
                                     <div class="nav-link btn {{ $user->id == 1 ? 'active' : '' }} d-flex flex-column align-items-center justify-content-center"
                                         role="tab" data-bs-toggle="tab"
                                         data-bs-target="#navs-sales-{{ $user->id }}"
@@ -928,7 +957,7 @@
                                                                 </div>
                                                             </a>
                                                             <div class="card-info">
-                                                                <h5 class="mb-0">{{ $filteredDC[$item] }} <span
+                                                                <h5 class="mb-0 filtered-dc">{{ $filteredDC }} <span
                                                                         class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span>
                                                                 </h5>
                                                                 <small
@@ -943,7 +972,7 @@
                                                                 </div>
                                                             </div>
                                                             <div class="card-info">
-                                                                <h5 class="mb-0">{{ $filteredCRM[$item] }}<span
+                                                                <h5 class="mb-0 filtered-crm">{{ $filteredCRM }}<span
                                                                         class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->crm }}</span>
                                                                 </h5>
                                                                 <small class="text-muted">CRM</small>
@@ -961,7 +990,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="card-info">
-                                                                    <h5 class="mb-0">{{ $filteredVisit[$item] }}<span
+                                                                    <h5 class="mb-0 filtered-visit">{{ $filteredVisit }}<span
                                                                             class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->visit }}</span>
                                                                     </h5>
                                                                     <small class="text-muted">Visit</small>
@@ -978,7 +1007,7 @@
                                                                 </div>
                                                             </a>
                                                             <div class="card-info">
-                                                                <h5 class="mb-0">{{ $filteredQuote[$item] }}<span
+                                                                <h5 class="mb-0 filtered-quote">{{ $filteredQuote }}<span
                                                                         class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->quote }}</span>
                                                                 </h5>
                                                                 <small class="text-muted">Quotation</small>
@@ -993,7 +1022,7 @@
                                                                 </div>
                                                             </a>
                                                             <div class="card-info">
-                                                                <h5 class="mb-0">{{ $filteredPO[$item] }}<span
+                                                                <h5 class="mb-0 filtered-po">{{ $filteredPO }}<span
                                                                         class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->po }}</span>
                                                                 </h5>
                                                                 <small class="text-muted">PO</small>
@@ -1009,26 +1038,19 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="card-info">
-                                                                    <h5 class="mb-0">Rp
-                                                                        {{ number_format($totalPO[$item], 2, ',', '.') }}
-                                                                        @php
-                                                                            $jumlah_target = [];
-                                                                            foreach ($totalPO as $key => $value) {
-                                                                                if (
-                                                                                    isset($targett[$key]) &&
-                                                                                    $targett[$key] != 0
-                                                                                ) {
-                                                                                    $jumlah_target[$key] =
-                                                                                        ($value / $targett[$key]) * 100;
-                                                                                } else {
-                                                                                    $jumlah_target[$key] = 0;
-                                                                                }
-                                                                            }
-                                                                        @endphp
-                                                                        <span class="text-success mb-0">
-                                                                            {{ number_format($jumlah_target[$item], 3) }}%
-                                                                        </span>
-                                                                    </h5>
+                                                                    <div class="total-percentage-po d-flex justify-center">
+                                                                        <h5 class="mb-0 total-po">Rp
+                                                                            {{ number_format($totalPO, 2, ',', '.') }}
+                                                                            @php
+                                                                                $jumlah_target =
+                                                                                    ($totalPO / $targett->total) * 100;
+                                                                            @endphp
+                                                                        </h5>
+                                                                        <h5 class="text-success mb-0 target-po"
+                                                                            style="margin-left: 8px;">
+                                                                            {{ number_format($jumlah_target, 3) }}%
+                                                                        </h5>
+                                                                    </div>
                                                                     <small class="text-muted">Total Sales</small>
                                                                 </div>
                                                             </div>
@@ -1042,9 +1064,9 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="card-info">
-                                                                    <h5 class="mb-0">
+                                                                    <h5 class="mb-0 total-forecast">
                                                                         Rp
-                                                                        {{ $totalForecast[$item] }}
+                                                                        {{ number_format($totalForecast, 2, ',', '.') }}
                                                                     </h5>
                                                                     <small class="text-muted">Quotation</small>
                                                                 </div>
@@ -1059,8 +1081,8 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="card-info">
-                                                                    <h5 class="mb-0">Rp
-                                                                        {{ $totalProspect[$item] }}
+                                                                    <h5 class="mb-0 total-prospect">Rp
+                                                                        {{ number_format($totalProspect, 2, ',', '.') }}
                                                                     </h5>
                                                                     <small class="text-muted">Hot Prospect</small>
                                                                 </div>
@@ -1119,6 +1141,23 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-notulen table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Desc</th>
+                            <th>Level</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
         @php
@@ -1223,6 +1262,23 @@
                 </table>
             </div>
         </div>
+        <div class="card mb-4">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-notulen table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Desc</th>
+                            <th>Level</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
         @include('components.modal.warehouse.product.form')
     @elseif(Auth::user()->role == 'Coordinator')
         <h4 class="fw-3">Request Visit</h4>
@@ -1263,13 +1319,51 @@
                 </table>
             </div>
         </div>
+        <div class="card mb-4">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-notulen table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Desc</th>
+                            <th>Level</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
         @foreach ($visits as $visit)
             @include('components.modal.req-visit.form-accept')
         @endforeach
         @foreach ($visited as $visit)
             @include('components.modal.req-visit.form-visited')
         @endforeach
+    @else
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-notulen table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Desc</th>
+                            <th>Level</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
     @endif
+    @foreach ($notulens as $notulen)
+        @include('components.modal.notulen.detail')
+    @endforeach
 @endsection
 @push('after-style')
     {{-- All --}}
@@ -1318,120 +1412,7 @@
         <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/apex-charts/apexcharts.js"></script>
-        <script>
-            $(document).on('click', '#withQuote', function() {
-                var id = $(this).data('id');
-                Swal.fire({
-                    title: "Are you sure With Quotation?",
-                    text: "You won't be able to revert this!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Yes, With Quotation!",
-                    customClass: {
-                        confirmButton: "btn btn-primary me-3 waves-effect waves-light",
-                        cancelButton: "btn btn-label-secondary waves-effect",
-                    },
-                    buttonsStyling: false,
-                }).then(function(result) {
-                    if (result.value) {
-                        $.ajax({
-                            'url': '{{ url('prospect') }}/' + 'with_quotation/' + id,
-                            'type': 'POST',
-                            'data': {
-                                '_method': 'POST',
-                                '_token': '{{ csrf_token() }}'
-                            },
-                            success: function(response) {
-                                if (response == 1) {
-                                    Swal.fire({
-                                        icon: "success",
-                                        title: "Converted!",
-                                        text: "Your file has been converted.",
-                                        customClass: {
-                                            confirmButton: "btn btn-success waves-effect",
-                                        },
-                                    })
-                                    window.setTimeout(function() {
-                                        window.location.href = '/prospect/create_quotation/' + id;
-                                    }, 2000);
-                                } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Oops...',
-                                        text: 'Data Failed With Quotation!'
-                                    });
-                                }
-                            }
-                        });
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        Swal.fire({
-                            title: "Cancelled",
-                            text: "You cancelled :)",
-                            icon: "error",
-                            customClass: {
-                                confirmButton: "btn btn-success waves-effect",
-                            },
-                        });
-                    }
-                });
-            });
-            $(document).on('click', '#withoutQuote', function() {
-                var id = $(this).data('id');
-                Swal.fire({
-                    title: "Are you sure without Quotation?",
-                    text: "You won't be able to revert this!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Yes, without Quotation!",
-                    customClass: {
-                        confirmButton: "btn btn-primary me-3 waves-effect waves-light",
-                        cancelButton: "btn btn-label-secondary waves-effect",
-                    },
-                    buttonsStyling: false,
-                }).then(function(result) {
-                    if (result.value) {
-                        $.ajax({
-                            'url': '{{ url('prospect') }}/' + 'without_quotation/' + id,
-                            'type': 'POST',
-                            'data': {
-                                '_method': 'POST',
-                                '_token': '{{ csrf_token() }}'
-                            },
-                            success: function(response) {
-                                if (response == 1) {
-                                    Swal.fire({
-                                        icon: "success",
-                                        title: "Converted!",
-                                        text: "Your file has been converted.",
-                                        customClass: {
-                                            confirmButton: "btn btn-success waves-effect",
-                                        },
-                                    })
-                                    window.setTimeout(function() {
-                                        window.location.href = '/leads/detail/' + id;
-                                    }, 2000);
-                                } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Oops...',
-                                        text: 'Data Failed With Quotation!'
-                                    });
-                                }
-                            }
-                        });
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        Swal.fire({
-                            title: "Cancelled",
-                            text: "You cancelled :)",
-                            icon: "error",
-                            customClass: {
-                                confirmButton: "btn btn-success waves-effect",
-                            },
-                        });
-                    }
-                });
-            });
-        </script>
+        <script></script>
     @endif
 @endpush
 @push('page-script')
@@ -1449,13 +1430,99 @@
         <script src="{{ asset('assets') }}/includes/table-req-visit-sales.js"></script>
     @endif
 
+    @if (Auth::user()->role == 'Coordinator')
+        <script src="{{ asset('assets') }}/includes/table-req-visit-accept.js"></script>
+        <script src="{{ asset('assets') }}/includes/table-req-visit-service.js"></script>
+    @endif
     <script src="{{ asset('assets') }}/includes/table-hot-prospect.js"></script>
 
     <script src="{{ asset('assets') }}/includes/table-product-sales.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-logistic.js"></script>
 
-    <script src="{{ asset('assets') }}/includes/table-req-visit-service.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-req-visit-accept.js"></script>
+
+    <script src="{{ asset('assets') }}/includes/table-notulen.js"></script>
+    {{-- @if (Auth::user()->role == 'Admin') --}}
+    <script>
+        function formatNumber(n) {
+            return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+        }
+
+        $('.change-sales').on('click', function(ev) {
+            var id = $(this).data('id');
+            // console.log( 'sales ini ber id : ' + id);
+            $.ajax({
+                url: '/dashboard/totalPo/' + id,
+                type: 'GET',
+                success: function(response) {
+                    total = formatNumber(response);
+                    $(`.total-po`).text('Rp ' + total);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/target/' + id,
+                type: 'GET',
+                success: function(response) {
+                    var targetPercentage = (response / 100).toFixed(3);
+                    $(`.target-po`).text(targetPercentage + '%');
+                    console.log(targetPercentage);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/totalProspect/' + id,
+                type: 'GET',
+                success: function(response) {
+                    total = formatNumber(response);
+                    $(`.total-prospect`).text('Rp ' + total);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/totalForecast/' + id,
+                type: 'GET',
+                success: function(response) {
+                    total = formatNumber(response);
+                    $(`.total-forecast`).text('Rp ' + total);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredPo/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-po`).text( response);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredDc/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-dc`).text( response);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredCRM/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-crm`).text( response);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredVisit/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-visit`).text( response);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredQuote/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-quote`).text( response);
+                }
+            });
+
+
+        });
+    </script>
+    {{-- @endif --}}
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script> --}}
 
 @endpush

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Activities;
 use App\Models\Client;
 use App\Models\DetailProduct;
+use App\Models\Notulen;
 use App\Models\Product;
 use App\Models\Prospect;
 use App\Models\Quotation;
@@ -23,119 +24,115 @@ class DashboardController extends Controller
     {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
-        $weekPerMonth = $this->getWeekperMonth();
-        $commodity = Product::count();
-        $dproduct = DetailProduct::count();
-        $sproduct = SerialProduct::count();
-        // dd($weekPerMonth);
-        $target = Target::where('id_sales', Auth::user()->id)->first();
-        // dd($target);
-        $dailyCall = Activities::select('activities.*')
-            ->join('client as c', 'activities.id_client', '=', 'c.id')
-            ->join('users as u', 'c.id_sales', '=', 'u.id')
-            ->whereMonth("date", $monthNow)
-            ->where('u.id', Auth::user()->id)
-            ->where('status', 'Responded')
-            ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
-            ->count();
-        $customers = Activities::select('activities.*')
-            ->join('client as c', 'activities.id_client', '=', 'c.id')
-            ->join('users as u', 'c.id_sales', '=', 'u.id')
-            ->whereMonth("date", $monthNow)
-            ->where('u.id', Auth::user()->id)
-            ->where('status', 'Responded')
-            ->where('activities.name', 'CRM')
-            ->count();
-        $visit = Activities::select('activities.*')
-            ->join('client as c', 'activities.id_client', '=', 'c.id')
-            ->join('users as u', 'c.id_sales', '=', 'u.id')
-            ->whereMonth("date", $monthNow)
-            ->where('u.id', Auth::user()->id)
-            ->where('status', 'Responded')
-            ->where('activities.name', 'Visit')
-            ->count();
-        $quotation = Quotation::whereMonth("estimated_date", $monthNow)->where("id_sales", Auth::user()->id)->where('level', '1')->where('is_primary', '1')->get();
-        $po = Quotation::whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->where('level', '1')->where('is_primary', '1')->get();
-        $poTotalPrice = Quotation::whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->where('level', '1')->where('is_primary', '1')->sum('nett');
-        $poTotalPriceAdmin = Quotation::whereMonth("po_date", $monthNow)->where("status", "100")->where('level', '1')->where('is_primary', '1')->sum('nett');
-        $formattedTotalPrice = $this->formatNumber($poTotalPrice);
-        $formattedTotalPriceAdmin = $this->formatNumber($poTotalPriceAdmin);
-        $sales = User::where('role', 'Sales')->where('active', '1')->get();
-        $totalPO = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
-        });
-        $totalProspect = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->where('status', '80')->where('level', '1')->where('is_primary', '1')->sum('nett');
-            return number_format($total, 2, ',', '.');
-        });
-        $totalForecast = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            $total = $sale->quotation()->whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
-            return number_format($total, 2, ',', '.');
-        });
-        $filteredPO = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('po_date', $monthNow)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
-        });
-        $filteredQuote = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            return $sale->quotation()->whereMonth('estimated_date', $monthNow)->where('level', '1')->where('is_primary', '1')->count();
-        });
-        $filteredDC = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            return $sale->clients->flatMap(function ($client) use ($monthNow) {
-                return $client->activities()->whereMonth('date', $monthNow)->where('status', 'Responded')->get();
-            })->count();
-        });
-        $filteredCRM = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            return $sale->clients->flatMap(function ($client) use ($monthNow) {
-                return $client->activities()->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'CRM')->get();
-            })->count();
-        });
-        $filteredVisit = $sales->map(function ($sale) {
-            $dateNow = Carbon::now();
-            $monthNow = $dateNow->month;
-            return $sale->clients->flatMap(function ($client) use ($monthNow) {
-                return $client->activities()->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'Visit')->get();
-            })->count();
-        });
+        $notulens = Notulen::join('mention_notulen as m', 'm.id_notulen', '=', 'notulen.id')->join('users as u', 'm.id_mention', '=', 'u.id')->get(['notulen.*', 'u.name', 'm.level']);
+        if (Auth::user()->role == 'Sales' || Auth::user()->role == 'Support') {
+            $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+            $weekPerMonth = $this->getWeekperMonth();
+            $dailyCall = $this->getDailyCallSales();
+            $customers = $this->getCustomersSales();
+            $quotation = $this->getQuotationSales();
+            $po = $this->getPoSales();
+            $visit = $this->getVisitSales();
+            $poTotalPrice = Quotation::whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $formattedTotalPrice = $this->formatNumber($poTotalPrice);
+            $target = Target::where('id_sales', Auth::user()->id)->first();
+            $prospects = Prospect::where('id_sales', Auth::id())->whereNull('level')->get();
+            $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+                ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+                ->join('users as u', 'u.id', '=', 'o.id_user')
+                ->where('quotation.id_sales', Auth::id())
+                ->where('o.level', '1')
+                ->orderBy('o.date', 'DESC')
+                ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+            return view(
+                "pages.sales.dashboard",
+                compact(
+                    'notulens',
+                    'prospects',
+                    'leveledProspect',
+                    'formattedTotalPrice',
+                    'weekPerMonth',
+                    'target',
+                    'poTotalPrice',
+                    'visit',
+                    'dailyCall',
+                    'quotation',
+                    'po',
+                    'customers',
+                    'comment'
+                )
+            );
+        } elseif (Auth::user()->role == 'Admin') {
+            $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+            $poTotalPriceAdmin = Quotation::whereMonth("po_date", $monthNow)->where("status", "100")->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $formattedTotalPriceAdmin = $this->formatNumber($poTotalPriceAdmin);
+            $sales = User::where('role', 'Sales')->where('active', '1')->get();
+            $firstSales = User::where('role', 'Sales')->first();
+            $targett = Target::where('id_sales', $firstSales->id)->first('total');
+            // dd($targett);
+            $targetSales = $sales->map(function ($sale) {
+                return $sale->target()->groupBy('id_sales')->get();
+            });
+            $totalPO = Quotation::whereMonth('po_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+            // dd($totalPO);
+            $totalProspect = Quotation::whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $totalForecast = Quotation::whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '80')->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $filteredPO = Quotation::whereMonth('po_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+            $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->count();
+            $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->where('name', 'CRM')->count();
+            $filteredQuote = Quotation::whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('level', '1')->where('is_primary', '1')->count();
+            $filteredVisit = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->where('name', 'Visit')->count();
+            $dataDc = $this->getWeekDataDC();
+            $dataCRM = $this->getWeekDataCRM();
+            $dataVisit = $this->getWeekDataVisit();
+            $dataQuote = $this->getWeekDataQuote();
+            $dataPO = $this->getWeekDataPO();
+            return view(
+                "pages.sales.dashboard",
+                compact(
+                    'noSaleProspect',
+                    'notulens',
+                    'targetSales',
+                    'sales',
+                    'totalPO',
+                    'filteredPO',
+                    'filteredCRM',
+                    'filteredVisit',
+                    'filteredDC',
+                    'filteredQuote',
+                    'poTotalPriceAdmin',
+                    'formattedTotalPriceAdmin',
+                    'totalForecast',
+                    'totalProspect',
+                    'dataQuote',
+                    'dataPO',
+                    'dataDc',
+                    'dataCRM',
+                    'dataVisit',
+                    'targett',
+                )
+            );
+        } else {
+            $commodity = Product::count();
+            $dproduct = DetailProduct::count();
+            $sproduct = SerialProduct::count();
 
-        $dataDc = $this->getWeekDataDC();
-        $dataCRM = $this->getWeekDataCRM();
-        $dataVisit = $this->getWeekDataVisit();
-        $dataQuote = $this->getWeekDataQuote();
-        $dataPO = $this->getWeekDataPO();
-        $targett = $sales->map(function ($sale) {
-            return $sale->target()->pluck('total')->sum();
-        });
-        $targetSales = $sales->map(function ($sale) {
-            return $sale->target()->groupBy('id_sales')->get();
-        });
-        $visits = ReqVisit::whereNull('date')->get();
-        $visited = ReqVisit::whereNotNull('date')->whereNull('visit_date')->get();
-        $prospects = Prospect::where('id_sales', Auth::id())->whereNull('level')->get();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
-        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
-        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
-        ->join('users as u', 'u.id', '=', 'o.id_user')
-        ->where('quotation.id_sales', Auth::id())
-        ->where('o.level', '1')
-        ->orderBy('o.date','DESC')
-        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
-        
+            $visits = ReqVisit::whereNull('date')->get();
+            $visited = ReqVisit::whereNotNull('date')->whereNull('visit_date')->get();
+            return view(
+                "pages.sales.dashboard",
+                compact(
+                    'notulens',
+                    'commodity',
+                    'dproduct',
+                    'sproduct',
+                    'visits',
+                    'visited'
+                )
+            );
+        }
+
         // dd($leveledProspect);
-        return view("pages.sales.dashboard", compact('noSaleProspect', 'comment', 'prospects', 'leveledProspect', 'targetSales', 'visit', 'dailyCall', 'customers', 'quotation', 'po', 'formattedTotalPrice', 'weekPerMonth', 'target', 'sales', 'poTotalPrice', 'totalPO', 'filteredPO', 'filteredCRM', 'filteredVisit', 'filteredDC', 'filteredQuote', 'poTotalPriceAdmin', 'formattedTotalPriceAdmin', 'totalForecast', 'totalProspect', 'dataQuote', 'dataPO', 'dataDc', 'dataCRM', 'dataVisit', 'commodity', 'sproduct', 'targett', 'visits', 'visited'));
     }
 
     public function overviewIndex()
@@ -187,7 +184,72 @@ class DashboardController extends Controller
             return $sale->target()->pluck('total')->sum();
         });
         // dd($targett);
-        return view('pages.admin.overview', compact('sales', 'totalPO', 'totalForecast', 'filteredPO', 'filteredQuote', 'filteredDC', 'filteredVisit', 'filteredCRM', 'targett'));
+        return view('pages.admin.overview', compact('visit', 'dailyCall', 'quotation', 'po', 'customers', 'sales', 'totalPO', 'totalForecast', 'filteredPO', 'filteredQuote', 'filteredDC', 'filteredVisit', 'filteredCRM', 'targett'));
+    }
+    public function totalPoAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $totalPO = Quotation::whereMonth('po_date', $monthNow)->where('id_sales', $sales)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        return $totalPO;
+    }
+    public function totalForecastAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $totalProspect = Quotation::whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+        return $totalProspect;
+    }
+    public function totalProspectAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $totalForecast = Quotation::whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->where('status', '80')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        return $totalForecast;
+    }
+    public function filteredPoAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $filteredPO = Quotation::whereMonth('po_date', $monthNow)->where('id_sales', $sales)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+        return $filteredPO;
+    }
+    public function filteredQuoteAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $filteredQuote = Quotation::whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
+        return $filteredQuote;
+    }
+    public function filteredDcAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereMonth('date', $monthNow)->where('c.id_sales', $sales)->where('status', 'Responded')->count();
+        return $filteredDC;
+    }
+    public function filteredCrmAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereMonth('date', $monthNow)->where('c.id_sales', $sales)->where('status', 'Responded')->where('name', 'CRM')->count();
+        return $filteredCRM;
+    }
+    public function filteredVisitAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $filteredVisit = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereMonth('date', $monthNow)->where('c.id_sales', $sales)->where('status', 'Responded')->where('name', 'Visit')->count();
+        return $filteredVisit;
+    }
+    public function target($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $totalPO = Quotation::whereMonth('po_date', $monthNow)->where('id_sales', $sales)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $target = Target::where('id_sales', $sales)->first('total');
+        $totalTarget = ($totalPO / $target->total) * 10000;
+        return $totalTarget;
     }
 
     protected function formatNumber($number)
@@ -501,5 +563,63 @@ class DashboardController extends Controller
             $fullMonthData[$sales->name] = $weeklyData;
         }
         return $fullMonthData;
+    }
+
+    protected function getQuotationSales()
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $quotation = Quotation::whereMonth("estimated_date", $monthNow)->where("id_sales", Auth::user()->id)->where('level', '1')->where('is_primary', '1')->get();
+        return $quotation;
+    }
+    protected function getVisitSales()
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $visit = Activities::select('activities.*')
+            ->join('client as c', 'activities.id_client', '=', 'c.id')
+            ->join('users as u', 'c.id_sales', '=', 'u.id')
+            ->whereMonth("date", $monthNow)
+            ->where('u.id', Auth::user()->id)
+            ->where('status', 'Responded')
+            ->where('activities.name', 'Visit')
+            ->count();
+        return $visit;
+    }
+    protected function getDailyCallSales()
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $dailyCall = Activities::select('activities.*')
+            ->join('client as c', 'activities.id_client', '=', 'c.id')
+            ->join('users as u', 'c.id_sales', '=', 'u.id')
+            ->whereMonth("date", $monthNow)
+            ->where('u.id', Auth::user()->id)
+            ->where('status', 'Responded')
+            ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
+            ->count();
+        return $dailyCall;
+    }
+    protected function getPoSales()
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $po = Quotation::whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->where('level', '1')->where('is_primary', '1')->get();
+
+        return $po;
+    }
+    protected function getCustomersSales()
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $customers = Activities::select('activities.*')
+            ->join('client as c', 'activities.id_client', '=', 'c.id')
+            ->join('users as u', 'c.id_sales', '=', 'u.id')
+            ->whereMonth("date", $monthNow)
+            ->where('u.id', Auth::user()->id)
+            ->where('status', 'Responded')
+            ->where('activities.name', 'CRM')
+            ->count();
+        return $customers;
     }
 }
