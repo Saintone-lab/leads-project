@@ -963,6 +963,24 @@ class QuotationController extends Controller
             return response()->json(['message' => 'Comment not found'], 404);
         }
     }
+
+    public function replacementDetail($id)
+    {
+        $sProd = SerialProduct::join('product as p', 'p.id', '=', 'serial_product.id_product')
+            ->where('serial_product.id', $id)
+            ->get(['p.description AS detail', 'p.type', 'serial_product.price']);
+
+        $saproduct = SerialProduct::where('serial_product.id', $id)
+            ->get(['serial_product.detail', 'serial_product.price']);
+
+        if ($sProd->first()->type == 'Sparepart') {
+            return response()->json($sProd);
+        }
+        elseif ($sProd->first()->type == 'Unit') {
+            return response()->json($saproduct);
+        }
+    }
+
     protected function convertToRoman($month)
     {
         $romanMonth = [

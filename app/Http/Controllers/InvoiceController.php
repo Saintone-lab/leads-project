@@ -7,6 +7,7 @@ use App\Models\Delivery;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\ProductOut;
 use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\ReturnQ;
@@ -82,7 +83,9 @@ class InvoiceController extends Controller
         $doTek = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->get();
         $doEks = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        return view('pages.accounting.invoice.detail', compact('noSaleProspect','return', 'quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
+        $pOut = ProductOut::where('invoice', $invoice->no_invoice)->first();
+        // dd($pOut);
+        return view('pages.accounting.invoice.detail', compact('noSaleProspect','return', 'pOut', 'quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
     }
 
     /**

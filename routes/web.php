@@ -117,10 +117,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/quotation/pdf/{id}', [QuotationController::class, 'pdf_quote'])->name('pdf.quotation');
     Route::get('/quotation/sales/{id}', [QuotationController::class, 'sales_quotation'])->name('sales.quotation');
     Route::get('/po/sales/{id}', [QuotationController::class, 'sales_po'])->name('sales.po');
-    Route::get('/quotation/product/{id}', function ($id) {
-        $product = SerialProduct::join('product as p', 'p.id', '=', 'serial_product.id_product')->where('serial_product.id', $id)->get(['p.description AS detail', 'serial_product.price']);
-        return response()->json($product);
-    });
+    Route::get('/quotation/product/{id}', [QuotationController::class, 'replacementDetail'])->name('detail.replacement');
     Route::get('/quotation/client/{id}', function ($id) {
         $client = Client::join('pic', 'pic.id_client', '=', 'client.id')->where('pic.id', $id)->get('client.*');
         return response()->json($client);
@@ -176,7 +173,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::patch('/product/equivalent/update/{id}', [ProductController::class, 'updateEquivalent'])->name('product.equivalent.update');
     Route::delete('/product/equivalent/{id}', [ProductController::class, 'destroyEquivalent'])->name('product.equivalent.destroy');
     Route::delete('/product/replacement/{id}', [ProductController::class, 'destroyReplacement'])->name('product.replacement.destroy');
-    Route::get('/master/product', [ProductController::class, 'indexMaster'])->name('master.product');
+    Route::get('/master/product', [ProductController::class, 'indexMaster'])->name(name: 'master.product');
+    Route::get('/unit/product', [ProductController::class, 'indexUnit'])->name('unit.product');
+    Route::get('/unit/product/{id}', [ProductController::class, 'showUnit'])->name('unit.show');
 
     // Route untuk Product In
     Route::resource('/product-in', ProductInController::class);
@@ -198,6 +197,30 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk Product Out
     Route::resource('/product-out', ProductOutController::class);
+    Route::get('/productout/index/invoice', [ProductOutController::class, 'index_invoice'])->name('product-out.index-invoice');
+    Route::get('/productout/invoice/{id}', [ProductOutController::class, 'invoice'])->name('product-out.invoice');
+    Route::post('/product-out/{id}/change_no', [ProductOutController::class, 'change_no'])->name('product-out.change_no');
+    Route::get('/db/invoice/product-out', function () {
+        $invoice = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
+            ->leftJoin('product_out as p', 'p.invoice', '=', 'invoice.no_invoice')  // Menggunakan left join
+            ->join('detail_quotation as dq', 'dq.id_quotation', '=', 'q.id')
+            ->join('serial_product as s', 's.id', '=', 'dq.id_equivalent')
+            ->join('pic', 'pic.id', '=', 'q.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->where('q.status', '100')
+            ->whereNotNull('q.po_file')
+            ->whereNotNull('invoice.no_invoice')
+            ->whereNull('p.id')  // Kondisi untuk mengecek invoice yang tidak memiliki product_out
+            ->groupBy('invoice.id')  // Mengelompokkan hasil per invoice
+            ->orderByDesc('invoice.no_invoice')
+            ->get([
+                'invoice.*',
+                'client.company',
+                'q.po_date',
+                \DB::raw("GROUP_CONCAT(s.pn SEPARATOR ', ') as part_numbers")
+            ]);
+        return response()->json(['data' => $invoice]);
+    });
 
     // Route untuk Stock
     Route::resource('/stock', StockController::class);
@@ -590,6 +613,12 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/product', function () {
         require_once base_path('app/api/product/connection.php');
     });
+    Route::get('/db/product/unit', function () {
+        require_once base_path('app/api/product/connectionUnit.php');
+    });
+    Route::get('/db/product/sales/unit', function () {
+        require_once base_path('app/api/product/connectionSalesUnit.php');
+    });
     Route::get('/db/product/master', function () {
         require_once base_path('app/api/product/master/connection.php');
     });
@@ -637,7 +666,7 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/product/quotation/detail/{id}', function ($id) {
         $products = DB::table('quotation as q')
-            ->select('q.id','q.no_quote', 'q.estimated_date','sp.pn','dq.price', DB::raw('CONCAT(COALESCE(dq.qty, 0), " ", COALESCE(dq.info_qty, "")) AS qty'))
+            ->select('q.id', 'q.no_quote', 'q.estimated_date', 'sp.pn', 'dq.price', DB::raw('CONCAT(COALESCE(dq.qty, 0), " ", COALESCE(dq.info_qty, "")) AS qty'))
             ->leftJoin('detail_quotation as dq', 'q.id', '=', 'dq.id_quotation')
             ->leftJoin('serial_product as sp', 'sp.id', '=', 'dq.id_equivalent')
             ->where('sp.id_product', $id)
@@ -1059,5 +1088,5 @@ Route::group(["middleware" => "auth"], function () {
         $notulen = Notulen::join('mention_notulen as m', 'm.id_notulen', '=', 'notulen.id')->join('users as u', 'm.id_mention', '=', 'u.id')->where('m.id_mention', Auth::id())->get(['notulen.*', 'u.name', 'm.level']);
         return response()->json(['data' => $notulen]);
     });
-}); 
+});
 Auth::routes();

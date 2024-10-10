@@ -22,7 +22,7 @@ class OverviewController extends Controller
      */
     public function index()
     {
-        $sales = User::where('role', 'Sales')->get();
+        $sales = User::where('role', 'Sales')->where('active', '1')->get();
         return view('pages.overview', compact('sales'));
     }
 

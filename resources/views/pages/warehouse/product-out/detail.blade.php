@@ -11,17 +11,16 @@
                             <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
                                 <span class="app-brand-logo demo">
                                     <span style="color: var(--bs-primary)">
-                                        <img class="text-md"
-                                                src="{{ asset('/asset') }}/logo/Reftech-Log.png"
-                                            alt="" srcset="" width="60%">
+                                        <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt=""
+                                            srcset="" width="60%">
                                     </span>
                                 </span>
                             </div>
                         </div>
                         <div class="text-end">
-                            <h3 class="fw-bold">Barang Keluar ({{$product->vers}})</h3>
+                            <h3 class="fw-bold">Barang Keluar ({{ $product->vers }})</h3>
                             <div>
-                                <span class="fw-bolder">#{{ $product->invoice }}</span>
+                                <span class="fw-bolder">#{{ $product->no_type == '1' ? $product->invoice : $product->po }}</span>
                             </div>
                             <div class="mt-1">
                                 <span class="text-muted">{{ Carbon\Carbon::parse($product->date)->format('d-m-Y') }}</span>
@@ -86,7 +85,8 @@
                                         <pre class="mb-0"
                                             style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $products->detailProduct->product->description }}</pre>
                                     </td>
-                                    <td class="align-top">{{ $products->qty }} {{ $products->detailProduct->product->unit }}
+                                    <td class="align-top">{{ $products->qty }}
+                                        {{ $products->detailProduct->product->unit }}
                                     </td>
                                     <td class="align-top">RP {{ number_format($products->price, 0, '', '.') }}</td>
                                     <td class="align-top">RP {{ number_format($products->amount, 0, '', '.') }}</td>
@@ -110,13 +110,30 @@
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="form-floating form-floating-outline mb-2">
+                        <select class="form-select change-no" name="changeNo" id="changeNo"
+                            aria-label="Default select example" data-id="{{$product->id}}">
+                            <option value="1" {{ $product->no_type == '1' ? 'Selected' : '' }}>
+                                No Invoice
+                            </option>
+                            <option value="2" {{ $product->no_type == '2' ? 'Selected' : '' }}>
+                                No PO
+                            </option>
+                        </select>
+                        <label for="changeNo">No Product Out</label>
+                    </div>
+                </div>
+            </div>
             <div class="card">
                 <div class="card-body">
                     <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect"
                         href="javascript:void(0);">
                         Print
                     </a>
-                    <a href="javascript:void(0);" type="button" class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">
+                    <a href="javascript:void(0);" type="button"
+                        class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">
                         Download
                     </a>
                     <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-invoice"
@@ -195,6 +212,30 @@
                             confirmButton: "btn btn-success waves-effect",
                         },
                     });
+                }
+            });
+        });
+
+        $(document).on('change', '.change-no', function() {
+            var selectedValue = $(this).val();
+            var rowId = $(this).data('id');
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            $.ajax({
+                type: 'POST',
+                url: '/product-out/' + rowId + '/change_no',
+                data: {
+                    status: selectedValue,
+                    _token: csrfToken
+                },
+                success: function(response) {
+                    console.log('Perubahan status berhasil dikirim ke server');
+                    window.setTimeout(function() {
+                        window.location.href = '/product-out/' + rowId;
+                    }, 10);
+                },
+                error: function(error) {
+                    console.error('Gagal mengirim permintaan ke server:', error);
                 }
             });
         });

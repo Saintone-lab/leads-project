@@ -1,11 +1,14 @@
-<form action="{{ @$serial ? route('product.equivalent.update', $serial->id): route('product.equivalent', $product->id) }}" method="post" enctype="multipart/form-data">
+<form
+    action="{{ @$serial ? route('product.equivalent.update', $serial->id) : route('product.equivalent', $product->id) }}"
+    method="post" enctype="multipart/form-data">
     {{-- {{ csrf_token() }} --}}
     @csrf
 
     @if (@$serial)
         @method('patch')
     @endif
-    <div class="modal animate__animated animate__fadeIn" id="{{@$serial ? 'editEquivalent-'.$serial->id : 'createEquivalent-'.$product->id}}" tabindex="-1"
+    <div class="modal animate__animated animate__fadeIn"
+        id="{{ @$serial ? 'editEquivalent-' . $serial->id : 'createEquivalent-' . $product->id }}" tabindex="-1"
         style="display: none;" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
@@ -28,7 +31,8 @@
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="image" class="form-control" name="image"
-                                    placeholder=" Example : https://drive.google.com/drive/folders/**********" value="{{ old('image', @$serial->image ?? '') }}">
+                                    placeholder=" Example : https://drive.google.com/drive/folders/**********"
+                                    value="{{ old('image', @$serial->image ?? '') }}">
                                 <label for="image">Image ( Link GDrive )</label>
                             </div>
                         </div>
@@ -52,16 +56,25 @@
                             <div class="input-group form-floating form-floating-outline" data-price="1">
                                 <span class="input-group-text">Rp. </span>
                                 <input type="text" class="form-control invoice-item-price-label" id="price-label"
-                                    data-id="{{@$serial ? $serial->id : '0'}}" min="0" placeholder="Put Price Here" data-type="currency"
-                                    pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true" @blur="focused = false"
+                                    data-id="{{ @$serial ? $serial->id : '0' }}" min="0"
+                                    placeholder="Put Price Here" data-type="currency" pattern="^[0-9]\d{0,2}(\.\d{3})*$"
+                                    @focus="focused = true" @blur="focused = false"
                                     value="{{ old('price', @$serial->price ? number_format($serial->price, 0, ',', '.') : '') }}">
                                 <input class="form-control invoice-item-price" type="number" name="price"
-                                    id="price-{{@$serial ? $serial->id : '0'}}" value="{{ old('price', @$serial->price ?? '') }}" hidden>
+                                    id="price-{{ @$serial ? $serial->id : '0' }}"
+                                    value="{{ old('price', @$serial->price ?? '') }}" hidden>
                             </div>
                         </div>
                     </div>
-                    <input type="text" id="detail" class="form-control" name="detail"
-                        placeholder="xxxx@xxx.xx" value="{{ old('detail', @$serial->detail ?? '-') }}" hidden>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-floating form-floating-outline mb-4">
+                                <textarea class="form-control h-px-100" name="detail" id="detailTextarea1"
+                                    placeholder="Contoh: Jl Taman Kopo Indah 5 Kota...">{{ old('detail', @$serial->detail ?? '') }}</textarea>
+                                <label for="detailTextarea1">Detail</label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-label-secondary waves-effect"
                             data-bs-dismiss="modal">Close</button>

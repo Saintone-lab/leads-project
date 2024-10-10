@@ -37,7 +37,9 @@
                                 name="id_pic" id="selectPic">
                                 <option selected>----- Select Company | Pic || Sales -----</option>
                                 @foreach ($pic as $charge)
-                                    <option data-id="{{ $charge->client->id }}" value="{{ $charge->id }}"
+                                    <option 
+                                    data-id="{{ $charge->client->id }}" 
+                                    value="{{ $charge->id }}"
                                         {{ @$report->id_pic == $charge->id ? 'selected' : '' }}>
                                         {{ $charge->client->company }} | {{ $charge->name_pic }} ||
                                         {{ $charge->client->sales->name }}</option>

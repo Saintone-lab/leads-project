@@ -40,6 +40,8 @@ if (Auth::check()) {
                 serial_product s ON p.id = s.id_product
             LEFT JOIN 
                 detail_product dp ON p.id = dp.id_product
+            WHERE
+                p.type = 'Sparepart'
             GROUP BY 
                 p.id, s.pn";
 

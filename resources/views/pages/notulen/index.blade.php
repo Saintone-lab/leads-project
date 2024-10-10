@@ -96,7 +96,7 @@
                             if (response == 1) {
                                 Swal.fire({
                                     icon: "success",
-                                    title: "Deleted!",
+                                    title: "Cleared!",
                                     text: "This Notulen has been Cleared.",
                                     customClass: {
                                         confirmButton: "btn btn-success waves-effect",

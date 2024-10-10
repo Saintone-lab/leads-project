@@ -6,18 +6,16 @@
     </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-product-out table table-striped">
+            <table class="datatable-invoice-product-out table table-striped">
                 <thead>
                     <tr>
                         <th></th>
                         <th></th>
                         <th>ID</th>
                         <th>No Invoice</th>
-                        <th>No po</th>
+                        <th>No PO</th>
                         <th>Client</th>
                         <th>Product</th>
-                        <th>Note</th>
-                        <th>Qty</th>
                         <th>Date</th>
                     </tr>
                 </thead>
@@ -47,5 +45,5 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-product-out.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-invoice-product-out.js"></script>
 @endpush

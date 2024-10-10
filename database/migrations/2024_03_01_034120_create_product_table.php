@@ -27,6 +27,8 @@ return new class extends Migration
             $table->integer('weight');
             $table->string('unit');
             $table->string('note');
+            $table->enum('type', ['unit', 'sparepart']);
+            $table->string('status')->nullable();
             $table->date('date');
             $table->timestamps();
         });

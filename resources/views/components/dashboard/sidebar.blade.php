@@ -207,7 +207,7 @@
 
             <li class="menu-item {{ request()->is('notulen') || request()->is('notulen/*') ? 'active' : '' }}">
                 <a href="{{ route('notulen.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <i class="menu-icon tf-icons mdi mdi-account-box-outline"></i>
                     <div data-i18n="notulen">Notulen</div>
                     {{-- @if (@$leveledProspect >= 1)
                         <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
@@ -229,6 +229,12 @@
                 <a href="{{ route('product.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
                     <div data-i18n="Product">Product</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('unit/product') || request()->is('unit/product/*') ? 'active' : '' }}">
+                <a href="{{ route('unit.product') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
+                    <div data-i18n="Unit">Unit</div>
                 </a>
             </li>
             <li class="menu-item {{ request()->is('product-in') || request()->is('product-in/*') ? 'active' : '' }}">
@@ -431,6 +437,12 @@
                     <div data-i18n="Spare Part">Spare Part</div>
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('unit/product') || request()->is('unit/product/*') ? 'active' : '' }}">
+                <a href="{{ route('unit.product') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
+                    <div data-i18n="Unit">Unit</div>
+                </a>
+            </li>
             <li class="menu-item">
                 <a href="{{ url('pending-po') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-cart-arrow-down"></i>
@@ -458,7 +470,7 @@
 
             <li class="menu-item {{ request()->is('notulen') || request()->is('notulen/*') ? 'active' : '' }}">
                 <a href="{{ route('notulen.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <i class="menu-icon tf-icons mdi mdi-account-box-outline"></i>
                     <div data-i18n="notulen">Notulen</div>
                     {{-- @if (@$leveledProspect >= 1)
                         <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
@@ -667,6 +679,12 @@
                     <div data-i18n="Product">Product</div>
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('unit/product') || request()->is('unit/product/*') ? 'active' : '' }}">
+                <a href="{{ route('unit.product') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
+                    <div data-i18n="Unit">Unit</div>
+                </a>
+            </li>
             <li class="menu-item {{ request()->is('product-in') || request()->is('product-in/*') ? 'active' : '' }}">
                 <a href="{{ route('product-in.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package-variant-plus"></i>
@@ -694,12 +712,22 @@
             </li>
 
             <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Invoice</span>
+            </li>
+            <li class="menu-item {{ request()->is('productout/invoice/*') || request()->is('productout/index/invoice') ? 'active' : '' }}">
+                <a href="{{ route('product-out.index-invoice') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-book-open-outline"></i>
+                    <div data-i18n="Invoice">Invoice</div>
+                </a>
+            </li>
+
+            <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Notulen</span>
             </li>
 
             <li class="menu-item {{ request()->is('notulen') || request()->is('notulen/*') ? 'active' : '' }}">
                 <a href="{{ route('notulen.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <i class="menu-icon tf-icons mdi mdi-account-box-outline"></i>
                     <div data-i18n="notulen">Notulen</div>
                     {{-- @if (@$leveledProspect >= 1)
                         <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
@@ -763,7 +791,7 @@
 
             <li class="menu-item {{ request()->is('notulen') || request()->is('notulen/*') ? 'active' : '' }}">
                 <a href="{{ route('notulen.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <i class="menu-icon tf-icons mdi mdi-account-box-outline"></i>
                     <div data-i18n="notulen">Notulen</div>
                     {{-- @if (@$leveledProspect >= 1)
                         <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>

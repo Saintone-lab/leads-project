@@ -1,40 +1,51 @@
 $(function () {
-    var dt_table_product = $(".datatable-product-out");
-    var Url = "db/productOut";
+    var dt_table_product_sales_unit = $(".datatable-product-sales-unit");
+    var Url = "/db/product/sales/unit";
 
-    if (dt_table_product.length) {
+    if (dt_table_product_sales_unit.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product.DataTable({
+        var dt_product = dt_table_product_sales_unit.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
                 headers: {
                     "Content-Type": "application/json",
                 },
-
-                // success: function (hasil, Url) {
-                //     console.log("Url:", Url);
-                //     console.log(hasil);
-                // },
-                // error: function (error) {
-                //     console.log("Url:", Url);
-                //     console.error("Error:", error);
-                //     console.log("error disini");
-                // },
             },
             columns: [
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "invoice" },
-                { data: "po" },
-                { data: "detail_client" },
-                { data: "product" },
-                { data: "vers" },
-                { data: "qty" },
-                { data: "date" },
+                { data: "image" },
+                { data: "brand" },
+                { data: "pn" },
+                { data: "detail" },
+                { data: "status" },
+                { data: "price" },
             ],
             columnDefs: [
+                {
+                    targets: 8,
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                },
+                {
+                    targets: 3,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            if (data === null || data === "") {
+                                return "-";
+                            }
+                            return (
+                                '<a class="text-dark badge bg-label-primary" target="_blank" href="' +
+                                data +
+                                '">' +
+                                "Photo" +
+                                "</a>"
+                            );
+                        }
+                        return data;
+                    },
+                },
                 {
                     // For Responsive
                     className: "control",
@@ -70,21 +81,27 @@ $(function () {
                     responsivePriority: 1,
                     targets: 3,
                 },
+                // {
+                //     targets: 3,
+                //     render: function (data, type, full, row) {
+                //         if (type === "display") {
+                //             var $dataId = full["id"];
+                //             var detailRoute = route("product.show", $dataId);
+                //             return (
+                //                 '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                //             );
+                //         }
+                //         return data;
+                //     },
+                // },
                 {
-                    targets: 3,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("product-out.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' +
-                                detailRoute +
-                                '">' +
-                                data +
-                                "</a>"
-                            );
+                    targets: [3, 4, 5],
+                    render: function (data, type, row) {
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            return data;
                         }
-                        return data;
                     },
                 },
             ],
@@ -304,13 +321,14 @@ $(function () {
                         },
                     ],
                 },
-                {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Invoice Product Out</span>',
-                    className: "btn btn-primary btn-new",
-                    action: function (e, dt, node, config) {
-                        window.location = route("product-out.create");
-                    },
-                },
+                // {
+                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
+                //     className: "btn btn-primary",
+                //     attr: {
+                //         "data-bs-target": "#createProduct",
+                //         "data-bs-toggle": "modal",
+                //     },
+                // },
             ],
             drawCallback: function (settings) {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -320,7 +338,7 @@ $(function () {
                     display: $.fn.dataTable.Responsive.display.modal({
                         header: function (row) {
                             var data = row.data();
-                            return "Details of " + data["company"];
+                            return "Details of " + data["pn"];
                         },
                     }),
                     type: "column",
@@ -354,7 +372,7 @@ $(function () {
             '<h5 class="card-title mb-0">Table Product</h5>'
         );
     }
-    dt_table_product.on("draw", function () {
+    dt_table_product_sales_unit.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

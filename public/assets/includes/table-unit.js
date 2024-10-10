@@ -1,10 +1,10 @@
 $(function () {
-    var dt_table_product = $(".datatable-product-out");
-    var Url = "db/productOut";
+    var dt_table_product_unit = $(".datatable-product-unit");
+    var Url = "/db/product/unit";
 
-    if (dt_table_product.length) {
+    if (dt_table_product_unit.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product.DataTable({
+        var dt_product = dt_table_product_unit.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -26,13 +26,11 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "invoice" },
-                { data: "po" },
-                { data: "detail_client" },
-                { data: "product" },
-                { data: "vers" },
-                { data: "qty" },
-                { data: "date" },
+                { data: "commodity" },
+                { data: "brand" },
+                { data: "pn" },
+                { data: "price" },
+                { data: "status" },
             ],
             columnDefs: [
                 {
@@ -74,24 +72,30 @@ $(function () {
                     targets: 3,
                     render: function (data, type, full, row) {
                         if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("product-out.show", $dataId);
+                            var $dataId = full["id_p"];
+                            var detailRoute = route("unit.show", $dataId);
+                            var $title = full["modal_replacements"]
                             return (
-                                '<a class="text-dark" href="' +
-                                detailRoute +
-                                '">' +
-                                data +
-                                "</a>"
+                                
+                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' +
+                            $title +
+                            '">'+
+                            '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>" +
+                            "</span>"
                             );
                         }
                         return data;
                     },
                 },
+                {
+                    targets: 6,
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                },
             ],
             order: [[2, "desc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            displayLength: 7,
-            lengthMenu: [7, 10, 25, 50, 75, 100],
+            displayLength: 15,
+            lengthMenu: [15, 25, 50, 75, 100],
             buttons: [
                 {
                     extend: "collection",
@@ -305,10 +309,11 @@ $(function () {
                     ],
                 },
                 {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Invoice Product Out</span>',
-                    className: "btn btn-primary btn-new",
-                    action: function (e, dt, node, config) {
-                        window.location = route("product-out.create");
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
+                    className: "btn btn-primary",
+                    attr: {
+                        "data-bs-target": "#createProduct",
+                        "data-bs-toggle": "modal",
                     },
                 },
             ],
@@ -351,10 +356,10 @@ $(function () {
             },
         });
         $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Product</h5>'
+            '<h5 class="card-title mb-0">Table Unit</h5>'
         );
     }
-    dt_table_product.on("draw", function () {
+    dt_table_product_unit.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

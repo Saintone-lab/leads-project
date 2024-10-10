@@ -26,6 +26,8 @@ class Product extends Model
         'weight',
         'unit',
         'note',
+        'type',
+        'status',
     ];
     
     public function detail()

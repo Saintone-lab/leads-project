@@ -18,6 +18,8 @@ class ProductOut extends Model
         'id_user',
         'detail_client',
         'invoice',
+        'po',
+        'no_type',
         'note',
         'vers',
         'total',

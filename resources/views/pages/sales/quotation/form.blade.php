@@ -749,7 +749,7 @@
                     url: '/product-in/replacement/' + commodity,
                     type: 'GET',
                     success: function(response) {
-                        console.log('AJAX Response:', response);
+                        // console.log('AJAX Response:', response);
                         $(`#info-stock-${id}`).text(response[0].stock);
                         $(`#info-weight-${id}`).text(response[0].weight);
 
@@ -767,6 +767,9 @@
                     url: Url,
                     type: 'GET',
                     success: function(response) {
+                        console.log('Replacement Id : ',replacementId);
+                        console.log('URL: ',Url);
+                        
                         console.log('AJAX Response:', response);
                         $(`#detailProduct-${id}`).val(response[0].detail);
                         $(`#priceLabel-${id}`).val(formatPrice(response[0].price));

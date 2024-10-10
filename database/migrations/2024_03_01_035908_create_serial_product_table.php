@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('brand');
             $table->string('pn');
             $table->string('image');
+            $table->longText('detail')->nullable();
             $table->integer('price');
             $table->timestamps();
         });

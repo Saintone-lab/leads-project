@@ -3,11 +3,23 @@
 @section('content')
     <form action="{{ route('product-out.store') }}" method="post" enctype="multipart/form-data">
         @csrf
-        <div class="form-floating mb-3">
-            <input type="text" class="form-control form-control-lg fw-bold fs-3" id="floatingInputFilled"
-                placeholder="xxx/xx/xx/xxxx xxxx" aria-describedby="floatingInputFilledHelp" name="invoice">
-            <label for="floatingInputFilled">No Invoice</label>
-            <span class="form-floating-focused"></span>
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control form-control-lg fw-bold fs-3" id="floatingInputFilled"
+                        placeholder="xxx/xx/xx/xxxx xxxx" aria-describedby="floatingInputFilledHelp" name="invoice">
+                    <label for="floatingInputFilled">No Invoice</label>
+                    <span class="form-floating-focused"></span>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control form-control-lg fw-bold fs-3" id="floatingInputFilled"
+                        placeholder="xxx/xx/xx/xxxx xxxx" aria-describedby="floatingInputFilledHelp" name="po">
+                    <label for="floatingInputFilled">No Po</label>
+                    <span class="form-floating-focused"></span>
+                </div>
+            </div>
         </div>
         @if ($errors->any())
             <div class="alert alert-danger">
@@ -183,7 +195,7 @@
                         </div>
                     </div>
                     <div class="float-end">
-                        <a href="{{ route('quotation.index') }}" type="button"
+                        <a href="{{ route('product-out.index') }}" type="button"
                             class="btn btn-lg btn-outline-secondary w-px-120">
                             Back
                         </a>

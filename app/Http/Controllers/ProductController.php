@@ -35,13 +35,13 @@ class ProductController extends Controller
         // dd($revenue);
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
-        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
-        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
-        ->join('users as u', 'u.id', '=', 'o.id_user')
-        ->where('quotation.id_sales', Auth::id())
-        ->where('o.level', '1')
-        ->orderBy('o.date','DESC')
-        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.level', '1')
+            ->orderBy('o.date', 'DESC')
+            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
         return view('pages.warehouse.product.index', compact('commodity', 'comment', 'leveledProspect', 'noSaleProspect', 'dproduct', 'sproduct', 'asset', 'revenue'));
     }
 
@@ -63,28 +63,26 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // Rules for validation
         $rule = [
-            'commodity' =>
-                'required',
-
-            'dimension' =>
-                'required',
-
-            'description' =>
-                'required',
-
-            'note' =>
-                'required',
+            'commodity' => 'required',
+            'dimension' => 'required',
+            'description' => 'required',
+            'note' => 'required',
         ];
 
+        // Custom validation messages
         $message = [
             'commodity.required' => 'Field commodity Wajib Diisi',
             'dimension.required' => 'Field dimension Wajib Diisi',
             'description.required' => 'Field description Wajib Diisi',
+            'note.required' => 'Field note Wajib Diisi',
         ];
-        $this->validate($request, $rule, $message);
-        // dd($request);
 
+        // Perform validation
+        $this->validate($request, $rule, $message);
+
+        // Creating new product instance
         $product = new Product;
         $product->commodity = $request->commodity;
         $product->dimension = $request->dimension;
@@ -97,14 +95,32 @@ class ProductController extends Controller
         $product->warehouse_stock = 0;
         $product->stock = 0;
         $product->unit = $request->unit;
+        $product->type = $request->type;
+
+        // Set status based on product type
+        if ($request->type == 'Sparepart') {
+            $product->status = null;
+        } else {
+            $product->status = 'Ready';
+        }
+
+        // Set note and current date
         $product->note = $request->note;
-        $product->date = Carbon::today();
+        $product->date = Carbon::now();
+
+        // Save the product
         $productSave = $product->save();
 
+        // Redirect based on product type
         if ($productSave) {
-            return redirect('/product/' . $product->id)->with('message', 'data telah ditambahkan');
+            if ($request->type == 'Sparepart') {
+                return redirect('/product/' . $product->id)->with('message', 'Data telah ditambahkan');
+            } elseif ($request->type == 'Unit') {
+                return redirect('/unit/product/' . $product->id)->with('message', 'Data telah ditambahkan');
+            }
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -120,13 +136,13 @@ class ProductController extends Controller
         $serials = SerialProduct::where('id_product', $id)->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
-        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=' , 'quotation.id')
-        ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
-        ->join('users as u', 'u.id', '=', 'o.id_user')
-        ->where('quotation.id_sales', Auth::id())
-        ->where('o.level', '1')
-        ->orderBy('o.date','DESC')
-        ->get(['quotation.id as idQ','o.id as idC','o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.level', '1')
+            ->orderBy('o.date', 'DESC')
+            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
         return view('pages.warehouse.product.detail', compact('product', 'comment', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
     }
 
@@ -301,6 +317,7 @@ class ProductController extends Controller
         $equiv->brand = $request->brand;
         $equiv->fxp_parts = "-";
         $equiv->pn = $request->pn;
+        $equiv->detail = $request->detail;
         $equiv->price = $request->price;
         $equiv->image = $request->image;
         $equivSave = $equiv->save();
@@ -365,6 +382,27 @@ class ProductController extends Controller
         $dproduct = DetailProduct::count();
         $sproduct = SerialProduct::count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
-        return view('pages.warehouse.master.index', compact('commodity', 'dproduct', 'noSaleProspect',  'sproduct'));
+        return view('pages.warehouse.master.index', compact('commodity', 'dproduct', 'noSaleProspect', 'sproduct'));
+    }
+    public function indexUnit()
+    {
+        return view('pages.warehouse.unit.index');
+    }
+    public function showUnit($id)
+    {
+        $product = Product::find($id);
+        $allStock = $product->stock + $product->warehouse_stock;
+        $details = DetailProduct::where('id_product', $id)->get();
+        $serials = SerialProduct::where('id_product', $id)->get();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.level', '1')
+            ->orderBy('o.date', 'DESC')
+            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view('pages.warehouse.unit.detail', compact('product', 'comment', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
     }
 }
