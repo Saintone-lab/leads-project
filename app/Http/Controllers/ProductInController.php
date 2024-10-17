@@ -31,7 +31,7 @@ class ProductInController extends Controller
      */
     public function create()
     {
-        $detProduct = DetailProduct::all();
+        $detProduct = DetailProduct::join('product', 'detail_product.id_product', '=', 'product.id')->get();
         return view('pages.warehouse.product-in.form', compact('detProduct'));
     }
 
@@ -240,7 +240,7 @@ class ProductInController extends Controller
                 $dProductIn->amount = null;
                 $dProductIn->warehouse = $request->warehouse[$item];
                 $productD = DetailProduct::where('id', $request->replacement[$item])->first();
-                $productD->modal = ((($productD->stock + $productD->warehouse_stock) * $productD->modal) + ($request->qty[$item] * $request->price[$item])) / (($productD->stock + $productD->warehouse_stock) + $request->qty[$item]);
+                // $productD->modal = ((($productD->stock + $productD->warehouse_stock) * $productD->modal) + ($request->qty[$item] * $request->price[$item])) / (($productD->stock + $productD->warehouse_stock) + $request->qty[$item]);
                 if ($request->warehouse[$item] == 'BDG') {
                     $productD->stock = $productD->stock + $request->qty[$item];
                 } else {

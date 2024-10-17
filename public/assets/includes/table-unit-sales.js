@@ -1,6 +1,6 @@
 $(function () {
     var dt_table_product_sales_unit = $(".datatable-product-sales-unit");
-    var Url = "/db/product/sales/unit";
+    var Url = "/db/sales/unit";
 
     if (dt_table_product_sales_unit.length) {
         $('[data-toggle="tooltip"]').tooltip();

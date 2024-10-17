@@ -24,6 +24,10 @@ class SerialProduct extends Model
     {
         return $this->belongsTo('App\Models\Product', 'id_product', 'id');
     }
+    public function unit()
+    {
+        return $this->belongsTo('App\Models\Unit', 'id_product', 'id');
+    }
     public function quotation()
     {
         return $this->hasMany('App\Models\Quotation', 'id_equivalent');

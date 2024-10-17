@@ -1,0 +1,281 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\ChangeStatus;
+use App\Models\Contract;
+use App\Models\DetailProduct;
+use App\Models\DetailQuotation;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Prospect;
+use App\Models\Quotation;
+use App\Models\SerialProduct;
+use App\Models\Unit;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class UnitController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        return view('pages.warehouse.unit.index');
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        // Rules for validation
+        $rule = [
+            'sku' => 'required',
+            'desc' => 'required',
+            'sn' => 'required',
+            'note' => 'required',
+            'bar' => 'required',
+        ];
+
+        // Custom validation messages
+        $message = [
+            'sku.required' => 'Field sku Wajib Diisi',
+            'desc.required' => 'Field description Wajib Diisi',
+            'sn.required' => 'Field serial Number Wajib Diisi',
+            'note.required' => 'Field note Wajib Diisi',
+            'bar.required' => 'Field bar Wajib Diisi',
+        ];
+
+        $this->validate($request, $rule, $message);
+        $lastUnit = Unit::orderBy('id', 'desc')->first();
+        $lastProduct = Product::orderBy('id', 'desc')->first();
+        $unit = new Unit;
+        if (@$lastUnit) {
+            if ($lastUnit->id > $lastProduct->id) {
+                $unit->id = $lastUnit->id + 1;
+            } else {
+                $unit->id = $lastProduct->id + 1;
+            }
+        } else {
+            $unit->id = $lastProduct->id + 1;
+        }
+        $unit->sku = $request->sku;
+        $unit->status = $request->status;
+        $unit->desc = $request->desc;
+        $unit->sn = $request->sn;
+        $unit->bar = $request->bar;
+        $unit->power = $request->power;
+        $unit->connect = $request->connect;
+        $unit->air_cap = $request->air_cap;
+        $unit->dimension = $request->dimension;
+        $unit->weight = $request->weight;
+        $unit->note = $request->note;
+        $unit->stock = 0;
+        $unit->first_stock = 0;
+        $unit->warehouse_stock = 0;
+        foreach ($request->unit as $key => $value) {
+            if ($value == 'rental') {
+                $unit->rental = '1';
+            }
+            if ($value == 'second') {
+                $unit->second = '1';
+            }
+        }
+        $unitSave = $unit->save();
+        if ($unitSave) {
+            return redirect('/unit/' . $unit->id)->with('message', 'data telah di tambahkan');
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $product = Unit::find($id);
+        $allStock = $product->stock + $product->warehouse_stock;
+        $details = DetailProduct::where('id_product', $id)->get();
+        $serials = SerialProduct::where('id_product', $id)->get();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.level', '1')
+            ->orderBy('o.date', 'DESC')
+            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view('pages.warehouse.unit.detail', compact('product', 'comment', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        // Rules for validation
+        $rule = [
+            'sku' => 'required',
+            'desc' => 'required',
+            'sn' => 'required',
+            'note' => 'required',
+            'bar' => 'required',
+        ];
+
+        // Custom validation messages
+        $message = [
+            'sku.required' => 'Field sku Wajib Diisi',
+            'desc.required' => 'Field description Wajib Diisi',
+            'sn.required' => 'Field serial Number Wajib Diisi',
+            'note.required' => 'Field note Wajib Diisi',
+            'bar.required' => 'Field bar Wajib Diisi',
+        ];
+
+        $this->validate($request, $rule, $message);
+        // dd($request);
+        $unit = Unit::find($id);
+        $unit->sku = $request->sku;
+        $unit->status = $request->status;
+        $unit->desc = $request->desc;
+        $unit->sn = $request->sn;
+        $unit->bar = $request->bar;
+        $unit->power = $request->power;
+        $unit->connect = $request->connect;
+        $unit->air_cap = $request->air_cap;
+        $unit->dimension = $request->dimension;
+        $unit->weight = $request->weight;
+        $unit->note = $request->note;
+        $unit->rental = '0';
+        $unit->second = '0';
+        foreach ($request->unit as $key => $value) {
+
+            if ($value == 'rental') {
+                $unit->rental = '1';
+            }
+            if ($value == 'second') {
+                $unit->second = '1';
+            }
+        }
+        $unitSave = $unit->save();
+        if ($unitSave) {
+            return redirect('/unit/' . $unit->id)->with('message', 'data telah di tambahkan');
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $unit = Unit::find($id);
+
+        if (!$unit) {
+            return redirect('/unit/' . $id)->with('error', 'Produk tidak ditemukan');
+        }
+
+        $replacement = DetailProduct::where('id_product', $id)->get();
+        $equivalents = SerialProduct::where('id_product', $id)->get();
+
+        $delUnit = $unit->delete();
+
+        foreach ($replacement as $replace) {
+            $delReplace = $replace->delete();
+        }
+
+        foreach ($equivalents as $equivalent) {
+            $delEqui = $equivalent->delete();
+        }
+
+        if ($delUnit || $delReplace || $delEqui) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    public function quotationDetail($id)
+    {
+        $totalAmount = 0;
+        $dateNow = Carbon::now();
+        $numberSP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $dateNow)->where('q.tax', '11')->where('contract.type', 'Selling')->groupBy('contract.id')->get('contract.id');
+        $numberSNP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $dateNow)->where('q.tax', '0')->where('contract.type', 'Selling')->groupBy('contract.id')->get('contract.id');
+        $numberCP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $dateNow)->where('q.tax', '11')->where('contract.type', 'Order')->groupBy('contract.id')->get('contract.id');
+        $numberCNP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $dateNow)->where('q.tax', '0')->where('contract.type', 'Order')->groupBy('contract.id')->get('contract.id');
+        $formattedNumberSP = str_pad($numberSP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $formattedNumberSNP = str_pad($numberSNP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $formattedNumberCP = str_pad($numberCP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $formattedNumberCNP = str_pad($numberCNP->count() + 1, 3, '0', STR_PAD_LEFT);
+        $quote = Quotation::find($id);
+        $quotations = Quotation::where('primary_id', $quote->primary_id)->get();
+        $lastQuote = Quotation::where('primary_id', $quote->primary_id)->orderByDesc('num_rev')->first();
+        $primQuote = Quotation::where('primary_id', $quote->primary_id)->where('is_primary', '1')->first();
+        $invoice = Invoice::where('id_quotation', $id)->get();
+        $dquote = DetailQuotation::where('id_quotation', $id)->get();
+        $payments = Payment::where('id_quotation', $id)->get();
+        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn']);
+        $admin = User::where('role', 'Admin')->get();
+        $noQuote = substr($quote->no_quote, 0, 3);
+        $today = Carbon::now();
+        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
+        $afterDisc = $quote->subtotal - $quote->diskon;
+        // dd($invoice[0]->no_invoice);
+        $thisYear = $today->year;
+        foreach ($payments as $payment) {
+            $totalAmount += $payment->amount;
+        }
+        $status = ChangeStatus::where('id_quotation', $quote->primary_id)->with('comment')->get();
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.level', '1')
+            ->orderBy('o.date', 'DESC')
+            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        // dd($comment);
+        $remaining = $quote->harga_total - $totalAmount;
+        // dd($formattedNumberSP);
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        return view("pages.sales.quotation.unit.detail", compact('quote', 'status', 'comment', 'leveledProspect', 'noSaleProspect', 'lastQuote', 'primQuote', 'quotations', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
+    }
+}

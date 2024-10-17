@@ -26,6 +26,7 @@ use App\Http\Controllers\ReturnController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceReportsController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\WarehouseController;
 use App\Models\Activities;
 use App\Models\Client;
@@ -117,11 +118,15 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/quotation/pdf/{id}', [QuotationController::class, 'pdf_quote'])->name('pdf.quotation');
     Route::get('/quotation/sales/{id}', [QuotationController::class, 'sales_quotation'])->name('sales.quotation');
     Route::get('/po/sales/{id}', [QuotationController::class, 'sales_po'])->name('sales.po');
-    Route::get('/quotation/product/{id}', [QuotationController::class, 'replacementDetail'])->name('detail.replacement');
+    Route::get('/quotation/sparepart/{id}', [QuotationController::class, 'replacementDetailSparepart'])->name('detail.replacement');
+    Route::get('/quotation/unit/{id}', [QuotationController::class, 'replacementDetailUnit'])->name('detail.replacement');
     Route::get('/quotation/client/{id}', function ($id) {
         $client = Client::join('pic', 'pic.id_client', '=', 'client.id')->where('pic.id', $id)->get('client.*');
         return response()->json($client);
     });
+    Route::get('/quote/unit', [QuotationController::class, 'quotationUnit'])->name('index-unit.quotation');
+    Route::get('/quote/unit/create', [QuotationController::class, 'quotationCreateUnit'])->name('create-unit.quotation');
+    Route::get('/quote/unit-detail/{id}', [UnitController::class, 'quotationDetail'])->name('detail.quote-unit');
 
     // Route untuk Visit
     Route::get('/visits/leads', function () {
@@ -174,8 +179,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/product/equivalent/{id}', [ProductController::class, 'destroyEquivalent'])->name('product.equivalent.destroy');
     Route::delete('/product/replacement/{id}', [ProductController::class, 'destroyReplacement'])->name('product.replacement.destroy');
     Route::get('/master/product', [ProductController::class, 'indexMaster'])->name(name: 'master.product');
-    Route::get('/unit/product', [ProductController::class, 'indexUnit'])->name('unit.product');
-    Route::get('/unit/product/{id}', [ProductController::class, 'showUnit'])->name('unit.show');
+
+    // Route untuk unit
+    Route::resource('/unit', UnitController::class);
 
     // Route untuk Product In
     Route::resource('/product-in', ProductInController::class);
@@ -224,6 +230,7 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk Stock
     Route::resource('/stock', StockController::class);
+    Route::patch('/stock/unit/{id}', [StockController::class, 'updateUnit'])->name('update.stock-unit');
 
     // Route untuk report
     Route::resource('/sale-report', SalesReportController::class);
@@ -485,6 +492,12 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/quotation/admin', function () {
         require_once base_path('app/api/quotation/connectionAdmin.php');
     });
+    Route::get('/db/quotation/unit', function () {
+        require_once base_path('app/api/quotation/connectionUnit.php');
+    });
+    Route::get('/db/quotation/admin/unit', function () {
+        require_once base_path('app/api/quotation/connectionAdminUnit.php');
+    });
     Route::get('/db/quotation/archive', function () {
         require_once base_path('app/api/quotation/connectionArchive.php');
     });
@@ -613,10 +626,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/product', function () {
         require_once base_path('app/api/product/connection.php');
     });
-    Route::get('/db/product/unit', function () {
+    Route::get('/db/unit', function () {
         require_once base_path('app/api/product/connectionUnit.php');
     });
-    Route::get('/db/product/sales/unit', function () {
+    Route::get('/db/sales/unit', function () {
         require_once base_path('app/api/product/connectionSalesUnit.php');
     });
     Route::get('/db/product/master', function () {
@@ -627,7 +640,7 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/product/serial/{id}', function ($id) {
         // Menggunakan Eloquent untuk mengambil data serial_product berdasarkan id
-        $serialProduct = SerialProduct::where('id_product', $id)->join('product', 'product.id', '=', 'serial_product.id_product')->get(['serial_product.*', 'product.id AS idp']);
+        $serialProduct = SerialProduct::where('id_product', $id)->get();
         // Mengembalikan data dalam bentuk JSON
         return response()->json(['data' => $serialProduct]);
     });

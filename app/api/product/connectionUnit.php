@@ -21,29 +21,20 @@ if (Auth::check()) {
 
         // Query database for data
         $query = "SELECT 
-        p.*,
+        u.*,
         s.pn,
         s.brand,
         s.price,
         s.id AS id_pn,
-        p.id AS id_p, 
-        p.stock AS all_stock, 
-        -- CONCAT(p.commodity, IFNULL(CONCAT(' || ', s.pn), '')) AS product, 
-        IFNULL(
-            GROUP_CONCAT(CONCAT(dp.replacement, '( Rp ', FORMAT(dp.modal, 2), ')' ) SEPARATOR ' || '), 
-            'Tidak Ada Replacement'
-                ) AS modal_replacements,
-                CONCAT(p.stock, ' - ', p.warehouse_stock ) AS stok
+        u.id AS id_p
             FROM 
-                product p
+                unit u
             LEFT JOIN 
-                serial_product s ON p.id = s.id_product
+                serial_product s ON u.id = s.id_product
             LEFT JOIN 
-                detail_product dp ON p.id = dp.id_product
-            WHERE
-                p.type = 'Unit'
+                detail_product dp ON u.id = dp.id_product
             GROUP BY 
-                p.id, s.pn";
+                u.id, s.pn";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

@@ -1,4 +1,4 @@
-<form action="{{ @$product ? route('product.update', @$product->id) : route('product.store') }}" method="post"
+<form action="{{ @$product ? route('unit.update', @$product->id) : route('unit.store') }}" method="post"
     enctype="multipart/form-data">
     {{-- {{ csrf_token() }} --}}
     @csrf
@@ -30,89 +30,103 @@
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="commodity" class="form-control" name="commodity"
-                                    placeholder="W XXX" value="{{ old('commodity', @$product->commodity ?? '') }}">
-                                <label for="commodity">Commodity</label>
+                                <input type="text" id="sku" class="form-control" name="sku"
+                                    placeholder="W XXX" value="{{ old('sku', @$product->sku ?? '') }}">
+                                <label for="sku">SKU</label>
                             </div>
                         </div>
                         <div class="col mb-2">
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" id="dimension" class="form-control" name="dimension"
-                                    placeholder="xxx x xxx x xxx x"
-                                    value="{{ old('dimension', @$product->dimension ?? '') }}">
-                                <label for="dimension">Dismension</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6 col-md-3 mb-2">
                             <div class="form-floating form-floating-outline">
                                 <select class="form-select invoice-item-info" id="status"
                                     aria-label="Default select example" name="status">
                                     <option disabled>----- Info Status -----</option>
                                     <option value="Ready" {{ @$product->status == 'Ready' ? 'selected' : '' }}>Ready
                                     </option>
-                                    <option value="On Rental" {{ @$product->status == 'On Rental' ? 'selected' : '' }}>On Rental
+                                    <option value="On Rental" {{ @$product->status == 'On Rental' ? 'selected' : '' }}>
+                                        On Rental
                                     </option>
                                     <option value="Sold" {{ @$product->status == 'Sold' ? 'selected' : '' }}>Sold
                                     </option>
+                                    <option value="Service" {{ @$product->status == 'Service' ? 'selected' : '' }}>
+                                        Service
+                                    </option>
                                 </select>
                                 <label for="exampleFormControlSelect1">Status</label>
-                            </div>
-                            <input type="text" id="unit" class="form-control" name="unit"
-                            value="{{ old('unit', @$product->unit ?? 'Unit') }}" hidden>
-                            <input type="text" id="type" class="form-control" name="type"
-                            value="{{ old('type', @$product->type ?? 'Unit') }}" hidden>
-                            <input type="text" id="description" class="form-control" name="description"
-                            value="{{ old('description', @$product->description ?? 'Unit') }}" hidden>
-                        </div>
-                        <div class="col-6 col-md-3 mb-2 ">
-                            <div class="input-group h-100">
-                                <input type="number" name="weight" class="form-control" placeholder="Put Weight Here" aria-label="Put Weight Here" aria-describedby="basic-addon43" value="{{@$product->weight ?? ''}}">
-                                <span class="input-group-text" id="basic-addon43">gr</span>
-                              </div>
-                        </div>
-                        <div class="col-21 col-md-6 mb-2">
-                            <div class="form-floating form-floating-outline">
-                                <select class="form-select" id="category" aria-label="Default select example"
-                                    name="category">
-                                    <option disabled>----- Choose Category -----</option>
-                                    <option value="Consumable Part"
-                                        {{ @$product->category == 'Consumable Part' ? 'selected' : '' }}>
-                                        Consumable Part
-                                    </option>
-                                    <option value="Non Consumable Part"
-                                        {{ @$product->category == 'Non Consumable Part' ? 'selected' : '' }}>
-                                        Non Consumable Part
-                                    </option>
-                                </select>
-                                <label for="selectSource">Category</label>
                             </div>
                         </div>
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <select class="form-select" id="selectG/O" aria-label="Default select example"
-                                    name="go">
-                                    <option disabled>----- Choose G/O -----</option>
-                                    <option value="Genuine" {{ @$product->go == 'Genuine' ? 'selected' : '' }}>
-                                        Genuine
-                                    </option>
-                                    <option value="Replacement" {{ @$product->go == 'Replacement' ? 'selected' : '' }}>
-                                        Replacement
-                                    </option>
-                                </select>
-                                <label for="selectG/O">Genuine/Replacement
-                                </label>
+                                <div class="select2-primary">
+                                    <select id="select2Primary" class="select2 form-select" name="unit[]" multiple>
+                                        <option value="rental" {{ @$product->rental == '1' ? 'selected' : '' }}> Rental
+                                        </option>
+                                        <option value="second" {{ @$product->second == '1' ? 'selected' : '' }}> Second
+                                            Unit </option>
+                                    </select>
+                                </div>
+                                <label for="select2Primary">Unit</label>
                             </div>
                         </div>
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="detail_desc" class="form-control" name="detail_desc"
-                                    placeholder="Short Description"
-                                    value="{{ old('detail_desc', @$product->detail_desc ?? '') }}">
-                                <label for="detail_desc">Short Descroption</label>
+                                <input type="text" id="desc" class="form-control" name="desc"
+                                    placeholder="Short Description" value="{{ old('desc', @$product->desc ?? '') }}">
+                                <label for="desc">Short Description</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6 g-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="sn" class="form-control" name="sn"
+                                    placeholder="Serial Number" value="{{ old('sn', @$product->sn ?? '') }}">
+                                <label for="sn">Serial Number</label>
+                            </div>
+                        </div>
+                        <div class="col g-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="bar" class="form-control" name="bar"
+                                    placeholder="Bar" value="{{ old('bar', @$product->bar ?? '') }}">
+                                <label for="bar">Bar</label>
+                            </div>
+                        </div>
+                        <div class="col mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="power" class="form-control" name="power"
+                                    placeholder="Power" value="{{ old('power', @$product->power ?? '') }}">
+                                <label for="power">Power</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="air_cap" class="form-control" name="air_cap"
+                                    placeholder="Air Capacity" value="{{ old('air_cap', @$product->air_cap ?? '') }}">
+                                <label for="air_cap">Air Capacity</label>
+                            </div>
+                        </div>
+                        <div class="col mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="connect" class="form-control" name="connect"
+                                    placeholder="Connection" value="{{ old('connect', @$product->connect ?? '') }}">
+                                <label for="connect">Connection</label>
+                            </div>
+                        </div>
+                        <div class="col mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="dimension" class="form-control" name="dimension"
+                                    placeholder="Dimension" value="{{ old('dimension', @$product->dimension ?? '') }}">
+                                <label for="dimension">Dimension</label>
+                            </div>
+                        </div>
+                        <div class="col g-2">
+                            <div class="form-floating form-floating-outline input-group">
+                                <input type="number" class="form-control" placeholder="Weight" min="0"
+                                    name="weight"value="{{ old('dimension', @$product->dimension ?? '') }}">
+                                <span class="input-group-text">Kg</span>
                             </div>
                         </div>
                     </div>

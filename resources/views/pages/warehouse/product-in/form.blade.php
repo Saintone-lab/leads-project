@@ -1,7 +1,8 @@
 @extends('layouts.sales.app')
 @section('title', 'Product In')
 @section('content')
-    <form action="{{ route(Auth::user()->role == 'Logistic' ? 'product-in.logistic-store' : 'product-in.store') }}" method="post" enctype="multipart/form-data">
+    <form action="{{ route(Auth::user()->role == 'Logistic' ? 'product-in.logistic-store' : 'product-in.store') }}"
+        method="post" enctype="multipart/form-data">
         @csrf
         @if (Auth::user()->role == 'Admin')
             <div class="form-floating mb-3">
@@ -108,27 +109,30 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-md-2 col-12 mb-md-0 mb-3">
-                                        <p class="mb-2 repeater-title">Price</p>
-                                        <div class="input-group" data-price="1">
-                                            <span class="input-group-text">Rp. </span>
-                                            <input type="text" class="form-control invoice-item-price-label"
-                                                id="price-label" data-id="1" min="0"
-                                                placeholder="Put Price Here" data-type="currency"
-                                                pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                                @blur="focused = false" value="{{ old('price[]') }}" {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
-                                            <input class="form-control invoice-item-price" type="number" name="price[]"
-                                                id="price-1" value="{{ old('price[]') }}" hidden>
+                                    @if (Auth::user()->role == 'Admin')
+                                        <div class="col-md-2 col-12 mb-md-0 mb-3">
+                                            <p class="mb-2 repeater-title">Price</p>
+                                            <div class="input-group" data-price="1">
+                                                <span class="input-group-text">Rp. </span>
+                                                <input type="text" class="form-control invoice-item-price-label"
+                                                    id="price-label" data-id="1" min="0"
+                                                    placeholder="Put Price Here" data-type="currency"
+                                                    pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                                    @blur="focused = false" value="{{ old('price[]') }}"
+                                                    {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
+                                                <input class="form-control invoice-item-price" type="number"
+                                                    name="price[]" id="price-1" value="{{ old('price[]') }}" hidden>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-2 col-12 pe-0">
-                                        <p class="mb-2 repeater-title">Amount</p>
-                                        <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
-                                            {{ old(strval('amount[]')) }}</p>
-                                        <input type="number" class="form-control invoice-item-amount" name="amount[]"
-                                            id="amount-1" data-id="1" min="0" value="{{ old('amount[]') }}"
-                                            hidden>
-                                    </div>
+                                        <div class="col-md-2 col-12 pe-0">
+                                            <p class="mb-2 repeater-title">Amount</p>
+                                            <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
+                                                {{ old(strval('amount[]')) }}</p>
+                                            <input type="number" class="form-control invoice-item-amount"
+                                                name="amount[]" id="amount-1" data-id="1" min="0"
+                                                value="{{ old('amount[]') }}" hidden>
+                                        </div>
+                                    @endif
                                 </div>
                                 <div
                                     class="d-flex flex-column align-items-center justify-content-between border-start p-2">
@@ -146,81 +150,87 @@
                             </button>
                         </div>
                     </div>
-                    <div class="row mb-1">
-                        <div class="col-lg-8"></div>
-                        <div class="col-lg-4 col-12">
-                            <h5 class="my-2">
-                                Subtotal
-                            </h5>
-                            <div class="input-group" data-subtotal="1">
-                                <span class="input-group-text">Rp. </span>
-                                <p class="form-control invoice-item-subtotal-label h-px-25 mb-0" id="subtotal-label">
+                    @if (Auth::user()->role == 'Admin')
+                        <div class="row mb-1">
+                            <div class="col-lg-8"></div>
+                            <div class="col-lg-4 col-12">
+                                <h5 class="my-2">
                                     Subtotal
-                                    Here </p>
-                                <input class="form-control invoice-item-subtotal" type="number" name="subtotal"
-                                    id="subtotal" value="{{ old('subtotal') }}" hidden>
-                                <input class="form-control invoice-item-total-no-tax" type="number" name="total_no_tax"
-                                    id="totalNoTax" value="{{ old('total_no_tax') }}" hidden>
+                                </h5>
+                                <div class="input-group" data-subtotal="1">
+                                    <span class="input-group-text">Rp. </span>
+                                    <p class="form-control invoice-item-subtotal-label h-px-25 mb-0" id="subtotal-label">
+                                        Subtotal
+                                        Here </p>
+                                    <input class="form-control invoice-item-subtotal" type="number" name="subtotal"
+                                        id="subtotal" value="{{ old('subtotal') }}" hidden>
+                                    <input class="form-control invoice-item-total-no-tax" type="number"
+                                        name="total_no_tax" id="totalNoTax" value="{{ old('total_no_tax') }}" hidden>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row mb-1">
-                        <div class="col-lg-8"></div>
-                        <div class="col-lg-4 col-12">
-                            <h5 class="my-2">
-                                Shipping
-                            </h5>
-                            <div class="input-group" data-shipping="1">
-                                <span class="input-group-text">Rp. </span>
-                                <input type="text" class="form-control invoice-item-shipping-label"
-                                    id="shipping-label" data-id="1" min="0" placeholder="Put shipping Here"
-                                    data-type="currency" pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                    @blur="focused = false" value="{{ old('shipping') }}" {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
-                                <input class="form-control invoice-item-shipping" type="number" name="shipping"
-                                    id="shipping" value="{{ old('shipping') }}" hidden>
+                        <div class="row mb-1">
+                            <div class="col-lg-8"></div>
+                            <div class="col-lg-4 col-12">
+                                <h5 class="my-2">
+                                    Shipping
+                                </h5>
+                                <div class="input-group" data-shipping="1">
+                                    <span class="input-group-text">Rp. </span>
+                                    <input type="text" class="form-control invoice-item-shipping-label"
+                                        id="shipping-label" data-id="1" min="0"
+                                        placeholder="Put shipping Here" data-type="currency"
+                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                        @blur="focused = false" value="{{ old('shipping') }}"
+                                        {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
+                                    <input class="form-control invoice-item-shipping" type="number" name="shipping"
+                                        id="shipping" value="{{ old('shipping') }}" hidden>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row mb-1">
-                        <div class="col-lg-8"></div>
-                        <div class="col-lg-4 col-12">
-                            <h5 class="my-2">
-                                Tax
-                            </h5>
-                            <div class="form-floating form-floating-outline mb-4">
-                                <select class="form-select invoice-item-tax" id="tax" name="tax"
-                                    aria-label="Default select example" {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
-                                    <option selected disabled>----- Choose Tax Here -----</option>
-                                    <option value="11">11%</option>
-                                    <option value="0">0%</option>
-                                </select>
+                        <div class="row mb-1">
+                            <div class="col-lg-8"></div>
+                            <div class="col-lg-4 col-12">
+                                <h5 class="my-2">
+                                    Tax
+                                </h5>
+                                <div class="form-floating form-floating-outline mb-4">
+                                    <select class="form-select invoice-item-tax" id="tax" name="tax"
+                                        aria-label="Default select example"
+                                        {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
+                                        <option selected disabled>----- Choose Tax Here -----</option>
+                                        <option value="11">11%</option>
+                                        <option value="0">0%</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-lg-8"></div>
-                        <div class="col-lg-4 col-12">
-                            <h5 class="my-2">
-                                Total Price
-                            </h5>
-                            <div class="input-group" data-total="1">
-                                <span class="input-group-text">Rp. </span>
-                                <p class="form-control invoice-item-total-label h-px-25 mb-0" id="total-label"> Total
-                                    Price Here </p>
-                                <input class="form-control invoice-item-total" type="number" name="total"
-                                    id="total" value="{{ old('total') }}" hidden>
+                        <div class="row mb-3">
+                            <div class="col-lg-8"></div>
+                            <div class="col-lg-4 col-12">
+                                <h5 class="my-2">
+                                    Total Price
+                                </h5>
+                                <div class="input-group" data-total="1">
+                                    <span class="input-group-text">Rp. </span>
+                                    <p class="form-control invoice-item-total-label h-px-25 mb-0" id="total-label"> Total
+                                        Price Here </p>
+                                    <input class="form-control invoice-item-total" type="number" name="total"
+                                        id="total" value="{{ old('total') }}" hidden>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-lg-8"></div>
-                        <div class="col-lg-4 col-12">
-                            <h5 class="my-2">
-                                Note
-                            </h5>
-                            <textarea class="form-control h-px-100" rows="2" placeholder="Write your note here...." name="note" {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>-</textarea>
+                        <div class="row mb-3">
+                            <div class="col-lg-8"></div>
+                            <div class="col-lg-4 col-12">
+                                <h5 class="my-2">
+                                    Note
+                                </h5>
+                                <textarea class="form-control h-px-100" rows="2" placeholder="Write your note here...." name="note"
+                                    {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>-</textarea>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                     <div class="float-end">
                         <a href="{{ route('quotation.index') }}" type="button"
                             class="btn btn-lg btn-outline-secondary w-px-120">

@@ -5,27 +5,33 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Product extends Model
+class Unit extends Model
 {
     use HasFactory;
-    protected $table = "product";
+    protected $table = 'unit';
+    
     protected $date = [
         'date',
         'created_at',
         'updated_at'
     ];
     protected $fillable = [
-        'commodity',
-        'description',
-        'detail_desc',
-        'go',
-        'dimension',
+        'sku',
+        'desc',
         'warehouse_stock',
         'frist_stock',
         'stock',
-        'weight',
-        'unit',
+        'rental',
+        'second',
         'note',
+        'sn',
+        'bar',
+        'power',
+        'air_cap',
+        'connect',
+        'dimension',
+        'weight',
+        'status',
     ];
     
     public function detail()

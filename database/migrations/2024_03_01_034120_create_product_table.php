@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('description');
             $table->string('detail_desc');
             $table->string('go');
+            $table->string('sn')->nullable();
+            $table->string('bar')->nullable();
             $table->string('category');
             $table->string('dimension');
             $table->integer('first_stock');

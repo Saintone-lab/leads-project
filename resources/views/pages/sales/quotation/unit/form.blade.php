@@ -41,7 +41,7 @@
                         <div class="col-12 col-lg-3 mb-3">
                             <div class="form-floating form-floating-outline">
                                 <select id="select2Basic" class="select2 form-select form-select-lg invoice-item-client"
-                                    data-allow-clear="true" name="id_pic" {{ @$quotation ? 'disabled' : '' }}>
+                                    data-allow-clear="true" name="id_pic" {{@$quotation ? 'disabled' : ''}}>
                                     <option> ---- Choose Pic Company Here ---- </option>
                                     @foreach ($pic as $charge)
                                         <option value="{{ $charge->id }}"
@@ -53,24 +53,21 @@
                             </div>
                         </div>
                         @if (@$quotation)
-                            <input type="text" name="id_pic" id="idPic" value="{{ $quotation->id_pic }}" hidden>
+                            <input type="text" name="id_pic" id="idPic" value="{{$quotation->id_pic}}" hidden>
                         @endif
                         <div class="col-12 col-lg-3">
                             <div class="form-floating form-floating-outline mb-2">
                                 <select id="address-dropdown" class="select2 form-select invoice-item-destination"
                                     data-allow-clear="true" name="destination" disabled>
                                     @if (@$quotation)
-                                        <option selected>
-                                            {{ $quotation->destination == '1' ? $quotation->pic->client->address : $quotation->pic->client->subAddress }}
-                                        </option>
+                                        <option selected> {{$quotation->destination == '1' ? $quotation->pic->client->address : $quotation->pic->client->subAddress}} </option>
                                     @endif
                                 </select>
                                 <label for="address-dropdown">Destination Address</label>
                             </div>
                         </div>
                         @if (@$quotation)
-                            <input type="text" name="destination" id="destination" value="{{ $quotation->destination }}"
-                                hidden>
+                            <input type="text" name="destination" id="destination" value="{{$quotation->destination}}" hidden>
                         @endif
                         <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline">
@@ -107,8 +104,7 @@
                         <div class="col-md-6">
                             <div class="form-floating form-floating-outline mb-4">
                                 <input class="form-control" type="text" placeholder="Put your No PR Here ...."
-                                    id="no-pr-input" name="no_pr" value="{{ @$quotation ? '-' : '' }}"
-                                    {{ @$quotation ? '' : 'disabled' }}>
+                                    id="no-pr-input" name="no_pr" value="{{@$quotation ? '-' : ''}}" {{ @$quotation ? '' : 'disabled' }}>
                                 <label for="no-pr-input">No PR</label>
                             </div>
                         </div>
@@ -145,9 +141,6 @@
                                                                 data-replacement="{{ $products->id }}"
                                                                 {{ $quote->id_equivalent == "{$products->id}" ? 'selected' : '' }}>
                                                                 {{ $products->brand }} {{ $products->pn }}
-                                                                ({{ $products->detail_desc }})
-                                                                ||
-                                                                {{ $products->go }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -189,26 +182,11 @@
                                                         data-id="1" aria-label="Default select example"
                                                         name="info_qty[]">
                                                         <option>---Info---</option>
-                                                        <option value="Pcs"
-                                                            {{ $quote->info_qty == 'Pcs' ? 'selected' : '' }}>Pcs
-                                                        </option>
-                                                        <option value="Set"
-                                                            {{ $quote->info_qty == 'Set' ? 'selected' : '' }}>Set
-                                                        </option>
-                                                        <option value="Pail"
-                                                            {{ $quote->info_qty == 'Pail' ? 'selected' : '' }}>Pail
-                                                        </option>
                                                         <option value="Unit"
                                                             {{ $quote->info_qty == 'Unit' ? 'selected' : '' }}>Unit
                                                         </option>
-                                                        <option value="Lot"
-                                                            {{ $quote->info_qty == 'Lot' ? 'selected' : '' }}>Lot
-                                                        </option>
-                                                        <option value="Meter"
-                                                            {{ $quote->info_qty == 'Meter' ? 'selected' : '' }}>Meter
-                                                        </option>
-                                                        <option value="Hari"
-                                                            {{ $quote->info_qty == 'Hari' ? 'selected' : '' }}>Hari
+                                                        <option value="Days"
+                                                            {{ $quote->info_qty == 'Days' ? 'selected' : '' }}>Days
                                                         </option>
                                                     </select>
                                                     <label for="exampleFormControlSelect1">Info</label>
@@ -258,9 +236,6 @@
                                                             data-replacement="{{ $products->id }}"
                                                             data-commodity="{{ $products->comId }}">
                                                             {{ $products->brand }} {{ $products->pn }}
-                                                            ({{ $products->detail_desc }})
-                                                            ||
-                                                            {{ $products->go }}
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -296,13 +271,8 @@
                                                 <select class="form-select invoice-item-info" id="info-qty-1"
                                                     data-id="1" aria-label="Default select example" name="info_qty[]">
                                                     <option disabled>---Info---</option>
-                                                    <option value="Pcs">Pcs</option>
-                                                    <option value="Set">Set</option>
-                                                    <option value="Pail">Pail</option>
                                                     <option value="Unit">Unit</option>
-                                                    <option value="Lot">Lot</option>
-                                                    <option value="Meter">Meter</option>
-                                                    <option value="Hari">Hari</option>
+                                                    <option value="Days">Days</option>
                                                 </select>
                                                 <label for="exampleFormControlSelect1">Info</label>
                                             </div>
@@ -746,12 +716,12 @@
 
             $('.invoice-item-product').on('change', function(ev) {
                 var replacementId = $(this).find(':selected').data('replacement');
-                var Url = '/quotation/sparepart/' + replacementId;
+                var Url = '/quotation/unit/' + replacementId;
                 var commodity = $(this).find(':selected').data('commodity');
                 var id = $(this).data('id');
-                // console.log('Replacement ID:', replacementId);
-                // console.log('URL:', Url);
-                // console.log('Textarea ID:', id);
+                console.log('Replacement ID:', replacementId);
+                console.log('URL:', Url);
+                console.log('Textarea ID:', id);
 
                 $.ajax({
                     url: '/product-in/replacement/' + commodity,
@@ -767,7 +737,7 @@
                             weightTotal += parseInt($(`#info-weight-${id}`).text());
                         });
                         console.log('Weight Total : ', weightTotal);
-                        $(`.info-weight-total-label`).val(weightTotal + ' g');
+                        $(`.info-weight-total-label`).val('0 g');
                     }
                 });
 
@@ -775,9 +745,9 @@
                     url: Url,
                     type: 'GET',
                     success: function(response) {
-                        console.log('Replacement Id : ', replacementId);
-                        console.log('URL: ', Url);
-
+                        console.log('Replacement Id : ',replacementId);
+                        console.log('URL: ',Url);
+                        
                         console.log('AJAX Response:', response);
                         $(`#detailProduct-${id}`).val(response[0].detail);
                         $(`#priceLabel-${id}`).val(formatPrice(response[0].price));
@@ -893,7 +863,7 @@
 
                 $('.invoice-item-product').on('change', function(ev) {
                     var replacementId = $(this).find(':selected').data('replacement');
-                    var Url = '/quotation/sparepart/' + replacementId;
+                    var Url = '/quotation/unit/' + replacementId;
                     var commodity = $(this).find(':selected').data('commodity');
                     var id = $(this).data('id');
                     // console.log('Replacement ID:', replacementId);
@@ -945,7 +915,7 @@
                             // memasukan data amount dan subtotal
                             $(`#amount-${id}`).val(amount);
                             $(`#amount-label-${id}`).html(
-                                `${formatter.format(amount)}`);
+                            `${formatter.format(amount)}`);
                             $('.amount-label').each(() => {
                                 row++;
                                 sTotal += parseInt($(`#amount-${row}`).val())

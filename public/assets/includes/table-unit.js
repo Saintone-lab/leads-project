@@ -1,6 +1,6 @@
 $(function () {
     var dt_table_product_unit = $(".datatable-product-unit");
-    var Url = "/db/product/unit";
+    var Url = "/db/unit";
 
     if (dt_table_product_unit.length) {
         $('[data-toggle="tooltip"]').tooltip();
@@ -26,7 +26,7 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "commodity" },
+                { data: "sku" },
                 { data: "brand" },
                 { data: "pn" },
                 { data: "price" },

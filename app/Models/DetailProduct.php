@@ -20,6 +20,10 @@ class DetailProduct extends Model
         'warehouse_stock',
     ];
     
+    public function unit()
+    {
+        return $this->belongsTo('App\Models\Unit', 'id_product', 'id');
+    }
     public function product()
     {
         return $this->belongsTo('App\Models\Product', 'id_product', 'id');

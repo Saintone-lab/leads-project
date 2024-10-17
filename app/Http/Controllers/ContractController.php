@@ -19,7 +19,7 @@ class ContractController extends Controller
     public function index()
     {
         $contracts = Contract::where('level', '0')->get();
-        // dd($contracts);
+        // dd($contracts->quotation);
         $today = Carbon::now();
         $thisYear = $today->year;
         $numberLastSP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $today)->where('q.tax', '11')->where('contract.type', 'Selling')->where('contract.level', '1')->groupBy('contract.id')->orderByDesc('contract.id')->first('contract.no_contract');

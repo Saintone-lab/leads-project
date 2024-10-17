@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\SerialProduct;
+use App\Models\Unit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -78,12 +79,19 @@ class ProductController extends Controller
             'description.required' => 'Field description Wajib Diisi',
             'note.required' => 'Field note Wajib Diisi',
         ];
-
         // Perform validation
         $this->validate($request, $rule, $message);
 
+        $lastUnit = Unit::orderBy('id', 'desc')->first();
+        $lastProduct = Product::orderBy('id', 'desc')->first();
+
         // Creating new product instance
         $product = new Product;
+        if ($lastUnit->id > $lastProduct->id) {
+            $product->id = $lastUnit->id + 1;
+        } else {
+            $product->id = $lastProduct->id + 1;
+        }
         $product->commodity = $request->commodity;
         $product->dimension = $request->dimension;
         $product->description = $request->description;
@@ -95,15 +103,6 @@ class ProductController extends Controller
         $product->warehouse_stock = 0;
         $product->stock = 0;
         $product->unit = $request->unit;
-        $product->type = $request->type;
-
-        // Set status based on product type
-        if ($request->type == 'Sparepart') {
-            $product->status = null;
-        } else {
-            $product->status = 'Ready';
-        }
-
         // Set note and current date
         $product->note = $request->note;
         $product->date = Carbon::now();
@@ -113,11 +112,7 @@ class ProductController extends Controller
 
         // Redirect based on product type
         if ($productSave) {
-            if ($request->type == 'Sparepart') {
-                return redirect('/product/' . $product->id)->with('message', 'Data telah ditambahkan');
-            } elseif ($request->type == 'Unit') {
-                return redirect('/unit/product/' . $product->id)->with('message', 'Data telah ditambahkan');
-            }
+            return redirect('/product/' . $product->id)->with('message', 'Data telah ditambahkan');
         }
     }
 
@@ -254,11 +249,13 @@ class ProductController extends Controller
         $replace->id_product = $id;
         $replace->replacement = $request->replacement;
         $replace->modal = 0;
+        $replace->warehouse_stock = 0;
         $replace->stock = 0;
         $replaceSave = $replace->save();
 
+        $previousUrl = url()->previous();
         if ($replaceSave) {
-            return redirect('/product/' . $id)->with('message', 'data telah ditambahkan');
+            return redirect($previousUrl)->with('success', 'Data berhasil disimpan!');
         }
     }
     public function updateReplacement(Request $request, $id)
@@ -270,8 +267,9 @@ class ProductController extends Controller
         }
         $replaceSave = $replace->save();
 
+        $previousUrl = url()->previous();
         if ($replaceSave) {
-            return redirect('/product/' . $replace->id_product)->with('message', 'data telah ditambahkan');
+            return redirect($previousUrl)->with('success', 'Data berhasil disimpan!');
         }
     }
     public function destroyReplacement($id)
@@ -321,9 +319,10 @@ class ProductController extends Controller
         $equiv->price = $request->price;
         $equiv->image = $request->image;
         $equivSave = $equiv->save();
-
+        
+        $previousUrl = url()->previous();
         if ($equivSave) {
-            return redirect('/product/' . $id)->with('message', 'data telah ditambahkan');
+            return redirect($previousUrl)->with('success', 'Data berhasil disimpan!');
         }
     }
     public function updateEquivalent(Request $request, $id)
@@ -360,8 +359,9 @@ class ProductController extends Controller
         $equiv->image = $request->image;
         $equivSave = $equiv->save();
 
+        $previousUrl = url()->previous();
         if ($equivSave) {
-            return redirect('/product/' . $equiv->id_product)->with('message', 'data telah diupdate');
+            return redirect($previousUrl)->with('success', 'Data berhasil disimpan!');
         }
     }
     public function destroyEquivalent($id)
@@ -405,4 +405,5 @@ class ProductController extends Controller
             ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
         return view('pages.warehouse.unit.detail', compact('product', 'comment', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
     }
+    
 }

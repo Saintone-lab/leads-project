@@ -26,10 +26,10 @@
                         <div class="col-6">
                             <div class="row">
                                 <div class="col-3">
-                                    Comodity
+                                    SKU
                                 </div>
                                 <div class="col-9">
-                                    : {{ $product->commodity }}
+                                    : {{ $product->sku }}
                                 </div>
                             </div>
                             <div class="row mb-1">
@@ -37,39 +37,23 @@
                                     Short Description
                                 </div>
                                 <div class="col-9">
-                                    : {{ $product->detail_desc }}
+                                    : {{ $product->desc }}
                                 </div>
                             </div>
                             <div class="row mb-1">
                                 <div class="col-3">
-                                    Genuine / OEM
+                                    Serial Number
                                 </div>
                                 <div class="col-9">
-                                    : {{ $product->go }}
+                                    : {{ $product->sn }}
                                 </div>
                             </div>
                             <div class="row mb-1">
                                 <div class="col-3">
-                                    Category
+                                    Bar
                                 </div>
                                 <div class="col-9">
-                                    : {{ $product->category }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Dimension
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->dimension }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Weight
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->weight }} Gram
+                                    : {{ $product->bar }}
                                 </div>
                             </div>
                             <div class="row mb-1">
@@ -77,7 +61,7 @@
                                     Stock Awal
                                 </div>
                                 <div class="col-9">
-                                    : {{ $product->first_stock }} {{ $product->unit }} ({{ $product->date }})
+                                    : {{ $product->first_stock }}
                                 </div>
                             </div>
                             <div class="row mb-1">
@@ -85,7 +69,7 @@
                                     Warehouse Stock
                                 </div>
                                 <div class="col-9">
-                                    : {{ $product->warehouse_stock }} {{ $product->unit }}
+                                    : {{ $product->warehouse_stock }}
                                 </div>
                             </div>
                             <div class="row mb-1">
@@ -93,7 +77,7 @@
                                     Office Stock
                                 </div>
                                 <div class="col-9">
-                                    : {{ $product->stock }} {{ $product->unit }}
+                                    : {{ $product->stock }}
                                 </div>
                             </div>
                             <div class="row mb-1">
@@ -101,7 +85,7 @@
                                     All Stock
                                 </div>
                                 <div class="col-9">
-                                    : {{ $allStock }} {{ $product->unit }}
+                                    : {{ $allStock }}
                                 </div>
                             </div>
                             <div class="row mb-1">
@@ -123,6 +107,60 @@
                                     </div>
                                     <div class="col-9">
                                         : {{ $product->status }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-3">
+                                        Unit
+                                    </div>
+                                    <div class="col-9">
+                                        @if ($product->rental == '1' && $product->second == '1')
+                                            : {{ $product->rental == '1' ? 'Rental' : '' }} &
+                                            {{ $product->second == '1' ? 'Second Unit' : '' }}
+                                        @else
+                                            :
+                                            {{ $product->rental == '1' ? 'Rental' : '' }}{{ $product->second == '1' ? 'Second Unit' : '' }}
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-3">
+                                        Power
+                                    </div>
+                                    <div class="col-9">
+                                        : {{ $product->power }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-3">
+                                        Air Capacity
+                                    </div>
+                                    <div class="col-9">
+                                        : {{ $product->air_cap }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-3">
+                                        Connection
+                                    </div>
+                                    <div class="col-9">
+                                        : {{ $product->connect }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-3">
+                                        Dimension
+                                    </div>
+                                    <div class="col-9">
+                                        : {{ $product->dimension }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-3">
+                                        Weight
+                                    </div>
+                                    <div class="col-9">
+                                        : {{ $product->weight }}
                                     </div>
                                 </div>
                             </div>
@@ -167,7 +205,7 @@
                                             {{ $detail->replacement }}
                                         </td>
                                         <td>
-                                            {{ $allRep }} {{ $detail->product->unit }}
+                                            {{ $allRep }} Unit
                                         </td>
                                         @if (Auth::user()->role == 'Admin')
                                             <td>
@@ -292,8 +330,8 @@
             </div>
         </div>
     </div>
-    @include('components.modal.warehouse.product.form')
-    @include('components.modal.warehouse.product.stock')
+    @include('components.modal.warehouse.unit.form')
+    @include('components.modal.warehouse.unit.stock')
     @include('components.modal.warehouse.replacement.form')
     @include('components.modal.warehouse.equivalent.form-unit')
     @foreach ($serials as $serial)
@@ -316,6 +354,7 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
 @endpush
 @push('after-script')
     <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
@@ -325,6 +364,7 @@
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
 @endpush
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
@@ -333,6 +373,7 @@
     <script src="{{ asset('assets') }}/includes/table-product-in-detail.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-out-detail.js"></script>
     <script src="{{ asset('assets') }}/includes/table-quotation-product.js"></script>
+    <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush
 @push('script')
     <script></script>
@@ -356,7 +397,7 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        'url': '{{ url('product') }}/' + id,
+                        'url': '{{ url('unit') }}/' + id,
                         'type': 'POST',
                         'data': {
                             '_method': 'DELETE',
@@ -373,7 +414,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/product';
+                                    window.location.href = '/unit';
                                 }, 2000);
                             } else {
                                 Swal.fire({

@@ -78,7 +78,7 @@
             </li>
 
             <li
-                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') || request()->is('po/sales/*') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') || request()->is('po/sales/*') || request()->is('quote/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                     <div data-i18n="Quotation">Quotation</div>
@@ -90,8 +90,9 @@
                             <div data-i18n="Quotation">Quotation</div>
                         </a>
                     </li>
-                    <li class="menu-item">
-                        <a href="#" class="menu-link">
+                    <li
+                        class="menu-item {{ request()->is('quote/*') || request()->is('quote/*/*') ? 'active' : '' }}">
+                        <a href="{{ route('index-unit.quotation') }}" class="menu-link">
                             <div data-i18n="Quotation Unit">Quotation Unit</div>
                         </a>
                     </li>
@@ -231,8 +232,8 @@
                     <div data-i18n="Product">Product</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('unit/product') || request()->is('unit/product/*') ? 'active' : '' }}">
-                <a href="{{ route('unit.product') }}" class="menu-link">
+            <li class="menu-item {{ request()->is('unit') || request()->is('unit/*') ? 'active' : '' }}">
+                <a href="{{ route('unit.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
                     <div data-i18n="Unit">Unit</div>
                 </a>
@@ -369,7 +370,7 @@
             </li>
 
             <li
-                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') || request()->is('po/sales/*') || request()->is('quote/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                     <div data-i18n="Quotation">Quotation</div>
@@ -381,8 +382,9 @@
                             <div data-i18n="Quotation">Quotation</div>
                         </a>
                     </li>
-                    <li class="menu-item">
-                        <a href="#" class="menu-link">
+                    <li
+                        class="menu-item {{ request()->is('quote/*') || request()->is('quote/*/*') ? 'active' : '' }}">
+                        <a href="{{ route('index-unit.quotation') }}" class="menu-link">
                             <div data-i18n="Quotation Unit">Quotation Unit</div>
                         </a>
                     </li>
@@ -437,8 +439,8 @@
                     <div data-i18n="Spare Part">Spare Part</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('unit/product') || request()->is('unit/product/*') ? 'active' : '' }}">
-                <a href="{{ route('unit.product') }}" class="menu-link">
+            <li class="menu-item {{ request()->is('unit') || request()->is('unit/*') ? 'active' : '' }}">
+                <a href="{{ route('unit.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
                     <div data-i18n="Unit">Unit</div>
                 </a>
@@ -575,7 +577,7 @@
             </li>
 
             <li
-                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') || request()->is('po/sales/*') || request()->is('quote/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                     <div data-i18n="Quotation">Quotation</div>
@@ -587,8 +589,9 @@
                             <div data-i18n="Quotation">Quotation</div>
                         </a>
                     </li>
-                    <li class="menu-item">
-                        <a href="#" class="menu-link">
+                    <li
+                        class="menu-item {{ request()->is('quote/*') || request()->is('quote/*/*') ? 'active' : '' }}">
+                        <a href="{{ route('index-unit.quotation') }}" class="menu-link">
                             <div data-i18n="Quotation Unit">Quotation Unit</div>
                         </a>
                     </li>
@@ -679,8 +682,8 @@
                     <div data-i18n="Product">Product</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('unit/product') || request()->is('unit/product/*') ? 'active' : '' }}">
-                <a href="{{ route('unit.product') }}" class="menu-link">
+            <li class="menu-item {{ request()->is('unit') || request()->is('unit/*') ? 'active' : '' }}">
+                <a href="{{ route('unit.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
                     <div data-i18n="Unit">Unit</div>
                 </a>
@@ -714,7 +717,8 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Invoice</span>
             </li>
-            <li class="menu-item {{ request()->is('productout/invoice/*') || request()->is('productout/index/invoice') ? 'active' : '' }}">
+            <li
+                class="menu-item {{ request()->is('productout/invoice/*') || request()->is('productout/index/invoice') ? 'active' : '' }}">
                 <a href="{{ route('product-out.index-invoice') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-book-open-outline"></i>
                     <div data-i18n="Invoice">Invoice</div>

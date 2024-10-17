@@ -44,6 +44,8 @@
                             </div>
                         </div>
                     </div>
+                    <input type="text" id="type" class="form-control" name="type"
+                    placeholder="W XXX" value="{{ old('type', @$product->type ?? 'Sparepart') }}" hidden>
                     <div class="row g-2 mb-3">
                         <div class="col-6 col-md-3 mb-2">
                             <div class="form-floating form-floating-outline">

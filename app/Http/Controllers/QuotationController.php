@@ -18,6 +18,7 @@ use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\SerialProduct;
 use App\Models\Termncon;
+use App\Models\Unit;
 use App\Models\User;
 use Carbon\Carbon;
 use File;
@@ -35,16 +36,16 @@ class QuotationController extends Controller
      */
     public function index()
     {
-        $quotation = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->get();
-        $forecast = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->whereIn('status', ['20', '30', '40', '60', '80'])->sum('nett');
-        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->where('status', '80')->sum('nett');
-        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
-        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $quotation = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->where('type','Sparepart')->get();
+        $forecast = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->whereIn('status', ['20', '30', '40', '60', '80'])->where('type','Sparepart')->sum('nett');
+        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->where('status', '80')->where('type','Sparepart')->sum('nett');
+        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->where('type','Sparepart')->sum('nett');
+        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->where('level', '1')->where('is_primary', '1')->where('type','Sparepart')->sum('nett');
         $quotationAdmin = Quotation::get();
-        $forecastAdmin = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
-        $prospectAdmin = Quotation::where('status', '80')->where('level', '1')->where('is_primary', '1')->sum('nett');
-        $poAdmin = Quotation::where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
-        $lossAdmin = Quotation::where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $forecastAdmin = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->where('type','Sparepart')->sum('nett');
+        $prospectAdmin = Quotation::where('status', '80')->where('level', '1')->where('is_primary', '1')->where('type','Sparepart')->sum('nett');
+        $poAdmin = Quotation::where('status', '100')->where('level', '1')->where('is_primary', '1')->where('type','Sparepart')->sum('nett');
+        $lossAdmin = Quotation::where('status', '0')->where('level', '1')->where('is_primary', '1')->where('type','Sparepart')->sum('nett');
         // dd();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
@@ -116,6 +117,8 @@ class QuotationController extends Controller
             'shipping.required' => 'Quotation Wajib memiliki harga Antar',
         ];
         $this->validate($request, $rule, $message);
+        $previousUrl = request()->create(url()->previous())->segment(2);
+        // dd($previousUrl);
         // dd($request);
         // Masukan Data ke Tabel Quotataion
         $quotation = new Quotation();
@@ -134,6 +137,11 @@ class QuotationController extends Controller
         $quotation->expired_date = $request->expired_date;
         $quotation->po_date = NULL;
         $quotation->po_file = NULL;
+        if ($previousUrl == 'unit') {
+            $quotation->type = 'Unit';
+        } else {
+            $quotation->type = 'Sparepart';
+        }
         $quotation->level = '1';
         $quotation->estimated_date = $request->estimated_date;
         if ($request->tax != NULL) {
@@ -191,9 +199,16 @@ class QuotationController extends Controller
                 $termnconSave = $termncon->save();
             }
         }
-        if ($termnconSave) {
-            return redirect('/quotation/' . $quotation->id)->with('message', 'data telah di tambahkan');
+        if ($previousUrl == 'unit') {
+            if ($termnconSave) {
+                return redirect('/quote/unit-detail/' . $quotation->id)->with('message', 'data telah di tambahkan');
+            }
+        } else {
+            if ($termnconSave) {
+                return redirect('/quotation/' . $quotation->id)->with('message', 'data telah di tambahkan');
+            }
         }
+        
     }
 
     /**
@@ -935,6 +950,7 @@ class QuotationController extends Controller
     }
     public function add_comment(Request $request, $id)
     {
+        $previousUrl = request()->create(url()->previous())->segment(2);
         $quotation = Quotation::find($id);
         $stats = ChangeStatus::where('id_quotation', $quotation->primary_id)->orderByDesc('date')->first();
         $comment = new Comment;
@@ -944,8 +960,14 @@ class QuotationController extends Controller
         $comment->comment = $request->comment;
         Auth::user()->role == "Admin" ? $comment->level = '1' : $comment->level = '0';
         $commentSave = $comment->save();
-        if ($commentSave) {
-            return redirect('/quotation/' . $id . '#viewComment')->with('massage', 'Data berhasil di buat');
+        if ($previousUrl == 'unit-detail') {
+            if ($commentSave) {
+                return redirect('/quote/unit-detail/' . $quotation->id . '#viewComment')->with('message', 'data telah di tambahkan');
+            }
+        } else {
+            if ($commentSave) {
+                return redirect('/quotation/' . $id . '#viewComment')->with('massage', 'Data berhasil di buat');
+            }
         }
     }
     public function view_comment($id)
@@ -964,21 +986,66 @@ class QuotationController extends Controller
         }
     }
 
-    public function replacementDetail($id)
+    public function replacementDetailSparepart($id)
     {
         $sProd = SerialProduct::join('product as p', 'p.id', '=', 'serial_product.id_product')
             ->where('serial_product.id', $id)
-            ->get(['p.description AS detail', 'p.type', 'serial_product.price']);
+            ->get(['p.description AS detail', 'serial_product.price']);
+        return response()->json($sProd);
+    }
+    public function replacementDetailUnit($id)
+    {
 
         $saproduct = SerialProduct::where('serial_product.id', $id)
             ->get(['serial_product.detail', 'serial_product.price']);
+        return response()->json($saproduct);
+    }
 
-        if ($sProd->first()->type == 'Sparepart') {
-            return response()->json($sProd);
-        }
-        elseif ($sProd->first()->type == 'Unit') {
-            return response()->json($saproduct);
-        }
+    public function quotationUnit()
+    {
+
+        $quotation = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->get();
+        $forecast = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->whereIn('status', ['20', '30', '40', '60', '80'])->where('type','Unit')->sum('nett');
+        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->where('status', '80')->where('type','Unit')->sum('nett');
+        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->where('type','Unit')->sum('nett');
+        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->where('level', '1')->where('is_primary', '1')->where('type','Unit')->sum('nett');
+        $quotationAdmin = Quotation::get();
+        $forecastAdmin = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->where('type','Unit')->sum('nett');
+        $prospectAdmin = Quotation::where('status', '80')->where('level', '1')->where('is_primary', '1')->where('type','Unit')->sum('nett');
+        $poAdmin = Quotation::where('status', '100')->where('level', '1')->where('is_primary', '1')->where('type','Unit')->sum('nett');
+        $lossAdmin = Quotation::where('status', '0')->where('level', '1')->where('is_primary', '1')->where('type','Unit')->sum('nett');
+        // dd();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.level', '1')
+            ->orderBy('o.date', 'DESC')
+            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view('pages.sales.quotation.unit.index', compact('noSaleProspect', 'comment', 'leveledProspect', 'quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
+    }
+    
+    public function quotationCreateUnit()
+    {
+        $dateNow = Carbon::now();
+        $numberQ = Quotation::whereYear('estimated_date', $dateNow)->where('id_sales', Auth::user()->id)->count();
+        $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
+        $monthNow = $dateNow->month;
+        $formattedMonthNow = $this->convertToRoman($monthNow);
+        $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
+        $sales = User::where('role', 'sales')->get();
+        $product = Unit::join('serial_product as s', 's.id_product', '=', 'unit.id')->get(['unit.id as comId','unit.sku', 's.id', 's.pn', 's.brand']);
+        // dd($product);
+        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.level', '1')
+            ->orderBy('o.date', 'DESC')
+            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
+        return view('pages.sales.quotation.unit.form', compact('pic', 'sales', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 
     protected function convertToRoman($month)

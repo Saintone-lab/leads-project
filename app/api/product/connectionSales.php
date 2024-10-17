@@ -21,7 +21,7 @@ if (Auth::check()) {
 
         // Query database for data
         $query = "SELECT p.*, s.image, s.brand, s.pn, s.price, CONCAT(p.stock, ' - ', p.warehouse_stock ) AS stok FROM product p
-        RIGHT JOIN serial_product s on p.id = s.id_product WHERE p.type = 'Sparepart'";
+        RIGHT JOIN serial_product s on p.id = s.id_product";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

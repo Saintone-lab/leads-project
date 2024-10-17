@@ -18,7 +18,6 @@ return new class extends Migration
             $table->foreignId('id_notuler');
             $table->string('title');
             $table->longText('desc');
-            $table->enum('level', ['0','1']);
             $table->date('date');
             $table->timestamps();
         });

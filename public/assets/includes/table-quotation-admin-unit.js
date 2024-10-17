@@ -1,16 +1,17 @@
 $(function () {
-    var dt_table_library_partlist = $(".datatable-library-partlist");
-    var Url = "/db/library/partlist";
+    var dt_table_quotation_admin_unit = $(".datatable-quotation-admin-unit");
+    var Url = "/db/quotation/admin/unit";
 
-    if (dt_table_library_partlist.length) {
+    if (dt_table_quotation_admin_unit.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_library_partlist = dt_table_library_partlist.DataTable({
+        var dt_quotation = dt_table_quotation_admin_unit.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
                 headers: {
                     "Content-Type": "application/json",
                 },
+
                 // success: function (hasil, Url) {
                 //     console.log("Url:", Url);
                 //     console.log(hasil);
@@ -25,11 +26,19 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
+                { data: "no_quote" },
+                { data: "company" },
+                { data: "nett" },
+                { data: "title" },
+                { data: "estimated_date" },
+                { data: "status" },
                 { data: "name" },
-                { data: "models" },
-                { data: "date" }, 
             ],
             columnDefs: [
+                {
+                    targets: 5,
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                },
                 {
                     // For Responsive
                     className: "control",
@@ -63,23 +72,88 @@ $(function () {
                 },
                 {
                     responsivePriority: 1,
-                    targets: 3,
+                    targets: 4,
                 },
                 {
                     targets: 3,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var link = full["link"];
+                            var detailRoute = route("detail.quote-unit", $dataId);
                             return (
-                                '<a class="text-dark" href="' +
-                                link +
-                                '" target="_blank">' +
+                                '<a class="text-dark view-quote" href="' +
+                                detailRoute +
+                                '">' +
                                 data +
                                 "</a>"
                             );
                         }
                         return data;
+                    },
+                },
+                {
+                    targets: 8,
+                    render: function (data, type, full, meta) {
+                        var $status_number = full["status"];
+                        var $titleTool = full["tip"];
+                        var $status = {
+                            20: {
+                                title: "20%",
+                                class: "bg-label-secondary",
+                                colorTip: "tooltip-secondary",
+                                titleTip: $titleTool,
+                            },
+                            30: {
+                                title: "30%",
+                                class: " bg-label-dark",
+                                colorTip: "tooltip-dark",
+                                titleTip: $titleTool,
+                            },
+                            40: {
+                                title: "40%",
+                                class: " bg-label-info",
+                                colorTip: "tooltip-info",
+                                titleTip: $titleTool,
+                            },
+                            60: {
+                                title: "60%",
+                                class: " bg-label-primary",
+                                colorTip: "tooltip-primary",
+                                titleTip: $titleTool,
+                            },
+                            80: {
+                                title: "80%",
+                                class: " bg-label-warning",
+                                colorTip: "tooltip-warning",
+                                titleTip: $titleTool,
+                            },
+                            100: {
+                                title: "100%",
+                                class: " bg-label-success",
+                                colorTip: "tooltip-success",
+                                titleTip: $titleTool,
+                            },
+                            0: {
+                                title: "0%",
+                                class: " bg-label-danger",
+                                colorTip: "tooltip-danger",
+                                titleTip: $titleTool,
+                            },
+                        };
+                        if (typeof $status[$status_number] === "undefined") {
+                            return data;
+                        }
+                        return (
+                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
+                            $status[$status_number].colorTip +
+                            '" title="' +
+                            $status[$status_number].titleTip +
+                            '" class="badge rounded-pill ' +
+                            $status[$status_number].class +
+                            '">' +
+                            $status[$status_number].title +
+                            "</span>"
+                        );
                     },
                 },
             ],
@@ -88,9 +162,9 @@ $(function () {
                 $('[data-toggle="tooltip"]').tooltip();
             },
             order: [[2, "desc"]],
-            displayLength: 7,
-            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 head-invoice text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            lengthMenu: [7, 10, 25, 50, 75, 100],
+            dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            displayLength: 10,
+            lengthMenu: [10, 25, 50, 75, 100],
             buttons: [
                 {
                     extend: "collection",
@@ -303,6 +377,13 @@ $(function () {
                         },
                     ],
                 },
+                {
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Quotation</span>',
+                    className: "btn btn-primary btn-new",
+                    action: function (e, dt, node, config) {
+                        window.location = route("create-unit.quotation");
+                    },
+                },
             ],
             responsive: {
                 details: {
@@ -339,11 +420,9 @@ $(function () {
                 },
             },
         });
-        $("div.hl-2.head-invoice").html(
-            '<h5 class="card-title mb-0">Table Partlist</h5>'
-        );
+        $("div.hl-1").html('<h5 class="card-title mb-0">Quotations</h5>');
     }
-    dt_table_library_partlist.on("draw", function () {
+    dt_table_quotation_admin_unit.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

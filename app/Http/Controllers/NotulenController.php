@@ -40,7 +40,7 @@ class NotulenController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->mention);
+        dd($request);
         $notulen = new Notulen;
         $notulen->id_notuler = Auth::id();
         $notulen->title = $request->title;
