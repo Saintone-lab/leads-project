@@ -65,16 +65,20 @@ class InvoiceController extends Controller
         $return = ReturnQ::where('id_quotation', $invoice->id_quotation)->first();
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
-        // dd($return);
+        // dd($dquote->fee);
 
+        $totalPph = 0;
+        foreach ($dquote as $product) {
+            $pph = ($product->amount * $product->pph) / 100;
+            $totalPph += $pph;
+        }
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
         }
-
         $remaining = $quote->harga_total - $totalAmount;
         $harga = Payment::where('id_quotation', $quote->id)->orderBy('created_at', 'DESC')->first();
-        $price = $this->terbilang(@$harga->amount);
-        $fullPrice = $this->terbilang($quote->harga_total);
+        $price = $this->terbilang(@$harga->amount - $totalPph);
+        $fullPrice = $this->terbilang($quote->harga_total - $totalPph);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         // $pph = $quote->subtotal * $invoice->pph / 100;
         // dd($pph);
@@ -85,7 +89,7 @@ class InvoiceController extends Controller
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
         $pOut = ProductOut::where('invoice', $invoice->no_invoice)->first();
         // dd($pOut);
-        return view('pages.accounting.invoice.detail', compact('noSaleProspect','return', 'pOut', 'quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
+        return view('pages.accounting.invoice.detail', compact('noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
     }
 
     /**
@@ -226,19 +230,24 @@ class InvoiceController extends Controller
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
 
+        $totalPph = 0;
+        foreach ($dquote as $product) {
+            $pph = ($product->amount * $product->pph) / 100;
+            $totalPph += $pph;
+        }
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
         }
 
         $remaining = $quote->harga_total - $totalAmount;
         $harga = Payment::where('id_quotation', $quote->id)->orderBy('created_at', 'DESC')->first();
-        $price = $this->terbilang(@$harga->amount);
-        $fullPrice = $this->terbilang($quote->harga_total);
+        $price = $this->terbilang(@$harga->amount - $totalPph);
+        $fullPrice = $this->terbilang($quote->harga_total - $totalPph);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         // $pph = $quote->subtotal * $invoice->pph / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
         // dd($termncon);
-        return view("pages.accounting.invoice.detail-print", compact('harga','quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
+        return view("pages.accounting.invoice.detail-print", compact('harga', 'quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
     }
 
     public function hand_sign(Request $request, $id)

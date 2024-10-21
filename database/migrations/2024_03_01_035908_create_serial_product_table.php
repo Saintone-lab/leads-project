@@ -22,6 +22,9 @@ return new class extends Migration
             $table->string('image');
             $table->longText('detail')->nullable();
             $table->integer('price');
+            $table->enum("rental", ['0','1'])->nullable();
+            $table->enum("second", ['0','1'])->nullable();
+            $table->enum("new", ['0','1'])->nullable();
             $table->timestamps();
         });
     }

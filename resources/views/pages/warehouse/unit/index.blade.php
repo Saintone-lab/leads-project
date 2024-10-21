@@ -81,9 +81,12 @@
                             <th>ID</th>
                             <th>SKU</th>
                             <th>Brand</th>
-                            <th>Part Number</th>
-                            <th>Price</th>
+                            <th>Type</th>
+                            <th>Power</th>
+                            <th>Bar</th>
+                            <th>Capacity</th>
                             <th>status</th>
+                            <th>Price</th>
                         </tr>
                     </thead>
                 </table>
@@ -95,10 +98,14 @@
                             <th></th>
                             <th>ID</th>
                             <th>Photo</th>
+                            <th>Info</th>
+                            <th>Unit</th>
                             <th>Brand</th>
-                            <th>PN</th>
-                            <th style="max-width: 50%">Desc</th>
-                            <th>Status</th>
+                            <th>SN</th>
+                            <th>Power</th>
+                            <th>Bar</th>
+                            <th>Capacity</th>
+                            <th>status</th>
                             <th>Price</th>
                         </tr>
                     </thead>

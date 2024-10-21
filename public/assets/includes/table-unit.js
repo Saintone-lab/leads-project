@@ -29,8 +29,11 @@ $(function () {
                 { data: "sku" },
                 { data: "brand" },
                 { data: "pn" },
-                { data: "price" },
+                { data: "power" },
+                { data: "bar" },
+                { data: "air_cap" },
                 { data: "status" },
+                { data: "price" },
             ],
             columnDefs: [
                 {
@@ -74,12 +77,9 @@ $(function () {
                         if (type === "display") {
                             var $dataId = full["id_p"];
                             var detailRoute = route("unit.show", $dataId);
-                            var $title = full["modal_replacements"]
                             return (
                                 
-                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' +
-                            $title +
-                            '">'+
+                            '<span>'+
                             '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>" +
                             "</span>"
                             );
@@ -88,8 +88,52 @@ $(function () {
                     },
                 },
                 {
-                    targets: 6,
+                    targets: 9,
+                    render: function (data, type, full, meta) {
+                        var $title = full["status"];
+                        var $status = {
+                            "Ready": {
+                                title: $title,
+                                class: "bg-label-primary",
+                            },
+                            "On Rental": {
+                                title: $title,
+                                class: " bg-label-warning",
+                            },
+                            "Sold": {
+                                title: $title,
+                                class: " bg-label-secondary",
+                            },
+                            "Service": {
+                                title: $title,
+                                class: " bg-label-danger",
+                            },
+                        };
+                        if (typeof $status[$title] === "undefined") {
+                            return data;
+                        }
+                        return (
+                            '<span class="badge rounded-pill ' +
+                            $status[$title].class +
+                            '">' +
+                            $status[$title].title +
+                            "</span>"
+                        );
+                    },
+                },
+                {
+                    targets: 10,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                },
+                {
+                    targets: [4, 5, 10],
+                    render: function (data, type, row) {
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            return data;
+                        }
+                    },
                 },
             ],
             order: [[2, "desc"]],

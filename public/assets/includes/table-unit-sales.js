@@ -17,17 +17,17 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "image" },
+                { data: "new" },
+                { data: "unit" },
                 { data: "brand" },
                 { data: "pn" },
-                { data: "detail" },
+                { data: "power" },
+                { data: "bar" },
+                { data: "air_cap" },
                 { data: "status" },
                 { data: "price" },
             ],
             columnDefs: [
-                {
-                    targets: 8,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
-                },
                 {
                     targets: 3,
                     render: function (data, type, full, row) {
@@ -44,6 +44,32 @@ $(function () {
                             );
                         }
                         return data;
+                    },
+                },
+                {
+                    targets: 4,
+                    render: function (data, type, full, row) {
+                        var newu = full['new'];
+                        var second = full['second'];
+                        var rental = full['rental'];
+                        
+                        var status = [];
+                
+                        if (rental === '1') {
+                            status.push('Rental');
+                        }
+                
+                        if (second === '1') {
+                            status.push('Second Unit');
+                        }
+                
+                        if (newu === '1') {
+                            status.push('New Unit');
+                        }
+                
+                        var statusText = status.length === 0 ? 'not ready' : status.join(' & ');
+                
+                        return statusText;
                     },
                 },
                 {
@@ -81,19 +107,6 @@ $(function () {
                     responsivePriority: 1,
                     targets: 3,
                 },
-                // {
-                //     targets: 3,
-                //     render: function (data, type, full, row) {
-                //         if (type === "display") {
-                //             var $dataId = full["id"];
-                //             var detailRoute = route("product.show", $dataId);
-                //             return (
-                //                 '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                //             );
-                //         }
-                //         return data;
-                //     },
-                // },
                 {
                     targets: [3, 4, 5],
                     render: function (data, type, row) {
@@ -103,6 +116,44 @@ $(function () {
                             return data;
                         }
                     },
+                },
+                {
+                    targets: 11,
+                    render: function (data, type, full, meta) {
+                        var $title = full["status"];
+                        var $status = {
+                            Ready: {
+                                title: $title,
+                                class: "bg-label-primary",
+                            },
+                            "On Rental": {
+                                title: $title,
+                                class: " bg-label-warning",
+                            },
+                            Sold: {
+                                title: $title,
+                                class: " bg-label-secondary",
+                            },
+                            Service: {
+                                title: $title,
+                                class: " bg-label-danger",
+                            },
+                        };
+                        if (typeof $status[$title] === "undefined") {
+                            return data;
+                        }
+                        return (
+                            '<span class="badge rounded-pill ' +
+                            $status[$title].class +
+                            '">' +
+                            $status[$title].title +
+                            "</span>"
+                        );
+                    },
+                },
+                {
+                    targets: 12,
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
             ],
             order: [[2, "desc"]],

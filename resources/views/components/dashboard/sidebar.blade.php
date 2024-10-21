@@ -238,6 +238,12 @@
                     <div data-i18n="Unit">Unit</div>
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('cor-factor/calculator') ? 'active' : '' }}">
+                <a href="{{ route('calculator.correction') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
+                    <div data-i18n="Correction Factor Calc">Correction Factor Calc</div>
+                </a>
+            </li>
             <li class="menu-item {{ request()->is('product-in') || request()->is('product-in/*') ? 'active' : '' }}">
                 <a href="{{ route('product-in.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package-variant-plus"></i>
@@ -443,6 +449,12 @@
                 <a href="{{ route('unit.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
                     <div data-i18n="Unit">Unit</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('cor-factor/calculator') ? 'active' : '' }}">
+                <a href="{{ route('calculator.correction') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
+                    <div data-i18n="Correction Factor Calc">Correction Factor Calc</div>
                 </a>
             </li>
             <li class="menu-item">

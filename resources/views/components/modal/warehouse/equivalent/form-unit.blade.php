@@ -45,11 +45,26 @@
                         </div>
                     </div>
                     <div class="row g-2 mb-3">
+                        <div class="col-6 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <div class="select2-primary">
+                                    <select id="select2Primary{{@$serial ? $no : '' }}" name="unit[]" class="select2 form-select" multiple>
+                                        <option value="rental" {{ @$serial->rental == '1' ? 'selected' : '' }}>Rental
+                                        </option>
+                                        <option value="second" {{ @$serial->second == '1' ? 'selected' : '' }}>Second
+                                            Unit</option>
+                                        <option value="new" {{ @$serial->new == '1' ? 'selected' : '' }}>New Unit
+                                        </option>
+                                    </select>
+                                </div>
+                                <label for="select2Primary{{@$serial ? $no : '' }}">Unit</label>
+                            </div>
+                        </div>
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="pn" class="form-control" name="pn"
-                                    placeholder="xxxx@xxx.xx" value="{{ old('pn', @$serial->pn ?? '') }}">
-                                <label for="pn">Part Number</label>
+                                    placeholder="Type" value="{{ old('pn', @$serial->pn ?? '') }}">
+                                <label for="pn">Type</label>
                             </div>
                         </div>
                         <div class="col mb-2">
@@ -70,7 +85,7 @@
                         <div class="col">
                             <div class="form-floating form-floating-outline mb-4">
                                 <textarea class="form-control h-px-100" name="detail" id="detailTextarea1"
-                                    placeholder="Contoh: Jl Taman Kopo Indah 5 Kota...">{{ old('detail', @$serial->detail ?? '') }}</textarea>
+                                    placeholder="Detail Description Of Equivalent">{{ old('detail', @$serial->detail ?? '') }}</textarea>
                                 <label for="detailTextarea1">Detail</label>
                             </div>
                         </div>

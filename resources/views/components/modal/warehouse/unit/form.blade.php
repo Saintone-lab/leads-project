@@ -58,16 +58,39 @@
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
+                                <select class="form-select invoice-item-info" id="unit"
+                                    aria-label="Default select example" name="unit">
+                                    <option disabled>----- Unit -----</option>
+                                    <option value="AIR COMPRESSOR SCREW"
+                                        {{ @$product->status == 'AIR COMPRESSOR SCREW' ? 'selected' : '' }}>AIR COMPRESSOR SCREW
+                                    </option>
+                                    <option value="REFRIGERANT AIR DRYER"
+                                        {{ @$product->status == 'REFRIGERANT AIR DRYER' ? 'selected' : '' }}>
+                                        REFRIGERANT AIR DRYER
+                                    </option>
+                                    <option value="FILTER HOUSING"
+                                        {{ @$product->status == 'FILTER HOUSING' ? 'selected' : '' }}>FILTER HOUSING
+                                    </option>
+                                    <option value="AIR RECEIVER TANK"
+                                        {{ @$product->status == 'AIR RECEIVER TANK' ? 'selected' : '' }}>
+                                        AIR RECEIVER TANK
+                                    </option>
+                                </select>
+                                <label for="exampleFormControlSelect1">Unit</label>
+                            </div>
+                            {{-- <div class="form-floating form-floating-outline">
                                 <div class="select2-primary">
                                     <select id="select2Primary" class="select2 form-select" name="unit[]" multiple>
                                         <option value="rental" {{ @$product->rental == '1' ? 'selected' : '' }}> Rental
                                         </option>
                                         <option value="second" {{ @$product->second == '1' ? 'selected' : '' }}> Second
                                             Unit </option>
+                                        <option value="new" {{ @$product->new == '1' ? 'selected' : '' }}> New
+                                            Unit </option>
                                     </select>
                                 </div>
                                 <label for="select2Primary">Unit</label>
-                            </div>
+                            </div> --}}
                         </div>
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
@@ -118,7 +141,8 @@
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="dimension" class="form-control" name="dimension"
-                                    placeholder="Dimension" value="{{ old('dimension', @$product->dimension ?? '') }}">
+                                    placeholder="Dimension"
+                                    value="{{ old('dimension', @$product->dimension ?? '') }}">
                                 <label for="dimension">Dimension</label>
                             </div>
                         </div>

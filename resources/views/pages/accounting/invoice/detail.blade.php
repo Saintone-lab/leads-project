@@ -469,6 +469,22 @@
                                             {{ number_format($amount2, 0, '', '.') }}</p>
                                     </td>
                                 </tr>
+                                @if ($totalPph > 0)
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
+                                        <td colspan="3" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
+                                            <p class="m-0">PPH</p>
+                                        </td>
+                                        <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                            <p class="m-0 text-end">
+                                                {{ $totalPph == '0' ? '0' : 'RP ' . number_format($totalPph, 0, '', '.') }}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                @endif
+                                @php
+                                    $totalwithpph = $payments[1]->amount - $totalPph;
+                                @endphp
                                 @if ($quote->tax != 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
@@ -487,7 +503,7 @@
                                         <td class="pr-4 py-0"
                                             style="background-color: {{ $bgColor }}; padding-right:20px;">
                                             <p class="m-0 text-end fw-bold">
-                                                RP {{ number_format($payments[1]->amount, 0, '', '.') }}
+                                                RP {{ number_format($totalwithpph, 0, '', '.') }}
                                             </p>
                                         </td>
                                     </tr>
@@ -500,7 +516,7 @@
                                         <td class="pr-4 py-0"
                                             style="background-color: {{ $bgColor }}; padding-right:20px;">
                                             <p class="m-0 text-end fw-bold">
-                                                Rp {{ number_format($payments[1]->amount, 0, '', '.') }}
+                                                Rp {{ number_format($totalwithpph, 0, '', '.') }}
                                             </p>
                                         </td>
                                     </tr>

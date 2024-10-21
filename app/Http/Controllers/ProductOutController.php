@@ -34,7 +34,7 @@ class ProductOutController extends Controller
      */
     public function create()
     {
-        $product = SerialProduct::all();
+        $product = SerialProduct::join('product', 'serial_product.id_product', '=', 'product.id')->get('serial_product.*');
         return view('pages.warehouse.product-out.form', compact('product'));
     }
 

@@ -16,8 +16,9 @@ return new class extends Migration
         Schema::create('unit', function (Blueprint $table) {
             $table->id();
             $table->string("sku");
-            $table->enum("rental", ['0','1']);
-            $table->enum("second", ['0','1']);
+            // $table->enum("rental", ['0','1']);
+            // $table->enum("second", ['0','1']);
+            // $table->enum("new", ['0','1']);
             $table->integer('first_stock');
             $table->integer('warehouse_stock');
             $table->integer('stock');

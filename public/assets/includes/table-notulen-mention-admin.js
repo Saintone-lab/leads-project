@@ -428,7 +428,7 @@ $(function () {
             }
         );
         $("div.hl-2.head-invoice").html(
-            '<h5 class="card-title mb-0">Table Manual Book</h5>'
+            '<h5 class="card-title mb-0">Table Notulen</h5>'
         );
     }
     dt_table_noutlen_mention_admin.on("draw", function () {

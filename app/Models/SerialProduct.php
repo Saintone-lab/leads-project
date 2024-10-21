@@ -19,6 +19,9 @@ class SerialProduct extends Model
         'image',
         'detail',
         'price',
+        'rental',
+        'second',
+        'new',
     ];
     public function product()
     {

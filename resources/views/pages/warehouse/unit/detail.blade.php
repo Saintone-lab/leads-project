@@ -114,13 +114,7 @@
                                         Unit
                                     </div>
                                     <div class="col-9">
-                                        @if ($product->rental == '1' && $product->second == '1')
-                                            : {{ $product->rental == '1' ? 'Rental' : '' }} &
-                                            {{ $product->second == '1' ? 'Second Unit' : '' }}
-                                        @else
-                                            :
-                                            {{ $product->rental == '1' ? 'Rental' : '' }}{{ $product->second == '1' ? 'Second Unit' : '' }}
-                                        @endif
+                                        : {{ $product->unit }}
                                     </div>
                                 </div>
                                 <div class="row mb-1">
@@ -160,7 +154,7 @@
                                         Weight
                                     </div>
                                     <div class="col-9">
-                                        : {{ $product->weight }}
+                                        : {{ $product->weight }} Kg
                                     </div>
                                 </div>
                             </div>
@@ -260,6 +254,7 @@
                                     <th>Image</th>
                                     <th>Brand</th>
                                     <th>PN</th>
+                                    <th>unit</th>
                                     <th>Price</th>
                                     <th></th>
                                 </tr>
@@ -334,10 +329,15 @@
     @include('components.modal.warehouse.unit.stock')
     @include('components.modal.warehouse.replacement.form')
     @include('components.modal.warehouse.equivalent.form-unit')
+    @php
+        $no = 0;
+    @endphp
     @foreach ($serials as $serial)
         @include('components.modal.warehouse.equivalent.form-unit')
+        @php
+            $no++;
+        @endphp
     @endforeach
-    @include('components.modal.warehouse.equivalent.form-unit')
     @foreach ($details as $detail)
         @include('components.modal.warehouse.replacement.form-price')
     @endforeach
@@ -354,6 +354,7 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/bootstrap-select/bootstrap-select.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
 @endpush
 @push('after-script')
@@ -364,21 +365,19 @@
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/tagify/tagify.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/bloodhound/bloodhound.js"></script>
 @endpush
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-equivalent.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-equivalent-unit.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-in-detail.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-out-detail.js"></script>
     <script src="{{ asset('assets') }}/includes/table-quotation-product.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush
-@push('script')
-    <script></script>
-@endpush
-
 @push('script')
     <script>
         $(document).on('click', '.delete-product', function() {

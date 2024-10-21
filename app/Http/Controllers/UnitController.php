@@ -90,17 +90,21 @@ class UnitController extends Controller
         $unit->dimension = $request->dimension;
         $unit->weight = $request->weight;
         $unit->note = $request->note;
+        $unit->unit = $request->unit;
         $unit->stock = 0;
         $unit->first_stock = 0;
         $unit->warehouse_stock = 0;
-        foreach ($request->unit as $key => $value) {
-            if ($value == 'rental') {
-                $unit->rental = '1';
-            }
-            if ($value == 'second') {
-                $unit->second = '1';
-            }
-        }
+        // foreach ($request->unit as $key => $value) {
+        //     if ($value == 'rental') {
+        //         $unit->rental = '1';
+        //     }
+        //     if ($value == 'second') {
+        //         $unit->second = '1';
+        //     }
+        //     if ($value == 'new') {
+        //         $unit->new = '1';
+        //     }
+        // }
         $unitSave = $unit->save();
         if ($unitSave) {
             return redirect('/unit/' . $unit->id)->with('message', 'data telah di tambahkan');
@@ -183,17 +187,7 @@ class UnitController extends Controller
         $unit->dimension = $request->dimension;
         $unit->weight = $request->weight;
         $unit->note = $request->note;
-        $unit->rental = '0';
-        $unit->second = '0';
-        foreach ($request->unit as $key => $value) {
-
-            if ($value == 'rental') {
-                $unit->rental = '1';
-            }
-            if ($value == 'second') {
-                $unit->second = '1';
-            }
-        }
+        $unit->unit = $request->unit;
         $unitSave = $unit->save();
         if ($unitSave) {
             return redirect('/unit/' . $unit->id)->with('message', 'data telah di tambahkan');
@@ -277,5 +271,10 @@ class UnitController extends Controller
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         return view("pages.sales.quotation.unit.detail", compact('quote', 'status', 'comment', 'leveledProspect', 'noSaleProspect', 'lastQuote', 'primQuote', 'quotations', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
+    }
+
+    public function corfac(){
+        return view('pages.warehouse.unit.cor-factor');
+
     }
 }

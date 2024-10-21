@@ -316,10 +316,27 @@ class ProductController extends Controller
         $equiv->fxp_parts = "-";
         $equiv->pn = $request->pn;
         $equiv->detail = $request->detail;
+        if ($request->detail != NULL) {
+            foreach ($request->unit as $key => $value) {
+                if ($value == 'rental') {
+                    $equiv->rental = '1';
+                }
+                if ($value == 'second') {
+                    $equiv->second = '1';
+                }
+                if ($value == 'new') {
+                    $equiv->new = '1';
+                }
+            }
+        }else{
+            $equiv->rental = '0';
+            $equiv->second = '0';
+            $equiv->new = '0';
+        }
         $equiv->price = $request->price;
         $equiv->image = $request->image;
         $equivSave = $equiv->save();
-        
+
         $previousUrl = url()->previous();
         if ($equivSave) {
             return redirect($previousUrl)->with('success', 'Data berhasil disimpan!');
@@ -357,6 +374,22 @@ class ProductController extends Controller
         $equiv->pn = $request->pn;
         $equiv->price = $request->price;
         $equiv->image = $request->image;
+        $equiv->rental = '0';
+        $equiv->second = '0';
+        $equiv->new = '0';
+        if ($request->detail != NULL) {
+            foreach ($request->unit as $key => $value) {
+                if ($value == 'rental') {
+                    $equiv->rental = '1';
+                }
+                if ($value == 'second') {
+                    $equiv->second = '1';
+                }
+                if ($value == 'new') {
+                    $equiv->new = '1';
+                }
+            }
+        }
         $equivSave = $equiv->save();
 
         $previousUrl = url()->previous();
@@ -405,5 +438,5 @@ class ProductController extends Controller
             ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
         return view('pages.warehouse.unit.detail', compact('product', 'comment', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
     }
-    
+
 }

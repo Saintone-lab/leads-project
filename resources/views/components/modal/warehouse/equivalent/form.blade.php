@@ -61,7 +61,7 @@
                         </div>
                     </div>
                     <input type="text" id="detail" class="form-control" name="detail"
-                        placeholder="xxxx@xxx.xx" value="{{ old('detail', @$serial->detail ?? '-') }}" hidden>
+                        placeholder="xxxx@xxx.xx" value="{{ old('detail', @$serial->detail ?? '') }}" hidden>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-label-secondary waves-effect"
                             data-bs-dismiss="modal">Close</button>

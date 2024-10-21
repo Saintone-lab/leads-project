@@ -182,6 +182,7 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk unit
     Route::resource('/unit', UnitController::class);
+    Route::get('/cor-factor/calculator', [UnitController::class, 'corfac'])->name('calculator.correction');
 
     // Route untuk Product In
     Route::resource('/product-in', ProductInController::class);
