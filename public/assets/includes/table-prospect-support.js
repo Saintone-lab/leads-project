@@ -31,6 +31,7 @@ $(function () {
                 { data: "date" },
                 { data: "nett" },
                 { data: "status" },
+                { data: "provide" },
                 { data: "image" },
             ],
             columnDefs: [
@@ -166,20 +167,43 @@ $(function () {
                     },
                 },
                 {
-                    // Label Status Name
                     targets: 9,
+                    render: function (data, type, full, meta) {
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else if (data === "1") {
+                            return "Provided";
+                        } else if (data === "0") {
+                            return "No Provide";
+                        }
+                    },
+                },
+                {
+                    // Label Status Name
+                    targets: 10,
                     render: function (data, type, full, meta) {
                         var name = full["name"];
                         const domain = window.location.origin;
-                        
+
                         if (data === null || data === undefined) {
-                            return "-";
+                            return (
+                                '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-dark" title="No Sales">' +
+                                '<img src="' +
+                                domain +
+                                "/asset/profile/profile.jpg" +
+                                '" class="w-px-40 h-auto rounded-circle" alt="Profile Image">' +
+                                "</span>"
+                            );
                         } else {
                             return (
                                 '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-dark" title="' +
                                 name +
                                 '">' +
-                                '<img src="'+ domain +'/' + data + '" class="w-px-40 h-auto rounded-circle" alt="Profile Image">' +
+                                '<img src="' +
+                                domain +
+                                "/" +
+                                data +
+                                '" class="w-px-40 h-auto rounded-circle" alt="Profile Image">' +
                                 "</span>"
                             );
                         }

@@ -41,7 +41,7 @@ class DashboardController extends Controller
                 ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
                 ->join('users as u', 'u.id', '=', 'o.id_user')
                 ->where('quotation.id_sales', Auth::id())
-                ->where('o.level', '1')
+                // ->where('o.level', '1')
                 ->orderBy('o.date', 'DESC')
                 ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
             return view(

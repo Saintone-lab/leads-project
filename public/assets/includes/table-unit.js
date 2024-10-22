@@ -29,6 +29,7 @@ $(function () {
                 { data: "sku" },
                 { data: "brand" },
                 { data: "pn" },
+                { data: "sn" },
                 { data: "power" },
                 { data: "bar" },
                 { data: "air_cap" },
@@ -88,7 +89,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 9,
+                    targets: 10,
                     render: function (data, type, full, meta) {
                         var $title = full["status"];
                         var $status = {
@@ -122,11 +123,11 @@ $(function () {
                     },
                 },
                 {
-                    targets: 10,
+                    targets: 11,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
                 {
-                    targets: [4, 5, 10],
+                    targets: [4, 5, 11],
                     render: function (data, type, row) {
                         if (data === null || data === undefined) {
                             return "-";

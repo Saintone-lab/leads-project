@@ -94,7 +94,7 @@ $(function () {
                             status.push('New Unit');
                         }
                 
-                        var statusText = status.length === 0 ? 'not ready' : status.join(' & ');
+                        var statusText = status.length === 0 ? '-' : status.join(' & ');
                 
                         return statusText;
                     },
@@ -104,7 +104,7 @@ $(function () {
                     className: "control",
                     orderable: false,
                     searchable: false,
-                    responsivePriority: 2,
+                    responsivePriority: 5,
                     targets: 0,
                     render: function (data, type, full, meta) {
                         return "";

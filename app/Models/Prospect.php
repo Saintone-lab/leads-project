@@ -21,6 +21,7 @@ class Prospect extends Model
         'id_quotation',
         'id_pic',
         'kebutuhan',
+        'provide',
         'level'
     ];
 

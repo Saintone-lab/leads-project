@@ -244,12 +244,19 @@ class ProspectController extends Controller
 
     public function add_sales(Request $request, $id)
     {
+        // dd($request->all());
         $prospect = Prospect::find($id);
         $pic = Pic::find($prospect->id_pic);
         $client = Client::find($pic->id_client);
-        $prospect->id_sales = $request->sales;
+        if($request->provideCheck == 1 ) {
+            $prospect->provide = '1';
+            $prospect->id_sales = $request->sales;
+            $client->id_sales = $request->sales;
+        }else{
+            $prospect->provide = '0';
+            $prospect->id_sales = NULL;
+        }
         $prospectSave = $prospect->save();
-        $client->id_sales = $request->sales;
         $client->save();
         if ($prospectSave) {
             return redirect('prospect')->with('message', 'data telah ditambahkan');

@@ -21,6 +21,7 @@ $(function () {
                 { data: "unit" },
                 { data: "brand" },
                 { data: "pn" },
+                { data: "sn" },
                 { data: "power" },
                 { data: "bar" },
                 { data: "air_cap" },
@@ -67,7 +68,7 @@ $(function () {
                             status.push('New Unit');
                         }
                 
-                        var statusText = status.length === 0 ? 'not ready' : status.join(' & ');
+                        var statusText = status.length === 0 ? '-' : status.join(' & ');
                 
                         return statusText;
                     },
@@ -118,7 +119,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 11,
+                    targets: 12,
                     render: function (data, type, full, meta) {
                         var $title = full["status"];
                         var $status = {
@@ -152,7 +153,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 12,
+                    targets: 13,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
             ],

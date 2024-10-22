@@ -1045,7 +1045,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('client', 'client.id', '=', 'pic.id_client')
             ->leftJoin('users', 'users.id', '=', 'prospect.id_sales')
             ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
-            ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.date', 'client.company', 'users.name', 'users.image', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
+            ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.provide', 'prospect.date', 'client.company', 'users.name', 'users.image', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);
     });
     Route::get('/db/prospect/sales', function () {
@@ -1065,7 +1065,7 @@ Route::group(["middleware" => "auth"], function () {
             ->leftJoin('users as sale', 'sale.id', '=', 'prospect.id_sales')
             ->leftJoin('users as supp', 'supp.id', '=', 'prospect.id_support')
             ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
-            ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.date', 'client.company', 'supp.name as support', 'sale.name as sales', 'pic.name_pic', 'sale.image', 'quotation.status', 'quotation.nett']);
+            ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.provide', 'prospect.date', 'client.company', 'supp.name as support', 'sale.name as sales', 'pic.name_pic', 'sale.image', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);
     });
 

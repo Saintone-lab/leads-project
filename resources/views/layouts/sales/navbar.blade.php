@@ -45,7 +45,7 @@
                         <ul class="list-group list-group-flush">
                             @if (@$comment)
                                 @foreach ($comment as $item)
-                                    <a href="{{ route('quotation.show', $item->idQ) }}#viewComment" class="view-quote"
+                                    <a href="{{ route('quotation.show', $item->idQ) }}#viewComment" class="view-quote bg-label-secondary"
                                         data-id="{{ $item->idC }}" data-quotation="{{ $item->idQ }}">
                                         <li
                                             class="list-group-item list-group-item-action dropdown-notifications-item view-quote">

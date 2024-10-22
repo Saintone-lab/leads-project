@@ -164,7 +164,40 @@
                         enctype="multipart/form-data">
                         @csrf
                         <div class="card-body">
-                            <div class="form-floating form-floating-outline">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md">
+                                    <div
+                                        class="form-check custom-option custom-option-icon  {{ @$prospect->provide == '1' ? 'checked disabled' : '' }} h-100">
+                                        <label class="form-check-label custom-option-content" for="provideCheck1">
+                                            <span class="custom-option-body">
+                                                <i class="mdi mdi-file-check-outline"></i>
+                                                <span class="custom-option-title"> Provided </span>
+                                                <small> Prospect is Provided. </small>
+                                            </span>
+                                            <input name="provideCheck" class="form-check-input check-provide" type="radio"
+                                                value="1" id="provideCheck1"
+                                                {{ @$prospect->provide == '1' ? 'checked disabled' : '' }}>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md">
+                                    <div
+                                        class="form-check custom-option custom-option-icon  {{ @$prospect->provide == '0' ? 'checked' : '' }} h-100">
+                                        <label class="form-check-label custom-option-content" for="provideCheck2">
+                                            <span class="custom-option-body">
+                                                <i class="mdi mdi-file-alert-outline"></i>
+                                                <span class="custom-option-title"> No Provided </span>
+                                                <small> Prospect is No Provided. </small>
+                                            </span>
+                                            <input name="provideCheck" class="form-check-input check-no-provide" type="radio"
+                                                value="0" id="provideCheck2"
+                                                {{ @$prospect->provide == '0' ? 'checked' : '' }}{{ @$prospect->provide == '1' ? ' disabled' : '' }}>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-floating form-floating-outline form-sales"
+                                {{ @$prospect->provide == '1' ? 'disabled' : 'hidden' }}>
                                 <select class="form-select" id="selectSales" aria-label="Default select example"
                                     name="sales" {{ @$prospect->id_sales ? 'disabled' : '' }}>
                                     <option disabled="">----- Choose Sales -----</option>
@@ -175,7 +208,7 @@
                                 <label for="selectSales">Sales</label>
                             </div>
                         </div>
-                        <div class="card-footer float-end">
+                        <div class="card-footer float-end" {{ @$prospect->provide == '1' ? 'hidden' : '' }}>
                             <button type="submit" class="btn btn-primary waves-effect waves-light">Submit</button>
                         </div>
                     </form>
@@ -206,6 +239,7 @@
 @endpush
 @push('page-script')
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
+    <script src="{{ asset('assets') }}/js/form-layouts.js"></script>
 @endpush
 @push('script')
     <script>
@@ -264,6 +298,24 @@
                     });
                 }
             });
+        });
+        $(document).on('change', '.check-provide', function() {
+            if ($(this).is(':checked')) {
+                $('.form-sales').removeAttr('hidden');
+                // $('.card-footer').removeAttr('hidden');
+            } else {
+                $('.form-sales').attr('hidden', 'hidden');
+                // $('.card-footer').attr('hidden', 'hidden');
+            }
+        });
+        $(document).on('change', '.check-no-provide', function() {
+            if ($(this).is(':checked')) {
+                $('.form-sales').attr('hidden', true);
+                // $('.card-footer').attr('hidden', true);
+            } else {
+                $('.form-sales').removeAttr('hidden');
+                // $('.card-footer').removeAttr('hidden');
+            }
         });
     </script>
 @endpush

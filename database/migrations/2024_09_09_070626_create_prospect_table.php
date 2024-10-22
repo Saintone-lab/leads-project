@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignId('id_pic');
             $table->longText('kebutuhan');
             $table->date('date');
+            $table->enum('provide', ['0','1'])->nullable();
             $table->enum('level', ['0','1'])->nullable();
             $table->timestamps();
         });

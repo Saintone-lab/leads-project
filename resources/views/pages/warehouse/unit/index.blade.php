@@ -82,6 +82,7 @@
                             <th>SKU</th>
                             <th>Brand</th>
                             <th>Type</th>
+                            <th>Sn</th>
                             <th>Power</th>
                             <th>Bar</th>
                             <th>Capacity</th>
@@ -101,6 +102,7 @@
                             <th>Info</th>
                             <th>Unit</th>
                             <th>Brand</th>
+                            <th>Type</th>
                             <th>SN</th>
                             <th>Power</th>
                             <th>Bar</th>

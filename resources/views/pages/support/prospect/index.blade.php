@@ -102,6 +102,7 @@
                             <th>Date </th>
                             <th>Value </th>
                             <th>Status</th>
+                            <th>Info</th>
                             <th>Sales</th>
                         </tr>
                     </thead>

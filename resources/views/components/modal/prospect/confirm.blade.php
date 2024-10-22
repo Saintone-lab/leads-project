@@ -166,8 +166,6 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-label-secondary waves-effect" id="withoutQuote"
-                        data-id="{{ $prospect->id }}">Without Quote</button>
                     <button type="button" class="btn btn-primary waves-effect waves-light" id="withQuote"
                 data-id="{{ $prospect->id }}">With Quote</button>
                 </div>
