@@ -42,4 +42,8 @@ class Prospect extends Model
     {
         return $this->belongsTo('App\Models\Pic', 'id_pic', 'id');
     }
+    public function Comment()
+    {
+        return $this->hasMany('App\Models\Comment', 'id_prospect');
+    }
 }

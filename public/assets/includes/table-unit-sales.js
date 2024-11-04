@@ -11,12 +11,20 @@ $(function () {
                 headers: {
                     "Content-Type": "application/json",
                 },
+                // success: function (hasil, Url) {
+                //     console.log("Url:", Url);
+                //     console.log(hasil);
+                // },
+                // error: function (error) {
+                //     console.log("Url:", Url);
+                //     console.error("Error:", error);
+                //     console.log("error disini");
+                // },
             },
             columns: [
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "image" },
                 { data: "new" },
                 { data: "unit" },
                 { data: "brand" },
@@ -26,21 +34,22 @@ $(function () {
                 { data: "bar" },
                 { data: "air_cap" },
                 { data: "status" },
-                { data: "price" },
+                { data: "price", className: "text-end" },
             ],
             columnDefs: [
                 {
-                    targets: 3,
+                    targets: 6,
                     render: function (data, type, full, row) {
+                        var photo = full['image'];
                         if (type === "display") {
                             if (data === null || data === "") {
                                 return "-";
                             }
                             return (
                                 '<a class="text-dark badge bg-label-primary" target="_blank" href="' +
-                                data +
+                                photo +
                                 '">' +
-                                "Photo" +
+                                data +
                                 "</a>"
                             );
                         }
@@ -48,7 +57,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 4,
+                    targets: 3,
                     render: function (data, type, full, row) {
                         var newu = full['new'];
                         var second = full['second'];
@@ -119,7 +128,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 12,
+                    targets: 11,
                     render: function (data, type, full, meta) {
                         var $title = full["status"];
                         var $status = {
@@ -153,7 +162,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 13,
+                    targets: 12,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
             ],

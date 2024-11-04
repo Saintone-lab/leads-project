@@ -36,7 +36,7 @@
 
             <!-- Layout Page -->
             <div class="layout-page">
-                
+
                 <!--  Navbar  -->
                 @include('layouts.sales.navbar')
                 <!--  END: Navbar  -->
@@ -70,35 +70,83 @@
 
     {{-- Main JS --}}
     <script src="{{ asset('assets') }}/js/main.js"></script>
-    
-    @if (Auth::user()->role == 'Sales')
-        <script>
-            $(document).on('click', '.view-quote', function(e) {
-                e.preventDefault(); // Mencegah perubahan halaman segera
 
-                var id = $(this).data('id');
-                var idQ = $(this).data('quotation');
-                var href = $(this).attr('href'); // Ambil URL tujuan
+    <script>
+        $(document).on('click', '.view-quote', function(e) {
+            e.preventDefault(); // Mencegah perubahan halaman segera
 
-                $.ajax({
-                    url: '{{ url('quotation') }}/' + id + '/view_comment',
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}', // Token CSRF
-                    },
-                    success: function(response) {
-                        console.log(response); // Lakukan apa yang perlu dilakukan setelah AJAX sukses
+            var id = $(this).data('id');
+            var idQ = $(this).data('quotation');
+            var href = $(this).attr('href'); // Ambil URL tujuan
 
-                        // Arahkan ke halaman baru setelah AJAX selesai
-                        window.location.href = href;
-                    },
-                    error: function(xhr) {
-                        console.error("Error:", xhr.responseText); // Tangani error jika ada
-                    }
-                });
+            $.ajax({
+                url: '{{ url('quotation') }}/' + id + '/view_comment',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}', // Token CSRF
+                },
+                success: function(response) {
+                    console.log(response); // Lakukan apa yang perlu dilakukan setelah AJAX sukses
+
+                    // Arahkan ke halaman baru setelah AJAX selesai
+                    window.location.href = href;
+                },
+                error: function(xhr) {
+                    console.error("Error:", xhr.responseText); // Tangani error jika ada
+                }
             });
-        </script>
-    @endif
+        });
+        $(document).on('click', '.view-quotation', function(e) {
+            e.preventDefault(); // Mencegah perubahan halaman segera
+
+            var id = $(this).data('id');
+            var idQ = $(this).data('quotation');
+            var href = $(this).attr('href'); // Ambil URL tujuan
+
+            console.log(id);
+            
+            $.ajax({
+                url: '{{ url('quotation') }}/' + id + '/view_comment',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}', // Token CSRF
+                },
+                success: function(response) {
+                    console.log(response); // Lakukan apa yang perlu dilakukan setelah AJAX sukses
+
+                    // Arahkan ke halaman baru setelah AJAX selesai
+                    window.location.href = href;
+                },
+                error: function(xhr) {
+                    console.error("Error:", xhr.responseText); // Tangani error jika ada
+                }
+            });
+        });
+        $(document).on('click', '.view-prospect', function(e) {
+            e.preventDefault(); // Mencegah perubahan halaman segera
+
+            var id = $(this).data('id');
+            var idQ = $(this).data('quotation');
+            var href = $(this).attr('href'); // Ambil URL tujuan    
+
+            $.ajax({
+                url: '{{ url('prospect') }}/' + id + '/view_comment',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}', // Token CSRF
+                },
+                success: function(response) {
+                    console.log(response); // Lakukan apa yang perlu dilakukan setelah AJAX sukses
+
+                    // Arahkan ke halaman baru setelah AJAX selesai
+                    window.location.href = href;
+                },
+                error: function(xhr) {
+                    console.error("Error:", xhr.responseText); // Tangani error jika ada
+                }
+            });
+        });
+    </script>
 
     @stack('page-script')
 

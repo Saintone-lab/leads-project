@@ -163,15 +163,45 @@ $(function () {
                         }
                     },
                 },
+                // {
+                //     targets: 9,
+                //     render: function (data, type, full, meta) {
+                //         if (data === null || data === undefined) {
+                //             return "-";
+                //         }else if(data === '1') {
+                //             return "Provided"
+                //         }else if(data === '0') {
+                //             return "No Provide"
+                //         }
+                //     },
+                // },
                 {
                     targets: 9,
                     render: function (data, type, full, meta) {
-                        if (data === null || data === undefined) {
+                        var $provide_number = full["provide"];
+                        var $provide = {
+                            '1': {
+                                title: "Provided",
+                                class: "bg-label-success",
+                            },
+                            '0': {
+                                title: "No Provide",
+                                class: " bg-label-danger",
+                            },
+                        };
+                        if (
+                            $provide[$provide_number] === null ||
+                            $provide[$provide_number] === undefined
+                        ) {
                             return "-";
-                        }else if(data === '1') {
-                            return "Provided"
-                        }else if(data === '0') {
-                            return "No Provide"
+                        } else {
+                            return (
+                                '<span class="badge rounded-pill ' +
+                                $provide[$provide_number].class +
+                                '">' +
+                                $provide[$provide_number].title +
+                                "</span>"
+                            );
                         }
                     },
                 },
@@ -179,7 +209,7 @@ $(function () {
                     // Label Status Name
                     targets: 10,
                     render: function (data, type, full, meta) {
-                        var name = full["name"];
+                        var name = full["sales"];
                         const domain = window.location.origin;
 
                         if (data === null || data === undefined) {

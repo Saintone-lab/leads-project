@@ -14,7 +14,7 @@
         @endphp
         @foreach ($getDC as $DC)
         @php
-            $dateRep = "0".$item."-".$report->year
+            $dateRep = $item."-".$report->year
 
         @endphp
             <div class="col-lg-6 mb-3">

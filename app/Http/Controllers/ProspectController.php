@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\ChangeStatus;
 use App\Models\Client;
+use App\Models\Comment;
 use App\Models\DetailQuotation;
+use App\Models\MentionComment;
 use App\Models\Pic;
 use App\Models\Product;
 use App\Models\Prospect;
@@ -37,14 +39,72 @@ class ProspectController extends Controller
         $prospects = Prospect::where('id_sales', Auth::id())->whereNull('level')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
-        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
-            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+
+        // Comment Buat Admin
+        $firstComments = Comment::where('id_user', Auth::id())
+            ->groupBy('id_status')
+            ->get();
+
+        $statusIds = $firstComments->pluck('id_status')->toArray();
+        $dates = $firstComments->pluck('created_at', 'id_status');
+
+        $commentsQuery = Comment::join('change_status as c', 'c.id', '=', 'comment.id_status')
+            ->join('quotation as q', 'q.id', '=', 'c.id_quotation')
+            ->join('users as u', 'u.id', '=', 'comment.id_user')
+            ->whereIn('comment.id_status', $statusIds)
+            ->where(function ($query) use ($dates) {
+                foreach ($dates as $statusId => $createdAt) {
+                    $query->orWhere(function ($subQuery) use ($statusId, $createdAt) {
+                        $subQuery->where('comment.id_status', $statusId)
+                            ->whereRaw('TIMESTAMPDIFF(SECOND, ?, comment.created_at) > 0', [$createdAt]);
+                    });
+                }
+            })
+            ->where('comment.id_user', '!=', Auth::id());
+
+        // Ambil semua komentar yang relevan
+        $commentAdmin = $commentsQuery->orderBy('comment.id_status')
+            ->orderByDesc('comment.created_at')
+            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+        // Filter untuk komentar dengan level '1'
+        $unreadCommentAdmin = $commentsQuery->where('comment.level', '1')
+            ->orderBy('comment.id_status')
+            ->orderByDesc('comment.created_at')
+            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+        // End Comment Admin
+        $quotationComment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', 'o.id_status', '=', 'c.id')
             ->join('users as u', 'u.id', '=', 'o.id_user')
             ->where('quotation.id_sales', Auth::id())
-            ->where('o.level', '1')
+            ->where('o.type', 'quotation')  // Pastikan filter type di sini
+            ->where('o.id_user', '!=', Auth::id())
             ->orderBy('o.date', 'DESC')
-            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
-        return view('pages.support.prospect.index', compact('prospects', 'comment', 'quotation', 'leveledProspect', 'noSaleProspect', 'quotationAdmin', 'forecast', 'prospect', 'po', 'loss', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
+            ->select(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.level', 'o.comment', 'o.date', 'o.type', 'quotation.no_quote', 'u.name', 'u.image']);
+
+        // Query untuk mengambil data dengan type "prospect"
+        $prospectComment = Comment::join('prospect as p', 'comment.id_prospect', '=', 'p.id')
+            ->join('users as u', 'u.id', '=', 'comment.id_user')
+            ->join('pic as pi', 'pi.id', '=', 'p.id_pic')
+            ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->where('p.id_sales', Auth::id())
+            ->where('comment.type', 'prospect')  // Pastikan filter type di sini
+            ->where('comment.id_user', '!=', Auth::id())
+            ->orderBy('comment.date', 'DESC')
+            ->select(['p.id as idP', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'comment.type', 'c.company', 'u.name', 'u.image']);
+
+        // Menggabungkan kedua query menggunakan union
+        $comment = $quotationComment->union($prospectComment)
+            ->orderBy('date', 'DESC')
+            ->take(5)
+            ->get();
+        $unreadComment = $quotationComment->union($prospectComment)
+            ->orderBy('date', 'DESC')
+            ->where('o.level', '1')
+            ->take(5)
+            ->get();
+        return view('pages.support.prospect.index', compact('prospects', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'quotation', 'leveledProspect', 'noSaleProspect', 'quotationAdmin', 'forecast', 'prospect', 'po', 'loss', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
 
     }
 
@@ -176,19 +236,82 @@ class ProspectController extends Controller
     public function show($id)
     {
         $prospect = Prospect::find($id);
+        $quotation = Quotation::find($prospect->id_quotation);
         $pic = Pic::where('id', $prospect->id_pic)->first();
         $client = Client::where('id', $pic->id_client)->first();
         $sales = User::where('role', 'Sales')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
-        $comment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
-            ->join('comment as o', first: 'o.id_status', operator: '=', second: 'c.id')
+        $prospectComment = Comment::where('id_prospect', $id)->where('type', 'prospect')->with('mention')->get();
+        $user = User::whereNot('id', Auth::user()->id)->get();
+        // dd($prospectComment);
+
+
+        // Comment Buat Admin
+        $firstComments = Comment::where('id_user', Auth::id())
+            ->groupBy('id_status')
+            ->get();
+
+        $statusIds = $firstComments->pluck('id_status')->toArray();
+        $dates = $firstComments->pluck('created_at', 'id_status');
+
+        $commentsQuery = Comment::join('change_status as c', 'c.id', '=', 'comment.id_status')
+            ->join('quotation as q', 'q.id', '=', 'c.id_quotation')
+            ->join('users as u', 'u.id', '=', 'comment.id_user')
+            ->whereIn('comment.id_status', $statusIds)
+            ->where(function ($query) use ($dates) {
+                foreach ($dates as $statusId => $createdAt) {
+                    $query->orWhere(function ($subQuery) use ($statusId, $createdAt) {
+                        $subQuery->where('comment.id_status', $statusId)
+                            ->whereRaw('TIMESTAMPDIFF(SECOND, ?, comment.created_at) > 0', [$createdAt]);
+                    });
+                }
+            })
+            ->where('comment.id_user', '!=', Auth::id());
+
+        // Ambil semua komentar yang relevan
+        $commentAdmin = $commentsQuery->orderBy('comment.id_status')
+            ->orderByDesc('comment.created_at')
+            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+        // Filter untuk komentar dengan level '1'
+        $unreadCommentAdmin = $commentsQuery->where('comment.level', '1')
+            ->orderBy('comment.id_status')
+            ->orderByDesc('comment.created_at')
+            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+        // End Comment Admin
+        $quotationComment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', 'o.id_status', '=', 'c.id')
             ->join('users as u', 'u.id', '=', 'o.id_user')
             ->where('quotation.id_sales', Auth::id())
-            ->where('o.level', '1')
+            ->where('o.type', 'quotation')  // Pastikan filter type di sini
+            ->where('o.id_user', '!=', Auth::id())
             ->orderBy('o.date', 'DESC')
-            ->get(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.comment', 'o.date', 'quotation.no_quote', 'u.name', 'u.image']);
-        return view('pages.support.prospect.detail', compact('prospect', 'comment', 'leveledProspect', 'noSaleProspect', 'pic', 'client', 'sales'));
+            ->select(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.level', 'o.comment', 'o.date', 'o.type', 'quotation.no_quote', 'u.name', 'u.image']);
+
+        // Query untuk mengambil data dengan type "prospect"
+        $prospectComment = Comment::join('prospect as p', 'comment.id_prospect', '=', 'p.id')
+            ->join('users as u', 'u.id', '=', 'comment.id_user')
+            ->join('pic as pi', 'pi.id', '=', 'p.id_pic')
+            ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->where('p.id_sales', Auth::id())
+            ->where('comment.type', 'prospect')  // Pastikan filter type di sini
+            ->where('comment.id_user', '!=', Auth::id())
+            ->orderBy('comment.date', 'DESC')
+            ->select(['p.id as idP', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'comment.type', 'c.company', 'u.name', 'u.image']);
+
+        // Menggabungkan kedua query menggunakan union
+        $comment = $quotationComment->union($prospectComment)
+            ->orderBy('date', 'DESC')
+            ->take(5)
+            ->get();
+        $unreadComment = $quotationComment->union($prospectComment)
+            ->orderBy('date', 'DESC')
+            ->where('o.level', '1')
+            ->take(5)
+            ->get();
+        return view('pages.support.prospect.detail', compact('prospect', 'comment', 'prospectComment', 'unreadComment', 'commentAdmin', 'quotation', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'pic', 'client', 'sales', 'user'));
     }
 
     /**
@@ -248,11 +371,11 @@ class ProspectController extends Controller
         $prospect = Prospect::find($id);
         $pic = Pic::find($prospect->id_pic);
         $client = Client::find($pic->id_client);
-        if($request->provideCheck == 1 ) {
+        if ($request->provideCheck == 1) {
             $prospect->provide = '1';
             $prospect->id_sales = $request->sales;
             $client->id_sales = $request->sales;
-        }else{
+        } else {
             $prospect->provide = '0';
             $prospect->id_sales = NULL;
         }
@@ -402,6 +525,48 @@ class ProspectController extends Controller
         $prospectSave = $prospect->save();
         if ($prospectSave) {
             return redirect('/quotation/' . $quotation->id)->with('message', 'data telah di tambahkan');
+        }
+    }
+
+    public function add_comment(Request $request, $id)
+    {
+        // dd($request->all());
+        $comment = new Comment;
+        $comment->id_status = NULL;
+        $comment->id_prospect = $id;
+        $comment->id_user = Auth::user()->id;
+        $comment->date = Carbon::now();
+        $comment->comment = $request->comment;
+        $comment->level = '1';
+        $comment->type = 'prospect';
+        $commentSave = $comment->save();
+        if (@$request->mention) {
+            foreach ($request->mention as $key => $value) {
+                $mention = new MentionComment();
+                $mention->id_comment = $comment->id;
+                $mention->id_mention = $value;
+                $mention->level = '0';
+                // dd($mention);
+                $mention->save();
+            }
+        }
+        if ($commentSave) {
+            return redirect('/prospect/' . $id . '#viewComment')->with('massage', 'Data berhasil di buat');
+        }
+    }
+    public function view_comment($id)
+    {
+        $comment = Comment::find($id);
+
+        if ($comment) {
+            $comment->level = '2';
+            $comment->save();
+
+            // Return response JSON
+            return response()->json(['message' => 'Comment updated successfully!']);
+        } else {
+            // Return error jika tidak ditemukan
+            return response()->json(['message' => 'Comment not found'], 404);
         }
     }
 

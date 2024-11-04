@@ -73,7 +73,12 @@ $(function () {
                             var $dataId = full["id"];
                             var detailRoute = route("prospect.show", $dataId);
                             return (
-                                '<a class="text-dark" data-bs-toggle="modal" data-bs-target="#confirmProspect'+ $dataId +'">'+
+                                // '<a class="text-dark" data-bs-toggle="modal" data-bs-target="#confirmProspect'+ $dataId +'">'+
+                                // data +
+                                // "</a>"
+                                '<a class="text-dark" href="' +
+                                detailRoute +
+                                '">' +
                                 data +
                                 "</a>"
                             );

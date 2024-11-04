@@ -18,68 +18,132 @@
                 </a>
             </li>
             <!--/ Style Switcher -->
-
             <!-- Notification -->
             <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-2 me-xl-1">
                 <a class="nav-link btn btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow"
                     href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside"
                     aria-expanded="false">
                     <i class="mdi mdi-bell-outline mdi-24px"></i>
-                    @if (@$comment && $comment->count() >= 1)
-                        <span
-                            class="position-absolute top-0 start-50 translate-middle-y badge badge-dot bg-danger mt-2 border"></span>
+                    @if (Auth::user()->role == 'Admin')
+                        @if (@$unreadCommentAdmin && $unreadCommentAdmin->count() >= 1)
+                            <span
+                                class="position-absolute top-0 start-50 translate-middle-y badge badge-dot bg-danger mt-2 border"></span>
+                        @endif
+                    @else
+                        @if (@$unreadComment && $unreadComment->count() >= 1)
+                            <span
+                                class="position-absolute top-0 start-50 translate-middle-y badge badge-dot bg-danger mt-2 border"></span>
+                        @endif
                     @endif
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end py-0">
                     <li class="dropdown-menu-header border-bottom">
                         <div class="dropdown-header d-flex align-items-center py-3">
                             <h6 class="mb-0 me-auto">Notification</h6>
-                            @if (@$comment)
-                                @if ($comment->count() > 1)
-                                    <span class="badge rounded-pill bg-label-primary">{{ $comment->count() }} New</span>
+                            @if (Auth::user()->role == 'Admin')
+                                @if (@$unreadCommentAdmin)
+                                    @if ($unreadCommentAdmin->count() > 1)
+                                        <span
+                                            class="badge rounded-pill bg-label-primary">{{ $unreadCommentAdmin->count() }}
+                                            New</span>
+                                    @endif
+                                @endif
+                            @else
+                                @if (@$unreadComment)
+                                    @if ($unreadComment->count() > 1)
+                                        <span class="badge rounded-pill bg-label-primary">{{ $unreadComment->count() }}
+                                            New</span>
+                                    @endif
                                 @endif
                             @endif
                         </div>
                     </li>
                     <li class="dropdown-notifications-list scrollable-container">
                         <ul class="list-group list-group-flush">
-                            @if (@$comment)
-                                @foreach ($comment as $item)
-                                    <a href="{{ route('quotation.show', $item->idQ) }}#viewComment" class="view-quote bg-label-secondary"
-                                        data-id="{{ $item->idC }}" data-quotation="{{ $item->idQ }}">
-                                        <li
-                                            class="list-group-item list-group-item-action dropdown-notifications-item view-quote">
-                                            <div class="d-flex gap-2">
-                                                <div class="flex-shrink-0">
-                                                    <div class="avatar me-1">
-                                                        <img src="{{ url('') . '/' . $item->image }}" alt
-                                                            class="w-px-40 h-auto rounded-circle" />
+                            @if (Auth::user()->role == 'Admin')
+                                @if (@$commentAdmin)
+                                    @foreach ($commentAdmin as $item)
+                                        <a href="{{ route('quotation.show', $item->idQ) }}#viewComment"
+                                            class="view-quote {{ $item->level == 1 ? 'bg-label-secondary' : '' }}"
+                                            data-id="{{ $item->idC }}" data-quotation="{{ $item->idQ }}">
+                                            <li
+                                                class="list-group-item list-group-item-action dropdown-notifications-item view-quote">
+                                                <div class="d-flex gap-2">
+                                                    <div class="flex-shrink-0">
+                                                        <div class="avatar me-1">
+                                                            <img src="{{ url('') . '/' . $item->image }}" alt
+                                                                class="w-px-40 h-auto rounded-circle" />
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="d-flex flex-column flex-grow-1 overflow-hidden w-px-200">
+                                                        <h6 class="mb-1 text-truncate">{{ $item->no_quote }}</h6>
+                                                        <small class="text-truncate text-body">New Comment on your
+                                                            Quotations! </small>
+                                                    </div>
+                                                    @php
+                                                        $date = \Carbon\Carbon::parse($item->date);
+                                                    @endphp
+                                                    <div class="flex-shrink-0 dropdown-notifications-actions">
+                                                        <small
+                                                            class="text-muted">{{ $date->diffInHours(Carbon\Carbon::now()) > 24 ? $date->format('d M y h:i:s') : $date->diffForHumans() }}</small>
                                                     </div>
                                                 </div>
-                                                <div class="d-flex flex-column flex-grow-1 overflow-hidden w-px-200">
-                                                    <h6 class="mb-1 text-truncate">{{ $item->no_quote }}</h6>
-                                                    <small class="text-truncate text-body">New Comment on your
-                                                        Quotations! </small>
+                                            </li>
+                                        </a>
+                                    @endforeach
+                                @endif
+                            @else
+                                @if (@$comment)
+                                    @foreach ($comment as $item)
+                                        @php
+                                            if ($item->type == 'prospect') {
+                                                $route = 'prospect.show';
+                                            } else {
+                                                $route = 'quotation.show';
+                                            }
+                                        @endphp
+                                        <a href="{{ route($route, $item->idQ) }}#viewComment"
+                                            class="view-{{ $item->type == 'prospect' ? 'prospect' : 'quote' }} {{ $item->level == 1 ? 'bg-label-secondary' : '' }}"
+                                            data-id="{{ $item->idC }}" data-quotation="{{ $item->idQ }}">
+                                            <li
+                                                class="list-group-item list-group-item-action dropdown-notifications-item view-quote">
+                                                <div class="d-flex gap-2">
+                                                    <div class="flex-shrink-0">
+                                                        <div class="avatar me-1">
+                                                            <img src="{{ url('') . '/' . $item->image }}" alt
+                                                                class="w-px-40 h-auto rounded-circle" />
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="d-flex flex-column flex-grow-1 overflow-hidden w-px-200">
+                                                        <h6 class="mb-1 text-truncate">
+                                                            {{ $item->type == 'prospect' ? 'Prospect ' : '' }}{{ $item->no_quote }}
+                                                        </h6>
+                                                        <small class="text-truncate text-body">New Comment on your
+                                                            {{ $item->type == 'prospect' ? 'Prospect!' : 'Quotations' }}!
+                                                        </small>
+                                                    </div>
+                                                    @php
+                                                        $date = \Carbon\Carbon::parse($item->date);
+                                                    @endphp
+                                                    <div class="flex-shrink-0 dropdown-notifications-actions">
+                                                        <small
+                                                            class="text-muted">{{ $date->diffInHours(Carbon\Carbon::now()) > 24 ? $date->format('d M y h:i:s') : $date->diffForHumans() }}</small>
+                                                    </div>
                                                 </div>
-                                                @php
-                                                    $date = \Carbon\Carbon::parse($item->date);
-                                                @endphp
-                                                <div class="flex-shrink-0 dropdown-notifications-actions">
-                                                    <small
-                                                        class="text-muted">{{ $date->diffInHours(Carbon\Carbon::now()) > 24 ? $date->format('d M y h:i:s') : $date->diffForHumans() }}</small>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </a>
-                                @endforeach
+                                            </li>
+                                        </a>
+                                    @endforeach
+                                @endif
                             @endif
                         </ul>
                     </li>
-                    {{-- <li class="dropdown-menu-footer border-top p-2">
-                        <a href="javascript:void(0);" class="btn btn-primary d-flex justify-content-center">
+                    <li class="dropdown-menu-footer border-top p-2">
+                        <a href="{{ route('index.notif') }}" class="btn btn-primary d-flex justify-content-center">
                             View all notifications
                         </a>
-                    </li> --}}
+                    </li>
                 </ul>
             </li>
             <!--/ Notification -->

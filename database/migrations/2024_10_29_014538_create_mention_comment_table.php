@@ -13,17 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('comment', function (Blueprint $table) {
+        Schema::create('mention_comment', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_status')->nullable();
-            $table->foreignId('id_user');
-            $table->longText('comment');
-            $table->enum('level',['0','1','2']);
-            $table->enum('type',['quotation','prospect']);
-            $table->dateTime('date');
+            $table->foreignId('id_prospect');
+            $table->foreignId('id_mention');
+            $table->enum('level', ['0','1']);
             $table->timestamps();
         });
     }
+
     /**
      * Reverse the migrations.
      *
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('comment');
+        Schema::dropIfExists('mention_comment');
     }
 };

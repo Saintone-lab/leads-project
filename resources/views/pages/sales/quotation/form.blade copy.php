@@ -6,13 +6,22 @@
         $dataDetail = 0;
     @endphp
     <form id="formAuthentication" class="mb-3 fv-plugins-bootstrap5 fv-plugins-framework"
-        action="{{ route('store_quotation.prospect', $prospect->id) }}" method="post"
+        action="{{ @$quotation ? route('quotation.update', $quotation->id) : route('quotation.store') }}" method="post"
         enctype="multipart/form-data">
         @csrf
+        @if (@$quotation)
+            @method('patch')
+        @endif
         <div class="form-floating mb-3">
-            <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
-                aria-describedby="floatingInputFilledHelp" name="no_quote"
-                value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote : $formattedNumberQ . '-P/BDG/RJO-' . Auth::user()->code . '/' . $formattedMonthNow . '/' . \Carbon\Carbon::now()->year) }}">
+            @if (Auth::user()->code == 'YH')
+                <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
+                    aria-describedby="floatingInputFilledHelp" name="no_quote"
+                    value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote : $formattedNumberQ . '-P-BDG-RJO-' . Auth::user()->code . '-' . $formattedMonthNow . '-' . \Carbon\Carbon::now()->year) }}">
+            @else
+                <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
+                    aria-describedby="floatingInputFilledHelp" name="no_quote"
+                    value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote : $formattedNumberQ . '-P/BDG/RJO-' . Auth::user()->code . '/' . $formattedMonthNow . '/' . \Carbon\Carbon::now()->year) }}">
+            @endif
             <label for="floatingInputFilled">Number Quotation</label>
             <span class="form-floating-focused"></span>
         </div>
@@ -32,28 +41,37 @@
                         <div class="col-12 col-lg-3 mb-3">
                             <div class="form-floating form-floating-outline">
                                 <select id="select2Basic" class="select2 form-select form-select-lg invoice-item-client"
-                                    data-allow-clear="true" name="id_pic" disabled>
+                                    data-allow-clear="true" name="id_pic" {{ @$quotation ? 'disabled' : '' }}>
                                     <option> ---- Choose Pic Company Here ---- </option>
-                                    <option value="{{ $prospect->id_pic }}" selected>
-                                        {{ $prospect->pic->name_pic }} | {{ $prospect->pic->client->company }}</option>
+                                    @foreach ($pic as $charge)
+                                        <option value="{{ $charge->id }}"
+                                            {{ @$quotation->id_pic == $charge->id ? 'selected' : '' }}>
+                                            {{ $charge->name_pic }} | {{ $charge->client->company }}</option>
+                                    @endforeach
                                 </select>
                                 <label for="select2Basic">Client</label>
                             </div>
                         </div>
+                        @if (@$quotation)
+                            <input type="text" name="id_pic" id="idPic" value="{{ $quotation->id_pic }}" hidden>
+                        @endif
                         <div class="col-12 col-lg-3">
                             <div class="form-floating form-floating-outline mb-2">
                                 <select id="address-dropdown" class="select2 form-select invoice-item-destination"
-                                    data-allow-clear="true" name="destination">
-                                    <option value="1" selected>
-                                        {{ $prospect->pic->client->address }}
-                                    </option>
-                                    <option value="2">
-                                        {{ $prospect->pic->client->subAddress }}
-                                    </option>
+                                    data-allow-clear="true" name="destination" disabled>
+                                    @if (@$quotation)
+                                        <option selected>
+                                            {{ $quotation->destination == '1' ? $quotation->pic->client->address : $quotation->pic->client->subAddress }}
+                                        </option>
+                                    @endif
                                 </select>
                                 <label for="address-dropdown">Destination Address</label>
                             </div>
                         </div>
+                        @if (@$quotation)
+                            <input type="text" name="destination" id="destination" value="{{ $quotation->destination }}"
+                                hidden>
+                        @endif
                         <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="text" placeholder="Put Title Quotation Here ...."
@@ -104,92 +122,215 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mb-2" data-repeater-list="group-a">
-                        <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
-                            <div class="d-flex border rounded position-relative pe-0">
-                                <div class="row w-100 p-3">
-                                    <div class="col-md-6 col-12 mb-md-0">
-                                        <label for="product" class="mb-2">Product</label>
-                                        <div class="form-floating form-floating-outline mb-2">
-                                            <select id="product-{{ $id }}"
-                                                class="select2 form-select invoice-item-product" data-allow-clear="true"
-                                                name="product[]" data-id="1">
-                                                <option> ---- Choose Part Number Here ---- </option>
-                                                @foreach ($product as $products)
-                                                    <option value="{{ $products->id }}"
-                                                        data-replacement="{{ $products->id }}"
-                                                        data-commodity="{{ $products->comId }}">
-                                                        {{ $products->brand }} {{ $products->pn }}
-                                                        ({{ $products->detail_desc }})
-                                                        ||
-                                                        {{ $products->go }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <label for="product-{{ $id }}">Product Part Number</label>
+                    @if (@$dquotation)
+                        <div class="mb-3" data-repeater-list="group-a">
+                            @foreach ($dquotation as $quote)
+                                @php
+                                    $id++;
+                                    $dataDetail++;
+                                @endphp
+                                <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
+                                    <div class="d-flex border rounded position-relative pe-0">
+                                        <div class="row w-100 p-3">
+                                            <div class="col-md-6 col-12 mb-md-0 mb-3">
+                                                <label for="product" class="mb-2">Product</label>
+                                                <div class="form-floating form-floating-outline mb-2">
+                                                    <select id="product-{{ $id }}"
+                                                        class="select2 form-select invoice-item-product"
+                                                        data-allow-clear="true" name="product[]"
+                                                        data-id="{{ $id }}">
+                                                        <option value="">---- Choose Part Number Here ----</option>
+                                                        @foreach ($product as $products)
+                                                            <option value="{{ $products->id }}"
+                                                                data-replacement="{{ $products->id }}"
+                                                                {{ $quote->id_equivalent == "{$products->id}" ? 'selected' : '' }}>
+                                                                {{ $products->brand }} {{ $products->pn }}
+                                                                ({{ $products->detail_desc }})
+                                                                ||
+                                                                {{ $products->go }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <label for="product-{{ $id }}">Product Part Number</label>
+                                                </div>
+                                                <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-{{ $id }}"
+                                                    placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]">{{ old('detail_product[]', $quote->detail_product) }}</textarea>
+                                            </div>
+                                            <div class="col-md-3 col-12 mb-md-0 mb-3">
+                                                <p class="mb-2 repeater-title">Price</p>
+                                                <div class="input-group" data-price="1">
+                                                    <span class="input-group-text">Rp. </span>
+                                                    <input type="text" class="form-control invoice-item-price-label"
+                                                        id="priceLabel-{{ $id }}"
+                                                        data-id="{{ $id }}" min="0"
+                                                        placeholder="Put Price Here" data-type="currency"
+                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$"
+                                                        value="{{ old('price[]', @$quote->price ? number_format(@$quote->price, 0, '', '.') : '') }}">
+                                                    <input class="form-control invoice-item-price" type="number"
+                                                        name="price[]" id="price-{{ $id }}"
+                                                        value="{{ old('price[]', @$quote->price ?? '') }}" hidden>
+                                                </div>
+                                                <div class="d-flex justify-content-between mb-3">
+                                                    <p>Stock : <span class="info-stock-label" id="info-stock-1"></span>
+                                                    </p>
+                                                    <p>Weight : <span class="info-weight-label" id="info-weight-1"></span>
+                                                        g
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                                <p class="mb-2 repeater-title">Qty</p>
+                                                <input type="number" class="form-control invoice-item-qty mb-3"
+                                                    placeholder="Min 1" name="qty[]" id="qty-{{ $dataDetail }}"
+                                                    data-id="{{ $dataDetail }}" min="1"
+                                                    value="{{ old('qty[]', $quote->qty) }}">
+                                                <div class="form-floating form-floating-outline mb-4">
+                                                    <select class="form-select invoice-item-info" id="info-qty-1"
+                                                        data-id="1" aria-label="Default select example"
+                                                        name="info_qty[]">
+                                                        <option>---Info---</option>
+                                                        <option value="Pcs"
+                                                            {{ $quote->info_qty == 'Pcs' ? 'selected' : '' }}>Pcs
+                                                        </option>
+                                                        <option value="Set"
+                                                            {{ $quote->info_qty == 'Set' ? 'selected' : '' }}>Set
+                                                        </option>
+                                                        <option value="Pail"
+                                                            {{ $quote->info_qty == 'Pail' ? 'selected' : '' }}>Pail
+                                                        </option>
+                                                        <option value="Unit"
+                                                            {{ $quote->info_qty == 'Unit' ? 'selected' : '' }}>Unit
+                                                        </option>
+                                                        <option value="Lot"
+                                                            {{ $quote->info_qty == 'Lot' ? 'selected' : '' }}>Lot
+                                                        </option>
+                                                        <option value="Meter"
+                                                            {{ $quote->info_qty == 'Meter' ? 'selected' : '' }}>Meter
+                                                        </option>
+                                                        <option value="Hari"
+                                                            {{ $quote->info_qty == 'Hari' ? 'selected' : '' }}>Hari
+                                                        </option>
+                                                    </select>
+                                                    <label for="exampleFormControlSelect1">Info</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                                <p class="mb-2 repeater-title">Discount</p>
+                                                <input type="number" class="form-control invoice-item-disc"
+                                                    placeholder="%" name="disc[]" id="disc-{{ $dataDetail }}"
+                                                    data-id="{{ $dataDetail }}" min="0"
+                                                    value="{{ old('disc[]', $quote->disc ?? '0') }}">
+                                            </div>
+                                            <div class="col-md-1 col-12 pe-0">
+                                                <p class="mb-2 repeater-title">Amount</p>
+                                                <p class="mb-0 amount-label" id="amount-label-{{ $id }}"
+                                                    data-id="{{ $id }}">
+                                                    {{ old('amount[]', 'RP ' . number_format($quote->amount, 0, '', '.')) }}
+                                                </p>
+                                                <input type="number" class="form-control invoice-item-amount"
+                                                    name="amount[]" id="amount-{{ $id }}" data-id="1"
+                                                    value="{{ old('amount[]', $quote->amount) }}" hidden>
+                                            </div>
                                         </div>
-                                        <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-1"
-                                            placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]"></textarea>
-                                    </div>
-                                    <div class="col-md-3 col-12 mb-md-0 mb-3">
-                                        <p class="mb-2 repeater-title">Price</p>
-                                        <div class="input-group mb-3" data-price="1">
-                                            <span class="input-group-text">Rp. </span>
-                                            <input type="text" class="form-control invoice-item-price-label"
-                                                id="priceLabel-1" data-id="1" name="harga"
-                                                placeholder="Put Price Here" data-type="currency" min="0"
-                                                pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                                @blur="focused = false" value="{{ old('price[]') }}">
-                                            <input class="form-control invoice-item-price" type="number" name="price[]"
-                                                id="price-1" value="{{ old('price[]') }}" hidden>
+                                        <div
+                                            class="d-flex flex-column align-items-center justify-content-between border-start p-2">
+                                            <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
+                                                data-repeater-delete=""></i>
                                         </div>
-                                        <div class="d-flex justify-content-between mb-3">
-                                            <p>Stock : <span class="info-stock-label" id="info-stock-1"></span></p>
-                                            <p>Weight : <span class="info-weight-label" id="info-weight-1"></span> g
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-1 col-12 mb-md-0 mb-3">
-                                        <p class="mb-2 repeater-title">Qty</p>
-                                        <input type="number" class="form-control mb-4 invoice-item-qty"
-                                            placeholder="Min 1" name="qty[]" id="qty-1" data-id="1"
-                                            min="1" value="{{ old('qty[]') }}">
-                                        <div class="form-floating form-floating-outline mb-4">
-                                            <select class="form-select invoice-item-info" id="info-qty-1" data-id="1"
-                                                aria-label="Default select example" name="info_qty[]">
-                                                <option disabled>---Info---</option>
-                                                <option value="Pcs">Pcs</option>
-                                                <option value="Set">Set</option>
-                                                <option value="Pail">Pail</option>
-                                                <option value="Unit">Unit</option>
-                                                <option value="Lot">Lot</option>
-                                                <option value="Hari">Hari</option>
-                                            </select>
-                                            <label for="exampleFormControlSelect1">Info</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-1 col-12 mb-md-0 mb-3">
-                                        <p class="mb-2 repeater-title">Discount</p>
-                                        <input type="number" class="form-control invoice-item-disc" placeholder="%"
-                                            name="disc[]" id="disc-1" data-id="1" min="0"
-                                            value="{{ old('disc[]', '0') }}">
-                                    </div>
-                                    <div class="col-md-1 col-12 pe-0">
-                                        <p class="mb-2 repeater-title">Amount</p>
-                                        <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
-                                            {{ old(strval('amount[]')) }}</p>
-                                        <input type="number" class="form-control invoice-item-amount" name="amount[]"
-                                            id="amount-1" data-id="1" value="{{ old('amount[]') }}" hidden>
                                     </div>
                                 </div>
-                                <div
-                                    class="d-flex flex-column align-items-center justify-content-between border-start p-2">
-                                    <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
-                                        data-repeater-delete=""></i>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="mb-2" data-repeater-list="group-a">
+                            <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
+                                <div class="d-flex border rounded position-relative pe-0">
+                                    <div class="row w-100 p-3">
+                                        <div class="col-md-6 col-12 mb-md-0">
+                                            <label for="product" class="mb-2">Product</label>
+                                            <div class="form-floating form-floating-outline mb-2">
+                                                <select id="product-{{ $id }}"
+                                                    class="select2 form-select invoice-item-product"
+                                                    data-allow-clear="true" name="product[]" data-id="1">
+                                                    <option> ---- Choose Part Number Here ---- </option>
+                                                    @foreach ($product as $products)
+                                                        <option value="{{ $products->id }}"
+                                                            data-replacement="{{ $products->id }}"
+                                                            data-commodity="{{ $products->comId }}">
+                                                            {{ $products->brand }} {{ $products->pn }}
+                                                            ({{ $products->detail_desc }})
+                                                            ||
+                                                            {{ $products->go }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <label for="product-{{ $id }}">Product Part Number</label>
+                                            </div>
+                                            <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-1"
+                                                placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]"></textarea>
+                                        </div>
+                                        <div class="col-md-3 col-12 mb-md-0 mb-3">
+                                            <p class="mb-2 repeater-title">Price</p>
+                                            <div class="input-group mb-3" data-price="1">
+                                                <span class="input-group-text">Rp. </span>
+                                                <input type="text" class="form-control invoice-item-price-label"
+                                                    id="priceLabel-1" data-id="1" name="harga"
+                                                    placeholder="Put Price Here" data-type="currency" min="0"
+                                                    pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                                    @blur="focused = false" value="{{ old('price[]') }}">
+                                                <input class="form-control invoice-item-price" type="number"
+                                                    name="price[]" id="price-1" value="{{ old('price[]') }}" hidden>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-3">
+                                                <p>Stock : <span class="info-stock-label" id="info-stock-1"></span></p>
+                                                <p>Weight : <span class="info-weight-label" id="info-weight-1"></span> g
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                            <p class="mb-2 repeater-title">Qty</p>
+                                            <input type="number" class="form-control mb-4 invoice-item-qty"
+                                                placeholder="Min 1" name="qty[]" id="qty-1" data-id="1"
+                                                min="1" value="{{ old('qty[]') }}">
+                                            <div class="form-floating form-floating-outline mb-4">
+                                                <select class="form-select invoice-item-info" id="info-qty-1"
+                                                    data-id="1" aria-label="Default select example" name="info_qty[]">
+                                                    <option disabled>---Info---</option>
+                                                    <option value="Pcs">Pcs</option>
+                                                    <option value="Set">Set</option>
+                                                    <option value="Pail">Pail</option>
+                                                    <option value="Unit">Unit</option>
+                                                    <option value="Lot">Lot</option>
+                                                    <option value="Meter">Meter</option>
+                                                    <option value="Hari">Hari</option>
+                                                </select>
+                                                <label for="exampleFormControlSelect1">Info</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                            <p class="mb-2 repeater-title">Discount</p>
+                                            <input type="number" class="form-control invoice-item-disc" placeholder="%"
+                                                name="disc[]" id="disc-1" data-id="1" min="0"
+                                                value="{{ old('disc[]', '0') }}">
+                                        </div>
+                                        <div class="col-md-1 col-12 pe-0">
+                                            <p class="mb-2 repeater-title">Amount</p>
+                                            <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
+                                                {{ old(strval('amount[]')) }}</p>
+                                            <input type="number" class="form-control invoice-item-amount"
+                                                name="amount[]" id="amount-1" data-id="1"
+                                                value="{{ old('amount[]') }}" hidden>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="d-flex flex-column align-items-center justify-content-between border-start p-2">
+                                        <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
+                                            data-repeater-delete=""></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
                     <div class="row">
                         <div class="col-12 mb-2">
                             <button type="button" class="btn btn-sm btn-primary waves-effect waves-light btn-add"
@@ -605,18 +746,18 @@
 
             $('.invoice-item-product').on('change', function(ev) {
                 var replacementId = $(this).find(':selected').data('replacement');
-                var Url = '/quotation/product/' + replacementId;
+                var Url = '/quotation/sparepart/' + replacementId;
                 var commodity = $(this).find(':selected').data('commodity');
                 var id = $(this).data('id');
                 // console.log('Replacement ID:', replacementId);
                 // console.log('URL:', Url);
-                console.log('Textarea ID:', id);
+                // console.log('Textarea ID:', id);
 
                 $.ajax({
                     url: '/product-in/replacement/' + commodity,
                     type: 'GET',
                     success: function(response) {
-                        console.log('AJAX Response:', response);
+                        // console.log('AJAX Response:', response);
                         $(`#info-stock-${id}`).text(response[0].stock);
                         $(`#info-weight-${id}`).text(response[0].weight);
 
@@ -634,6 +775,9 @@
                     url: Url,
                     type: 'GET',
                     success: function(response) {
+                        console.log('Replacement Id : ', replacementId);
+                        console.log('URL: ', Url);
+
                         console.log('AJAX Response:', response);
                         $(`#detailProduct-${id}`).val(response[0].detail);
                         $(`#priceLabel-${id}`).val(formatPrice(response[0].price));
@@ -749,7 +893,7 @@
 
                 $('.invoice-item-product').on('change', function(ev) {
                     var replacementId = $(this).find(':selected').data('replacement');
-                    var Url = '/quotation/product/' + replacementId;
+                    var Url = '/quotation/sparepart/' + replacementId;
                     var commodity = $(this).find(':selected').data('commodity');
                     var id = $(this).data('id');
                     // console.log('Replacement ID:', replacementId);

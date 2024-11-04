@@ -84,7 +84,7 @@
                             <th>Type</th>
                             <th>Sn</th>
                             <th>Power</th>
-                            <th>Bar</th>
+                            <th>Pressure</th>
                             <th>Capacity</th>
                             <th>status</th>
                             <th>Price</th>
@@ -98,14 +98,13 @@
                             <th></th>
                             <th></th>
                             <th>ID</th>
-                            <th>Photo</th>
                             <th>Info</th>
                             <th>Unit</th>
                             <th>Brand</th>
                             <th>Type</th>
                             <th>SN</th>
                             <th>Power</th>
-                            <th>Bar</th>
+                            <th>Pressure</th>
                             <th>Capacity</th>
                             <th>status</th>
                             <th>Price</th>

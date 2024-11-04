@@ -457,8 +457,13 @@
                                         @endphp
                                     @endforeach
                                 @else
-                                    <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
-                                        data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
+                                    @if ($quote->pic->client->address == '-' && $quote->pic->client->subAddress == '-')
+                                        <button type="button"
+                                            class="btn btn-whatsapp d-grid w-100 waves-effect mb-3 btn-no-address">Upload PO</button>
+                                    @else
+                                        <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
+                                            data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
+                                    @endif
                                 @endif
                             @endif
                         </div>
@@ -1366,6 +1371,21 @@
                 error: function(error) {
                     console.error('Gagal mengirim permintaan ke server:', error);
                 }
+            });
+        });
+        $(document).on('click', '.btn-no-address', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "This Quotation Don't Have Address",
+                text: "You need to Putting Address on your client!",
+                icon: "warning",
+                showCancelButton: false,
+                showConfirmButton: false,
+                cancelButtonText: "Oke!",
+                customClass: {
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
             });
         });
     </script>

@@ -18,6 +18,7 @@ class Comment extends Model
     protected $fillable = [
         'id_user',
         'id_status',
+        'id_prospect',
         'comment',
         'level'
     ];
@@ -25,8 +26,17 @@ class Comment extends Model
     {
         return $this->belongsTo('App\Models\ChangeStatus', 'id_status', 'id');
     }
+    public function prospect()
+    {
+        return $this->belongsTo('App\Models\Prospect', 'id_prospect', 'id');
+    }
     public function user()
     {
         return $this->belongsTo('App\Models\User', 'id_user', 'id');
+    }
+    
+    public function mention()
+    {
+        return $this->hasMany('App\Models\MentionComment', 'id_comment');
     }
 }

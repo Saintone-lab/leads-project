@@ -81,7 +81,7 @@ $(function () {
                             var $dataId = full["id"];
                             var detailRoute = route("quotation.show", $dataId);
                             return (
-                                '<a class="text-dark view-quote" href="' +
+                                '<a class="text-dark" href="' +
                                 detailRoute +
                                 '">' +
                                 data +

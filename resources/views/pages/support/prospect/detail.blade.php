@@ -7,7 +7,7 @@
     <div class="row invoice-preview">
         {{-- Invoice --}}
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
-            <div class="card invoice-preview-card">
+            <div class="card invoice-preview-card mb-3">
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -145,7 +145,8 @@
                                             Prospect
                                         </div>
                                         <div class="col-9">
-                                            : {{ $prospect->kebutuhan }}
+                                            <pre class="mb-0"
+                                                style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $prospect->kebutuhan }}</pre>
                                         </div>
                                     </div>
                                 </div>
@@ -154,10 +155,157 @@
                     </div>
                 </div>
             </div>
+            <div class="card">
+                <h5 class="card-header">Quotation </h5>
+                <div class="table-responsive text-nowrap">
+                    <table class="table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No Quote</th>
+                                <th>Description</th>
+                                <th>Client</th>
+                                <th>Status</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            @if (@$quotation)
+                                @php
+                                    if ($quotation->status == '20') {
+                                        $color = 'secondary';
+                                    } elseif ($quotation->status == '30') {
+                                        $color = 'dark';
+                                    } elseif ($quotation->status == '40') {
+                                        $color = 'info';
+                                    } elseif ($quotation->status == '60') {
+                                        $color = 'primary';
+                                    } elseif ($quotation->status == '80') {
+                                        $color = 'warning';
+                                    } elseif ($quotation->status == '100') {
+                                        $color = 'success';
+                                    } elseif ($quotation->status == '0') {
+                                        $color = 'danger';
+                                    } else {
+                                        $color = 'secondary';
+                                    }
+                                @endphp
+                                <tr>
+                                    <td>{{ $quotation->no_quote }}</td>
+                                    <td>{{ $quotation->desc }}</td>
+                                    <td>{{ $quotation->pic->client->company }}</td>
+                                    <td>
+                                        <p class="badge badge-label-{{ $color }}">{{ $quotation->status }}</p>
+                                    </td>
+                                    <td class="text-end">{{ $quotation->nett }}</td>
+                                </tr>
+                            @else
+                                <tr>
+                                    <td class="text-center" colspan="5">
+                                        This Prospect Doesn't have quotation yet
+                                    </td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card comment mt-4">
+                <div class="card-body" id="viewComment">
+                    <ul class="timeline card-timeline mb-0">
+                        @if (@$prospectComment)
+                            @php
+                                // if ($stats->status == '20') {
+                                //     $status = 'Send Quotation';
+                                //     $color = 'secondary';
+                                // } elseif ($stats->status == '30') {
+                                //     $status = 'Inquiry Accepted';
+                                //     $color = 'dark';
+                                // } elseif ($stats->status == '40') {
+                                //     $status = 'Progress Follow Up';
+                                //     $color = 'info';
+                                // } elseif ($stats->status == '60') {
+                                //     $status = 'Negotiation / Revisi';
+                                //     $color = 'primary';
+                                // } elseif ($stats->status == '80') {
+                                //     $status = 'Hot Prospect';
+                                //     $color = 'warning';
+                                // } elseif ($stats->status == '100') {
+                                //     $status = 'Done PO';
+                                //     $color = 'success';
+                                // } elseif ($stats->status == '0') {
+                                //     $status = 'Loss';
+                                //     $color = 'danger';
+                                // } else {
+                                //     $status = 'Quotation Created';
+                                //     $color = 'secondary';
+                                // }
+                            @endphp
+                            <li class="timeline-item timeline-item-transparent clearfix">
+                                <div class="timeline-event">
+                                    {{-- <div class="timeline-header mb-1">
+                                        <h6 class="mb-0">a</h6>
+                                        <small
+                                            class="text-muted">a
+                                        </small>
+                                    </div>
+                                    <p class="mb-3">
+                                        a
+                                    </p> --}}
+                                    @foreach ($prospectComment as $item)
+                                        <div class="d-flex justify-content-between align-items-center px-2 mb-2{{ $item->id_user == Auth::user()->id ? ' rounded bg-label-primary float-end' : '' }}"
+                                            style="width : 80%;">
+                                            <div class="d-flex align-items-center mb-1">
+                                                <img src="{{ url('') . '/' . $item->user->image }}" alt="ini photo"
+                                                    style="width: 50px;" class="mx-2 rounded-pill">
+                                                <p class="mb-0">
+                                                    <span class="fw-medium">{{ $item->user->name }}</span>:
+                                                    @foreach ($item->mention as $mention)
+                                                        {{ $mention->mention->name ? '@' . $mention->mention->name : '' }}
+                                                    @endforeach
+                                                    {{ $item->comment }}
+                                                </p>
+                                            </div>
+                                            <small
+                                                class="text-muted">{{ $item->date->diffInHours(Carbon\Carbon::now()) > 24 ? $item->date->format('d M y h:i:s') : $item->date->diffForHumans() }}</small>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </li>
+                        @else
+                            Prospect Have no Comment
+                        @endif
+                        {{-- @if ($comment->id == $lastComment->id) --}}
+                        <form action="{{ route('add_comment.prospect', $prospect->id) }}" method="post"
+                            enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-2">
+                                    <button type="button" class="btn btn-lg btn-primary waves-effect w-100 mt-3"
+                                        data-bs-toggle="modal" data-bs-target="#addMention">@</button>
+                                </div>
+                                @include('components.modal.prospect.add-mention')
+                                <div class="col-10">
+                                    <div class="form-floating mt-3">
+                                        <input type="text" class="form-control" id="floatingInputFilled"
+                                            placeholder="Comment" name="comment"
+                                            aria-describedby="floatingInputFilledHelp">
+                                        <label for="floatingInputFilled">Comment</label>
+                                        <span class="form-floating-focused"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit"
+                                class="btn btn-primary waves-effect waves-light float-end">Comment</button>
+                        </form>
+
+                        {{-- @endif --}}
+                    </ul>
+                </div>
+            </div>
         </div>
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
-        @if (Auth::user()->role != 'Support')
+        @if (Auth::user()->role == 'Admin')
             <div class="col-xl-3 col-md-4 col-12 invoice-actions">
                 <div class="card">
                     <form action="{{ route('add_sales.prospect', $prospect->id) }}" method="post"
@@ -174,8 +322,8 @@
                                                 <span class="custom-option-title"> Provided </span>
                                                 <small> Prospect is Provided. </small>
                                             </span>
-                                            <input name="provideCheck" class="form-check-input check-provide" type="radio"
-                                                value="1" id="provideCheck1"
+                                            <input name="provideCheck" class="form-check-input check-provide"
+                                                type="radio" value="1" id="provideCheck1"
                                                 {{ @$prospect->provide == '1' ? 'checked disabled' : '' }}>
                                         </label>
                                     </div>
@@ -189,8 +337,8 @@
                                                 <span class="custom-option-title"> No Provided </span>
                                                 <small> Prospect is No Provided. </small>
                                             </span>
-                                            <input name="provideCheck" class="form-check-input check-no-provide" type="radio"
-                                                value="0" id="provideCheck2"
+                                            <input name="provideCheck" class="form-check-input check-no-provide"
+                                                type="radio" value="0" id="provideCheck2"
                                                 {{ @$prospect->provide == '0' ? 'checked' : '' }}{{ @$prospect->provide == '1' ? ' disabled' : '' }}>
                                         </label>
                                     </div>
@@ -202,7 +350,9 @@
                                     name="sales" {{ @$prospect->id_sales ? 'disabled' : '' }}>
                                     <option disabled="">----- Choose Sales -----</option>
                                     @foreach ($sales as $user)
-                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        <option value="{{ $user->id }}"
+                                            {{ @$prospect->id_sales == $user->id ? 'selected' : '' }}>{{ $user->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 <label for="selectSales">Sales</label>
@@ -214,13 +364,24 @@
                     </form>
                 </div>
             </div>
-        @else
+        @elseif (Auth::user()->role == 'Support')
             <div class="col-xl-3 col-md-4 col-12 invoice-actions">
                 <div class="card">
                     <div class="card-body">
                         <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-prospect"
                             data-id="{{ $prospect->id }}">
                             Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @elseif (Auth::user()->role == 'Sales')
+            <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+                <div class="card">
+                    <div class="card-body">
+                        <a href="#" class="btn btn-outline-primary d-grid w-100 waves-effect with-quote"
+                            data-id="{{ $prospect->id }}">
+                            With Quote
                         </a>
                     </div>
                 </div>
@@ -233,13 +394,17 @@
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/bootstrap-select/bootstrap-select.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
 @endpush
 @push('after-script')
     <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
 @endpush
 @push('page-script')
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
     <script src="{{ asset('assets') }}/js/form-layouts.js"></script>
+    <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush
 @push('script')
     <script>
@@ -316,6 +481,63 @@
                 $('.form-sales').removeAttr('hidden');
                 // $('.card-footer').removeAttr('hidden');
             }
+        });
+        $(document).on('click', '.with-quote', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure With Quotation?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, With Quotation!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('prospect') }}/' + 'with_quotation/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Converted!",
+                                    text: "Your file has been converted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href =
+                                        '/prospect/create_quotation/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed With Quotation!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "You cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
         });
     </script>
 @endpush
