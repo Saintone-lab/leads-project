@@ -27,25 +27,24 @@ document.addEventListener("DOMContentLoaded", function () {
             appOverlay = document.querySelector(".app-overlay"),
             calendarsColor = {
                 Business: "primary",
-                Holiday: "warning",
+                Holiday: "success",
+                Personal: "danger",
+                Family: "warning",
+                ETC: "info",
             },
             offcanvasTitle = document.querySelector(".offcanvas-title"),
             btnToggleSidebar = document.querySelector(".btn-toggle-sidebar"),
             btnSubmit = document.querySelector('button[type="submit"]'),
             btnDeleteEvent = document.querySelector(".btn-delete-event"),
             btnCancel = document.querySelector(".btn-cancel"),
-            eventClient = document.querySelector("#eventClient"),
-            eventComp = document.querySelector("#eventComp"),
+            eventTitle = document.querySelector("#eventTitle"),
             eventStartDate = document.querySelector("#eventStartDate"),
             eventEndDate = document.querySelector("#eventEndDate"),
-            eventNoteBefore = document.querySelector("#eventNoteBefore"),
-            selectIssue = document.querySelector("#selectIssue"),
-            selectAction = document.querySelector("#selectAction"),
-            selectStatus = document.querySelector("#selectStatus"),
+            eventUrl = document.querySelector("#eventURL"),
             eventLabel = $("#eventLabel"), // ! Using jquery vars due to select2 jQuery dependency
             eventGuests = $("#eventGuests"), // ! Using jquery vars due to select2 jQuery dependency
             eventLocation = document.querySelector("#eventLocation"),
-            eventNote = document.querySelector("#eventNote"),
+            eventDescription = document.querySelector("#eventDescription"),
             allDaySwitch = document.querySelector(".allDay-switch"),
             selectAll = document.querySelector(".select-all"),
             filterInput = [].slice.call(
@@ -170,72 +169,31 @@ document.addEventListener("DOMContentLoaded", function () {
             btnSubmit.innerHTML = "Update";
             btnSubmit.classList.add("btn-update-event");
             btnSubmit.classList.remove("btn-add-event");
-            for (let option of eventClient.options) {
-                if (option.value === eventToUpdate.id) {
-                    option.selected = true;
-                } else {
-                    option.selected = false;
-                }
-            }
-            if (selectIssue) {
-                for (let optionI of selectIssue.options) {
-                    // console.log('value : ', optionI.value ,', id : ',eventToUpdate.extendedProps.idI);
-                    if (
-                        optionI.value ===
-                        String(eventToUpdate.extendedProps.idI)
-                    ) {
-                        optionI.selected = true;
-                    } else {
-                        optionI.selected = false;
-                    }
-                }
-            } else {
-                console.error("Element #selectIssue not found");
-            }
+            btnDeleteEvent.classList.remove("d-none");
 
-            let startDate = new Date();
-
-            let endDate = new Date(startDate);
-            endDate.setDate(endDate.getDate() + 7);
-
-            let formattedEndDate = endDate.toISOString().split("T")[0];
-
-            let formattedStartDate = startDate.toISOString().split("T")[0];
-
-            eventComp.value = eventToUpdate.title;
-            start.setDate(formattedStartDate, true, "Y-m-d");
-            // eventToUpdate.allDay === true
-            //     ? (allDaySwitch.checked = true)
-            //     : (allDaySwitch.checked = false);
-            // let endDate =
-            //     eventToUpdate.end !== null
-            //         ? new Date(eventToUpdate.end)
-            //         : new Date(eventToUpdate.start);
-
-            end.setDate(formattedEndDate, true, "Y-m-d");
-
-            eventComp.value = eventToUpdate.title;
-
+            eventTitle.value = eventToUpdate.title;
+            start.setDate(eventToUpdate.start, true, "Y-m-d");
+            eventToUpdate.allDay === true
+                ? (allDaySwitch.checked = true)
+                : (allDaySwitch.checked = false);
+            eventToUpdate.end !== null
+                ? end.setDate(eventToUpdate.end, true, "Y-m-d")
+                : end.setDate(eventToUpdate.start, true, "Y-m-d");
             eventLabel
                 .val(eventToUpdate.extendedProps.calendar)
                 .trigger("change");
-
-            eventNoteBefore.textContent =
-                eventToUpdate.note !== null
-                    ? `Note Before: ` + eventToUpdate.extendedProps.note
-                    : "";
-            // eventToUpdate.extendedProps.location !== undefined
-            //     ? (eventLocation.value = eventToUpdate.extendedProps.location)
-            //     : null;
-            // eventToUpdate.extendedProps.guests !== undefined
-            //     ? eventGuests
-            //           .val(eventToUpdate.extendedProps.guests)
-            //           .trigger("change")
-            //     : null;
-            // eventToUpdate.extendedProps.description !== undefined
-            //     ? (eventDescription.value =
-            //           eventToUpdate.extendedProps.description)
-            //     : null;
+            eventToUpdate.extendedProps.location !== undefined
+                ? (eventLocation.value = eventToUpdate.extendedProps.location)
+                : null;
+            eventToUpdate.extendedProps.guests !== undefined
+                ? eventGuests
+                      .val(eventToUpdate.extendedProps.guests)
+                      .trigger("change")
+                : null;
+            eventToUpdate.extendedProps.description !== undefined
+                ? (eventDescription.value =
+                      eventToUpdate.extendedProps.description)
+                : null;
 
             // // Call removeEvent function
             // btnDeleteEvent.addEventListener('click', e => {
@@ -298,25 +256,25 @@ document.addEventListener("DOMContentLoaded", function () {
                     "Content-Type": "application/json",
                 },
                 success: function (result) {
-                    console.log(result.data);
+                    console.log(result);
 
                     // Get requested calendars as Array
                     var calendars = selectedCalendars();
 
                     // Filter events based on selected calendars
-                    let filteredEvents = result.data.filter((event) =>
+                    let filteredEvents = result.events.filter((event) =>
                         calendars.includes(event.extendedProps.calendar)
                     );
 
                     // Call successCallback with filtered events
                     successCallback(filteredEvents);
-                    // console.log("filter : ", filteredEvents);
                 },
                 error: function (error) {
                     console.log(error);
                 },
             });
         }
+
         // Init FullCalendar
         // ------------------------------------------------
         let calendar = new Calendar(calendarEl, {
@@ -362,7 +320,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 btnSubmit.innerHTML = "Add";
                 btnSubmit.classList.remove("btn-update-event");
                 btnSubmit.classList.add("btn-add-event");
-                // btnDeleteEvent.classList.add("d-none");
+                btnDeleteEvent.classList.add("d-none");
                 eventStartDate.value = date;
                 eventEndDate.value = date;
             },
@@ -385,13 +343,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const eventForm = document.getElementById("eventForm");
         const fv = FormValidation.formValidation(eventForm, {
             fields: {
-                // eventTitle: {
-                //     validators: {
-                //         notEmpty: {
-                //             message: "Please enter event title ",
-                //         },
-                //     },
-                // },
+                eventTitle: {
+                    validators: {
+                        notEmpty: {
+                            message: "Please enter event title ",
+                        },
+                    },
+                },
                 eventStartDate: {
                     validators: {
                         notEmpty: {
@@ -454,34 +412,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Update Event
         // ------------------------------------------------
-        function updateEvent(eventData, eventStore) {
+        function updateEvent(eventData) {
             // ? Update existing event data to current events object and refetch it to display on calender
             // ? You can write below code to AJAX call success response
-            const csrfToken = document
-                .querySelector('meta[name="csrf-token"]')
-                .getAttribute("content");
-            $.ajax({
-                type: "POST",
-                url: "/activities/update_calendar",
-                data: {
-                    ...eventStore,
-                    _token: csrfToken,
-                },
-                success: function (response) {
-                    console.log("Perubahan status berhasil dikirim ke server");
-                    eventData.id = parseInt(eventData.id);
-                    currentEvents[
-                        currentEvents.findIndex((el) => el.id === eventData.id)
-                    ] = eventData; // Update event by id
-                    calendar.refetchEvents();
-                },
-                error: function (error) {
-                    console.error(
-                        "Gagal mengirim permintaan ke server:",
-                        error
-                    );
-                },
-            });
+            eventData.id = parseInt(eventData.id);
+            currentEvents[
+                currentEvents.findIndex((el) => el.id === eventData.id)
+            ] = eventData; // Update event by id
+            calendar.refetchEvents();
 
             // ? To update event directly to calender (won't update currentEvents object)
             // let propsToUpdate = ['id', 'title', 'url'];
@@ -586,47 +524,44 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (isFormValid) {
                     let eventData = {
                         id: eventToUpdate.id,
-                        title: eventComp.value,
+                        title: eventTitle.value,
                         start: eventStartDate.value,
                         end: eventEndDate.value,
-                        url: "",
+                        url: eventUrl.value,
                         extendedProps: {
+                            location: eventLocation.value,
+                            guests: eventGuests.val(),
                             calendar: eventLabel.val(),
+                            description: eventDescription.value,
                         },
                         display: "block",
-                    };
-                    let eventStore = {
-                        client_id: eventToUpdate.id,
-                        issues: selectIssue.value,
-                        status: selectStatus.value,
-                        action: selectAction.value,
-                        date: eventStartDate.value,
-                        follow_up: eventEndDate.value,
-                        note: eventNote.value,
+                        allDay: allDaySwitch.checked ? true : false,
                     };
 
-                    updateEvent(eventData, eventStore);
+                    updateEvent(eventData);
                     bsAddEventSidebar.hide();
                 }
             }
         });
 
         // Call removeEvent function
-        // btnDeleteEvent.addEventListener("click", (e) => {
-        //     removeEvent(parseInt(eventToUpdate.id));
-        //     // eventToUpdate.remove();
-        //     bsAddEventSidebar.hide();
-        // });
+        btnDeleteEvent.addEventListener("click", (e) => {
+            removeEvent(parseInt(eventToUpdate.id));
+            // eventToUpdate.remove();
+            bsAddEventSidebar.hide();
+        });
 
         // Reset event form inputs values
         // ------------------------------------------------
         function resetValues() {
             eventEndDate.value = "";
+            eventUrl.value = "";
             eventStartDate.value = "";
-            selectIssue.value = "";
-            // selectAction.value = "";
-            eventNote.value = "";
+            eventTitle.value = "";
+            eventLocation.value = "";
+            allDaySwitch.checked = false;
             eventGuests.val("").trigger("change");
+            eventDescription.value = "";
         }
 
         // When modal hides reset input values

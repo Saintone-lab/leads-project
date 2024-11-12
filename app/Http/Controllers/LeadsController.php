@@ -31,7 +31,7 @@ class LeadsController extends Controller
         $issue = Issues::get();
         $sales = User::where('role', 'sales')->get();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
 
 
         // Comment Buat Admin
@@ -236,7 +236,7 @@ class LeadsController extends Controller
         $quote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('level', '1')->get('quotation.*');
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
 

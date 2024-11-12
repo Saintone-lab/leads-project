@@ -124,7 +124,7 @@ class UnitController extends Controller
         $allStock = $product->stock + $product->warehouse_stock;
         $details = DetailProduct::where('id_product', $id)->get();
         $serials = SerialProduct::where('id_product', $id)->get();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
 
@@ -387,7 +387,7 @@ class UnitController extends Controller
         // dd($comment);
         $remaining = $quote->harga_total - $totalAmount;
         // dd($formattedNumberSP);
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         return view("pages.sales.quotation.unit.detail", compact('quote', 'status', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'lastQuote', 'primQuote', 'quotations', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }

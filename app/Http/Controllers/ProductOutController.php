@@ -23,7 +23,7 @@ class ProductOutController extends Controller
      */
     public function index()
     {
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.warehouse.product-out.index',compact('noSaleProspect'));
     }
 
@@ -121,7 +121,7 @@ class ProductOutController extends Controller
     {
         $product = ProductOut::find($id);
         $detail = DetailProductOut::where('id_product_out', $id)->get();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.warehouse.product-out.detail', compact('product','noSaleProspect', 'detail'));
     }
 

@@ -35,7 +35,7 @@ class ProductController extends Controller
             return $equivalent->price * $equivalent->stock;
         });
         // dd($revenue);
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
 
@@ -189,7 +189,7 @@ class ProductController extends Controller
         $allStock = $product->stock + $product->warehouse_stock;
         $details = DetailProduct::where('id_product', $id)->get();
         $serials = SerialProduct::where('id_product', $id)->get();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
 
@@ -533,7 +533,7 @@ class ProductController extends Controller
         $commodity = Product::count();
         $dproduct = DetailProduct::count();
         $sproduct = SerialProduct::count();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.warehouse.master.index', compact('commodity', 'dproduct', 'noSaleProspect', 'sproduct'));
     }
     public function indexUnit()
@@ -546,7 +546,7 @@ class ProductController extends Controller
         $allStock = $product->stock + $product->warehouse_stock;
         $details = DetailProduct::where('id_product', $id)->get();
         $serials = SerialProduct::where('id_product', $id)->get();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
 

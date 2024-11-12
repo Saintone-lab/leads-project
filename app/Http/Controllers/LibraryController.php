@@ -308,7 +308,7 @@ class LibraryController extends Controller
     {
         $type = 'Marketing Tools';
         $library = Library::where('type', 'Marketing Tools')->get();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
 
@@ -382,7 +382,7 @@ class LibraryController extends Controller
     {
         $type = 'Brosur';
         $library = Library::where('type', 'Brosur')->get();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
 
@@ -456,7 +456,7 @@ class LibraryController extends Controller
     {
         $type = 'Partlist';
         $library = Library::where('type', 'Partlist')->get();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
 
@@ -530,7 +530,7 @@ class LibraryController extends Controller
     {
         $type = 'Manual Book';
         $library = Library::where('type', 'Manual Book')->get();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
 

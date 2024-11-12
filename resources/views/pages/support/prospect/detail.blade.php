@@ -212,7 +212,7 @@
             <div class="card comment mt-4">
                 <div class="card-body" id="viewComment">
                     <ul class="timeline card-timeline mb-0">
-                        @if (@$prospectComment)
+                        @if (@$prospectComments)
                             @php
                                 // if ($stats->status == '20') {
                                 //     $status = 'Send Quotation';
@@ -251,7 +251,7 @@
                                     <p class="mb-3">
                                         a
                                     </p> --}}
-                                    @foreach ($prospectComment as $item)
+                                    @foreach ($prospectComments as $item)
                                         <div class="d-flex justify-content-between align-items-center px-2 mb-2{{ $item->id_user == Auth::user()->id ? ' rounded bg-label-primary float-end' : '' }}"
                                             style="width : 80%;">
                                             <div class="d-flex align-items-center mb-1">
@@ -377,14 +377,24 @@
             </div>
         @elseif (Auth::user()->role == 'Sales')
             <div class="col-xl-3 col-md-4 col-12 invoice-actions">
-                <div class="card">
-                    <div class="card-body">
-                        <a href="#" class="btn btn-outline-primary d-grid w-100 waves-effect with-quote"
-                            data-id="{{ $prospect->id }}">
-                            With Quote
-                        </a>
+                @if ($prospect->level == null)
+                    <div class="card">
+                        <div class="card-body">
+                            <a href="#" class="btn btn-primary d-grid w-100 waves-effect with-quote mb-3"
+                                data-id="{{ $prospect->id }}">
+                                With Quote
+                            </a>
+                            <a href="#" class="btn btn-info d-grid w-100 waves-effect without-quote mb-3"
+                                data-id="{{ $prospect->id }}">
+                                Without Quote
+                            </a>
+                            <a href="#" class="btn btn-warning d-grid w-100 waves-effect no-respond mb-3"
+                                data-id="{{ $prospect->id }}">
+                                No Respond
+                            </a>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
         @endif
         {{-- End : Button Invoice --}}
@@ -523,6 +533,120 @@
                                     icon: 'error',
                                     title: 'Oops...',
                                     text: 'Data Failed With Quotation!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "You cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.without-quote', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure Without Quotation?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Without Quotation!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('prospect') }}/' + 'without_quotation/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Converted!",
+                                    text: "Your file has been converted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href =
+                                        '/prospect/';
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed Without Quotation!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "You cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.no-respond', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure No Respond this Prospect?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, No Respond!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('prospect') }}/' + 'no_respond/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Converted!",
+                                    text: "Your file has been converted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href =
+                                        '/prospect/';
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed Without Quotation!'
                                 });
                             }
                         }

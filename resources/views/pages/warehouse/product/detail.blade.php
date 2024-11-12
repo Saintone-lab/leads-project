@@ -15,9 +15,11 @@
                         <a type="button" data-bs-toggle="modal" data-bs-target="#updateProduct-{{ $product->id }}">
                             <button type="button" class="btn btn-sm btn-label-primary">Edit</button>
                         </a>
-                        <a href="#" data-id="{{ $product->id }}"
-                            class="btn btn-sm btn-label-danger delete-product">Delete
-                        </a>
+                        @if (Auth::user()->role == 'Admin')
+                            <a href="#" data-id="{{ $product->id }}"
+                                class="btn btn-sm btn-label-danger delete-product">Delete
+                            </a>
+                        @endif
                     </div>
                 </div>
                 <div class="card-body">
@@ -177,10 +179,12 @@
                                             </td>
                                         @endif
                                         <td>
-                                            <a href="#" data-id="{{ $detail->id }}"
-                                                class="btn btn-sm btn-label-danger delete-replacement">
-                                                <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                                            </a>
+                                            @if (Auth::user()->role == 'Admin')
+                                                <a href="#" data-id="{{ $detail->id }}"
+                                                    class="btn btn-sm btn-label-danger delete-replacement">
+                                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                                </a>
+                                            @endif
                                             <a type="button" data-bs-toggle="modal"
                                                 data-bs-target="#editReplacement-{{ $detail->id }}">
                                                 <button type="button" class="btn btn-sm btn-label-primary">

@@ -17,7 +17,7 @@ class StockController extends Controller
      */
     public function index()
     {
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.warehouse.stock.index',compact('noSaleProspect'));
     }
 

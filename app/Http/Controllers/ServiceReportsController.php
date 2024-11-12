@@ -26,7 +26,7 @@ class ServiceReportsController extends Controller
      */
     public function index()
     {
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.technician.service-reports.index', compact('noSaleProspect',));
     }
 
@@ -104,7 +104,7 @@ class ServiceReportsController extends Controller
         $service = Reports::where('id', $id)->first();
         $pict = ReportsPict::where('id_reports', $id)->get();
         // dd($pict);
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.technician.service-reports.detail', compact('noSaleProspect','service', 'pict'));
     }
 

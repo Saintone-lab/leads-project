@@ -6,6 +6,7 @@ use App\Models\Activities;
 use App\Models\Client;
 use App\Models\Comment;
 use App\Models\DetailProduct;
+use App\Models\Issues;
 use App\Models\Notulen;
 use App\Models\Product;
 use App\Models\Prospect;
@@ -27,6 +28,9 @@ class DashboardController extends Controller
         $monthNow = $dateNow->month;
         $notulens = Notulen::join('mention_notulen as m', 'm.id_notulen', '=', 'notulen.id')->join('users as u', 'm.id_mention', '=', 'u.id')->get(['notulen.*', 'u.name', 'm.level']);
         if (Auth::user()->role == 'Sales' || Auth::user()->role == 'Support') {
+            $clients = Client::where('id_sales', Auth::id())->get();
+            $issue = Issues::all();
+            // dd($clients);
             $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
             $weekPerMonth = $this->getWeekperMonth();
             $dailyCall = $this->getDailyCallSales();
@@ -38,6 +42,13 @@ class DashboardController extends Controller
             $formattedTotalPrice = $this->formatNumber($poTotalPrice);
             $target = Target::where('id_sales', Auth::user()->id)->first();
             $prospects = Prospect::where('id_sales', Auth::id())->whereNull('level')->get();
+            $nextFollow = Activities::join('client as c', 'c.id', '=', 'activities.id_client')
+                ->join('users as s', 'c.id_sales', '=', 's.id')
+                ->select(['activities.id', 'c.company', 'activities.note', 'activities.follow_up as start', 'activities.follow_up as end', 'activities.name'])
+                ->where('c.id_sales', Auth::id())
+                ->groupBy('c.company')
+                ->orderBy('activities.follow_up')
+                ->get();
 
             $quotationComment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
                 ->join('comment as o', 'o.id_status', '=', 'c.id')
@@ -83,13 +94,15 @@ class DashboardController extends Controller
                     'dailyCall',
                     'quotation',
                     'po',
+                    'issue',
+                    'clients',
                     'customers',
                     'unreadComment',
                     'comment'
                 )
             );
         } elseif (Auth::user()->role == 'Admin') {
-            $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+            $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
             $poTotalPriceAdmin = Quotation::whereMonth("po_date", $monthNow)->where("status", "100")->where('level', '1')->where('is_primary', '1')->sum('nett');
             $formattedTotalPriceAdmin = $this->formatNumber($poTotalPriceAdmin);
             $sales = User::where('role', 'Sales')->where('active', '1')->get();

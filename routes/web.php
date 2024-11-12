@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivitiesController;
 use App\Http\Controllers\ApiTableController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AuditController;
@@ -381,6 +382,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/prospect/add_sales/{id}', [ProspectController::class, 'add_sales'])->name('add_sales.prospect');
     Route::post('/prospect/without_quotation/{id}', [ProspectController::class, 'without_quotation'])->name('without_quotation.prospect');
     Route::post('/prospect/with_quotation/{id}', [ProspectController::class, 'with_quotation'])->name('with_quotation.prospect');
+    Route::post('/prospect/no_respond/{id}', [ProspectController::class, 'no_respond'])->name('no_respond.prospect');
     Route::get('/prospect/create_quotation/{id}', [ProspectController::class, 'create_quotation'])->name('create_quotation.prospect');
     Route::post('/prospect/store_quotation/{id}', [ProspectController::class, 'store_quotation'])->name('store_quotation.prospect');
     Route::post('/prospect/add_comment/{id}', [ProspectController::class, 'add_comment'])->name('add_comment.prospect');
@@ -412,7 +414,54 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/notifactivity/notif/{date}', [DashboardController::class, 'dateNotif'])->name('date.notif');
     Route::get('/notifactivity/notifAdmin/{date}', [DashboardController::class, 'dateNotifAdmin'])->name('date-admin.notif');
     Route::get('/notifactivity/activity/{date}', [DashboardController::class, 'dateActivity'])->name('date.activity');
+    Route::post('/activities/update_calendar', [ActivitiesController::class, 'update_calendar'])->name('date.update_calendar');
     // Database Connection
+    Route::get('/db/next-follow/callendar', function () {
+        $subquery = DB::table('activities')
+            ->join('client as c', 'c.id', '=', 'activities.id_client')
+            ->join('issues as i', 'i.id', '=', 'c.id_issues')
+            ->join('users as s', 'c.id_sales', '=', 's.id')
+            ->select([
+                'c.id',
+                'i.id as idI',
+                'activities.follow_up as start',
+                'activities.follow_up as end',
+                'c.role as name',
+                'activities.note',
+                'c.company'
+            ])
+            ->where('c.id_sales', Auth::id())
+            ->orderByDesc('activities.follow_up')
+            ->limit(1000);
+        $nextFollow = DB::table(DB::raw("({$subquery->toSql()}) as ordered_activities"))
+            ->mergeBindings($subquery) // Untuk menggabungkan binding dari subquery
+            ->groupBy('ordered_activities.company')
+            ->get()
+            ->map(function ($activity) {
+                // Modifikasi nilai 'calendar' berdasarkan nilai 'name'
+                $calendar = match ($activity->name) {
+                    'Leads' => 'Business',
+                    'Customers' => 'Holiday',
+                    default => $activity->name,
+                };
+
+                return [
+                    'id' => $activity->id,
+                    'url' => '',
+                    'title' => $activity->company,
+                    'start' => $activity->start,
+                    'end' => $activity->end,
+                    'note' => $activity->note,
+                    'allDay' => true,
+                    'extendedProps' => [
+                        'calendar' => $calendar,
+                        'idI' => $activity->idI
+                    ]
+                ];
+            });
+
+        return response()->json(['data' => $nextFollow]);
+    });
     Route::get('/db/selling-contract/non-tax', function () {
         $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
@@ -1071,6 +1120,10 @@ Route::group(["middleware" => "auth"], function () {
             ->leftJoin('users as sale', 'sale.id', '=', 'prospect.id_sales')
             ->leftJoin('users as supp', 'supp.id', '=', 'prospect.id_support')
             ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
+            ->where(function ($query) {
+                $query->where('prospect.provide', '!=', '0')
+                    ->orWhereNull('prospect.provide');
+            })
             ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.provide', 'prospect.date', 'client.company', 'supp.name as support', 'sale.name as sales', 'pic.name_pic', 'sale.image', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);
     });

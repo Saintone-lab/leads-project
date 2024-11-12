@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Activities;
 use App\Models\Client;
+use App\Models\CrmStatus;
 use App\Models\Issues;
 use Illuminate\Http\Request;
 
@@ -38,7 +39,7 @@ class ActivitiesController extends Controller
     {
         $leads = Client::where("id", $request->client_id)->first();
         $leads->id_issues = $request->issues;
-        if ($request->issues == '4'){
+        if ($request->issues == '4') {
             $leads->role = 'Customers';
         }
         dd($request);
@@ -96,4 +97,40 @@ class ActivitiesController extends Controller
     {
         //
     }
+    public function update_calendar(Request $request)
+    {
+        $client = Client::where("id", $request->input('client_id'))->first();
+
+        // Update client data
+        $client->id_issues = $request->input('issues');
+        if ($request->input('issues') == '5') {
+            $client->role = 'Customers';
+            $status = new CrmStatus();
+            $status->id_client = $request->input('client_id');
+            $status->status = 2;
+            $status->save();
+        }
+        $client->save();
+
+        // Update activities
+        $action = new Activities;
+        $action->id_client = $request->input('client_id');
+        $action->name = $client->activities != null ? "Follow Up" : "Daily Call";
+        $action->status = $request->input('status');
+        $action->action = $request->input('action');
+        $action->note = $request->input('note');
+        $action->date = $request->input('date');
+        $action->follow_up = $request->input('follow_up');
+        $action->save();
+
+        // Berikan respons ke AJAX
+        return response()->json(['success' => true, 'message' => 'Perubahan berhasil disimpan']);
+    }
+    // if ($isuSave && $activitiesSave || $statSave) {
+    //     if ($request->issues == '5') {
+    //         return redirect("/existing/" . $request->client_id)->with("success", "Data telah ditambahkan");
+    //     } else {
+    //         return redirect("/leads/detail/" . $request->client_id)->with("success", "Data telah ditambahkan");
+    //     }
+    // }
 }

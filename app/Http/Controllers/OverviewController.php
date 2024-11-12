@@ -68,7 +68,7 @@ class OverviewController extends Controller
         $getTotalPO = $this->getMonthlyDataTotalPO($report->semester, $report->year);
         $targett = Target::where('id_sales', Auth::user()->id)->pluck('total')->sum();
         // dd($getTotalPO);
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->count();
 
 
@@ -176,7 +176,7 @@ class OverviewController extends Controller
     public function semesterOverviewsales($id)
     {
         $user = User::find($id);
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->count();
         return view('pages.admin.overview.semester', compact('noSaleProspect', 'leveledProspect', 'user'));
     }
@@ -200,7 +200,7 @@ class OverviewController extends Controller
         $amountSales = Quotation::whereMonth('po_date', $month)->where('status', '100')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $amountProspect = Quotation::whereMonth('estimated_date', $month)->where('status', '80')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $amountQuote = Quotation::whereMonth('estimated_date', $month)->whereIn('status', ['20', '30', '40', '60', '80'])->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->count();
         return view('pages.admin.overview.kpi', compact('noSaleProspect', 'leveledProspect', 'user', 'dates', 'quotation', "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "amountSales", "amountQuote", "amountProspect", "target"));
     }
@@ -220,7 +220,7 @@ class OverviewController extends Controller
         $targett = Target::where('id_sales', $sales)->pluck('total')->sum();
         $user = User::find($sales);
         // dd($getPO);
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.admin.overview.detail', compact('noSaleProspect', 'report', 'getDC', 'getCRM', 'getVisit', 'getQuote', 'getPO', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'targett', 'user'));
     }
     protected function getMonthlyDataDC($semester, $year)

@@ -1,6 +1,6 @@
 $(function () {
     var dt_table_prospect = $(".datatable-prospect");
-    var Url = "db/prospect/support";
+    var Url = "/db/prospect/support";
 
     if (dt_table_prospect.length) {
         $('[data-toggle="tooltip"]').tooltip();

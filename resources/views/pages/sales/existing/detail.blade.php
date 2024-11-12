@@ -221,7 +221,7 @@
                                         Serial Number
                                     </div>
                                     <div class="col-8">
-                                        : {{ $machine->serial_number }}
+                                        : {{ $machine->serial_number }} ({{$machine->reports->count() > 0 ? $machine->reports->count() : '0'}})
                                     </div>
                                 </div>
                                 <div class="row mb-1">

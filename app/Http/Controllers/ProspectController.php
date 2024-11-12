@@ -37,7 +37,7 @@ class ProspectController extends Controller
         $poAdmin = Quotation::where('status', '100')->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->sum('nett');
         $lossAdmin = Quotation::where('status', '0')->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->sum('nett');
         $prospects = Prospect::where('id_sales', Auth::id())->whereNull('level')->get();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
         // Comment Buat Admin
@@ -219,6 +219,7 @@ class ProspectController extends Controller
         $prospect->kebutuhan = $request->prospect;
         $prospect->date = Carbon::now();
         $prospect->level = NULL;
+        $prospect->provide = NULL;
         $prospectSave = $prospect->save();
 
 
@@ -240,11 +241,11 @@ class ProspectController extends Controller
         $pic = Pic::where('id', $prospect->id_pic)->first();
         $client = Client::where('id', $pic->id_client)->first();
         $sales = User::where('role', 'Sales')->get();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
-        $prospectComment = Comment::where('id_prospect', $id)->where('type', 'prospect')->with('mention')->get();
+        $prospectComments = Comment::where('id_prospect', $id)->where('type', 'prospect')->with('mention')->get();
         $user = User::whereNot('id', Auth::user()->id)->get();
-        // dd($prospectComment);
+        // dd($prospectComments);
 
 
         // Comment Buat Admin
@@ -311,7 +312,7 @@ class ProspectController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.support.prospect.detail', compact('prospect', 'comment', 'prospectComment', 'unreadComment', 'commentAdmin', 'quotation', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'pic', 'client', 'sales', 'user'));
+        return view('pages.support.prospect.detail', compact('prospect', 'comment', 'prospectComments', 'unreadComment', 'commentAdmin', 'quotation', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'pic', 'client', 'sales', 'user'));
     }
 
     /**
@@ -401,6 +402,18 @@ class ProspectController extends Controller
     {
         $prospect = Prospect::find($id);
         $prospect->level = '1';
+        $prospectSave = $prospect->save();
+        if ($prospectSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public function no_respond($id)
+    {
+        $prospect = Prospect::find($id);
+        $prospect->level = '2';
         $prospectSave = $prospect->save();
         if ($prospectSave) {
             return 1;

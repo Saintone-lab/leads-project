@@ -470,7 +470,7 @@
             {{-- End:: Prospect Table --}}
         </div>
 
-        <div class="card mb-4">
+        {{-- <div class="card mb-4">
             <div class="card-datatable table-responsive pt-0">
                 <table class="datatable-notulen table table-striped">
                     <thead>
@@ -486,7 +486,9 @@
                     </thead>
                 </table>
             </div>
-        </div>
+        </div> --}}
+
+
         <div class="card app-calendar-wrapper">
             <div class="row gy-4">
                 <!-- Calendar Sidebar -->
@@ -518,30 +520,15 @@
                         </div>
 
                         <div class="app-calendar-events-filter">
-                            <div class="form-check form-check-danger mb-3">
-                                <input class="form-check-input input-filter" type="checkbox" id="select-personal"
-                                    data-value="personal" checked />
-                                <label class="form-check-label" for="select-personal">Personal</label>
-                            </div>
-                            <div class="form-check mb-3">
+                            <div class="form-check form-check-primary mb-3">
                                 <input class="form-check-input input-filter" type="checkbox" id="select-business"
-                                    data-value="business" checked />
-                                <label class="form-check-label" for="select-business">Business</label>
+                                    data-value="Business" checked />
+                                <label class="form-check-label" for="select-business">Leads</label>
                             </div>
                             <div class="form-check form-check-warning mb-3">
-                                <input class="form-check-input input-filter" type="checkbox" id="select-family"
-                                    data-value="family" checked />
-                                <label class="form-check-label" for="select-family">Family</label>
-                            </div>
-                            <div class="form-check form-check-success mb-3">
                                 <input class="form-check-input input-filter" type="checkbox" id="select-holiday"
-                                    data-value="holiday" checked />
-                                <label class="form-check-label" for="select-holiday">Holiday</label>
-                            </div>
-                            <div class="form-check form-check-info">
-                                <input class="form-check-input input-filter" type="checkbox" id="select-etc"
-                                    data-value="etc" checked />
-                                <label class="form-check-label" for="select-etc">ETC</label>
+                                    data-value="Holiday" checked />
+                                <label class="form-check-label" for="select-holiday">Customers</label>
                             </div>
                         </div>
                     </div>
@@ -567,69 +554,76 @@
                         </div>
                         <div class="offcanvas-body">
                             <form class="event-form pt-0" id="eventForm" onsubmit="return false">
-                                <div class="form-floating form-floating-outline mb-4">
+                                {{-- <div class="form-floating form-floating-outline mb-4">
                                     <input type="text" class="form-control" id="eventTitle" name="eventTitle"
                                         placeholder="Event Title" />
-                                    <label for="eventTitle">Title</label>
-                                </div>
-                                <div class="form-floating form-floating-outline mb-4">
-                                    <select class="select2 select-event-label form-select" id="eventLabel"
-                                        name="eventLabel">
-                                        <option data-label="primary" value="Business" selected>Business</option>
-                                        <option data-label="danger" value="Personal">Personal</option>
-                                        <option data-label="warning" value="Family">Family</option>
-                                        <option data-label="success" value="Holiday">Holiday</option>
-                                        <option data-label="info" value="ETC">ETC</option>
+                                    <label for="eventTitle">Client</label>
+                                </div> --}}
+                                <div class="form-floating form-floating-outline mb-4 select2-primary">
+                                    <select class="select2 select-event-guests form-select" id="eventClient"
+                                        name="eventGuests">
+                                        @foreach ($clients as $client)
+                                            {{-- data-avatar="1.png" --}}
+                                            <option value="{{ $client->id }}">{{ $client->company }}</option>
+                                        @endforeach
                                     </select>
-                                    <label for="eventLabel">Label</label>
+                                    <label for="eventGuests">Client</label>
                                 </div>
                                 <div class="form-floating form-floating-outline mb-4">
                                     <input type="text" class="form-control" id="eventStartDate" name="eventStartDate"
                                         placeholder="Start Date" />
-                                    <label for="eventStartDate">Start Date</label>
+                                    <label for="eventStartDate">Date</label>
                                 </div>
                                 <div class="form-floating form-floating-outline mb-4">
                                     <input type="text" class="form-control" id="eventEndDate" name="eventEndDate"
                                         placeholder="End Date" />
-                                    <label for="eventEndDate">End Date</label>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="switch">
-                                        <input type="checkbox" class="switch-input allDay-switch" />
-                                        <span class="switch-toggle-slider">
-                                            <span class="switch-on"></span>
-                                            <span class="switch-off"></span>
-                                        </span>
-                                        <span class="switch-label">All Day</span>
-                                    </label>
+                                    <label for="eventEndDate">Follow Up Date</label>
                                 </div>
                                 <div class="form-floating form-floating-outline mb-4">
+                                    <select class="form-select" id="selectAction" aria-label="Default select example"
+                                        name="action">
+                                        <option disabled>----- Choose Action -----</option>
+                                        <option value="Phone Office">Phone Office</option>
+                                        <option value="WhatsApp">WhatsApp</option>
+                                    </select>
+                                    <label for="selectAction">Action</label>
+                                </div>
+                                <div class="form-floating form-floating-outline mb-4">
+                                    <select class="form-select" id="selectStatus" aria-label="Default select example"
+                                        name="status">
+                                        <option disabled>----- Choose Status -----</option>
+                                        <option value="Responded">Responded</option>
+                                        <option value="Not Respon">Not Responded</option>
+                                    </select>
+                                    <label for="selectStatus">Status</label>
+                                </div>
+                                <div class="form-floating form-floating-outline mb-4">
+                                    <select class="form-select" id="selectIssue" aria-label="Default select example"
+                                        name="issues">
+                                        @foreach ($issue as $issues)
+                                            <option value="{{ $issues->id }}">{{ $issues->issue }}</option>
+                                        @endforeach
+                                    </select>
+                                    <label for="selectIssue">Status</label>
+                                </div>
+                                <div class="form-floating form-floating-outline mb-4">
+                                    <textarea class="form-control" name="eventNote" id="eventNote"></textarea>
+                                    <label for="eventNote">Note</label>
+                                </div>
+                                <input class="form-control" type="text" name="eventComp" id="eventComp" value="" hidden>
+                                <div class="form-floating mb-4">
+                                    <p id="eventNoteBefore"></p>
+                                </div>
+                                {{-- <div class="form-floating form-floating-outline mb-4">
                                     <input type="url" class="form-control" id="eventURL" name="eventURL"
                                         placeholder="https://www.google.com" />
                                     <label for="eventURL">Event URL</label>
-                                </div>
-                                <div class="form-floating form-floating-outline mb-4 select2-primary">
-                                    <select class="select2 select-event-guests form-select" id="eventGuests"
-                                        name="eventGuests" multiple>
-                                        <option data-avatar="1.png" value="Jane Foster">Jane Foster</option>
-                                        <option data-avatar="3.png" value="Donna Frank">Donna Frank</option>
-                                        <option data-avatar="5.png" value="Gabrielle Robertson">Gabrielle Robertson
-                                        </option>
-                                        <option data-avatar="7.png" value="Lori Spears">Lori Spears</option>
-                                        <option data-avatar="9.png" value="Sandy Vega">Sandy Vega</option>
-                                        <option data-avatar="11.png" value="Cheryl May">Cheryl May</option>
-                                    </select>
-                                    <label for="eventGuests">Add Guests</label>
                                 </div>
                                 <div class="form-floating form-floating-outline mb-4">
                                     <input type="text" class="form-control" id="eventLocation" name="eventLocation"
                                         placeholder="Enter Location" />
                                     <label for="eventLocation">Location</label>
-                                </div>
-                                <div class="form-floating form-floating-outline mb-4">
-                                    <textarea class="form-control" name="eventDescription" id="eventDescription"></textarea>
-                                    <label for="eventDescription">Description</label>
-                                </div>
+                                </div> --}}
                                 <div class="mb-3 d-flex justify-content-sm-between justify-content-start my-4 gap-2">
                                     <div class="d-flex">
                                         <button type="submit"
@@ -639,7 +633,7 @@
                                             Cancel
                                         </button>
                                     </div>
-                                    <button class="btn btn-label-danger btn-delete-event d-none">Delete</button>
+                                    {{-- <button class="btn btn-label-danger btn-delete-event d-none">Delete</button> --}}
                                 </div>
                             </form>
                         </div>
@@ -990,7 +984,8 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="card-info">
-                                                                    <h5 class="mb-0 filtered-visit">{{ $filteredVisit }}<span
+                                                                    <h5 class="mb-0 filtered-visit">
+                                                                        {{ $filteredVisit }}<span
                                                                             class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->visit }}</span>
                                                                     </h5>
                                                                     <small class="text-muted">Visit</small>
@@ -1487,35 +1482,35 @@
                 url: '/dashboard/filteredPo/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-po`).text( response);
+                    $(`.filtered-po`).text(response);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredDc/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-dc`).text( response);
+                    $(`.filtered-dc`).text(response);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredCRM/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-crm`).text( response);
+                    $(`.filtered-crm`).text(response);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredVisit/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-visit`).text( response);
+                    $(`.filtered-visit`).text(response);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredQuote/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-quote`).text( response);
+                    $(`.filtered-quote`).text(response);
                 }
             });
 

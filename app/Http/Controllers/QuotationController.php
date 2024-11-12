@@ -47,7 +47,7 @@ class QuotationController extends Controller
         $poAdmin = Quotation::where('status', '100')->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
         $lossAdmin = Quotation::where('status', '0')->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
         // dd();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
         // Comment Buat Admin
@@ -434,7 +434,7 @@ class QuotationController extends Controller
         // dd($comment);
         $remaining = $quote->harga_total - $totalAmount;
         // dd($formattedNumberSP);
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         return view("pages.sales.quotation.detail", compact('quote', 'status', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'lastQuote', 'primQuote', 'quotations', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
@@ -689,7 +689,7 @@ class QuotationController extends Controller
     public function po_quote()
     {
         $quotation = Quotation::all();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
 
@@ -761,7 +761,7 @@ class QuotationController extends Controller
     }
     public function loss_quote()
     {
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
 
@@ -1320,7 +1320,7 @@ class QuotationController extends Controller
         $poAdmin = Quotation::where('status', '100')->where('level', '1')->where('is_primary', '1')->where('type', 'Unit')->sum('nett');
         $lossAdmin = Quotation::where('status', '0')->where('level', '1')->where('is_primary', '1')->where('type', 'Unit')->sum('nett');
         // dd();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
 

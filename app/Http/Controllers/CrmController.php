@@ -28,7 +28,7 @@ class CrmController extends Controller
     public function index()
     {
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
 
 
 
@@ -145,7 +145,7 @@ class CrmController extends Controller
         // dd($yearsNow);
         $service = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')->where('pic.id_client', $id)->get('reports.*');
         // dd($quote);
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
 

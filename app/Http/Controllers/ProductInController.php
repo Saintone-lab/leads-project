@@ -20,7 +20,7 @@ class ProductInController extends Controller
     {
         // $product = ProductIn::all();
         // dd($product);
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.warehouse.product-in.index',compact('noSaleProspect'));
     }
 
@@ -117,7 +117,7 @@ class ProductInController extends Controller
         $product = ProductIn::find($id);
         $tax = $product->subtotal * $product->tax / 100;
         $detail = DetailProductIn::where('id_product_in', $id)->get();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.warehouse.product-in.detail', compact('product', 'detail', 'noSaleProspect', 'tax'));
     }
 

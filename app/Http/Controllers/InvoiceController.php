@@ -26,7 +26,7 @@ class InvoiceController extends Controller
      */
     public function index()
     {
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.accounting.invoice.index', compact('noSaleProspect'));
     }
 
@@ -86,7 +86,7 @@ class InvoiceController extends Controller
 
         $doTek = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->get();
         $doEks = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->get();
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $pOut = ProductOut::where('invoice', $invoice->no_invoice)->first();
         // dd($pOut);
         return view('pages.accounting.invoice.detail', compact('noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
@@ -158,12 +158,12 @@ class InvoiceController extends Controller
     }
     public function index_kojisha()
     {
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.accounting.invoice.index-kojisha', compact('noSaleProspect'));
     }
     public function request()
     {
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.accounting.invoice.index-request', compact('noSaleProspect'));
     }
     public function before_accept($id)

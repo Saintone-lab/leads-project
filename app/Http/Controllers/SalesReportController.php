@@ -15,7 +15,7 @@ class SalesReportController extends Controller
      */
     public function index()
     {
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.warehouse.reports.index',compact('noSaleProspect'));
     }
 
@@ -67,7 +67,7 @@ class SalesReportController extends Controller
     public function show($id)
     {
         $reports = SalesReports::find($id);
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.warehouse.reports.detail', compact('noSaleProspect', 'reports'));
     }
 
@@ -108,14 +108,14 @@ class SalesReportController extends Controller
     public function detailOnline($id)
     {
         $reports = SalesReports::find($id);
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.warehouse.reports.detail-online', compact('noSaleProspect', 'reports'));
     }
 
     public function detailOffline($id)
     {
         $reports = SalesReports::find($id);
-        $noSaleProspect = Prospect::whereNULL('id_sales')->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         return view('pages.warehouse.reports.detail-offline', compact('noSaleProspect', 'reports'));
     }
 }
