@@ -219,7 +219,7 @@
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <table class="datatable-product-equivalent table table-striped">
+                        <table class="datatable-product-equivalent{{Auth::user()->role == 'Logistic' ? '-logistik' : ''}} table table-striped">
                             <thead>
                                 <tr>
                                     <th></th>
@@ -336,6 +336,7 @@
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
     <script src="{{ asset('assets') }}/includes/table-equivalent.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-equivalent-logistik.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-in-detail.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-out-detail.js"></script>
     <script src="{{ asset('assets') }}/includes/table-quotation-product.js"></script>

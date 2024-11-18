@@ -26,6 +26,7 @@ return new class extends Migration
             $table->integer('price'); // detail
             $table->integer('amount'); // detail
             $table->integer('pph');
+            $table->enum('view',['0','1']);
             $table->timestamps();
         });
     }

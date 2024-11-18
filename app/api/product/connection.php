@@ -21,27 +21,45 @@ if (Auth::check()) {
 
         // Query database for data
         $query = "SELECT 
-        p.*,
-        s.pn,
-        s.brand,
-        s.price,
-        s.id AS id_pn,
-        p.id AS id_p, 
-        p.stock AS all_stock, 
-        -- CONCAT(p.commodity, IFNULL(CONCAT(' || ', s.pn), '')) AS product, 
-        IFNULL(
-            GROUP_CONCAT(CONCAT(dp.replacement, '( Rp ', FORMAT(dp.modal, 2), ')' ) SEPARATOR ' || '), 
-            'Tidak Ada Replacement'
-                ) AS modal_replacements,
-                CONCAT(p.stock, ' - ', p.warehouse_stock ) AS stok
-            FROM 
-                product p
-            LEFT JOIN 
-                serial_product s ON p.id = s.id_product
-            LEFT JOIN 
-                detail_product dp ON p.id = dp.id_product
-            GROUP BY 
-                p.id, s.pn";
+                    p.*,
+                    s.pn,
+                    s.brand,
+                    s.price,
+                    s.id AS id_pn,
+                    p.id AS id_p, 
+                    p.stock AS all_stock, 
+                    -- CONCAT(p.commodity, IFNULL(CONCAT(' || ', s.pn), '')) AS product, 
+                    IFNULL(
+                        GROUP_CONCAT(
+                            CONCAT(
+                                'Average HPP ', 
+                                dp.replacement,
+                                '( Rp ', 
+                                FORMAT(dp.modal, 2), 
+                                ' )' 
+                            ) 
+                            SEPARATOR ' || '
+                        ), 
+                        'Tidak Ada Replacement'
+                    ) AS modal_replacements,
+                    CONCAT(p.stock, ' - ', p.warehouse_stock) AS stok,
+                    (
+                        SELECT dpi.modal
+                        FROM detail_product_in dpi
+                        WHERE dpi.id_detail_product = dp.id
+                        ORDER BY dpi.id DESC
+                        LIMIT 1
+                    ) AS last_modal
+                FROM 
+                    product p
+                LEFT JOIN 
+                    serial_product s ON p.id = s.id_product
+                LEFT JOIN 
+                    detail_product dp ON p.id = dp.id_product
+                LEFT JOIN 
+                    detail_product_in dpi ON dp.id = dpi.id_detail_product
+                GROUP BY 
+                    p.id, s.pn";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

@@ -384,9 +384,9 @@
                                 data-id="{{ $prospect->id }}">
                                 With Quote
                             </a>
-                            <a href="#" class="btn btn-info d-grid w-100 waves-effect without-quote mb-3"
+                            <a href="#" class="btn btn-danger d-grid w-100 waves-effect without-quote mb-3"
                                 data-id="{{ $prospect->id }}">
-                                Without Quote
+                                No Quote
                             </a>
                             <a href="#" class="btn btn-warning d-grid w-100 waves-effect no-respond mb-3"
                                 data-id="{{ $prospect->id }}">

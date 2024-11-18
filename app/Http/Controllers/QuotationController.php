@@ -296,6 +296,7 @@ class QuotationController extends Controller
                 $dQuote->disc = $request->disc[$item];
                 $dQuote->amount = $request->amount[$item];
                 $dQuote->pph = 0;
+                $dQuote->view = '0';
                 $dQuoteSave = $dQuote->save();
             }
             $stats = new ChangeStatus;
@@ -539,6 +540,7 @@ class QuotationController extends Controller
                 $dQuote->disc = $request->disc[$item];
                 $dQuote->amount = $request->amount[$item];
                 $dQuote->pph = 0;
+                $dQuote->view = '0';
                 $dQuoteSave = $dQuote->save();
             }
             if ($dQuoteSave) {

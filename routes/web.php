@@ -298,10 +298,12 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/invoice/del-pph/{id}', [InvoiceController::class, 'delete_pph'])->name('invoice.del-pph');
     Route::get('/invoice/label_detail/{id}', [InvoiceController::class, 'label_detail'])->name('invoice.label_detail');
     Route::get('/invoice/label_print/{id}', [InvoiceController::class, 'label_print'])->name('invoice.label_print');
+    Route::post('/invoice/change_desc/{id}', [InvoiceController::class, 'change_desc'])->name('invoice.change_desc');
 
     Route::resource('/delivery', DeliveryController::class);
     Route::get('/delivery/print/{id}', [DeliveryController::class, 'print_delivery'])->name('print.delivery');
     Route::post('/delivery/change_date/{id}', [DeliveryController::class, 'change_date'])->name('change_date.delivery');
+    Route::post('/delivery/change_desc/{id}', [DeliveryController::class, 'change_desc'])->name('delivery.change_desc');
 
     Route::resource('/return', ReturnController::class);
     Route::post('/accept/return/{id}', [ReturnController::class, 'accept_return'])->name('return.accept');
@@ -1123,6 +1125,10 @@ Route::group(["middleware" => "auth"], function () {
             ->where(function ($query) {
                 $query->where('prospect.provide', '!=', '0')
                     ->orWhereNull('prospect.provide');
+            })
+            ->where(function ($query) {
+                $query->where('prospect.level',  '1')
+                    ->orWhereNull('prospect.level');
             })
             ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.provide', 'prospect.date', 'client.company', 'supp.name as support', 'sale.name as sales', 'pic.name_pic', 'sale.image', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);

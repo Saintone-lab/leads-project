@@ -78,14 +78,17 @@ $(function () {
                         if (type === "display") {
                             var $dataId = full["id_p"];
                             var detailRoute = route("product.show", $dataId);
-                            var $title = full["modal_replacements"]
+                            var $title = full["modal_replacements"];
                             return (
-                                
-                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' +
-                            $title +
-                            '">'+
-                            '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>" +
-                            "</span>"
+                                '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' +
+                                $title +
+                                '">' +
+                                '<a class="text-dark" href="' +
+                                detailRoute +
+                                '">' +
+                                data +
+                                "</a>" +
+                                "</span>"
                             );
                         }
                         return data;
@@ -93,7 +96,35 @@ $(function () {
                 },
                 {
                     targets: 6,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            // Ambil nilai last_modal
+                            var lastModal = full["last_modal"];
+
+                            var formattedModal =
+                                lastModal === null || lastModal === undefined
+                                    ? "-"
+                                    : $.fn.dataTable.render
+                                          .number(".", ",", 0, "Rp.")
+                                          .display(lastModal);
+                            var formattedData =
+                                data === null || data === undefined
+                                    ? "-"
+                                    : $.fn.dataTable.render
+                                          .number(".", ",", 0, "Rp.")
+                                          .display(data);
+
+                            // Buat tooltip dan konten yang ditampilkan
+                            return (
+                                '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="Last HPP ' +
+                                formattedModal +
+                                '">' +
+                                formattedData +
+                                "</span>"
+                            );
+                        }
+                        return data;
+                    },
                 },
             ],
             order: [[2, "desc"]],

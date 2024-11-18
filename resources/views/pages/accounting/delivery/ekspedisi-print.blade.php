@@ -144,8 +144,14 @@
 
                             </td>
                             <td>
-                                <pre class="mb-0"
-                                    style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
+                                123123123
+                                @if ($product->view == '1')
+                                    <a href="{{ $product->equivalent->image }}" target="_blank"
+                                        class=" underline-line">Description Click Here</a>
+                                @else
+                                    <pre class="mb-0"
+                                        style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
+                                @endif
                             </td>
                             <td class="align-top">{{ $product->qty }} {{ $product->info_qty }} </td>
                         </tr>

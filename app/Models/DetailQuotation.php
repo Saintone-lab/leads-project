@@ -20,6 +20,7 @@ class DetailQuotation extends Model
         'amount',
         'fee',
         'pph',
+        'view',
     ];
 
     

@@ -1,7 +1,7 @@
 @extends('layouts.sales.app')
 @section('title', $invoice->no_invoice)
 <div class="invoice-print p-4">
-    @if ($delivery->type == 'ekspedisi')
+    @if ($delivery->type == 'teknisi')
         <div class="container-fluid flex-grow-1 container-p-y">
 
             @if ($invoice->flag == 'Reftech')
@@ -147,8 +147,7 @@
 
                                 </td>
                                 <td>
-                                    <pre class="mb-0"
-                                        style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->desc }}</pre>
+                                    {{$product->view == '0' ? $product->desc : ''}}
                                 </td>
                                 <td class="align-top">
                                     <p> {{ $product->qty }} {{ $product->info_qty }} </p>

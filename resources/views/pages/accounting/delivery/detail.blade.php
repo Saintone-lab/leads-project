@@ -3,7 +3,7 @@
 @section('content')
     <div class="row invoice-preview">
         {{-- Invoice --}}
-        @if ($delivery->type == 'ekspedisi')
+        @if ($delivery->type == 'teknisi')
             <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
                 <div class="card invoice-preview-card">
                     <div class="card-body">
@@ -143,7 +143,7 @@
                                         </td>
                                         <td>
                                             <pre class="mb-0"
-                                                style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->desc }}</pre>
+                                                style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{$product->view == '0' ? $product->desc : ''}}</pre>
                                         </td>
                                         <td class="align-top">{{ $product->qty }} {{ $product->info_qty }} </td>
                                     </tr>
@@ -365,6 +365,12 @@
                         href="{{ route('print.delivery', $delivery->id) }}">
                         Download
                     </a>
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#descView"
+                        class="d-grid w-100 waves-effect mb-3">
+                        <button type="button" class="btn btn-outline-primary">
+                            Change Description Product
+                        </button>
+                    </a>
                     <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-delivery mb-3"
                         data-id="{{ $delivery->id }}" data-in="{{ $invoice->id }}">Delete</a>
                     <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">
@@ -383,6 +389,7 @@
                 </div>
             </div>
         </div>
+        @include('components.modal.delivery.desc')
         @include('components.modal.accounting.delivery.change-date')
     @endsection
     @push('after-style')

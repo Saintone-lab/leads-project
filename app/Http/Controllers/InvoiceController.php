@@ -429,6 +429,25 @@ class InvoiceController extends Controller
         }
 
     }
+    public function change_desc(Request $request, $id)
+    {
+        $invoice = Invoice::find($id);
+        $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
+
+        $checkedIds = (array) $request->input('checker', []);
+        // dd($checkedIds);
+
+        foreach ($dQuote as $value) {
+            $value->view = in_array($value->id, $checkedIds) ? '1' : '0';
+            $status = $value->save();
+        }
+
+        if ($status) {
+            return redirect('/invoice/' . $id)->with('message', 'Data telah terkirim');
+        } else {
+            return redirect('/invoice/' . $id)->with('error', 'Terjadi kesalahan saat mengirim data');
+        }
+    }
     private function terbilang($number)
     {
         $number = abs($number);

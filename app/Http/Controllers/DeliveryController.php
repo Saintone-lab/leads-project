@@ -66,6 +66,7 @@ class DeliveryController extends Controller
                 $dDelivery->desc = $value->detail_product;
                 $dDelivery->qty = $request->qty[$item];
                 $dDelivery->info_qty = $value->info_qty;
+                $delivery->view = '0';
                 $status = $dDelivery->save();
             }
         }
@@ -134,7 +135,7 @@ class DeliveryController extends Controller
         }
         if ($delDelivery && $delDetDelivery) {
             return 1;
-        }else{
+        } else {
             return 0;
         }
     }
@@ -182,6 +183,24 @@ class DeliveryController extends Controller
 
         if ($status) {
             return redirect('/invoice/label_detail/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
+    public function change_desc(Request $request, $id)
+    {
+        $delivery = Delivery::find($id);
+        $dDelivery = DetailDelivery::where('id_delivery', $delivery->id)->get();
+        // dd($dDelivery);
+        $checkedIds = (array) $request->input('checker', []);
+
+        foreach ($dDelivery as $value) {
+            $value->view = in_array($value->id, $checkedIds) ? '1' : '0';
+            $status = $value->save();
+        }
+
+        if ($status) {
+            return redirect('/delivery/' . $id)->with('message', 'Data telah terkirim');
+        } else {
+            return redirect('/delivery/' . $id)->with('error', 'Terjadi kesalahan saat mengirim data');
         }
     }
 }

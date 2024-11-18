@@ -75,6 +75,10 @@
                                         {{ @$product->status == 'AIR RECEIVER TANK' ? 'selected' : '' }}>
                                         AIR RECEIVER TANK
                                     </option>
+                                    <option value="WATER CHILLER"
+                                        {{ @$product->status == 'WATER CHILLER' ? 'selected' : '' }}>
+                                        WATER CHILLER
+                                    </option>
                                 </select>
                                 <label for="exampleFormControlSelect1">Unit</label>
                             </div>

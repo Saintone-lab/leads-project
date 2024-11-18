@@ -554,7 +554,7 @@
                             @elseif ($invoice->flag == 'Reftech' && $invoice->quote->tax > 0)
                                 <div class="col">
                                     <p class="mb-1">: Bank BCA (IDR) - Asia Afrika Kota Bandung</p>
-                                    <p class="mb-1">: PT. REFTECH JAYA Optima</p>
+                                    <p class="mb-1">: PT. REFTECH JAYA OPTIMA</p>
                                     <p class="mb-1">: 008 - 6289 - 789</p>
                                     <p class="mb-1">: CENAIDJA</p>
                                 </div>
@@ -617,6 +617,12 @@
                         <a class="btn btn-primary d-grid w-100 mb-3 waves-effect" target="_blank"
                             href="{{ route('print.invoice', $invoice->id) }}">
                             Download
+                        </a>
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#descView"
+                            class="d-grid w-100 waves-effect mb-3">
+                            <button type="button" class="btn btn-outline-primary">
+                                Change Description Product
+                            </button>
                         </a>
                         @if (!isset($return) && Auth::user()->role == 'Sales')
                             <a class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect"
@@ -761,6 +767,7 @@
         @include('components.modal.quotation.detail-payment')
         @include('components.modal.accounting.sign')
         @include('components.modal.invoice.date')
+        @include('components.modal.invoice.desc')
         @include('components.modal.invoice.pph')
         @include('components.modal.accounting.delivery.create-teknisi')
         @include('components.modal.accounting.delivery.create-ekspedisi')

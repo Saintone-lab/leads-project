@@ -191,8 +191,12 @@
                                 <p class="mb-0 fw-semibold" style="font-size: 12px">
                                     {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
                                 </p>
-                                <pre class="mb-0"
-                                    style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
+                                @if ($product->view == '1')
+                                    <a href="{{$product->equivalent->image}}" target="_blank" class=" underline-line">Description Click Here</a>
+                                @else
+                                    <pre class="mb-0"
+                                        style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
+                                @endif
                             </td>
                             <td class="align-top text-end" style="padding-bottom: 0px;">
                                 <p>
@@ -617,7 +621,7 @@
                     @elseif ($invoice->flag == 'Reftech' && $invoice->quote->tax > 0)
                         <div class="col">
                             <p class="mb-1">: Bank BCA (IDR) - Asia Afrika Kota Bandung</p>
-                            <p class="mb-1">: PT. REFTECH JAYA Optima</p>
+                            <p class="mb-1">: PT. REFTECH JAYA OPTIMA</p>
                             <p class="mb-1">: 008 - 6289 - 789</p>
                             <p class="mb-1">: CENAIDJA</p>
                         </div>

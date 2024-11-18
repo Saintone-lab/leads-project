@@ -19,6 +19,7 @@ class DetailDelivery extends Model
         'qty',
         'desc',
         'info_qty',
+        'view',
     ];
 
     public function delivery()
