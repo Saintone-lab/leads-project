@@ -13,15 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('termncon', function (Blueprint $table) {
+        Schema::create('subtitle_quotation', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_quotation');
-            $table->string('validity');
-            $table->string('pricing');
-            $table->string('delivery_process');
-            $table->string('payment');
-            $table->string('warranty')->nullable();
-            $table->string('note')->nullable();
+            $table->string('subtitle');
             $table->timestamps();
         });
     }
@@ -33,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('termncon');
+        Schema::dropIfExists('subtitle_quotation');
     }
 };

@@ -80,8 +80,7 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var type = full["type"];
-                            type == 'Sparepart' ? detailRoute = route("quotation.show", $dataId) : detailRoute = route("show-service.quotation", $dataId);
+                            var detailRoute = route("quotation.show", $dataId);
                             return (
                                 '<a class="text-dark" href="' +
                                 detailRoute +
@@ -428,26 +427,11 @@ $(function () {
                     ],
                 },
                 {
-                    extend: "collection",
-                    text: '+ Quotation',
-                    className: "btn btn-primary dropdown-toggle",
-                    autoClose: true,
-                    buttons: [
-                        {
-                            text: 'Quotation Sparepart',
-                            className: "dropdown-item",
-                            action: function (e, dt, node, config) {
-                                window.location = route("create.quotation");
-                            },
-                        },
-                        {
-                            text: 'Quotation Service',
-                            className: "dropdown-item",
-                            action: function (e, dt, node, config) {
-                                window.location = route("create-service.quotation");
-                            },
-                        },
-                    ],
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Quotation</span>',
+                    className: "btn btn-primary btn-new",
+                    action: function (e, dt, node, config) {
+                        window.location = route("create.quotation");
+                    },
                 },
             ],
             responsive: {
@@ -485,7 +469,9 @@ $(function () {
                 },
             },
         });
-        $("div.hl-1").html('<h5 class="card-title mb-0">Quotations</h5>');
+        $("div.hl-1").html(
+            '<h5 class="card-title mb-0">Quotations</h5>'
+        );
     }
     dt_table_quotation.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();

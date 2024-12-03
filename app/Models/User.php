@@ -84,5 +84,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\ChangeStatus', 'id_user');
     }
+    public function monitoring()
+    {
+        return $this->hasMany('App\Models\Monitoring', 'id_user');
+    }
     
 }

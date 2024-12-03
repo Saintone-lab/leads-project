@@ -27,4 +27,8 @@ class Machine extends Model
     {
         return $this->hasMany('App\Models\Reports', 'id_machine');
     }
+    public function monitoring()
+    {
+        return $this->hasMany('App\Models\Monitoring', 'id_machine');
+    }
 }

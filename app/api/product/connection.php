@@ -30,16 +30,11 @@ if (Auth::check()) {
                     p.stock AS all_stock, 
                     -- CONCAT(p.commodity, IFNULL(CONCAT(' || ', s.pn), '')) AS product, 
                     IFNULL(
-                        GROUP_CONCAT(
                             CONCAT(
                                 'Average HPP ', 
-                                dp.replacement,
-                                '( Rp ', 
-                                FORMAT(dp.modal, 2), 
-                                ' )' 
-                            ) 
-                            SEPARATOR ' || '
-                        ), 
+                                'Rp ', 
+                                FORMAT(dp.modal, 2)
+                            ),
                         'Tidak Ada Replacement'
                     ) AS modal_replacements,
                     CONCAT(p.stock, ' - ', p.warehouse_stock) AS stok,

@@ -3,7 +3,7 @@
 @section('content')
     <div class="row invoice-preview">
         {{-- Invoice --}}
-        @if ($delivery->type == 'teknisi')
+        @if ($delivery->type == 'ekspedisi')
             <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
                 <div class="card invoice-preview-card">
                     <div class="card-body">

@@ -1,7 +1,7 @@
 @extends('layouts.sales.app')
 @section('title', $invoice->no_invoice)
 <div class="invoice-print p-4">
-    @if ($delivery->type == 'teknisi')
+    @if ($delivery->type == 'ekspedisi')
         <div class="container-fluid flex-grow-1 container-p-y">
 
             @if ($invoice->flag == 'Reftech')

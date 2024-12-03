@@ -151,7 +151,7 @@
                                             <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
                                                 Rp {{ number_format($detail->amount, 2, ',', '.') }}</p>
                                             <input type="number" class="form-control invoice-item-amount"
-                                                name="amount[]" id="amount-1" data-id="1" min="12"
+                                                name="amount[]" id="amount-{{$row}}" data-id="1" min="12"
                                                 value="{{ $detail->amount }}" hidden>
                                         </div>
                                     </div>
@@ -191,9 +191,9 @@
                             <div class="input-group" data-total="1">
                                 <span class="input-group-text">Rp. </span>
                                 <p class="form-control invoice-item-total-label h-px-25 mb-0" id="total-label">
-                                    {{ $invoice->quote->harga_total }} </p>
+                                    {{number_format( $invoice->quote->subtotal, 0 , ',', '.') }} </p>
                                 <input class="form-control invoice-item-total" type="number" name="total"
-                                    id="total" value="{{ $invoice->quote->harga_total }}" hidden>
+                                    id="total" value="{{ $invoice->quote->subtotal }}" hidden>
                             </div>
                         </div>
                     </div>

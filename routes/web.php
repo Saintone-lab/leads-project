@@ -37,6 +37,7 @@ use App\Models\DetailProduct;
 use App\Models\Invoice;
 use App\Models\Library;
 use App\Models\Machine;
+use App\Models\Monitoring;
 use App\Models\Notulen;
 use App\Models\Pic;
 use App\Models\ProductIn;
@@ -68,6 +69,9 @@ use App\Http\Controllers\UserController;
 // Route::get('/', function () {
 //     return view('pages.sales.dashboard');
 // });
+Route::get('/machine/monitoring-visit/{id}', [MachineController::class, 'visitorMonitoring'])->name('visitor.machine-monitoring');
+Route::get('/db/machine-monitoring-visit/{id}', [MachineController::class, 'getMonitoringThisMonth']);
+
 Route::group(["middleware" => "auth"], function () {
     Route::get('/', [DashboardController::class, 'index']);
 
@@ -128,6 +132,11 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/quote/unit', [QuotationController::class, 'quotationUnit'])->name('index-unit.quotation');
     Route::get('/quote/unit/create', [QuotationController::class, 'quotationCreateUnit'])->name('create-unit.quotation');
     Route::get('/quote/unit-detail/{id}', [UnitController::class, 'quotationDetail'])->name('detail.quote-unit');
+    Route::get('/quote/service/create', [QuotationController::class, 'createService'])->name('create-service.quotation');
+    Route::post('/quote/service/store', [QuotationController::class, 'storeService'])->name('store-service.quotation');
+    Route::get('/quote/service-show/{id}', [QuotationController::class, 'showService'])->name('show-service.quotation');
+    Route::delete('/quote/service-delete/{id}', [QuotationController::class, 'destroyService'])->name('delete-service.quotation');
+    Route::get('/quote/service-print/{id}', [QuotationController::class, 'printService'])->name('service-print.quotation');
 
     // Route untuk Visit
     Route::get('/visits/leads', function () {
@@ -247,6 +256,9 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk machine
     Route::resource('/machine', MachineController::class);
     Route::post('/machine/technician/store', [MachineController::class, 'storeTechnician'])->name('store.machine-technician');
+    Route::get('/machine/monitoring/{id}', [MachineController::class, 'indexMonitoring'])->name('index.machine-monitoring');
+    Route::get('/machine/monitoring-create/{id}', [MachineController::class, 'createMonitoring'])->name('create.machine-monitoring');
+    Route::post('/machine/monitoring-store/{id}', [MachineController::class, 'storeMonitoring'])->name('store.machine-monitoring');
     Route::get('/machine/dropdown/{id}', function ($id) {
         $machine = Machine::where('id_client', $id)->get();
         return response()->json($machine);
@@ -1127,7 +1139,7 @@ Route::group(["middleware" => "auth"], function () {
                     ->orWhereNull('prospect.provide');
             })
             ->where(function ($query) {
-                $query->where('prospect.level',  '1')
+                $query->where('prospect.level', '1')
                     ->orWhereNull('prospect.level');
             })
             ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.provide', 'prospect.date', 'client.company', 'supp.name as support', 'sale.name as sales', 'pic.name_pic', 'sale.image', 'quotation.status', 'quotation.nett']);
@@ -1166,6 +1178,17 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/notulen', function () {
         $notulen = Notulen::join('mention_notulen as m', 'm.id_notulen', '=', 'notulen.id')->join('users as u', 'm.id_mention', '=', 'u.id')->where('m.id_mention', Auth::id())->get(['notulen.*', 'u.name', 'm.level']);
         return response()->json(['data' => $notulen]);
+    });
+    Route::get('/db/machine/monitoring/{id}', function ($id) {
+        $data = Monitoring::join('machine as m', 'm.id', '=', 'monitoring.id_machine')
+            ->join('users', 'users.id', '=', 'monitoring.id_pic')
+            ->where('m.id', $id)
+            ->select(
+                'monitoring.*',
+                'users.name',
+            )
+            ->get();
+        return response()->json(['data' => $data]);
     });
 });
 Auth::routes();

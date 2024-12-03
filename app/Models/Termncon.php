@@ -10,10 +10,16 @@ class Termncon extends Model
     use HasFactory;
     protected $table = "termncon";
     protected $fillable = [
-        "id_quotation", "validity", "pricing", "delivery_process", "payment"
+        "id_quotation",
+        "validity",
+        "pricing",
+        "warranty",
+        "delivery_process",
+        "payment"
     ];
 
-    public function quotation(){
+    public function quotation()
+    {
         return $this->belongsTo('App/Models/Quotation', 'id_quotation', 'id');
     }
 }
