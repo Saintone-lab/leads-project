@@ -180,7 +180,26 @@
                     </button>
                 </a>
             </div>
-            <div class="row">
+            <div class="card">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-machine-client table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Brand</th>
+                                <th>Type</th>
+                                <th>Serial Number</th>
+                                <th>Bar</th>
+                                <th>Desc</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            {{-- <div class="row">
                 @foreach ($machines as $machine)
                     <div class="col-6 col-md-4">
                         <div class="card mb-2">
@@ -245,7 +264,7 @@
                         </div>
                     </div>
                 @endforeach
-            </div>
+            </div> --}}
         </div>
     </div>
     <div class="row mb-3">
@@ -754,6 +773,7 @@
     <script src="{{ asset('assets') }}/includes/table-quotation-client.js"></script>
     <script src="{{ asset('assets') }}/includes/table-crm-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-po-history.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-machine-client.js"></script>
     <script src="{{ asset('assets') }}/includes/table-service-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-general-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-visit-history.js"></script>

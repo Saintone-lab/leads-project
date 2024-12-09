@@ -31,6 +31,7 @@ class Unit extends Model
         'dimension',
         'weight',
         'status',
+        'type',
     ];
     
     public function detail()
@@ -40,5 +41,9 @@ class Unit extends Model
     public function serial()
     {
         return $this->hasMany('App\Models\SerialProduct', 'id_product');
+    }
+    public function machine()
+    {
+        return $this->hasMany('App\Models\Machine', 'id_product');
     }
 }

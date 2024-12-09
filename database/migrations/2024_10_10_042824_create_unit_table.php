@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('first_stock');
             $table->integer('warehouse_stock');
             $table->integer('stock');
-            $table->string("status");
+            $table->string("status")->nullable();
             $table->string("sn");
             $table->string("bar");
             $table->string("power");
@@ -32,6 +32,7 @@ return new class extends Migration
             $table->string("weight");
             $table->string("note");
             $table->string("desc");
+            $table->enum("type", ['lokal', 'global']);
             $table->date("date");
             $table->timestamps();
         });

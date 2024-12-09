@@ -13,11 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('warehouse', function (Blueprint $table) {
+        Schema::create('detail_return', function (Blueprint $table) {
             $table->id();
-            $table->date('date');
-            $table->string('no_send');
-            $table->longText('note');
+            $table->foreignId("id_return");
+            $table->foreignId("id_pn");
+            $table->longText('detail_product');
+            $table->integer('qty');
+            $table->string('info_qty');
+            $table->integer('price');
             $table->timestamps();
         });
     }
@@ -29,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('table_warehouse');
+        Schema::dropIfExists('detail_return');
     }
 };

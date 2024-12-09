@@ -7,7 +7,7 @@ $users = "root";
 $pass = "";
 
 $databaseName = "db_leads_v1";
-$tableName = "client";
+$tableName = "product";
 
 // Periksa apakah pengguna terotentikasi
 if (Auth::check()) {
@@ -20,15 +20,9 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT c.*, p.name_pic, s.status, u.name, MAX(a.date) AS date, MAX(a.follow_up) AS follow_up, MAX(a.note) AS note 
-                  FROM client c
-                  INNER JOIN users u ON c.id_sales = u.id
-                  LEFT OUTER JOIN pic p ON c.id = p.id_client
-                  LEFT JOIN crm_status s ON c.id = s.id_client
-                  LEFT JOIN activities a ON a.id_client = c.id
-                  WHERE c.role = 'Customers'
-                  GROUP BY c.id  
-                  ORDER BY MAX(a.date) DESC;";
+        $query = "SELECT u.*, s.*, CONCAT(u.stock, ' - ', u.warehouse_stock ) AS stok FROM unit u
+        LEFT JOIN serial_product s on u.id = s.id_product
+        WHERE u.type = 'global' ";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

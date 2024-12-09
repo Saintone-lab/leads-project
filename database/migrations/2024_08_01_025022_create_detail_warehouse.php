@@ -13,14 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('detail_return', function (Blueprint $table) {
+        Schema::create('detail_warehouse', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("id_return");
-            $table->foreignId("id_pn");
-            $table->longText('detail_product');
+            $table->foreignId('id_warehouse');
+            $table->foreignId('id_replacement');
             $table->integer('qty');
-            $table->string('info_qty');
-            $table->integer('price');
+            $table->enum('warehouse1',['BDG', 'BKS']);
+            $table->enum('warehouse2',['BDG', 'BKS']);
             $table->timestamps();
         });
     }
@@ -32,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('table_detail_return');
+        Schema::dropIfExists('detail_warehouse');
     }
 };

@@ -11,17 +11,18 @@ class Machine extends Model
     protected $table = "machine";
     protected $fillable = [
         'id_client',
-        'brand',
-        'type',
-        'serial_number',
-        'bar',
-        'running',
+        'id_unit',
+        'desc',
     ];
 
     
     public function client()
     {
         return $this->belongsTo('App\Models\Client', 'id_client', 'id');
+    }
+    public function unit()
+    {
+        return $this->belongsTo('App\Models\Unit', 'id_unit', 'id');
     }
     public function reports()
     {

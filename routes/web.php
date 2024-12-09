@@ -192,6 +192,9 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk unit
     Route::resource('/unit', UnitController::class);
+    Route::get('/unit-global', [UnitController::class, 'indexGlobal'])->name('unit-global.index');
+    Route::post('/unit-global', [UnitController::class, 'storeGlobal'])->name('unit-global.store');
+    Route::get('/unit-global/{id}', [UnitController::class, 'showGlobal'])->name('unit-global.show');
     Route::get('/cor-factor/calculator', [UnitController::class, 'corfac'])->name('calculator.correction');
 
     // Route untuk Product In
@@ -260,7 +263,19 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/machine/monitoring-create/{id}', [MachineController::class, 'createMonitoring'])->name('create.machine-monitoring');
     Route::post('/machine/monitoring-store/{id}', [MachineController::class, 'storeMonitoring'])->name('store.machine-monitoring');
     Route::get('/machine/dropdown/{id}', function ($id) {
-        $machine = Machine::where('id_client', $id)->get();
+        $machine = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
+            ->join('unit as u', 'u.id', '=', 'machine.id_unit')
+            ->join('serial_product as s', 's.id_product', '=', 'u.id')
+            ->where('c.id', $id)
+            ->groupBy('machine.id', 'u.id')
+            ->select(
+                'machine.*',
+                'u.bar',
+                'u.sn',
+                'u.sku',
+                's.brand',
+            )
+            ->get();
         return response()->json($machine);
     });
 
@@ -357,11 +372,14 @@ Route::group(["middleware" => "auth"], function () {
         $userId = Auth::user()->id;
         $visits = DB::table('req_visit as r')
             ->join('machine as m', 'r.id_machine', '=', 'm.id')
+            ->join('unit as un', 'un.id', '=', 'm.id_unit')
+            ->join('serial_product as s', 'un.id', '=', 's.id_product')
             ->join('client as c', 'm.id_client', '=', 'c.id')
             ->join('users as u', 'c.id_sales', '=', 'u.id')
-            ->select('r.*', 'c.company', 'u.name', DB::raw("CONCAT(m.brand, ' ', m.type) AS machine"))
+            ->select('r.*', 'c.company', 'u.name', DB::raw("CONCAT(s.brand, ' ', un.sku) AS machine"))
             ->where('u.id', $userId)
             ->where('c.id', $id)
+            ->groupBY('r.id','un.id')
             ->orderBy('r.req_date', 'ASC')
             ->get();
 
@@ -702,6 +720,12 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/sales/unit', function () {
         require_once base_path('app/api/product/connectionSalesUnit.php');
     });
+    Route::get('/db/unit/global', function () {
+        require_once base_path('app/api/product/connectionUnitGlobal.php');
+    });
+    Route::get('/db/sales/unit/global', function () {
+        require_once base_path('app/api/product/connectionSalesUnitGlobal.php');
+    });
     Route::get('/db/product/master', function () {
         require_once base_path('app/api/product/master/connection.php');
     });
@@ -867,14 +891,16 @@ Route::group(["middleware" => "auth"], function () {
         $data = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')
             ->join('users', 'users.id', '=', 'reports.id_technician')
             ->join('machine', 'machine.id', '=', 'reports.id_machine')
+            ->join('unit', 'unit.id', '=', 'machine.id_unit')
+            ->join('serial_product as s', 'unit.id', '=', 's.id_product')
             ->where('pic.id_client', $id)
             ->where('reports.type', 'Service')
             ->select(
                 'reports.*',
                 'users.name',
-                DB::raw("CONCAT(machine.brand, ' ', machine.type) AS brand_type")
+                DB::raw("CONCAT(s.brand, ' ', unit.sku) AS brand_type")
             )
-            ->groupBy('reports.id')
+            ->groupBy('reports.id', 'unit.id')
             ->get();
         return response()->json(['data' => $data]);
     });
@@ -882,14 +908,16 @@ Route::group(["middleware" => "auth"], function () {
         $data = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')
             ->join('users', 'users.id', '=', 'reports.id_technician')
             ->join('machine', 'machine.id', '=', 'reports.id_machine')
+            ->join('unit', 'unit.id', '=', 'machine.id_unit')
+            ->join('serial_product as s', 'unit.id', '=', 's.id_product')
             ->where('pic.id_client', $id)
             ->where('reports.type', 'Visit')
             ->select(
                 'reports.*',
                 'users.name',
-                DB::raw("CONCAT(machine.brand, ' ', machine.type) AS brand_type")
+                DB::raw("CONCAT(s.brand, ' ', unit.sku) AS brand_type")
             )
-            ->groupBy('reports.id')
+            ->groupBy('reports.id', 'unit.id')
             ->get();
         return response()->json(['data' => $data]);
     });
@@ -897,14 +925,16 @@ Route::group(["middleware" => "auth"], function () {
         $data = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')
             ->join('users', 'users.id', '=', 'reports.id_technician')
             ->join('machine', 'machine.id', '=', 'reports.id_machine')
+            ->join('unit', 'unit.id', '=', 'machine.id_unit')
+            ->join('serial_product as s', 'unit.id', '=', 's.id_product')
             ->where('pic.id_client', $id)
             ->where('reports.type', 'General')
             ->select(
                 'reports.*',
                 'users.name',
-                DB::raw("CONCAT(machine.brand, ' ', machine.type) AS brand_type")
+                DB::raw("CONCAT(s.brand, ' ', unit.sku) AS brand_type")
             )
-            ->groupBy('reports.id')
+            ->groupBy('reports.id', 'unit.id')
             ->get();
         return response()->json(['data' => $data]);
     });
@@ -1186,6 +1216,22 @@ Route::group(["middleware" => "auth"], function () {
             ->select(
                 'monitoring.*',
                 'users.name',
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/machine/client/{id}', function ($id) {
+        $data = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
+            ->join('unit as u', 'u.id', '=', 'machine.id_unit')
+            ->join('serial_product as s', 's.id_product', '=', 'u.id')
+            ->where('c.id', $id)
+            ->groupBy('machine.id', 'u.id')
+            ->select(
+                'machine.*',
+                'u.bar',
+                'u.sn',
+                'u.sku',
+                's.brand',
             )
             ->get();
         return response()->json(['data' => $data]);

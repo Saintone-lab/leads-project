@@ -21,7 +21,8 @@ if (Auth::check()) {
 
         // Query database for data
         $query = "SELECT u.*, s.*, CONCAT(u.stock, ' - ', u.warehouse_stock ) AS stok FROM unit u
-        LEFT JOIN serial_product s on u.id = s.id_product";
+        LEFT JOIN serial_product s on u.id = s.id_product
+        WHERE u.type = 'lokal' ";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

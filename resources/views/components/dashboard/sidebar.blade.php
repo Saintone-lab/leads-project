@@ -314,6 +314,12 @@
                     <div data-i18n="User">User</div>
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('unit-global') || request()->is('unit-global/*') ? 'active' : '' }}">
+                <a href="{{ route('unit-global.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
+                    <div data-i18n="Unit Global">Unit Global</div>
+                </a>
+            </li>
 
             <li class="menu-item">
                 <a href="{{ url('pending-po') }}" class="menu-link">

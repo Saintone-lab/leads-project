@@ -325,7 +325,7 @@
             </div>
         </div> --}}
     </div>
-    @include('components.modal.warehouse.unit.form')
+    @include('components.modal.warehouse.unit.form-global')
     @include('components.modal.warehouse.unit.stock')
     @include('components.modal.warehouse.replacement.form')
     @include('components.modal.warehouse.equivalent.form-unit')

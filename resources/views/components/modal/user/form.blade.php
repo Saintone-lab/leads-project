@@ -73,7 +73,7 @@
                             </div>
                             <div class="col-md-6 mt-2">
                         @endif
-                        <div class="input-group input-group-merge">
+                        {{-- <div class="input-group input-group-merge">
                             <div class="form-floating form-floating-outline">
                                 <input type="password" id="password"
                                     class="form-control  @error('password') is-invalid @enderror" name="password"
@@ -84,7 +84,7 @@
                             <span class="input-group-text cursor-pointer">
                                 <i class="mdi mdi-eye-off-outline"></i>
                             </span>
-                        </div>
+                        </div> --}}
                     </div>
                     <h5 class="text-muted mb-0">
                         Profile

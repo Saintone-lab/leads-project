@@ -16,11 +16,8 @@ return new class extends Migration
         Schema::create('machine', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_client');
-            $table->string('brand');
-            $table->string('type');
-            $table->string('serial_number');
-            $table->string('bar');
-            $table->string('running');
+            $table->foreignId('id_unit');
+            $table->string('desc');
             $table->timestamps();
         });
     }

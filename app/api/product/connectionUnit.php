@@ -33,6 +33,7 @@ if (Auth::check()) {
                 serial_product s ON u.id = s.id_product
             LEFT JOIN 
                 detail_product dp ON u.id = dp.id_product
+                WHERE u.type = 'lokal' 
             GROUP BY 
                 u.id, s.pn";
 

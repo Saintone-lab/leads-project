@@ -12,6 +12,7 @@ use App\Models\Pic;
 use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\Reports;
+use App\Models\Unit;
 use App\Models\User;
 use App\Models\Visit;
 use Carbon\Carbon;
@@ -140,6 +141,8 @@ class CrmController extends Controller
         $quote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('level', '1')->get('quotation.*');
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
+        $unit = Unit::all();
+        // dd($unit);
         $crmhis = $this->data($id);
         $machinehis = $this->getServicePerMonth($id);
         // dd($yearsNow);
@@ -226,6 +229,7 @@ class CrmController extends Controller
                 'commentAdmin',
                 'unreadCommentAdmin',
                 'sales',
+                'unit',
                 'charge',
                 'issue',
                 'crmhis',
