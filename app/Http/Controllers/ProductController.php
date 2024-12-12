@@ -415,19 +415,15 @@ class ProductController extends Controller
 
             'pn' =>
                 'required',
-
-            'price' =>
-                'required',
         ];
 
         $message = [
             'image.required' => 'Field Image Wajib Diisi',
             'brand.required' => 'Field brand Wajib Diisi',
             'pn.required' => 'Field pn Wajib Diisi',
-            'price.required' => 'Field price Wajib Diisi',
         ];
         $this->validate($request, $rule, $message);
-        // dd($request);
+        // dd($request->all());
 
         $equiv = new SerialProduct;
         $equiv->id_product = $id;
@@ -436,15 +432,17 @@ class ProductController extends Controller
         $equiv->pn = $request->pn;
         $equiv->detail = $request->detail;
         if ($request->detail != NULL) {
-            foreach ($request->unit as $key => $value) {
-                if ($value == 'rental') {
-                    $equiv->rental = '1';
-                }
-                if ($value == 'second') {
-                    $equiv->second = '1';
-                }
-                if ($value == 'new') {
-                    $equiv->new = '1';
+            if (isset($request->unit)) {
+                foreach ($request->unit as $key => $value) {
+                    if ($value == 'rental') {
+                        $equiv->rental = '1';
+                    }
+                    if ($value == 'second') {
+                        $equiv->second = '1';
+                    }
+                    if ($value == 'new') {
+                        $equiv->new = '1';
+                    }
                 }
             }
         } else {
@@ -452,7 +450,12 @@ class ProductController extends Controller
             $equiv->second = '0';
             $equiv->new = '0';
         }
-        $equiv->price = $request->price;
+        if ($request->bar != NULL) {
+            $equiv->bar = $request->bar;
+            $equiv->air_cap = $request->air_cap;
+        } else {
+            $equiv->price = $request->price;
+        }
         $equiv->image = $request->image;
         $equivSave = $equiv->save();
 
@@ -473,16 +476,12 @@ class ProductController extends Controller
 
             'pn' =>
                 'required',
-
-            'price' =>
-                'required',
         ];
 
         $message = [
             'image.required' => 'Field Image Wajib Diisi',
             'brand.required' => 'Field brand Wajib Diisi',
             'pn.required' => 'Field pn Wajib Diisi',
-            'price.required' => 'Field price Wajib Diisi',
         ];
         $this->validate($request, $rule, $message);
         // dd($request);
@@ -491,21 +490,28 @@ class ProductController extends Controller
         $equiv->brand = $request->brand;
         $equiv->fxp_parts = "-";
         $equiv->pn = $request->pn;
-        $equiv->price = $request->price;
+        if ($request->bar != NULL) {
+            $equiv->bar = $request->bar;
+            $equiv->air_cap = $request->air_cap;
+        } else {
+            $equiv->price = $request->price;
+        }
         $equiv->image = $request->image;
         $equiv->rental = '0';
         $equiv->second = '0';
         $equiv->new = '0';
         if ($request->detail != NULL) {
-            foreach ($request->unit as $key => $value) {
-                if ($value == 'rental') {
-                    $equiv->rental = '1';
-                }
-                if ($value == 'second') {
-                    $equiv->second = '1';
-                }
-                if ($value == 'new') {
-                    $equiv->new = '1';
+            if (isset($request->unit)) {
+                foreach ($request->unit as $key => $value) {
+                    if ($value == 'rental') {
+                        $equiv->rental = '1';
+                    }
+                    if ($value == 'second') {
+                        $equiv->second = '1';
+                    }
+                    if ($value == 'new') {
+                        $equiv->new = '1';
+                    }
                 }
             }
         }

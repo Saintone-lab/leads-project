@@ -49,15 +49,11 @@ class MachineController extends Controller
 
             'serial' =>
                 'required',
-
-            'unit' =>
-                'required',
         ];
 
         $message = [
             'desc.required' => 'Field desc Wajib Diisi',
             'serial.required' => 'Field serial Wajib Diisi',
-            'unit.required' => 'Field unit Wajib Diisi',
         ];
         $this->validate($request, $rule, $message);
         $machine = new Machine;
@@ -65,6 +61,8 @@ class MachineController extends Controller
         $machine->id_unit = $request->unit;
         $machine->serial = $request->serial;
         $machine->desc = $request->desc;
+        $machine->tag = $request->tag;
+        $machine->location = $request->location;
         $machineSave = $machine->save();
         if ($machineSave) {
             return redirect('/existing/' . $request->id_client)->with('message', 'data telah ditambahkan');
@@ -149,39 +147,30 @@ class MachineController extends Controller
     }
     public function storeTechnician(Request $request)
     {
-
         $rule = [
-            'brand' =>
+            'desc' =>
                 'required',
 
-            'type' =>
+            'serial' =>
                 'required',
 
-            'serial_number' =>
-                'required',
-
-            'bar' =>
-                'required',
-
-            'running' =>
+            'unit' =>
                 'required',
         ];
 
         $message = [
-            'brand.required' => 'Field brand Wajib Diisi',
-            'type.required' => 'Field type Wajib Diisi',
-            'serial_number.required' => 'Field Serial Number Wajib Diisi',
-            'bar.required' => 'Field bar Wajib Diisi',
-            'running.required' => 'Field running Wajib Diisi',
+            'desc.required' => 'Field desc Wajib Diisi',
+            'serial.required' => 'Field serial Wajib Diisi',
+            'unit.required' => 'Field unit Wajib Diisi',
         ];
         $this->validate($request, $rule, $message);
         $machine = new Machine;
         $machine->id_client = $request->id_client;
-        $machine->brand = $request->brand;
-        $machine->type = $request->type;
-        $machine->serial_number = $request->serial_number;
-        $machine->bar = $request->bar;
-        $machine->running = $request->running;
+        $machine->id_unit = $request->unit;
+        $machine->serial = $request->serial;
+        $machine->desc = $request->desc;
+        $machine->tag = $request->tag;
+        $machine->location = $request->location;
         $machineSave = $machine->save();
         if ($machineSave) {
             return redirect('/service-reports/create')->with('message', 'data telah ditambahkan');

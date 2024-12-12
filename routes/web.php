@@ -14,6 +14,7 @@ use App\Http\Controllers\ExistingController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\MachineController;
+use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotulenController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\PicController;
@@ -259,13 +260,10 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk machine
     Route::resource('/machine', MachineController::class);
     Route::post('/machine/technician/store', [MachineController::class, 'storeTechnician'])->name('store.machine-technician');
-    Route::get('/machine/monitoring/{id}', [MachineController::class, 'indexMonitoring'])->name('index.machine-monitoring');
-    Route::get('/machine/monitoring-create/{id}', [MachineController::class, 'createMonitoring'])->name('create.machine-monitoring');
-    Route::post('/machine/monitoring-store/{id}', [MachineController::class, 'storeMonitoring'])->name('store.machine-monitoring');
     Route::get('/machine/dropdown/{id}', function ($id) {
         $machine = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
-            ->join('unit as u', 'u.id', '=', 'machine.id_unit')
-            ->join('serial_product as s', 's.id_product', '=', 'u.id')
+            ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 's.id_product')
             ->where('c.id', $id)
             ->groupBy('machine.id', 'u.id')
             ->select(
@@ -278,6 +276,11 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json($machine);
     });
+
+    // Route Monitoring
+    Route::get('/monitoring/daily/{id}', [MonitoringController::class, 'indexDaily'])->name('index.daily-monitoring');
+    Route::get('/monitoring/daily-create/{id}', [MonitoringController::class, 'createDaily'])->name('create.daily-monitoring');
+    Route::post('/monitoring/daily-store/{id}', [MonitoringController::class, 'storeDaily'])->name('store.daily-monitoring');
 
     // Route untuk Selling Contract dan Confirm Order
     Route::resource('/contract', ContractController::class);
@@ -379,7 +382,7 @@ Route::group(["middleware" => "auth"], function () {
             ->select('r.*', 'c.company', 'u.name', DB::raw("CONCAT(s.brand, ' ', un.sku) AS machine"))
             ->where('u.id', $userId)
             ->where('c.id', $id)
-            ->groupBY('r.id','un.id')
+            ->groupBY('r.id', 'un.id')
             ->orderBy('r.req_date', 'ASC')
             ->get();
 
@@ -725,6 +728,12 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/sales/unit/global', function () {
         require_once base_path('app/api/product/connectionSalesUnitGlobal.php');
+    });
+    Route::get('/db/unit/global/dryer', function () {
+        require_once base_path('app/api/product/connectionUnitDryerGlobal.php');
+    });
+    Route::get('/db/sales/unit/global/dryer', function () {
+        require_once base_path('app/api/product/connectionSalesUnitDryerGlobal.php');
     });
     Route::get('/db/product/master', function () {
         require_once base_path('app/api/product/master/connection.php');
@@ -1222,13 +1231,13 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/machine/client/{id}', function ($id) {
         $data = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
-            ->join('unit as u', 'u.id', '=', 'machine.id_unit')
-            ->join('serial_product as s', 's.id_product', '=', 'u.id')
+        ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
+            ->join('unit as u', 's.id_product', '=', 'u.id')
             ->where('c.id', $id)
             ->groupBy('machine.id', 'u.id')
             ->select(
                 'machine.*',
-                'u.bar',
+                's.bar',
                 'u.sn',
                 'u.sku',
                 's.brand',

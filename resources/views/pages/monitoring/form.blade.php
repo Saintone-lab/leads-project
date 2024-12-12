@@ -3,8 +3,8 @@
 @section('content')
     <div class="card mb-3">
         <div class="card-body">
-            <h5 class="text-center">Monitoring {{ $machine->brand }} {{ $machine->type }}</h5>
-            <form action="{{ route('store.machine-monitoring', $machine->id) }}" method="post" enctype="multipart/form-data">
+            <h5 class="text-center">Monitoring {{$machine->unit->brand}} {{$machine->unit->unit->sku}}</h5>
+            <form action="{{ route('store.daily-monitoring', $machine->id) }}" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
                     <div class="col-12 col-lg-6">
@@ -43,17 +43,10 @@
                             <span class="input-group-text">°C</span>
                         </div>
                     </div>
-                    <div class="col-6 col-lg-3">
+                    <div class="col col-lg-6">
                         <label for="defaultInput" class="form-label">Running</label>
                         <div class="input-group input-group-merge">
                             <input id="defaultInput" class="form-control" name="running" type="number" placeholder="Hr">
-                            <span class="input-group-text">Hours</span>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <label for="defaultInput" class="form-label">Load</label>
-                        <div class="input-group input-group-merge">
-                            <input id="defaultInput" class="form-control" name="load" type="number" placeholder="Hr">
                             <span class="input-group-text">Hours</span>
                         </div>
                     </div>
@@ -68,7 +61,7 @@
                     <p class="text-muted">Note :Format photo harus ada bukti tanggal pada Photonya</p>
                 </div>
                 <div class="float-end">
-                    <a href="{{ route('index.machine-monitoring', $machine->id) }}" type="button"
+                    <a href="{{ route('index.daily-monitoring', $machine->id) }}" type="button"
                         class="btn btn-lg btn-outline-secondary">
                         Back
                     </a>

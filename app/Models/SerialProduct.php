@@ -22,6 +22,8 @@ class SerialProduct extends Model
         'rental',
         'second',
         'new',
+        'bar',
+        'air_cap',
     ];
     public function product()
     {

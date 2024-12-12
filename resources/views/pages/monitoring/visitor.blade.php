@@ -46,32 +46,32 @@
                                                     <p class="mb-1">Brand </p>
                                                 </div>
                                                 <div class="col-6">
-                                                    <p class="mb-1">: {{ $machine->brand }}</p>
+                                                    <p class="mb-1">: {{ $machine->unit->brand }}</p>
                                                 </div>
                                                 <div class="col-4">
                                                     <p class="mb-1">Type </p>
                                                 </div>
                                                 <div class="col-6">
-                                                    <p class="mb-1">: {{ $machine->type }}</p>
+                                                    <p class="mb-1">: {{ $machine->unit->unit->sku }}</p>
                                                 </div>
                                                 <div class="col-4">
                                                     <p class="mb-1">Serial Number </p>
                                                 </div>
                                                 <div class="col-6">
-                                                    <p class="mb-1">: {{ $machine->serial_number }}</p>
+                                                    <p class="mb-1">: {{ $machine->serial }}</p>
                                                 </div>
                                                 <div class="col-4">
                                                     <p class="mb-1">Bar </p>
                                                 </div>
                                                 <div class="col-6">
-                                                    <p class="mb-1">: {{ $machine->bar }}</p>
+                                                    <p class="mb-1">: {{ $machine->unit->bar }}</p>
                                                 </div>
-                                                <div class="col-4">
+                                                {{-- <div class="col-4">
                                                     <p class="mb-1">Running Hour </p>
                                                 </div>
                                                 <div class="col-6">
-                                                    <p class="mb-1">: {{ $machine->running }}</p>
-                                                </div>
+                                                    <p class="mb-1">: {{ $machine->serial->unit->running }}</p>
+                                                </div> --}}
                                                 <div class="col-4">
                                                     <p class="mb-1">Customer </p>
                                                 </div>
@@ -102,7 +102,6 @@
                                             <th>Condition</th>
                                             <th>Oil Level</th>
                                             <th>Running</th>
-                                            <th>Load</th>
                                             <th>Pressure</th>
                                             <th>Temperature</th>
                                             {{-- <th>PIC</th> --}}

@@ -20,14 +20,16 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT r.*, c.company, u.name AS technician, s.name AS sales ,  CONCAT(m.brand, ' ', m.type) AS brand_type 
+        $query = "SELECT r.*, c.company, u.name AS technician, s.name AS sales ,  CONCAT(sp.brand, ' ', un.sku) AS brand_type 
           FROM reports r 
         JOIN machine m on r.id_machine = m.id
           LEFT JOIN pic p ON p.id = r.id_pic
           LEFT JOIN client c ON c.id = p.id_client
           INNER JOIN users u ON u.id = r.id_technician
           INNER JOIN users s ON s.id = c.id_sales
-          GROUP BY id 
+        INNER JOIN serial_product sp ON sp.id = m.id_unit
+        INNER JOIN unit un ON un.id = sp.id_product
+          GROUP BY r.id, un.id 
           ORDER BY r.date ASC";
 
         $stmt = $pdo->prepare($query);

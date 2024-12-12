@@ -134,7 +134,7 @@
                         <div class="col g-2">
                             <div class="form-floating form-floating-outline input-group">
                                 <input type="number" class="form-control" placeholder="Weight" min="0"
-                                    name="weight"value="{{ old('dimension', @$product->dimension ?? '') }}">
+                                    name="weight"value="{{ old('weight', @$product->weight ?? '') }}">
                                 <span class="input-group-text">Kg</span>
                             </div>
                         </div>

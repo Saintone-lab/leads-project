@@ -71,7 +71,7 @@
         </div>
     </div> --}}
     <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0">
+        <div class="card-datatable table-responsive pt-0 mb-4">
             @if (Auth::user()->role == 'Admin')
                 <table class="datatable-product-unit-global table table-striped">
                     <thead>
@@ -113,9 +113,10 @@
                 </table>
             @endif
         </div>
+        <hr>
         <div class="card-datatable table-responsive pt-0">
             @if (Auth::user()->role == 'Admin')
-                <table class="datatable-product-dryer-global table table-striped">
+                <table class="datatable-product-unit-global-dryer table table-striped">
                     <thead>
                         <tr>
                             <th></th>
@@ -134,7 +135,7 @@
                     </thead>
                 </table>
             @else
-                <table class="datatable-product-sales-dryer-global table table-striped">
+                <table class="datatable-product-sales-unit-global-dryer table table-striped">
                     <thead>
                         <tr>
                             <th></th>
@@ -185,5 +186,7 @@
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-unit-global.js"></script>
     <script src="{{ asset('assets') }}/includes/table-unit-global-sales.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-unit-dryer-global.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-unit-dryer-global-sales.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush

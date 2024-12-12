@@ -32,8 +32,8 @@
                                     <option> ---- Choose Uniit Here ---- </option>
                                     @foreach ($unit as $machine)
                                         <option value="{{ $machine->id }}">
-                                            {{ $machine->serial->first()?->brand ?? 'No brand' }} - {{ $machine->sku }} ||
-                                            {{ $machine->sn }}
+                                            {{ $machine->brand }} - {{ $machine->unit->sku ?? '-' }} ||
+                                            {{ $machine->unit->bar ?? '-' }} - {{ $machine->unit->air_cap ?? '-' }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -54,6 +54,22 @@
                                 <input type="text" id="serialAnimation" class="form-control" name="serial"
                                     placeholder="Example: CEO" value="{{ old('serial') }}">
                                 <label for="serialAnimation">Serial Number</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="tagAnimation" class="form-control" name="tag"
+                                    placeholder="Example: CEO" value="{{ old('tag') }}">
+                                <label for="tagAnimation">Tag Number</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-12 col-md-6 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="loactionAnimation" class="form-control" name="loaction"
+                                    placeholder="Example: CEO" value="{{ old('loaction') }}">
+                                <label for="loactionAnimation">Loaction</label>
                             </div>
                         </div>
                     </div>

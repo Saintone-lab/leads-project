@@ -32,8 +32,8 @@
                                     <option> ---- Choose Uniit Here ---- </option>
                                     @foreach ($unit as $item)
                                         <option value="{{ $item->id }}" {{ $machine->id_unit == $item->id ? 'selected' : ''}}>
-                                            {{ $item->serial[0]->brand }} - {{ $item->sku }} ||
-                                            {{ $item->sn }}
+                                            {{ $machine->serial->brand ?? 'No brand' }} - {{ $item->sku }} ||
+                                            {{ $machine->bar }} - {{ $machine->air_cap }}
                                         </option>
                                     @endforeach
                                 </select>

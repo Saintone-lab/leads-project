@@ -254,8 +254,8 @@
                                     <th>Image</th>
                                     <th>Brand</th>
                                     <th>PN</th>
-                                    <th>unit</th>
-                                    <th>Price</th>
+                                    <th>Bar</th>
+                                    <th>Air Capacity</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -328,12 +328,12 @@
     @include('components.modal.warehouse.unit.form-global')
     @include('components.modal.warehouse.unit.stock')
     @include('components.modal.warehouse.replacement.form')
-    @include('components.modal.warehouse.equivalent.form-unit')
+    @include('components.modal.warehouse.equivalent.form-global')
     @php
         $no = 0;
     @endphp
     @foreach ($serials as $serial)
-        @include('components.modal.warehouse.equivalent.form-unit')
+        @include('components.modal.warehouse.equivalent.form-global')
         @php
             $no++;
         @endphp
@@ -372,7 +372,7 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-equivalent-unit.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-equivalent-global.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-in-detail.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-out-detail.js"></script>
     <script src="{{ asset('assets') }}/includes/table-quotation-product.js"></script>

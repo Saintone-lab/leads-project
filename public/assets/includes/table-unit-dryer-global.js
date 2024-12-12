@@ -1,29 +1,23 @@
 $(function () {
-    var dt_table_monitoring = $(".datatable-monitoring");
-    var Url = "/db/machine-monitoring-visit/";
-    var path = window.location.pathname;
-    var id = path.substring(path.lastIndexOf("/") + 1);
+    var dt_table_product_unit_global_dryer = $(".datatable-product-unit-global-dryer");
+    var Url = "/db/unit/global/dryer";
 
-    if (dt_table_monitoring.length) {
+    if (dt_table_product_unit_global_dryer.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_monitoring.DataTable({
+        var dt_product = dt_table_product_unit_global_dryer.DataTable({
             ajax: {
                 type: "GET",
-                url: Url + id,
+                url: Url,
                 headers: {
                     "Content-Type": "application/json",
                 },
 
-                // success: function (hasil, Url, responseData) {
+                // success: function (hasil, Url) {
                 //     console.log("Url:", Url);
                 //     console.log(hasil);
-                //     console.log("responseData:", responseData);
-                //     console.log("Data type:", typeof responseData);
-                //     console.log("Is array:", Array.isArray(responseData));
-                //     console.log("Data length:", responseData.length);
                 // },
                 // error: function (error) {
-                //     console.log("Url:", Url + id);
+                //     console.log("Url:", Url);
                 //     console.error("Error:", error);
                 //     console.log("error disini");
                 // },
@@ -32,13 +26,15 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "date" },
-                { data: "condition" },
-                { data: "oil_level" },
-                { data: "load" },
-                { data: "pressure" },
-                { data: "temp" },
-                // { data: "name" },
+                { data: "sku" },
+                { data: "brand" },
+                { data: "pn" },
+                { data: "sn" },
+                { data: "power" },
+                { data: "bar" },
+                { data: "air_cap" },
+                { data: "status" },
+                { data: "price" },
             ],
             columnDefs: [
                 {
@@ -46,7 +42,7 @@ $(function () {
                     className: "control",
                     orderable: false,
                     searchable: false,
-                    responsivePriority: 3,
+                    responsivePriority: 2,
                     targets: 0,
                     render: function (data, type, full, meta) {
                         return "";
@@ -78,22 +74,73 @@ $(function () {
                 },
                 {
                     targets: 3,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $dataId = full["id_p"];
+                            var detailRoute = route("unit-global.show", $dataId);
+                            return (
+                                
+                            '<span>'+
+                            '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>" +
+                            "</span>"
+                            );
+                        }
+                        return data;
+                    },
+                },
+                {
+                    targets: 10,
                     render: function (data, type, full, meta) {
-                        var $tip = full["desc"];
+                        var $title = full["status"];
+                        var $status = {
+                            "Ready": {
+                                title: $title,
+                                class: "bg-label-primary",
+                            },
+                            "On Rental": {
+                                title: $title,
+                                class: " bg-label-warning",
+                            },
+                            "Sold": {
+                                title: $title,
+                                class: " bg-label-secondary",
+                            },
+                            "Service": {
+                                title: $title,
+                                class: " bg-label-danger",
+                            },
+                        };
+                        if (typeof $status[$title] === "undefined") {
+                            return data;
+                        }
                         return (
-                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary"' +
-                            ' title=" ' +
-                            $tip +
+                            '<span class="badge rounded-pill ' +
+                            $status[$title].class +
                             '">' +
-                            data +
+                            $status[$title].title +
                             "</span>"
                         );
                     },
                 },
+                {
+                    targets: 11,
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                },
+                {
+                    targets: [4, 5, 11],
+                    render: function (data, type, row) {
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            return data;
+                        }
+                    },
+                },
             ],
-            order: [[3, "asc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 head-invoice text-center">><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            lengthMenu: [30],
+            order: [[2, "desc"]],
+            dom: '<"card-header flex-column flex-md-row"<"head-label-dryer text-center">><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            displayLength: 15,
+            lengthMenu: [15, 25, 50, 75, 100],
             // buttons: [
             //     {
             //         extend: "collection",
@@ -105,7 +152,7 @@ $(function () {
             //                 text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
             //                 className: "dropdown-item",
             //                 exportOptions: {
-            //                     columns: [3, 4, 5, 6, 7],
+            //                     columns: [3, 4, 5, 6, 7, 8, 9],
             //                     // prevent avatar to be display
             //                     format: {
             //                         body: function (inner, coldex, rowdex) {
@@ -161,7 +208,7 @@ $(function () {
             //                 text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
             //                 className: "dropdown-item",
             //                 exportOptions: {
-            //                     columns: [3, 4, 5, 6, 7],
+            //                     columns: [3, 4, 5, 6, 7, 8, 9],
             //                     // prevent avatar to be display
             //                     format: {
             //                         body: function (inner, coldex, rowdex) {
@@ -198,7 +245,7 @@ $(function () {
             //                 text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
             //                 className: "dropdown-item",
             //                 exportOptions: {
-            //                     columns: [3, 4, 5, 6, 7],
+            //                     columns: [3, 4, 5, 6, 7, 8, 9],
             //                     // prevent avatar to be display
             //                     format: {
             //                         body: function (inner, coldex, rowdex) {
@@ -235,7 +282,7 @@ $(function () {
             //                 text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
             //                 className: "dropdown-item",
             //                 exportOptions: {
-            //                     columns: [3, 4, 5, 6, 7],
+            //                     columns: [3, 4, 5, 6, 7, 8, 9],
             //                     // prevent avatar to be display
             //                     format: {
             //                         body: function (inner, coldex, rowdex) {
@@ -272,7 +319,7 @@ $(function () {
             //                 text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
             //                 className: "dropdown-item",
             //                 exportOptions: {
-            //                     columns: [3, 4, 5, 6, 7],
+            //                     columns: [3, 4, 5, 6, 7, 8, 9],
             //                     // prevent avatar to be display
             //                     format: {
             //                         body: function (inner, coldex, rowdex) {
@@ -306,6 +353,14 @@ $(function () {
             //             },
             //         ],
             //     },
+            //     {
+            //         text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
+            //         className: "btn btn-primary",
+            //         attr: {
+            //             "data-bs-target": "#createProduct",
+            //             "data-bs-toggle": "modal",
+            //         },
+            //     },
             // ],
             drawCallback: function (settings) {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -315,7 +370,7 @@ $(function () {
                     display: $.fn.dataTable.Responsive.display.modal({
                         header: function (row) {
                             var data = row.data();
-                            return "Details of " + data["brand"] + data["type"];
+                            return "Details of " + data["company"];
                         },
                     }),
                     type: "column",
@@ -345,11 +400,11 @@ $(function () {
                 },
             },
         });
-        $("div.head-label-no-tax").html(
-            '<h5 class="card-title mb-0">Table Product No Tax</h5>'
+        $("div.head-label-dryer").html(
+            '<h5 class="card-title mb-0">Table Dryer</h5>'
         );
     }
-    dt_table_monitoring.on("draw", function () {
+    dt_table_product_unit_global_dryer.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

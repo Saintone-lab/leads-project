@@ -2,7 +2,7 @@
 @section('title', 'Monitoring machine')
 @section('content')
     <h4 class="fw-bold py-3 mb-4">
-        Monitoring Machine {{$machine->brand}} {{$machine->type}}
+        Monitoring Machine {{$machine->unit->brand}} {{$machine->unit->unit->sku}}
     </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
@@ -14,7 +14,6 @@
                         <th>ID</th>
                         <th>Date</th>
                         <th>Running</th>
-                        <th>Load</th>
                         <th>Pressure</th>
                         <th>Temperature</th>
                         <th>Condition</th>

@@ -15,7 +15,7 @@ class Monitoring extends Model
     ];
     protected $fillable = [
         'runing',
-        'load',
+        // 'load',
         'pressure',
         'temp',
         'condition',

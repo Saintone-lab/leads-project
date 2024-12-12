@@ -33,9 +33,9 @@ if (Auth::check()) {
                 serial_product s ON u.id = s.id_product
             LEFT JOIN 
                 detail_product dp ON u.id = dp.id_product
-            WHERE u.type = 'global' 
+            WHERE u.type = 'global' AND u.unit != 'REFRIGERANT AIR DRYER'
             GROUP BY 
-                u.id, s.pn";
+                u.id";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

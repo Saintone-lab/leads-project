@@ -18,6 +18,8 @@ return new class extends Migration
             $table->foreignId('id_client');
             $table->foreignId('id_unit');
             $table->string('desc');
+            $table->string('tag');
+            $table->string('location');
             $table->timestamps();
         });
     }

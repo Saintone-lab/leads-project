@@ -13,6 +13,9 @@ class Machine extends Model
         'id_client',
         'id_unit',
         'desc',
+        'serial',
+        'tag',
+        'location',
     ];
 
     
@@ -22,7 +25,7 @@ class Machine extends Model
     }
     public function unit()
     {
-        return $this->belongsTo('App\Models\Unit', 'id_unit', 'id');
+        return $this->belongsTo('App\Models\SerialProduct', 'id_unit', 'id');
     }
     public function reports()
     {

@@ -12,6 +12,7 @@ use App\Models\Pic;
 use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\Reports;
+use App\Models\SerialProduct;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\Visit;
@@ -141,8 +142,8 @@ class CrmController extends Controller
         $quote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('level', '1')->get('quotation.*');
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
-        $unit = Unit::all();
-        // dd($unit);
+        $unit = SerialProduct::whereNotNull('detail')->take(5)->get();
+        dd($unit);
         $crmhis = $this->data($id);
         $machinehis = $this->getServicePerMonth($id);
         // dd($yearsNow);
