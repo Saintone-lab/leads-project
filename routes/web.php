@@ -70,8 +70,9 @@ use App\Http\Controllers\UserController;
 // Route::get('/', function () {
 //     return view('pages.sales.dashboard');
 // });
-Route::get('/machine/monitoring-visit/{id}', [MachineController::class, 'visitorMonitoring'])->name('visitor.machine-monitoring');
-Route::get('/db/machine-monitoring-visit/{id}', [MachineController::class, 'getMonitoringThisMonth']);
+Route::get('/monitoring/daily-visit/{id}', [MonitoringController::class, 'visitorDaily'])->name('visitor.daily-monitoring');
+Route::get('/db/machine-monitoring-visit/{id}', [MonitoringController::class, 'getMonitoringCompressorThisMonth']);
+Route::get('/db/dryer-monitoring-visit/{id}', [MonitoringController::class, 'getMonitoringDryerThisMonth']);
 
 Route::group(["middleware" => "auth"], function () {
     Route::get('/', [DashboardController::class, 'index']);

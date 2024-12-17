@@ -4,6 +4,7 @@
 
 <head>
     @include('includes.sales.meta')
+    @section('title', 'Monitoring Visit')
     @include('includes.sales.style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
@@ -36,7 +37,8 @@
                         <div class="card-body">
                             <div class="row mb-5">
                                 <div class="col-12 col-lg-4">
-                                    <img src="" alt="Photo Name Plat" class="w-100 h-100">
+                                    {{-- <img src="" alt="Photo Name Plat" class="w-100 h-100"> --}}
+                                    <img src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt="Photo Name Plat" class="w-100">
                                 </div>
                                 <div class="col-12 col-lg-8">
                                     <div class="card">
@@ -91,24 +93,44 @@
                             </div>
                             <h5>Result Monitoring </h5>
 
-                            <div class="card-datatable table-responsive pt-0">
-                                <table class="datatable-monitoring table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th></th>
-                                            <th>ID</th>
-                                            <th>Date</th>
-                                            <th>Condition</th>
-                                            <th>Oil Level</th>
-                                            <th>Running</th>
-                                            <th>Pressure</th>
-                                            <th>Temperature</th>
-                                            {{-- <th>PIC</th> --}}
-                                        </tr>
-                                    </thead>
-                                </table>
-                            </div>
+                            {{-- <div class="card-datatable table-responsive pt-0">
+                                @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
+                                    <table class="datatable-monitoring table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                <th>ID</th>
+                                                <th>Date</th>
+                                                <th>Running</th>
+                                                <th>Pressure</th>
+                                                <th>Temperature</th>
+                                                <th>Condition</th>
+                                                <th>Oil Level</th>
+                                                <th>PIC</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                    @else
+                                    <table class="datatable-monitoring-dryer table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                <th>ID</th>
+                                                <th>Date</th>
+                                                <th>Temperature IN</th>
+                                                <th>Temperature OUT</th>
+                                                <th>Dew Point</th>
+                                                <th>Auto Drain</th>
+                                                <th>Condition</th>
+                                                 <th>PIC</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                @endif
+                            </div> --}}
+
                             {{-- <div class="form-floating form-floating-outline mb-5">
                                 <select class="form-select" id="selectMonth" aria-label="Default select example">
                                     <option value="">August 2024</option>
@@ -120,33 +142,60 @@
                                     <option value="3">February 2025</option>
                                 </select>
                                 <label for="selectMonth">Month - Years</label>
+                            </div> --}}
+                            <div class="table-responsive text-nowrap">
+                                @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <th>Date</th>
+                                            <th>Condition</th>
+                                            <th>R Hr.</th>
+                                            <th>Press.</th>
+                                            <th>Temp.</th>
+                                            <th>Oil Lvl</th>
+                                            <th>PIC</th>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($compressor as $item)
+                                                <tr>
+                                                    <td>{{ $item['date'] }}</td>
+                                                    <td>{{ $item['condition'] }}</td>
+                                                    <td>{{ $item['running'] }}</td>
+                                                    <td>{{ $item['pressure'] }}</td>
+                                                    <td>{{ $item['temp'] }}</td>
+                                                    <td>{{ $item['oil_level'] }}</td>
+                                                    <td>{{ $item['pic'] }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <th>Date</th>
+                                            <th>Condition</th>
+                                            <th>Temp IN</th>
+                                            <th>Temp OUT</th>
+                                            <th>Dew P.</th>
+                                            <th>Auto Drain</th>
+                                            <th>PIC</th>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($dryer as $item)
+                                                <tr>
+                                                    <td>{{ $item['date'] }}</td>
+                                                    <td>{{ $item['condition'] }}</td>
+                                                    <td>{{ $item['temp'] }}</td>
+                                                    <td>{{ $item['temp_out'] }}</td>
+                                                    <td>{{ $item['dew'] }}</td>
+                                                    <td>{{ $item['drain'] }}</td>
+                                                    <td>{{ $item['pic'] }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @endif
                             </div>
-                            <table class="table table-responsive table-bordered">
-                                <thead>
-                                    <th>Date</th>
-                                    <th>Running</th>
-                                    <th>Load</th>
-                                    <th>Pressure</th>
-                                    <th>Temperature</th>
-                                    <th>Condition</th>
-                                    <th>Oil Level</th>
-                                    <th>Description</th>
-                                </thead>
-                                <tbody>
-                                    @foreach ($result as $item)
-                                        <tr>
-                                            <td>{{ $item['date'] }}</td>
-                                            <td>{{ $item['running'] }}</td>
-                                            <td>{{ $item['load'] }}</td>
-                                            <td>{{ $item['pressure'] }}</td>
-                                            <td>{{ $item['temp'] }}</td>
-                                            <td>{{ $item['condition'] }}</td>
-                                            <td>{{ $item['oil_level'] }}</td>
-                                            <td>{{ $item['desc'] }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table> --}}
                         </div>
                     </div>
                 </div>
@@ -249,6 +298,7 @@
 
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-monitoring-machine-visit.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-monitoring-dryer-visit.js"></script>
 
     @stack('script')
 </body>

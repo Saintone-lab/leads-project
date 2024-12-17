@@ -2,26 +2,45 @@
 @section('title', 'Monitoring machine')
 @section('content')
     <h4 class="fw-bold py-3 mb-4">
-        Monitoring Machine {{$machine->unit->brand}} {{$machine->unit->unit->sku}}
+        Monitoring Machine {{ $machine->unit->brand }} {{ $machine->unit->unit->sku }}
     </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-monitoring table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Date</th>
-                        <th>Running</th>
-                        <th>Pressure</th>
-                        <th>Temperature</th>
-                        <th>Condition</th>
-                        <th>Oil Level</th>
-                        <th>PIC</th>
-                    </tr>
-                </thead>
-            </table>
+            @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
+                <table class="datatable-monitoring table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Running</th>
+                            <th>Pressure</th>
+                            <th>Temperature</th>
+                            <th>Condition</th>
+                            <th>Oil Level</th>
+                            <th>PIC</th>
+                        </tr>
+                    </thead>
+                </table>
+                @else
+                <table class="datatable-monitoring-dryer table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Temperature IN</th>
+                            <th>Temperature OUT</th>
+                            <th>Dew Point</th>
+                            <th>Auto Drain</th>
+                            <th>Condition</th>
+                            <th>PIC</th>
+                        </tr>
+                    </thead>
+                </table>
+            @endif
         </div>
     </div>
 @endsection()
@@ -48,4 +67,5 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-monitoring-machine.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-monitoring-dryer.js"></script>
 @endpush

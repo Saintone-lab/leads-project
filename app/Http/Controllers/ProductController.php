@@ -330,20 +330,20 @@ class ProductController extends Controller
             return redirect('/product/' . $id)->with('error', 'Produk tidak ditemukan');
         }
 
-        $replacement = DetailProduct::where('id_product', $id)->get();
-        $equivalents = SerialProduct::where('id_product', $id)->get();
+        // $replacement = DetailProduct::where('id_product', $id)->get();
+        // $equivalents = SerialProduct::where('id_product', $id)->get();
 
         $delProduct = $product->delete();
 
-        foreach ($replacement as $replace) {
-            $delReplace = $replace->delete();
-        }
+        // foreach ($replacement as $replace) {
+        //     $delReplace = $replace->delete();
+        // }
 
-        foreach ($equivalents as $equivalent) {
-            $delEqui = $equivalent->delete();
-        }
+        // foreach ($equivalents as $equivalent) {
+        //     $delEqui = $equivalent->delete();
+        // }
 
-        if ($delProduct || $delReplace || $delEqui) {
+        if ($delProduct) {
             return 1;
         } else {
             return 0;

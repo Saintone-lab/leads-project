@@ -142,8 +142,8 @@ class CrmController extends Controller
         $quote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('level', '1')->get('quotation.*');
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
-        $unit = SerialProduct::whereNotNull('detail')->take(5)->get();
-        dd($unit);
+        $unit = SerialProduct::whereNotNull('detail')->get();
+        // dd($unit);
         $crmhis = $this->data($id);
         $machinehis = $this->getServicePerMonth($id);
         // dd($yearsNow);

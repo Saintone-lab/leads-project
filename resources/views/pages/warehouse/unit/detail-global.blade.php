@@ -2,7 +2,7 @@
 @section('title', 'Data Unit')
 @section('content')
     <h4 class="fw-bold py-3 mb-4">
-        <span class="text-muted fw-light">Units /</span> {{ $product->commodity }}
+        <span class="text-muted fw-light">Units /</span> {{ $product->sku }}
     </h4>
     <div class="row mb-3">
         <div class="col-12 mb-4">

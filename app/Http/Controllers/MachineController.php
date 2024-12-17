@@ -311,55 +311,10 @@ class MachineController extends Controller
         return view('pages.monitoring.visitor', compact('machine', 'client', 'result'));
     }
 
-    public function getMonitoringThisMonth($id)
+    public function getMachineReftech()
     {
-        $today = Carbon::today();
-
-        $startOfMonth = $today->copy()->startOfMonth();
-        $startOfMonthDate = $today->copy()->startOfMonth();
-        $endOfMonth = $today->copy()->endOfMonth();
-
-        $dates = [];
-        for ($date = $startOfMonthDate; $date->lte($endOfMonth); $date->addDay()) {
-            $dates[] = $date->format('Y-m-d');
-        }
-        // dd($dates);
-
-        // Ambil data monitoring dari database
-        $monitoringData = Monitoring::whereBetween('date', [$startOfMonth, $endOfMonth])
-            ->where('id_machine', $id)
-            ->get(); // Format: ['2024-11-01' => '100']
-
-        $monitoringIndexed = $monitoringData->keyBy('date')->map(function ($item) {
-            return [
-                'id' => $item->id ?? '-',
-                'runing' => $item->runing ?? '-',
-                'load' => $item->load ?? '-',
-                'pressure' => $item->pressure ?? '-',
-                'temp' => $item->temp ?? '-',
-                'condition' => $item->condition ?? '-',
-                'oil_level' => $item->oil_level ?? '-',
-                'desc' => $item->desc ?? '-',
-            ];
-        })->toArray();
-
-        // Gabungkan data monitoring dengan daftar tanggal
-        $result = [];
-        foreach ($dates as $date) {
-            $result[] = [
-                'date' => $date,
-                'id' => $monitoringIndexed[$date]['id'] ?? '-',
-                'runing' => $monitoringIndexed[$date]['runing'] ?? '-',
-                'load' => $monitoringIndexed[$date]['load'] ?? '-',
-                'pressure' => $monitoringIndexed[$date]['pressure'] ?? '-',
-                'temp' => $monitoringIndexed[$date]['temp'] ?? '-',
-                'condition' => $monitoringIndexed[$date]['condition'] ?? '-',
-                'oil_level' => $monitoringIndexed[$date]['oil_level'] ?? '-',
-                'desc' => $monitoringIndexed[$date]['desc'] ?? '-',
-            ];
-        }
-
+        $unit = Machine::join('serial_product as s', 's.id', '=', 'machine.id_unit')->join('unit as u', 'u.id', '=', 's.id_product')->get();
         // Return data
-        return response()->json(['data' => $result]);
+        return response()->json(['data' => $unit]);
     }
 }

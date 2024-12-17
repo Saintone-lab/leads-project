@@ -7,7 +7,7 @@ $users = "root";
 $pass = "";
 
 $databaseName = "db_leads_v1";
-$tableName = "product";
+$tableName = "machine";
 
 // Periksa apakah pengguna terotentikasi
 if (Auth::check()) {
@@ -21,8 +21,8 @@ if (Auth::check()) {
 
         // Query database for data
         $query = "SELECT 
-        u.*,
-        s.pn,
+        m.desc,
+        m.serial,
         s.brand,
         s.price,
         s.id AS id_pn,

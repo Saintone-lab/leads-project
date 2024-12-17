@@ -13,7 +13,7 @@ use Str;
 
 class MonitoringController extends Controller
 {
-    
+
     public function indexDaily($id)
     {
         $machine = Machine::find($id);
@@ -30,14 +30,23 @@ class MonitoringController extends Controller
     {
         // dd($request->all());
         $machine = Machine::find($id);
+        // dd($machine->unit->unit->unit);
         $monitoring = new Monitoring();
         $monitoring->id_machine = $id;
         $monitoring->id_pic = Auth::user()->id;
-        $monitoring->runing = $request->running . ' Hour';
-        $monitoring->pressure = $request->pressure . ' Bar';
-        $monitoring->temp = $request->temperature . " °C";
         $monitoring->condition = $request->condition;
-        $monitoring->oil_level = $request->oil;
+        if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER') {
+            $monitoring->runing = $request->running . ' Hour';
+            $monitoring->pressure = $request->pressure . ' Bar';
+            $monitoring->temp = $request->temperature . " °C";
+            $monitoring->oil_level = $request->oil;
+        } else {
+            $monitoring->dew = $request->dew;
+            $monitoring->drain = $request->drain;
+            $monitoring->cleaning = $request->cleaning;
+            $monitoring->temp = $request->temperature_in . " °C";
+            $monitoring->temp_out = $request->temperature_out . " °C";
+        }
         $monitoring->desc = $request->desc;
         $monitoring->date = Carbon::today();
         if ($request->hasFile('picture')) {
@@ -97,8 +106,95 @@ class MonitoringController extends Controller
         $machine = Machine::find($id);
         $client = Client::find($machine->id_client);
 
-        // mengambil dara monitoring bulan ini
         $today = Carbon::today();
+
+        $startOfMonth = $today->copy()->startOfMonth();
+        $startOfMonthDate = $today->copy()->startOfMonth();
+        $endOfMonth = $today->copy()->endOfMonth();
+
+        $dates = [];
+        for ($date = $startOfMonthDate; $date->lte($endOfMonth); $date->addDay()) {
+            $dates[] = $date->format('Y-m-d');
+        }
+        // dd($dates);
+
+        // Ambil data monitoring dari database
+        $monitoringData = Monitoring::whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->where('id_machine', $id)
+            ->join('users as u', 'u.id', '=', 'monitoring.id_pic')
+            ->get(['monitoring.*', 'u.name']); // Format: ['2024-11-01' => '100']
+
+        $compressorIndexed = $monitoringData->keyBy('date')->map(function ($item) {
+            return [
+                'id' => $item->id ?? '-',
+                'running' => $item->running ?? '-',
+                'load' => $item->load ?? '-',
+                'pressure' => $item->pressure ?? '-',
+                'temp' => $item->temp ?? '-',
+                'condition' => $item->condition ?? '-',
+                'oil_level' => $item->oil_level ?? '-',
+                'pic' => $item->name ?? '-',
+            ];
+        })->toArray();
+
+        // Gabungkan data monitoring dengan daftar tanggal
+        $compressor = [];
+        foreach ($dates as $date) {
+            $compressor[] = [
+                'date' => $date,
+                'id' => $compressorIndexed[$date]['id'] ?? '-',
+                'running' => $compressorIndexed[$date]['running'] ?? '-',
+                'load' => $compressorIndexed[$date]['load'] ?? '-',
+                'pressure' => $compressorIndexed[$date]['pressure'] ?? '-',
+                'temp' => $compressorIndexed[$date]['temp'] ?? '-',
+                'condition' => $compressorIndexed[$date]['condition'] ?? '-',
+                'oil_level' => $compressorIndexed[$date]['oil_level'] ?? '-',
+                'pic' => $compressorIndexed[$date]['pic'] ?? '-',
+            ];
+        }
+        
+        $dryerIndexed = $monitoringData->keyBy('date')->map(function ($item) {
+            return [
+                'id' => $item->id ?? '-',
+                'temp' => $item->temp ?? '-',
+                'temp_out' => $item->temp_out ?? '-',
+                'dew' => $item->dew ?? '-',
+                'drain' => $item->drain ?? '-',
+                'condition' => $item->condition ?? '-',
+                'oil_level' => $item->oil_level ?? '-',
+                'desc' => $item->desc ?? '-',
+                'pic' => $item->name ?? '-',
+            ];
+        })->toArray();
+
+        // Gabungkan data monitoring dengan daftar tanggal
+        $dryer = [];
+        foreach ($dates as $date) {
+            $dryer[] = [
+                'date' => $date,
+                'id' => $dryerIndexed[$date]['id'] ?? '-',
+                'temp' => $dryerIndexed[$date]['temp'] ?? '-',
+                'temp_out' => $dryerIndexed[$date]['temp_out'] ?? '-',
+                'dew' => $dryerIndexed[$date]['dew'] ?? '-',
+                'drain' => $dryerIndexed[$date]['drain'] ?? '-',
+                'condition' => $dryerIndexed[$date]['condition'] ?? '-',
+                'oil_level' => $dryerIndexed[$date]['oil_level'] ?? '-',
+                'desc' => $dryerIndexed[$date]['desc'] ?? '-',
+                'pic' => $dryerIndexed[$date]['pic'] ?? '-',
+            ];
+        }
+        // dd($compressor);
+
+        // Return data
+        $monitoringThisMonth = response()->json($compressor);
+
+        return view('pages.monitoring.visitor', compact('machine', 'client', 'compressor', 'dryer'));
+    }
+
+    public function getMonitoringCompressorThisMonth($id)
+    {
+        $today = Carbon::today();
+        $machine = Machine::find($id);
 
         $startOfMonth = $today->copy()->startOfMonth();
         $startOfMonthDate = $today->copy()->startOfMonth();
@@ -117,6 +213,7 @@ class MonitoringController extends Controller
 
         $monitoringIndexed = $monitoringData->keyBy('date')->map(function ($item) {
             return [
+                'id' => $item->id ?? '-',
                 'runing' => $item->runing ?? '-',
                 'load' => $item->load ?? '-',
                 'pressure' => $item->pressure ?? '-',
@@ -132,7 +229,8 @@ class MonitoringController extends Controller
         foreach ($dates as $date) {
             $result[] = [
                 'date' => $date,
-                'running' => $monitoringIndexed[$date]['runing'] ?? '-',
+                'id' => $monitoringIndexed[$date]['id'] ?? '-',
+                'runing' => $monitoringIndexed[$date]['runing'] ?? '-',
                 'load' => $monitoringIndexed[$date]['load'] ?? '-',
                 'pressure' => $monitoringIndexed[$date]['pressure'] ?? '-',
                 'temp' => $monitoringIndexed[$date]['temp'] ?? '-',
@@ -143,8 +241,57 @@ class MonitoringController extends Controller
         }
 
         // Return data
-        $monitoringThisMonth = response()->json($result);
-        // dd($result);   
-        return view('pages.monitoring.visitor', compact('machine', 'client', 'result'));
+        return response()->json(['data' => $result]);
+    }
+    public function getMonitoringDryerThisMonth($id)
+    {
+        $today = Carbon::today();
+        $machine = Machine::find($id);
+
+        $startOfMonth = $today->copy()->startOfMonth();
+        $startOfMonthDate = $today->copy()->startOfMonth();
+        $endOfMonth = $today->copy()->endOfMonth();
+
+        $dates = [];
+        for ($date = $startOfMonthDate; $date->lte($endOfMonth); $date->addDay()) {
+            $dates[] = $date->format('Y-m-d');
+        }
+        // dd($dates);
+
+        // Ambil data monitoring dari database
+        $monitoringData = Monitoring::whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->where('id_machine', $id)
+            ->get(); // Format: ['2024-11-01' => '100']
+        $monitoringIndexed = $monitoringData->keyBy('date')->map(function ($item) {
+            return [
+                'id' => $item->id ?? '-',
+                'temp' => $item->temp ?? '-',
+                'temp_out' => $item->temp_out ?? '-',
+                'dew' => $item->dew ?? '-',
+                'drain' => $item->drain ?? '-',
+                'condition' => $item->condition ?? '-',
+                'oil_level' => $item->oil_level ?? '-',
+                'desc' => $item->desc ?? '-',
+            ];
+        })->toArray();
+
+        // Gabungkan data monitoring dengan daftar tanggal
+        $result = [];
+        foreach ($dates as $date) {
+            $result[] = [
+                'date' => $date,
+                'id' => $monitoringIndexed[$date]['id'] ?? '-',
+                'temp' => $monitoringIndexed[$date]['temp'] ?? '-',
+                'temp_out' => $monitoringIndexed[$date]['temp_out'] ?? '-',
+                'dew' => $monitoringIndexed[$date]['dew'] ?? '-',
+                'drain' => $monitoringIndexed[$date]['drain'] ?? '-',
+                'condition' => $monitoringIndexed[$date]['condition'] ?? '-',
+                'oil_level' => $monitoringIndexed[$date]['oil_level'] ?? '-',
+                'desc' => $monitoringIndexed[$date]['desc'] ?? '-',
+            ];
+        }
+
+        // Return data
+        return response()->json(['data' => $result]);
     }
 }

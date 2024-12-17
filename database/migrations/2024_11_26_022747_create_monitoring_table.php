@@ -24,8 +24,8 @@ return new class extends Migration
             $table->integer('dew')->nullable();
             $table->integer('drain')->nullable();
             $table->integer('cleaning')->nullable();
-            $table->enum('condition', ['runing', 'off']);
-            $table->enum('oil_level', ['tidak', 'ok'])->nullable();
+            $table->enum('condition', ['Running', 'Stand By', 'Off']);
+            $table->enum('oil_level', ['Kurang', 'Ok'])->nullable();
             $table->longText('desc');
             $table->integer('picture')->nullable();
             $table->date('date');
