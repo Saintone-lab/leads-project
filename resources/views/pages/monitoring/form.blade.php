@@ -73,11 +73,19 @@
                                     <span class="input-group-text">°C</span>
                                 </div>
                             </div>
-                            <div class="col col-lg-6">
+                            <div class="col col-lg-3">
                                 <label for="defaultInput" class="form-label">Running</label>
                                 <div class="input-group input-group-merge">
                                     <input id="defaultInput" class="form-control" name="running" type="number"
-                                        placeholder="Hr">
+                                        placeholder="Hr" min="1">
+                                    <span class="input-group-text">Hours</span>
+                                </div>
+                            </div>
+                            <div class="col col-lg-3">
+                                <label for="defaultInput" class="form-label">Loading Hr</label>
+                                <div class="input-group input-group-merge">
+                                    <input id="defaultInput" class="form-control" name="loading" type="number"
+                                        placeholder="Hr" min="1">
                                     <span class="input-group-text">Hours</span>
                                 </div>
                             </div>
@@ -147,17 +155,16 @@
                             <div class="col-12 col-lg-3">
                                 <label for="defaultInput" class="form-label">Dew Point</label>
                                 <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control" name="dew" type="number"
+                                    <input id="defaultInput" class="form-control" name="dew" type="text"
                                         placeholder="Dew Point">
-                                    <span class="input-group-text">Dew</span>
                                 </div>
                             </div>
                             <div class="col-12 col-lg-3">
-                                <label for="defaultInput" class="form-label">Auto Drain</label>
-                                <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control" name="drain" type="text"
-                                        placeholder="Auto Drain">
-                                </div>
+                                <label for="defaultSelect" class="form-label">Auto Drain</label>
+                                <select id="defaultSelect" name="drain" class="form-select">
+                                    <option value="Ok">Ok</option>
+                                    <option value="Not Ok">Not Ok</option>
+                                </select>
                             </div>
                             <div class="col-12 col-lg-3">
                                 <label for="defaultInput" class="form-label">Cleaning Unit</label>

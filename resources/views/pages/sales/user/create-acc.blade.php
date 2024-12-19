@@ -18,7 +18,8 @@
                             class="mdi mdi-account-multiple-outline me-1 mdi-20px"></i>Create Account</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('audit-tools.index')}}"><i class="mdi mdi-tools me-1 mdi-20px"></i>Tools</a>
+                    <a class="nav-link" href="{{ route('audit-tools.index') }}"><i
+                            class="mdi mdi-tools me-1 mdi-20px"></i>Tools</a>
                 </li>
             </ul>
             <div class="card mb-4">
@@ -100,14 +101,15 @@
                             <div class="col-md-6">
                                 <div class="input-group input-group-merge">
                                     <div class="form-floating form-floating-outline">
-                                        <select class="form-select" id="exampleFormControlSelect1"
-                                            aria-label="Default select example" name="role">
+                                        <select class="form-select" id="ddSales" aria-label="Default select example"
+                                            name="role">
                                             <option value="Sales">Sales</option>
                                             <option value="Technician">Technician</option>
-                                            <option value="Warehouse">Warehouse</option>
                                             <option value="Accounting">Accounting</option>
                                             <option value="Logistic">Logistic</option>
                                             <option value="Supervisor">Supervisor</option>
+                                            <option value="Coordinator">Service Coordinator</option>
+                                            <option value="ServiceM">Service Admin</option>
                                         </select>
                                         <label for="exampleFormControlSelect1">Role select</label>
                                     </div>

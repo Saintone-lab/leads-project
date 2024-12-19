@@ -70,7 +70,7 @@
                             <label for="date">Date</label>
                         </div>
                     </div>
-                    <div class="col-8 col-md-6 mb-3">
+                    <div class="col-12 col-md-6 mb-3">
                         <div class="form-floating form-floating-outline mb-2">
                             <select id="machine-dropdown" class="select2 form-select invoice-item-machine" data-id="1"
                                 data-allow-clear="true" name="machine" disabled>
@@ -79,14 +79,14 @@
                             <label for="machine-dropdown">Machine</label>
                         </div>
                     </div>
-                    <div class="col-4 mb-3">
+                    {{-- <div class="col-4 mb-3">
                         <a type="button" data-bs-toggle="modal" data-bs-target="#createMachine">
                             <button type="button" class="btn btn-primary btn-lg">
                                 +
                             </button>
                         </a>
-                    </div>
-                    <div class="col-12 col-md-2">
+                    </div> --}}
+                    <div class="col-12 col-md-6">
 
                     </div>
                     <div class="col-6 col-md-3 mb-3">
@@ -228,7 +228,7 @@
 
                         $.each(response, function(key, value) {
                             var option = $('<option></option>').attr('value', value.id)
-                                .text(value.brand + " " + value.sku + " " + value.sn);
+                                .text(value.brand + " " + value.sku + " " + value.sn + " || " + value.location + " - " + value.tag + " - " + value.serial);
                             if (value.id == selectedMachineId) {
                                 option.attr('selected', 'selected');
                             }

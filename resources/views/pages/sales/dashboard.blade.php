@@ -610,7 +610,8 @@
                                     <textarea class="form-control" name="eventNote" id="eventNote"></textarea>
                                     <label for="eventNote">Note</label>
                                 </div>
-                                <input class="form-control" type="text" name="eventComp" id="eventComp" value="" hidden>
+                                <input class="form-control" type="text" name="eventComp" id="eventComp"
+                                    value="" hidden>
                                 <div class="form-floating mb-4">
                                     <p id="eventNoteBefore"></p>
                                 </div>
@@ -1337,6 +1338,27 @@
         @foreach ($visited as $visit)
             @include('components.modal.req-visit.form-visited')
         @endforeach
+    @elseif(Auth::user()->role == 'ServiceM')
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-reports-admin table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>No Service</th>
+                            <th>Company</th>
+                            <th>Job Desc</th>
+                            <th>Unit Type</th>
+                            <th>Date</th>
+                            <th>Sales</th>
+                            <th>Technician</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
     @else
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
@@ -1434,6 +1456,7 @@
     <script src="{{ asset('assets') }}/includes/table-product-sales.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-logistic.js"></script>
 
+    <script src="{{ asset('assets') }}/includes/table-reports-admin.js"></script>
 
     <script src="{{ asset('assets') }}/includes/table-notulen.js"></script>
     {{-- @if (Auth::user()->role == 'Admin') --}}

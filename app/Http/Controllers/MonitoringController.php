@@ -114,7 +114,7 @@ class MonitoringController extends Controller
 
         $dates = [];
         for ($date = $startOfMonthDate; $date->lte($endOfMonth); $date->addDay()) {
-            $dates[] = $date->format('Y-m-d');
+            $dates[] = $date->format('d-m-Y');
         }
         // dd($dates);
 
@@ -128,7 +128,7 @@ class MonitoringController extends Controller
             return [
                 'id' => $item->id ?? '-',
                 'running' => $item->running ?? '-',
-                'load' => $item->load ?? '-',
+                'loading' => $item->loading ?? '-',
                 'pressure' => $item->pressure ?? '-',
                 'temp' => $item->temp ?? '-',
                 'condition' => $item->condition ?? '-',
@@ -144,7 +144,7 @@ class MonitoringController extends Controller
                 'date' => $date,
                 'id' => $compressorIndexed[$date]['id'] ?? '-',
                 'running' => $compressorIndexed[$date]['running'] ?? '-',
-                'load' => $compressorIndexed[$date]['load'] ?? '-',
+                'loading' => $compressorIndexed[$date]['loading'] ?? '-',
                 'pressure' => $compressorIndexed[$date]['pressure'] ?? '-',
                 'temp' => $compressorIndexed[$date]['temp'] ?? '-',
                 'condition' => $compressorIndexed[$date]['condition'] ?? '-',

@@ -100,6 +100,7 @@ class MachineController extends Controller
      */
     public function update(Request $request, $id)
     {
+        dd($request->all());
         $rule = [
             'desc' =>
                 'required',
@@ -122,6 +123,8 @@ class MachineController extends Controller
         $machine->id_unit = $request->unit;
         $machine->serial = $request->serial;
         $machine->desc = $request->desc;
+        $machine->tag = $request->tag;
+        $machine->location = $request->location;
         $machineSave = $machine->save();
         if ($machineSave) {
             return redirect('/existing/' . $request->id_client)->with('message', 'data telah ditambahkan');

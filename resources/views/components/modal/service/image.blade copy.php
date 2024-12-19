@@ -1,8 +1,8 @@
 <form action="{{ route('service-reports.image', $service->id) }}" method="post" enctype="multipart/form-data">
     {{-- {{ csrf_token() }} --}}
     @csrf
-    <div class="modal modal-xl animate__animated animate__fadeIn" id="inputImage" tabindex="-1" style="display: none;"
-        aria-hidden="true">
+    <div class="modal modal-xl animate__animated animate__fadeIn" id="inputImage" tabindex="-1"
+        style="display: none;" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -22,28 +22,22 @@
                         </div>
                     @endif
                     <div class="row g-2 mb-3">
+
                         <div class="col-12">
                             <div class="mb-3">
                                 <label for="formFileMultiplePict" class="form-label">Picture</label>
                                 <input class="form-control" type="file" id="formFileMultiplePict" name="image[]"
                                     multiple="" accept="image/*">
-                                <div class="row" id="photo-preview">
+                                <div class="d-flex justify-content-between" id="photo-preview">
                                     @php
                                         $i = 1;
                                     @endphp
-                                    <div id="dynamicInputsPhotoContainer">
-                                    </div>
                                     @if (@$image)
                                         @foreach ($image as $item)
                                             <div class="photo-container">
                                                 <img src="{{ url('') . '/' . $item->picture }}" alt=""
                                                     srcset="">
                                                 <p>Photo {{ $i }} - {{ $item->keterangan }}</p>
-                                            </div>
-                                            <div id="dynamicInputsPhotoContainer">
-                                                <input class="form-control mb-2" type="text" name="description[]"
-                                                    placeholder="Deskripsi untuk File {{ $i }}"
-                                                    value="{{ @$item->keterangan }}">
                                             </div>
                                             @php
                                                 $i++;
@@ -53,7 +47,7 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- <div class="col-12 mb-3">
+                        <div class="col-12 mb-3">
                             <div id="dynamicInputsPhotoContainer">
                                 @php
                                     $i = 1;
@@ -70,7 +64,7 @@
                                 @endif
                                 <!-- Elemen input dinamis akan ditambahkan di sini -->
                             </div>
-                        </div> --}}
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

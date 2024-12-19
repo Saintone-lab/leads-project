@@ -67,9 +67,9 @@
                     <div class="row g-2 mb-3">
                         <div class="col-12 col-md-6 mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="loactionAnimation" class="form-control" name="loaction"
-                                    placeholder="Example: CEO" value="{{ old('loaction') }}">
-                                <label for="loactionAnimation">Loaction</label>
+                                <input type="text" id="loactionAnimation" class="form-control" name="location"
+                                    placeholder="Example: CEO" value="{{ old('location') }}">
+                                <label for="locationAnimation">location</label>
                             </div>
                         </div>
                     </div>

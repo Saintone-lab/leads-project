@@ -188,11 +188,12 @@
                                 <th></th>
                                 <th></th>
                                 <th>ID</th>
+                                <th>Category</th>
                                 <th>Brand</th>
                                 <th>Type</th>
-                                <th>Serial Number</th>
-                                <th>Bar</th>
-                                <th>Desc</th>
+                                <th>SN</th>
+                                <th>Tag</th>
+                                <th>Location</th>
                                 <th>Action</th>
                             </tr>
                         </thead>

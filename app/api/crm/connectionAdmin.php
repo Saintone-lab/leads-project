@@ -26,9 +26,9 @@ if (Auth::check()) {
                   LEFT OUTER JOIN pic p ON c.id = p.id_client
                   LEFT JOIN crm_status s ON c.id = s.id_client
                   LEFT JOIN activities a ON a.id_client = c.id
-                  WHERE c.role = 'Customers'
+                  WHERE c.role = 'Customers' AND c.id != 5508
                   GROUP BY c.id  
-                  ORDER BY MAX(a.date) DESC;";
+                  ORDER BY MAX(a.date) DESC";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

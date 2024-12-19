@@ -13,14 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('machine', function (Blueprint $table) {
+        Schema::create('monitoring_weekly', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_client');
-            $table->foreignId('id_unit');
-            $table->string('desc');
-            $table->string('tag');
-            $table->string('status');
-            $table->string('location');
             $table->timestamps();
         });
     }
@@ -32,6 +26,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('machine');
+        Schema::dropIfExists('monitoring_weekly');
     }
 };

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_users');
             $table->string('position');
-            $table->enum('roles',['Sales', 'Technician', 'Admin', 'Logistic', 'Accounting', 'Supervisor']);
+            $table->enum('roles',['Sales', 'Technician', 'Admin', 'Logistic', 'Accounting', 'Supervisor', 'ServiceM']);
             $table->string('area', 25);
             $table->date('date');
             $table->timestamps();

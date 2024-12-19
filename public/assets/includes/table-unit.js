@@ -29,7 +29,7 @@ $(function () {
                 { data: "sku" },
                 { data: "brand" },
                 { data: "pn" },
-                { data: "sn" },
+                { data: "serial" },
                 { data: "power" },
                 { data: "bar" },
                 { data: "air_cap" },
@@ -72,22 +72,22 @@ $(function () {
                     responsivePriority: 1,
                     targets: 3,
                 },
-                {
-                    targets: 3,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id_p"];
-                            var detailRoute = route("unit.show", $dataId);
-                            return (
+                // {
+                //     targets: 3,
+                //     render: function (data, type, full, row) {
+                //         if (type === "display") {
+                //             var $dataId = full["id_p"];
+                //             var detailRoute = route("unit.show", $dataId);
+                //             return (
                                 
-                            '<span>'+
-                            '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>" +
-                            "</span>"
-                            );
-                        }
-                        return data;
-                    },
-                },
+                //             '<span>'+
+                //             '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>" +
+                //             "</span>"
+                //             );
+                //         }
+                //         return data;
+                //     },
+                // },
                 {
                     targets: 10,
                     render: function (data, type, full, meta) {

@@ -8,6 +8,7 @@ use App\Models\Contract;
 use App\Models\DetailProduct;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
+use App\Models\Machine;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Prospect;
@@ -28,7 +29,8 @@ class UnitController extends Controller
      */
     public function index()
     {
-        return view('pages.warehouse.unit.index');
+        $unit = SerialProduct::whereNotNull('detail')->get();
+        return view('pages.warehouse.unit.index', compact('unit'));
     }
 
     /**
@@ -48,68 +50,30 @@ class UnitController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        // Rules for validation
-        $rule = [
-            'sku' => 'required',
-            'desc' => 'required',
-            'sn' => 'required',
-            'note' => 'required',
-            'bar' => 'required',
-        ];
+    {$rule = [
+        'desc' =>
+            'required',
 
-        // Custom validation messages
-        $message = [
-            'sku.required' => 'Field sku Wajib Diisi',
-            'desc.required' => 'Field description Wajib Diisi',
-            'sn.required' => 'Field serial Number Wajib Diisi',
-            'note.required' => 'Field note Wajib Diisi',
-            'bar.required' => 'Field bar Wajib Diisi',
-        ];
+        'serial' =>
+            'required',
+    ];
 
-        $this->validate($request, $rule, $message);
-        $lastUnit = Unit::orderBy('id', 'desc')->first();
-        $lastProduct = Product::orderBy('id', 'desc')->first();
-        $unit = new Unit;
-        if (@$lastUnit) {
-            if ($lastUnit->id > $lastProduct->id) {
-                $unit->id = $lastUnit->id + 1;
-            } else {
-                $unit->id = $lastProduct->id + 1;
-            }
-        } else {
-            $unit->id = $lastProduct->id + 1;
-        }
-        $unit->sku = $request->sku;
-        $unit->status = $request->status;
-        $unit->desc = $request->desc;
-        $unit->sn = $request->sn;
-        $unit->bar = $request->bar;
-        $unit->power = $request->power;
-        $unit->connect = $request->connect;
-        $unit->air_cap = $request->air_cap;
-        $unit->dimension = $request->dimension;
-        $unit->weight = $request->weight;
-        $unit->note = $request->note;
-        $unit->unit = $request->unit;
-        $unit->stock = 0;
-        $unit->first_stock = 0;
-        $unit->warehouse_stock = 0;
-        $unit->type = 'lokal';
-        // foreach ($request->unit as $key => $value) {
-        //     if ($value == 'rental') {
-        //         $unit->rental = '1';
-        //     }
-        //     if ($value == 'second') {
-        //         $unit->second = '1';
-        //     }
-        //     if ($value == 'new') {
-        //         $unit->new = '1';
-        //     }
-        // }
-        $unitSave = $unit->save();
+    $message = [
+        'desc.required' => 'Field desc Wajib Diisi',
+        'serial.required' => 'Field serial Wajib Diisi',
+    ];
+    $this->validate($request, $rule, $message);
+    $machine = new Machine();
+    $machine->id_client = 5508;
+    $machine->id_unit = $request->unit;
+    $machine->serial = $request->serial;
+    $machine->status = $request->status;
+    $machine->desc = $request->desc;
+    $machine->tag = $request->tag;
+    $machine->location = $request->location;
+    $unitSave = $machine->save();
         if ($unitSave) {
-            return redirect('/unit/' . $unit->id)->with('message', 'data telah di tambahkan');
+            return redirect('/unit')->with('message', 'data telah di tambahkan');
         }
     }
 

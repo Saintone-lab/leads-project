@@ -1,4 +1,4 @@
-<form action="{{ route('unit.store') }}" method="post" enctype="multipart/form-data">
+<form action="{{ route('machine.store') }}" method="post" enctype="multipart/form-data">
     @csrf
     <div class="modal animate__animated animate__fadeIn" id="createProduct" tabindex="-1" style="display: none;"
         aria-hidden="true">
@@ -56,28 +56,6 @@
                                 <label for="serialAnimation">Serial Number</label>
                             </div>
                         </div>
-
-                        <div class="col-12 col-md-6 mb-2">
-                            <div class="form-floating form-floating-outline">
-                                <select class="form-select invoice-item-info" id="status"
-                                    aria-label="Default select example" name="status">
-                                    <option disabled>----- Info Status -----</option>
-                                    <option value="Ready" {{ @$product->status == 'Ready' ? 'selected' : '' }}>Ready
-                                    </option>
-                                    <option value="On Rental" {{ @$product->status == 'On Rental' ? 'selected' : '' }}>
-                                        On Rental
-                                    </option>
-                                    <option value="Sold" {{ @$product->status == 'Sold' ? 'selected' : '' }}>Sold
-                                    </option>
-                                    <option value="Service" {{ @$product->status == 'Service' ? 'selected' : '' }}>
-                                        Service
-                                    </option>
-                                </select>
-                                <label for="exampleFormControlSelect1">Status</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row g-2 mb-3">
                         <div class="col-12 col-md-6 mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="tagAnimation" class="form-control" name="tag"
@@ -85,9 +63,11 @@
                                 <label for="tagAnimation">Tag Number</label>
                             </div>
                         </div>
+                    </div>
+                    <div class="row g-2 mb-3">
                         <div class="col-12 col-md-6 mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="loactionAnimation" class="form-control" name="location"
+                                <input type="text" id="loactionAnimation" class="form-control" name="loaction"
                                     placeholder="Example: CEO" value="{{ old('loaction') }}">
                                 <label for="loactionAnimation">Loaction</label>
                             </div>

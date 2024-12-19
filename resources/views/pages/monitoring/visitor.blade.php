@@ -146,10 +146,11 @@
                             <div class="table-responsive text-nowrap">
                                 @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
                                     <table class="table table-bordered">
-                                        <thead>
+                                        <thead class="table-light">
                                             <th>Date</th>
                                             <th>Condition</th>
                                             <th>R Hr.</th>
+                                            <th>L Hr.</th>
                                             <th>Press.</th>
                                             <th>Temp.</th>
                                             <th>Oil Lvl</th>
@@ -161,6 +162,7 @@
                                                     <td>{{ $item['date'] }}</td>
                                                     <td>{{ $item['condition'] }}</td>
                                                     <td>{{ $item['running'] }}</td>
+                                                    <td>{{ $item['loading'] }}</td>
                                                     <td>{{ $item['pressure'] }}</td>
                                                     <td>{{ $item['temp'] }}</td>
                                                     <td>{{ $item['oil_level'] }}</td>
@@ -171,7 +173,7 @@
                                     </table>
                                 @else
                                     <table class="table table-bordered">
-                                        <thead>
+                                        <thead  class="table-light">
                                             <th>Date</th>
                                             <th>Condition</th>
                                             <th>Temp IN</th>

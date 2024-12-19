@@ -1241,6 +1241,43 @@ Route::group(["middleware" => "auth"], function () {
                 's.bar',
                 'u.sn',
                 'u.sku',
+                'u.unit',
+                's.brand',
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/compressor/fp/{id}', function ($id) {
+        $data = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
+        ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
+            ->join('unit as u', 's.id_product', '=', 'u.id')
+            ->where('u.unit', 'AIR COMPRESSOR SCREW')
+            ->where('c.id', 1277)
+            ->groupBy('machine.id', 'u.id')
+            ->select(
+                'machine.*',
+                's.bar',
+                'u.sn',
+                'u.sku',
+                'u.unit',
+                's.brand',
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/dryer/fp/{id}', function ($id) {
+        $data = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
+        ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
+            ->join('unit as u', 's.id_product', '=', 'u.id')
+            ->where('u.unit', 'REFRIGERANT AIR DRYER')
+            ->where('c.id', 1277)
+            ->groupBy('machine.id', 'u.id')
+            ->select(
+                'machine.*',
+                's.bar',
+                'u.sn',
+                'u.sku',
+                'u.unit',
                 's.brand',
             )
             ->get();

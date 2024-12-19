@@ -79,7 +79,8 @@
                             <p class="mb-1">Running & Load </p>
                         </div>
                         <div class="col-lg-4 col-8">
-                            <p class="mb-1">: {{ $service->machine->unit->brand }} {{ $service->machine->unit->unit->sku }}</p>
+                            <p class="mb-1">: {{ $service->machine->unit->brand }}
+                                {{ $service->machine->unit->unit->sku }}</p>
                             <p class="mb-1">: {{ $service->machine->unit->sn }}</p>
                             <p class="mb-1">: {{ $service->running }} | {{ $service->load }}</p>
                         </div>
@@ -154,19 +155,8 @@
                         href="{{ route('service-reports.print', $service->id) }}">
                         Download
                     </a>
-                    {{-- <a href="#" type="button"
-                    class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">Download</a> --}}
-                    @if (isset($service->sign_client))
-                        <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-hand-sign mb-3"
-                            data-id="{{ $service->id }}">Delete Hand Sign</a>
-                    @else
-                        <a type="button" data-bs-toggle="modal" data-bs-target="#inputSign-{{ $service->id }}"
-                            class="d-grid w-100 waves-effect mb-3">
-                            <button type="button" class="btn btn-secondary">
-                                Input Hand Sign
-                            </button>
-                        </a>
-                    @endif
+                    <button id="buttonShare" data-id="{{ $service->id }}"
+                        class="btn btn-success d-grid w-100 waves-effect mb-3">Bagikan</button>
                     @if (Auth::user()->role == 'Technician' || Auth::user()->role == 'Coordinator')
                         <a href="{{ route('service-reports.edit', $service->id) }}"
                             class="btn btn-outline-warning d-grid w-100 waves-effect mb-3">Edit</a>
@@ -186,6 +176,17 @@
                             class="d-grid w-100 waves-effect mb-3">
                             <button type="button" class="btn btn-primary">
                                 Input Image Reports
+                            </button>
+                        </a>
+                    @endif
+                    @if (isset($service->sign_client))
+                        <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-hand-sign mb-3"
+                            data-id="{{ $service->id }}">Delete Hand Sign</a>
+                    @else
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#inputSign-{{ $service->id }}"
+                            class="d-grid w-100 waves-effect mb-3">
+                            <button type="button" class="btn btn-secondary">
+                                Input Hand Sign
                             </button>
                         </a>
                     @endif
@@ -214,7 +215,9 @@
             $('#formFileMultiple').on('change', function() {
                 var files = this.files;
                 var dynamicInputsContainer = $('#dynamicInputsContainer');
+                var dynamicInputsContainer = $('#dynamicInputsPhotoContainer');
                 dynamicInputsContainer.empty();
+
 
                 // Hanya mengambil satu file (file pertama)
                 var file = files[0];
@@ -243,12 +246,29 @@
 
                 reader.readAsDataURL(file);
             });
+            $('#buttonShare').on('click', function() {
+                const id = $(this).data('id')
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Service Reports',
+                        text: 'Check out this link!',
+                        url: '{{ route('service-reports.show', ":id") }}'.replace(':id', id) 
+                    }).then(() => {
+                        console.log('Thanks for sharing!');
+                    }).catch(err => {
+                        console.error('Error sharing:', err);
+                    });
+                } else {
+                    alert('Sharing not supported in this browser.');
+                }
+            });
         });
         $(document).ready(function() {
             $('#formFileMultiplePict').on('change', function() {
                 var files = this.files;
                 var dynamicInputsContainer = $('#dynamicInputsPhotoContainer');
                 console.log(dynamicInputsContainer);
+                console.log(files.length);
 
                 dynamicInputsContainer.empty();
 
@@ -267,6 +287,8 @@
                 }
 
                 console.log(files);
+
+                // photo
                 const previewContainer = document.getElementById('photo-preview');
                 previewContainer.innerHTML = '';
 
@@ -307,18 +329,32 @@
 
                             const resizedImageURL = canvas.toDataURL(file.type);
 
+                            const rowContainer = document.createElement('div');
                             const imageContainer = document.createElement('div');
                             const imageElement = document.createElement('img');
-                            const description = document.createElement('p');
+                            const inputElement = document.createElement('input');
 
+                            rowContainer.className =
+                                'row';
                             imageContainer.className =
-                                'photo-container'; // Tambahkan kelas sesuai kebutuhan
+                                'col-6 col-md-4 photo-container';
+                            imageElement.className = 'mb-2'
                             imageElement.src = resizedImageURL;
-                            description.textContent = 'Photo ' + (i + 1);
+                            for (var u = 0; u < files.length; u++) {
+                                inputElement.className = 'form-control mb-3';
+                                inputElement.type = 'text';
+                                inputElement.name = 'description[]';
+                                inputElement.placeholder = 'Deskripsi untuk Photo ' + (i + 1);
+                                // var dynamicInput =
+                                //     '<input class="form-control mb-2" type="text" name="description[]" placeholder="Deskripsi untuk File ' +
+                                //     (u + 1) + '">';
+                                // inputElement.append(dynamicInput);
+                            }
 
                             imageContainer.appendChild(imageElement);
-                            imageContainer.appendChild(description);
+                            imageContainer.appendChild(inputElement);
                             previewContainer.appendChild(imageContainer);
+                            // rowContainer.appendChild(previewContainer);
                         };
                     };
 

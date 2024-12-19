@@ -15,6 +15,7 @@ class Machine extends Model
         'desc',
         'serial',
         'tag',
+        'status',
         'location',
     ];
 

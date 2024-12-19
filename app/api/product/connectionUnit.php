@@ -7,7 +7,7 @@ $users = "root";
 $pass = "";
 
 $databaseName = "db_leads_v1";
-$tableName = "machine";
+$tableName = "product";
 
 // Periksa apakah pengguna terotentikasi
 if (Auth::check()) {
@@ -21,21 +21,42 @@ if (Auth::check()) {
 
         // Query database for data
         $query = "SELECT 
-        m.desc,
-        m.serial,
+        m.id,
+        u.sku,
         s.brand,
-        s.price,
-        s.id AS id_pn,
-        u.id AS id_p
+        s.pn,
+        m.serial,
+        u.power,
+        s.bar,
+        s.air_cap,
+        m.status,
+        s.price
             FROM 
-                unit u
-            LEFT JOIN 
-                serial_product s ON u.id = s.id_product
-            LEFT JOIN 
-                detail_product dp ON u.id = dp.id_product
-                WHERE u.type = 'lokal' 
+                machine m
+            JOIN 
+                serial_product s ON s.id = m.id_unit
+            JOIN 
+                unit u ON u.id = s.id_product
+            WHERE m.id_client = 5508 
             GROUP BY 
-                u.id, s.pn";
+                m.id";
+
+        // $query = "SELECT 
+        // u.*,
+        // s.pn,
+        // s.brand,
+        // s.price,
+        // s.id AS id_pn,
+        // u.id AS id_p
+        //     FROM 
+        //         unit u
+        //     LEFT JOIN 
+        //         serial_product s ON u.id = s.id_product
+        //     LEFT JOIN 
+        //         detail_product dp ON u.id = dp.id_product
+        //         WHERE u.type = 'lokal' 
+        //     GROUP BY 
+        //         u.id, s.pn";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

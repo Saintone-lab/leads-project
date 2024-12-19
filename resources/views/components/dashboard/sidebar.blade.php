@@ -91,8 +91,7 @@
                             <div data-i18n="Quotation">Quotation</div>
                         </a>
                     </li>
-                    <li
-                        class="menu-item {{ request()->is('quote/*') || request()->is('quote/*/*') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->is('quote/*') || request()->is('quote/*/*') ? 'active' : '' }}">
                         <a href="{{ route('index-unit.quotation') }}" class="menu-link">
                             <div data-i18n="Quotation Unit">Quotation Unit</div>
                         </a>
@@ -314,7 +313,8 @@
                     <div data-i18n="User">User</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('unit-global') || request()->is('unit-global/*') ? 'active' : '' }}">
+            <li
+                class="menu-item {{ request()->is('unit-global') || request()->is('unit-global/*') ? 'active' : '' }}">
                 <a href="{{ route('unit-global.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
                     <div data-i18n="Unit Global">Unit Global</div>
@@ -757,6 +757,67 @@
                     @endif --}}
                 </a>
             </li>
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Library</span>
+            </li>
+            <li class="menu-item {{ request()->is('library/index/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-library-shelves"></i>
+                    <div data-i18n="Library">Library</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('library/index/marktool') ? 'active' : '' }}">
+                        <a href="{{ route('marktool.index') }}" class="menu-link">
+                            <div data-i18n="Marketing Tools">Marketing Tools</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/brosur') ? 'active' : '' }}">
+                        <a href="{{ route('brosur.index') }}" class="menu-link">
+                            <div data-i18n="Brosur">Brosur</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/partlist') ? 'active' : '' }}">
+                        <a href="{{ route('partlist.index') }}" class="menu-link">
+                            <div data-i18n="Partlist">Partlist</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/manbook') ? 'active' : '' }}">
+                        <a href="{{ route('manbook.index') }}" class="menu-link">
+                            <div data-i18n="Manual Book">Manual Book</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        @elseif(auth::user()->role == 'ServiceM')
+            <!-- Dashboards -->
+            <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
+                <a href="{{ url('/') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
+                    <div data-i18n="Dashboards">Dashboards</div>
+                </a>
+            </li>
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Monitoring</span>
+            </li>
+            {{-- <li
+                class="menu-item {{ request()->is('service-manager') || request()->is('service-manager/*') ? 'active' : '' }}">
+                <a href="{{ route('service-manager.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
+                    <div data-i18n="Monitoring Fajar Paper">Monitoring Fajar Paper</div>
+                </a>
+            </li> --}}
+
+            {{-- <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Notulen</span>
+            </li> --}}
+
+            {{-- <li class="menu-item {{ request()->is('notulen') || request()->is('notulen/*') ? 'active' : '' }}">
+                <a href="{{ route('notulen.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-account-box-outline"></i>
+                    <div data-i18n="notulen">Notulen</div>
+                </a>
+            </li> --}}
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Library</span>

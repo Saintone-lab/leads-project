@@ -27,13 +27,24 @@
                             <div class="form-floating form-floating-outline mb-2">
                                 <input type="text" id="id_client" class="form-control" name="id_client"
                                     value="{{ $existing->id }}" hidden>
+                                {{-- <select class="select2 form-select" data-allow-clear="true" name="unit"
+                                    data-id="1">
+                                    <option> ---- Choose Uniit Here ---- </option>
+                                    @foreach ($unit as $item)
+                                        <option value="{{ $item->id }}"
+                                            {{ $machine->id_unit == $item->id ? 'selected' : '' }}>
+                                            {{ $machine->serial->brand ?? 'No brand' }} - {{ $item->sku }} ||
+                                            {{ $machine->bar }} - {{ $machine->air_cap }}
+                                        </option>
+                                    @endforeach
+                                </select> --}}
                                 <select class="select2 form-select" data-allow-clear="true" name="unit"
                                     data-id="1">
                                     <option> ---- Choose Uniit Here ---- </option>
                                     @foreach ($unit as $item)
-                                        <option value="{{ $item->id }}" {{ $machine->id_unit == $item->id ? 'selected' : ''}}>
-                                            {{ $machine->serial->brand ?? 'No brand' }} - {{ $item->sku }} ||
-                                            {{ $machine->bar }} - {{ $machine->air_cap }}
+                                        <option value="{{ $item->id }}" {{ $machine->id_unit == $item->id ? 'selected' : '' }}>
+                                            {{ $item->brand }} - {{ $item->unit->sku ?? '-' }} ||
+                                            {{ $item->bar ?? '-' }} - {{ $item->air_cap ?? '-' }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -56,6 +67,23 @@
                                 <label for="serialAnimation">Serial Number</label>
                             </div>
                         </div>
+                        <div class="col-12 col-md-6 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="tagAnimation" class="form-control" name="tag"
+                                    placeholder="Example: CEO" value="{{ old('tag', @$machine->tag ?? '') }}">
+                                <label for="tagAnimation">Tag Number</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-12 col-md-6 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="loactionAnimation" class="form-control" name="location"
+                                    placeholder="Example: CEO"
+                                    value="{{ old('location', @$machine->location ?? '') }}">
+                                <label for="loactionAnimation">Location</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -65,5 +93,6 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </form>

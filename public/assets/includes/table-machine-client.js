@@ -29,18 +29,19 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
+                { data: "unit" },
                 { data: "brand" },
                 { data: "sku" },
-                { data: "sn" },
-                { data: "bar" },
-                { data: "desc" },
+                { data: "serial" },
+                { data: "tag" },
+                { data: "location" },
                 {
                     data: "",
                     render: function (data, type, row) {
                         return (
                             '<a href="#" data-id="' +
                             row.id +
-                            '" class="btn btn-sm btn-label-danger delete-machiine m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i></a>' +
+                            '" class="btn btn-sm btn-label-danger delete-machine m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i></a>' +
                             '<a type="button" href="#" data-bs-toggle="modal" data-bs-target="#editMachine-'+ row.id +'" data-id="' +
                             row.id +
                             '" class="btn btn-sm btn-label-primary"><i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i></a>'
