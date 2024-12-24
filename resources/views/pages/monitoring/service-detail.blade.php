@@ -1,47 +1,71 @@
 @extends('layouts.sales.app')
 @section('title', 'Monitoring machine')
 @section('content')
-    <h4 class="fw-bold py-3 mb-4">
-        Monitoring Machine {{ $machine->unit->brand }} {{ $machine->unit->unit->sku }}
-    </h4>
-    <div class="card mb-3">
-        <div class="row">
-            <div class="col-12 col-md-6">
-                <h5> Air Compressor </h5>
-                <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-machine-client table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Brand</th>
-                                <th>Type</th>
-                                <th>SN</th>
-                                <th>Tag</th>
-                                <th>Location</th>
-                            </tr>
-                        </thead>
-                    </table>
+    <h4>Machine {{ $machine->unit->brand }} {{ $machine->unit->unit->sku }}</h4>
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5> Daily </h5>
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-daily-month table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Month</th>
+                                    <th>Button</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div class="col-12 col-md-6">
-                <h5> Dryer </h5>
-                <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-machine-client table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Brand</th>
-                                <th>Type</th>
-                                <th>SN</th>
-                                <th>Tag</th>
-                                <th>Location</th>
-                            </tr>
-                        </thead>
-                    </table>
+        </div>
+        <div class="col-12 col-md-6 mb-3">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5> Weekly </h5>
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-dryr-client table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Brand</th>
+                                    <th>Type</th>
+                                    <th>SN</th>
+                                    <th>Tag</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5> monthly </h5>
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-dryr-client table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Brand</th>
+                                    <th>Type</th>
+                                    <th>SN</th>
+                                    <th>Tag</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -70,6 +94,7 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-monitoring-machine.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-monitoring-dryer.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-coordinator-compressor.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-coordinator-dryer.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-coordinator-month.js"></script>
 @endpush

@@ -35,39 +35,114 @@
                 <div class="container">
                     <div class="card">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-row flex-column">
-                                <div class="mb-xl-0 pb-1">
-                                    <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
-                                        <span class="app-brand-logo demo">
-                                            <span style="color: var(--bs-primary)">
-                                                <img class="text-md"
-                                                    src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
-                                                    alt="" srcset="" width="60%">
-                                            </span>
-                                        </span>
-                                    </div>
-                                    <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
-                                    <div style="font-size: 10px">
-                                        <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
-                                        <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                                        <p class="mb-1">
-                                            <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022
-                                            54417653{{ '  |  ' }}<i
-                                                class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
-                                        </p>
-                                    </div>
+                            <div class="row mb-5">
+                                <div class="col-12 col-lg-4">
+                                    {{-- <img src="" alt="Photo Name Plat" class="w-100 h-100"> --}}
+                                    <img src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt="Photo Name Plat" class="w-100">
                                 </div>
-                                <div>
-                                    <h3 class="fw-bold">DAILY MONITORING</h3>
-                                    <div>
-                                        <span class="fw-bolder">{{ $machine->unit->unit->unit }}</span>
-                                    </div>
-                                    <div class="mt-1">
-                                        <span class="text-muted">{{ $machine->tag }} - {{ $machine->location }}</span>
+                                <div class="col-12 col-lg-8">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <p class="mb-1">Brand </p>
+                                                </div>
+                                                <div class="col-6">
+                                                    <p class="mb-1">: {{ $machine->unit->brand }}</p>
+                                                </div>
+                                                <div class="col-4">
+                                                    <p class="mb-1">Type </p>
+                                                </div>
+                                                <div class="col-6">
+                                                    <p class="mb-1">: {{ $machine->unit->unit->sku }}</p>
+                                                </div>
+                                                <div class="col-4">
+                                                    <p class="mb-1">Serial Number </p>
+                                                </div>
+                                                <div class="col-6">
+                                                    <p class="mb-1">: {{ $machine->serial }}</p>
+                                                </div>
+                                                <div class="col-4">
+                                                    <p class="mb-1">Bar </p>
+                                                </div>
+                                                <div class="col-6">
+                                                    <p class="mb-1">: {{ $machine->unit->bar }}</p>
+                                                </div>
+                                                {{-- <div class="col-4">
+                                                    <p class="mb-1">Running Hour </p>
+                                                </div>
+                                                <div class="col-6">
+                                                    <p class="mb-1">: {{ $machine->serial->unit->running }}</p>
+                                                </div> --}}
+                                                <div class="col-4">
+                                                    <p class="mb-1">Customer </p>
+                                                </div>
+                                                <div class="col-6">
+                                                    <p class="mb-1">: {{ $client->company }}</p>
+                                                </div>
+                                                <div class="col-4">
+                                                    <p class="mb-1">Address </p>
+                                                </div>
+                                                <div class="col-6">
+                                                    <p class="mb-1">: {{ $client->address }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <h5>Result Monitoring </h5>
+
+                            {{-- <div class="card-datatable table-responsive pt-0">
+                                @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
+                                    <table class="datatable-monitoring table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                <th>ID</th>
+                                                <th>Date</th>
+                                                <th>Running</th>
+                                                <th>Pressure</th>
+                                                <th>Temperature</th>
+                                                <th>Condition</th>
+                                                <th>Oil Level</th>
+                                                <th>PIC</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                    @else
+                                    <table class="datatable-monitoring-dryer table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                <th>ID</th>
+                                                <th>Date</th>
+                                                <th>Temperature IN</th>
+                                                <th>Temperature OUT</th>
+                                                <th>Dew Point</th>
+                                                <th>Auto Drain</th>
+                                                <th>Condition</th>
+                                                 <th>PIC</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                @endif
+                            </div> --}}
+
+                            {{-- <div class="form-floating form-floating-outline mb-5">
+                                <select class="form-select" id="selectMonth" aria-label="Default select example">
+                                    <option value="">August 2024</option>
+                                    <option value="">September 2024</option>
+                                    <option value="">October 2024</option>
+                                    <option selected="">November 2024</option>
+                                    <option value="1">Desember 2024</option>
+                                    <option value="2">January 2025</option>
+                                    <option value="3">February 2025</option>
+                                </select>
+                                <label for="selectMonth">Month - Years</label>
+                            </div> --}}
                             <div class="table-responsive text-nowrap">
                                 @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
                                     <table class="table table-bordered">
@@ -98,7 +173,7 @@
                                     </table>
                                 @else
                                     <table class="table table-bordered">
-                                        <thead class="table-light">
+                                        <thead  class="table-light">
                                             <th>Date</th>
                                             <th>Condition</th>
                                             <th>Temp IN</th>

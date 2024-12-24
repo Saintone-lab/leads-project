@@ -27,102 +27,21 @@
     @routes
 </head>
 
-<body>
+<body class="justify-content-center align-items-center">
     <!--  Layout wrapper  -->
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
             <div class="container-xxl flex-grow-1 container-p-y">
                 <div class="container">
-                    <div class="card">
+                    <div class="card text-center">
+                        <div class="card-header">Monitoring {{ $machine->unit->brand }} {{ $machine->unit->unit->sku }}
+                        </div>
                         <div class="card-body">
-                            <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-row flex-column">
-                                <div class="mb-xl-0 pb-1">
-                                    <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
-                                        <span class="app-brand-logo demo">
-                                            <span style="color: var(--bs-primary)">
-                                                <img class="text-md"
-                                                    src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
-                                                    alt="" srcset="" width="60%">
-                                            </span>
-                                        </span>
-                                    </div>
-                                    <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
-                                    <div style="font-size: 10px">
-                                        <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
-                                        <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                                        <p class="mb-1">
-                                            <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022
-                                            54417653{{ '  |  ' }}<i
-                                                class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
-                                        </p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h3 class="fw-bold">DAILY MONITORING</h3>
-                                    <div>
-                                        <span class="fw-bolder">{{ $machine->unit->unit->unit }}</span>
-                                    </div>
-                                    <div class="mt-1">
-                                        <span class="text-muted">{{ $machine->tag }} - {{ $machine->location }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <h5>Result Monitoring </h5>
-                            <div class="table-responsive text-nowrap">
-                                @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
-                                    <table class="table table-bordered">
-                                        <thead class="table-light">
-                                            <th>Date</th>
-                                            <th>Condition</th>
-                                            <th>R Hr.</th>
-                                            <th>L Hr.</th>
-                                            <th>Press.</th>
-                                            <th>Temp.</th>
-                                            <th>Oil Lvl</th>
-                                            <th>PIC</th>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($compressor as $item)
-                                                <tr>
-                                                    <td>{{ $item['date'] }}</td>
-                                                    <td>{{ $item['condition'] }}</td>
-                                                    <td>{{ $item['running'] }}</td>
-                                                    <td>{{ $item['loading'] }}</td>
-                                                    <td>{{ $item['pressure'] }}</td>
-                                                    <td>{{ $item['temp'] }}</td>
-                                                    <td>{{ $item['oil_level'] }}</td>
-                                                    <td>{{ $item['pic'] }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                @else
-                                    <table class="table table-bordered">
-                                        <thead class="table-light">
-                                            <th>Date</th>
-                                            <th>Condition</th>
-                                            <th>Temp IN</th>
-                                            <th>Temp OUT</th>
-                                            <th>Dew P.</th>
-                                            <th>Auto Drain</th>
-                                            <th>PIC</th>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($dryer as $item)
-                                                <tr>
-                                                    <td>{{ $item['date'] }}</td>
-                                                    <td>{{ $item['condition'] }}</td>
-                                                    <td>{{ $item['temp'] }}</td>
-                                                    <td>{{ $item['temp_out'] }}</td>
-                                                    <td>{{ $item['dew'] }}</td>
-                                                    <td>{{ $item['drain'] }}</td>
-                                                    <td>{{ $item['pic'] }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                @endif
-                            </div>
+                            <a href="{{ route('create.daily-monitoring', $machine->id) }}"
+                                class="btn btn-primary waves-effect" {{ $hasMonitoringToday ? 'disabled' : '' }}>Daily
+                                Monitoring</a>
+                            <a href="{{ route('create.weekly-monitoring', $machine->id) }}"
+                                class="btn btn-warning waves-effect">Weekly Monitoring</a>
                         </div>
                     </div>
                 </div>

@@ -1,14 +1,14 @@
 $(function () {
-    var dt_table_machine_client = $(".datatable-machine-client");
-    var Url = "/db/machine/client/";
+    var dt_table_daily_month = $(".datatable-daily-month");
+    var Url = "/db/service-manager/bulan/";
     var path = window.location.pathname;
     var id = path.substring(path.lastIndexOf("/") + 1);
 
     // console.log("ID:", id); // Output: ID: 2
 
-    if (dt_table_machine_client.length) {
+    if (dt_table_daily_month.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_machine_client.DataTable({
+        var dt_product = dt_table_daily_month.DataTable({
             ajax: {
                 type: "GET",
                 url: Url + id,
@@ -29,15 +29,8 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "unit" },
-                { data: "brand" },
-                { data: "sku" },
-                { data: "serial" },
-                { data: "tag" },
-                { data: "location" },
-                {
-                    data: "",
-                },
+                { data: "month" },
+                { data: "monthNum" },
             ],
             columnDefs: [
                 {
@@ -76,22 +69,27 @@ $(function () {
                     targets: 3,
                 },
                 {
-                    targets: 9,
+                    targets: 3,
                     render: function (data, type, full, row) {
-                        var id = full["id"];
-                        var routeCreate = route("create.daily-monitoring", id);
-                        var routeVisit = route("visitor.daily-monitoring", id);
+                        if (type === "display") {
+                            var $idMachine = full["id"];
+                            var $numberMonth = full["monthNum"];
+                            var detailRoute = route("service-manager.visit", [$idMachine, $numberMonth]);
+                            return (
+                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                            );
+                        }
+                        return data;
+                    },
+                },
+                {
+                    targets: 4,
+                    render: function (data, type,full, row) {
+                        var $idMachine = full["id"];
+                        var $numberMonth = full["monthNum"];
+                        var detailRoute = route("service-manager.visit", [$idMachine, $numberMonth]);
                         return (
-                            '<a href="#" data-id="' +
-                            id +
-                            '" class="btn btn-sm btn-label-danger delete-machine m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i></a>' +
-                            '<a type="button" href="#" data-bs-toggle="modal" data-bs-target="#editMachine-' +
-                            id +
-                            '" data-id="' +
-                            id +
-                            '" class="btn btn-sm btn-label-primary"><i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i></a>' +
-                            '<a href="'+ routeCreate  +'" class="btn btn-sm btn-label-warning m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-import m-0"></i></a>' +
-                            '<a href="'+ routeVisit  +'" class="btn btn-sm btn-label-success m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-eye-outline m-0"></i></a>' 
+                            '<a href="' + detailRoute + '"class="btn btn-sm btn-primary m-2">Visit</a>'
                         );
                     },
                 },
@@ -363,7 +361,7 @@ $(function () {
             '<h5 class="card-title mb-0">Table Product</h5>'
         );
     }
-    dt_table_machine_client.on("draw", function () {
+    dt_table_daily_month.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

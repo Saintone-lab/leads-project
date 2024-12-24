@@ -800,13 +800,13 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Monitoring</span>
             </li>
-            {{-- <li
+            <li
                 class="menu-item {{ request()->is('service-manager') || request()->is('service-manager/*') ? 'active' : '' }}">
                 <a href="{{ route('service-manager.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
                     <div data-i18n="Monitoring Fajar Paper">Monitoring Fajar Paper</div>
                 </a>
-            </li> --}}
+            </li>
 
             {{-- <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Notulen</span>

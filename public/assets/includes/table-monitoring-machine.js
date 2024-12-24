@@ -29,7 +29,7 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "date" },
-                { data: "runing" },
+                { data: "running" },
                 { data: "pressure" },
                 { data: "temp" },
                 { data: "condition" },

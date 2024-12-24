@@ -1,5 +1,8 @@
-<form action="{{ route('machine.update', $machine->id) }}" method="patch" enctype="multipart/form-data">
+<form action="{{ route('machine.update', $machine->id) }}" method="post" enctype="multipart/form-data">
     @csrf
+    @if ($machine)
+        @method('patch')
+    @endif
     <div class="modal animate__animated animate__fadeIn" id="editMachine-{{ $machine->id }}" tabindex="-1"
         style="display: none;" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">

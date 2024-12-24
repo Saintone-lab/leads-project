@@ -70,6 +70,7 @@ use App\Http\Controllers\UserController;
 // Route::get('/', function () {
 //     return view('pages.sales.dashboard');
 // });
+Route::get('/monitoring/button/{id}', [MonitoringController::class, 'button'])->name('button.monitoring');
 Route::get('/monitoring/daily-visit/{id}', [MonitoringController::class, 'visitorDaily'])->name('visitor.daily-monitoring');
 Route::get('/db/machine-monitoring-visit/{id}', [MonitoringController::class, 'getMonitoringCompressorThisMonth']);
 Route::get('/db/dryer-monitoring-visit/{id}', [MonitoringController::class, 'getMonitoringDryerThisMonth']);
@@ -282,6 +283,23 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/monitoring/daily/{id}', [MonitoringController::class, 'indexDaily'])->name('index.daily-monitoring');
     Route::get('/monitoring/daily-create/{id}', [MonitoringController::class, 'createDaily'])->name('create.daily-monitoring');
     Route::post('/monitoring/daily-store/{id}', [MonitoringController::class, 'storeDaily'])->name('store.daily-monitoring');
+    Route::get('/monitoring/weekly-create/{id}', [MonitoringController::class, 'createWeekly'])->name('create.weekly-monitoring');
+    Route::get('/service-manager', [MonitoringController::class, 'indexServiceM'])->name('service-manager.index');
+    Route::get('/service-manager/{id}', [MonitoringController::class, 'showServiceM'])->name('service-manager.show');
+    Route::get('/service-manager/{id}/{month}', [MonitoringController::class, 'visitorDailyService'])->name('service-manager.visit');
+    Route::get('/service-manager-print/{id}/{month}', [MonitoringController::class, 'visitorDailyServicePrint'])->name('service-manager.print');
+    Route::get('/db/service-manager/bulan/{id}', function ($id) {
+        $months = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $monthName = Carbon::create()->month($i)->format('F');
+            $months[] = [
+                'id' => $id,
+                'month' => strtoupper($monthName),
+                'monthNum' => $i,
+            ];
+        }
+        return response()->json(['data' => $months]);
+    });
 
     // Route untuk Selling Contract dan Confirm Order
     Route::resource('/contract', ContractController::class);
@@ -1247,7 +1265,7 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json(['data' => $data]);
     });
-    Route::get('/db/compressor/fp/{id}', function ($id) {
+    Route::get('/db/compressor/fp', function () {
         $data = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
         ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
             ->join('unit as u', 's.id_product', '=', 'u.id')
@@ -1265,7 +1283,7 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json(['data' => $data]);
     });
-    Route::get('/db/dryer/fp/{id}', function ($id) {
+    Route::get('/db/dryer/fp', function () {
         $data = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
         ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
             ->join('unit as u', 's.id_product', '=', 'u.id')

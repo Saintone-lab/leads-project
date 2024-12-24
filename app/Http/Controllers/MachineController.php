@@ -100,7 +100,6 @@ class MachineController extends Controller
      */
     public function update(Request $request, $id)
     {
-        dd($request->all());
         $rule = [
             'desc' =>
                 'required',
