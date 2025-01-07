@@ -28,6 +28,9 @@ return new class extends Migration
             $table->enum('condition', ['Running', 'Stand By', 'Off']);
             $table->enum('oil_level', ['Kurang', 'Ok'])->nullable();
             $table->longText('desc');
+            $table->longText('main_desc')->nullable();
+            $table->longText('main_next')->nullable();
+            $table->longText('technician')->nullable();
             $table->string('picture')->nullable();
             $table->date('date');
             $table->enum('type', ['compressor', 'dryer']);

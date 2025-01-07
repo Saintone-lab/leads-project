@@ -1,17 +1,15 @@
 $(function () {
-    var dt_table_daily_month = $(".datatable-daily-month");
-    var Url = "/db/service-manager/bulan/";
-    var path = window.location.pathname;
-    var id = path.substring(path.lastIndexOf("/") + 1);
+    var dt_table_recap_month = $(".datatable-recap-month");
+    var Url = "/db/bulan/";
 
     // console.log("ID:", id); // Output: ID: 2
 
-    if (dt_table_daily_month.length) {
+    if (dt_table_recap_month.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_daily_month.DataTable({
+        var dt_product = dt_table_recap_month.DataTable({
             ajax: {
                 type: "GET",
-                url: Url + id,
+                url: Url,
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -30,7 +28,7 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "month" },
-                { data: "monthNum" },
+                { data: "date" },
             ],
             columnDefs: [
                 {
@@ -73,8 +71,8 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $idMachine = full["id"];
-                            var $numberMonth = full["monthNum"];
-                            var detailRoute = route("service-manager-daily.visit", [$idMachine, $numberMonth]);
+                            var $date = full["date"];
+                            var detailRoute = route("service-manager.recap", [$date]);
                             return (
                                 '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
                             );
@@ -86,10 +84,10 @@ $(function () {
                     targets: 4,
                     render: function (data, type,full, row) {
                         var $idMachine = full["id"];
-                        var $numberMonth = full["monthNum"];
-                        var detailRoute = route("service-manager-daily.visit", [$idMachine, $numberMonth]);
+                        var $date = full["date"];
+                        var detailRoute = route("service-manager.recap", [$date]);
                         return (
-                            '<a href="' + detailRoute + '"class="btn btn-sm btn-primary m-2">Visit</a>'
+                            '<a href="' + detailRoute + '"class="btn btn-sm btn-primary m-2">Recap</a>'
                         );
                     },
                 },
@@ -361,7 +359,7 @@ $(function () {
             '<h5 class="card-title mb-0">Table Product</h5>'
         );
     }
-    dt_table_daily_month.on("draw", function () {
+    dt_table_recap_month.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

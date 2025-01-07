@@ -215,7 +215,7 @@ class UnitController extends Controller
         $unit->unit = $request->unit;
         $unitSave = $unit->save();
         if ($unitSave) {
-            return redirect('/unit/' . $unit->id)->with('message', 'data telah di tambahkan');
+            return redirect('/unit-global/' . $unit->id)->with('message', 'data telah di tambahkan');
         }
     }
 
@@ -230,23 +230,23 @@ class UnitController extends Controller
         $unit = Unit::find($id);
 
         if (!$unit) {
-            return redirect('/unit/' . $id)->with('error', 'Produk tidak ditemukan');
+            return redirect('/unit-global/' . $id)->with('error', 'Produk tidak ditemukan');
         }
 
-        $replacement = DetailProduct::where('id_product', $id)->get();
-        $equivalents = SerialProduct::where('id_product', $id)->get();
+        // $replacement = DetailProduct::where('id_product', $id)->get();
+        // $equivalents = SerialProduct::where('id_product', $id)->get();
 
         $delUnit = $unit->delete();
 
-        foreach ($replacement as $replace) {
-            $delReplace = $replace->delete();
-        }
+        // foreach ($replacement as $replace) {
+        //     $delReplace = $replace->delete();
+        // }
 
-        foreach ($equivalents as $equivalent) {
-            $delEqui = $equivalent->delete();
-        }
+        // foreach ($equivalents as $equivalent) {
+        //     $delEqui = $equivalent->delete();
+        // }
 
-        if ($delUnit || $delReplace || $delEqui) {
+        if ($delUnit) {
             return 1;
         } else {
             return 0;

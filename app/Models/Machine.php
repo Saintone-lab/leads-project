@@ -36,4 +36,8 @@ class Machine extends Model
     {
         return $this->hasMany('App\Models\Monitoring', 'id_machine');
     }
+    public function monitoringW()
+    {
+        return $this->hasMany('App\Models\MonitoringWeekly', 'id_machine');
+    }
 }

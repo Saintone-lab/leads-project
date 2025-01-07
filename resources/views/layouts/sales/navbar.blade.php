@@ -24,7 +24,7 @@
                     href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside"
                     aria-expanded="false">
                     <i class="mdi mdi-bell-outline mdi-24px"></i>
-                    @if (Auth::user()->role == 'Admin')
+                    @if (Auth::user()?->role == 'Admin')
                         @if (@$unreadCommentAdmin && $unreadCommentAdmin->count() >= 1)
                             <span
                                 class="position-absolute top-0 start-50 translate-middle-y badge badge-dot bg-danger mt-2 border"></span>
@@ -40,7 +40,7 @@
                     <li class="dropdown-menu-header border-bottom">
                         <div class="dropdown-header d-flex align-items-center py-3">
                             <h6 class="mb-0 me-auto">Notification</h6>
-                            @if (Auth::user()->role == 'Admin')
+                            @if (Auth::user()?->role == 'Admin')
                                 @if (@$unreadCommentAdmin)
                                     @if ($unreadCommentAdmin->count() > 1)
                                         <span
@@ -60,7 +60,7 @@
                     </li>
                     <li class="dropdown-notifications-list scrollable-container">
                         <ul class="list-group list-group-flush">
-                            @if (Auth::user()->role == 'Admin')
+                            @if (Auth::user()?->role == 'Admin')
                                 @if (@$commentAdmin)
                                     @foreach ($commentAdmin as $item)
                                         <a href="{{ route('quotation.show', $item->idQ) }}#viewComment"
@@ -152,66 +152,69 @@
             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
-                        <img src="{{ url('') . '/' . Auth::user()->image }}" alt
+                        <img src="{{ url('') . '/' . Auth::user()?->image }}" alt
                             class="w-px-40 h-auto rounded-circle" />
                     </div>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a class="dropdown-item" href="{{ route('profile.show', Auth::user()->id) }}">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0 me-3">
-                                    <div class="avatar avatar-online">
-                                        <img src="{{ url('') . '/' . Auth::user()->image }}" alt
-                                            class="w-px-40 h-auto rounded-circle" />
+                @if (Auth::user())
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="{{ route('profile.show', Auth::user()?->id) }}">
+                                <div class="d-flex">
+                                    <div class="flex-shrink-0 me-3">
+                                        <div class="avatar avatar-online">
+                                            <img src="{{ url('') . '/' . Auth::user()?->image }}" alt
+                                                class="w-px-40 h-auto rounded-circle" />
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <span class="fw-semibold d-block">{{ Auth::user()?->name }}</span>
+                                        <small class="text-muted">{{ Auth::user()?->role }}</small>
                                     </div>
                                 </div>
-                                <div class="flex-grow-1">
-                                    <span class="fw-semibold d-block">{{ Auth::user()->name }}</span>
-                                    <small class="text-muted">{{ Auth::user()->role }}</small>
-                                </div>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <div class="dropdown-divider"></div>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="{{ route('profile.show', Auth::user()->id) }}">
-                            <i class="mdi mdi-account-outline me-2"></i>
-                            <span class="align-middle">My Profile</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="{{ route('profile.edit', Auth::user()->id) }}">
-                            <i class="mdi mdi-cog-outline me-2"></i>
-                            <span class="align-middle">Settings</span>
-                        </a>
-                    </li>
-                    @if (Auth::user()->role === 'Admin')
-                        <li>
-                            <a class="dropdown-item" href="{{ route('audit-tools.index') }}">
-                                <i class="mdi mdi-tools me-2"></i>
-                                <span class="align-middle">Audit Tools</span>
                             </a>
                         </li>
-                    @endif
-                    <li>
-                        <div class="dropdown-divider"></div>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="{{ route('logout') }}"
-                            onclick="event.preventDefault();
+                        <li>
+                            <div class="dropdown-divider"></div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('profile.show', Auth::user()?->id) }}">
+                                <i class="mdi mdi-account-outline me-2"></i>
+                                <span class="align-middle">My Profile</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('profile.edit', Auth::user()?->id) }}">
+                                <i class="mdi mdi-cog-outline me-2"></i>
+                                <span class="align-middle">Settings</span>
+                            </a>
+                        </li>
+                        @if (Auth::user()?->role === 'Admin')
+                            <li>
+                                <a class="dropdown-item" href="{{ route('audit-tools.index') }}">
+                                    <i class="mdi mdi-tools me-2"></i>
+                                    <span class="align-middle">Audit Tools</span>
+                                </a>
+                            </li>
+                        @endif
+                        <li>
+                            <div class="dropdown-divider"></div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('logout') }}"
+                                onclick="event.preventDefault();
                             document.getElementById('logout-form').submit();"
-                            target="_blank">
-                            <i class="mdi mdi-logout me-2"></i>
-                            <span class="align-middle">Log Out</span>
-                        </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                            @csrf
-                        </form>
-                    </li>
-                </ul>
+                                target="_blank">
+                                <i class="mdi mdi-logout me-2"></i>
+                                <span class="align-middle">Log Out</span>
+                            </a>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
+                        </li>
+                    </ul>
+                @endif
             </li>
             <!--/ User -->
         </ul>

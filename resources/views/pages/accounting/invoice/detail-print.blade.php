@@ -287,6 +287,21 @@
                                 {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                         </td>
                     </tr>
+                    <tr class="fw-medium" style="font-size: 13px">
+                        <td colspan="3" id="price" class="text-end pl-4 py-0"
+                            style="padding-right: 10px !important;">
+                            <p class="m-0">
+                                DPP Atas PPN
+                            </p>
+                        </td>
+                        <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
+                            @php
+                                $dpp = $quote->subtotal * 11 / 12;
+                            @endphp
+                            <p class="text-end m-0">RP
+                                {{ number_format($dpp, 0, '', '.') }}</p>
+                        </td>
+                    </tr>
                     @php
                         if ($invoice->flag == 'Reftech') {
                             $bgColor = 'rgb(224, 248, 248)';
@@ -332,7 +347,7 @@
                         @if ($quote->tax != 0 || $totalPph > 0)
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                    <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
+                                    <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
                                     <p class="m-0 text-end">
@@ -422,7 +437,7 @@
                         @if ($quote->tax != 0)
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                    <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
+                                    <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
                                     <p class="m-0 text-end">
@@ -553,7 +568,7 @@
                         @if ($quote->tax != 0)
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                    <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
+                                    <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
                                 </td>
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
                                     <p class="m-0 text-end">

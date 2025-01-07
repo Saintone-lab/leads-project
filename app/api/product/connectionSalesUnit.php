@@ -20,9 +20,27 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT u.*, s.*, CONCAT(u.stock, ' - ', u.warehouse_stock ) AS stok FROM unit u
-        LEFT JOIN serial_product s on u.id = s.id_product
-        WHERE u.type = 'lokal' ";
+        $query = "SELECT 
+        m.id,
+        u.sku,
+        s.brand,
+        s.pn,
+        s.new,
+        m.serial,
+        u.power,
+        s.bar,
+        s.air_cap,
+        m.status,
+        s.price
+            FROM 
+                machine m
+            JOIN 
+                serial_product s ON s.id = m.id_unit
+            JOIN 
+                unit u ON u.id = s.id_product
+            WHERE m.id_client = 5508 
+            GROUP BY 
+                m.id ";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

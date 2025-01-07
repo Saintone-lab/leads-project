@@ -39,6 +39,7 @@ use App\Models\Invoice;
 use App\Models\Library;
 use App\Models\Machine;
 use App\Models\Monitoring;
+use App\Models\MonitoringWeekly;
 use App\Models\Notulen;
 use App\Models\Pic;
 use App\Models\ProductIn;
@@ -72,8 +73,12 @@ use App\Http\Controllers\UserController;
 // });
 Route::get('/monitoring/button/{id}', [MonitoringController::class, 'button'])->name('button.monitoring');
 Route::get('/monitoring/daily-visit/{id}', [MonitoringController::class, 'visitorDaily'])->name('visitor.daily-monitoring');
+Route::get('/monitoring/daily-log/{id}', [MonitoringController::class, 'logDaily'])->name('log.daily-monitoring');
+Route::get('/monitoring/weekly-visit/{id}', [MonitoringController::class, 'visitorWeekly'])->name('visitor.weekly-monitoring');
 Route::get('/db/machine-monitoring-visit/{id}', [MonitoringController::class, 'getMonitoringCompressorThisMonth']);
 Route::get('/db/dryer-monitoring-visit/{id}', [MonitoringController::class, 'getMonitoringDryerThisMonth']);
+
+Route::get('/service-reports/print/{id}', [ServiceReportsController::class, 'print_reports'])->name('service-reports.print');
 
 Route::group(["middleware" => "auth"], function () {
     Route::get('/', [DashboardController::class, 'index']);
@@ -153,7 +158,6 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk service Reports
     Route::resource('/service-reports', ServiceReportsController::class);
-    Route::get('/service-reports/print/{id}', [ServiceReportsController::class, 'print_reports'])->name('service-reports.print');
     Route::post('/service-reports/sign/{id}', [ServiceReportsController::class, 'hand_sign'])->name('service-reports.sign');
     Route::post('/service-reports/image/{id}', [ServiceReportsController::class, 'inputImage'])->name('service-reports.image');
     Route::delete('/service-reports/del-sign/{id}', [ServiceReportsController::class, 'delete_hand_sign'])->name('service-reports.del-sign');
@@ -283,11 +287,17 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/monitoring/daily/{id}', [MonitoringController::class, 'indexDaily'])->name('index.daily-monitoring');
     Route::get('/monitoring/daily-create/{id}', [MonitoringController::class, 'createDaily'])->name('create.daily-monitoring');
     Route::post('/monitoring/daily-store/{id}', [MonitoringController::class, 'storeDaily'])->name('store.daily-monitoring');
+    Route::get('/monitoring/weekly/{id}', [MonitoringController::class, 'indexWeekly'])->name('index.weekly-monitoring');
     Route::get('/monitoring/weekly-create/{id}', [MonitoringController::class, 'createWeekly'])->name('create.weekly-monitoring');
+    Route::post('/monitoring/weekly-store/{id}', [MonitoringController::class, 'storeWeekly'])->name('store.weekly-monitoring');
     Route::get('/service-manager', [MonitoringController::class, 'indexServiceM'])->name('service-manager.index');
     Route::get('/service-manager/{id}', [MonitoringController::class, 'showServiceM'])->name('service-manager.show');
-    Route::get('/service-manager/{id}/{month}', [MonitoringController::class, 'visitorDailyService'])->name('service-manager.visit');
-    Route::get('/service-manager-print/{id}/{month}', [MonitoringController::class, 'visitorDailyServicePrint'])->name('service-manager.print');
+    Route::get('/service-manager-daily/{id}/{month}', [MonitoringController::class, 'visitorDailyService'])->name('service-manager-daily.visit');
+    Route::get('/service-manager-weekly/{id}/{week}', [MonitoringController::class, 'visitorWeeklyService'])->name('service-manager-weekly.visit');
+    Route::get('/service-manager-daily-print/{id}/{month}', [MonitoringController::class, 'visitorDailyServicePrint'])->name('service-manager-daily.print');
+    Route::get('/service-manager-weekly-print/{id}/{week}', [MonitoringController::class, 'visitorWeeklyServicePrint'])->name('service-manager-weekly.print');
+    Route::get('/service-manager/recap/{date}', [MonitoringController::class, 'showServiceM'])->name('service-manager.recap');
+    Route::get('/service-manager/issue/{date}', [MonitoringController::class, 'issueMachine'])->name('service-manager.issue');
     Route::get('/db/service-manager/bulan/{id}', function ($id) {
         $months = [];
         for ($i = 1; $i <= 12; $i++) {
@@ -298,6 +308,70 @@ Route::group(["middleware" => "auth"], function () {
                 'monthNum' => $i,
             ];
         }
+        return response()->json(['data' => $months]);
+    });
+    Route::get('/db/service-manager/weekly/{id}', function ($id) {
+        $year = Carbon::now()->year;
+
+        // Tanggal awal dan akhir tahun
+        $startOfYear = Carbon::createFromDate($year, 1, 1);
+        $endOfYear = Carbon::createFromDate($year, 12, 31);
+
+        $weeks = [];
+        $weekNumber = 1;
+
+        // Minggu pertama (dari tanggal 1 hingga hari Minggu pertama)
+        $firstDate = $startOfYear->copy();
+        $lastDate = $startOfYear->copy()->endOfWeek(Carbon::SUNDAY);
+        $weeks[] = [
+            'week' => $weekNumber,
+            'firstdate' => $firstDate->format('j-n-Y'),
+            'lastdate' => $lastDate->format('j-n-Y'),
+            'id' => $id,
+        ];
+        $weekNumber++;
+
+        // Minggu-minggu berikutnya (dari Senin hingga Minggu)
+        $currentStartDate = $lastDate->addDay()->startOfWeek(Carbon::MONDAY);
+
+        while ($currentStartDate->lte($endOfYear)) {
+            $firstDate = $currentStartDate->copy();
+            $lastDate = $currentStartDate->copy()->endOfWeek(Carbon::SUNDAY);
+
+            // Hindari melewati akhir tahun
+            if ($lastDate->gt($endOfYear)) {
+                $lastDate = $endOfYear;
+            }
+
+            $weeks[] = [
+                'week' => $weekNumber,
+                'firstdate' => $firstDate->format('j-n-Y'),
+                'lastdate' => $lastDate->format('j-n-Y'),
+                'id' => $id,
+            ];
+
+            $weekNumber++;
+            $currentStartDate->addWeek();
+        }
+
+        return response()->json(['data' => $weeks]);
+    });
+    Route::get('/db/bulan', function () {
+        $months = [];
+        $start = Carbon::create(2025, 1, 1); // Mulai dari Januari 2025
+        $end = Carbon::create(2026, 12, 1); // Sampai Desember 2026
+
+        while ($start->lessThanOrEqualTo($end)) {
+            $months[] = [
+                'id' => $start->month,
+                'month' => $start->translatedFormat('F Y'),
+                'date' => $start->format('d-m-Y'),
+                'monthNum' => $start->month,
+                'year' => $start->year, 
+            ];
+            $start->addMonth();
+        }
+
         return response()->json(['data' => $months]);
     });
 
@@ -1248,9 +1322,20 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json(['data' => $data]);
     });
+    Route::get('/db/machine/monitoring-weekly/{id}', function ($id) {
+        $data = MonitoringWeekly::join('machine as m', 'm.id', '=', 'monitoring_weekly.id_machine')
+            ->join('users', 'users.id', '=', 'monitoring_weekly.id_pic')
+            ->where('m.id', $id)
+            ->select(
+                'monitoring_weekly.*',
+                'users.name',
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
     Route::get('/db/machine/client/{id}', function ($id) {
         $data = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
-        ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
+            ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
             ->join('unit as u', 's.id_product', '=', 'u.id')
             ->where('c.id', $id)
             ->groupBy('machine.id', 'u.id')
@@ -1267,7 +1352,7 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/compressor/fp', function () {
         $data = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
-        ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
+            ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
             ->join('unit as u', 's.id_product', '=', 'u.id')
             ->where('u.unit', 'AIR COMPRESSOR SCREW')
             ->where('c.id', 1277)
@@ -1285,7 +1370,7 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/dryer/fp', function () {
         $data = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
-        ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
+            ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
             ->join('unit as u', 's.id_product', '=', 'u.id')
             ->where('u.unit', 'REFRIGERANT AIR DRYER')
             ->where('c.id', 1277)

@@ -204,7 +204,7 @@
                             @endforeach
                             <tr class="border-top">
                                 <td colspan="4" class="px-4 border-right" style="background-color: #E7FF00">
-                                    <p class="fw-semibold mb-0 text-black">TOTAL PRICE, EXCLUDE VAT 11%</p>
+                                    <p class="fw-semibold mb-0 text-black">TOTAL PRICE, {{$quote->tax != 0 ?'INCLUDE' : 'EXCLUDE'}} VAT 11%</p>
                                 </td>
                                 <td class="text-end px-4 border-left" style="background-color: #E7FF00">
                                     <p class="fw-semibold mb-0 text-end text-black">RP

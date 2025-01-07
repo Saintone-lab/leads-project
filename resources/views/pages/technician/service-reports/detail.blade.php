@@ -251,8 +251,8 @@
                 if (navigator.share) {
                     navigator.share({
                         title: 'Service Reports',
-                        text: 'Check out this link!',
-                        url: '{{ route('service-reports.show', ":id") }}'.replace(':id', id) 
+                        text: 'Check This Service Reports!',
+                        url: '{{ route('service-reports.print', ":id") }}'.replace(':id', id) 
                     }).then(() => {
                         console.log('Thanks for sharing!');
                     }).catch(err => {

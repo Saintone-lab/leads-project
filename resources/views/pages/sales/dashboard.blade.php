@@ -660,7 +660,7 @@
                         <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPriceAdmin }}</h4>
                         @php
                             $jumlah_target = 0;
-                            $jumlah_target = ($poTotalPriceAdmin / 1000000000) * 100;
+                            $jumlah_target = ($poTotalPriceAdmin / $targetAllSales) * 100;
                             $formatted_jumlah_target = number_format($jumlah_target, 3);
                         @endphp
                         <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
@@ -1359,7 +1359,7 @@
                 </table>
             </div>
         </div>
-    @else
+    @elseif(Auth::user()->role == 'Technician')
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
                 <table class="datatable-notulen table table-striped">

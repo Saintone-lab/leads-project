@@ -58,13 +58,12 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 class="fw-bold">DAILY MONITORING</h3>
+                                    <h3 class="fw-bold">MAINTENANCE LOG</h3>
                                     <div>
                                         <span class="fw-bolder">{{ $machine->unit->unit->unit }}</span>
                                     </div>
                                     <div class="mt-1">
-                                        <span class="fw-bold">{{ $machine->unit->brand }}
-                                            {{ $machine->unit->unit->sku }}</span>
+                                        <span class="fw-bold">{{ $machine->unit->brand }} {{ $machine->unit->unit->sku }}</span>
                                     </div>
                                     <div class="mt-1">
                                         <span class="text-muted">{{ $machine->tag }} - {{ $machine->location }}</span>
@@ -72,64 +71,36 @@
                                 </div>
                             </div>
                             <div class="d-flex justify-content-end">
-                                <a href="{{ route('log.daily-monitoring', $machine->id) }}"
-                                    class="btn btn-primary waves-effect">Go To Maintenance Log</a>
+                                <a href="{{ route('visitor.daily-monitoring', $machine->id) }}"
+                                    class="btn btn-primary waves-effect">Go To Visit Monitor</a>
                             </div>
-                            <h5>Result Monitoring </h5>
                             <div class="table-responsive text-nowrap mt-4">
-                                @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
-                                    <table class="table table-bordered">
-                                        <thead class="table-light">
-                                            <th>Date</th>
-                                            <th>Condition</th>
-                                            <th>R Hr.</th>
-                                            <th>L Hr.</th>
-                                            <th>Press.</th>
-                                            <th>Temp.</th>
-                                            <th>Oil Lvl</th>
-                                            <th>PIC</th>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($compressor as $item)
-                                                <tr>
-                                                    <td>{{ $item['date'] }}</td>
-                                                    <td>{{ $item['condition'] }}</td>
-                                                    <td>{{ $item['running'] }}</td>
-                                                    <td>{{ $item['loading'] }}</td>
-                                                    <td>{{ $item['pressure'] }}</td>
-                                                    <td>{{ $item['temp'] }}</td>
-                                                    <td>{{ $item['oil_level'] }}</td>
-                                                    <td>{{ $item['pic'] }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                @else
-                                    <table class="table table-bordered">
-                                        <thead class="table-light">
-                                            <th>Date</th>
-                                            <th>Condition</th>
-                                            <th>Temp IN</th>
-                                            <th>Temp OUT</th>
-                                            <th>Dew P.</th>
-                                            <th>Auto Drain</th>
-                                            <th>PIC</th>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($dryer as $item)
-                                                <tr>
-                                                    <td>{{ $item['date'] }}</td>
-                                                    <td>{{ $item['condition'] }}</td>
-                                                    <td>{{ $item['temp'] }}</td>
-                                                    <td>{{ $item['temp_out'] }}</td>
-                                                    <td>{{ $item['dew'] }}</td>
-                                                    <td>{{ $item['drain'] }}</td>
-                                                    <td>{{ $item['pic'] }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                @endif
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <th>No</th>
+                                        <th>Date</th>
+                                        <th>Maintenance Description</th>
+                                        <th>Next Maintenance Planned</th>
+                                        <th>Vendor</th>
+                                    </thead>
+                                    <tbody>
+                                        @php
+                                            $no = 0;
+                                        @endphp
+                                        @foreach ($monitoring as $item)
+                                            @php
+                                                $no++;
+                                            @endphp
+                                            <tr>
+                                                <td>{{ $no }}</td>
+                                                <td>{{ $item->date }}</td>
+                                                <td>{{ $item->main_desc }}</td>
+                                                <td>{{ $item->main_next }}</td>
+                                                <td>{{ $item->technician }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

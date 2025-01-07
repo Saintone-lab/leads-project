@@ -1,7 +1,7 @@
 @page {
     size: auto !important;
     size: 240mm 330mm !important;
-    margin: 19.2px 5mm 0mm 10mm !important;
+    margin: 19.2px 5mm 5mm 10mm !important;
 }
 @media print {
     html,

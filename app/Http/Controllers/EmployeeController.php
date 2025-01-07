@@ -321,7 +321,7 @@ class EmployeeController extends Controller
         $this->validate($request, $rule, $customMessages);
         $sales = User::find($id);
         $lastDetail = $sales->detail->last();
-        dd($lastDetail);
+        // dd($lastDetail);
         $target = Target::where('id_sales', $id)->first();
         $target->dc = $request->dc;
         $target->crm = $request->crm;

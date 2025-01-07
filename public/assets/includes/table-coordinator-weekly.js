@@ -1,14 +1,14 @@
 $(function () {
-    var dt_table_daily_month = $(".datatable-daily-month");
-    var Url = "/db/service-manager/bulan/";
+    var dt_table_weekly = $(".datatable-monitoring-weekly");
+    var Url = "/db/service-manager/weekly/";
     var path = window.location.pathname;
     var id = path.substring(path.lastIndexOf("/") + 1);
 
     // console.log("ID:", id); // Output: ID: 2
 
-    if (dt_table_daily_month.length) {
+    if (dt_table_weekly.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_daily_month.DataTable({
+        var dt_product = dt_table_weekly.DataTable({
             ajax: {
                 type: "GET",
                 url: Url + id,
@@ -29,8 +29,9 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "month" },
-                { data: "monthNum" },
+                { data: "week" },
+                { data: "firstdate" },
+                { data: "lastdate" },
             ],
             columnDefs: [
                 {
@@ -73,24 +74,21 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $idMachine = full["id"];
-                            var $numberMonth = full["monthNum"];
-                            var detailRoute = route("service-manager-daily.visit", [$idMachine, $numberMonth]);
+                            var $week = full["week"];
+                            var detailRoute = route(
+                                "service-manager-weekly.visit",
+                                [$idMachine, $week]
+                            );
                             return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                                '<a class="text-dark" href="' +
+                                detailRoute +
+                                '">' +
+                                'Week ' +
+                                data +
+                                "</a>"
                             );
                         }
                         return data;
-                    },
-                },
-                {
-                    targets: 4,
-                    render: function (data, type,full, row) {
-                        var $idMachine = full["id"];
-                        var $numberMonth = full["monthNum"];
-                        var detailRoute = route("service-manager-daily.visit", [$idMachine, $numberMonth]);
-                        return (
-                            '<a href="' + detailRoute + '"class="btn btn-sm btn-primary m-2">Visit</a>'
-                        );
                     },
                 },
             ],
@@ -361,7 +359,7 @@ $(function () {
             '<h5 class="card-title mb-0">Table Product</h5>'
         );
     }
-    dt_table_daily_month.on("draw", function () {
+    dt_table_weekly.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

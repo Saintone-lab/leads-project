@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_machine');
             $table->foreignId('id_pic');
-            $table->string('vaoltage');
+            $table->integer('week');
+            $table->string('voltage');
             $table->string('ampere');
             $table->string('idle')->nullable();
             $table->string('pm');
@@ -27,7 +28,6 @@ return new class extends Migration
             $table->string('pre')->nullable();
             $table->string('after')->nullable();
             $table->longText('desc');
-            $table->string('picture')->nullable();
             $table->date('date');
             $table->enum('type', ['compressor', 'dryer']);
             $table->timestamps();

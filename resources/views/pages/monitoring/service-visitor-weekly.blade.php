@@ -28,12 +28,9 @@
                             </div>
                         </div>
                         <div>
-                            <h3 class="fw-bold">DAILY MONITORING</h3>
-                            <div>
-                                <span class="fw-bolder">{{ $machine->unit->unit->unit }}</span>
-                            </div>
+                            <h3 class="fw-bold">WEEKLY MONITORING</h3>
                             <div class="mt-1">
-                                <span class="text-muted">{{ $machine->tag }} - {{ $machine->location }}</span>
+                                <span class="text-muted">WEEK - {{ request()->route('week') }}</span>
                             </div>
                         </div>
                     </div>
@@ -61,71 +58,78 @@
                         </div>
                     </div>
                     <hr> --}}
-                    <div class="table-responsive text-nowrap mb-4">
-                        @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <th>Date</th>
-                                    <th>Condition</th>
-                                    <th>R Hr.</th>
-                                    <th>L Hr.</th>
-                                    <th>Press.</th>
-                                    <th>Temp.</th>
-                                    <th>Oil Lvl</th>
-                                    <th>PIC</th>
-                                </thead>
-                                <tbody>
-                                    @foreach ($compressor as $item)
-                                        <tr>
-                                            <td>{{ $item['date'] }}</td>
-                                            <td>{{ $item['condition'] }}</td>
-                                            <td>{{ $item['running'] }}</td>
-                                            <td>{{ $item['loading'] }}</td>
-                                            <td>{{ $item['pressure'] }}</td>
-                                            <td>{{ $item['temp'] }}</td>
-                                            <td>{{ $item['oil_level'] }}</td>
-                                            <td>{{ $item['pic'] }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        @else
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <th>Date</th>
-                                    <th>Condition</th>
-                                    <th>Temp IN</th>
-                                    <th>Temp OUT</th>
-                                    <th>Dew P.</th>
-                                    <th>Auto Drain</th>
-                                    <th>PIC</th>
-                                </thead>
-                                <tbody>
-                                    @foreach ($dryer as $item)
-                                        <tr>
-                                            <td>{{ $item['date'] }}</td>
-                                            <td>{{ $item['condition'] }}</td>
-                                            <td>{{ $item['temp'] }}</td>
-                                            <td>{{ $item['temp_out'] }}</td>
-                                            <td>{{ $item['dew'] }}</td>
-                                            <td>{{ $item['drain'] }}</td>
-                                            <td>{{ $item['pic'] }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        @endif
+                    <h5>Machine Compressor </h5>
+                    <div class="table-responsive text-nowrap mt-4">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <th>Unit</th>
+                                <th>Voltage</th>
+                                <th>Ampere L</th>
+                                <th>Ampere Idle</th>
+                                <th>PM</th>
+                                <th>Remark</th>
+                                <th>PIC</th>
+                            </thead>
+                            <tbody>
+                                @foreach ($monitoringAC as $item)
+                                    <tr class="{{ $item->idM == $machine->id ? 'bg-label-warning' : '' }}">
+                                        <td>{{ $item->unit->brand }} {{ $item->unit->unit->sku }}
+                                        </td>
+                                        <td>{{ $item->voltage }}</td>
+                                        <td>{{ $item->ampere }}</td>
+                                        <td>{{ $item->idle }}</td>
+                                        <td>{{ $item->pm }}</td>
+                                        <td>{{ $item->remark }}</td>
+                                        <td>{{ $item->name }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <h5 class="mt-5">Machine Dryer </h5>
+                    <div class="table-responsive text-nowrap mt-4">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <th>Unit</th>
+                                <th>Voltage</th>
+                                <th>Ampere</th>
+                                <th>Dew P.</th>
+                                <th>Auto Drain</th>
+                                <th>Pre</th>
+                                <th>After</th>
+                                <th>PM</th>
+                                <th>Remark</th>
+                                <th>PIC</th>
+                            </thead>
+                            <tbody>
+                                @foreach ($monitoringDRYER as $item)
+                                    <tr class="{{ $item->idM == $machine->id ? 'bg-label-warning' : '' }}">
+                                        <td>{{ $item->unit->brand }} {{ $item->unit->unit->sku }}
+                                        </td>
+                                        <td>{{ $item->voltage }}</td>
+                                        <td>{{ $item->ampere }}</td>
+                                        <td>{{ $item->dew }}</td>
+                                        <td>{{ $item->drain }}</td>
+                                        <td>{{ $item->pre }}</td>
+                                        <td>{{ $item->after }}</td>
+                                        <td>{{ $item->pm }}</td>
+                                        <td>{{ $item->remark }}</td>
+                                        <td>{{ $item->name }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                     <div class="row mt-5">
                         <div class="col-4 mt-5 text-center">
                             <p>PT Reftech Jaya Optima</p>
-                                <div class="pb-5"></div>
+                            <div class="pb-5"></div>
                             <p class="pt-3">( Arie Sudjiwo )</p>
                         </div>
                         <div class="col-4"></div>
                         <div class="col-4 mt-5 text-center">
                             <p>PT Reftech Jaya Optima</p>
-                                <div class="pb-5"></div>
+                            <div class="pb-5"></div>
                             <p class="pt-3">( Arie Supratman )</p>
                         </div>
                     </div>
@@ -138,7 +142,7 @@
             <div class="card mb-3">
                 <div class="card-body">
                     <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
-                        href="{{ route('service-manager-daily.print', [request()->route('id'), request()->route('month')]) }}">
+                        href="{{ route('service-manager-weekly.print', [request()->route('id'), request()->route('week')]) }}">
                         Download
                     </a>
                     <button id="buttonShare" data-id="1"

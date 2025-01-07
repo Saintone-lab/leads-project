@@ -23,7 +23,7 @@
     <div class="menu-inner-shadow"></div>
 
     <ul class="menu-inner py-1">
-        @if (auth::user()->role == 'Admin')
+        @if (auth::user()?->role == 'Admin')
             <!-- Dashboards -->
             <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
                 <a href="{{ url('/') }}" class="menu-link">
@@ -327,7 +327,7 @@
                     <div data-i18n="Pending PO">Pending PO</div>
                 </a>
             </li>
-        @elseif (auth::user()->role == 'Sales')
+        @elseif (auth::user()?->role == 'Sales')
             <!-- Dashboards -->
             <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
                 <a href="{{ url('/') }}" class="menu-link">
@@ -540,7 +540,7 @@
                     <div data-i18n="Archive Quotation">Archive Quotation</div>
                 </a>
             </li>
-        @elseif (auth::user()->role == 'Support')
+        @elseif (auth::user()?->role == 'Support')
             <!-- Dashboards -->
             <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
                 <a href="{{ url('/') }}" class="menu-link">
@@ -688,7 +688,7 @@
                     <div data-i18n="Archive Quotation">Archive Quotation</div>
                 </a>
             </li>
-        @elseif(auth::user()->role == 'Logistic')
+        @elseif(auth::user()?->role == 'Logistic')
             <li class="menu-item {{ request()->is('master/product') ? 'active' : '' }}">
                 <a href="{{ route('master.product') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package"></i>
@@ -789,7 +789,7 @@
                     </li>
                 </ul>
             </li>
-        @elseif(auth::user()->role == 'ServiceM')
+        @elseif(auth::user()?->role == 'ServiceM')
             <!-- Dashboards -->
             <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
                 <a href="{{ url('/') }}" class="menu-link">
@@ -850,7 +850,7 @@
                     </li>
                 </ul>
             </li>
-        @else
+        @elseif(auth::user()?->role == 'Technician' || auth::user()?->role == 'Coordinator')
             <!-- Dashboards -->
             <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
                 <a href="{{ url('/') }}" class="menu-link">

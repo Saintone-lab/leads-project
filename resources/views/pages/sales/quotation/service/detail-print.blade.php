@@ -171,7 +171,7 @@
                             </td>
                         </tr>
                         @foreach ($subJudul->detail as $product)
-                            <tr style="font-size: 13px; border-bottom:none !important; border-top:none !important;">
+                            <tr style="font-size: 10px; border-bottom:none !important; border-top:none !important;">
                                 <td class="align-top py-1" style="border-bottom:none !important;">
                                     @php
                                         $no++;
@@ -182,7 +182,7 @@
                                     <p class="mb-1">{{ $product->product }}</p>
                                     @if ($product->detail != '-')
                                         <pre class="mb-0"
-                                            style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail }}</pre>
+                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail }}</pre>
                                     @endif
                                 </td>
                                 <td class="align-top py-1" style="border-bottom:none !important;">
@@ -199,7 +199,7 @@
                     @endforeach
                     <tr class="border-top">
                         <td colspan="4" class="px-4 border-right" style="background-color: #E7FF00">
-                            <p class="fw-semibold mb-0 text-black">TOTAL PRICE, EXCLUDE VAT 11%</p>
+                            <p class="fw-semibold mb-0 text-black">TOTAL PRICE, {{$quote->tax != 0 ?'INCLUDE' : 'EXCLUDE'}} VAT 11%</p>
                         </td>
                         <td class="text-end px-4 border-left" style="background-color: #E7FF00">
                             <p class="fw-semibold mb-0 text-end text-black">RP

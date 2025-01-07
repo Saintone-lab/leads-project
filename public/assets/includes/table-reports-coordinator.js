@@ -1,16 +1,16 @@
 $(function () {
-    var dt_table_product_sales_unit = $(".datatable-product-sales-unit");
-    var Url = "/db/sales/unit";
+    var dt_table_reports_admin = $(".datatable-reports-admin");
+    var Url = "db/reports/admin";
 
-    if (dt_table_product_sales_unit.length) {
-        $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product_sales_unit.DataTable({
+    if (dt_table_reports_admin.length) {
+        var dt_reports_admin = dt_table_reports_admin.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
                 headers: {
                     "Content-Type": "application/json",
                 },
+
                 // success: function (hasil, Url) {
                 //     console.log("Url:", Url);
                 //     console.log(hasil);
@@ -25,63 +25,15 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "new" },
-                { data: "sku" },
-                { data: "brand" },
-                { data: "pn" },
-                { data: "serial" },
-                { data: "power" },
-                { data: "bar" },
-                { data: "air_cap" },
-                { data: "status" },
-                { data: "price", className: "text-end" },
+                { data: "no_service" },
+                { data: "company" },
+                { data: "jobdesc" },
+                { data: "brand_type" },
+                { data: "date" },
+                { data: "sales" },
+                { data: "technician" },
             ],
             columnDefs: [
-                {
-                    targets: 6,
-                    render: function (data, type, full, row) {
-                        var photo = full['image'];
-                        if (type === "display") {
-                            if (data === null || data === "") {
-                                return "-";
-                            }
-                            return (
-                                '<a class="text-dark badge bg-label-primary" target="_blank" href="' +
-                                photo +
-                                '">' +
-                                data +
-                                "</a>"
-                            );
-                        }
-                        return data;
-                    },
-                },
-                {
-                    targets: 3,
-                    render: function (data, type, full, row) {
-                        var newu = full['new'];
-                        var second = full['second'];
-                        var rental = full['rental'];
-                        
-                        var status = [];
-                
-                        if (rental === '1') {
-                            status.push('Rental');
-                        }
-                
-                        if (second === '1') {
-                            status.push('Second Unit');
-                        }
-                
-                        if (newu === '1') {
-                            status.push('New Unit');
-                        }
-                
-                        var statusText = status.length === 0 ? '-' : status.join(' & ');
-                
-                        return statusText;
-                    },
-                },
                 {
                     // For Responsive
                     className: "control",
@@ -114,60 +66,25 @@ $(function () {
                     visible: false,
                 },
                 {
-                    responsivePriority: 1,
                     targets: 3,
-                },
-                {
-                    targets: [3, 4, 5],
-                    render: function (data, type, row) {
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            return data;
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $dataId = full["id"];
+                            var detailRoute = route("service-reports.show", $dataId);
+                            return (
+                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                            );
                         }
+                        return data;
                     },
                 },
                 {
-                    targets: 11,
-                    render: function (data, type, full, meta) {
-                        var $title = full["status"];
-                        var $status = {
-                            Ready: {
-                                title: $title,
-                                class: "bg-label-primary",
-                            },
-                            "On Rental": {
-                                title: $title,
-                                class: " bg-label-warning",
-                            },
-                            Sold: {
-                                title: $title,
-                                class: " bg-label-secondary",
-                            },
-                            Service: {
-                                title: $title,
-                                class: " bg-label-danger",
-                            },
-                        };
-                        if (typeof $status[$title] === "undefined") {
-                            return data;
-                        }
-                        return (
-                            '<span class="badge rounded-pill ' +
-                            $status[$title].class +
-                            '">' +
-                            $status[$title].title +
-                            "</span>"
-                        );
-                    },
-                },
-                {
-                    targets: 12,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                    responsivePriority: 2,
+                    targets: [3,4],
                 },
             ],
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
@@ -181,7 +98,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -237,7 +154,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -274,7 +191,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -311,7 +228,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -348,7 +265,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -382,24 +299,13 @@ $(function () {
                         },
                     ],
                 },
-                // {
-                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
-                //     className: "btn btn-primary",
-                //     attr: {
-                //         "data-bs-target": "#createProduct",
-                //         "data-bs-toggle": "modal",
-                //     },
-                // },
             ],
-            drawCallback: function (settings) {
-                $('[data-toggle="tooltip"]').tooltip();
-            },
             responsive: {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal({
                         header: function (row) {
                             var data = row.data();
-                            return "Details of " + data["pn"];
+                            return "Details of " + data["full_name"];
                         },
                     }),
                     type: "column",
@@ -429,11 +335,8 @@ $(function () {
                 },
             },
         });
-        $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Product</h5>'
+        $("div.hl-1").html(
+            '<h5 class="card-title mb-0">Table Service Reports</h5>'
         );
     }
-    dt_table_product_sales_unit.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
 });

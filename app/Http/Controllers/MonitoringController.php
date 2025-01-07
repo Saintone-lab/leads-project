@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Machine;
 use App\Models\Monitoring;
+use App\Models\MonitoringWeekly;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -56,6 +57,15 @@ class MonitoringController extends Controller
             $monitoring->cleaning = $request->cleaning;
             $monitoring->temp = $request->temperature_in . " °C";
             $monitoring->temp_out = $request->temperature_out . " °C";
+        }
+        if ($request->main_desc == NULL) {
+            $monitoring->main_desc = NULL;
+            $monitoring->main_next = NULL;
+            $monitoring->technician = NULL;
+        } else {
+            $monitoring->main_desc = $request->main_desc;
+            $monitoring->main_next = $request->main_next;
+            $monitoring->technician = $request->technician;
         }
         $monitoring->desc = $request->desc;
         $monitoring->date = Carbon::today();
@@ -211,11 +221,85 @@ class MonitoringController extends Controller
         return view('pages.monitoring.visitor', compact('machine', 'client', 'compressor', 'dryer'));
     }
 
+    public function logDaily($id)
+    {
+        $machine = Machine::find($id);
+        $client = Client::find($machine->id_client);
+
+        $today = Carbon::today();
+
+        $monitoring = Monitoring::whereNotNULL('main_desc')->whereMonth('date', $today->month)->where('id_machine', $id)->get();
+        // dd($monitoring);
+
+        return view('pages.monitoring.maintenance-log', compact('machine', 'client', 'monitoring'));
+    }
+
+    // monitoring daily
+    public function indexWeekly($id)
+    {
+        $machine = Machine::find($id);
+        // dd($machine->unit);
+        return view('pages.monitoring.index-weekly', compact('machine'));
+    }
     // Monitoring Weekly
     public function createWeekly($id)
     {
         $machine = Machine::find($id);
         return view('pages.monitoring.form-weekly', compact('machine'));
+    }
+    public function storeWeekly(Request $request, $id)
+    {
+        // dd($request->all());
+        $machine = Machine::find($id);
+        // dd($machine->unit->unit->unit);
+        $monitoring = new MonitoringWeekly();
+        $monitoring->id_machine = $id;
+        $monitoring->id_pic = Auth::user()->id;
+        $monitoring->ampere = $request->ampere . 'A';
+        $monitoring->voltage = $request->voltage . 'V';
+        $monitoring->pm = $request->pm;
+        $monitoring->week = $request->week;
+        $monitoring->remark = $request->remark;
+        if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER') {
+            $monitoring->idle = $request->idle . 'A';
+        } else {
+            $monitoring->dew = $request->dew;
+            $monitoring->drain = $request->drain;
+            $monitoring->pre = $request->pre;
+            $monitoring->after = $request->after;
+        }
+        $monitoring->desc = $request->desc;
+        $monitoring->date = Carbon::today();
+        $monitorSave = $monitoring->save();
+        if ($monitorSave) {
+            return redirect('/monitoring/weekly/' . $id)->with('message', 'Data telah diibuat');
+        }
+    }
+    public function visitorWeekly($id)
+    {
+        $machine = Machine::find($id);
+        $client = Client::find($machine->id_client);
+        $machineC = Client::join('machine as m', 'client.id', '=', 'm.id_client')->groupBy('client.id')->get('m.*');
+        $monitoringAC = Machine::leftJoin('monitoring_weekly as mw', 'mw.id_machine', '=', 'machine.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'mw.id_pic')
+            ->where('u.unit', 'AIR COMPRESSOR SCREW')
+            ->where('machine.id_client', $client->id)
+            ->select('machine.*', 'mw.*', 'us.name', 'machine.id as idM')
+            ->groupBy('machine.id')
+            ->get();
+        $monitoringDRYER = Machine::leftJoin('monitoring_weekly as mw', 'mw.id_machine', '=', 'machine.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'mw.id_pic')
+            ->where('u.unit', 'REFRIGERANT AIR DRYER')
+            ->where('machine.id_client', $client->id)
+            ->select('machine.*', 'mw.*', 'us.name', 'machine.id as idM')
+            ->groupBy('machine.id')
+            ->get();
+        // dd($monitoringDRYER);
+        return view('pages.monitoring.visitor-weekly', compact('machine', 'client', 'monitoringAC', 'monitoringDRYER'));
     }
 
     // get data monitoring
@@ -326,7 +410,47 @@ class MonitoringController extends Controller
     // service Manager
     public function indexServiceM()
     {
-        return view('pages.monitoring.service-index');
+        $allPlant = Machine::where('id_client', 1277)->count();
+        $allPlantMonitoring = Machine::where('id_client', 1277)
+            ->whereHas('monitoring', function ($query) {
+                $query->whereDate('date', Carbon::today());
+            })->count();
+        $GT = Machine::where('id_client', 1277)->where('location', 'GT')->count();
+        $GTMonitoring = Machine::where('id_client', 1277)->where('location', 'GT')
+            ->whereHas('monitoring', function ($query) {
+                $query->whereDate('date', Carbon::today());
+            })->count();
+        $GT3 = Machine::where('id_client', 1277)->where('location', 'GT3')->count();
+        $GT3Monitoring = Machine::where('id_client', 1277)->where('location', 'GT3')
+            ->whereHas('monitoring', function ($query) {
+                $query->whereDate('date', Carbon::today());
+            })->count();
+        $INC = Machine::where('id_client', 1277)->where('location', 'INC')->count();
+        $INCMonitoring = Machine::where('id_client', 1277)->where('location', 'INC')
+            ->whereHas('monitoring', function ($query) {
+                $query->whereDate('date', Carbon::today());
+            })->count();
+        $BOILER3 = Machine::where('id_client', 1277)->where('location', 'BOILER3')->count();
+        $BOILER3Monitoring = Machine::where('id_client', 1277)->where('location', 'BOILER3')
+            ->whereHas('monitoring', function ($query) {
+                $query->whereDate('date', Carbon::today());
+            })->count();
+        $PM12 = Machine::where('id_client', 1277)->where('location', 'PM 1-2')->count();
+        $PM12Monitoring = Machine::where('id_client', 1277)->where('location', 'PM 1-2')
+            ->whereHas('monitoring', function ($query) {
+                $query->whereDate('date', Carbon::today());
+            })->count();
+        $PM35 = Machine::where('id_client', 1277)->whereBetween('location', ['PM 3', 'PM 5'])->count();
+        $PM35Monitoring = Machine::where('id_client', 1277)->whereBetween('location', ['PM 3', 'PM 5'])
+            ->whereHas('monitoring', function ($query) {
+                $query->whereDate('date', Carbon::today());
+            })->count();
+        $PM78 = Machine::where('id_client', 1277)->whereBetween('location', ['PM 7', 'PM 8'])->count();
+        $PM78Monitoring = Machine::where('id_client', 1277)->whereBetween('location', ['PM 7', 'PM 8'])
+            ->whereHas('monitoring', function ($query) {
+                $query->whereDate('date', Carbon::today());
+            })->count();
+        return view('pages.monitoring.service-index', compact('allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'BOILER3', 'BOILER3Monitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', ));
     }
     public function showServiceM($id)
     {
@@ -526,5 +650,100 @@ class MonitoringController extends Controller
         $monitoringThisMonth = response()->json($compressor);
 
         return view('pages.monitoring.service-visitor-print', compact('machine', 'client', 'compressor', 'dryer'));
+    }
+    public function visitorWeeklyService($id, $week)
+    {
+        $machine = Machine::find($id);
+        $client = Client::find($machine->id_client);
+        $machineC = Client::join('machine as m', 'client.id', '=', 'm.id_client')->groupBy('client.id')->get('m.*');
+        $monitoringAC = Machine::leftJoin('monitoring_weekly as mw', 'mw.id_machine', '=', 'machine.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'mw.id_pic')
+            ->where('u.unit', 'AIR COMPRESSOR SCREW')
+            ->where(function ($query) use ($week) {
+                $query->where('mw.week', $week)
+                    ->orWhereNull('mw.week'); // Tetap tampilkan jika mw.week kosong
+            })
+            ->where('machine.id_client', $client->id)
+            ->select('machine.*', 'mw.*', 'us.name', 'machine.id as idM')
+            ->groupBy('machine.id')
+            ->get();
+        $monitoringDRYER = Machine::leftJoin('monitoring_weekly as mw', 'mw.id_machine', '=', 'machine.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'mw.id_pic')
+            ->where('u.unit', 'REFRIGERANT AIR DRYER')
+            ->where(function ($query) use ($week) {
+                $query->where('mw.week', $week)
+                    ->orWhereNull('mw.week'); // Tetap tampilkan jika mw.week kosong
+            })
+            ->where('machine.id_client', $client->id)
+            ->select('machine.*', 'mw.*', 'us.name', 'machine.id as idM')
+            ->groupBy('machine.id')
+            ->get();
+        // dd($monitoringAC);
+        return view('pages.monitoring.service-visitor-weekly', compact('machine', 'client', 'monitoringAC', 'monitoringDRYER'));
+    }
+    public function visitorWeeklyServicePrint($id, $week)
+    {
+        $machine = Machine::find($id);
+        $client = Client::find($machine->id_client);
+        $machineC = Client::join('machine as m', 'client.id', '=', 'm.id_client')->groupBy('client.id')->get('m.*');
+        $monitoringAC = Machine::leftJoin('monitoring_weekly as mw', 'mw.id_machine', '=', 'machine.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'mw.id_pic')
+            ->where('u.unit', 'AIR COMPRESSOR SCREW')
+            ->where(function ($query) use ($week) {
+                $query->where('mw.week', $week)
+                    ->orWhereNull('mw.week'); // Tetap tampilkan jika mw.week kosong
+            })
+            ->where('machine.id_client', $client->id)
+            ->select('machine.*', 'mw.*', 'us.name', 'machine.id as idM')
+            ->groupBy('machine.id')
+            ->get();
+        $monitoringDRYER = Machine::leftJoin('monitoring_weekly as mw', 'mw.id_machine', '=', 'machine.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'mw.id_pic')
+            ->where('u.unit', 'REFRIGERANT AIR DRYER')
+            ->where(function ($query) use ($week) {
+                $query->where('mw.week', $week)
+                    ->orWhereNull('mw.week'); // Tetap tampilkan jika mw.week kosong
+            })
+            ->where('machine.id_client', $client->id)
+            ->select('machine.*', 'mw.*', 'us.name', 'machine.id as idM')
+            ->groupBy('machine.id')
+            ->get();
+        // dd($monitoringAC);
+        return view('pages.monitoring.service-visitor-print-weekly', compact('machine', 'client', 'monitoringAC', 'monitoringDRYER'));
+    }
+    public function issueMachine($date)
+    {
+        $day = Carbon::createFromFormat('d-m-Y', time: $date);
+        $month = $day->month;
+        $year = $day->year;
+
+        $machines = Machine::with([
+            'unit',
+            'unit.unit',
+            'monitoring' => function ($query) use ($month, $year) {
+                $query->whereMonth('date', $month)
+                    ->whereYear('date', $year);
+            }
+        ])->get();
+
+        $result = $machines->filter(function ($machine) {
+            return $machine->monitoring->isNotEmpty();
+        })->map(function ($machine) {
+            return [
+                'machine' => $machine->unit->brand . ' ' . $machine->unit->unit->sku,
+                'log' => $machine->monitoring->map(function ($log) {
+                    return ['log' => $log->desc,'date'=> $log->date];
+                })
+            ];
+        });
+        return view('pages.monitoring.issue',compact('result','month','year'));
     }
 }

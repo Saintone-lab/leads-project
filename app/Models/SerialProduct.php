@@ -45,4 +45,8 @@ class SerialProduct extends Model
     {
         return $this->hasMany('App\Models\DetailDelivery', 'id_pn');
     }
+    public function machine()
+    {
+        return $this->hasMany('App\Models\Machine', 'id_unit');
+    }
 }

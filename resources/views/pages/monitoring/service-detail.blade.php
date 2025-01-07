@@ -28,17 +28,15 @@
                 <div class="card-body">
                     <h5> Weekly </h5>
                     <div class="card-datatable table-responsive pt-0">
-                        <table class="datatable-dryr-client table table-striped">
+                        <table class="datatable-monitoring-weekly table table-striped">
                             <thead>
                                 <tr>
                                     <th></th>
                                     <th></th>
                                     <th>ID</th>
-                                    <th>Brand</th>
-                                    <th>Type</th>
-                                    <th>SN</th>
-                                    <th>Tag</th>
-                                    <th>Location</th>
+                                    <th>Week</th>
+                                    <th>First Date</th>
+                                    <th>Last Date</th>
                                 </tr>
                             </thead>
                         </table>
@@ -97,4 +95,5 @@
     <script src="{{ asset('assets') }}/includes/table-coordinator-compressor.js"></script>
     <script src="{{ asset('assets') }}/includes/table-coordinator-dryer.js"></script>
     <script src="{{ asset('assets') }}/includes/table-coordinator-month.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-coordinator-weekly.js"></script>
 @endpush

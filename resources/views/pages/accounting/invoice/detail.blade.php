@@ -120,14 +120,27 @@
                                     <div class="row">
                                         <div class="col-4 fw-medium">
                                             <p class="mb-1">Bill To </p>
+                                        </div>
+                                        <div class="col-8">
+                                            <pre class="mb-1"
+                                                style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $quote->pic->client->company }}</pre>
+                                        </div>
+                                        <div class="col-4 fw-medium">
                                             <p class="mb-1">Personal In Charge </p>
+                                        </div>
+                                        <div class="col-8">
+                                            <p class="mb-1">: {{ $quote->pic->name_pic }}</p>
+                                        </div>
+                                        <div class="col-4 fw-medium">
                                             <p class="mb-1">Phone </p>
+                                        </div>
+                                        <div class="col-8">
+                                            <p class="mb-1">: {{ $quote->pic->client->phone }}</p>
+                                        </div>
+                                        <div class="col-4 fw-medium">
                                             <p class="mb-1">Address</p>
                                         </div>
                                         <div class="col-8">
-                                            <p class="mb-1">: {{ $quote->pic->client->company }}</p>
-                                            <p class="mb-1">: {{ $quote->pic->name_pic }}</p>
-                                            <p class="mb-1">: {{ $quote->pic->client->phone }}</p>
                                             @if ($invoice->invoiceTo == '1')
                                                 <pre
                                                     style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $quote->pic->client->address }}</pre>
@@ -218,6 +231,21 @@
                                         {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                                 </td>
                             </tr>
+                            <tr class="fw-medium" style="font-size: 13px">
+                                <td colspan="3" id="price" class="text-end pl-4 py-0"
+                                    style="padding-right: 10px !important;">
+                                    <p class="m-0">
+                                        DPP Atas PPN
+                                    </p>
+                                </td>
+                                <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
+                                    @php
+                                        $dpp = ($quote->subtotal * 11) / 12;
+                                    @endphp
+                                    <p class="text-end m-0">RP
+                                        {{ number_format($dpp, 0, '', '.') }}</p>
+                                </td>
+                            </tr>
                             @php
                                 if ($invoice->flag == 'Reftech') {
                                     $bgColor = 'rgb(224, 248, 248)';
@@ -263,7 +291,7 @@
                                 @if ($quote->tax != 0 || $totalPph > 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                            <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
+                                            <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
                                             <p class="m-0 text-end">
@@ -355,7 +383,7 @@
                                 @if ($quote->tax != 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                            <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
+                                            <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
                                             <p class="m-0 text-end">
@@ -471,8 +499,7 @@
                                 </tr>
                                 @if ($totalPph > 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="3" class="text-end py-0"
-                                            style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                             <p class="m-0">PPH</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -488,7 +515,7 @@
                                 @if ($quote->tax != 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                            <p class="m-0">VAT {{ $quote->tax == '11' ? '11%' : '' }}</p>
+                                            <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
                                             <p class="m-0 text-end">

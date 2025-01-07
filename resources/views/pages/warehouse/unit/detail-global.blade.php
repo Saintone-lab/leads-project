@@ -181,12 +181,13 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>Replacement</th>
-                                    <th>Stock</th>
-                                    @if (Auth::user()->role == 'Admin')
-                                        <th>Modal</th>
-                                    @endif
-                                    <th>Action</th>
+                                    <th>PN</th>
+                                    <th>Desc</th>
+                                    {{-- @if (Auth::user()->role == 'Admin') --}}
+                                        <th>Quantity</th>
+                                        <th>Stock</th>
+                                    {{-- @endif --}}
+                                    {{-- <th>Action</th> --}}
                                 </tr>
                             </thead>
                             <tbody class="table-border-bottom-0">
@@ -201,12 +202,15 @@
                                         <td>
                                             {{ $allRep }} Unit
                                         </td>
-                                        @if (Auth::user()->role == 'Admin')
+                                        {{-- @if (Auth::user()->role == 'Admin') --}}
                                             <td>
-                                                Rp.{{ number_format($detail->modal, 0, '', '.') }}
+                                                0
                                             </td>
-                                        @endif
-                                        <td>
+                                            <td>
+                                                0
+                                            </td>
+                                        {{-- @endif --}}
+                                        {{-- <td>
                                             <a href="#" data-id="{{ $detail->id }}"
                                                 class="btn btn-sm btn-label-danger delete-replacement">
                                                 <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
@@ -218,7 +222,7 @@
                                                         class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i>
                                                 </button>
                                             </a>
-                                        </td>
+                                        </td> --}}
                                     </tr>
                                 @empty
                                     <tr>
@@ -413,7 +417,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/unit';
+                                    window.location.href = '/unit-global';
                                 }, 2000);
                             } else {
                                 Swal.fire({
