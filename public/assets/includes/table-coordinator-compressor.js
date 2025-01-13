@@ -29,7 +29,6 @@ $(function () {
                 { data: "id" },
                 { data: "brand" },
                 { data: "sku" },
-                { data: "serial" },
                 { data: "tag" },
                 { data: "location" },
             ],

@@ -70,11 +70,18 @@ $(function () {
                     targets: 3,
                     render: function (data, type, full, row) {
                         if (type === "display") {
-                            var $idMachine = full["id"];
-                            var $date = full["date"];
-                            var detailRoute = route("service-manager.recap", [$date]);
+                            var $monthNum = full["monthNum"];
+                            var $year = full["year"];
+                            var detailRoute = route("service-manager.recap", [
+                                $monthNum,
+                                $year,
+                            ]);
                             return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                                '<a class="text-dark" href="' +
+                                detailRoute +
+                                '">' +
+                                data +
+                                "</a>"
                             );
                         }
                         return data;
@@ -82,12 +89,17 @@ $(function () {
                 },
                 {
                     targets: 4,
-                    render: function (data, type,full, row) {
-                        var $idMachine = full["id"];
-                        var $date = full["date"];
-                        var detailRoute = route("service-manager.recap", [$date]);
+                    render: function (data, type, full, row) {
+                        var $monthNum = full["monthNum"];
+                        var $year = full["year"];
+                        var detailRoute = route("service-manager.recap", [
+                            $monthNum,
+                            $year,
+                        ]);
                         return (
-                            '<a href="' + detailRoute + '"class="btn btn-sm btn-primary m-2">Recap</a>'
+                            '<a href="' +
+                            detailRoute +
+                            '"class="btn btn-sm btn-primary m-2">Recap</a>'
                         );
                     },
                 },

@@ -18,6 +18,7 @@ class MonitoringWeekly extends Model
         'id_machine',
         'voltage',
         'ampere',
+        'vibration',
         'idle',
         'pm',
         'week',

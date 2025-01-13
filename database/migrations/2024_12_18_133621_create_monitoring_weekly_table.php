@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('week');
             $table->string('voltage');
             $table->string('ampere');
+            $table->string('vibration')->nullable();
             $table->string('idle')->nullable();
             $table->string('pm');
             $table->string('remark');

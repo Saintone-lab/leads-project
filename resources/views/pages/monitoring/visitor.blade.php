@@ -71,9 +71,13 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end">
+                            <div class="d-flex justify-content-end mb-2">
                                 <a href="{{ route('log.daily-monitoring', $machine->id) }}"
                                     class="btn btn-primary waves-effect">Go To Maintenance Log</a>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <a href="{{ route('visitor.weekly-monitoring', $machine->id) }}"
+                                    class="btn btn-success waves-effect">Go To Weekly Monitoring</a>
                             </div>
                             <h5>Result Monitoring </h5>
                             <div class="table-responsive text-nowrap mt-4">

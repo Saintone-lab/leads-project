@@ -122,9 +122,9 @@
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="machineAnimation" class="form-control"
-                                    placeholder="Contoh: Copco Atlas" name="machine"
-                                    value="{{ old('machine', @$leads->machine ?? '') }}">
-                                <label for="machineAnimation">Machine</label>
+                                    placeholder="123xxxxxxxx" name="npwp"
+                                    value="{{ old('npwp', @$leads->npwp ?? '') }}">
+                                <label for="npwpAnimation">NPWP</label>
                             </div>
                         </div>
                         <div class="col mb-2">
@@ -141,7 +141,7 @@
                             <div class="form-floating form-floating-outline mb-4">
                                 <textarea class="form-control h-px-100" name="address" id="addressTextarea1"
                                     placeholder="Contoh: Jl Taman Kopo Indah 5 Kota...">{{ old('address', @$leads->address ?? '') }}</textarea>
-                                <label for="addressTextarea1">Address</label>
+                                <label for="addressTextarea1">NPWP Address</label>
                             </div>
                         </div>
                         <div class="col mb-2">

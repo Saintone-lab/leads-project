@@ -140,9 +140,9 @@
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="machineAnimation" class="form-control"
-                                    placeholder="Contoh: Copco Atlas" name="machine"
-                                    value="{{ old('machine', @$existing->machine ?? '') }}">
-                                <label for="machineAnimation">Machine</label>
+                                    placeholder="123xxxxxxxx" name="npwp"
+                                    value="{{ old('npwp', @$leads->npwp ?? '') }}">
+                                <label for="npwpAnimation">NPWP</label>
                             </div>
                         </div>
                         <div class="col mb-2">

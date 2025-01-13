@@ -81,7 +81,9 @@
                         <div class="col-lg-4 col-8">
                             <p class="mb-1">: {{ $service->machine->unit->brand }}
                                 {{ $service->machine->unit->unit->sku }}</p>
-                            <p class="mb-1">: {{ $service->machine->unit->sn }}</p>
+                            <p class="mb-1">: {{ $service->machine->unit->unit->sn }}
+                                {{ $service->machine->tag ? '| ' . $service->machine->tag : '' }}
+                                {{ $service->machine->location ? '| ' . $service->machine->location : '' }}</p>
                             <p class="mb-1">: {{ $service->running }} | {{ $service->load }}</p>
                         </div>
                     </div>
@@ -252,7 +254,7 @@
                     navigator.share({
                         title: 'Service Reports',
                         text: 'Check This Service Reports!',
-                        url: '{{ route('service-reports.print', ":id") }}'.replace(':id', id) 
+                        url: '{{ route('service-reports.print', ':id') }}'.replace(':id', id)
                     }).then(() => {
                         console.log('Thanks for sharing!');
                     }).catch(err => {
@@ -264,7 +266,7 @@
             });
         });
         $(document).ready(function() {
-            $('#formFileMultiplePict').on('change', function() {
+            $('#formFileMultiplePict').on('change', function(event) {
                 var files = this.files;
                 var dynamicInputsContainer = $('#dynamicInputsPhotoContainer');
                 console.log(dynamicInputsContainer);
@@ -279,8 +281,8 @@
                     dynamicInputsContainer.append(dynamicInput);
                 }
 
-                if (files.length !== 3 && files.length !== 6 && files.length !== 9) {
-                    alert('Gambar Wajib Kelipatan 3! 3/6/9 Maksimal 9');
+                if (files.length !== 3 && files.length !== 6 && files.length !== 9 && files.length !== 12) {
+                    alert('Gambar Wajib Kelipatan 3! 3/6/9/12 Maksimal 12');
                     this.value = ''; // Menghapus file yang tidak memenuhi syarat
                     dynamicInputsContainer.empty();
                     return; // Menghentikan eksekusi lebih lanjut jika jumlah file tidak memenuhi syarat
@@ -291,75 +293,73 @@
                 // photo
                 const previewContainer = document.getElementById('photo-preview');
                 previewContainer.innerHTML = '';
-
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
+                const filesArray = Array.from(event.target.files);
+                console.log(filesArray.map(file => file.name));
+                for (let i = 0; i < filesArray.length; i++) {
+                    const file = filesArray[i];
                     const reader = new FileReader();
 
-                    reader.onload = function(e) {
-                        const image = new Image();
-                        image.src = e.target.result;
+                    reader.onload = (function(fileIndex) {
+                        return function(e) {
+                            const image = new Image();
+                            image.src = e.target.result;
 
-                        image.onload = function() {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
+                            image.onload = function() {
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
 
-                            // Tentukan ukuran baru untuk gambar
-                            const MAX_WIDTH = 150;
-                            const MAX_HEIGHT = 150;
-                            let width = image.width;
-                            let height = image.height;
+                                // Tentukan ukuran baru untuk gambar
+                                const MAX_WIDTH = 150;
+                                const MAX_HEIGHT = 150;
+                                let width = image.width;
+                                let height = image.height;
 
-                            if (width > height) {
-                                if (width > MAX_WIDTH) {
-                                    height *= MAX_WIDTH / width;
-                                    width = MAX_WIDTH;
+                                if (width > height) {
+                                    if (width > MAX_WIDTH) {
+                                        height *= MAX_WIDTH / width;
+                                        width = MAX_WIDTH;
+                                    }
+                                } else {
+                                    if (height > MAX_HEIGHT) {
+                                        width *= MAX_HEIGHT / height;
+                                        height = MAX_HEIGHT;
+                                    }
                                 }
-                            } else {
-                                if (height > MAX_HEIGHT) {
-                                    width *= MAX_HEIGHT / height;
-                                    height = MAX_HEIGHT;
-                                }
-                            }
 
-                            canvas.width = width;
-                            canvas.height = height;
+                                canvas.width = width;
+                                canvas.height = height;
 
-                            ctx.drawImage(image, 0, 0, width, height);
+                                ctx.drawImage(image, 0, 0, width, height);
 
-                            const resizedImageURL = canvas.toDataURL(file.type);
+                                const resizedImageURL = canvas.toDataURL(file.type);
 
-                            const rowContainer = document.createElement('div');
-                            const imageContainer = document.createElement('div');
-                            const imageElement = document.createElement('img');
-                            const inputElement = document.createElement('input');
+                                const rowContainer = document.createElement('div');
+                                const imageContainer = document.createElement('div');
+                                const imageElement = document.createElement('img');
+                                const inputElement = document.createElement('input');
 
-                            rowContainer.className =
-                                'row';
-                            imageContainer.className =
-                                'col-6 col-md-4 photo-container';
-                            imageElement.className = 'mb-2'
-                            imageElement.src = resizedImageURL;
-                            for (var u = 0; u < files.length; u++) {
+                                rowContainer.className = 'row';
+                                imageContainer.className = 'col-6 col-md-4 photo-container';
+                                imageElement.className = 'mb-2';
+                                imageElement.src = resizedImageURL;
+
                                 inputElement.className = 'form-control mb-3';
                                 inputElement.type = 'text';
-                                inputElement.name = 'description[]';
-                                inputElement.placeholder = 'Deskripsi untuk Photo ' + (i + 1);
-                                // var dynamicInput =
-                                //     '<input class="form-control mb-2" type="text" name="description[]" placeholder="Deskripsi untuk File ' +
-                                //     (u + 1) + '">';
-                                // inputElement.append(dynamicInput);
-                            }
+                                inputElement.name = 'description[' + (i) + ']';
+                                inputElement.placeholder = 'Deskripsi untuk Photo ' + (
+                                    fileIndex + 1);
 
-                            imageContainer.appendChild(imageElement);
-                            imageContainer.appendChild(inputElement);
-                            previewContainer.appendChild(imageContainer);
-                            // rowContainer.appendChild(previewContainer);
+                                imageContainer.appendChild(imageElement);
+                                imageContainer.appendChild(inputElement);
+                                previewContainer.appendChild(imageContainer);
+                            };
                         };
-                    };
+                    })(i);
 
                     reader.readAsDataURL(file);
                 }
+
+
             });
         });
         $(document).on('click', '.delete-hand-sign', function() {

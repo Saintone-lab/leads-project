@@ -195,7 +195,7 @@ class ProspectController extends Controller
         $client->source = $request->source;
         $client->created_date = Carbon::today()->toDateString();
         $client->role = 'Leads';
-        $client->machine = '-';
+        $client->npwp = '0';
         $client->mobile = $request->mobile;
         $client->address = $request->address;
         $client->subAddress = $request->subAddress;

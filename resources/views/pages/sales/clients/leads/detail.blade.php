@@ -25,7 +25,7 @@
                     <p class="card-text">
                     <div class="row mb-1">
                         <div class="col-3">
-                            Address
+                            NPWP Address
                         </div>
                         <div class="col-9">
                             : {{ $leads->address }}
@@ -89,10 +89,10 @@
                     </div>
                     <div class="row mb-1">
                         <div class="col-3">
-                            Machine
+                            Npwp
                         </div>
                         <div class="col-9">
-                            : {{ $leads->machine }}
+                            : {{ $leads->npwp }}
                         </div>
                     </div>
                     <div class="row">

@@ -4,26 +4,45 @@
     <h4 class="fw-bold py-3 mb-4">
         Product In
     </h4>
-    <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0">
-            <table
-                class="datatable-product-in-{{ Auth::user()->role == 'Logistic' ? 'req-logistic' : 'req' }} table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>No DO</th>
-                        <th>Date</th>
-                        <th>Total Qty</th>
-                        @if (Auth::user()->role != 'Logistic')
+    @if (Auth::user()->role == 'Admin')
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-product-in-req table table-striped">
+                    <thead>
+                        <tr>
                             <th></th>
-                        @endif
-                    </tr>
-                </thead>
-            </table>
+                            <th></th>
+                            <th>ID</th>
+                            <th>No DO</th>
+                            <th>Date</th>
+                            <th>Total Qty</th>
+                            @if (Auth::user()->role != 'Logistic')
+                                <th></th>
+                            @endif
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
-    </div>
+    @endif
+    @if (in_array(Auth::user()->id, [5, 7, 18, 19, 20, 21]))
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-product-in-req-logistic table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>No DO</th>
+                            <th>Date</th>
+                            <th>Total Qty</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    @endif
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
             <table

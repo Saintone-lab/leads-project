@@ -5,8 +5,15 @@
         @if ($machine->monitoring()->whereDate('created_at', Carbon\Carbon::today())->exists())
             <div class="card-body text-center">
                 <p>Daily {{ $machine->unit->brand }} {{ $machine->unit->unit->sku }} Sudah di input!</p>
-                <a class="btn btn-primary waves-effect" href="{{ route('create.weekly-monitoring', $machine->id) }}"> Input
-                    Weekly </a>
+                <div class="tombol d-flex gap-2 justify-content-center">
+                    <a class="btn btn-primary waves-effect" href="{{ route('create.weekly-monitoring', $machine->id) }}">
+                        Input Weekly
+                    </a>
+                    @if ($monitoring->main_desc == null)
+                        <button type="button" class="btn btn-secondary d-grid waves-effect" data-bs-toggle="modal"
+                            data-bs-target="#addMainLog">Input Maintenance Log</button>
+                    @endif
+                </div>
             </div>
         @else
             <div class="card-body">
@@ -66,8 +73,8 @@
                                 <div class="col-12 col-lg-6">
                                     <label for="defaultInput" class="form-label">Pressure</label>
                                     <div class="input-group input-group-merge">
-                                        <input id="defaultInput numberInput" class="form-control" name="pressure" type="text"
-                                            placeholder="Bar" oninput="validateInput(event)">
+                                        <input id="defaultInput numberInput" class="form-control" name="pressure"
+                                            type="text" placeholder="Bar" oninput="validateInput(event)">
                                         <span class="input-group-text">Bar</span>
                                     </div>
                                 </div>
@@ -76,24 +83,24 @@
                                 <div class="col-12 col-lg-6">
                                     <label for="defaultInput" class="form-label">Temperature</label>
                                     <div class="input-group input-group-merge">
-                                        <input id="defaultInput numberInput" class="form-control" name="temperature" type="text"
-                                            placeholder="°C" oninput="validateInput(event)">
+                                        <input id="defaultInput numberInput" class="form-control" name="temperature"
+                                            type="text" placeholder="°C" oninput="validateInput(event)">
                                         <span class="input-group-text">°C</span>
                                     </div>
                                 </div>
                                 <div class="col col-lg-3">
                                     <label for="defaultInput" class="form-label">Running</label>
                                     <div class="input-group input-group-merge">
-                                        <input id="defaultInput numberInput" class="form-control" name="running" type="text"
-                                            placeholder="Hr" min="1" oninput="validateInput(event)">
+                                        <input id="defaultInput numberInput" class="form-control" name="running"
+                                            type="text" placeholder="Hr" min="1" oninput="validateInput(event)">
                                         <span class="input-group-text">Hours</span>
                                     </div>
                                 </div>
                                 <div class="col col-lg-3">
                                     <label for="defaultInput" class="form-label">Loading Hr</label>
                                     <div class="input-group input-group-merge">
-                                        <input id="defaultInput numberInput" class="form-control" name="loading" type="text"
-                                            placeholder="Hr" min="1" oninput="validateInput(event)">
+                                        <input id="defaultInput numberInput" class="form-control" name="loading"
+                                            type="text" placeholder="Hr" min="1" oninput="validateInput(event)">
                                         <span class="input-group-text">Hours</span>
                                     </div>
                                 </div>
@@ -104,7 +111,8 @@
                             </div>
                             <div class="mb-4">
                                 <label for="formFile" class="form-label">Input Bukti Photo</label>
-                                <input class="form-control" type="file" name="picture" id="formFile" accept="image/*">
+                                <input class="form-control" type="file" name="picture" id="formFile"
+                                    accept="image/*">
                                 <p class="text-muted">Note :Format photo harus ada bukti tanggal pada Photonya</p>
                             </div>
                         </div>
@@ -204,7 +212,7 @@
                             </div>
                         </div>
                     @endif
-                    <hr>
+                    {{-- <hr>
                     <h5 class="mb-3">MAINTENANCE LOG</h5>
                     <div class="row mb-3">
                         <div class="col-12 col-lg-6">
@@ -226,7 +234,7 @@
                                     placeholder="Vendor">
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="float-end">
                         <a href="{{ route('index.daily-monitoring', $machine->id) }}" type="button"
                             class="btn btn-lg btn-outline-secondary">
@@ -240,6 +248,7 @@
             </div>
         @endif
     </div>
+    @include('components.modal.monitoring.mainlog')
 @endsection()
 
 @push('after-style')

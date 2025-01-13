@@ -288,7 +288,7 @@ class CrmController extends Controller
             'area' =>
                 'required',
 
-            'machine' =>
+            'npwp' =>
                 'required',
         ];
 
@@ -302,7 +302,7 @@ class CrmController extends Controller
             'mobile.required' => 'Field Mobile Wajib Diisi',
             'address.required' => 'Field Address Wajib Diisi',
             'area.required' => 'Field Area Wajib Diisi',
-            'machine.required' => 'Field Machine Wajib Diisi',
+            'npwp.required' => 'Field npwp Wajib Diisi',
         ];
 
         $this->validate($request, $rule, $message);
@@ -314,7 +314,7 @@ class CrmController extends Controller
         $existings->ru = $request->ru;
         $existings->web = $request->web;
         $existings->source = $request->source;
-        $existings->machine = $request->machine;
+        $existings->npwp = $request->npwp;
         $existings->mobile = $request->mobile;
         $existings->address = $request->address;
         $existings->subAddress = $request->subAddress;

@@ -28,7 +28,7 @@ return new class extends Migration
             $table->date("created_date")->nullable();
             $table->enum('role', ['Leads', 'Customers'])->default("Leads");
             $table->string("mobile", 14)->nullable();
-            $table->string("machine")->nullable();
+            $table->string("npwp")->nullable();
             $table->string("note")->nullable();
             $table->string("address");
             $table->string("subAddress");

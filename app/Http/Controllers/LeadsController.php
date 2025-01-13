@@ -196,10 +196,10 @@ class LeadsController extends Controller
         $leads->source = $request->source;
         $leads->created_date = Carbon::today()->toDateString();
         $leads->role = 'Leads';
-        if ($request->machine != NULL) {
-            $leads->machine = $request->machine;
+        if ($request->npwp != NULL) {
+            $leads->npwp = $request->npwp;
         } else {
-            $leads->machine = NULL;
+            $leads->npwp = NULL;
         }
         $leads->mobile = $request->mobile;
         $leads->address = $request->address;
@@ -352,7 +352,7 @@ class LeadsController extends Controller
             'area' =>
                 'required',
 
-            'machine' =>
+            'npwp' =>
                 'required',
         ];
 
@@ -366,7 +366,7 @@ class LeadsController extends Controller
             'mobile.required' => 'Field Mobile Wajib Diisi',
             'address.required' => 'Field Address Wajib Diisi',
             'area.required' => 'Field Area Wajib Diisi',
-            'machine.required' => 'Field Machine Wajib Diisi',
+            'npwp.required' => 'Field npwp Wajib Diisi',
         ];
 
         $this->validate($request, $rule, $message);
@@ -379,7 +379,7 @@ class LeadsController extends Controller
         $leads->ru = $request->ru;
         $leads->web = $request->web;
         $leads->source = $request->source;
-        $leads->machine = $request->machine;
+        $leads->npwp = $request->npwp;
         $leads->mobile = $request->mobile;
         $leads->address = $request->address;
         $leads->subAddress = $request->subAddress;

@@ -49,6 +49,7 @@ use App\Models\Reports;
 use App\Models\ReturnQ;
 use App\Models\SalesReports;
 use App\Models\SerialProduct;
+use App\Models\Service;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
@@ -287,6 +288,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/monitoring/daily/{id}', [MonitoringController::class, 'indexDaily'])->name('index.daily-monitoring');
     Route::get('/monitoring/daily-create/{id}', [MonitoringController::class, 'createDaily'])->name('create.daily-monitoring');
     Route::post('/monitoring/daily-store/{id}', [MonitoringController::class, 'storeDaily'])->name('store.daily-monitoring');
+    Route::post('/monitoring/daily-mainlog/{id}', [MonitoringController::class, 'storeMainLog'])->name('store.daily-mainlog');
     Route::get('/monitoring/weekly/{id}', [MonitoringController::class, 'indexWeekly'])->name('index.weekly-monitoring');
     Route::get('/monitoring/weekly-create/{id}', [MonitoringController::class, 'createWeekly'])->name('create.weekly-monitoring');
     Route::post('/monitoring/weekly-store/{id}', [MonitoringController::class, 'storeWeekly'])->name('store.weekly-monitoring');
@@ -296,7 +298,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/service-manager-weekly/{id}/{week}', [MonitoringController::class, 'visitorWeeklyService'])->name('service-manager-weekly.visit');
     Route::get('/service-manager-daily-print/{id}/{month}', [MonitoringController::class, 'visitorDailyServicePrint'])->name('service-manager-daily.print');
     Route::get('/service-manager-weekly-print/{id}/{week}', [MonitoringController::class, 'visitorWeeklyServicePrint'])->name('service-manager-weekly.print');
-    Route::get('/service-manager/recap/{date}', [MonitoringController::class, 'showServiceM'])->name('service-manager.recap');
+    Route::get('/service-manager-recap-day/{month}/{year}', [MonitoringController::class, 'recapDay'])->name('service-manager.recap');
+    Route::get('/service-manager/recap/{date?}', [MonitoringController::class, 'recapM'])->name('service-manager.recap-monitoring');
     Route::get('/service-manager/issue/{date}', [MonitoringController::class, 'issueMachine'])->name('service-manager.issue');
     Route::get('/db/service-manager/bulan/{id}', function ($id) {
         $months = [];
@@ -356,6 +359,44 @@ Route::group(["middleware" => "auth"], function () {
 
         return response()->json(['data' => $weeks]);
     });
+    Route::get('db/recap-compressor/{date}', function ($date) {
+        $mesinCompressor = Machine::leftJoin('monitoring as m', function ($join) use ($date) {
+            $join->on('machine.id', '=', 'm.id_machine')
+                ->whereDate('m.date', '=', strval($date)); // Menyaring berdasarkan tanggal monitoring
+        })
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
+            ->where('machine.id_client', 1277)
+            ->where('u.unit', 'AIR COMPRESSOR SCREW')
+            ->select(
+                'machine.*',
+                DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),
+                'm.*',
+                'us.name'
+            )
+            ->get();
+        return response()->json(['data' => $mesinCompressor]);
+    });
+    Route::get('db/recap-dryer/{date}', function ($date) {
+        $mesinDryer = Machine::leftJoin('monitoring as m', function ($join) use($date) {
+            $join->on('machine.id', '=', 'm.id_machine')
+                ->whereDate('m.date', '=', strval($date)); // Menyaring berdasarkan tanggal monitoring
+        })
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
+            ->where('machine.id_client', 1277)
+            ->where('u.unit', 'REFRIGERANT AIR DRYER')
+            ->select(
+                'machine.*',
+                DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),
+                'm.*',
+                'us.name'
+            )
+            ->get();
+        return response()->json(['data' => $mesinDryer]);
+    });
     Route::get('/db/bulan', function () {
         $months = [];
         $start = Carbon::create(2025, 1, 1); // Mulai dari Januari 2025
@@ -367,12 +408,59 @@ Route::group(["middleware" => "auth"], function () {
                 'month' => $start->translatedFormat('F Y'),
                 'date' => $start->format('d-m-Y'),
                 'monthNum' => $start->month,
-                'year' => $start->year, 
+                'year' => $start->year,
             ];
             $start->addMonth();
         }
 
         return response()->json(['data' => $months]);
+    });
+    Route::get('/db/days/{month}/{year}', function ($month, $year) {
+        if (!checkdate($month, 1, $year)) {
+            return response()->json(['error' => 'Invalid month or year'], 400);
+        }
+
+        $days = [];
+        $date = Carbon::create($year, $month, 1);
+
+        $start = $date->copy()->startOfMonth(); // Salin tanggal awal bulan
+        $end = $date->copy()->endOfMonth();    // Salin tanggal akhir bulan
+
+        $currentDate = $start->copy(); // Pastikan `currentDate` tidak mengubah `$start`
+
+        while ($currentDate->lessThanOrEqualTo($end)) {
+            $days[] = [
+                'id' => $currentDate->day,
+                'days' => $currentDate->toFormattedDateString(),
+                'day_name' => $currentDate->format('l'),
+                'date' => $currentDate->format('Y-m-d'), // Gunakan `$currentDate`
+                'year' => $currentDate->year,
+            ];
+            $currentDate->addDay(); // Tambah 1 hari ke `$currentDate`
+        }
+
+        return response()->json(['data' => $days]);
+    });
+    Route::get('/db/service-reports/fp', function () {
+        $today = Carbon::today();
+        $data = Reports::join('machine as m', 'm.id', '=', 'reports.id_machine')
+            ->join('users as u', 'u.id', '=', 'reports.id_technician')
+            ->join('client as c', 'c.id', '=', 'm.id_client')
+            ->join('serial_product as s', 's.id', '=', 'm.id_unit')
+            ->join('unit as un', 'un.id', '=', 's.id_product')
+            ->where('c.id', 1277)
+            ->whereBetween('reports.date', ['2025-01-01', $today])
+            ->select(
+                'reports.id',
+                'reports.no_service',
+                'reports.jobdesc',
+                'reports.date',
+                'u.name',
+                DB::raw("CONCAT(s.brand, ' ', un.sku) as brand_type")
+            )
+            ->get();
+
+        return response()->json(['data' => $data]);
     });
 
     // Route untuk Selling Contract dan Confirm Order

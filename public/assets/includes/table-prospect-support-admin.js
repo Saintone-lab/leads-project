@@ -128,7 +128,7 @@ $(function () {
                                 class: " bg-label-success",
                             },
                             0: {
-                                title: "Loss",
+                                title: "Loss / No Respon",
                                 class: " bg-label-danger",
                             },
                         };

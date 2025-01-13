@@ -47,7 +47,14 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-12 col-lg-6">
+                            <div class="col-12 col-lg-3">
+                                <label for="defaultInput" class="form-label">Vibration</label>
+                                <div class="input-group input-group-merge">
+                                    <input id="defaultInput" class="form-control" name="vibration" type="text"
+                                        placeholder="Vibration">
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-3">
                                 <label for="defaultInput" class="form-label">Voltage (V)</label>
                                 <div class="input-group input-group-merge">
                                     <input id="defaultInput" class="form-control" name="voltage" type="text"

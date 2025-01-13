@@ -72,14 +72,15 @@
                                 </div>
                             </div>
                             <div class="d-flex justify-content-end">
-                                <a href="{{ route('log.daily-monitoring', $machine->id) }}"
-                                    class="btn btn-primary waves-effect">Go To Maintenance Log</a>
+                                <a href="{{ route('visitor.daily-monitoring', $machine->id) }}"
+                                    class="btn btn-success waves-effect">Go To Daily Monitoring</a>
                             </div>
                             <h5>Machine Compressor </h5>
                             <div class="table-responsive text-nowrap mt-4">
                                 <table class="table table-bordered">
                                     <thead class="table-light">
                                         <th>Unit</th>
+                                        <th>Vibration</th>
                                         <th>Voltage</th>
                                         <th>Ampere L</th>
                                         <th>Ampere Idle</th>
@@ -92,6 +93,7 @@
                                             <tr class="{{ $item->idM == $machine->id ? 'bg-label-warning' : '' }}">
                                                 <td>{{ $item->unit->brand }} {{ $item->unit->unit->sku }}
                                                 </td>
+                                                <td>{{ $item->vibration }}</td>
                                                 <td>{{ $item->voltage }}</td>
                                                 <td>{{ $item->ampere }}</td>
                                                 <td>{{ $item->idle }}</td>

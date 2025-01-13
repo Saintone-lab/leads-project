@@ -6,25 +6,61 @@
         <div class="card mb-3">
             <div class="card-body">
                 <h5>{{ $item['machine'] }}</h5>
-                <div class="table-responsive text-nowrap mb-4">
-                    <table class="table table-bordered">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width:25%;">Date</th>
-                                <th>Issue</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($item['log'] as $log)
-                                <tr>
-                                    <!-- Menampilkan tanggal log jika ada -->
-                                    <td>{{ $log['date'] ?? 'N/A' }}</td>
-                                    <!-- Jika tanggal ada, tampilkan, jika tidak tampilkan 'N/A' -->
-                                    <td>{{ $log['log'] }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                <div class="row">
+                    <div class="col-12 col-md-6">
+                        <div class="table-responsive text-nowrap mb-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width:10%;">Date</th>
+                                        <th>Issue</th>
+                                        <th style="width:25%;">Pic</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($item['log'] as $log)
+                                        <tr>
+                                            <!-- Menampilkan tanggal log jika ada -->
+                                            <td>{{ $log['date'] ?? 'N/A' }}</td>
+                                            <!-- Jika tanggal ada, tampilkan, jika tidak tampilkan 'N/A' -->
+                                            <td>
+                                                <pre class="mb-1"
+                                                    style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $log['log'] }}</pre>
+                                            </td>
+                                            <td>{{ $log['pic'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="table-responsive text-nowrap mb-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width:10%;">Date</th>
+                                        <th>Maintenance</th>
+                                        <th style="width:25%;">Pic</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($item['mainlog'] as $mainlog)
+                                        <tr>
+                                            <!-- Menampilkan tanggal mainlog jika ada -->
+                                            <td>{{ $mainlog['date'] ?? 'N/A' }}</td>
+                                            <!-- Jika tanggal ada, tampilkan, jika tidak tampilkan 'N/A' -->
+                                            <td>
+                                                <pre class="mb-1"
+                                                    style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $mainlog['log'] }}</pre>
+                                            </td>
+                                            <td>{{ $mainlog['technician'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

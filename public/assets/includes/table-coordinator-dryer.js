@@ -29,7 +29,6 @@ $(function () {
                 { data: "id" },
                 { data: "brand" },
                 { data: "sku" },
-                { data: "serial" },
                 { data: "tag" },
                 { data: "location" },
             ],
@@ -68,6 +67,19 @@ $(function () {
                 {
                     responsivePriority: 1,
                     targets: 3,
+                },
+                {
+                    targets: 3,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $dataId = full["id"];
+                            var detailRoute = route("service-manager.show", $dataId);
+                            return (
+                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                            );
+                        }
+                        return data;
+                    },
                 },
             ],
             // order: [[2, "desc"]],

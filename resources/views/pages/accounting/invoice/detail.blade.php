@@ -126,10 +126,16 @@
                                                 style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $quote->pic->client->company }}</pre>
                                         </div>
                                         <div class="col-4 fw-medium">
-                                            <p class="mb-1">Personal In Charge </p>
+                                            <p class="mb-1">PIC </p>
                                         </div>
                                         <div class="col-8">
                                             <p class="mb-1">: {{ $quote->pic->name_pic }}</p>
+                                        </div>
+                                        <div class="col-4 fw-medium">
+                                            <p class="mb-1">NPWP </p>
+                                        </div>
+                                        <div class="col-8">
+                                            <p class="mb-1">: {{ $quote->pic->client->npwp }}</p>
                                         </div>
                                         <div class="col-4 fw-medium">
                                             <p class="mb-1">Phone </p>
@@ -184,7 +190,10 @@
                                 <th>Price</th>
                                 <th>Qty</th>
                                 <th style="width: 5%">Disc</th>
-                                <th style="width: 25%">Amount</th>
+                                @if ($quote->tax != 0)
+                                    <th style="width: 15%">DPP</th>
+                                @endif
+                                <th style="width:20%">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -197,6 +206,7 @@
                                     $no++;
                                     $pph = ($product->amount * $product->pph) / 100;
                                     $totalPph += $pph;
+                                    $dpp = ($product->amount * 11) / 12;
                                 @endphp
                                 <tr style="font-size: 13px">
                                     <td class="align-top">{{ $no }}</td>
@@ -211,12 +221,16 @@
                                     </td>
                                     <td class="align-top">{{ $product->qty }} {{ $product->info_qty }} </td>
                                     <td class="align-top">{{ $product->disc }}%</td>
+                                    @if ($quote->tax != 0)
+                                        <td class="align-top text-end">RP {{ number_format($dpp, 0, '', '.') }}
+                                    @endif
                                     <td class="align-top text-end">RP {{ number_format($product->amount, 0, '', '.') }}
+
                                     </td>
                                 </tr>
                             @endforeach
                             <tr class="fw-medium" style="font-size: 13px">
-                                <td colspan="2" rowspan="9" id="dynamicRows"
+                                <td colspan="{{ $quote->tax != 0 ? '3' : '2' }}" rowspan="9" id="dynamicRows"
                                     style="border-bottom :none !important;">
                                 </td>
                                 <td colspan="3" id="price" class="text-end pl-4 py-0"
@@ -231,21 +245,23 @@
                                         {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                                 </td>
                             </tr>
-                            <tr class="fw-medium" style="font-size: 13px">
-                                <td colspan="3" id="price" class="text-end pl-4 py-0"
-                                    style="padding-right: 10px !important;">
-                                    <p class="m-0">
-                                        DPP Atas PPN
-                                    </p>
-                                </td>
-                                <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    @php
-                                        $dpp = ($quote->subtotal * 11) / 12;
-                                    @endphp
-                                    <p class="text-end m-0">RP
-                                        {{ number_format($dpp, 0, '', '.') }}</p>
-                                </td>
-                            </tr>
+                            @if ($quote->tax != 0)
+                                <tr class="fw-medium" style="font-size: 13px">
+                                    <td colspan="3" id="price" class="text-end pl-4 py-0"
+                                        style="padding-right: 10px !important;">
+                                        <p class="m-0">
+                                            DPP Atas PPN
+                                        </p>
+                                    </td>
+                                    <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
+                                        @php
+                                            $dpp = ($quote->subtotal * 11) / 12;
+                                        @endphp
+                                        <p class="text-end m-0">RP
+                                            {{ number_format($dpp, 0, '', '.') }}</p>
+                                    </td>
+                                </tr>
+                            @endif
                             @php
                                 if ($invoice->flag == 'Reftech') {
                                     $bgColor = 'rgb(224, 248, 248)';
