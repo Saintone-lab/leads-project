@@ -31,6 +31,9 @@
                     <span class="fw-bolder">{{ $machine->unit->unit->unit }}</span>
                 </div>
                 <div class="mt-1">
+                    <span class="text-muted">{{ $machine->unit->brand }} {{ $machine->unit->unit->sku }}</span>
+                </div>
+                <div class="mt-1">
                     <span class="text-muted">{{ $machine->tag }} - {{ $machine->location }}</span>
                 </div>
             </div>
@@ -69,7 +72,7 @@
                         <th>R Hr.</th>
                         <th>L Hr.</th>
                         <th>Press.</th>
-                        <th>Temp.</th>
+                        <th>Temp. (85°C - 90°C)</th>
                         <th>Oil Lvl</th>
                         <th>PIC</th>
                     </thead>
@@ -81,7 +84,22 @@
                                 <td>{{ $item['running'] }}</td>
                                 <td>{{ $item['loading'] }}</td>
                                 <td>{{ $item['pressure'] }}</td>
-                                <td>{{ $item['temp'] }}</td>
+                                <td>
+                                    @php
+                                        $stringTemp = $item['temp'] ?? ''; // Pastikan nilai tidak null
+                                        $tempNumber = null;
+
+                                        if (preg_match('/\d+(\.\d+)?/', $stringTemp, $matches)) {
+                                            $tempNumber = (float) $matches[0]; // Gunakan float agar mendukung desimal
+                                        }
+                                    @endphp
+
+                                    @if (!is_null($tempNumber) && $tempNumber > 90)
+                                        <p class="mb-0 fw-bold fs-6 text-danger">{{ $item['temp'] }}</p>
+                                    @else
+                                        {{ $item['temp'] }}
+                                    @endif
+                                </td>
                                 <td>{{ $item['oil_level'] }}</td>
                                 <td>{{ $item['pic'] }}</td>
                             </tr>
@@ -115,17 +133,93 @@
                 </table>
             @endif
         </div>
+
+
+        <div class="issue mt-5">
+            <h5>Issue Recommendation</h5>
+            <div class="table-responsive text-nowrap mb-4">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:20%;">Date</th>
+                            <th>Issue</th>
+                            <th style="width:25%;">Pic</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($issue as $issues)
+                            <tr>
+                                <td>{{ $issues->date ?? 'N/A' }}</td>
+                                <td>
+                                    <pre class="mb-1"
+                                        style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $issues->desc }}</pre>
+                                </td>
+                                <td>{{ $issues->name }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mainlog mt-5">
+            <h5>Maintenance Log</h5>
+            <div class="table-responsive text-nowrap mb-4">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:20%;">Date</th>
+                            <th>Maintenance</th>
+                            <th style="width:25%;">Pic</th>
+                            {{-- <th style="width:10%;">Button</th> --}}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($mainlog as $item)
+                            <tr>
+                                <td>{{ $item->date ?? 'N/A' }}</td>
+                                <td>
+                                    <pre class="mb-1"
+                                        style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $item->main_desc }}</pre>
+                                </td>
+                                <td>{{ $item->name }}</td>
+                                {{-- @if ($mainlog['id_service'] != null)
+                                    <td>
+                                        <a class="btn btn-warning waves-effect"
+                                            href="{{ route('service-reports.show', $mainlog['id_service']) }}">
+                                            <i class="menu-icon tf-icons mdi mdi-eye-outline"></i>
+                                        </a>
+                                    </td>
+                                @elseif($mainlog['id_service'] == null && $mainlog['id_pic'] == Auth::user()->id)
+                                    <td>
+                                        <a class="btn btn-primary waves-effect"
+                                            href="{{ route('create.daily-monitoring-reports', [$mainlog['id'], $mainlog['id_machine']]) }}">
+                                            <i class="menu-icon tf-icons mdi mdi-file-plus-outline"></i>
+                                        </a>
+                                    </td>
+                                @else
+                                    <td>
+                                        Has No Reports
+                                    </td>
+                                @endif --}}
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="row mt-5">
             <div class="col-4 mt-5 text-center">
                 <p>PT Reftech Jaya Optima</p>
                 <div class="pb-5"></div>
-                <p class="pt-3">( Arie Sudjiwo )</p>
+                <p class="pt-3">Angel Irene</p>
             </div>
             <div class="col-4"></div>
             <div class="col-4 mt-5 text-center">
-                <p>PT Reftech Jaya Optima</p>
+                <p>PT Fajar Surya Wisesa</p>
                 <div class="pb-5"></div>
-                <p class="pt-3">( Arie Supratman )</p>
+                <p class="pt-3">..........................................</p>
             </div>
         </div>
     </div>

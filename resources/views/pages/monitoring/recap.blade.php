@@ -3,80 +3,80 @@
 @section('content')
     <div class="row mb-4">
         <div class="col-12 col-md-3 mb-2">
-            <div class="card bg-label-info">
+            <div class="card bg-label-info h-100">
                 <div class="card-body">
                     <h5>Machine On All Plant</h5>
+                </div>
+                <div class="card-footer">
                     <p class="text-black float-end fs-5">{{ $allPlantMonitoring }}/ <span
                             class="text-muted fs-6">{{ $allPlant }}</span></p>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3 mb-2">
-            <div class="card">
-                <div class="card-body">
-                    <h5>Plant GT 3</h5>
-                    <p class="float-end fs-5">{{ $GT3Monitoring }}/ <span class="text-muted fs-6">{{ $GT3 }}</span>
-                    </p>
+        <div class="col-9">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>Plant GT 3 / BOILER</h5>
+                            <p class="float-end fs-5">{{ $GT3Monitoring }}/ <span
+                                    class="text-muted fs-6">{{ $GT3 }}</span>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 mb-2">
-            <div class="card">
-                <div class="card-body">
-                    <h5>Plant GT</h5>
-                    <p class="float-end fs-5">{{ $GTMonitoring }}/ <span class="text-muted fs-6">{{ $GT }}</span>
-                    </p>
+                <div class="col-6 col-md-4 mb-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>Plant GT 1-2</h5>
+                            <p class="float-end fs-5">{{ $GTMonitoring }}/ <span
+                                    class="text-muted fs-6">{{ $GT }}</span>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 mb-2">
-            <div class="card">
-                <div class="card-body">
-                    <h5>Plant INC</h5>
-                    <p class="float-end fs-5">{{ $INCMonitoring }}/ <span class="text-muted fs-6">{{ $INC }}</span>
-                    </p>
+                <div class="col-6 col-md-4 mb-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>Plant INC</h5>
+                            <p class="float-end fs-5">{{ $INCMonitoring }}/ <span
+                                    class="text-muted fs-6">{{ $INC }}</span>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5>Plant BOILER 3</h5>
-                    <p class="float-end fs-5">{{ $BOILER3Monitoring }}/ <span
-                            class="text-muted fs-6">{{ $BOILER3 }}</span></p>
+                <div class="col-6 col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>Plant PM 1-2</h5>
+                            <p class="float-end fs-5">{{ $PM12Monitoring }}/ <span
+                                    class="text-muted fs-6">{{ $PM12 }}</span></p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5>Plant PM 1-2</h5>
-                    <p class="float-end fs-5">{{ $PM12Monitoring }}/ <span
-                            class="text-muted fs-6">{{ $PM12 }}</span></p>
+                <div class="col-6 col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>Plant PM 3-5</h5>
+                            <p class="float-end fs-5">{{ $PM35Monitoring }}/ <span
+                                    class="text-muted fs-6">{{ $PM35 }}</span></p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5>Plant PM 3-5</h5>
-                    <p class="float-end fs-5">{{ $PM35Monitoring }}/ <span
-                            class="text-muted fs-6">{{ $PM35 }}</span></p>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5>Plant PM 7-8</h5>
-                    <p class="float-end fs-5">{{ $PM78Monitoring }}/ <span
-                            class="text-muted fs-6">{{ $PM78 }}</span></p>
+                <div class="col-6 col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>Plant PM 7-8</h5>
+                            <p class="float-end fs-5">{{ $PM78Monitoring }}/ <span
+                                    class="text-muted fs-6">{{ $PM78 }}</span></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="row">
-        <div class="col-12 col-md-6">
+        <div class="col-12">
             <div class="card mb-3">
                 <div class="card-body">
                     <h5> Air Compressor </h5>
@@ -87,6 +87,7 @@
                                     <th></th>
                                     <th></th>
                                     <th>ID</th>
+                                    <th>Unit</th>
                                     <th>Brand</th>
                                     <th>Tag</th>
                                     <th>Location</th>
@@ -99,7 +100,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-6">
+        {{-- <div class="col-12 col-md-6">
             <div class="card mb-3">
                 <div class="card-body">
                     <h5> Dryer </h5>
@@ -121,7 +122,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 @endsection()
 

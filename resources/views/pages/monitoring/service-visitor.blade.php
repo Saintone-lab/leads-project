@@ -33,6 +33,9 @@
                                 <span class="fw-bolder">{{ $machine->unit->unit->unit }}</span>
                             </div>
                             <div class="mt-1">
+                                <span class="text-muted">{{ $machine->unit->brand }} {{ $machine->unit->unit->sku }}</span>
+                            </div>
+                            <div class="mt-1">
                                 <span class="text-muted">{{ $machine->tag }} - {{ $machine->location }}</span>
                             </div>
                         </div>
@@ -70,19 +73,59 @@
                                     <th>R Hr.</th>
                                     <th>L Hr.</th>
                                     <th>Press.</th>
-                                    <th>Temp.</th>
+                                    <th>Temp. (85°C - 90°C)</th>
                                     <th>Oil Lvl</th>
                                     <th>PIC</th>
                                 </thead>
                                 <tbody>
                                     @foreach ($compressor as $item)
                                         <tr>
-                                            <td>{{ $item['date'] }}</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <button type="button"
+                                                        class="btn btn-label-secondary dropdown-toggle waves-effect"
+                                                        data-bs-toggle="dropdown"
+                                                        aria-expanded="false">{{ $item['date'] }}</button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a class=" dropdown-item cursor-pointer" data-bs-toggle="modal"
+                                                                data-bs-target="#editIssue-{{ $item['id'] }}">
+                                                                Update Issue
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class=" dropdown-item cursor-pointer" data-bs-toggle="modal"
+                                                                data-bs-target="#editMainlog-{{ $item['id'] }}">
+                                                                Update Mainlog
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                {{-- <a class="text-black text-decoration-underline cursor-pointer"
+                                                    data-bs-toggle="modal" data-bs-target="#editIssue-{{ $item['id'] }}">
+                                                    {{ $item['date'] }}
+                                                </a> --}}
+                                            </td>
                                             <td>{{ $item['condition'] }}</td>
                                             <td>{{ $item['running'] }}</td>
                                             <td>{{ $item['loading'] }}</td>
                                             <td>{{ $item['pressure'] }}</td>
-                                            <td>{{ $item['temp'] }}</td>
+                                            <td>
+                                                @php
+                                                    $stringTemp = $item['temp'] ?? ''; // Pastikan nilai tidak null
+                                                    $tempNumber = null;
+
+                                                    if (preg_match('/\d+(\.\d+)?/', $stringTemp, $matches)) {
+                                                        $tempNumber = (float) $matches[0]; // Gunakan float agar mendukung desimal
+                                                    }
+                                                @endphp
+
+                                                @if (!is_null($tempNumber) && $tempNumber > 90)
+                                                    <p class="mb-0 fw-bold fs-6 text-danger">{{ $item['temp'] }}</p>
+                                                @else
+                                                    {{ $item['temp'] }}
+                                                @endif
+                                            </td>
                                             <td>{{ $item['oil_level'] }}</td>
                                             <td>{{ $item['pic'] }}</td>
                                         </tr>
@@ -103,7 +146,32 @@
                                 <tbody>
                                     @foreach ($dryer as $item)
                                         <tr>
-                                            <td>{{ $item['date'] }}</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <button type="button"
+                                                        class="btn btn-label-secondary dropdown-toggle waves-effect"
+                                                        data-bs-toggle="dropdown"
+                                                        aria-expanded="false">{{ $item['date'] }}</button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a class=" dropdown-item cursor-pointer" data-bs-toggle="modal"
+                                                                data-bs-target="#editIssue-{{ $item['id'] }}">
+                                                                Update Issue
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class=" dropdown-item cursor-pointer" data-bs-toggle="modal"
+                                                                data-bs-target="#editMainlog-{{ $item['id'] }}">
+                                                                Update Mainlog
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                {{-- <a class="text-black text-decoration-underline cursor-pointer"
+                                                    data-bs-toggle="modal" data-bs-target="#editIssue-{{ $item['id'] }}">
+                                                    {{ $item['date'] }}
+                                                </a> --}}
+                                            </td>
                                             <td>{{ $item['condition'] }}</td>
                                             <td>{{ $item['temp'] }}</td>
                                             <td>{{ $item['temp_out'] }}</td>
@@ -116,17 +184,92 @@
                             </table>
                         @endif
                     </div>
+
+                    <div class="issue mb-4">
+                        <h5>Issue Recommendation</h5>
+                        <div class="table-responsive text-nowrap mb-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width:10%;">Date</th>
+                                        <th>Issue</th>
+                                        <th style="width:25%;">Pic</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($issue as $issues)
+                                        <tr>
+                                            <td>{{ $issues->date ?? 'N/A' }}</td>
+                                            <td>
+                                                <pre class="mb-1"
+                                                    style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $issues->desc }}</pre>
+                                            </td>
+                                            <td>{{ $issues->name }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mainlog mb-4">
+                        <h5>Maintenance Log</h5>
+                        <div class="table-responsive text-nowrap mb-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width:10%;">Date</th>
+                                        <th>Maintenance</th>
+                                        <th style="width:25%;">Pic</th>
+                                        {{-- <th style="width:10%;">Button</th> --}}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($mainlog as $item)
+                                        <tr>
+                                            <td>{{ $item->date ?? 'N/A' }}</td>
+                                            <td>
+                                                <pre class="mb-1"
+                                                    style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $item->main_desc }}</pre>
+                                            </td>
+                                            <td>{{ $item->name }}</td>
+                                            {{-- @if ($mainlog['id_service'] != null)
+                                                <td>
+                                                    <a class="btn btn-warning waves-effect"
+                                                        href="{{ route('service-reports.show', $mainlog['id_service']) }}">
+                                                        <i class="menu-icon tf-icons mdi mdi-eye-outline"></i>
+                                                    </a>
+                                                </td>
+                                            @elseif($mainlog['id_service'] == null && $mainlog['id_pic'] == Auth::user()->id)
+                                                <td>
+                                                    <a class="btn btn-primary waves-effect"
+                                                        href="{{ route('create.daily-monitoring-reports', [$mainlog['id'], $mainlog['id_machine']]) }}">
+                                                        <i class="menu-icon tf-icons mdi mdi-file-plus-outline"></i>
+                                                    </a>
+                                                </td>
+                                            @else
+                                                <td>
+                                                    Has No Reports
+                                                </td>
+                                            @endif --}}
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <div class="row mt-5">
                         <div class="col-4 mt-5 text-center">
                             <p>PT Reftech Jaya Optima</p>
-                                <div class="pb-5"></div>
-                            <p class="pt-3">( Arie Sudjiwo )</p>
+                            <div class="pb-5"></div>
+                            <p class="pt-3">Angel Irene</p>
                         </div>
                         <div class="col-4"></div>
                         <div class="col-4 mt-5 text-center">
-                            <p>PT Reftech Jaya Optima</p>
-                                <div class="pb-5"></div>
-                            <p class="pt-3">( Arie Supratman )</p>
+                            <p>PT Fajar Surya Wisesa</p>
+                            <div class="pb-5"></div>
+                            <p class="pt-3">..........................................</p>
                         </div>
                     </div>
                 </div>
@@ -143,10 +286,17 @@
                     </a>
                     <button id="buttonShare" data-id="1"
                         class="btn btn-success d-grid w-100 waves-effect mb-3">Bagikan</button>
+                    <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">
+                        Back
+                    </button>
                 </div>
             </div>
         </div>
         {{-- End : Button Invoice --}}
+        @foreach ($compressor as $comp)
+            @include('components.modal.monitoring.mainlog')
+            @include('components.modal.monitoring.issue')
+        @endforeach
     </div>
 @endsection
 @push('after-style')
@@ -178,6 +328,10 @@
                 } else {
                     alert('Sharing not supported in this browser.');
                 }
+            });
+
+            $('#backButton').click(function() {
+                window.history.back();
             });
         });
     </script>

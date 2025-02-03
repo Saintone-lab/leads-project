@@ -28,6 +28,8 @@
                                             </option>
                                             <option value="80" {{$quote->status == '80' ? 'selected' : ''}}>Hot Prospect<small class="text-muted">80%</small>
                                             </option>
+                                            <option value="90" {{$quote->status == '90' ? 'selected' : ''}}>Hold <small class="text-muted">90%</small>
+                                            </option>
                                             <option value="100" {{$quote->status == '100' ? 'selected' : ''}}>Done PO <small class="text-muted">100%</small>
                                             </option>
                                             <option value="0" {{$quote->status == '0' ? 'selected' : ''}}>Loss <small class="text-muted">0%</small></option>

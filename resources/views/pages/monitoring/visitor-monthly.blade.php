@@ -58,7 +58,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 class="fw-bold">ISSUE & MAINTENANCE LOG</h3>
+                                    <h3 class="fw-bold">DAILY MONITORING</h3>
                                     <div>
                                         <span class="fw-bolder">{{ $machine->unit->unit->unit }}</span>
                                     </div>
@@ -71,75 +71,69 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end">
-                                <a href="{{ route('visitor.daily-monitoring', $machine->id) }}"
-                                    class="btn btn-primary waves-effect">Go To Visit Monitor</a>
+                            <div class="d-flex justify-content-end mb-2">
+                                <a href="{{ route('log.daily-monitoring', $machine->id) }}"
+                                    class="btn btn-primary waves-effect">Issue & Maintenance Log</a>
                             </div>
-                            <div class="row">
-                                <div class="col-12 col-md-6">
-                                    <h5 class="badge rounded-pill bg-label-primary fs-big">Issue Recommendation</h5>
-                                    <div class="table-responsive text-nowrap mt-4">
-                                        <table class="table table-bordered">
-                                            <thead class="table-light">
-                                                <th>No</th>
-                                                <th>Date</th>
-                                                <th>Issue</th>
-                                                <th>Technician</th>
-                                            </thead>
-                                            <tbody>
-                                                @php
-                                                    $no = 0;
-                                                @endphp
-                                                @foreach ($issue as $issues)
-                                                    @php
-                                                        $no++;
-                                                    @endphp
-                                                    <tr>
-                                                        <td>{{ $no }}</td>
-                                                        <td>{{ $issues->date }}</td>
-                                                        <td>
-                                                            <pre class="mb-1"
-                                                                style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $issues->desc }}</pre>
-                                                        </td>
-                                                        <td>{{ $issues->pic->name }}</td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <h5 class="badge rounded-pill bg-label-success fs-big">Maintenance Log</h5>
-                                    <div class="table-responsive text-nowrap mt-4">
-                                        <table class="table table-bordered">
-                                            <thead class="table-light">
-                                                <th>No</th>
-                                                <th>Date</th>
-                                                <th>Maintenance Description</th>
-                                                <th>Vendor</th>
-                                            </thead>
-                                            <tbody>
-                                                @php
-                                                    $no = 0;
-                                                @endphp
-                                                @foreach ($monitoring as $item)
-                                                    @php
-                                                        $no++;
-                                                    @endphp
-                                                    <tr>
-                                                        <td>{{ $no }}</td>
-                                                        <td>{{ $item->date }}</td>
-                                                        <td>
-                                                            <pre class="mb-1"
-                                                                style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $item->main_desc }}</pre>
-                                                        </td>
-                                                        <td>{{ $item->technician }}</td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                            <div class="d-flex justify-content-end">
+                                <a href="{{ route('visitor.weekly-monitoring', $machine->id) }}"
+                                    class="btn btn-success waves-effect">Go To Weekly Monitoring</a>
+                            </div>
+                            <h5>Result Monitoring </h5>
+                            <div class="table-responsive text-nowrap mt-4">
+                                @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
+                                    <table class="table table-bordered">
+                                        <thead class="table-light">
+                                            <th>Date</th>
+                                            <th>Condition</th>
+                                            <th>R Hr.</th>
+                                            <th>L Hr.</th>
+                                            <th>Press.</th>
+                                            <th>Temp.</th>
+                                            <th>Oil Lvl</th>
+                                            <th>PIC</th>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($compressor as $item)
+                                                <tr>
+                                                    <td>{{ $item['date'] }}</td>
+                                                    <td>{{ $item['condition'] }}</td>
+                                                    <td>{{ $item['running'] }}</td>
+                                                    <td>{{ $item['loading'] }}</td>
+                                                    <td>{{ $item['pressure'] }}</td>
+                                                    <td>{{ $item['temp'] }}</td>
+                                                    <td>{{ $item['oil_level'] }}</td>
+                                                    <td>{{ $item['pic'] }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <table class="table table-bordered">
+                                        <thead class="table-light">
+                                            <th>Date</th>
+                                            <th>Condition</th>
+                                            <th>Temp IN</th>
+                                            <th>Temp OUT</th>
+                                            <th>Dew P.</th>
+                                            <th>Auto Drain</th>
+                                            <th>PIC</th>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($dryer as $item)
+                                                <tr>
+                                                    <td>{{ $item['date'] }}</td>
+                                                    <td>{{ $item['condition'] }}</td>
+                                                    <td>{{ $item['temp'] }}</td>
+                                                    <td>{{ $item['temp_out'] }}</td>
+                                                    <td>{{ $item['dew'] }}</td>
+                                                    <td>{{ $item['drain'] }}</td>
+                                                    <td>{{ $item['pic'] }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @endif
                             </div>
                         </div>
                     </div>

@@ -621,7 +621,7 @@
                     <div class="col"></div>
                     @if ($invoice->flag == 'Reftech')
                         <div class="col-4 my-5 text-center">
-                            <p>Bandung, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
+                            <p>Bandung, {{ Carbon\Carbon::parse($invoice->date)->locale('ID')->translatedFormat('d F Y') }}</p>
                             <p class="fs-normal fw-bolder">PT. Reftech Jaya Optima</p>
                             @if (isset($invoice->sign))
                                 <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset=""

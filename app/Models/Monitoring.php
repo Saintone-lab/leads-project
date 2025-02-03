@@ -32,8 +32,8 @@ class Monitoring extends Model
     {
         return $this->belongsTo('App\Models\User', 'id_pic', 'id');
     }
-    // public function detail()
-    // {
-    //     return $this->hasMany('App\Models\DetailServiceQuotation', 'id_subtitle');
-    // }
+    public function reports()
+    {
+        return $this->hasMany('App\Models\Reports', 'id_monitoring');
+    }
 }

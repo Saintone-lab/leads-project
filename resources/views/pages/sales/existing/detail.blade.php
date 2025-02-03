@@ -116,9 +116,25 @@
                     </button>
                 </a>
             </div>
-            @foreach ($charge as $pic)
-                <div class="card mb-2">
-                    <div class="card-header pb-0">
+            {{-- @foreach ($charge as $pic) --}}
+            <div class="card mb-2">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-pic-client table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                {{-- <div class="card-header pb-0">
                         <div class="text-end text-muted">
                             <a type="button" data-bs-toggle="modal" data-bs-target="#updatePic-{{ $pic->id }}">
                                 <button type="button" class="btn btn-sm btn-label-primary">
@@ -165,9 +181,9 @@
                             </div>
                         </div>
                         </p>
-                    </div>
-                </div>
-            @endforeach
+                    </div> --}}
+            </div>
+            {{-- @endforeach --}}
         </div>
         <div class="col-md-12 mt-4">
             <div class="d-flex justify-content-between mb-2">
@@ -775,6 +791,7 @@
     <script src="{{ asset('assets') }}/includes/table-crm-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-po-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-machine-client.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-pic-client.js"></script>
     <script src="{{ asset('assets') }}/includes/table-service-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-general-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-visit-history.js"></script>

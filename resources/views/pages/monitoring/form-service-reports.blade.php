@@ -1,12 +1,9 @@
 @extends('layouts.sales.app')
 @section('title', 'Create Service Reports')
 @section('content')
-    <form action="{{ @$report ? route('service-reports.update', @$report->id) : route('service-reports.store') }}"
-        method="post" enctype="multipart/form-data" id="serviceReports" name="service-reports">
+    <form action="{{ route('store.daily-monitoring-reports', [$monitoring->id, $machine->id]) }}" method="post" enctype="multipart/form-data" id="serviceReports"
+        name="service-reports">
         @csrf
-        @if (@$report)
-            @method('PATCH')
-        @endif
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -24,15 +21,9 @@
                 <div class="row">
                     <div class="col-12 mb-3">
                         <div class="form-floating mb-3">
-                            @if (@$report)
-                                <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
-                                    aria-describedby="floatingInputFilledHelp" name="no_service" placeholder="No Service"
-                                    value="{{ $report->no_service }}">
-                            @else
-                                <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
-                                    aria-describedby="floatingInputFilledHelp" name="no_service" placeholder="No Service"
-                                    value="{{ $formattedNumberS . '-S/RJO-' . Auth::user()->code . '/' . $formattedMonthNow . '/' . \Carbon\Carbon::now()->year }}">
-                            @endif
+                            <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
+                                aria-describedby="floatingInputFilledHelp" name="no_service" placeholder="No Service"
+                                value="{{ $formattedNumberS . '-S/RJO-' . Auth::user()->code . '/' . $formattedMonthNow . '/' . \Carbon\Carbon::now()->year }}">
                             <label for="floatingInputFilled">Number Service</label>
                             <span class="form-floating-focused"></span>
                         </div>
@@ -41,10 +32,9 @@
                         <div class="form-floating form-floating-outline">
                             <select class="select2 form-select form-select-lg invoice-item-pic" data-allow-clear="true"
                                 name="id_pic" id="selectPic">
-                                <option selected>----- Select Company | Pic || Sales -----</option>
+                                <option selected>----- Select Fajar Paper | Pic || Sales -----</option>
                                 @foreach ($pic as $charge)
-                                    <option data-id="{{ $charge->client->id }}" value="{{ $charge->id }}"
-                                        {{ @$report->id_pic == $charge->id ? 'selected' : '' }}>
+                                    <option data-id="{{ $charge->client->id }}" value="{{ $charge->id }}">
                                         {{ $charge->client->company }} | {{ $charge->name_pic }} ||
                                         {{ $charge->client->sales->name }}</option>
                                 @endforeach
@@ -52,6 +42,7 @@
                             <label for="select2Basic">Client</label>
                         </div>
                         <input type="text" name="technician" id="" value="{{ Auth::user()->id }}" hidden>
+                        <input type="number" name="monitoring" id="" value="{{ $monitoring->id }}" hidden>
                     </div>
                     <div class="col-12 col-md-3 mb-3">
                         <div class="form-floating form-floating-outline">
@@ -77,12 +68,10 @@
                         </div>
                     </div>
                     <div class="col-12 col-md-6 mb-3">
-                        <div class="form-floating form-floating-outline mb-2">
-                            <select id="machine-dropdown" class="select2 form-select invoice-item-machine" data-id="1"
-                                data-allow-clear="true" name="machine" disabled>
-                                <option> ---- Choose Machine Here ---- </option>
-                            </select>
-                            <label for="machine-dropdown">Machine</label>
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" class="form-control input-numeric" id="machine" name="machine"
+                                placeholder="Type machine Here..." value="{{$machine->unit->brand}} {{$machine->unit->unit->sku}} || {{$machine->location}} - {{$machine->tag}} - {{$machine->unit->serial}}" disabled>
+                            <label for="basic-default-fullname">Machine</label>
                         </div>
                     </div>
                     {{-- <div class="col-4 mb-3">
@@ -98,14 +87,14 @@
                     <div class="col-6 col-md-3 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control input-numeric" id="running" name="running"
-                                placeholder="Type Running Here..." value="{{ old('running', @$report->running ?? '') }}">
+                                placeholder="Type Running Here..." value="{{ $runningNumericValue }}">
                             <label for="basic-default-fullname">Running</label>
                         </div>
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control input-numeric" id="load" name="load"
-                                placeholder="Type Load Here..." value="{{ old('load', @$report->load ?? '') }}">
+                                placeholder="Type Load Here..." value="{{$loadingNumericValue}}">
                             <label for="basic-default-fullname">Load</label>
                         </div>
                     </div>
@@ -139,7 +128,7 @@
             </div>
         </div>
     </form>
-    @include('components.modal.machine.form-technician')
+    {{-- @include('components.modal.machine.form-technician') --}}
 @endsection
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
@@ -231,7 +220,7 @@
                         machineDropdown.empty();
                         machineDropdown.append(
                             '<option selected="" disabled> ---- Choose Machine Here ---- </option>'
-                        );
+                            );
 
                         $.each(response, function(key, value) {
                             var option = $('<option></option>').attr('value', value.id)

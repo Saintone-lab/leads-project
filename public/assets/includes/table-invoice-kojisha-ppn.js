@@ -26,6 +26,7 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "no_invoice" },
+                { data: "no_po" },
                 { data: "company" },
                 {
                     data: "type",
@@ -73,7 +74,7 @@ $(function () {
                     visible: false,
                 },
                 {
-                    targets: 6,
+                    targets: 7,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
                 {
@@ -119,7 +120,7 @@ $(function () {
                 console.log("drawCallback");
                 $('[data-toggle="tooltip"]').tooltip();
             },
-            order: [[3, "desc"]],
+            order: [[8, "desc"]],
             displayLength: 7,
             dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 head-invoice-ppn text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             lengthMenu: [7, 10, 25, 50, 75, 100],

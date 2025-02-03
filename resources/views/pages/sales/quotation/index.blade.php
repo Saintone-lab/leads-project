@@ -85,6 +85,7 @@
                         <th>ID</th>
                         <th>Quote No.</th>
                         <th>Company</th>
+                        <th>RU</th>
                         <th>Total Price</th>
                         <th>Description</th>
                         <th>Date Quotation</th>

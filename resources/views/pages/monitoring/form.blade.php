@@ -3,6 +3,10 @@
 @section('content')
     <div class="card mb-3">
         @if ($machine->monitoring()->whereDate('created_at', Carbon\Carbon::today())->exists())
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                Data Monitoring Telah Ada
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             <div class="card-body text-center">
                 <p>Daily {{ $machine->unit->brand }} {{ $machine->unit->unit->sku }} Sudah di input!</p>
                 <div class="tombol d-flex gap-2 justify-content-center">
@@ -57,7 +61,7 @@
                             <div class="row mb-3">
                                 <div class="col-6 col-lg-3">
                                     <label for="defaultSelect" class="form-label">Condition</label>
-                                    <select id="defaultSelect" name="condition" class="form-select">
+                                    <select id="conditionSelect" name="condition" class="form-select">
                                         <option value="Running">Running</option>
                                         <option value="Stand By">Stand By</option>
                                         <option value="Off">Off</option>
@@ -65,7 +69,7 @@
                                 </div>
                                 <div class="col-6 col-lg-3">
                                     <label for="defaultSelect" class="form-label">Oil Level</label>
-                                    <select id="defaultSelect" name="oil" class="form-select">
+                                    <select id="offDisable" name="oil" class="form-select offDisable">
                                         <option value="OK">OK</option>
                                         <option value="Kurang">Kurang</option>
                                     </select>
@@ -73,7 +77,7 @@
                                 <div class="col-12 col-lg-6">
                                     <label for="defaultInput" class="form-label">Pressure</label>
                                     <div class="input-group input-group-merge">
-                                        <input id="defaultInput numberInput" class="form-control" name="pressure"
+                                        <input id="numberInput" class="form-control offDisable" name="pressure"
                                             type="text" placeholder="Bar" oninput="validateInput(event)">
                                         <span class="input-group-text">Bar</span>
                                     </div>
@@ -83,7 +87,7 @@
                                 <div class="col-12 col-lg-6">
                                     <label for="defaultInput" class="form-label">Temperature</label>
                                     <div class="input-group input-group-merge">
-                                        <input id="defaultInput numberInput" class="form-control" name="temperature"
+                                        <input id="numberInput" class="form-control offDisable" name="temperature"
                                             type="text" placeholder="°C" oninput="validateInput(event)">
                                         <span class="input-group-text">°C</span>
                                     </div>
@@ -91,7 +95,7 @@
                                 <div class="col col-lg-3">
                                     <label for="defaultInput" class="form-label">Running</label>
                                     <div class="input-group input-group-merge">
-                                        <input id="defaultInput numberInput" class="form-control" name="running"
+                                        <input id="numberInput" class="form-control offDisable" name="running"
                                             type="text" placeholder="Hr" min="1" oninput="validateInput(event)">
                                         <span class="input-group-text">Hours</span>
                                     </div>
@@ -99,15 +103,16 @@
                                 <div class="col col-lg-3">
                                     <label for="defaultInput" class="form-label">Loading Hr</label>
                                     <div class="input-group input-group-merge">
-                                        <input id="defaultInput numberInput" class="form-control" name="loading"
+                                        <input id="numberInput" class="form-control offDisable" name="loading"
                                             type="text" placeholder="Hr" min="1" oninput="validateInput(event)">
                                         <span class="input-group-text">Hours</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-floating form-floating-outline mb-3">
-                                <textarea class="form-control h-px-100" id="exampleFormControlTextarea1" name="desc" placeholder="Comments here..."></textarea>
-                                <label for="exampleFormControlTextarea1">Desc</label>
+                                <textarea class="form-control h-px-100" id="exampleFormControlTextarea1" name="desc"
+                                    placeholder="Comments here..."></textarea>
+                                <label for="exampleFormControlTextarea1">Issue & Recommendation</label>
                             </div>
                             <div class="mb-4">
                                 <label for="formFile" class="form-label">Input Bukti Photo</label>
@@ -153,7 +158,7 @@
                             <div class="row mb-3">
                                 <div class="col-6 col-lg-3">
                                     <label for="defaultSelect" class="form-label">Condition</label>
-                                    <select id="defaultSelect" name="condition" class="form-select">
+                                    <select id="conditionSelect" name="condition" class="form-select">
                                         <option value="Running">Running</option>
                                         <option value="Stand By">Stand By</option>
                                         <option value="Off">Off</option>
@@ -162,13 +167,13 @@
                                 <div class="col-12 col-lg-3">
                                     <label for="defaultInput" class="form-label">Dew Point</label>
                                     <div class="input-group input-group-merge">
-                                        <input id="defaultInput" class="form-control" name="dew" type="text"
-                                            placeholder="Dew Point">
+                                        <input id="offDisable" class="form-control offDisable" name="dew"
+                                            type="text" placeholder="Dew Point">
                                     </div>
                                 </div>
                                 <div class="col-12 col-lg-3">
                                     <label for="defaultSelect" class="form-label">Auto Drain</label>
-                                    <select id="defaultSelect" name="drain" class="form-select">
+                                    <select id="offDisable" name="drain" class="form-select offDisable">
                                         <option value="Ok">Ok</option>
                                         <option value="Not Ok">Not Ok</option>
                                     </select>
@@ -176,8 +181,8 @@
                                 <div class="col-12 col-lg-3">
                                     <label for="defaultInput" class="form-label">Cleaning Unit</label>
                                     <div class="input-group input-group-merge">
-                                        <input id="defaultInput" class="form-control" name="cleaning" type="text"
-                                            placeholder="Cleaning Unit">
+                                        <input id="offDisable" class="form-control offDisable" name="cleaning"
+                                            type="text" placeholder="Cleaning Unit">
                                     </div>
                                 </div>
                             </div>
@@ -185,7 +190,7 @@
                                 <div class="col-12 col-lg-6">
                                     <label for="defaultInput" class="form-label">Temperature In</label>
                                     <div class="input-group input-group-merge">
-                                        <input id="defaultInput numberInput" class="form-control" name="temperature_in"
+                                        <input id="numberInput" class="form-control offDisable" name="temperature_in"
                                             type="text" placeholder="°C" oninput="validateInput(event)">
                                         <span class="input-group-text">°C</span>
                                     </div>
@@ -193,7 +198,7 @@
                                 <div class="col-12 col-lg-6">
                                     <label for="defaultInput" class="form-label">Temperature Out</label>
                                     <div class="input-group input-group-merge">
-                                        <input id="defaultInput numberInput" class="form-control" name="temperature_out"
+                                        <input id="numberInput" class="form-control offDisable" name="temperature_out"
                                             type="text" placeholder="°C" oninput="validateInput(event)">
                                         <span class="input-group-text">°C</span>
                                     </div>
@@ -202,7 +207,7 @@
                             <div class="form-floating form-floating-outline mb-3">
                                 <textarea class="form-control h-px-100" id="exampleFormControlTextarea1" name="desc"
                                     placeholder="Comments here..."></textarea>
-                                <label for="exampleFormControlTextarea1">Desc</label>
+                                <label for="exampleFormControlTextarea1">Issue & Recommendation</label>
                             </div>
                             <div class="mb-4">
                                 <label for="formFile" class="form-label">Input Bukti Photo</label>
@@ -248,7 +253,7 @@
             </div>
         @endif
     </div>
-    @include('components.modal.monitoring.mainlog')
+    @include('components.modal.monitoring.mainlog-create')
 @endsection()
 
 @push('after-style')
@@ -261,6 +266,7 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/toastr/toastr.css" />
 @endpush
 
 @push('after-script')
@@ -270,11 +276,13 @@
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
 @endpush
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-monitoring-machine.js"></script>
+    <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
 @endpush
 
 @push('script')
@@ -284,6 +292,22 @@
             // Izinkan hanya angka dan koma
             input.value = input.value.replace(/[^0-9,]/g, '');
         }
+        $('#conditionSelect').on('change', function() {
+            var condition = $(this).val();
+            var disable = $('.offDisable');
+            var number = $('#numberInput');
+
+            if (condition == 'Off') {
+                disable.prop('disabled', true);
+                // number.prop('disabled', true);
+            } else {
+                // number.prop('disabled', false);
+                disable.prop('disabled', false);
+            }
+            console.log(number);
+
+            console.log(condition);
+        });
 
         // document.getElementById('myForm').addEventListener('submit', function(e) {
         //     e.preventDefault(); // Mencegah pengiriman form default

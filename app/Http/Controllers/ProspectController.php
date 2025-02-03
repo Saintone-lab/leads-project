@@ -240,7 +240,7 @@ class ProspectController extends Controller
         $quotation = Quotation::find($prospect->id_quotation);
         $pic = Pic::where('id', $prospect->id_pic)->first();
         $client = Client::where('id', $pic->id_client)->first();
-        $sales = User::where('role', 'Sales')->get();
+        $sales = User::where('role', 'Sales')->where('active', '1')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         $prospectComments = Comment::where('id_prospect', $id)->where('type', 'prospect')->with('mention')->get();

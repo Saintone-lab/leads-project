@@ -13,6 +13,7 @@
                         <th></th>
                         <th>ID</th>
                         <th>Invoice No.</th>
+                        <th>No PO.</th>
                         <th>Company</th>
                         <th>type</th>
                         <th>Total Price</th>
@@ -33,6 +34,7 @@
                         <th></th>
                         <th>ID</th>
                         <th>Invoice No.</th>
+                        <th>No PO.</th>
                         <th>Company</th>
                         <th>type</th>
                         <th>Total Price</th>

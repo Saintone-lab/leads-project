@@ -43,7 +43,7 @@ class ServiceReportsController extends Controller
         $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::all();
+        $pic = Pic::join('client as c','c.id','=','pic.id_client')->where('c.role' , '=', 'Customers')->select('pic.*')->get();
         return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow', 'clients'));
     }
 
@@ -139,14 +139,12 @@ class ServiceReportsController extends Controller
     public function update(Request $request, $id)
     {
         $rule = [
-            'no_service => required',
             'running => required',
             'load => required',
             'jobdesc => required',
             'desc => required',
         ];
         $customMessages = [
-            'no_service.required' => 'Field No Service Wajib Diisi!',
             'running.required' => 'Field Running Wajib Diisi!',
             'load.required' => 'Field Load Wajib Diisi!',
             'jobdesc.required' => 'Field Jobdesc Wajib Diisi!',
@@ -157,18 +155,17 @@ class ServiceReportsController extends Controller
         // dd($request);
         // Masukan Data ke Service Reports
         $reports = Reports::find($id);
-        $reports->id_technician = $request->technician;
+        // $reports->id_technician = $request->technician;
         $reports->id_pic = $request->id_pic;
         $reports->type = $request->type;
         $reports->id_machine = $request->machine;
-        $reports->no_service = $request->no_service;
+        // $reports->no_service = $request->no_service;
         $reports->running = $request->running;
         $reports->load = $request->load;
         $reports->jobdesc = $request->jobdesc;
         $reports->date = $request->date;
         $reports->desc = $request->desc;
         $reports->recomendation = $request->recomendation;
-        $reports->date = $request->date;
         $status = $reports->save();
         // dd($reports);
         if ($status) {

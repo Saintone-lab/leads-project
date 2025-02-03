@@ -26,6 +26,7 @@ use Carbon\Carbon;
 use File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Log;
 use PDF;
 use Illuminate\Http\Request;
 
@@ -1012,7 +1013,7 @@ class QuotationController extends Controller
             $quote->upload_date = Carbon::today();
             $quote->save();
             // create invoice quote
-            if (Auth::user()->id != '16' && Auth::user()->id != '23') {
+            if (Auth::user()->id != '23') {
                 $invoice = new Invoice;
                 $invoice->id_quotation = $id;
                 $invoice->no_po = $request->po;
@@ -1026,6 +1027,7 @@ class QuotationController extends Controller
                 $invoice->pph = 0;
                 $invoice->save();
             }
+            // dd($invoice);
 
             return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');
         } else {
@@ -1050,26 +1052,32 @@ class QuotationController extends Controller
     }
     public function delete_po($id)
     {
-        $quote = Quotation::find($id);
-        $invoice = Invoice::where('id_quotation', $id)->get();
+        try {
+            $quote = Quotation::find($id);
 
-        if (!$quote) {
-            return response()->json(['error' => 'Quotation not found.'], 404);
-        }
-
-        $file_path = public_path($quote->po_file);
-
-        if (file_exists($file_path)) {
-            foreach ($invoice as $key => $value) {
-                $invoice->delete();
+            if (!$quote) {
+                return response()->json(['error' => 'Quotation not found.'], 404);
             }
-            unlink($file_path);
-            $quote->po_file = null;
-            $quote->upload_date = null;
-            $quote->save();
-            return 1;
-        } else {
-            return 0;
+
+            $file_path = public_path($quote->po_file);
+
+            if (file_exists($file_path)) {
+                $invoices = Invoice::where('id_quotation', $id)->get();
+                foreach ($invoices as $invoice) {
+                    $invoice->delete(); // Hapus setiap invoice
+                }
+                unlink($file_path); // Hapus file
+                $quote->po_file = null;
+                $quote->upload_date = null;
+                $quote->save(); // Simpan perubahan
+
+                return response()->json(1, 200); // Sukses
+            } else {
+                return response()->json(['error' => 'File not found.'], 404);
+            }
+        } catch (\Exception $e) {
+            Log::error('Delete PO Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Something went wrong.'], 500);
         }
     }
 

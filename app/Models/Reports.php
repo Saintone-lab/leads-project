@@ -18,6 +18,7 @@ class Reports extends Model
         'id_pic',
         'id_machine',
         'id_technician',
+        'id_monitoring',
         'type',
         'running',
         'load',
@@ -34,6 +35,10 @@ class Reports extends Model
     public function machine()
     {
         return $this->belongsTo('App\Models\Machine', 'id_machine', 'id');
+    }
+    public function monitoring()
+    {
+        return $this->belongsTo('App\Models\Monitoring', 'id_monitoring', 'id');
     }
     
     public function technician()

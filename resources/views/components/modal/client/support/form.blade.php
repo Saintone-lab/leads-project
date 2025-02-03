@@ -83,6 +83,9 @@
                                             <option value="IG"
                                                 {{ old('source', @$leads->source) == 'IG' ? 'selected' : '' }}>Instagram
                                             </option>
+                                            <option value="WhatsApp"
+                                                {{ old('source', @$leads->source) == 'WhatsApp' ? 'selected' : '' }}>WhatsApp
+                                            </option>
                                             <option value="LinkedIn"
                                                 {{ old('source', @$leads->source) == 'LinkedIn' ? 'selected' : '' }}>
                                                 LinkedIn

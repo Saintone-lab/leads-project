@@ -1,16 +1,16 @@
 $(function () {
-    var dt_table_invoice_nonppn = $(".datatable-invoice-nonppn");
-    var Url = "/db/invoice-nonppn/kojisha";
+    var dt_table_reports_monitor = $(".datatable-reports-monitor");
+    var Url = "db/reports/admin";
 
-    if (dt_table_invoice_nonppn.length) {
-        $('[data-toggle="tooltip"]').tooltip();
-        var dt_invoice_nonppn = dt_table_invoice_nonppn.DataTable({
+    if (dt_table_reports_monitor.length) {
+        var dt_reports_monitor = dt_table_reports_monitor.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
                 headers: {
                     "Content-Type": "application/json",
                 },
+
                 // success: function (hasil, Url) {
                 //     console.log("Url:", Url);
                 //     console.log(hasil);
@@ -25,21 +25,13 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "no_invoice" },
-                { data: "no_po" },
+                { data: "no_service" },
                 { data: "company" },
-                {
-                    data: "type",
-                    render: function (data, type, row) {
-                        if (data === "CT") {
-                            return "Full Payment";
-                        }
-                        return data;
-                    },
-                },
-                { data: "harga_total" },
-                { data: "po_date" },
-                { data: "name" },
+                { data: "jobdesc" },
+                { data: "brand_type" },
+                { data: "date" },
+                { data: "sales" },
+                { data: "technician" },
             ],
             columnDefs: [
                 {
@@ -74,55 +66,33 @@ $(function () {
                     visible: false,
                 },
                 {
-                    targets: 7,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
-                },
-                {
-                    responsivePriority: 1,
-                    targets: 3,
-                },
-                {
                     targets: 3,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var detailRoute = route("invoice.show", $dataId);
+                            var detailRoute = route(
+                                "service-reports.show",
+                                $dataId
+                            );
                             return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                                '<a class="text-dark" href="' +
+                                detailRoute +
+                                '">' +
+                                data +
+                                "</a>"
                             );
                         }
                         return data;
                     },
                 },
-                // {
-                //     // Actions
-                //     targets: -1,
-                //     title: "Actions",
-                //     orderable: false,
-                //     searchable: false,
-                //     render: function (data, type, full, meta) {
-                //         var $dataId = full["id"];
-                //         var $detailUrl = route("", $dataId);
-                //         return (
-                //             '<div class="d-inline-block">' +
-                //             '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
-                //             '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                //             '<li><a href="' +
-                //             $detailUrl +
-                //             '" class="dropdown-item">Details</a></li>' +
-                //             "</ul>" +
-                //             "</div>"
-                //         );
-                //     },
-                // },
+                {
+                    responsivePriority: 2,
+                    targets: [3, 4],
+                },
             ],
-            drawCallback: function (settings) {
-                console.log("drawCallback");
-                $('[data-toggle="tooltip"]').tooltip();
-            },
-            order: [[8, "desc"]],
+            order: [[2, "desc"]],
+            dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
-            dom: '<"card-header flex-column flex-md-row"<"head-label hl-2 head-invoice text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
                 {
@@ -336,6 +306,13 @@ $(function () {
                         },
                     ],
                 },
+                {
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New reports</span>',
+                    className: "btn btn-primary btn-new",
+                    action: function (e, dt, node, config) {
+                        window.location = route("service-reports.create");
+                    },
+                },
             ],
             responsive: {
                 details: {
@@ -372,11 +349,8 @@ $(function () {
                 },
             },
         });
-        $("div.hl-2.head-invoice").html(
-            '<h5 class="card-title mb-0">Table invoice Kojisha Non PPN</h5>'
+        $("div.hl-1").html(
+            '<h5 class="card-title mb-0">Table Service Reports</h5>'
         );
     }
-    dt_table_invoice_nonppn.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
 });

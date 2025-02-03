@@ -159,12 +159,15 @@
                     </a>
                     <button id="buttonShare" data-id="{{ $service->id }}"
                         class="btn btn-success d-grid w-100 waves-effect mb-3">Bagikan</button>
+                    <a href="{{ route('service-reports.edit', $service->id) }}"
+                        class="btn btn-outline-warning d-grid w-100 waves-effect mb-3">Edit</a>
                     @if (Auth::user()->role == 'Technician' || Auth::user()->role == 'Coordinator')
-                        <a href="{{ route('service-reports.edit', $service->id) }}"
-                            class="btn btn-outline-warning d-grid w-100 waves-effect mb-3">Edit</a>
-                        <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-service"
+                        <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-service mb-3"
                             data-id="{{ $service->id }}">Delete</a>
                     @endif
+                    <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">
+                        Back
+                    </button>
                 </div>
             </div>
 
@@ -263,6 +266,10 @@
                 } else {
                     alert('Sharing not supported in this browser.');
                 }
+            });
+
+            $('#backButton').click(function() {
+                window.history.back();
             });
         });
         $(document).ready(function() {

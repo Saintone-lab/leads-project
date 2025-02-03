@@ -28,6 +28,7 @@ $(function () {
                 { data: "id" },
                 { data: "no_quote" },
                 { data: "company" },
+                { data: "ru" },
                 { data: "nett" },
                 { data: "title" },
                 { data: "estimated_date" },
@@ -36,7 +37,7 @@ $(function () {
             ],
             columnDefs: [
                 {
-                    targets: 5,
+                    targets: 6,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
                 {
@@ -92,7 +93,34 @@ $(function () {
                     },
                 },
                 {
-                    targets: 8,
+                    // Label Status Name
+                    targets: 5,
+                    render: function (data, type, full, meta) {
+                        var $ru = full["ru"];
+                        var $status = {
+                            User: {
+                                title: "U",
+                                class: "bg-label-info",
+                            },
+                            Reseller: {
+                                title: "R",
+                                class: " bg-label-dark",
+                            },
+                        };
+                        if (typeof $status[$ru] === "undefined") {
+                            return data;
+                        }
+                        return (
+                            '<span class="badge rounded-pill ' +
+                            $status[$ru].class +
+                            '">' +
+                            $status[$ru].title +
+                            "</span>"
+                        );
+                    },
+                },
+                {
+                    targets: 9,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $titleTool = full["tip"];
@@ -124,6 +152,12 @@ $(function () {
                             80: {
                                 title: "80%",
                                 class: " bg-label-warning",
+                                colorTip: "tooltip-warning",
+                                titleTip: $titleTool,
+                            },
+                            90: {
+                                title: "Hold",
+                                class: " bg-warning",
                                 colorTip: "tooltip-warning",
                                 titleTip: $titleTool,
                             },

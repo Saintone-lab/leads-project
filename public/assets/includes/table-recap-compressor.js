@@ -29,6 +29,7 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
+                { data: "unit" },
                 { data: "brand_type" },
                 { data: "tag" },
                 { data: "location" },
@@ -80,11 +81,11 @@ $(function () {
                 },
                 {
                     responsivePriority: 1,
-                    targets: 7,
+                    targets: 8,
                 },
                 {
                     // Label Status Name
-                    targets: 7,
+                    targets: 8,
                     render: function (data, type, full, meta) {
                         if (data === null){
                             var condition_class = " bg-danger";

@@ -287,6 +287,8 @@ Route::group(["middleware" => "auth"], function () {
     // Route Monitoring
     Route::get('/monitoring/daily/{id}', [MonitoringController::class, 'indexDaily'])->name('index.daily-monitoring');
     Route::get('/monitoring/daily-create/{id}', [MonitoringController::class, 'createDaily'])->name('create.daily-monitoring');
+    Route::get('/monitoring-service-create/{monitoring}/{id}', [MonitoringController::class, 'createDailyReports'])->name('create.daily-monitoring-reports');
+    Route::post('/monitoring-service-store/{monitoring}/{id}', [MonitoringController::class, 'storeService'])->name('store.daily-monitoring-reports');
     Route::post('/monitoring/daily-store/{id}', [MonitoringController::class, 'storeDaily'])->name('store.daily-monitoring');
     Route::post('/monitoring/daily-mainlog/{id}', [MonitoringController::class, 'storeMainLog'])->name('store.daily-mainlog');
     Route::get('/monitoring/weekly/{id}', [MonitoringController::class, 'indexWeekly'])->name('index.weekly-monitoring');
@@ -295,6 +297,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/service-manager', [MonitoringController::class, 'indexServiceM'])->name('service-manager.index');
     Route::get('/service-manager/{id}', [MonitoringController::class, 'showServiceM'])->name('service-manager.show');
     Route::get('/service-manager-daily/{id}/{month}', [MonitoringController::class, 'visitorDailyService'])->name('service-manager-daily.visit');
+    Route::patch('/service-manager-daily-issue/{id}/{month}', [MonitoringController::class, 'issueUpdate'])->name('service-manager-daily.issue-update');
+    Route::patch('/service-manager-daily-mainlog/{id}/{month}', [MonitoringController::class, 'mainlogUpdate'])->name('service-manager-daily.mainlog-update');
     Route::get('/service-manager-weekly/{id}/{week}', [MonitoringController::class, 'visitorWeeklyService'])->name('service-manager-weekly.visit');
     Route::get('/service-manager-daily-print/{id}/{month}', [MonitoringController::class, 'visitorDailyServicePrint'])->name('service-manager-daily.print');
     Route::get('/service-manager-weekly-print/{id}/{week}', [MonitoringController::class, 'visitorWeeklyServicePrint'])->name('service-manager-weekly.print');
@@ -368,11 +372,12 @@ Route::group(["middleware" => "auth"], function () {
             ->join('unit as u', 'u.id', '=', 'sp.id_product')
             ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
             ->where('machine.id_client', 1277)
-            ->where('u.unit', 'AIR COMPRESSOR SCREW')
+            ->groupBy('machine.id')
             ->select(
                 'machine.*',
                 DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),
                 'm.*',
+                'u.unit',
                 'us.name'
             )
             ->get();
@@ -620,11 +625,17 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/dashboard/totalPo/{sales}', [DashboardController::class, 'totalPoAdmin'])->name('totalPo.dashboard');
     Route::get('/dashboard/totalForecast/{sales}', [DashboardController::class, 'totalForecastAdmin'])->name('totalForecast.dashboard');
     Route::get('/dashboard/totalProspect/{sales}', [DashboardController::class, 'totalProspectAdmin'])->name('totalProspect.dashboard');
+    Route::get('/dashboard/totalProspectPO/{sales}', [DashboardController::class, 'totalProspectedPO'])->name('totalProspectedPO.dashboard');
+    Route::get('/dashboard/totalProspectQuote/{sales}', [DashboardController::class, 'totalProspectedQuotation'])->name('totalProspectedQuotation.dashboard');
     Route::get('/dashboard/filteredPo/{sales}', [DashboardController::class, 'filteredPoAdmin'])->name('filteredPo.dashboard');
     Route::get('/dashboard/filteredQuote/{sales}', [DashboardController::class, 'filteredQuoteAdmin'])->name('filteredQuote.dashboard');
     Route::get('/dashboard/filteredDc/{sales}', [DashboardController::class, 'filteredDcAdmin'])->name('filteredDc.dashboard');
     Route::get('/dashboard/filteredVisit/{sales}', [DashboardController::class, 'filteredVisitAdmin'])->name('filteredVisit.dashboard');
     Route::get('/dashboard/filteredCRM/{sales}', [DashboardController::class, 'filteredCRMAdmin'])->name('filteredCRM.dashboard');
+    Route::get('/dashboard/filteredProspect/{sales}', [DashboardController::class, 'filteredProspect'])->name('filteredProspect.dashboard');
+    Route::get('/dashboard/filteredProvide/{sales}', [DashboardController::class, 'filteredProvide'])->name('filteredProvide.dashboard');
+    Route::get('/dashboard/filteredProspectPO/{sales}', [DashboardController::class, 'filteredProspectedPO'])->name('filteredProspect.dashboard');
+    Route::get('/dashboard/filteredProspectQuote/{sales}', [DashboardController::class, 'filteredProspectedQuotation'])->name('filteredProspect.dashboard');
     Route::get('/dashboard/target/{sales}', [DashboardController::class, 'target'])->name('target.dashboard');
     Route::get('/notifactivity', [DashboardController::class, 'notifIndex'])->name('index.notif');
     Route::get('/notifactivity/notif/{date}', [DashboardController::class, 'dateNotif'])->name('date.notif');
@@ -1439,19 +1450,21 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $data]);
     });
     Route::get('/db/compressor/fp', function () {
-        $data = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
-            ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
-            ->join('unit as u', 's.id_product', '=', 'u.id')
-            ->where('u.unit', 'AIR COMPRESSOR SCREW')
-            ->where('c.id', 1277)
-            ->groupBy('machine.id', 'u.id')
+        $today = Carbon::today();
+        $data = Machine::leftJoin('monitoring as m', function ($join) use ($today) {
+            $join->on('machine.id', '=', 'm.id_machine')
+                ->whereDate('m.date', '=', $today); // Menyaring berdasarkan tanggal monitoring
+        })
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
+            ->where('machine.id_client', 1277)
             ->select(
                 'machine.*',
-                's.bar',
-                'u.sn',
-                'u.sku',
+                DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),
+                'm.condition',
                 'u.unit',
-                's.brand',
+                'us.name'
             )
             ->get();
         return response()->json(['data' => $data]);
@@ -1472,6 +1485,10 @@ Route::group(["middleware" => "auth"], function () {
                 's.brand',
             )
             ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pic/{id}', function ($id) {
+        $data = PIC::where('id_client', $id)->get();
         return response()->json(['data' => $data]);
     });
 });

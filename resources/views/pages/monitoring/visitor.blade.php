@@ -73,7 +73,7 @@
                             </div>
                             <div class="d-flex justify-content-end mb-2">
                                 <a href="{{ route('log.daily-monitoring', $machine->id) }}"
-                                    class="btn btn-primary waves-effect">Go To Maintenance Log</a>
+                                    class="btn btn-primary waves-effect">Issue & Maintenance Log</a>
                             </div>
                             <div class="d-flex justify-content-end">
                                 <a href="{{ route('visitor.weekly-monitoring', $machine->id) }}"
@@ -89,7 +89,7 @@
                                             <th>R Hr.</th>
                                             <th>L Hr.</th>
                                             <th>Press.</th>
-                                            <th>Temp.</th>
+                                            <th>Temp. (85°C - 90°C)</th>
                                             <th>Oil Lvl</th>
                                             <th>PIC</th>
                                         </thead>
@@ -101,7 +101,23 @@
                                                     <td>{{ $item['running'] }}</td>
                                                     <td>{{ $item['loading'] }}</td>
                                                     <td>{{ $item['pressure'] }}</td>
-                                                    <td>{{ $item['temp'] }}</td>
+                                                    <td>
+                                                        @php
+                                                            $stringTemp = $item['temp'] ?? ''; // Pastikan nilai tidak null
+                                                            $tempNumber = null;
+
+                                                            if (preg_match('/\d+(\.\d+)?/', $stringTemp, $matches)) {
+                                                                $tempNumber = (float) $matches[0]; // Gunakan float agar mendukung desimal
+                                                            }
+                                                        @endphp
+
+                                                        @if (!is_null($tempNumber) && $tempNumber > 90)
+                                                            <p class="mb-0 fw-bold fs-6 text-danger">
+                                                                {{ $item['temp'] }}</p>
+                                                        @else
+                                                            {{ $item['temp'] }}
+                                                        @endif
+                                                    </td>
                                                     <td>{{ $item['oil_level'] }}</td>
                                                     <td>{{ $item['pic'] }}</td>
                                                 </tr>

@@ -66,19 +66,18 @@
                                 <th>Voltage</th>
                                 <th>Ampere L</th>
                                 <th>Ampere Idle</th>
-                                <th>PM</th>
                                 <th>Remark</th>
                                 <th>PIC</th>
                             </thead>
                             <tbody>
                                 @foreach ($monitoringAC as $item)
                                     <tr class="{{ $item->idM == $machine->id ? 'bg-label-warning' : '' }}">
-                                        <td>{{ $item->unit->brand }} {{ $item->unit->unit->sku }}
+                                        <td>
+                                            {{ $item->unit->brand }} {{ $item->unit->unit->sku }} || {{$item->tag}} - {{$item->location}}
                                         </td>
                                         <td>{{ $item->voltage }}</td>
                                         <td>{{ $item->ampere }}</td>
                                         <td>{{ $item->idle }}</td>
-                                        <td>{{ $item->pm }}</td>
                                         <td>{{ $item->remark }}</td>
                                         <td>{{ $item->name }}</td>
                                     </tr>
@@ -93,26 +92,22 @@
                                 <th>Unit</th>
                                 <th>Voltage</th>
                                 <th>Ampere</th>
-                                <th>Dew P.</th>
                                 <th>Auto Drain</th>
                                 <th>Pre</th>
                                 <th>After</th>
-                                <th>PM</th>
                                 <th>Remark</th>
                                 <th>PIC</th>
                             </thead>
                             <tbody>
                                 @foreach ($monitoringDRYER as $item)
                                     <tr class="{{ $item->idM == $machine->id ? 'bg-label-warning' : '' }}">
-                                        <td>{{ $item->unit->brand }} {{ $item->unit->unit->sku }}
+                                        <td>{{ $item->unit->brand }} {{ $item->unit->unit->sku }} || {{$item->tag}} - {{$item->location}}
                                         </td>
                                         <td>{{ $item->voltage }}</td>
                                         <td>{{ $item->ampere }}</td>
-                                        <td>{{ $item->dew }}</td>
                                         <td>{{ $item->drain }}</td>
                                         <td>{{ $item->pre }}</td>
                                         <td>{{ $item->after }}</td>
-                                        <td>{{ $item->pm }}</td>
                                         <td>{{ $item->remark }}</td>
                                         <td>{{ $item->name }}</td>
                                     </tr>
@@ -124,13 +119,13 @@
                         <div class="col-4 mt-5 text-center">
                             <p>PT Reftech Jaya Optima</p>
                             <div class="pb-5"></div>
-                            <p class="pt-3">( Arie Sudjiwo )</p>
+                            <p class="pt-3">Angel Irene</p>
                         </div>
                         <div class="col-4"></div>
                         <div class="col-4 mt-5 text-center">
-                            <p>PT Reftech Jaya Optima</p>
+                            <p>PT Fajar Surya Wisesa</p>
                             <div class="pb-5"></div>
-                            <p class="pt-3">( Arie Supratman )</p>
+                            <p class="pt-3">..........................................</p>
                         </div>
                     </div>
                 </div>

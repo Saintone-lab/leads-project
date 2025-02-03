@@ -185,8 +185,9 @@
                             @if ($quote->diskon != 0)
                                 <p class="mb-2">Discount:</p>
                                 <p class="mb-2">Subtotal After Discount:</p>
-                            @endif
-                            <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
+                                @endif
+                                <p class="mb-2">DPP On VAT:</p>
+                            <p class="mb-2">Tax {{ $quote->tax != null ? '(12%)' : '' }}:</p>
                             @if ($quote->shipping != 0)
                                 <p class="mb-2">Shipping Cost:</p>
                             @endif
@@ -200,6 +201,12 @@
                                 <p class="fw-semibold mb-2 text-end">Rp
                                     {{ number_format($afterDisc, 0, '', '.') }}</p>
                             @endif
+                            @php
+                                $dpp = $afterDisc * 11 / 12;
+                            @endphp
+                            <p class="fw-semibold mb-2 text-end">RP
+                                {{ number_format($dpp, 0, '', '.') }}
+                            </p>
                             <p class="fw-semibold mb-2 text-end">
                                 {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
                             @if ($quote->shipping != 0)

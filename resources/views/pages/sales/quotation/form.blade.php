@@ -423,7 +423,7 @@
                                                 <option value="0" {{ @$quotation->tax == '0' ? 'selected' : '' }}>
                                                     Without Tax</option>
                                                 <option value="11" {{ @$quotation->tax == '11' ? 'selected' : '' }}>
-                                                    <span> With PPN <small class="text-muted"> 11%</small> </span>
+                                                    <span> With PPN <small class="text-muted"> 12%</small> </span>
                                                 </option>
                                             </select>
                                         </div>

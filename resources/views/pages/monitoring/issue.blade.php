@@ -1,13 +1,23 @@
 @extends('layouts.sales.app')
 @section('title', 'Monitoring machine')
 @section('content')
-    <h3>Rekap Issue {{ \Carbon\Carbon::createFromFormat('m', $month)->format('F') }} , {{ $year }}</h3>
+    <h3>Rekap Issue & Maintenance Log {{ \Carbon\Carbon::createFromFormat('m', $month)->format('F') }} , {{ $year }}
+    </h3>
     @foreach ($result as $item)
         <div class="card mb-3">
             <div class="card-body">
-                <h5>{{ $item['machine'] }}</h5>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <h5>{{ $item['machine'] }}</h5>
+                    <a href="{{route('service-manager-daily.visit', [$item['id'], $month])}}">
+                        <button type="button" class="btn btn-primary">
+                            Details Maintenance
+                        </button>
+                    </a>
+                </div>
                 <div class="row">
                     <div class="col-12 col-md-6">
+                        <h5 class="badge rounded-pill bg-label-primary fs-big">Issue Recommendation</h5>
                         <div class="table-responsive text-nowrap mb-4">
                             <table class="table table-bordered">
                                 <thead class="table-light">
@@ -35,6 +45,7 @@
                         </div>
                     </div>
                     <div class="col-12 col-md-6">
+                        <h5 class="badge rounded-pill bg-label-success fs-big">Maintenance Log</h5>
                         <div class="table-responsive text-nowrap mb-4">
                             <table class="table table-bordered">
                                 <thead class="table-light">
@@ -42,6 +53,7 @@
                                         <th style="width:10%;">Date</th>
                                         <th>Maintenance</th>
                                         <th style="width:25%;">Pic</th>
+                                        <th style="width:10%;">Button</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -55,6 +67,25 @@
                                                     style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $mainlog['log'] }}</pre>
                                             </td>
                                             <td>{{ $mainlog['technician'] }}</td>
+                                            @if ($mainlog['id_service'] != null)
+                                                <td>
+                                                    <a class="btn btn-warning waves-effect"
+                                                        href="{{ route('service-reports.show', $mainlog['id_service']) }}">
+                                                        <i class="menu-icon tf-icons mdi mdi-eye-outline"></i>
+                                                    </a>
+                                                </td>
+                                            @elseif($mainlog['id_service'] == null && $mainlog['id_pic'] == Auth::user()->id)
+                                                <td>
+                                                    <a class="btn btn-primary waves-effect"
+                                                        href="{{ route('create.daily-monitoring-reports', [$mainlog['id'], $mainlog['id_machine']]) }}">
+                                                        <i class="menu-icon tf-icons mdi mdi-file-plus-outline"></i>
+                                                    </a>
+                                                </td>
+                                            @else
+                                                <td>
+                                                    Has No Reports
+                                                </td>
+                                            @endif
                                         </tr>
                                     @endforeach
                                 </tbody>

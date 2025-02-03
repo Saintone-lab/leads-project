@@ -28,6 +28,7 @@ $(function () {
                 { data: "id" },
                 { data: "no_quote" },
                 { data: "company" },
+                { data: "ru" },
                 { data: "subtotal" },
                 { data: "title" },
                 { data: "estimated_date" },
@@ -37,7 +38,7 @@ $(function () {
             ],
             columnDefs: [
                 {
-                    targets: 5,
+                    targets: 6,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
                 {
@@ -81,7 +82,15 @@ $(function () {
                         if (type === "display") {
                             var $dataId = full["id"];
                             var type = full["type"];
-                            type == 'Sparepart' ? detailRoute = route("quotation.show", $dataId) : detailRoute = route("show-service.quotation", $dataId);
+                            type == "Sparepart"
+                                ? (detailRoute = route(
+                                      "quotation.show",
+                                      $dataId
+                                  ))
+                                : (detailRoute = route(
+                                      "show-service.quotation",
+                                      $dataId
+                                  ));
                             return (
                                 '<a class="text-dark" href="' +
                                 detailRoute +
@@ -95,7 +104,34 @@ $(function () {
                 },
                 {
                     // Label Status Name
-                    targets: 8,
+                    targets: 5,
+                    render: function (data, type, full, meta) {
+                        var $ru = full["ru"];
+                        var $status = {
+                            User: {
+                                title: "U",
+                                class: "bg-label-info",
+                            },
+                            Reseller: {
+                                title: "R",
+                                class: " bg-label-dark",
+                            },
+                        };
+                        if (typeof $status[$ru] === "undefined") {
+                            return data;
+                        }
+                        return (
+                            '<span class="badge rounded-pill ' +
+                            $status[$ru].class +
+                            '">' +
+                            $status[$ru].title +
+                            "</span>"
+                        );
+                    },
+                },
+                {
+                    // Label Status Name
+                    targets: 9,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $status = {
@@ -118,6 +154,10 @@ $(function () {
                             80: {
                                 title: "Hot Prospect",
                                 class: " bg-label-warning",
+                            },
+                            90: {
+                                title: "Hold",
+                                class: " bg-warning",
                             },
                             100: {
                                 title: "Done PO",
@@ -142,7 +182,7 @@ $(function () {
                 },
                 {
                     // Label Status Percent
-                    targets: 9,
+                    targets: 10,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $titleTool = full["tip"];
@@ -174,6 +214,12 @@ $(function () {
                             80: {
                                 title: "80%",
                                 class: " bg-label-warning",
+                                colorTip: "tooltip-warning",
+                                titleTip: $titleTool,
+                            },
+                            90: {
+                                title: "Hold",
+                                class: " bg-warning",
                                 colorTip: "tooltip-warning",
                                 titleTip: $titleTool,
                             },
@@ -429,22 +475,24 @@ $(function () {
                 },
                 {
                     extend: "collection",
-                    text: '+ Quotation',
+                    text: "+ Quotation",
                     className: "btn btn-primary dropdown-toggle",
                     autoClose: true,
                     buttons: [
                         {
-                            text: 'Quotation Sparepart',
+                            text: "Quotation Sparepart",
                             className: "dropdown-item",
                             action: function (e, dt, node, config) {
                                 window.location = route("create.quotation");
                             },
                         },
                         {
-                            text: 'Quotation Service',
+                            text: "Quotation Service",
                             className: "dropdown-item",
                             action: function (e, dt, node, config) {
-                                window.location = route("create-service.quotation");
+                                window.location = route(
+                                    "create-service.quotation"
+                                );
                             },
                         },
                     ],

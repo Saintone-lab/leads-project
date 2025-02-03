@@ -118,9 +118,26 @@
                     </button>
                 </a>
             </div>
-            @foreach ($charge as $pic)
-                <div class="card mb-2">
-                    <div class="card-header pb-0">
+            
+            {{-- @foreach ($charge as $pic) --}}
+            <div class="card mb-2">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-pic-client table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                {{-- <div class="card-header pb-0">
                         <div class="text-end text-muted">
                             <a type="button" data-bs-toggle="modal" data-bs-target="#updatePic-{{ $pic->id }}">
                                 <button type="button" class="btn btn-sm btn-label-primary">
@@ -144,18 +161,18 @@
                         </div>
                         <div class="row mb-1">
                             <div class="col-3">
-                                Phone
-                            </div>
-                            <div class="col-9">
-                                : {{ $pic->phone_pic }}
-                            </div>
-                        </div>
-                        <div class="row mb-1">
-                            <div class="col-3">
                                 Position
                             </div>
                             <div class="col-9">
                                 : {{ $pic->position }}
+                            </div>
+                        </div>
+                        <div class="row mb-1">
+                            <div class="col-3">
+                                Phone
+                            </div>
+                            <div class="col-9">
+                                : {{ $pic->phone_pic }}
                             </div>
                         </div>
                         <div class="row mb-1">
@@ -167,9 +184,9 @@
                             </div>
                         </div>
                         </p>
-                    </div>
-                </div>
-            @endforeach
+                    </div> --}}
+            </div>
+            {{-- @endforeach --}}
         </div>
     </div>
     <div class="row">
@@ -318,6 +335,7 @@
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-crm-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-quotation-leads.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-pic-client.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
 @endpush
 @push('script')

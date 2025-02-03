@@ -1,15 +1,17 @@
 $(function () {
-    var dt_table_compressor_client = $(".datatable-compressor-client");
-    var Url = "/db/compressor/fp/";
+    var dt_table_pic_client = $(".datatable-pic-client");
+    var Url = "/db/pic/";
+    var path = window.location.pathname;
+    var id = path.substring(path.lastIndexOf("/") + 1);
 
     // console.log("ID:", id); // Output: ID: 2
 
-    if (dt_table_compressor_client.length) {
+    if (dt_table_pic_client.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_compressor_client.DataTable({
+        var dt_product = dt_table_pic_client.DataTable({
             ajax: {
                 type: "GET",
-                url: Url,
+                url: Url + id,
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -27,23 +29,13 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "brand_type" },
-                { data: "unit" },
-                { data: "tag" },
-                { data: "location" },
+                { data: "name_pic" },
+                { data: "position" },
+                { data: "phone_pic" },
+                { data: "email_pic" },
                 {
-                    data: "name",
-                    render: function (data, type, row) {
-                        // Jika data adalah null atau undefined, kembalikan '-'
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            // Jika data memiliki nilai, kembalikan nilainya
-                            return type === "display" ? data : "-";
-                        }
-                    },
+                    data: "",
                 },
-                { data: "condition" },
             ],
             columnDefs: [
                 {
@@ -82,32 +74,18 @@ $(function () {
                     targets: 3,
                 },
                 {
-                    targets: 3,
+                    targets: 7,
                     render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("service-manager.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                            );
-                        }
-                        return data;
-                    },
-                },
-                {
-                    // Label Status Name
-                    targets: 8,
-                    render: function (data, type, full, meta) {
-                        if (data === null){
-                            var condition_class = " bg-danger";
-                        }else{
-                            var condition_class = " bg-success";
-                        }
+                        var id = full["id"];
                         return (
-                            '<span class="badge badge-dot ' +
-                            condition_class +
-                            '">' +
-                            "</span>"
+                            '<a href="#" data-id="' +
+                            id +
+                            '" class="btn btn-sm btn-label-danger delete-pic m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i></a>' +
+                            '<a type="button" href="#" data-bs-toggle="modal" data-bs-target="#updatePic-' +
+                            id +
+                            '" data-id="' +
+                            id +
+                            '" class="btn btn-sm btn-label-primary"><i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i></a>' 
                         );
                     },
                 },
@@ -379,7 +357,7 @@ $(function () {
             '<h5 class="card-title mb-0">Table Product</h5>'
         );
     }
-    dt_table_compressor_client.on("draw", function () {
+    dt_table_pic_client.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

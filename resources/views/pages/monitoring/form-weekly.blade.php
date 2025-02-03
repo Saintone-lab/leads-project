@@ -41,8 +41,10 @@
                             <div class="col-12 col-lg-4">
                                 <label for="defaultInput" class="form-label">Week</label>
                                 <div class="input-group input-group-merge">
+                                    <input id="defaultInput" class="form-control" name="weekl" type="number"
+                                        placeholder="1" value="{{ $weekNumber }}" disabled>
                                     <input id="defaultInput" class="form-control" name="week" type="number"
-                                        placeholder="1">
+                                        placeholder="1" value="{{ $weekNumber }}" hidden>
                                 </div>
                             </div>
                         </div>
@@ -58,7 +60,7 @@
                                 <label for="defaultInput" class="form-label">Voltage (V)</label>
                                 <div class="input-group input-group-merge">
                                     <input id="defaultInput" class="form-control" name="voltage" type="text"
-                                        placeholder="Voltage (V)">
+                                        placeholder="R/S/T">
                                 </div>
                             </div>
                             <div class="col-6 col-lg-3">
@@ -113,33 +115,35 @@
                             <div class="col-12 col-lg-4">
                                 <label for="defaultInput" class="form-label">Week</label>
                                 <div class="input-group input-group-merge">
+                                    <input id="defaultInput" class="form-control" name="weekl" type="number"
+                                        placeholder="1" value="{{ $weekNumber }}" disabled>
                                     <input id="defaultInput" class="form-control" name="week" type="number"
-                                        placeholder="1">
+                                        placeholder="1" value="{{ $weekNumber }}" hidden>
                                 </div>
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-lg-6">
                                 <label for="defaultInput" class="form-label">Voltage (V)</label>
                                 <div class="input-group input-group-merge">
                                     <input id="defaultInput" class="form-control" name="voltage" type="text"
-                                        placeholder="Voltage (V)">
+                                        placeholder="R/S/T">
                                 </div>
                             </div>
-                            <div class="col-6 col-lg-3">
+                            <div class="col-12 col-lg-6">
                                 <label for="defaultInput" class="form-label">Ampere (A)</label>
                                 <div class="input-group input-group-merge">
                                     <input id="defaultInput" class="form-control" name="ampere" type="text"
                                         placeholder="Ampere (A)">
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-6">
+                            {{-- <div class="col-12 col-lg-6">
                                 <label for="defaultInput" class="form-label">Dew Point</label>
                                 <div class="input-group input-group-merge">
                                     <input id="defaultInput" class="form-control" name="dew" type="text"
                                         placeholder="Dew Point">
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                         <div class="row mb-3">
                             <div class="col-12 col-lg-6">
