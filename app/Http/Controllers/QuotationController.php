@@ -659,6 +659,7 @@ class QuotationController extends Controller
             $quote->status = $request->status;
             $quote->status_date = Carbon::today();
             $quote->note = $request->note;
+            $quote->expired_date = Carbon::now()->addMonth();
             if ($request->status == "100") {
                 $quote->po_date = Carbon::now();
             }
@@ -1822,6 +1823,15 @@ class QuotationController extends Controller
         return view("pages.sales.quotation.service.detail-print", compact('quote', 'subQuote', 'tax', 'afterDisc'));
     }
 
+    public function loss_expired(){
+        $quote = Quotation::where('id_sales', Auth::user()->id)->get();
+        foreach ($quote as $item) {
+            if ($item->expired_date < Carbon::today()) {
+                $item->status = '0';
+                $item->save();
+            }
+        }
+    }
     protected function convertToRoman($month)
     {
         $romanMonth = [

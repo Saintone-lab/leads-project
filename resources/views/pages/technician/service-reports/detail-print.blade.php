@@ -78,7 +78,8 @@
             <div class="col-4">
                 <p class="mb-1">: {{ $service->machine->unit->brand }} {{ $service->machine->unit->unit->sku }}
                 </p>
-                <p class="mb-1">: {{ $service->machine->tag ? '| ' . $service->machine->tag : '' }}
+                <p class="mb-1">: {{ $service->machine->serial }}
+                    {{ $service->machine->tag ? '| ' . $service->machine->tag : '' }}
                     {{ $service->machine->location ? '| ' . $service->machine->location : '' }}</p>
                 <p class="mb-1">: {{ $service->running }} | {{ $service->load }}</p>
             </div>

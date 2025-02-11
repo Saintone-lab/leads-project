@@ -89,7 +89,7 @@
                                             <th>R Hr.</th>
                                             <th>L Hr.</th>
                                             <th>Press.</th>
-                                            <th>Temp. (85°C - 90°C)</th>
+                                            <th>Temp. (85°C - 94°C)</th>
                                             <th>Oil Lvl</th>
                                             <th>PIC</th>
                                         </thead>
@@ -111,7 +111,7 @@
                                                             }
                                                         @endphp
 
-                                                        @if (!is_null($tempNumber) && $tempNumber > 90)
+                                                        @if (!is_null($tempNumber) && $tempNumber > 94)
                                                             <p class="mb-0 fw-bold fs-6 text-danger">
                                                                 {{ $item['temp'] }}</p>
                                                         @else

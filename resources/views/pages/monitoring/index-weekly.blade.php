@@ -17,8 +17,6 @@
                             <th>Voltage</th>
                             <th>A. Load</th>
                             <th>A. Idle</th>
-                            <th>PM</th>
-                            <th>Remark</th>
                             <th>PIC</th>
                         </tr>
                     </thead>
@@ -37,8 +35,6 @@
                             <th>Auto Drain</th>
                             <th>Pre</th>
                             <th>After</th>
-                            <th>PM</th>
-                            <th>Remark</th>
                             <th>PIC</th>
                         </tr>
                     </thead>

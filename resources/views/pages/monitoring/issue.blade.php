@@ -1,15 +1,24 @@
 @extends('layouts.sales.app')
 @section('title', 'Monitoring machine')
 @section('content')
-    <h3>Rekap Issue & Maintenance Log {{ \Carbon\Carbon::createFromFormat('m', $month)->format('F') }} , {{ $year }}
-    </h3>
+    <div class="d-flex justify-content-between mb-2">
+        <h3>Rekap Issue & Maintenance Log {{ \Carbon\Carbon::createFromFormat('m', $month)->format('F') }} ,
+            {{ $year }}
+        </h3>
+        
+        <a href="{{ route('service-manager.allrecap-monitoring', [$dateRec]) }}" target="_blank">
+            <button type="button" class="btn btn-primary">
+                Details Maintenance
+            </button>
+        </a>
+    </div>
     @foreach ($result as $item)
         <div class="card mb-3">
             <div class="card-body">
 
                 <div class="d-flex justify-content-between mb-2">
                     <h5>{{ $item['machine'] }}</h5>
-                    <a href="{{route('service-manager-daily.visit', [$item['id'], $month])}}">
+                    <a href="{{ route('service-manager-daily.visit', [$item['id'], $month]) }}">
                         <button type="button" class="btn btn-primary">
                             Details Maintenance
                         </button>

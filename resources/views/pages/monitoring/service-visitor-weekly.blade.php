@@ -63,22 +63,23 @@
                         <table class="table table-bordered">
                             <thead class="table-light">
                                 <th>Unit</th>
+                                <th>Condition</th>
+                                <th>Vibration</th>
                                 <th>Voltage</th>
                                 <th>Ampere L</th>
-                                <th>Ampere Idle</th>
-                                <th>Remark</th>
                                 <th>PIC</th>
                             </thead>
                             <tbody>
                                 @foreach ($monitoringAC as $item)
                                     <tr class="{{ $item->idM == $machine->id ? 'bg-label-warning' : '' }}">
                                         <td>
-                                            {{ $item->unit->brand }} {{ $item->unit->unit->sku }} || {{$item->tag}} - {{$item->location}}
+                                            {{ $item->unit->brand }} {{ $item->unit->unit->sku }} || {{ $item->tag }} -
+                                            {{ $item->location }}
                                         </td>
+                                        <td>{{ $item->condition }}</td>
+                                        <td>{{ $item->vibration }}</td>
                                         <td>{{ $item->voltage }}</td>
                                         <td>{{ $item->ampere }}</td>
-                                        <td>{{ $item->idle }}</td>
-                                        <td>{{ $item->remark }}</td>
                                         <td>{{ $item->name }}</td>
                                     </tr>
                                 @endforeach
@@ -90,25 +91,26 @@
                         <table class="table table-bordered">
                             <thead class="table-light">
                                 <th>Unit</th>
+                                <th>Condition</th>
                                 <th>Voltage</th>
                                 <th>Ampere</th>
                                 <th>Auto Drain</th>
                                 <th>Pre</th>
                                 <th>After</th>
-                                <th>Remark</th>
                                 <th>PIC</th>
                             </thead>
                             <tbody>
                                 @foreach ($monitoringDRYER as $item)
                                     <tr class="{{ $item->idM == $machine->id ? 'bg-label-warning' : '' }}">
-                                        <td>{{ $item->unit->brand }} {{ $item->unit->unit->sku }} || {{$item->tag}} - {{$item->location}}
+                                        <td>{{ $item->unit->brand }} {{ $item->unit->unit->sku }} || {{ $item->tag }}
+                                            - {{ $item->location }}
                                         </td>
+                                        <td>{{ $item->condition }}</td>
                                         <td>{{ $item->voltage }}</td>
                                         <td>{{ $item->ampere }}</td>
                                         <td>{{ $item->drain }}</td>
                                         <td>{{ $item->pre }}</td>
                                         <td>{{ $item->after }}</td>
-                                        <td>{{ $item->remark }}</td>
                                         <td>{{ $item->name }}</td>
                                     </tr>
                                 @endforeach

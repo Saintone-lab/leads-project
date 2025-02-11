@@ -82,7 +82,7 @@ Route::get('/db/dryer-monitoring-visit/{id}', [MonitoringController::class, 'get
 Route::get('/service-reports/print/{id}', [ServiceReportsController::class, 'print_reports'])->name('service-reports.print');
 
 Route::group(["middleware" => "auth"], function () {
-    Route::get('/', [DashboardController::class, 'index']);
+    Route::get('/', [DashboardController::class, 'index'])->middleware('check.expired');
 
     // Route User
     Route::resource('/profile', UserController::class);
@@ -304,6 +304,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/service-manager-weekly-print/{id}/{week}', [MonitoringController::class, 'visitorWeeklyServicePrint'])->name('service-manager-weekly.print');
     Route::get('/service-manager-recap-day/{month}/{year}', [MonitoringController::class, 'recapDay'])->name('service-manager.recap');
     Route::get('/service-manager/recap/{date?}', [MonitoringController::class, 'recapM'])->name('service-manager.recap-monitoring');
+    Route::get('/service-manager/allRec/{date?}', [MonitoringController::class, 'getAllMachine'])->name('service-manager.allrecap-monitoring');
     Route::get('/service-manager/issue/{date}', [MonitoringController::class, 'issueMachine'])->name('service-manager.issue');
     Route::get('/db/service-manager/bulan/{id}', function ($id) {
         $months = [];
@@ -372,6 +373,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('unit as u', 'u.id', '=', 'sp.id_product')
             ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
             ->where('machine.id_client', 1277)
+            ->whereNotBetween('machine.id', [472, 481])
             ->groupBy('machine.id')
             ->select(
                 'machine.*',
@@ -1459,6 +1461,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('unit as u', 'u.id', '=', 'sp.id_product')
             ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
             ->where('machine.id_client', 1277)
+            ->whereNotBetween('machine.id', [472, 481])
             ->select(
                 'machine.*',
                 DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),

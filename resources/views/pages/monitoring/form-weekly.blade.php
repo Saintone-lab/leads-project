@@ -49,32 +49,40 @@
                             </div>
                         </div>
                         <div class="row mb-3">
+                            <div class="col-12 col-lg-6">
+                                <label for="defaultSelect" class="form-label">Condition</label>
+                                <select id="conditionSelect" name="condition" class="form-select">
+                                    <option value="Running">Running</option>
+                                    <option value="Stand By">Stand By</option>
+                                    <option value="Off">Off</option>
+                                </select>
+                            </div>
                             <div class="col-12 col-lg-3">
                                 <label for="defaultInput" class="form-label">Vibration</label>
                                 <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control" name="vibration" type="text"
+                                    <input id="defaultInput" class="form-control offDisable" name="vibration" type="text"
                                         placeholder="Vibration">
                                 </div>
                             </div>
                             <div class="col-12 col-lg-3">
                                 <label for="defaultInput" class="form-label">Voltage (V)</label>
                                 <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control" name="voltage" type="text"
+                                    <input id="defaultInput" class="form-control offDisable" name="voltage" type="text"
                                         placeholder="R/S/T">
                                 </div>
                             </div>
-                            <div class="col-6 col-lg-3">
+                            <div class="col-12 col-lg-6">
                                 <label for="defaultInput" class="form-label">Ampere Load (A)</label>
                                 <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control" name="ampere" type="text"
-                                        placeholder="Ampere Load (A)">
+                                    <input id="defaultInput" class="form-control offDisable" name="ampere" type="text"
+                                        placeholder="R/S/T">
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-lg-6">
                                 <label for="defaultInput" class="form-label">Ampere Idle (A)</label>
                                 <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control" name="idle" type="text"
-                                        placeholder="Ampere Idle (A)">
+                                    <input id="defaultInput" class="form-control offDisable" name="idle" type="text"
+                                        placeholder="R/S/T">
                                 </div>
                             </div>
                         </div>
@@ -124,17 +132,25 @@
                         </div>
                         <div class="row mb-3">
                             <div class="col-12 col-lg-6">
+                                <label for="defaultSelect" class="form-label">Condition</label>
+                                <select id="conditionSelect" name="condition" class="form-select">
+                                    <option value="Running">Running</option>
+                                    <option value="Stand By">Stand By</option>
+                                    <option value="Off">Off</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-lg-6">
                                 <label for="defaultInput" class="form-label">Voltage (V)</label>
                                 <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control" name="voltage" type="text"
+                                    <input id="defaultInput" class="form-control offDisable" name="voltage" type="text"
                                         placeholder="R/S/T">
                                 </div>
                             </div>
                             <div class="col-12 col-lg-6">
                                 <label for="defaultInput" class="form-label">Ampere (A)</label>
                                 <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control" name="ampere" type="text"
-                                        placeholder="Ampere (A)">
+                                    <input id="defaultInput" class="form-control offDisable" name="ampere" type="text"
+                                        placeholder="R/S/T">
                                 </div>
                             </div>
                             {{-- <div class="col-12 col-lg-6">
@@ -144,48 +160,38 @@
                                         placeholder="Dew Point">
                                 </div>
                             </div> --}}
-                        </div>
-                        <div class="row mb-3">
                             <div class="col-12 col-lg-6">
                                 <label for="defaultInput" class="form-label">Auto Drain</label>
                                 <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control" name="drain" type="text"
-                                        placeholder="Auto Drain">
+                                    <select name="drain" class="form-select offDisable">
+                                        <option value="Oke">Oke</option>
+                                        <option value="Not Oke">Not Oke</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-12 col-lg-6 mb-3">
                                 <label for="defaultInput" class="form-label">Pre Filter</label>
                                 <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control" name="pre" type="text"
-                                        placeholder="Pre Filter">
+                                    <div class="input-group input-group-merge">
+                                        <select name="pre" class="form-select offDisable">
+                                            <option value="Oke">Oke</option>
+                                            <option value="Change">Change</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-12 col-lg-6">
                                 <label for="defaultInput" class="form-label">After Filter</label>
                                 <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control" name="after" type="text"
-                                        placeholder="After Filter">
+                                    <select name="after" class="form-select offDisable">
+                                        <option value="Oke">Oke</option>
+                                        <option value="Change">Change</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
                     </div>
                 @endif
-                <div class="row mb-3">
-                    <div class="col-12 col-lg-6">
-                        <label for="defaultInput" class="form-label">Perventive Maintenance</label>
-                        <div class="input-group input-group-merge">
-                            <input id="defaultInput" class="form-control" name="pm" type="text"
-                                placeholder="Perventive Maintenance">
-                        </div>
-                    </div>
-                    <div class="col-12 col-lg-6">
-                        <label for="defaultInput" class="form-label">Remark</label>
-                        <div class="input-group input-group-merge">
-                            <input id="defaultInput" class="form-control" name="remark" type="text"
-                                placeholder="Remark">
-                        </div>
-                    </div>
-                </div>
                 <div class="form-floating form-floating-outline mb-3">
                     <textarea class="form-control h-px-100" id="exampleFormControlTextarea1" name="desc"
                         placeholder="Comments here..."></textarea>
@@ -229,4 +235,22 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-monitoring-machine.js"></script>
+    <script>
+        $('#conditionSelect').on('change', function() {
+            var condition = $(this).val();
+            var disable = $('.offDisable');
+            var number = $('#numberInput');
+
+            if (condition == 'Off') {
+                disable.prop('disabled', true);
+                // number.prop('disabled', true);
+            } else {
+                // number.prop('disabled', false);
+                disable.prop('disabled', false);
+            }
+            console.log(number);
+
+            console.log(condition);
+        });
+    </script>
 @endpush
