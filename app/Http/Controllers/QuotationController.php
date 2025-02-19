@@ -1190,6 +1190,10 @@ class QuotationController extends Controller
     public function cancel_po($id)
     {
         $quote = Quotation::find($id);
+
+        if (!$quote) {
+            return response()->json(['error' => 'Quotation not found'], 404);
+        }
         $invoices = Invoice::where('id_quotation', $id)->get();
         $deliveries = Delivery::whereIn('id_invoice', $invoices->pluck('id'))->get();
         $detDeliveries = DetailDelivery::whereIn('id_delivery', $deliveries->pluck('id'))->get();
@@ -1197,13 +1201,16 @@ class QuotationController extends Controller
         // Edit Quotation
         $quote->status = '80';
         $quote->po_date = NULL;
-        $file_path = public_path($quote->po_file);
-        if (file_exists($file_path)) {
-            unlink($file_path);
+        if ($quote->po_file != NULL) {
+            $file_path = public_path($quote->po_file);
+            if (file_exists($file_path)) {
+                unlink($file_path);
+            }
         }
         $quote->po_file = NULL;
         $status = $quote->save();
 
+        // dd($status);
         // Hapus Detail Delivery
         foreach ($detDeliveries as $detDelivery) {
             $detDelivery->delete();
@@ -1218,7 +1225,6 @@ class QuotationController extends Controller
         foreach ($invoices as $invoice) {
             $invoice->delete();
         }
-
 
         if ($status) {
             return 1;
@@ -1823,7 +1829,8 @@ class QuotationController extends Controller
         return view("pages.sales.quotation.service.detail-print", compact('quote', 'subQuote', 'tax', 'afterDisc'));
     }
 
-    public function loss_expired(){
+    public function loss_expired()
+    {
         $quote = Quotation::where('id_sales', Auth::user()->id)->get();
         foreach ($quote as $item) {
             if ($item->expired_date < Carbon::today()) {

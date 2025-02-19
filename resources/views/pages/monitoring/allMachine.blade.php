@@ -32,7 +32,10 @@
         <hr class="my-2">
 
         @foreach ($result as $item)
-            <h5>{{ $item['machine'] }}</h5>
+            <div class="d-flex justify-content-between mb-2">
+                <h5>{{ $item['machine'] }}</h5>
+                <h5>{{ $item['plant'] }}</h5>
+            </div>
 
             <div class="table-responsive text-nowrap">
                 @if ($item['unit'] != 'REFRIGERANT AIR DRYER')
@@ -45,6 +48,7 @@
                             <th>Press.</th>
                             <th>Temp. (85°C - 94°C)</th>
                             <th>Oil Lvl</th>
+                            <th>Kebocoran</th>
                             <th>PIC</th>
                         </thead>
                         <tbody>
@@ -73,7 +77,8 @@
                                         @endif
                                     </td>
                                     <td>{{ $daily['oil_level'] }}</td>
-                                    <td>{{ $daily['technician'] }}</td>
+                                    <td>{{ $daily['leak'] }}</td>
+                                    <td>{{ $daily['pic'] }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -87,6 +92,8 @@
                             <th>Temp OUT</th>
                             <th>Dew P.</th>
                             <th>Auto Drain</th>
+                            <th>Fan Kondenser</th>
+                            <th>Kebocoran</th>
                             <th>PIC</th>
                         </thead>
                         <tbody>
@@ -98,7 +105,9 @@
                                     <td>{{ $daily['temp_out'] }}</td>
                                     <td>{{ $daily['dew'] }}</td>
                                     <td>{{ $daily['drain'] }}</td>
-                                    <td>{{ $daily['technician'] }}</td>
+                                    <td>{{ $daily['fan'] }}</td>
+                                    <td>{{ $daily['leak'] }}</td>
+                                    <td>{{ $daily['pic'] }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -118,7 +127,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($item['log'] as $issues)
+                            @forelse ($item['log'] as $issues)
                                 <tr>
                                     <td>{{ $issues['date'] ?? 'N/A' }}</td>
                                     <td>
@@ -127,7 +136,11 @@
                                     </td>
                                     <td>{{ $issues['pic'] }}</td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="3"> Belum Ada Issue Recomendation</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -146,7 +159,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($item['mainlog'] as $mainlog)
+                            @forelse ($item['mainlog'] as $mainlog)
                                 <tr>
                                     <td>{{ $mainlog['date'] ?? 'N/A' }}</td>
                                     <td>
@@ -174,13 +187,17 @@
                                     </td>
                                 @endif --}}
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="3"> Belum Ada Maintenance Log</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="weekly mb-4">
+            <div class="weekly mb-5">
                 <h5>Weekly Monitoring</h5>
                 <div class="table-responsive text-nowrap mb-4">
                     <table class="table table-bordered">
@@ -190,18 +207,46 @@
                                 <th>Condition</th>
                                 <th>Vibration</th>
                                 <th>Voltage</th>
-                                <th>Ampere L</th>
-                                <th>PIC</th>
+                                <th>Running Amp.</th>
+                                <th>Cleaning Cooler</th>
+                                <th>Cek Coupling / Belt</th>
+                                <th>Compressor / Area</th>
                             </thead>
                             <tbody>
                                 @forelse ($item['weekly'] as $monweek)
                                     <tr>
-                                        <td>{{ $monweek['minggu'] }}</td>
+                                        <td>{{ $monweek['date'] }}</td>
                                         <td>{{ $monweek['condition'] }}</td>
                                         <td>{{ $monweek['vibration'] }}</td>
                                         <td>{{ $monweek['voltage'] }}</td>
                                         <td>{{ $monweek['ampere'] }}</td>
-                                        <td>{{ $monweek['name'] }}</td>
+                                        <td>
+                                            @if ($monweek['cooling'] == 1)
+                                                <i
+                                                    class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                            @else
+                                                <i
+                                                    class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($monweek['coupling'] == 1)
+                                                <i
+                                                    class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                            @else
+                                                <i
+                                                    class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($monweek['area'] == 1)
+                                                <i
+                                                    class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                            @else
+                                                <i
+                                                    class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -218,19 +263,27 @@
                                 <th>Auto Drain</th>
                                 <th>Pre</th>
                                 <th>After</th>
-                                <th>PIC</th>
+                                <th>Condensor</th>
                             </thead>
                             <tbody>
                                 @forelse ($item['weekly'] as $monweek)
                                     <tr>
-                                        <td>{{ $monweek['minggu'] }}</td>
+                                        <td>{{ $monweek['date'] }}</td>
                                         <td>{{ $monweek['condition'] }}</td>
                                         <td>{{ $monweek['voltage'] }}</td>
                                         <td>{{ $monweek['ampere'] }}</td>
                                         <td>{{ $monweek['drain'] }}</td>
                                         <td>{{ $monweek['pre'] }}</td>
                                         <td>{{ $monweek['after'] }}</td>
-                                        <td>{{ $monweek['name'] }}</td>
+                                        <td>
+                                            @if ($monweek['condensor'] == 1)
+                                                <i
+                                                    class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                            @else
+                                                <i
+                                                    class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -243,19 +296,51 @@
                 </div>
             </div>
 
-            <div class="row mt-5">
-                <div class="col-4 mt-5 text-center">
-                    <p>PT Reftech Jaya Optima</p>
-                    <div class="pb-5"></div>
-                    <p class="pt-3">Angel Irene</p>
+            @if ($item['unit'] == 'REFRIGERANT AIR DRYER')
+                <div class="monthly mb-5">
+                    <h5>Monthly Monitoring</h5>
+                    <div class="table-responsive text-nowrap mb-4">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <th>Date</th>
+                                <th>refrigerasi</th>
+                                <th>Strainer</th>
+                                <th>PIC</th>
+                            </thead>
+                            <tbody>
+                                @forelse ($item['monthly'] as $monweek)
+                                    <tr>
+                                        <td>{{ $monweek['date'] ?? '-' }}</td>
+                                        <td>{{ $monweek['refrigerasi'] ?? '-' }}</td>
+                                        <td>{{ $monweek['strainer'] ?? '-' }}</td>
+                                        <td>{{ $monweek['pic'] ?? '-' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7">Belum Ada Monitoring week</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="col-4"></div>
-                <div class="col-4 mt-5 text-center">
-                    <p>PT Fajar Surya Wisesa</p>
-                    <div class="pb-5"></div>
-                    <p class="pt-3">..........................................</p>
-                </div>
-            </div>
+            @endif
+
+            <table class="no-break">
+                <tr>
+                    <td class="text-center">
+                        <p>PT Reftech Jaya Optima</p>
+                        <div class="pb-5"></div>
+                        <p class="pt-3">Angel Irene</p>
+                    </td>
+                    <td style="width: 50%"></td> <!-- Kolom kosong untuk jarak tengah -->
+                    <td class="text-center">
+                        <p>PT Fajar Surya Wisesa</p>
+                        <div class="pb-5"></div>
+                        <p class="pt-3">..........................................</p>
+                    </td>
+                </tr>
+            </table>
 
             <div class="invoice mb-4">
                 @foreach ($item['reports'] as $service)
@@ -400,10 +485,9 @@
                             <p class="pt-3">( {{ $service['pic'] }} )</p>
                         </div>
                     </div>
-
-                    <div class="page-break"></div>
                 @endforeach
             </div>
+            <div class="page-break"></div>
         @endforeach
     </div>
 </div>

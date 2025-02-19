@@ -49,7 +49,7 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-12 col-lg-6">
+                            <div class="col-12 col-lg-6 mb-3">
                                 <label for="defaultSelect" class="form-label">Condition</label>
                                 <select id="conditionSelect" name="condition" class="form-select">
                                     <option value="Running">Running</option>
@@ -57,32 +57,62 @@
                                     <option value="Off">Off</option>
                                 </select>
                             </div>
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-lg-3 mb-3">
+                                <label for="defaultSelect" class="form-label">Cek / Uji Auto Drain</label>
+                                <select id="offDisable" name="drain" class="form-select offDisable">
+                                    <option value="Ok">Ok</option>
+                                    <option value="Not Ok">Not Ok</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-lg-3 mb-3">
                                 <label for="defaultInput" class="form-label">Vibration</label>
                                 <div class="input-group input-group-merge">
                                     <input id="defaultInput" class="form-control offDisable" name="vibration" type="text"
                                         placeholder="Vibration">
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-3">
-                                <label for="defaultInput" class="form-label">Voltage (V)</label>
+                            <div class="col-12 col-lg-3 mb-3">
+                                <label for="defaultInput" class="form-label">Voltage (V) <span class="text-danger">* WAJIB INPUT (R/S/T)</span></label>
                                 <div class="input-group input-group-merge">
                                     <input id="defaultInput" class="form-control offDisable" name="voltage" type="text"
                                         placeholder="R/S/T">
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-6">
-                                <label for="defaultInput" class="form-label">Ampere Load (A)</label>
+                            <div class="col-12 col-lg-3 mb-3">
+                                <label for="defaultInput" class="form-label">Running Ampere (A) <span class="text-danger">* WAJIB INPUT (R/S/T)</span></label>
                                 <div class="input-group input-group-merge">
                                     <input id="defaultInput" class="form-control offDisable" name="ampere" type="text"
                                         placeholder="R/S/T">
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-6">
-                                <label for="defaultInput" class="form-label">Ampere Idle (A)</label>
-                                <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control offDisable" name="idle" type="text"
-                                        placeholder="R/S/T">
+                            <div class="col-12 col-lg-2 mb-2">
+                                <div class="row">
+                                    <div class="col-6 col-lg-12">
+                                        <label for="defaultInput" class="form-label">Cleaning Cooler Menggunakan Angin</label>
+                                    </div>
+                                    <div class="col-6 col-lg-12">
+                                        <input class="form-check-input" type="checkbox" name="cooler" value="1" id="defaultCheck1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-2 mb-2">
+                                <div class="row">
+                                    <div class="col-6 col-lg-12">
+                                        <label for="defaultInput" class="form-label">Cek Coupling / V-Belt</label>
+                                    </div>
+                                    <div class="col-6 col-lg-12">
+                                        <input class="form-check-input" type="checkbox" name="coupling" value="1" id="defaultCheck1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-2 mb-2">
+                                <div class="row">
+                                    <div class="col-6 col-lg-12">
+                                        <label for="defaultInput" class="form-label">Cleaning Compressor/Area</label>
+                                    </div>
+                                    <div class="col-6 col-lg-12">
+                                        <input class="form-check-input" type="checkbox" name="area" value="1" id="defaultCheck1">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -120,7 +150,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-4">
+                            <div class="col-12 col-lg-4 mb-3">
                                 <label for="defaultInput" class="form-label">Week</label>
                                 <div class="input-group input-group-merge">
                                     <input id="defaultInput" class="form-control" name="weekl" type="number"
@@ -131,7 +161,7 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-12 col-lg-6">
+                            <div class="col-12 col-lg-6 mb-3">
                                 <label for="defaultSelect" class="form-label">Condition</label>
                                 <select id="conditionSelect" name="condition" class="form-select">
                                     <option value="Running">Running</option>
@@ -139,18 +169,18 @@
                                     <option value="Off">Off</option>
                                 </select>
                             </div>
-                            <div class="col-12 col-lg-6">
-                                <label for="defaultInput" class="form-label">Voltage (V)</label>
+                            <div class="col-12 col-lg-3">
+                                <label for="defaultInput" class="form-label">Voltage (V) <span class="text-danger">* WAJIB INPUT (R/S/T)</span></label>
                                 <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control offDisable" name="voltage" type="text"
-                                        placeholder="R/S/T">
+                                    <input id="defaultInput" class="form-control offDisable" name="voltage"
+                                        type="text" placeholder="R/S/T">
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-6">
-                                <label for="defaultInput" class="form-label">Ampere (A)</label>
+                            <div class="col-12 col-lg-3 mb-3">
+                                <label for="defaultInput" class="form-label">Ampere Refrigerant Compressor (A)</label>
                                 <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control offDisable" name="ampere" type="text"
-                                        placeholder="R/S/T">
+                                    <input id="defaultInput" class="form-control offDisable" name="ampere"
+                                        type="text" placeholder="R/S/T">
                                 </div>
                             </div>
                             {{-- <div class="col-12 col-lg-6">
@@ -160,16 +190,7 @@
                                         placeholder="Dew Point">
                                 </div>
                             </div> --}}
-                            <div class="col-12 col-lg-6">
-                                <label for="defaultInput" class="form-label">Auto Drain</label>
-                                <div class="input-group input-group-merge">
-                                    <select name="drain" class="form-select offDisable">
-                                        <option value="Oke">Oke</option>
-                                        <option value="Not Oke">Not Oke</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg-6 mb-3">
+                            <div class="col-12 col-lg-3 mb-3">
                                 <label for="defaultInput" class="form-label">Pre Filter</label>
                                 <div class="input-group input-group-merge">
                                     <div class="input-group input-group-merge">
@@ -180,13 +201,32 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-6">
+                            <div class="col-12 col-lg-3 mb-3">
                                 <label for="defaultInput" class="form-label">After Filter</label>
                                 <div class="input-group input-group-merge">
                                     <select name="after" class="form-select offDisable">
                                         <option value="Oke">Oke</option>
                                         <option value="Change">Change</option>
                                     </select>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-3 mb-3">
+                                <label for="defaultInput" class="form-label">Auto Drain</label>
+                                <div class="input-group input-group-merge">
+                                    <select name="drain" class="form-select offDisable">
+                                        <option value="Oke">Oke</option>
+                                        <option value="Not Oke">Not Oke</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-3 mb-2">
+                                <div class="row">
+                                    <div class="col-6 col-lg-12">
+                                        <label for="defaultInput" class="form-label">Cleaning Kisi Kisi Kondensor</label>
+                                    </div>
+                                    <div class="col-6 col-lg-12">
+                                        <input class="form-check-input" type="checkbox" name="condensor" value="1" id="defaultCheck1">
+                                    </div>
                                 </div>
                             </div>
                         </div>

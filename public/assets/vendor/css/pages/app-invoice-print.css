@@ -73,6 +73,13 @@
         page-break-before: always;
         break-after: page;
     }
+    
+    .no-break {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        page-break-inside: avoid;
+    }
 }
 
 @media screen {
@@ -121,7 +128,7 @@
     .dark-style .invoice-print th {
         color: #fff !important;
     }
-    .termncon{
+    .termncon {
         margin-top: 1vh;
     }
 }

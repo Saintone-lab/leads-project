@@ -168,6 +168,7 @@
                                         <option value="Supervisor">Supervisor</option>
                                         <option value="Coordinator">Service Coordinator</option>
                                         <option value="ServiceM">Service Admin</option>
+                                        <option value="Client">Client</option>
                                     </select>
                                     <label for="exampleFormControlSelect1">Role select</label>
                                 </div>

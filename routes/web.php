@@ -294,14 +294,18 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/monitoring/weekly/{id}', [MonitoringController::class, 'indexWeekly'])->name('index.weekly-monitoring');
     Route::get('/monitoring/weekly-create/{id}', [MonitoringController::class, 'createWeekly'])->name('create.weekly-monitoring');
     Route::post('/monitoring/weekly-store/{id}', [MonitoringController::class, 'storeWeekly'])->name('store.weekly-monitoring');
+    Route::get('/monitoring/monthly-create/{id}', [MonitoringController::class, 'createMonthly'])->name('create.monthly-monitoring');
+    Route::post('/monitoring/monthly-store/{id}', [MonitoringController::class, 'storeMonthly'])->name('store.monthly-monitoring');
     Route::get('/service-manager', [MonitoringController::class, 'indexServiceM'])->name('service-manager.index');
     Route::get('/service-manager/{id}', [MonitoringController::class, 'showServiceM'])->name('service-manager.show');
     Route::get('/service-manager-daily/{id}/{month}', [MonitoringController::class, 'visitorDailyService'])->name('service-manager-daily.visit');
     Route::patch('/service-manager-daily-issue/{id}/{month}', [MonitoringController::class, 'issueUpdate'])->name('service-manager-daily.issue-update');
     Route::patch('/service-manager-daily-mainlog/{id}/{month}', [MonitoringController::class, 'mainlogUpdate'])->name('service-manager-daily.mainlog-update');
     Route::get('/service-manager-weekly/{id}/{week}', [MonitoringController::class, 'visitorWeeklyService'])->name('service-manager-weekly.visit');
+    Route::get('/service-manager-monthly/{id}/{month}', [MonitoringController::class, 'visitorMonthlyService'])->name('service-manager-monthly.visit');
     Route::get('/service-manager-daily-print/{id}/{month}', [MonitoringController::class, 'visitorDailyServicePrint'])->name('service-manager-daily.print');
     Route::get('/service-manager-weekly-print/{id}/{week}', [MonitoringController::class, 'visitorWeeklyServicePrint'])->name('service-manager-weekly.print');
+    Route::get('/service-manager-monthly-print/{id}/{week}', [MonitoringController::class, 'visitorMonthlyServicePrint'])->name('service-manager-monthly.print');
     Route::get('/service-manager-recap-day/{month}/{year}', [MonitoringController::class, 'recapDay'])->name('service-manager.recap');
     Route::get('/service-manager/recap/{date?}', [MonitoringController::class, 'recapM'])->name('service-manager.recap-monitoring');
     Route::get('/service-manager/allRec/{date?}', [MonitoringController::class, 'getAllMachine'])->name('service-manager.allrecap-monitoring');
@@ -363,6 +367,55 @@ Route::group(["middleware" => "auth"], function () {
         }
 
         return response()->json(['data' => $weeks]);
+    });
+    Route::get('/db/service-manager/monthly/{id}', function ($id) {
+        $year = Carbon::now()->year;
+
+        // Tanggal awal dan akhir tahun
+        $startOfYear = Carbon::createFromDate($year, 1, 1);
+        $endOfYear = Carbon::createFromDate($year, 12, 31);
+
+        $months = [];
+        $monthNumber = 1;
+
+        // Minggu pertama (dari tanggal 1 hingga hari Minggu pertama)
+        $firstDate = $startOfYear->copy();
+        $lastDate = $startOfYear->copy()->endOfmonth();
+        $months[] = [
+            'monthNum' => $monthNumber,
+            'month' => $firstDate->format('F'),
+            'firstdate' => $firstDate->format('j-n-Y'),
+            'lastdate' => $lastDate->format('j-n-Y'),
+            'id' => $id,
+        ];
+        $monthNumber++;
+
+        // Minggu-minggu berikutnya (dari Senin hingga Minggu)
+        $currentStartDate = $lastDate->addDay()->startOfMonth();
+
+        while ($currentStartDate->lte($endOfYear)) {
+            $monthNumber = 1;
+            $firstDate = $currentStartDate->copy();
+            $lastDate = $currentStartDate->copy()->endOfMonth();
+
+            // Hindari melewati akhir tahun
+            if ($lastDate->gt($endOfYear)) {
+                $lastDate = $endOfYear;
+            }
+
+            $months[] = [
+                'monthNum' => $monthNumber,
+                'month' => $firstDate->format('F'),
+                'firstdate' => $firstDate->format('j-n-Y'),
+                'lastdate' => $lastDate->format('j-n-Y'),
+                'id' => $id,
+            ];
+
+            $monthNumber++;
+            $currentStartDate->addMonth();
+        }
+
+        return response()->json(['data' => $months]);
     });
     Route::get('db/recap-compressor/{date}', function ($date) {
         $mesinCompressor = Machine::leftJoin('monitoring as m', function ($join) use ($date) {

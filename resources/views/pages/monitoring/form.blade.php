@@ -74,24 +74,6 @@
                                         <option value="Kurang">Kurang</option>
                                     </select>
                                 </div>
-                                <div class="col-12 col-lg-6">
-                                    <label for="defaultInput" class="form-label">Pressure</label>
-                                    <div class="input-group input-group-merge">
-                                        <input id="numberInput" class="form-control offDisable" name="pressure"
-                                            type="text" placeholder="Bar" oninput="validateInput(event)">
-                                        <span class="input-group-text">Bar</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-12 col-lg-6">
-                                    <label for="defaultInput" class="form-label">Temperature</label>
-                                    <div class="input-group input-group-merge">
-                                        <input id="numberInput" class="form-control offDisable" name="temperature"
-                                            type="text" placeholder="°C" oninput="validateInput(event)">
-                                        <span class="input-group-text">°C</span>
-                                    </div>
-                                </div>
                                 <div class="col col-lg-3">
                                     <label for="defaultInput" class="form-label">Running</label>
                                     <div class="input-group input-group-merge">
@@ -107,6 +89,31 @@
                                             type="text" placeholder="Hr" min="1" oninput="validateInput(event)">
                                         <span class="input-group-text">Hours</span>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-12 col-lg-6">
+                                    <label for="defaultInput" class="form-label">Pressure</label>
+                                    <div class="input-group input-group-merge">
+                                        <input id="numberInput" class="form-control offDisable" name="pressure"
+                                            type="text" placeholder="Bar" oninput="validateInput(event)">
+                                        <span class="input-group-text">Bar</span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-lg-3">
+                                    <label for="defaultInput" class="form-label">Temperature</label>
+                                    <div class="input-group input-group-merge">
+                                        <input id="numberInput" class="form-control offDisable" name="temperature"
+                                            type="text" placeholder="°C" oninput="validateInput(event)">
+                                        <span class="input-group-text">°C</span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-lg-3">
+                                    <label for="defaultSelect" class="form-label">Cek Kebocoran</label>
+                                    <select id="offDisable" name="leak" class="form-select offDisable">
+                                        <option value="Ok">Ok</option>
+                                        <option value="Not Ok">Not Ok</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-floating form-floating-outline mb-3">
@@ -171,23 +178,23 @@
                                             type="text" placeholder="Dew Point">
                                     </div>
                                 </div>
-                                <div class="col-12 col-lg-3">
+                                <div class="col-6 col-lg-3">
                                     <label for="defaultSelect" class="form-label">Auto Drain</label>
                                     <select id="offDisable" name="drain" class="form-select offDisable">
                                         <option value="Ok">Ok</option>
                                         <option value="Not Ok">Not Ok</option>
                                     </select>
                                 </div>
-                                <div class="col-12 col-lg-3">
-                                    <label for="defaultInput" class="form-label">Cleaning Unit</label>
-                                    <div class="input-group input-group-merge">
-                                        <input id="offDisable" class="form-control offDisable" name="cleaning"
-                                            type="text" placeholder="Cleaning Unit">
-                                    </div>
+                                <div class="col-6 col-lg-3">
+                                    <label for="defaultSelect" class="form-label">Cek Kebocoran</label>
+                                    <select id="offDisable" name="leak" class="form-select offDisable">
+                                        <option value="Ok">Ok</option>
+                                        <option value="Not Ok">Not Ok</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <div class="col-12 col-lg-6">
+                                <div class="col-12 col-lg-3">
                                     <label for="defaultInput" class="form-label">Temperature In</label>
                                     <div class="input-group input-group-merge">
                                         <input id="numberInput" class="form-control offDisable" name="temperature_in"
@@ -195,13 +202,20 @@
                                         <span class="input-group-text">°C</span>
                                     </div>
                                 </div>
-                                <div class="col-12 col-lg-6">
+                                <div class="col-12 col-lg-3">
                                     <label for="defaultInput" class="form-label">Temperature Out</label>
                                     <div class="input-group input-group-merge">
                                         <input id="numberInput" class="form-control offDisable" name="temperature_out"
                                             type="text" placeholder="°C" oninput="validateInput(event)">
                                         <span class="input-group-text">°C</span>
                                     </div>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <label for="defaultSelect" class="form-label">Cek Fan Kondensor</label>
+                                    <select id="offDisable" name="fan" class="form-select offDisable">
+                                        <option value="Ok">Ok</option>
+                                        <option value="Not Ok">Not Ok</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-floating form-floating-outline mb-3">

@@ -74,6 +74,7 @@
                         <th>Press.</th>
                         <th>Temp. (85°C - 94°C)</th>
                         <th>Oil Lvl</th>
+                        <th>Kebocoran</th>
                         <th>PIC</th>
                     </thead>
                     <tbody>
@@ -102,6 +103,7 @@
                                     @endif
                                 </td>
                                 <td>{{ $item['oil_level'] }}</td>
+                                <td>{{ $item['leak'] }}</td>
                                 <td>{{ $item['pic'] }}</td>
                             </tr>
                         @endforeach
@@ -116,6 +118,8 @@
                         <th>Temp OUT</th>
                         <th>Dew P.</th>
                         <th>Auto Drain</th>
+                        <th>Fan Kondenser</th>
+                        <th>Kebocoran</th>
                         <th>PIC</th>
                     </thead>
                     <tbody>
@@ -127,6 +131,8 @@
                                 <td>{{ $item['temp_out'] }}</td>
                                 <td>{{ $item['dew'] }}</td>
                                 <td>{{ $item['drain'] }}</td>
+                                <td>{{ $item['fan'] }}</td>
+                                <td>{{ $item['leak'] }}</td>
                                 <td>{{ $item['pic'] }}</td>
                             </tr>
                         @endforeach
@@ -273,6 +279,22 @@
             </div>
         </div>
 
+        <div class="page-break"></div>
+        
+        <div class="row mt-5">
+            <div class="col-4 mt-5 text-center">
+                <p>PT Reftech Jaya Optima</p>
+                <div class="pb-5"></div>
+                <p class="pt-3">Angel Irene</p>
+            </div>
+            <div class="col-4"></div>
+            <div class="col-4 mt-5 text-center">
+                <p>PT Fajar Surya Wisesa</p>
+                <div class="pb-5"></div>
+                <p class="pt-3">..........................................</p>
+            </div>
+        </div>
+        
         <div class="invoice mb-4">
             @foreach ($reports as $service)
                 <div class="page-break"></div>
@@ -420,19 +442,6 @@
             @endforeach
         </div>
 
-        <div class="row mt-5">
-            <div class="col-4 mt-5 text-center">
-                <p>PT Reftech Jaya Optima</p>
-                <div class="pb-5"></div>
-                <p class="pt-3">Angel Irene</p>
-            </div>
-            <div class="col-4"></div>
-            <div class="col-4 mt-5 text-center">
-                <p>PT Fajar Surya Wisesa</p>
-                <div class="pb-5"></div>
-                <p class="pt-3">..........................................</p>
-            </div>
-        </div>
     </div>
 </div>
 @push('after-style')

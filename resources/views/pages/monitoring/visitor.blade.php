@@ -91,6 +91,7 @@
                                             <th>Press.</th>
                                             <th>Temp. (85°C - 94°C)</th>
                                             <th>Oil Lvl</th>
+                                            <th>Kebocoran</th>
                                             <th>PIC</th>
                                         </thead>
                                         <tbody>
@@ -119,6 +120,7 @@
                                                         @endif
                                                     </td>
                                                     <td>{{ $item['oil_level'] }}</td>
+                                                    <td>{{ $item['leak'] }}</td>
                                                     <td>{{ $item['pic'] }}</td>
                                                 </tr>
                                             @endforeach
@@ -133,6 +135,8 @@
                                             <th>Temp OUT</th>
                                             <th>Dew P.</th>
                                             <th>Auto Drain</th>
+                                            <th>Fan</th>
+                                            <th>Kebocoran</th>
                                             <th>PIC</th>
                                         </thead>
                                         <tbody>
@@ -144,6 +148,8 @@
                                                     <td>{{ $item['temp_out'] }}</td>
                                                     <td>{{ $item['dew'] }}</td>
                                                     <td>{{ $item['drain'] }}</td>
+                                                    <td>{{ $item['fan'] }}</td>
+                                                    <td>{{ $item['leak'] }}</td>
                                                     <td>{{ $item['pic'] }}</td>
                                                 </tr>
                                             @endforeach
