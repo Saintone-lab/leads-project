@@ -82,8 +82,12 @@ Route::get('/db/dryer-monitoring-visit/{id}', [MonitoringController::class, 'get
 Route::get('/service-reports/print/{id}', [ServiceReportsController::class, 'print_reports'])->name('service-reports.print');
 
 Route::group(["middleware" => "auth"], function () {
-    Route::get('/', [DashboardController::class, 'index'])->middleware('check.expired');
+    Route::get('/', [DashboardController::class, 'index'])->middleware('check.expired')->name('dashboard');
 
+    
+    Route::get('/under-maintenance', function () {
+        return view('pages.under-maintenance');
+    })->name('under-maintenance');
     // Route User
     Route::resource('/profile', UserController::class);
 

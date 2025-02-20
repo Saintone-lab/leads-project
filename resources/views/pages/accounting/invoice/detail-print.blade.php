@@ -291,7 +291,8 @@
                     </tr> --}}
 
                     <tr class="fw-medium" style="font-size: 13px">
-                        <td colspan="{{ $quote->tax != 0 ? '3' : '2' }}" rowspan="9" id="dynamicRows" style="border-bottom :none !important;">
+                        <td colspan="{{ $quote->tax != 0 ? '3' : '2' }}" rowspan="9" id="dynamicRows"
+                            style="border-bottom :none !important;">
                         </td>
                         <td colspan="3" id="price" class="text-end pl-4 py-0"
                             style="padding-right: 10px !important;">
@@ -305,23 +306,6 @@
                                 {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                         </td>
                     </tr>
-                    @if ($quote->tax != 0)
-                        <tr class="fw-medium" style="font-size: 13px">
-                            <td colspan="3" id="price" class="text-end pl-4 py-0"
-                                style="padding-right: 10px !important;">
-                                <p class="m-0">
-                                    DPP Atas PPN
-                                </p>
-                            </td>
-                            <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
-                                @php
-                                    $dpp = ($quote->subtotal * 11) / 12;
-                                @endphp
-                                <p class="text-end m-0">RP
-                                    {{ number_format($dpp, 0, '', '.') }}</p>
-                            </td>
-                        </tr>
-                    @endif
                     @php
                         if ($invoice->flag == 'Reftech') {
                             $bgColor = 'rgb(224, 248, 248)';
@@ -351,18 +335,41 @@
                                     </p>
                                 </td>
                             </tr>
-                        @endif
-                        @if ($quote->shipping != 0)
-                            <tr class="fw-medium" style="font-size: 13px">
-                                <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                    <p class="m-0">Shipping Cost</p>
-                                </td>
-                                <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">RP
-                                        {{ number_format($quote->shipping, 0, '', '.') }}
-                                    </p>
-                                </td>
-                            </tr>
+                            @if ($quote->tax != 0)
+                                <tr class="fw-medium" style="font-size: 13px">
+                                    <td colspan="3" id="price" class="text-end pl-4 py-0"
+                                        style="padding-right: 10px !important;">
+                                        <p class="m-0">
+                                            DPP Atas PPN
+                                        </p>
+                                    </td>
+                                    <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
+                                        @php
+                                            $dpp = ($afterDisc * 11) / 12;
+                                        @endphp
+                                        <p class="text-end m-0">RP
+                                            {{ number_format($dpp, 0, '', '.') }}</p>
+                                    </td>
+                                </tr>
+                            @else
+                                @if ($quote->tax != 0)
+                                    <tr class="fw-medium" style="font-size: 13px">
+                                        <td colspan="3" id="price" class="text-end pl-4 py-0"
+                                            style="padding-right: 10px !important;">
+                                            <p class="m-0">
+                                                DPP Atas PPN
+                                            </p>
+                                        </td>
+                                        <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
+                                            @php
+                                                $dpp = ($quote->subtotal * 11) / 12;
+                                            @endphp
+                                            <p class="text-end m-0">RP
+                                                {{ number_format($dpp, 0, '', '.') }}</p>
+                                        </td>
+                                    </tr>
+                                @endif
+                            @endif
                         @endif
                         @if ($quote->tax != 0 || $totalPph > 0)
                             <tr class="fw-medium py-0" style="font-size: 13px">
@@ -386,6 +393,18 @@
                                     </td>
                                 </tr>
                             @endif
+                        @endif
+                        @if ($quote->shipping != 0)
+                            <tr class="fw-medium" style="font-size: 13px">
+                                <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                    <p class="m-0">Shipping Cost</p>
+                                </td>
+                                <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                    <p class="m-0 text-end">RP
+                                        {{ number_format($quote->shipping, 0, '', '.') }}
+                                    </p>
+                                </td>
+                            </tr>
                         @endif
                         @if ($quote->tax != 0 || $totalPph > 0 || $quote->shipping != 0)
                             <tr class="fw-medium py-0" style="font-size: 13px">
@@ -428,18 +447,6 @@
                                 </td>
                             </tr>
                         @endif
-                        @if ($quote->shipping != 0)
-                            <tr class="fw-medium" style="font-size: 13px">
-                                <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                    <p class="m-0">Shipping Cost</p>
-                                </td>
-                                <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">RP
-                                        {{ number_format($quote->shipping, 0, '', '.') }}
-                                    </p>
-                                </td>
-                            </tr>
-                        @endif
                         <tr class="fw-medium" style="font-size: 13px">
                             <td colspan="3" class="text-end py-0 px-0">
                                 <p class="m-0"
@@ -455,6 +462,21 @@
                             </td>
                         </tr>
                         @if ($quote->tax != 0)
+                            <tr class="fw-medium" style="font-size: 13px">
+                                <td colspan="3" id="price" class="text-end pl-4 py-0"
+                                    style="padding-right: 10px !important;">
+                                    <p class="m-0">
+                                        DPP Atas PPN
+                                    </p>
+                                </td>
+                                <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
+                                    @php
+                                        $dpp = ($amount1 * 11) / 12;
+                                    @endphp
+                                    <p class="text-end m-0">RP
+                                        {{ number_format($dpp, 0, '', '.') }}</p>
+                                </td>
+                            </tr>
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                     <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
@@ -479,6 +501,18 @@
                             @php
                                 $totalwithpph = $payments[0]->amount - $totalPph;
                             @endphp
+                            @if ($quote->shipping != 0)
+                                <tr class="fw-medium" style="font-size: 13px">
+                                    <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <p class="m-0">Shipping Cost</p>
+                                    </td>
+                                    <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                        <p class="m-0 text-end">RP
+                                            {{ number_format($quote->shipping, 0, '', '.') }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            @endif
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="3" class="text-end py-0"
                                     style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
@@ -492,6 +526,18 @@
                                 </td>
                             </tr>
                         @else
+                            @if ($quote->shipping != 0)
+                                <tr class="fw-medium" style="font-size: 13px">
+                                    <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <p class="m-0">Shipping Cost</p>
+                                    </td>
+                                    <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                        <p class="m-0 text-end">RP
+                                            {{ number_format($quote->shipping, 0, '', '.') }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            @endif
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="3" class="text-end py-0"
                                     style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
@@ -529,18 +575,6 @@
                                 <td class="pr-4 py-0" style="padding-left: 0 !important;">
                                     <p class="m-0 text-end">RP
                                         {{ number_format($afterDisc, 0, '', '.') }}
-                                    </p>
-                                </td>
-                            </tr>
-                        @endif
-                        @if ($quote->shipping != 0)
-                            <tr class="fw-medium" style="font-size: 13px">
-                                <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                    <p class="m-0">Shipping Cost</p>
-                                </td>
-                                <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="m-0 text-end">RP
-                                        {{ number_format($quote->shipping, 0, '', '.') }}
                                     </p>
                                 </td>
                             </tr>
@@ -586,6 +620,21 @@
                             $totalwithpph = $payments[1]->amount - $totalPph;
                         @endphp
                         @if ($quote->tax != 0)
+                            <tr class="fw-medium" style="font-size: 13px">
+                                <td colspan="3" id="price" class="text-end pl-4 py-0"
+                                    style="padding-right: 10px !important;">
+                                    <p class="m-0">
+                                        DPP Atas PPN
+                                    </p>
+                                </td>
+                                <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
+                                    @php
+                                        $dpp = ($amount2 * 11) / 12;
+                                    @endphp
+                                    <p class="text-end m-0">RP
+                                        {{ number_format($dpp, 0, '', '.') }}</p>
+                                </td>
+                            </tr>
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                     <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
@@ -595,6 +644,18 @@
                                         {{ $vat == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
                                 </td>
                             </tr>
+                            @if ($quote->shipping != 0)
+                                <tr class="fw-medium" style="font-size: 13px">
+                                    <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <p class="m-0">Shipping Cost</p>
+                                    </td>
+                                    <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                        <p class="m-0 text-end">RP
+                                            {{ number_format($quote->shipping, 0, '', '.') }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            @endif
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="3" class="text-end py-0"
                                     style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
@@ -608,6 +669,18 @@
                                 </td>
                             </tr>
                         @else
+                            @if ($quote->shipping != 0)
+                                <tr class="fw-medium" style="font-size: 13px">
+                                    <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <p class="m-0">Shipping Cost</p>
+                                    </td>
+                                    <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                        <p class="m-0 text-end">RP
+                                            {{ number_format($quote->shipping, 0, '', '.') }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            @endif
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="3" class="text-end py-0"
                                     style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
@@ -680,7 +753,8 @@
             <div class="col"></div>
             @if ($invoice->flag == 'Reftech')
                 <div class="col-4 mt-4 text-center">
-                    <p class="mb-0">Bandung, {{ Carbon\Carbon::parse($invoice->date)->locale('ID')->translatedFormat('d F Y') }}</p>
+                    <p class="mb-0">Bandung,
+                        {{ Carbon\Carbon::parse($invoice->date)->locale('ID')->translatedFormat('d F Y') }}</p>
                     <p class="fs-normal fw-bolder">PT. Reftech Jaya Optima</p>
                     @if (isset($invoice->sign))
                         <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset=""

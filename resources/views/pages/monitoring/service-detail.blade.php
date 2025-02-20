@@ -1,71 +1,97 @@
 @extends('layouts.sales.app')
 @section('title', 'Monitoring machine')
 @section('content')
-    <h4>Machine {{ $machine->unit->brand }} {{ $machine->unit->unit->sku }}</h4>
-    <div class="row">
-        <div class="col-12 col-md-6">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5> Daily </h5>
-                    <div class="card-datatable table-responsive pt-0">
-                        <table class="datatable-daily-month table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>Month</th>
-                                    <th>Button</th>
-                                </tr>
-                            </thead>
-                        </table>
+    @if (Auth::user()->role != 'Client')
+        <h4>Machine {{ $machine->unit->brand }} {{ $machine->unit->unit->sku }}</h4>
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5> Daily </h5>
+                        <div class="card-datatable table-responsive pt-0">
+                            <table class="datatable-daily-month table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>Month</th>
+                                        <th>Button</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5> Weekly </h5>
+                        <div class="card-datatable table-responsive pt-0">
+                            <table class="datatable-monitoring-weekly table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>Week</th>
+                                        <th>First Date</th>
+                                        <th>Last Date</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5> Monthly </h5>
+                        <div class="card-datatable table-responsive pt-0">
+                            <table class="datatable-monitoring-monthly table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>Month</th>
+                                        <th>First Date</th>
+                                        <th>Last Date</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-6 mb-3">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5> Weekly </h5>
-                    <div class="card-datatable table-responsive pt-0">
-                        <table class="datatable-monitoring-weekly table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>Week</th>
-                                    <th>First Date</th>
-                                    <th>Last Date</th>
-                                </tr>
-                            </thead>
-                        </table>
+    @else
+        <h4>Machine {{ $machine->unit->brand }} {{ $machine->unit->unit->sku }}</h4>
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5> Daily </h5>
+                        <div class="card-datatable table-responsive pt-0">
+                            <table class="datatable-daily-month table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>Month</th>
+                                        <th>Button</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5> Monthly </h5>
-                    <div class="card-datatable table-responsive pt-0">
-                        <table class="datatable-monitoring-monthly table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>Month</th>
-                                    <th>First Date</th>
-                                    <th>Last Date</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    @endif
 @endsection()
 
 @push('after-style')

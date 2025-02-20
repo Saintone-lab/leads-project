@@ -20,7 +20,8 @@ class Monitoring extends Model
         'temp',
         'condition',
         'oil_level',
-        'desc',
+        'Issue',
+        'Recommendation',
         'picture',
     ];
 
@@ -35,5 +36,9 @@ class Monitoring extends Model
     public function reports()
     {
         return $this->hasMany('App\Models\Reports', 'id_monitoring');
+    }
+    public function status()
+    {
+        return $this->hasMany('App\Models\StatusMonitoring', 'id_monitoring');
     }
 }

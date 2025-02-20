@@ -1118,15 +1118,16 @@
                                                             <div class="d-flex mb-2 gap-2">
                                                                 {{-- <a type="button" data-bs-toggle="modal"
                                                                     data-bs-target="#overview-sales-{{ $item }}"> --}}
-                                                                    <div class="avatar">
-                                                                        <button type="button"
-                                                                            class="avatar-initial bg-label-info rounded">
-                                                                            <i class="mdi mdi-phone-outline mdi-24px"></i>
-                                                                        </button>
-                                                                    </div>
+                                                                <div class="avatar">
+                                                                    <button type="button"
+                                                                        class="avatar-initial bg-label-info rounded">
+                                                                        <i class="mdi mdi-phone-outline mdi-24px"></i>
+                                                                    </button>
+                                                                </div>
                                                                 {{-- </a> --}}
                                                                 <div class="card-info">
-                                                                    <h5 class="mb-0 filtered-prospect">{{ $filteredDC }} <span
+                                                                    <h5 class="mb-0 filtered-prospect">{{ $filteredDC }}
+                                                                        <span
                                                                             class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span>
                                                                     </h5>
                                                                     <small class="text-muted">Prospect</small>
@@ -1140,7 +1141,8 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="card-info">
-                                                                    <h5 class="mb-0 filtered-provide">{{ $filteredCRM }}<span
+                                                                    <h5 class="mb-0 filtered-provide">
+                                                                        {{ $filteredCRM }}<span
                                                                             class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->crm }}</span>
                                                                     </h5>
                                                                     <small class="text-muted">Provided</small>
@@ -1174,7 +1176,8 @@
                                                                     </div>
                                                                 </a>
                                                                 <div class="card-info">
-                                                                    <h5 class="mb-0 filtered-prospect-po">{{ $filteredPO }}<span
+                                                                    <h5 class="mb-0 filtered-prospect-po">
+                                                                        {{ $filteredPO }}<span
                                                                             class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->po }}</span>
                                                                     </h5>
                                                                     <small class="text-muted">PO</small>
@@ -1541,6 +1544,31 @@
                 </table>
             </div>
         </div>
+    @elseif(Auth::user()->role == 'Client')
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5> Machine </h5>
+                        <div class="card-datatable table-responsive pt-0">
+                            <table class="datatable-client-compressor table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>Unit</th>
+                                        <th>Brand</th>
+                                        <th>Tag</th>
+                                        <th>Location</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
     @foreach ($notulens as $notulen)
         @include('components.modal.notulen.detail')
@@ -1625,6 +1653,8 @@
     <script src="{{ asset('assets') }}/includes/table-reports.js"></script>
     <script src="{{ asset('assets') }}/includes/table-reports-monitor.js"></script>
     <script src="{{ asset('assets') }}/includes/table-notulen.js"></script>
+    
+    <script src="{{ asset('assets') }}/includes/table-client-compressor.js"></script>
     {{-- @if (Auth::user()->role == 'Admin') --}}
     <script>
         function formatNumber(n) {
@@ -1734,14 +1764,14 @@
                 url: '/dashboard/totalProspectPO/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.total-prospect-po`).text('Rp '+ response);
+                    $(`.total-prospect-po`).text('Rp ' + response);
                 }
             });
             $.ajax({
                 url: '/dashboard/totalProspectQuote/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.total-prospect-quotation`).text('Rp '+ response);
+                    $(`.total-prospect-quotation`).text('Rp ' + response);
                 }
             });
 
