@@ -6,7 +6,7 @@
             $dataDetail = 0;
         @endphp
         <form id="formAuthentication" class="mb-3 fv-plugins-bootstrap5 fv-plugins-framework"
-            action="{{ @$quotation ? route('quotation.update', $quotation->id) : route('quotation.store') }}" method="post"
+            action="{{ route('monitoring.store-quotation', $monitoringId) }}" method="post"
             enctype="multipart/form-data">
             @csrf
             @if (@$quotation)
@@ -107,7 +107,7 @@
                             <div class="col-md-6">
                                 <div class="form-floating form-floating-outline mb-4">
                                     <input class="form-control" type="text" placeholder="Put your No PR Here ...."
-                                        id="no-pr-input" name="no_pr" value="{{ @$quotation->no_pr ?? '-'}}">
+                                        id="no-pr-input" name="no_pr" value="{{ @$quotation ?? '-'}}">
                                     <label for="no-pr-input">No PR</label>
                                 </div>
                             </div>

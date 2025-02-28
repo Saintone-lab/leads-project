@@ -1,12 +1,12 @@
 $(function () {
-    var dt_table_client_compressor = $(".datatable-client-compressor");
-    var Url = "/db/compressor/fp/";
+    var dt_table_monitoring_quote = $(".datatable-monitoring-quote");
+    var Url = "/db/monitoring/quote/";
 
     // console.log("ID:", id); // Output: ID: 2
 
-    if (dt_table_client_compressor.length) {
+    if (dt_table_monitoring_quote.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_client_compressor.DataTable({
+        var dt_product = dt_table_monitoring_quote.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -26,11 +26,14 @@ $(function () {
             columns: [
                 { data: "" },
                 { data: "id" },
-                { data: "id" },
-                { data: "brand_type" },
-                { data: "unit" },
-                { data: "tag" },
+                { data: "date" },
                 { data: "location" },
+                { data: "tag" },
+                { data: "machine" },
+                { data: "title" },
+                {
+                    data: "no_quote"
+                },
             ],
             columnDefs: [
                 {
@@ -45,71 +48,19 @@ $(function () {
                     },
                 },
                 {
-                    targets: 2,
+                    targets: 1,
                     searchable: true,
                     visible: false,
                 },
                 {
                     responsivePriority: 1,
-                    targets: 4,
-                },
-                {
-                    targets: 3,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("service-manager.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                            );
-                        }
-                        return data;
-                    },
-                },
-                {
-                    targets: 4,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("service-manager.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                            );
-                        }
-                        return data;
-                    },
-                },
-                {
-                    targets: 5,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("service-manager.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                            );
-                        }
-                        return data;
-                    },
-                },
-                {
-                    targets: 6,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("service-manager.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                            );
-                        }
-                        return data;
-                    },
+                    targets: 2,
                 },
             ],
             // order: [[2, "desc"]],
             // dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            // displayLength: 7,
-            // lengthMenu: [7, 10, 25, 50, 75, 100],
+            displayLength: 5,
+            lengthMenu: [5, 10, 25, 50, 75, 100],
             // buttons: [
             //     {
             //         extend: "collection",
@@ -373,7 +324,7 @@ $(function () {
             '<h5 class="card-title mb-0">Table Product</h5>'
         );
     }
-    dt_table_client_compressor.on("draw", function () {
+    dt_table_monitoring_quote.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

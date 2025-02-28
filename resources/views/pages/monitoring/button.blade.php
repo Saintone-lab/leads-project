@@ -42,6 +42,8 @@
                                 Monitoring</a>
                             <a href="{{ route('create.weekly-monitoring', $machine->id) }}"
                                 class="btn btn-warning waves-effect">Weekly Monitoring</a>
+                            <a href="{{ route('create.monthly-monitoring', $machine->id) }}"
+                                class="btn btn-warning waves-effect">Monthly Monitoring</a>
                         </div>
                     </div>
                 </div>

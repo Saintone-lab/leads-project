@@ -1,12 +1,12 @@
 $(function () {
-    var dt_table_client_compressor = $(".datatable-client-compressor");
-    var Url = "/db/compressor/fp/";
+    var dt_table_reports_monitoring = $(".datatable-reports-monitoring");
+    var Url = "/db/monitoring/reports";
 
     // console.log("ID:", id); // Output: ID: 2
 
-    if (dt_table_client_compressor.length) {
+    if (dt_table_reports_monitoring.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_client_compressor.DataTable({
+        var dt_product = dt_table_reports_monitoring.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -26,11 +26,14 @@ $(function () {
             columns: [
                 { data: "" },
                 { data: "id" },
-                { data: "id" },
-                { data: "brand_type" },
-                { data: "unit" },
-                { data: "tag" },
+                { data: "date" },
                 { data: "location" },
+                { data: "tag" },
+                { data: "name" },
+                { data: "machine" },
+                { data: "issue" },
+                { data: "recommendation" },
+                { data: "status" },
             ],
             columnDefs: [
                 {
@@ -45,61 +48,82 @@ $(function () {
                     },
                 },
                 {
-                    targets: 2,
+                    targets: 1,
                     searchable: true,
                     visible: false,
                 },
                 {
                     responsivePriority: 1,
-                    targets: 4,
+                    targets: 2,
                 },
                 {
-                    targets: 3,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("service-manager.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                            );
-                        }
-                        return data;
+                    targets: 2,
+                    render: function (data, type, row) {
+                        return moment(data).format("DD-MM-YYYY"); // Format d-m-Y
                     },
                 },
                 {
-                    targets: 4,
+                    targets: 9,
                     render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("service-manager.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                            );
+                        var $status_number = full["status"];
+                        var $status = {
+                            1: {
+                                title: "Proccess FU to User",
+                                class: " bg-label-info",
+                                colorTip: "tooltip-info",
+                                titleTip: "Proccess FU to User",
+                            },
+                            2: {
+                                title: "Send Inquiry",
+                                class: " bg-label-warning",
+                                colorTip: "tooltip-warning",
+                                titleTip: "Send Inquiry",
+                            },
+                            3: {
+                                title: "Hold by User",
+                                class: " bg-label-danger",
+                                colorTip: "tooltip-danger",
+                                titleTip: "Hold by User",
+                            },
+                            4: {
+                                title: "Done",
+                                class: " bg-label-success",
+                                colorTip: "tooltip-success",
+                                titleTip: "Done",
+                            },
+                        };
+                        if (typeof $status[$status_number] === "undefined") {
+                            return data;
                         }
-                        return data;
+                        return (
+                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
+                            $status[$status_number].colorTip +
+                            '" title="' +
+                            $status[$status_number].titleTip +
+                            '" class="badge rounded-pill ' +
+                            $status[$status_number].class +
+                            '">' +
+                            $status[$status_number].title +
+                            "</span>"
+                        );
                     },
                 },
                 {
-                    targets: 5,
+                    targets: [3, 4, 5, 6, 7, 8],
                     render: function (data, type, full, row) {
                         if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("service-manager.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                            var id = full["id"];
+                            var $date = full["date"];
+                            var detailRoute = route(
+                                "monitoring.fajarPaper-detail",
+                                id
                             );
-                        }
-                        return data;
-                    },
-                },
-                {
-                    targets: 6,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("service-manager.show", $dataId);
                             return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                                '<a class="text-dark" href="' +
+                                detailRoute +
+                                '">' +
+                                data +
+                                "</a>"
                             );
                         }
                         return data;
@@ -373,7 +397,7 @@ $(function () {
             '<h5 class="card-title mb-0">Table Product</h5>'
         );
     }
-    dt_table_client_compressor.on("draw", function () {
+    dt_table_reports_monitoring.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

@@ -22,6 +22,7 @@ class Quotation extends Model
         'id_sales',
         'id_admin',
         'id_service',
+        'id_monitoring',
         'primary_id',
         'is_primary',
         'num_rev',

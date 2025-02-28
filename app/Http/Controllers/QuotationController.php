@@ -250,7 +250,7 @@ class QuotationController extends Controller
         $quotation->primary_id = 0;
         $quotation->num_rev = 0;
         $quotation->destination = $request->destination;
-        $quotation->no_pr = NULL;
+        $quotation->no_pr = $request->no_pr;
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
         $quotation->note = "-";

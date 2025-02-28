@@ -372,6 +372,23 @@
                             @endif
                         @endif
                         @if ($quote->tax != 0 || $totalPph > 0)
+                            @if ($quote->tax != 0)
+                                <tr class="fw-medium" style="font-size: 13px">
+                                    <td colspan="3" id="price" class="text-end pl-4 py-0"
+                                        style="padding-right: 10px !important;">
+                                        <p class="m-0">
+                                            DPP Atas PPN
+                                        </p>
+                                    </td>
+                                    <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
+                                        @php
+                                            $dpp = ($quote->subtotal * 11) / 12;
+                                        @endphp
+                                        <p class="text-end m-0">RP
+                                            {{ number_format($dpp, 0, '', '.') }}</p>
+                                    </td>
+                                </tr>
+                            @endif
                             <tr class="fw-medium py-0" style="font-size: 13px">
                                 <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
                                     <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
@@ -721,14 +738,14 @@
                     </div>
                     @if ($invoice->flag == 'Reftech' && $invoice->quote->tax == 0)
                         <div class="col">
-                            <p class="mb-1">: Bank BCA (IDR) - Asia Afrika Kota Bandung</p>
+                            <p class="mb-1">: Bank BCA (IDR)</p>
                             <p class="mb-1">: ARIEP RACHMAN</p>
                             <p class="mb-1">: 166 - 2242 - 271</p>
                             <p class="mb-1">: -</p>
                         </div>
                     @elseif ($invoice->flag == 'Reftech' && $invoice->quote->tax > 0)
                         <div class="col">
-                            <p class="mb-1">: Bank BCA (IDR) - Asia Afrika Kota Bandung</p>
+                            <p class="mb-1">: Bank BCA (IDR)</p>
                             <p class="mb-1">: PT. REFTECH JAYA OPTIMA</p>
                             <p class="mb-1">: 008 - 6289 - 789</p>
                             <p class="mb-1">: CENAIDJA</p>

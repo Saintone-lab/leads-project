@@ -24,7 +24,6 @@ $(function () {
             columns: [
                 { data: "" },
                 { data: "id" },
-                { data: "id" },
                 { data: "no_service" },
                 { data: "company" },
                 { data: "jobdesc" },
@@ -46,27 +45,12 @@ $(function () {
                     },
                 },
                 {
-                    // For Checkboxes
                     targets: 1,
-                    orderable: false,
-                    searchable: false,
-                    responsivePriority: 3,
-                    checkboxes: true,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender:
-                            '<input type="checkbox" class="form-check-input">',
-                    },
-                },
-                {
-                    targets: 2,
                     searchable: true,
                     visible: false,
                 },
                 {
-                    targets: 3,
+                    targets: 2,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];

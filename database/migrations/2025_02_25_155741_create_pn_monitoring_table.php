@@ -13,11 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('issue_monitoring', function (Blueprint $table) {
+        Schema::create('pn_monitoring', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_monitoring');
-            $table->foreignId('id_pic');
-            $table->enum('status',[0,1,2,3,4]);
+            $table->string('pn');
             $table->longText('desc');
             $table->date('date');
             $table->timestamps();
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('issue_monitoring');
+        Schema::dropIfExists('pn_monitoring');
     }
 };

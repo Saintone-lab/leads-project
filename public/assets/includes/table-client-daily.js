@@ -1,12 +1,12 @@
 $(function () {
-    var dt_table_client_compressor = $(".datatable-client-compressor");
+    var dt_table_compressor_client = $(".datatable-compressor-client");
     var Url = "/db/compressor/fp/";
 
     // console.log("ID:", id); // Output: ID: 2
 
-    if (dt_table_client_compressor.length) {
+    if (dt_table_compressor_client.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_client_compressor.DataTable({
+        var dt_product = dt_table_compressor_client.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -26,11 +26,23 @@ $(function () {
             columns: [
                 { data: "" },
                 { data: "id" },
-                { data: "id" },
                 { data: "brand_type" },
                 { data: "unit" },
                 { data: "tag" },
                 { data: "location" },
+                {
+                    data: "name",
+                    render: function (data, type, row) {
+                        // Jika data adalah null atau undefined, kembalikan '-'
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            // Jika data memiliki nilai, kembalikan nilainya
+                            return type === "display" ? data : "-";
+                        }
+                    },
+                },
+                { data: "condition" },
             ],
             columnDefs: [
                 {
@@ -45,16 +57,16 @@ $(function () {
                     },
                 },
                 {
-                    targets: 2,
+                    targets: 1,
                     searchable: true,
                     visible: false,
                 },
                 {
                     responsivePriority: 1,
-                    targets: 4,
+                    targets: 2,
                 },
                 {
-                    targets: 3,
+                    targets: 2,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
@@ -67,49 +79,27 @@ $(function () {
                     },
                 },
                 {
-                    targets: 4,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("service-manager.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                            );
+                    // Label Status Name
+                    targets: 7,
+                    render: function (data, type, full, meta) {
+                        if (data === null){
+                            var condition_class = " bg-danger";
+                        }else{
+                            var condition_class = " bg-success";
                         }
-                        return data;
-                    },
-                },
-                {
-                    targets: 5,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("service-manager.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                            );
-                        }
-                        return data;
-                    },
-                },
-                {
-                    targets: 6,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("service-manager.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
-                            );
-                        }
-                        return data;
+                        return (
+                            '<span class="badge badge-dot ' +
+                            condition_class +
+                            '">' +
+                            "</span>"
+                        );
                     },
                 },
             ],
             // order: [[2, "desc"]],
             // dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            // displayLength: 7,
-            // lengthMenu: [7, 10, 25, 50, 75, 100],
+            displayLength: 5,
+            lengthMenu: [5, 10, 25, 50, 75, 100],
             // buttons: [
             //     {
             //         extend: "collection",
@@ -373,7 +363,7 @@ $(function () {
             '<h5 class="card-title mb-0">Table Product</h5>'
         );
     }
-    dt_table_client_compressor.on("draw", function () {
+    dt_table_compressor_client.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

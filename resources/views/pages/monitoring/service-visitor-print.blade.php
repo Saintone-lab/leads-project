@@ -159,7 +159,7 @@
                                 <td>{{ $issues->date ?? 'N/A' }}</td>
                                 <td>
                                     <pre class="mb-1"
-                                        style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $issues->desc }}</pre>
+                                        style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $issues->issue }}</pre>
                                 </td>
                                 <td>{{ $issues->name }}</td>
                             </tr>

@@ -41,4 +41,8 @@ class Monitoring extends Model
     {
         return $this->hasMany('App\Models\StatusMonitoring', 'id_monitoring');
     }
+    public function Pn()
+    {
+        return $this->hasMany('App\Models\PnMonitoring', 'id_monitoring');
+    }
 }

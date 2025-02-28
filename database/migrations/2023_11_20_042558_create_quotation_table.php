@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('id_admin')->nullable();
             $table->foreignId('id_service')->nullable();
             $table->foreignId('id_support')->nullable();
+            $table->foreignId('id_monitoring')->nullable();
             $table->integer('primary_id');
             $table->enum('is_primary',['0', '1']);
             $table->integer('num_rev');

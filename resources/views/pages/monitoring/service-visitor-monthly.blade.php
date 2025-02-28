@@ -43,6 +43,8 @@
                                 <th>Date</th>
                                 <th>refrigerasi</th>
                                 <th>Strainer</th>
+                                <th>LP (Low Pressure)</th>
+                                <th>HP (High Pressure)</th>
                                 <th>PIC</th>
                             </thead>
                             <tbody>
@@ -54,6 +56,8 @@
                                         <td>{{ $item->date ?? '-' }}</td>
                                         <td>{{ $item->refrigerasi ?? '-' }}</td>
                                         <td>{{ $item->strainer ?? '-' }}</td>
+                                        <td>{{ $item->lp ?? '-' }}</td>
+                                        <td>{{ $item->hp ?? '-' }}</td>
                                         <td>{{ $item->name ?? '-' }}</td>
                                     </tr>
                                 @endforeach

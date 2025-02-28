@@ -1557,8 +1557,8 @@
                                         <th></th>
                                         <th></th>
                                         <th>ID</th>
-                                        <th>Unit</th>
                                         <th>Brand</th>
+                                        <th>Unit</th>
                                         <th>Tag</th>
                                         <th>Location</th>
                                     </tr>

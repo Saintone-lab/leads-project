@@ -141,6 +141,42 @@
                     <div data-i18n="Monitoring Fajar Paper">Monitoring Fajar Paper</div>
                 </a>
             </li>
+            
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Service Contract</span>
+            </li>
+            
+            <li
+                class="menu-item {{ request()->is('monitoring-client/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-factory"></i>
+                    <div data-i18n="Fajar Paper">Fajar Paper</div>
+                </a>
+                <ul class="menu-sub">
+                    <li
+                        class="menu-item {{ request()->is('monitoring-client/fajarPaper') ? 'active' : '' }}">
+                        <a href="{{ route('monitoring.fajarPaper') }}" class="menu-link">
+                            <div data-i18n="Daily Input">Daily Input</div>
+                        </a>
+                    </li>
+                    <li
+                        class="menu-item {{ request()->is('monitoring-client/fajarPaper-monitoring') ? 'active' : '' }}">
+                        <a href="{{ route('monitoring.fajarPaper-monitoring') }}" class="menu-link">
+                            <div data-i18n="Monitoring">Monitoring</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('monitoring-client/fajarPaper-reports') ? 'active' : '' }}">
+                        <a href="{{ route('monitoring.fajarPaper-reports') }}" class="menu-link">
+                            <div data-i18n="Report">Report</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('po') || request()->is('po/sales/*') ? 'active' : '' }}">
+                        <a href="{{ route('quotation.po') }}" class="menu-link">
+                            <div data-i18n="Summary">Summary</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Accounting</span>

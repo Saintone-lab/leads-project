@@ -14,6 +14,7 @@ use App\Http\Controllers\ExistingController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\MachineController;
+use App\Http\Controllers\MonitoringClientController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotulenController;
 use App\Http\Controllers\OverviewController;
@@ -50,6 +51,7 @@ use App\Models\ReturnQ;
 use App\Models\SalesReports;
 use App\Models\SerialProduct;
 use App\Models\Service;
+use App\Models\StatusMonitoring;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
@@ -84,7 +86,7 @@ Route::get('/service-reports/print/{id}', [ServiceReportsController::class, 'pri
 Route::group(["middleware" => "auth"], function () {
     Route::get('/', [DashboardController::class, 'index'])->middleware('check.expired')->name('dashboard');
 
-    
+
     Route::get('/under-maintenance', function () {
         return view('pages.under-maintenance');
     })->name('under-maintenance');
@@ -168,7 +170,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/service-reports/del-sign/{id}', [ServiceReportsController::class, 'delete_hand_sign'])->name('service-reports.del-sign');
     Route::delete('/service-reports/del-image/{id}', [ServiceReportsController::class, 'deleteImage'])->name('service-reports.del-image');
 
-    // Route untuk service Reports
+    // Route untuk audit
     Route::resource('/audit-tools', AuditController::class);
     Route::get('/audit-tools/print/{id}', [AuditController::class, 'print_audit'])->name('audit-tools.print');
 
@@ -300,6 +302,81 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/monitoring/weekly-store/{id}', [MonitoringController::class, 'storeWeekly'])->name('store.weekly-monitoring');
     Route::get('/monitoring/monthly-create/{id}', [MonitoringController::class, 'createMonthly'])->name('create.monthly-monitoring');
     Route::post('/monitoring/monthly-store/{id}', [MonitoringController::class, 'storeMonthly'])->name('store.monthly-monitoring');
+    Route::get('/monitoring-client/fajarPaper', [MonitoringClientController::class, 'index'])->name('monitoring.fajarPaper');
+    Route::get('/monitoring-client/fajarPaper/{id}', [MonitoringClientController::class, 'show'])->name('monitoring.fajarPaper-detail');
+    Route::get('/monitoring-client/fajarPaper-quotation/{id}', [MonitoringClientController::class, 'createQuotation'])->name('monitoring.create-quotation');
+    Route::post('/monitoring-client/fajarPaper-quotation/{id}', [MonitoringClientController::class, 'storeQuotation'])->name('monitoring.store-quotation');
+    Route::patch('/monitoring-client/fajarPaper-updateIssue/{id}', [MonitoringClientController::class, 'updateIssue'])->name('monitoring.fajarPaper-updateIssue');
+    Route::patch('/monitoring-client/fajarPaper-updateRecommendation/{id}', [MonitoringClientController::class, 'updateRecommendation'])->name('monitoring.fajarPaper-updateRecommendation');
+    Route::patch('/monitoring-client/fajarPaper-updateStatus/{id}', [MonitoringClientController::class, 'updateStatus'])->name('monitoring.fajarPaper-updateStatus');
+    Route::patch('/monitoring-client/fajarPaper-updatePN/{id}', [MonitoringClientController::class, 'updatePN'])->name('monitoring.fajarPaper-updatePN');
+    Route::patch('/monitoring-client/fajarPaper/{id}', [MonitoringClientController::class, 'editIssue'])->name(name: 'monitoring.fajarPaper-editIssue');
+    Route::get('/monitoring-client/fajarPaper-monitoring', [MonitoringClientController::class, 'monitoring'])->name('monitoring.fajarPaper-monitoring');
+    Route::get('/monitoring-client/fajarPaper-reports', [MonitoringClientController::class, 'reports'])->name('monitoring.fajarPaper-reports');
+    Route::get('/monitoring-client/fajarPaper-summary-print', [MonitoringClientController::class, 'summaryPrint'])->name('monitoring.fajarPaper-summary-print');
+    Route::get('/monitoring-client/fajarPaper-hold-print', [MonitoringClientController::class, 'holdPrint'])->name('monitoring.fajarPaper-hold-print');
+    Route::get('/monitoring-client/fajarPaper-quote-print', [MonitoringClientController::class, 'quotePrint'])->name('monitoring.fajarPaper-quote-print');
+
+    Route::get('/db/monitoring/summary', function () {
+        $today = Carbon::today();
+        $summary = Monitoring::join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->whereMonth('monitoring.date', $today)
+            ->whereYear('monitoring.date', $today)
+            ->whereNotNull('main_desc')
+            ->select(
+                'monitoring.*',
+                'm.tag',
+                'm.location',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )
+            ->get();
+        return response()->json(['data' => $summary]);
+    });
+    Route::get('/db/monitoring/quote', function () {
+        $today = Carbon::today();
+        $quoteMon = Monitoring::join('quotation as q', 'monitoring.id', '=', 'q.id_monitoring')
+            ->join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->whereMonth('monitoring.date', $today)
+            ->whereYear('monitoring.date', $today)
+            ->select(
+                'monitoring.*',
+                'm.tag',
+                'm.location',
+                'q.title',
+                'q.no_quote',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )
+            ->get();
+        return response()->json(['data' => $quoteMon]);
+    });
+    Route::get('/db/monitoring/hold', function () {
+        $today = Carbon::today();
+        $latestStatus = StatusMonitoring::selectRaw('MAX(id) as id')
+            ->groupBy('id_monitoring');
+
+        $statusMon = StatusMonitoring::join('monitoring', 'monitoring.id', '=', 'status_monitoring.id_monitoring')
+            ->join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->whereIn('status_monitoring.id', $latestStatus)
+            ->where('status_monitoring.status', '3')
+            ->whereMonth('monitoring.date', $today)
+            ->whereYear('monitoring.date', $today)
+            ->select(
+                'monitoring.*',
+                'm.tag',
+                'm.location',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )
+            ->get();
+        return response()->json(['data' => $statusMon]);
+    });
+
+    //service manager
     Route::get('/service-manager', [MonitoringController::class, 'indexServiceM'])->name('service-manager.index');
     Route::get('/service-manager/{id}', [MonitoringController::class, 'showServiceM'])->name('service-manager.show');
     Route::get('/service-manager-daily/{id}/{month}', [MonitoringController::class, 'visitorDailyService'])->name('service-manager-daily.visit');
@@ -421,6 +498,51 @@ Route::group(["middleware" => "auth"], function () {
 
         return response()->json(['data' => $months]);
     });
+    Route::get('db/monitoring/issue', function () {
+        $data = Monitoring::join('status_monitoring as sm', 'monitoring.id', '=', 'sm.id_monitoring')
+            ->join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->join('users as u', 'monitoring.id_pic', '=', 'u.id')
+            ->where('m.id_client', 1277)
+            ->where('sm.status', '0')
+            ->where('monitoring.issue','!=', '-')
+            ->whereNotNull('monitoring.issue')
+            ->whereDay('monitoring.date', Carbon::today())
+            ->groupBy('monitoring.id')
+            ->select(
+                'monitoring.*',
+                'u.name',
+                'm.tag',
+                'm.location',
+                'monitoring.id as monId',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('db/monitoring/reports', function () {
+        $data = Monitoring::join('status_monitoring as sm', 'monitoring.id', '=', 'sm.id_monitoring')
+            ->join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->join('users as u', 'monitoring.id_pic', '=', 'u.id')
+            ->whereNot('sm.status', '0')
+            ->where('m.id_client', 1277)
+            ->where('monitoring.issue','!=', '-')
+            ->whereNotNull('monitoring.issue')
+            ->whereDay('monitoring.date', Carbon::today())
+            ->groupBy('monitoring.id')
+            ->select(
+                'monitoring.*',
+                'u.name',
+                'm.tag',
+                'm.location',
+                'sm.status',
+                'monitoring.id as monId',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )->get();
+        return response()->json(['data' => $data]);
+    });
     Route::get('db/recap-compressor/{date}', function ($date) {
         $mesinCompressor = Machine::leftJoin('monitoring as m', function ($join) use ($date) {
             $join->on('machine.id', '=', 'm.id_machine')
@@ -443,7 +565,7 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $mesinCompressor]);
     });
     Route::get('db/recap-dryer/{date}', function ($date) {
-        $mesinDryer = Machine::leftJoin('monitoring as m', function ($join) use($date) {
+        $mesinDryer = Machine::leftJoin('monitoring as m', function ($join) use ($date) {
             $join->on('machine.id', '=', 'm.id_machine')
                 ->whereDate('m.date', '=', strval($date)); // Menyaring berdasarkan tanggal monitoring
         })

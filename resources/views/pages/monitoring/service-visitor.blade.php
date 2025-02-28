@@ -81,32 +81,40 @@
                                 <tbody>
                                     @foreach ($compressor as $item)
                                         <tr>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <button type="button"
-                                                        class="btn btn-label-secondary dropdown-toggle waves-effect"
-                                                        data-bs-toggle="dropdown"
-                                                        aria-expanded="false">{{ $item['date'] }}</button>
-                                                    <ul class="dropdown-menu">
-                                                        <li>
-                                                            <a class=" dropdown-item cursor-pointer" data-bs-toggle="modal"
-                                                                data-bs-target="#editIssue-{{ $item['id'] }}">
-                                                                Update Issue
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class=" dropdown-item cursor-pointer" data-bs-toggle="modal"
-                                                                data-bs-target="#editMainlog-{{ $item['id'] }}">
-                                                                Update Mainlog
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                                {{-- <a class="text-black text-decoration-underline cursor-pointer"
+                                            @if (Auth::user()->role == 'Client')
+                                                <td>
+                                                    {{ $item['date'] }}
+                                                </td>
+                                            @else
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <button type="button"
+                                                            class="btn btn-label-secondary dropdown-toggle waves-effect"
+                                                            data-bs-toggle="dropdown"
+                                                            aria-expanded="false">{{ $item['date'] }}</button>
+                                                        <ul class="dropdown-menu">
+                                                            <li>
+                                                                <a class=" dropdown-item cursor-pointer"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#editIssue-{{ $item['id'] }}">
+                                                                    Update Issue
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class=" dropdown-item cursor-pointer"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#editMainlog-{{ $item['id'] }}">
+                                                                    Update Mainlog
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    {{-- <a class="text-black text-decoration-underline cursor-pointer"
                                                     data-bs-toggle="modal" data-bs-target="#editIssue-{{ $item['id'] }}">
                                                     {{ $item['date'] }}
                                                 </a> --}}
-                                            </td>
+                                                </td>
+                                            @endif
                                             <td>{{ $item['condition'] }}</td>
                                             <td>{{ $item['running'] }}</td>
                                             <td>{{ $item['loading'] }}</td>
@@ -209,7 +217,7 @@
                                             <td>{{ $issues->date ?? 'N/A' }}</td>
                                             <td>
                                                 <pre class="mb-1"
-                                                    style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $issues->desc }}</pre>
+                                                    style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $issues->issue }}</pre>
                                             </td>
                                             <td>{{ $issues->name }}</td>
                                         </tr>
@@ -282,7 +290,7 @@
                                     <tbody>
                                         @forelse ($weeks as $monweek)
                                             <tr>
-                                                <td>{{ $monweek['minggu'] }}</td>
+                                                <td>{{ $monweek['week'] }}</td>
                                                 <td>{{ $monweek['condition'] }}</td>
                                                 <td>{{ $monweek['vibration'] }}</td>
                                                 <td>{{ $monweek['voltage'] }}</td>
@@ -309,7 +317,7 @@
                                     <tbody>
                                         @forelse ($weeks as $monweek)
                                             <tr>
-                                                <td>{{ $monweek['minggu'] }}</td>
+                                                <td>{{ $monweek['week'] }}</td>
                                                 <td>{{ $monweek['condition'] }}</td>
                                                 <td>{{ $monweek['voltage'] }}</td>
                                                 <td>{{ $monweek['ampere'] }}</td>
@@ -331,7 +339,7 @@
 
                     <div class="invoice mb-4">
                         @foreach ($reports as $service)
-                        <hr>
+                            <hr>
                             <div class="card invoice-preview-card">
                                 <div class="card-body">
                                     <div

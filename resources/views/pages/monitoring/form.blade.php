@@ -13,6 +13,8 @@
                     <a class="btn btn-primary waves-effect" href="{{ route('create.weekly-monitoring', $machine->id) }}">
                         Input Weekly
                     </a>
+                    <a href="{{ route('create.monthly-monitoring', $machine->id) }}"
+                        class="btn btn-warning waves-effect">Monthly Monitoring</a>
                     @if ($monitoring->main_desc == null)
                         <button type="button" class="btn btn-secondary d-grid waves-effect" data-bs-toggle="modal"
                             data-bs-target="#addMainLog">Input Maintenance Log</button>
@@ -49,15 +51,26 @@
                                         <div class="col-8 col-lg-10">
                                             : {{ $machine->unit->brand }} {{ $machine->unit->unit->sku }}
                                         </div>
-                                        <div class="col-4 col-lg-2">
-                                            Date
-                                        </div>
-                                        <div class="col-8 col-lg-10">
-                                            : {{ \Carbon\Carbon::now()->format('d-m-Y') }}
-                                        </div>
+                                        @if (Auth::user()->code != 'RMD')
+                                            <div class="col-4 col-lg-2">
+                                                Date
+                                            </div>
+                                            <div class="col-8 col-lg-10">
+                                                : {{ \Carbon\Carbon::now()->format('d-m-Y') }}
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
+                            @if (Auth::user()->code == 'RMD')
+                                <div class="row my-3">
+                                    <div class="col-4">
+                                        <label for="Date">Date</label>
+                                        <input class="form-control" type="date" id="Date" name="date"
+                                            value="{{ now()->format('Y-m-d') }}">
+                                    </div>
+                                </div>
+                            @endif
                             <div class="row mb-3">
                                 <div class="col-6 col-lg-3">
                                     <label for="defaultSelect" class="form-label">Condition</label>
@@ -117,9 +130,9 @@
                                 </div>
                             </div>
                             <div class="form-floating form-floating-outline mb-3">
-                                <textarea class="form-control h-px-100" id="exampleFormControlTextarea1" name="desc"
+                                <textarea class="form-control h-px-100" id="exampleFormControlTextarea1" name="issue"
                                     placeholder="Comments here..."></textarea>
-                                <label for="exampleFormControlTextarea1">Issue & Recommendation</label>
+                                <label for="exampleFormControlTextarea1">Issue</label>
                             </div>
                             <div class="mb-4">
                                 <label for="formFile" class="form-label">Input Bukti Photo</label>
@@ -153,15 +166,26 @@
                                         <div class="col-8 col-lg-10">
                                             : {{ $machine->unit->brand }} {{ $machine->unit->unit->sku }}
                                         </div>
-                                        <div class="col-4 col-lg-2">
-                                            Date
-                                        </div>
-                                        <div class="col-8 col-lg-10">
-                                            : {{ \Carbon\Carbon::now()->format('d-m-Y') }}
-                                        </div>
+                                        @if (Auth::user()->code != 'RMD')
+                                            <div class="col-4 col-lg-2">
+                                                Date
+                                            </div>
+                                            <div class="col-8 col-lg-10">
+                                                : {{ \Carbon\Carbon::now()->format('d-m-Y') }}
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
+                            @if (Auth::user()->code == 'RMD')
+                                <div class="row my-3">
+                                    <div class="col-4">
+                                        <label for="Date">Date</label>
+                                        <input class="form-control" type="date" id="Date" name="date"
+                                            value="{{ now()->format('Y-m-d') }}">
+                                    </div>
+                                </div>
+                            @endif
                             <div class="row mb-3">
                                 <div class="col-6 col-lg-3">
                                     <label for="defaultSelect" class="form-label">Condition</label>
@@ -219,9 +243,9 @@
                                 </div>
                             </div>
                             <div class="form-floating form-floating-outline mb-3">
-                                <textarea class="form-control h-px-100" id="exampleFormControlTextarea1" name="desc"
+                                <textarea class="form-control h-px-100" id="exampleFormControlTextarea1" name="issue"
                                     placeholder="Comments here..."></textarea>
-                                <label for="exampleFormControlTextarea1">Issue & Recommendation</label>
+                                <label for="exampleFormControlTextarea1">Issue</label>
                             </div>
                             <div class="mb-4">
                                 <label for="formFile" class="form-label">Input Bukti Photo</label>

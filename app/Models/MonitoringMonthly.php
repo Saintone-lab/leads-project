@@ -19,6 +19,8 @@ class MonitoringMonthly extends Model
         'id_machine',
         'refrigerasi',
         'strainer',
+        'lp',
+        'hp',
     ];
 
     public function machine()
