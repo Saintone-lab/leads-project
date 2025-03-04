@@ -44,8 +44,7 @@
                         </div>
                         <div class="col-12">
                             <div class="form-floating form-floating-outline mb-3">
-                                <input type="Text" class="form-control" name="issue" id="formLocation"
-                                    value="{{$monitor->issue}}" placeholder="issue">
+                                <textarea class="form-control" name="issue" id="formLocation">{{$monitor->issue}}</textarea>
                                 <label for="exampleFormControlTextarea1">Issue</label>
                             </div>
                         </div>

@@ -76,12 +76,14 @@ class InvoiceController extends Controller
             $totalAmount += $payment->amount;
         }
         $remaining = $quote->harga_total - $totalAmount;
-        $harga = Payment::where('id_quotation', $quote->id)->orderBy('created_at', 'DESC')->first();
-        $price = $this->terbilang(@$harga->amount - $totalPph);
+        $harga = Payment::where('id_quotation', $quote->id)->get();
+        $priceDp = $this->terbilang($quote->harga_total * @$harga[0]->percent / 100 - $totalPph);
+        $priceBp = $this->terbilang($quote->harga_total * @$harga[1]->percent / 100 - $totalPph);
+        // $price = $this->terbilang(@$harga->amount - $totalPph);
         $fullPrice = $this->terbilang($quote->harga_total - $totalPph);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         // $pph = $quote->subtotal * $invoice->pph / 100;
-        // dd($pph);
+        // dd($price);
         $afterDisc = $quote->subtotal - $quote->diskon;
 
         $doTek = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->get();
@@ -89,7 +91,7 @@ class InvoiceController extends Controller
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $pOut = ProductOut::where('invoice', $invoice->no_invoice)->first();
         // dd($pOut);
-        return view('pages.accounting.invoice.detail', compact('noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
+        return view('pages.accounting.invoice.detail', compact('noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
     }
 
     /**

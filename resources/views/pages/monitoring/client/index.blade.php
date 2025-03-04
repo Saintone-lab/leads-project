@@ -115,7 +115,6 @@
                                     <th>Model / Type</th>
                                     <th>Issue</th>
                                     <th>Pic</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                         </table>

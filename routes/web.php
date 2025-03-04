@@ -310,6 +310,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::patch('/monitoring-client/fajarPaper-updateRecommendation/{id}', [MonitoringClientController::class, 'updateRecommendation'])->name('monitoring.fajarPaper-updateRecommendation');
     Route::patch('/monitoring-client/fajarPaper-updateStatus/{id}', [MonitoringClientController::class, 'updateStatus'])->name('monitoring.fajarPaper-updateStatus');
     Route::patch('/monitoring-client/fajarPaper-updatePN/{id}', [MonitoringClientController::class, 'updatePN'])->name('monitoring.fajarPaper-updatePN');
+    Route::delete('/monitoring-client/fajarPaper-deletePN/{id}', [MonitoringClientController::class, 'deletePN'])->name('monitoring.fajarPaper-deletePN');
     Route::patch('/monitoring-client/fajarPaper/{id}', [MonitoringClientController::class, 'editIssue'])->name(name: 'monitoring.fajarPaper-editIssue');
     Route::get('/monitoring-client/fajarPaper-monitoring', [MonitoringClientController::class, 'monitoring'])->name('monitoring.fajarPaper-monitoring');
     Route::get('/monitoring-client/fajarPaper-reports', [MonitoringClientController::class, 'reports'])->name('monitoring.fajarPaper-reports');
@@ -506,9 +507,8 @@ Route::group(["middleware" => "auth"], function () {
             ->join('users as u', 'monitoring.id_pic', '=', 'u.id')
             ->where('m.id_client', 1277)
             ->where('sm.status', '0')
-            ->where('monitoring.issue','!=', '-')
+            ->where('monitoring.issue', '!=', '-')
             ->whereNotNull('monitoring.issue')
-            ->whereDay('monitoring.date', Carbon::today())
             ->groupBy('monitoring.id')
             ->select(
                 'monitoring.*',
@@ -521,26 +521,29 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $data]);
     });
     Route::get('db/monitoring/reports', function () {
-        $data = Monitoring::join('status_monitoring as sm', 'monitoring.id', '=', 'sm.id_monitoring')
+        $data = Monitoring::join(DB::raw("(SELECT sm1.* FROM status_monitoring sm1 
+                    WHERE sm1.id = (SELECT MAX(sm2.id) FROM status_monitoring sm2 WHERE sm2.id_monitoring = sm1.id_monitoring)
+                ) as sm"), 'monitoring.id', '=', 'sm.id_monitoring')
             ->join('machine as m', 'monitoring.id_machine', '=', 'm.id')
             ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
             ->join('unit as un', 'un.id', '=', 'sp.id_product')
             ->join('users as u', 'monitoring.id_pic', '=', 'u.id')
             ->whereNot('sm.status', '0')
             ->where('m.id_client', 1277)
-            ->where('monitoring.issue','!=', '-')
+            ->where('monitoring.issue', '!=', '-')
             ->whereNotNull('monitoring.issue')
-            ->whereDay('monitoring.date', Carbon::today())
             ->groupBy('monitoring.id')
             ->select(
                 'monitoring.*',
-                'u.name',
+                'm.desc as name',
                 'm.tag',
                 'm.location',
                 'sm.status',
+                'sm.desc as status_desc',
                 'monitoring.id as monId',
                 DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
             )->get();
+
         return response()->json(['data' => $data]);
     });
     Route::get('db/recap-compressor/{date}', function ($date) {

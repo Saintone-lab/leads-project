@@ -184,6 +184,15 @@ class MonitoringClientController extends Controller
             return redirect('/monitoring-client/fajarPaper/' . $id)->with('success', 'Data telah di buat');
         }
     }
+    public function deletePN($id){
+        $pn = PnMonitoring::find($id);
+        $pnDel = $pn->delete();
+        if ($pnDel) {
+            return 1;
+        }else{
+            return 0;
+        }
+    }
     public function updateStatus(Request $request, $id)
     {
         $status = new StatusMonitoring();

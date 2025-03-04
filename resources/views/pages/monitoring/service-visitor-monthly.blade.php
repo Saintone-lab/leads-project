@@ -29,6 +29,7 @@
                         </div>
                         <div>
                             <h3 class="fw-bold">MONTHLY MONITORING</h3>
+                            <h3 class="fw-bold mt-0">AIR DRYER</h3>
                             <div class="mt-1">
                                 <span class="text-muted">Month {{ $thisMonth }}</span>
                             </div>
@@ -41,10 +42,10 @@
                             <thead class="table-light">
                                 <th>Machine</th>
                                 <th>Date</th>
-                                <th>refrigerasi</th>
-                                <th>Strainer</th>
-                                <th>LP (Low Pressure)</th>
+                                <th>Condition</th>
                                 <th>HP (High Pressure)</th>
+                                <th>LP (Low Pressure)</th>
+                                <th>Strainer</th>
                                 <th>PIC</th>
                             </thead>
                             <tbody>
@@ -54,10 +55,10 @@
                                             - {{ $item->location }}
                                         </td>
                                         <td>{{ $item->date ?? '-' }}</td>
-                                        <td>{{ $item->refrigerasi ?? '-' }}</td>
-                                        <td>{{ $item->strainer ?? '-' }}</td>
-                                        <td>{{ $item->lp ?? '-' }}</td>
+                                        <td>{{ $item->condition ?? '-' }}</td>
                                         <td>{{ $item->hp ?? '-' }}</td>
+                                        <td>{{ $item->lp ?? '-' }}</td>
+                                        <td>{{ $item->strainer ?? '-' }}</td>
                                         <td>{{ $item->name ?? '-' }}</td>
                                     </tr>
                                 @endforeach

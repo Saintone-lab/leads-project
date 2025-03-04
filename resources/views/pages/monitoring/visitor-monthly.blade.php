@@ -58,7 +58,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 class="fw-bold">DAILY MONITORING</h3>
+                                    <h3 class="fw-bold">MONTHLY MONITORING AIR DRYER</h3>
                                     <div>
                                         <span class="fw-bolder">{{ $machine->unit->unit->unit }}</span>
                                     </div>

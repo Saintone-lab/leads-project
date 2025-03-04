@@ -40,16 +40,24 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-12 col-md-6 mb-3">
-                            <label for="defaultInput" class="form-label">Pengecekan tekanan pada sistem refrigerasi untuk
-                                memastikan dalam batas normal</label>
-                            <div class="input-group input-group-merge">
-                                <select name="refrigerasi" class="form-select offDisable">
-                                    <option value="Oke">Oke</option>
-                                    <option value="Not Oke">Not Oke</option>
-                                </select>
-                            </div>
+                            <label for="defaultSelect" class="form-label">Condition</label>
+                            <select id="conditionSelect" name="condition" class="form-select">
+                                <option value="Running">Running</option>
+                                <option value="Stand By">Stand By</option>
+                                <option value="Off">Off</option>
+                            </select>
                         </div>
-                        <div class="col-12 col-md-6 mb-3">
+                        <div class="col-6 col-md-3 mb-3">
+                            <label for="defaultInput" class="form-label">Input HP (High Pressure)</label>
+                            <input id="numberInput" class="form-control offDisable" name="hp" type="text"
+                                placeholder="Input HP">
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <label for="defaultInput" class="form-label">Input LP (Low Pressure)</label>
+                            <input id="numberInput" class="form-control offDisable" name="lp" type="text"
+                                placeholder="Input LP">
+                        </div>
+                        <div class="col-12 mb-3">
                             <label for="defaultInput" class="form-label">Pengecekan dan bersihkan strainer pada timer drain
                                 di dryer, inline filter dan receiver tank</label>
                             <div class="input-group input-group-merge">
@@ -58,16 +66,6 @@
                                     <option value="Not Oke">Not Oke</option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="col-12 col-md-6 mb-3">
-                            <label for="defaultInput" class="form-label">Input LP (Low Pressure)</label>
-                            <input id="numberInput" class="form-control offDisable" name="lp" type="text"
-                                placeholder="Input LP">
-                        </div>
-                        <div class="col-12 col-md-6 mb-3">
-                            <label for="defaultInput" class="form-label">Input HP (High Pressure)</label>
-                            <input id="numberInput" class="form-control offDisable" name="hp" type="text"
-                                placeholder="Input HP">
                         </div>
                     </div>
                 </div>

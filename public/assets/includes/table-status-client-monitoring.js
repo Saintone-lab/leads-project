@@ -66,24 +66,25 @@ $(function () {
                     targets: 9,
                     render: function (data, type, full, row) {
                         var $status_number = full["status"];
+                        var status_desc = full["status_desc"];
                         var $status = {
                             1: {
                                 title: "Proccess FU to User",
                                 class: " bg-label-info",
                                 colorTip: "tooltip-info",
-                                titleTip: "Proccess FU to User",
+                                titleTip: status_desc,
                             },
                             2: {
                                 title: "Send Inquiry",
                                 class: " bg-label-warning",
                                 colorTip: "tooltip-warning",
-                                titleTip: "Send Inquiry",
+                                titleTip: status_desc,
                             },
                             3: {
                                 title: "Hold by User",
                                 class: " bg-label-danger",
                                 colorTip: "tooltip-danger",
-                                titleTip: "Hold by User",
+                                titleTip: status_desc,
                             },
                             4: {
                                 title: "Done",

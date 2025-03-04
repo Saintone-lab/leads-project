@@ -390,8 +390,9 @@ class MonitoringController extends Controller
                 $monitoring->vibration = '-';
                 $monitoring->area = 0;
                 $monitoring->coupling = 0;
-                $monitoring->cooling = 0;
+                $monitoring->cooler = 0;
             } else {
+                $monitoring->dew = '-';
                 $monitoring->drain = '-';
                 $monitoring->pre = '-';
                 $monitoring->after = '-';
@@ -449,7 +450,6 @@ class MonitoringController extends Controller
         $monitoring = new MonitoringMonthly();
         $monitoring->id_machine = $id;
         $monitoring->id_pic = Auth::user()->id;
-        $monitoring->refrigerasi = $request->refrigerasi;
         $monitoring->strainer = $request->strainer;
         $monitoring->lp = $request->lp;
         $monitoring->hp = $request->hp;
@@ -1491,9 +1491,10 @@ class MonitoringController extends Controller
                         'picture' => $report->picture
                     ];
                 }),
-                'monthly' => $machine->monitoringM->map(function ($monitoringM) {
+                'monthly' => collect($machine->monitoringM)->map(function ($monitoringM) {
                     return [
-                        'refrigerasi' => $monitoringM->refrigerasi,
+                        'hp' => $monitoringM->hp,
+                        'lp' => $monitoringM->lp,
                         'strainer' => $monitoringM->strainer,
                         'date' => is_string($monitoringM->date) ? date('d-m-Y', strtotime($monitoringM->date)) : Carbon::parse($monitoringM->date)->format('d-m-Y'),
                         'pic' => $monitoringM->pic->name,

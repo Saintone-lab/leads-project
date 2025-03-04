@@ -32,7 +32,6 @@ $(function () {
                 { data: "machine" },
                 { data: "issue" },
                 { data: "name" },
-                { data: "id" },
             ],
             columnDefs: [
                 {
@@ -67,15 +66,6 @@ $(function () {
                         var id = full["id"];
                         return (
                             '<a class="text-black cursor-pointer" data-bs-toggle="modal" data-bs-target="#editIssue'+ id +'">'+ data +'</a>'
-                        );
-                    },
-                },
-                {
-                    targets: 8,
-                    render: function (data, type,full, row) {
-                        var id = full["id"];
-                        return (
-                            '<a data-bs-toggle="modal" data-bs-target="#editIssue'+ id +'">:</a>'
                         );
                     },
                 },

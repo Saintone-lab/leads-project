@@ -3,39 +3,100 @@
 @section('content')
     <div class="row mb-3">
         <div class="col-12 col-md-6 mb-4">
-            <h5>Data Unit</h5>
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-4">Date Issue</div>
-                        <div class="col-8">: {{ $monitoring->date }}</div>
-                        <div class="col-4">Location</div>
-                        <div class="col-8">: {{ $monitoring->machine->location }}</div>
-                        <div class="col-4">Tag Number</div>
-                        <div class="col-8">: {{ $monitoring->machine->tag }}</div>
-                        <div class="col-4">Type / Model </div>
-                        <div class="col-8">: {{ $monitoring->machine->unit->brand }}
-                            {{ $monitoring->machine->unit->unit->sku }}</div>
-                        <div class="col-4">PIC User</div>
-                        <div class="col-8">: {{ $monitoring->machine->desc }}</div>
+            <div class="unit mb-4">
+                <h5>Data Unit</h5>
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4">Date Issue</div>
+                            <div class="col-8">: {{ $monitoring->date }}</div>
+                            <div class="col-4">Location</div>
+                            <div class="col-8">: {{ $monitoring->machine->location }}</div>
+                            <div class="col-4">Tag Number</div>
+                            <div class="col-8">: {{ $monitoring->machine->tag }}</div>
+                            <div class="col-4">Type / Model </div>
+                            <div class="col-8">: {{ $monitoring->machine->unit->brand }}
+                                {{ $monitoring->machine->unit->unit->sku }}</div>
+                            <div class="col-4">PIC User</div>
+                            <div class="col-8">: {{ $monitoring->machine->desc }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="issue">
+                <div class="d-flex justify-content-between">
+                    <h5 class="fw-bold m-0 pt-2">
+                        Issue
+                    </h5>
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#updateIssue">
+                        <button type="button" class="btn btn-primary waves-effect waves-light">
+                            {{ $monitoring->issue || $monitoring->issue == '-' ? 'Edit' : '+' }}
+                        </button>
+                    </a>
+                </div>
+                <div class="card h-100">
+                    <div class="card-body">
+                        {{ $monitoring->issue ?? 'Belum ada Issue' }}
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-6 mb-4">
-            <div class="d-flex justify-content-between">
+        <div class="col-12 col-md-6">
+            <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold m-0 pt-2">
-                    Issue
+                    Activity Timeline
                 </h5>
-                <a type="button" data-bs-toggle="modal" data-bs-target="#updateIssue">
+                <a type="button" data-bs-toggle="modal" data-bs-target="#updateStatus">
                     <button type="button" class="btn btn-primary waves-effect waves-light">
-                        {{ $monitoring->issue || $monitoring->issue == '-' ? 'Edit' : '+' }}
+                        Update Status
                     </button>
                 </a>
             </div>
-            <div class="card h-100">
+            <div class="card h-auto">
                 <div class="card-body">
-                    {{ $monitoring->issue ?? 'Belum ada Issue' }}
+                    @foreach ($status as $item)
+                        @php
+                            switch ($item->status) {
+                                case '0':
+                                    $stat = 'Monitoring Created';
+                                    $label = 'bg-label-dark';
+                                    break;
+                                case '1':
+                                    $stat = 'Process FU to User';
+                                    $label = 'bg-label-info';
+                                    break;
+                                case '2':
+                                    $stat = 'Send Inquiry';
+                                    $label = 'bg-label-warning';
+                                    break;
+                                case '3':
+                                    $stat = 'Hold By User';
+                                    $label = 'bg-label-danger';
+                                    break;
+                                case '4':
+                                    $stat = 'Done';
+                                    $label = 'bg-label-success';
+                                    break;
+
+                                default:
+                                    # code...
+                                    break;
+                            }
+                        @endphp
+                        <div class="d-flex justify-content-between">
+                            <h5 class="badge rounded-pill {{ $label }} fs-5 fw-5">
+                                {{ $stat }}
+                            </h5>
+                            <h6>
+                                {{ $item->pic->name }}
+                            </h6>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p>{{ $item->desc }}</p>
+                            <p>{{ $item->date }}</p>
+                        </div>
+                        <hr>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -75,6 +136,7 @@
                                 <tr>
                                     <th style="width:40%;">PN</th>
                                     <th>Description</th>
+                                    <th>action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -82,6 +144,10 @@
                                     <tr>
                                         <td>{{ $machine->pn }}</td>
                                         <td>{{ $machine->desc }}</td>
+                                        <td>
+                                            <a href="#" data-id="{{ $machine->id }}" data-monitoring="{{$monitoring->id}}"
+                                                class="btn btn-sm btn-label-danger delete-pn">Delete</a>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -131,65 +197,6 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 my-5">
-            <div class="d-flex justify-content-between mb-2">
-                <h5 class="fw-bold m-0 pt-2">
-                    Activity Timeline
-                </h5>
-                <a type="button" data-bs-toggle="modal" data-bs-target="#updateStatus">
-                    <button type="button" class="btn btn-primary waves-effect waves-light">
-                        Update Status
-                    </button>
-                </a>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    @foreach ($status as $item)
-                        @php
-                            switch ($item->status) {
-                                case '0':
-                                    $stat = 'Monitoring Created';
-                                    $label = 'bg-label-dark';
-                                    break;
-                                case '1':
-                                    $stat = 'Process FU to User';
-                                    $label = 'bg-label-info';
-                                    break;
-                                case '2':
-                                    $stat = 'Send Inquiry';
-                                    $label = 'bg-label-warning';
-                                    break;
-                                case '3':
-                                    $stat = 'Hold By User';
-                                    $label = 'bg-label-danger';
-                                    break;
-                                case '4':
-                                    $stat = 'Done';
-                                    $label = 'bg-label-success';
-                                    break;
-
-                                default:
-                                    # code...
-                                    break;
-                            }
-                        @endphp
-                        <div class="d-flex justify-content-between">
-                            <h5 class="badge rounded-pill {{ $label }} fs-5 fw-5">
-                                {{ $stat }}
-                            </h5>
-                            <h6>
-                                {{ $item->pic->name }}
-                            </h6>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <p>{{ $item->desc }}</p>
-                            <p>{{ $item->date }}</p>
-                        </div>
-                        <hr>
-                    @endforeach
-                </div>
-            </div>
-        </div>
     </div>
     @include('components.modal.monitoring.client.issueDet')
     @include('components.modal.monitoring.client.recommendation')
@@ -206,6 +213,7 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
 @endpush
 
 @push('after-script')
@@ -215,13 +223,75 @@
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
 @endpush
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-client-daily.js"></script>
     <script src="{{ asset('assets') }}/includes/table-issue-client-monitoring.js"></script>
+    <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
 @endpush
 
 @push('script')
+    <script>
+        $(document).on('click', '.delete-pn', function() {
+            var id = $(this).data('id');
+            var monitoring = $(this).data('monitoring');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('monitoring-client') }}/fajarPaper-deletePN/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Your file has been deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href =
+                                        '/monitoring-client/fajarPaper/' + monitoring;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+    </script>
 @endpush
