@@ -498,7 +498,7 @@
                             @elseif ($invoice->type == 'BP')
                                 @php
                                     $amount1 = $payments[0]->amount / (1 + $quote->tax / 100);
-                                    $amount2 = $payments[1]->amount / (1 + $quote->tax / 100);
+                                    $amount2 = $payments[1]?->amount / (1 + $quote->tax / 100);
                                     $vat = $amount2 * ($quote->tax / 100);
                                 @endphp
                                 @if ($quote->diskon != 0)
@@ -539,8 +539,8 @@
                                     <td colspan="3" class="text-end py-0 px-0">
                                         <p class="m-0"
                                             style="background-color: yellow; padding-left:20px; padding-right:10px;">
-                                            {{ $payments[1]->note }}
-                                            {{ $payments[1]->percent }}%:</p>
+                                            {{ $payments[1]?->note }}
+                                            {{ $payments[1]?->percent }}%:</p>
                                     </td>
                                     <td class="px-0 py-0" style="padding-left: 0 !important;">
                                         <p class="m-0 text-end" style="background-color: yellow; padding-right:20px;">
@@ -561,7 +561,7 @@
                                     </tr>
                                 @endif
                                 @php
-                                    $totalwithpph = $payments[1]->amount - $totalPph;
+                                    $totalwithpph = $payments[1]?->amount - $totalPph;
                                 @endphp
                                 @if ($quote->tax != 0)
                                     <tr class="fw-medium" style="font-size: 13px">

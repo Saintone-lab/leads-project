@@ -3,7 +3,7 @@
 @section('content')
     <div class="card mb-3">
         <div class="card-body">
-            <h5> Reports Daily </h5>
+            <h5> Monitoring Issue </h5>
             <div class="card-datatable table-responsive pt-0">
                 <table class="datatable-reports-monitoring table table-bordered">
                     <thead>

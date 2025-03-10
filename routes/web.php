@@ -303,21 +303,46 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/monitoring/monthly-create/{id}', [MonitoringController::class, 'createMonthly'])->name('create.monthly-monitoring');
     Route::post('/monitoring/monthly-store/{id}', [MonitoringController::class, 'storeMonthly'])->name('store.monthly-monitoring');
     Route::get('/monitoring-client/fajarPaper', [MonitoringClientController::class, 'index'])->name('monitoring.fajarPaper');
+    Route::get('/monitoring-client/fajarPaper-archive', [MonitoringClientController::class, 'indexArsip'])->name('monitoring-arsip.fajarPaper');
     Route::get('/monitoring-client/fajarPaper/{id}', [MonitoringClientController::class, 'show'])->name('monitoring.fajarPaper-detail');
     Route::get('/monitoring-client/fajarPaper-quotation/{id}', [MonitoringClientController::class, 'createQuotation'])->name('monitoring.create-quotation');
     Route::post('/monitoring-client/fajarPaper-quotation/{id}', [MonitoringClientController::class, 'storeQuotation'])->name('monitoring.store-quotation');
     Route::patch('/monitoring-client/fajarPaper-updateIssue/{id}', [MonitoringClientController::class, 'updateIssue'])->name('monitoring.fajarPaper-updateIssue');
     Route::patch('/monitoring-client/fajarPaper-updateRecommendation/{id}', [MonitoringClientController::class, 'updateRecommendation'])->name('monitoring.fajarPaper-updateRecommendation');
     Route::patch('/monitoring-client/fajarPaper-updateStatus/{id}', [MonitoringClientController::class, 'updateStatus'])->name('monitoring.fajarPaper-updateStatus');
+    Route::patch('/monitoring-client/fajarPaper-arsipStatus/{id}', [MonitoringClientController::class, 'arsipStatus'])->name('monitoring.fajarPaper-arsipStatus');
+    Route::patch('/monitoring-client/fajarPaper-backArsipStatus/{id}', [MonitoringClientController::class, 'backArsipStatus'])->name('monitoring.fajarPaper-backArsipStatus');
     Route::patch('/monitoring-client/fajarPaper-updatePN/{id}', [MonitoringClientController::class, 'updatePN'])->name('monitoring.fajarPaper-updatePN');
     Route::delete('/monitoring-client/fajarPaper-deletePN/{id}', [MonitoringClientController::class, 'deletePN'])->name('monitoring.fajarPaper-deletePN');
     Route::patch('/monitoring-client/fajarPaper/{id}', [MonitoringClientController::class, 'editIssue'])->name(name: 'monitoring.fajarPaper-editIssue');
     Route::get('/monitoring-client/fajarPaper-monitoring', [MonitoringClientController::class, 'monitoring'])->name('monitoring.fajarPaper-monitoring');
     Route::get('/monitoring-client/fajarPaper-reports', [MonitoringClientController::class, 'reports'])->name('monitoring.fajarPaper-reports');
+    Route::get('/monitoring-client-fajarPaper-reports/{year}/{month}', [MonitoringClientController::class, 'reportsMonthly'])->name('monitoring.fajarPaper-reportsMonthly');
     Route::get('/monitoring-client/fajarPaper-summary-print', [MonitoringClientController::class, 'summaryPrint'])->name('monitoring.fajarPaper-summary-print');
     Route::get('/monitoring-client/fajarPaper-hold-print', [MonitoringClientController::class, 'holdPrint'])->name('monitoring.fajarPaper-hold-print');
     Route::get('/monitoring-client/fajarPaper-quote-print', [MonitoringClientController::class, 'quotePrint'])->name('monitoring.fajarPaper-quote-print');
 
+    Route::get('/db/monitoring/semester', function () {
+        $start = Carbon::create(2025, 1, 1); // Mulai dari Januari 2025
+        $end = Carbon::create(2026, 12, 1); // Sampai Desember 2026
+
+        $no_semester = 1;
+        while ($start->lessThanOrEqualTo($end)) {
+            $semester[] = [
+                'id' => $no_semester,
+                'semester' => 'Semester ' . $no_semester,
+                'year' => $start->format('Y'),
+                'semesterNum' => $no_semester,
+            ];
+            if ($start->month == '1') {
+                $no_semester++;
+            } else {
+                $no_semester--;
+            }
+            $start->addMonths(6);
+        }
+        return response()->json(['data' => $semester]);
+    });
     Route::get('/db/monitoring/summary', function () {
         $today = Carbon::today();
         $summary = Monitoring::join('machine as m', 'monitoring.id_machine', '=', 'm.id')
@@ -367,6 +392,91 @@ Route::group(["middleware" => "auth"], function () {
             ->where('status_monitoring.status', '3')
             ->whereMonth('monitoring.date', $today)
             ->whereYear('monitoring.date', $today)
+            ->select(
+                'monitoring.*',
+                'm.tag',
+                'm.location',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )
+            ->get();
+        return response()->json(['data' => $statusMon]);
+    });
+
+    Route::get('db/monitoring/reports', function () {
+        $data = Monitoring::join(DB::raw("(SELECT sm1.* FROM status_monitoring sm1 
+                    WHERE sm1.id = (SELECT MAX(sm2.id) FROM status_monitoring sm2 WHERE sm2.id_monitoring = sm1.id_monitoring)
+                ) as sm"), 'monitoring.id', '=', 'sm.id_monitoring')
+            ->join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->join('users as u', 'monitoring.id_pic', '=', 'u.id')
+            ->whereIn('sm.status', ['1','2','3'])
+            ->where('m.id_client', 1277)
+            ->where('monitoring.issue', '!=', '-')
+            ->whereNotNull('monitoring.issue')
+            ->groupBy('monitoring.id')
+            ->select(
+                'monitoring.*',
+                'm.desc as name',
+                'm.tag',
+                'm.location',
+                'sm.status',
+                'sm.desc as status_desc',
+                'monitoring.id as monId',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )->get();
+
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/monitoring/summary/{year}/{month}', function ($year, $month) {
+        $today = Carbon::today();
+        $summary = Monitoring::join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->whereMonth('monitoring.date', $month)
+            ->whereYear('monitoring.date', $year)
+            ->whereNotNull('main_desc')
+            ->select(
+                'monitoring.*',
+                'm.tag',
+                'm.location',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )
+            ->get();
+        return response()->json(['data' => $summary]);
+    });
+    Route::get('/db/monitoring/quote/{year}/{month}', function ($year, $month) {
+        $today = Carbon::today();
+        $quoteMon = Monitoring::join('quotation as q', 'monitoring.id', '=', 'q.id_monitoring')
+            ->join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->whereMonth('monitoring.date', $month)
+            ->whereYear('monitoring.date', $year)
+            ->select(
+                'monitoring.*',
+                'm.tag',
+                'm.location',
+                'q.title',
+                'q.no_quote',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )
+            ->get();
+        return response()->json(['data' => $quoteMon]);
+    });
+    Route::get('/db/monitoring/hold/{year}/{month}', function ($year, $month) {
+        $today = Carbon::today();
+        $latestStatus = StatusMonitoring::selectRaw('MAX(id) as id')
+            ->groupBy('id_monitoring');
+
+        $statusMon = StatusMonitoring::join('monitoring', 'monitoring.id', '=', 'status_monitoring.id_monitoring')
+            ->join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->whereIn('status_monitoring.id', $latestStatus)
+            ->where('status_monitoring.status', '3')
+            ->whereMonth('monitoring.date', $month)
+            ->whereYear('monitoring.date', $year)
             ->select(
                 'monitoring.*',
                 'm.tag',
@@ -520,7 +630,7 @@ Route::group(["middleware" => "auth"], function () {
             )->get();
         return response()->json(['data' => $data]);
     });
-    Route::get('db/monitoring/reports', function () {
+    Route::get('db/monitoring/arsip', function () {
         $data = Monitoring::join(DB::raw("(SELECT sm1.* FROM status_monitoring sm1 
                     WHERE sm1.id = (SELECT MAX(sm2.id) FROM status_monitoring sm2 WHERE sm2.id_monitoring = sm1.id_monitoring)
                 ) as sm"), 'monitoring.id', '=', 'sm.id_monitoring')
@@ -528,7 +638,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
             ->join('unit as un', 'un.id', '=', 'sp.id_product')
             ->join('users as u', 'monitoring.id_pic', '=', 'u.id')
-            ->whereNot('sm.status', '0')
+            ->where('sm.status', '5')
             ->where('m.id_client', 1277)
             ->where('monitoring.issue', '!=', '-')
             ->whereNotNull('monitoring.issue')

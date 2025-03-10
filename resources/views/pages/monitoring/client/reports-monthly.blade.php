@@ -1,28 +1,6 @@
 @extends('layouts.sales.app')
 @section('title', 'Monitoring machine')
 @section('content')
-<div class="card mb-3">
-    <div class="card-body">
-        <h5> Reports Monthly </h5>
-        <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-monitoring-semester table table-bordered">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Semester</th>
-                        <th>Year</th>
-                        <th>MMonth</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-        <a class="btn btn-primary btn-outline-secondary d-grid mb-3 waves-effect float-end" target="_blank"
-            href="{{ route('monitoring.fajarPaper-summary-print') }}">
-            Download
-        </a>
-    </div>
-</div>
     <div class="card mb-3">
         <div class="card-body">
             <h5> Summary Pekerjaan Service </h5>
@@ -120,10 +98,9 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-monitoring-summary.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-monitoring-reports.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-monitoring-quote.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-monitoring-semester.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-monitoring-summary-monthly.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-monitoring-reports-monthly.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-monitoring-quote-monthly.js"></script>
 @endpush
 
 @push('script')

@@ -44,6 +44,6 @@ class Unit extends Model
     }
     public function machine()
     {
-        return $this->hasMany('App\Models\Machine', 'id_product');
+        return $this->hasMany('App\Models\Machine', 'id_unit');
     }
 }

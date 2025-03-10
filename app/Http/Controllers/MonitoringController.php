@@ -1141,7 +1141,11 @@ class MonitoringController extends Controller
                 $query->whereMonth('date', $month)
                     ->whereYear('date', $year);
             }
-        ])->whereNotBetween('machine.id', [472, 481])->where('id_client', 1277)->get();
+        ])
+            ->whereNotBetween('machine.id', [472, 481])
+            ->where('id_client', 1277)
+            ->orderBy('machine.location')
+            ->get();
 
         $result = $machines->filter(function ($machine) {
             return $machine->monitoring->isNotEmpty();
@@ -1314,7 +1318,6 @@ class MonitoringController extends Controller
 
         $machines = Machine::with([
             'unit',
-            'unit.unit',
             'monitoring' => function ($query) use ($month, $year) {
                 $query->whereMonth('date', $month)
                     ->whereYear('date', $year);
@@ -1323,15 +1326,19 @@ class MonitoringController extends Controller
                 $query->whereMonth('date', $month)
                     ->whereYear('date', $year);
             },
-            // 'monitoringM' => function ($query) use ($month, $year) {
-            //     $query->whereMonth('date', $month)
-            //         ->whereYear('date', $year);
-            // },
             'reports' => function ($query) use ($month, $year) {
                 $query->whereMonth('date', $month)
                     ->whereYear('date', $year);
             },
-        ])->whereNotBetween('machine.id', [472, 481])->where('id_client', 1277)->get();
+        ])
+            // ->join('unit as u', 'machine.id_unit', '=', 'u.id')
+            ->whereNotBetween('machine.id', [472, 481])
+            ->where('machine.id_client', 1277)
+            // ->orderBy('u.unit')
+            ->orderBy('machine.location')
+            ->get();
+
+        // dd($machines);
 
         $result = $machines->filter(function ($machine) {
             return $machine->monitoring->isNotEmpty();

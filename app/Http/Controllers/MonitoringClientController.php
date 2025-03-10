@@ -109,18 +109,39 @@ class MonitoringClientController extends Controller
             ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
             ->join('unit as un', 'un.id', '=', 'sp.id_product')
             ->join('users as u', 'monitoring.id_pic', '=', 'u.id')
+            ->where('m.id_client', 1277)
             ->where('sm.status', '0')
-            ->whereDay('monitoring.date', Carbon::today())
+            ->where('monitoring.issue', '!=', '-')
+            ->whereNotNull('monitoring.issue')
             ->groupBy('monitoring.id')
             ->select(
                 'monitoring.*',
                 'u.name',
                 'm.tag',
                 'm.location',
-                'sp.brand',
                 'monitoring.id as monId',
                 DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
             )->get();
+
+
+        $start = Carbon::create(2025, 1, 1); // Mulai dari Januari 2025
+        $end = Carbon::create(2026, 12, 1); // Sampai Desember 2026
+
+        $no_semester = 1;
+        while ($start->lessThanOrEqualTo($end)) {
+            $semester[] = [
+                'semmester' => 'Semester ' . $no_semester,
+                'year' => $start->format('Y'),
+                'semmesterNum' => $no_semester,
+            ];
+            if ($start->month == '1') {
+                $no_semester++;
+            } else {
+                $no_semester--;
+            }
+            $start->addMonths(6);
+        }
+        // dd($semester);
         return view('pages.monitoring.client.index', compact('month', 'year', 'allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'result', 'issued'));
     }
 
@@ -178,18 +199,20 @@ class MonitoringClientController extends Controller
         $pn->id_monitoring = $id;
         $pn->pn = $request->pn;
         $pn->desc = $request->desc;
+        $pn->stock = $request->stock;
         $pn->date = Carbon::today();
         $pnSave = $pn->save();
         if ($pnSave) {
             return redirect('/monitoring-client/fajarPaper/' . $id)->with('success', 'Data telah di buat');
         }
     }
-    public function deletePN($id){
+    public function deletePN($id)
+    {
         $pn = PnMonitoring::find($id);
         $pnDel = $pn->delete();
         if ($pnDel) {
             return 1;
-        }else{
+        } else {
             return 0;
         }
     }
@@ -200,11 +223,51 @@ class MonitoringClientController extends Controller
         $status->id_pic = Auth::user()->id;
         $status->status = $request->status;
         $status->desc = $request->desc;
-        $status->date = Carbon::today();
+        $status->date = $request->date;
+        // $status->date = Carbon::today();
         $statusSave = $status->save();
         if ($statusSave) {
             return redirect('/monitoring-client/fajarPaper/' . $id)->with('success', 'Data telah di buat');
         }
+    }
+    public function arsipStatus($id)
+    {
+        $status = new StatusMonitoring();
+        $status->id_monitoring = $id;
+        $status->id_pic = Auth::user()->id;
+        $status->desc = 'Status Archived!';
+        $status->status = '5';
+        $status->date = Carbon::today();
+        $statusSave = $status->save();
+        if ($statusSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    public function backArsipStatus($id)
+    {
+        $lastStatus = StatusMonitoring::where('id_monitoring', $id)
+            ->orderBy('id', 'desc') // Pastikan urutan dari terbaru ke terlama
+            ->skip(1) // Lewati satu data terakhir
+            ->first(); // Ambil satu data berikutnya
+        $status = new StatusMonitoring();
+        $status->id_monitoring = $id;
+        $status->id_pic = Auth::user()->id;
+        $status->desc = 'Back From Archived!';
+        $status->status = $lastStatus->status;
+        $status->date = Carbon::today();
+        $statusSave = $status->save();
+        if ($statusSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public function indexArsip()
+    {
+        return view('pages.monitoring.client.arsip');
     }
 
     public function storeQuotation(Request $request, $id)
@@ -435,6 +498,11 @@ class MonitoringClientController extends Controller
         return view('pages.monitoring.client.reports', compact('summary', 'quoteMon', 'statusMon'));
     }
 
+    public function reportsMonthly($month, $year)
+    {
+        return view('pages.monitoring.client.reports-monthly');
+    }
+
     public function summaryPrint()
     {
         $today = Carbon::today();
@@ -500,6 +568,11 @@ class MonitoringClientController extends Controller
             ->get();
         $month = $today->format('F');
         return view('pages.monitoring.client.hold-print', compact('statusMon', 'month'));
+    }
+
+    public function arsip()
+    {
+        return view('pages.monitoring.client.arsip');
     }
 
     protected function convertToRoman($month)

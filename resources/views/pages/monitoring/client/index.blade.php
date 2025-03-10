@@ -5,8 +5,8 @@
         <div class="col-12 col-md-3 mb-2">
             <div class="card bg-label-success h-100">
                 <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
-                    <h1 class="text-black">{{ $allPlantMonitoring }}/ <span
-                            class="text-muted fs-3">{{ $allPlant }}</span></h1>
+                    <h1 class="text-black">{{ $allPlantMonitoring }}/ <span class="text-muted fs-3">{{ $allPlant }}</span>
+                    </h1>
                     <h5>Data Input Daily</h5>
                 </div>
             </div>
@@ -119,6 +119,26 @@
                             </thead>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="demo-inline-spacing">
+                <div class="btn-group" id="dropdown-icon-demo">
+                    <button type="button" class="btn btn-primary dropdown-toggle waves-effect waves-light"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="mdi mdi-menu me-1"></i> Month
+                    </button>
+                    <ul class="dropdown-menu" style="">
+                        <li>
+                            <a href="javascript:void(0);" class="dropdown-item">Jan</a>
+                            <a href="javascript:void(0);" class="dropdown-item">Feb</a>
+                            <a href="javascript:void(0);" class="dropdown-item">Mar</a>
+                            <a href="javascript:void(0);" class="dropdown-item">Apr</a>
+                            <a href="javascript:void(0);" class="dropdown-item">Mei</a>
+                            <a href="javascript:void(0);" class="dropdown-item">Jun</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

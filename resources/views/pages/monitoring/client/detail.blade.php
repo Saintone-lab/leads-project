@@ -3,9 +3,37 @@
 @section('content')
     <div class="row mb-3">
         <div class="col-12 col-md-6 mb-4">
-            <div class="unit mb-4">
-                <h5>Data Unit</h5>
-                <div class="card h-100">
+            <h5 class=" mb-2">Data Unit</h5>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="issue">
+                <div class="d-flex justify-content-between mb-2">
+                    <h5 class="fw-bold m-0 pt-2">
+                        Issue
+                    </h5>
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#updateIssue">
+                        <button type="button" class="btn btn-primary waves-effect waves-light">
+                            {{ $monitoring->issue || $monitoring->issue == '-' ? 'Edit' : '+' }}
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold m-0 pt-2">
+                    Recomendation
+                </h5>
+                <a type="button" data-bs-toggle="modal" data-bs-target="#updateRecommendation">
+                    <button type="button" class="btn btn-primary waves-effect waves-light">
+                        {{ $monitoring->recommendation && $monitoring->recommendation != '-' ? 'Edit' : '+' }}
+                    </button>
+                </a>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 mb-4">
+            <div class="unit">
+                <div class="card h-px-200">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-4">Date Issue</div>
@@ -23,140 +51,26 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="col-6 col-md-3">
             <div class="issue">
-                <div class="d-flex justify-content-between">
-                    <h5 class="fw-bold m-0 pt-2">
-                        Issue
-                    </h5>
-                    <a type="button" data-bs-toggle="modal" data-bs-target="#updateIssue">
-                        <button type="button" class="btn btn-primary waves-effect waves-light">
-                            {{ $monitoring->issue || $monitoring->issue == '-' ? 'Edit' : '+' }}
-                        </button>
-                    </a>
-                </div>
-                <div class="card h-100">
+                <div class="card h-px-200">
                     <div class="card-body">
-                        {{ $monitoring->issue ?? 'Belum ada Issue' }}
+                        <pre
+                            style="font-size: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">{{ $monitoring->issue ?? 'Belum ada Issue' }}</pre>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-6">
-            <div class="d-flex justify-content-between mb-2">
-                <h5 class="fw-bold m-0 pt-2">
-                    Activity Timeline
-                </h5>
-                <a type="button" data-bs-toggle="modal" data-bs-target="#updateStatus">
-                    <button type="button" class="btn btn-primary waves-effect waves-light">
-                        Update Status
-                    </button>
-                </a>
-            </div>
-            <div class="card h-auto">
+        <div class="col-6 col-md-3">
+            <div class="card h-px-200">
                 <div class="card-body">
-                    @foreach ($status as $item)
-                        @php
-                            switch ($item->status) {
-                                case '0':
-                                    $stat = 'Monitoring Created';
-                                    $label = 'bg-label-dark';
-                                    break;
-                                case '1':
-                                    $stat = 'Process FU to User';
-                                    $label = 'bg-label-info';
-                                    break;
-                                case '2':
-                                    $stat = 'Send Inquiry';
-                                    $label = 'bg-label-warning';
-                                    break;
-                                case '3':
-                                    $stat = 'Hold By User';
-                                    $label = 'bg-label-danger';
-                                    break;
-                                case '4':
-                                    $stat = 'Done';
-                                    $label = 'bg-label-success';
-                                    break;
-
-                                default:
-                                    # code...
-                                    break;
-                            }
-                        @endphp
-                        <div class="d-flex justify-content-between">
-                            <h5 class="badge rounded-pill {{ $label }} fs-5 fw-5">
-                                {{ $stat }}
-                            </h5>
-                            <h6>
-                                {{ $item->pic->name }}
-                            </h6>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <p>{{ $item->desc }}</p>
-                            <p>{{ $item->date }}</p>
-                        </div>
-                        <hr>
-                    @endforeach
+                    <pre
+                        style="font-size: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">{{ $monitoring->recommendation && $monitoring->recommendation != '-' ? $monitoring->recommendation : 'Belum ada Recommendation' }}</pre>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-6 my-4">
-            <div class="d-flex justify-content-between mb-2">
-                <h5 class="fw-bold m-0 pt-2">
-                    Recomendation
-                </h5>
-                <a type="button" data-bs-toggle="modal" data-bs-target="#updateRecommendation">
-                    <button type="button" class="btn btn-primary waves-effect waves-light">
-                        {{ $monitoring->recommendation && $monitoring->recommendation != '-' ? 'Edit' : '+' }}
-                    </button>
-                </a>
-            </div>
-            <div class="card h-100">
-                <div class="card-body">
-                    {{ $monitoring->recommendation && $monitoring->recommendation != '-' ? $monitoring->recommendation : 'Belum ada Recommendation' }}
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-md-6 my-4">
-            <div class="d-flex justify-content-between mb-2">
-                <h5 class="fw-bold m-0 pt-2">
-                    Part Number
-                </h5>
-                <a type="button" data-bs-toggle="modal" data-bs-target="#updatePn">
-                    <button type="button" class="btn btn-primary waves-effect waves-light">
-                        +
-                    </button>
-                </a>
-            </div>
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="table-responsive text-nowrap mb-4">
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th style="width:40%;">PN</th>
-                                    <th>Description</th>
-                                    <th>action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($pn as $machine)
-                                    <tr>
-                                        <td>{{ $machine->pn }}</td>
-                                        <td>{{ $machine->desc }}</td>
-                                        <td>
-                                            <a href="#" data-id="{{ $machine->id }}" data-monitoring="{{$monitoring->id}}"
-                                                class="btn btn-sm btn-label-danger delete-pn">Delete</a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 my-4">
+        <div class="col-12 mb-4">
             <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold m-0 pt-2">
                     Quotation
@@ -194,6 +108,117 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold m-0 pt-2">
+                    Part Number
+                </h5>
+                <div class="tombol">
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#updatePn">
+                        <button type="button" class="btn btn-primary waves-effect waves-light">
+                            +
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <div class="card ">
+                <div class="card-body">
+                    <div class="table-responsive text-nowrap mb-4">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:40%;">PN</th>
+                                    <th>Description</th>
+                                    <th>Stock</th>
+                                    <th>action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($pn as $machine)
+                                    <tr>
+                                        <td>{{ $machine->pn }}</td>
+                                        <td>{{ $machine->desc }}</td>
+                                        <td>{{ $machine->stock }}</td>
+                                        <td>
+                                            <a href="#" data-id="{{ $machine->id }}"
+                                                data-monitoring="{{ $monitoring->id }}"
+                                                class="btn btn-sm btn-label-danger delete-pn">Delete</a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold m-0 pt-2">
+                    Activity Timeline
+                </h5>
+                <div class="tombol">
+                    <a href="#" data-id="{{ $monitoring->id }}"
+                        class="btn btn-warning arsip-mon">Arsip</a>
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#updateStatus">
+                        <button type="button" class="btn btn-primary waves-effect waves-light">
+                            Update Status
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <div class="card h-auto">
+                <div class="card-body">
+                    @foreach ($status as $item)
+                        @php
+                            switch ($item->status) {
+                                case '0':
+                                    $stat = 'Monitoring Created';
+                                    $label = 'bg-label-dark';
+                                    break;
+                                case '1':
+                                    $stat = 'Process FU to User';
+                                    $label = 'bg-label-info';
+                                    break;
+                                case '2':
+                                    $stat = 'Send Inquiry';
+                                    $label = 'bg-label-warning';
+                                    break;
+                                case '3':
+                                    $stat = 'Hold By User';
+                                    $label = 'bg-label-danger';
+                                    break;
+                                case '4':
+                                    $stat = 'Done';
+                                    $label = 'bg-label-success';
+                                    break;
+                                case '5':
+                                    $stat = 'Archived';
+                                    $label = 'bg-label-dark';
+                                    break;
+
+                                default:
+                                    # code...
+                                    break;
+                            }
+                        @endphp
+                        <div class="d-flex justify-content-between">
+                            <h5 class="badge rounded-pill {{ $label }} fs-5 fw-5">
+                                {{ $stat }}
+                            </h5>
+                            <h6>
+                                {{ $item->pic->name }}
+                            </h6>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p>{{ $item->desc }}</p>
+                            <p>{{ $item->date }}</p>
+                        </div>
+                        <hr>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -277,6 +302,63 @@
                                     icon: 'error',
                                     title: 'Oops...',
                                     text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.arsip-mon', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, archive it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('monitoring-client') }}/fajarPaper-arsipStatus/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'PATCH',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Archived!",
+                                    text: "Your file has been archived.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href =
+                                        '/monitoring-client/fajarPaper-archive';
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Archive!'
                                 });
                             }
                         }

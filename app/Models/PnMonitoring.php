@@ -16,6 +16,7 @@ class PnMonitoring extends Model
     ];
     protected $fillable = [
         'desc',
+        'stock',
         'pn'
     ];
 

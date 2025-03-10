@@ -19,12 +19,18 @@
                                 <label for="formLocation">Part Number</label>
                             </div>
                         </div>
-                        <div class="col-12">
+                        <div class="col-12 mb-3">
                             <div class="form-floating form-floating-outline mb-3">
                                 <textarea class="form-control h-px-100" id="exampleFormControlTextarea1" name="desc"
                                     placeholder="Status Description here..."></textarea>
                                 <label for="exampleFormControlTextarea1">Status Description</label>
                             </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-floating form-floating-outline mb-3">
+                            <input type="Text" class="form-control" name="stock" id="formLocation">
+                            <label for="formLocation">Stock</label>
                         </div>
                     </div>
                     <div class="float-end">

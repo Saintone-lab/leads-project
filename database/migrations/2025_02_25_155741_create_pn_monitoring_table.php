@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('id_monitoring');
             $table->string('pn');
             $table->longText('desc');
+            $table->string('stock');
             $table->date('date');
             $table->timestamps();
         });

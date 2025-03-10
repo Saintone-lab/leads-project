@@ -1,5 +1,5 @@
-<div class="modal animate__animated animate__fadeIn" id="updateStatus" tabindex="-1"
-    style="display: none;" aria-hidden="true">
+<div class="modal animate__animated animate__fadeIn" id="updateStatus" tabindex="-1" style="display: none;"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -8,11 +8,18 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('monitoring.fajarPaper-updateStatus', $monitoring->id) }}"
-                    method="post" enctype="multipart/form-data" id="myForm">
+                <form action="{{ route('monitoring.fajarPaper-updateStatus', $monitoring->id) }}" method="post"
+                    enctype="multipart/form-data" id="myForm">
                     @method('PATCH')
                     @csrf
                     <div class="row mb-3">
+                        <div class="col-12 mb-3">
+                            <div class="form-floating form-floating-outline mb-6">
+                                <input class="form-control" type="date" id="Date" name="date"
+                                    value="{{ now()->format('Y-m-d') }}">
+                                <label for="Date">Date</label>
+                            </div>
+                        </div>
                         <div class="col-12 mb-3">
                             <div class="form-floating form-floating-outline mb-6">
                                 <select class="form-select" id="exampleFormControlSelect1"
