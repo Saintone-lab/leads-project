@@ -124,8 +124,8 @@
                                 <div class="col-6 col-lg-3">
                                     <label for="defaultSelect" class="form-label">Cek Kebocoran</label>
                                     <select id="offDisable" name="leak" class="form-select offDisable">
-                                        <option value="Ok">Ok</option>
-                                        <option value="Not Ok">Not Ok</option>
+                                        <option value="Ada">Ada</option>
+                                        <option value="Tidak Ada">Tidak Ada</option>
                                     </select>
                                 </div>
                             </div>
@@ -212,8 +212,8 @@
                                 <div class="col-6 col-lg-3">
                                     <label for="defaultSelect" class="form-label">Cek Kebocoran</label>
                                     <select id="offDisable" name="leak" class="form-select offDisable">
-                                        <option value="Ok">Ok</option>
-                                        <option value="Not Ok">Not Ok</option>
+                                        <option value="Ada">Ada</option>
+                                        <option value="Tidak Ada">Tidak Ada</option>
                                     </select>
                                 </div>
                             </div>

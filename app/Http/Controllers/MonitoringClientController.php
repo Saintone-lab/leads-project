@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Comment;
 use App\Models\DetailQuotation;
 use App\Models\Machine;
+use App\Models\Mainlog;
 use App\Models\Monitoring;
 use App\Models\Pic;
 use App\Models\PnMonitoring;
@@ -171,10 +172,30 @@ class MonitoringClientController extends Controller
         $status = StatusMonitoring::where('id_monitoring', $id)->get();
         $pn = PnMonitoring::where('id_monitoring', $id)->get();
         $quotes = Quotation::where('id_monitoring', $id)->get();
+        $maintenance = Mainlog::whereNull('id_issue')->where('id_machine', $monitoring->id_machine)->get();
         // dd($quotes);
-        return view('pages.monitoring.client.detail', compact('monitoring', 'status', 'pn', 'quotes'));
+        return view('pages.monitoring.client.detail', compact('monitoring', 'status', 'pn', 'quotes','maintenance'));
     }
 
+    public function addMainlog(Request $request, $id){
+        // dd($request->mainlog);
+        // $idmon = $id;
+        $mainlog = Mainlog::find($request->mainlog);
+        $mainlog->id_issue = $id;
+        $mainlogSave = $mainlog->save();
+        $status = new StatusMonitoring();
+        $status->id_monitoring = $id;
+        $status->id_pic = Auth::user()->id;
+        $status->status = '4';
+        $status->desc = 'Done';
+        // $status->date = $request->date;
+        $status->date = Carbon::today();
+        $statusSave = $status->save();
+        
+        if ($mainlogSave && $statusSave) {
+            return redirect('/monitoring-client/fajarPaper')->with('success', 'Mainlog telah di tambah');
+        }
+    }
     public function updateIssue(Request $request, $id)
     {
         $monitoring = Monitoring::find($id);
@@ -310,7 +331,7 @@ class MonitoringClientController extends Controller
         $quotation->primary_id = 0;
         $quotation->num_rev = 0;
         $quotation->destination = $request->destination;
-        $quotation->no_pr = NULL;
+        $quotation->no_pr = $request->no_pr;
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
         $quotation->note = "-";

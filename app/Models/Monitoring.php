@@ -45,4 +45,8 @@ class Monitoring extends Model
     {
         return $this->hasMany('App\Models\PnMonitoring', 'id_monitoring');
     }
+    public function mainlog()
+    {
+        return $this->hasMany('App\Models\Mainlog', 'id_issue');
+    }
 }

@@ -39,6 +39,7 @@ use App\Models\DetailProduct;
 use App\Models\Invoice;
 use App\Models\Library;
 use App\Models\Machine;
+use App\Models\Mainlog;
 use App\Models\Monitoring;
 use App\Models\MonitoringWeekly;
 use App\Models\Notulen;
@@ -307,6 +308,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/monitoring-client/fajarPaper/{id}', [MonitoringClientController::class, 'show'])->name('monitoring.fajarPaper-detail');
     Route::get('/monitoring-client/fajarPaper-quotation/{id}', [MonitoringClientController::class, 'createQuotation'])->name('monitoring.create-quotation');
     Route::post('/monitoring-client/fajarPaper-quotation/{id}', [MonitoringClientController::class, 'storeQuotation'])->name('monitoring.store-quotation');
+    Route::post('/monitoring-client/fajarPaper-addMainlog/{id}', [MonitoringClientController::class, 'addMainlog'])->name('monitoring.fajarPaper-addMainlog');
     Route::patch('/monitoring-client/fajarPaper-updateIssue/{id}', [MonitoringClientController::class, 'updateIssue'])->name('monitoring.fajarPaper-updateIssue');
     Route::patch('/monitoring-client/fajarPaper-updateRecommendation/{id}', [MonitoringClientController::class, 'updateRecommendation'])->name('monitoring.fajarPaper-updateRecommendation');
     Route::patch('/monitoring-client/fajarPaper-updateStatus/{id}', [MonitoringClientController::class, 'updateStatus'])->name('monitoring.fajarPaper-updateStatus');
@@ -321,6 +323,151 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/monitoring-client/fajarPaper-summary-print', [MonitoringClientController::class, 'summaryPrint'])->name('monitoring.fajarPaper-summary-print');
     Route::get('/monitoring-client/fajarPaper-hold-print', [MonitoringClientController::class, 'holdPrint'])->name('monitoring.fajarPaper-hold-print');
     Route::get('/monitoring-client/fajarPaper-quote-print', [MonitoringClientController::class, 'quotePrint'])->name('monitoring.fajarPaper-quote-print');
+
+    Route::get('/db/monitoring/compressor/{id}/{month}', function ($id,$month) {
+        $setday = Carbon::today();
+        $today = $setday->setMonth($month);
+        $year = $today->year;
+
+        $startOfMonth = $today->copy()->startOfMonth();
+        $startOfMonthDate = $today->copy()->startOfMonth();
+        $endOfMonth = $today->copy()->endOfMonth();
+
+        $dates = [];
+        for ($date = $startOfMonthDate; $date->lte($endOfMonth); $date->addDay()) {
+            $dates[] = $date->format('d-m-Y');
+        }
+
+        $monitoringData = Monitoring::whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->where('id_machine', $id)
+            ->join('users as u', 'u.id', '=', 'monitoring.id_pic')
+            ->get(['monitoring.*', 'u.name'])
+            ->map(function ($item) {
+                $item->date = Carbon::parse($item->date)->format('d-m-Y'); // Format tanggal
+                return $item;
+            });
+
+        $compressorIndexed = $monitoringData->keyBy('date')->map(function ($item) {
+            return [
+                'id' => $item->id ?? '-',
+                'running' => $item->running ?? '-',
+                'loading' => $item->loading ?? '-',
+                'pressure' => $item->pressure ?? '-',
+                'temp' => $item->temp ?? '-',
+                'leak' => $item->leak ?? '-',
+                'condition' => $item->condition ?? '-',
+                'oil_level' => $item->oil_level ?? '-',
+                'issue' => $item->issue ?? '-',
+                'pic' => $item->name ?? '-',
+            ];
+        })->toArray();
+
+        // Gabungkan data monitoring dengan daftar tanggal
+        $compressor = [];
+        foreach ($dates as $date) {
+            $compressor[] = [
+                'date' => $date,
+                'id' => $compressorIndexed[$date]['id'] ?? '-',
+                'running' => $compressorIndexed[$date]['running'] ?? '-',
+                'loading' => $compressorIndexed[$date]['loading'] ?? '-',
+                'pressure' => $compressorIndexed[$date]['pressure'] ?? '-',
+                'leak' => $compressorIndexed[$date]['leak'] ?? '-',
+                'temp' => $compressorIndexed[$date]['temp'] ?? '-',
+                'condition' => $compressorIndexed[$date]['condition'] ?? '-',
+                'oil_level' => $compressorIndexed[$date]['oil_level'] ?? '-',
+                'issue' => $compressorIndexed[$date]['issue'] ?? '-',
+                'pic' => $compressorIndexed[$date]['pic'] ?? '-',
+            ];
+        }
+        return response()->json(['data' => $compressor]);
+    });
+    Route::get('/db/monitoring/dryer/{id}/{month}', function ($id, $month) {
+        $setday = Carbon::today();
+        $today = $setday->setMonth($month);
+        $year = $today->year;
+
+        $startOfMonth = $today->copy()->startOfMonth();
+        $startOfMonthDate = $today->copy()->startOfMonth();
+        $endOfMonth = $today->copy()->endOfMonth();
+
+        $dates = [];
+        for ($date = $startOfMonthDate; $date->lte($endOfMonth); $date->addDay()) {
+            $dates[] = $date->format('d-m-Y');
+        }
+
+        $monitoringData = Monitoring::whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->where('id_machine', $id)
+            ->join('users as u', 'u.id', '=', 'monitoring.id_pic')
+            ->get(['monitoring.*', 'u.name'])
+            ->map(function ($item) {
+                $item->date = Carbon::parse($item->date)->format('d-m-Y'); // Format tanggal
+                return $item;
+            });
+
+        $dryerIndexed = $monitoringData->keyBy('date')->map(function ($item) {
+            return [
+                'id' => $item->id ?? '-',
+                'temp' => $item->temp ?? '-',
+                'temp_out' => $item->temp_out ?? '-',
+                'dew' => $item->dew ?? '-',
+                'drain' => $item->drain ?? '-',
+                'leak' => $item->leak ?? '-',
+                'fan' => $item->fan ?? '-',
+                'condition' => $item->condition ?? '-',
+                'oil_level' => $item->oil_level ?? '-',
+                'issue' => $item->issue ?? '-',
+                'pic' => $item->name ?? '-',
+            ];
+        })->toArray();
+
+        // Gabungkan data monitoring dengan daftar tanggal
+        $dryer = [];
+        foreach ($dates as $date) {
+            $dryer[] = [
+                'date' => $date,
+                'id' => $dryerIndexed[$date]['id'] ?? '-',
+                'temp' => $dryerIndexed[$date]['temp'] ?? '-',
+                'temp_out' => $dryerIndexed[$date]['temp_out'] ?? '-',
+                'dew' => $dryerIndexed[$date]['dew'] ?? '-',
+                'drain' => $dryerIndexed[$date]['drain'] ?? '-',
+                'condition' => $dryerIndexed[$date]['condition'] ?? '-',
+                'oil_level' => $dryerIndexed[$date]['oil_level'] ?? '-',
+                'issue' => $dryerIndexed[$date]['issue'] ?? '-',
+                'leak' => $dryerIndexed[$date]['leak'] ?? '-',
+                'fan' => $dryerIndexed[$date]['fan'] ?? '-',
+                'pic' => $dryerIndexed[$date]['pic'] ?? '-',
+            ];
+        }
+        return response()->json(['data' => $dryer]);
+    });
+    Route::get('/db/monitoring/issue/{id}/{month}', function ($id, $month) {
+        $issue = Monitoring::leftJoin('pn_monitoring as pn', 'pn.id_monitoring', '=', 'monitoring.id')
+            ->join('users as u', 'u.id', '=', 'monitoring.id_pic')
+            ->where('id_machine', $id)
+            ->whereNot('issue', '-')
+            ->whereNot('issue', 'normal')
+            ->whereNot('issue', 'Normal')
+            ->whereNotNull('issue')
+            ->whereMonth('monitoring.date', $month)
+            ->select(
+                'monitoring.*',
+                'u.name',
+                DB::raw("IFNULL(GROUP_CONCAT(pn.pn SEPARATOR ' | '), '-') as pn")
+            )
+            ->groupBy('monitoring.id')
+            ->get();
+        return response()->json(['data' => $issue]);
+    });
+    Route::get('/db/monitoring/mainlog/{id}/{month}', function ($id, $month) {
+        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')
+        ->where('id_machine', $id)
+        ->whereMonth('date', $month)
+        ->select('main_log.*', 'u.name')
+        ->get();
+
+
+        return response()->json(['data' => $mainlog]);
+    });
 
     Route::get('/db/monitoring/semester', function () {
         $start = Carbon::create(2025, 1, 1); // Mulai dari Januari 2025
@@ -410,7 +557,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
             ->join('unit as un', 'un.id', '=', 'sp.id_product')
             ->join('users as u', 'monitoring.id_pic', '=', 'u.id')
-            ->whereIn('sm.status', ['1','2','3'])
+            ->whereIn('sm.status', ['1', '2', '3'])
             ->where('m.id_client', 1277)
             ->where('monitoring.issue', '!=', '-')
             ->whereNotNull('monitoring.issue')

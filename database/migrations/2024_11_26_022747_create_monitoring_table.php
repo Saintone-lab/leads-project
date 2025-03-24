@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_machine');
             $table->foreignId('id_pic');
-            $table->foreignId('id_status');
             $table->string('runing')->nullable();
             $table->string('load')->nullable();
             $table->string('pressure')->nullable();
@@ -30,9 +29,6 @@ return new class extends Migration
             $table->enum('oil_level', ['Kurang', 'Ok'])->nullable();
             $table->longText('issue');
             $table->longText('recommendation');
-            $table->longText('main_desc')->nullable();
-            $table->longText('main_next')->nullable();
-            $table->longText('technician')->nullable();
             $table->string('picture')->nullable();
             $table->date('date');
             $table->enum('type', ['compressor', 'dryer']);

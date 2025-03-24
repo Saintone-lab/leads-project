@@ -88,6 +88,7 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>No. Quote</th>
+                                    <th>No. PR</th>
                                     <th>Title</th>
                                     <th>Nominal</th>
                                 </tr>
@@ -96,9 +97,15 @@
                                 @forelse ($quotes as $quote)
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</td>
-                                        <td>{{ $quote->no_quote }}</td>
+                                        <td>
+                                            <a href="{{ route('quotation.show', $quote->id) }}"
+                                                class="text-black">
+                                                {{ $quote->no_quote }}
+                                            </a>
+                                        </td>
+                                        <td>{{ $quote->no_pr }}</td>
                                         <td>{{ $quote->title }}</td>
-                                        <td>{{ $quote->harga_total }}</td>
+                                        <td>Rp {{ number_format($quote->harga_total, 0, ',', '.') }}</td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -112,45 +119,67 @@
             </div>
         </div>
         <div class="col-12 col-md-6">
-            <div class="d-flex justify-content-between mb-2">
-                <h5 class="fw-bold m-0 pt-2">
-                    Part Number
-                </h5>
-                <div class="tombol">
-                    <a type="button" data-bs-toggle="modal" data-bs-target="#updatePn">
-                        <button type="button" class="btn btn-primary waves-effect waves-light">
-                            +
-                        </button>
-                    </a>
+            <div class="pn mb-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <h5 class="fw-bold m-0 pt-2">
+                        Part Number
+                    </h5>
+                    <div class="tombol">
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#updatePn">
+                            <button type="button" class="btn btn-primary waves-effect waves-light">
+                                +
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                <div class="card ">
+                    <div class="card-body">
+                        <div class="table-responsive text-nowrap mb-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width:40%;">PN</th>
+                                        <th>Description</th>
+                                        <th>Stock</th>
+                                        <th>action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($pn as $machine)
+                                        <tr>
+                                            <td>{{ $machine->pn }}</td>
+                                            <td>{{ $machine->desc }}</td>
+                                            <td>{{ $machine->stock }}</td>
+                                            <td>
+                                                <a href="#" data-id="{{ $machine->id }}"
+                                                    data-monitoring="{{ $monitoring->id }}"
+                                                    class="btn btn-sm btn-label-danger delete-pn">Delete</a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="card ">
-                <div class="card-body">
-                    <div class="table-responsive text-nowrap mb-4">
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th style="width:40%;">PN</th>
-                                    <th>Description</th>
-                                    <th>Stock</th>
-                                    <th>action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($pn as $machine)
-                                    <tr>
-                                        <td>{{ $machine->pn }}</td>
-                                        <td>{{ $machine->desc }}</td>
-                                        <td>{{ $machine->stock }}</td>
-                                        <td>
-                                            <a href="#" data-id="{{ $machine->id }}"
-                                                data-monitoring="{{ $monitoring->id }}"
-                                                class="btn btn-sm btn-label-danger delete-pn">Delete</a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+            <div class="mainlog mb-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <h5 class="fw-bold m-0 pt-2">
+                        Maintenance Log
+                    </h5>
+                </div>
+                <div class="card ">
+                    <div class="card-body">
+                        @if ($monitoring->mainlog)
+                            <a type="button" class="w-100" data-bs-toggle="modal" data-bs-target="#plusMainlog">
+                                <button type="button" class="btn btn-primary waves-effect waves-light w-100">
+                                    + Maintenance Log
+                                </button>
+                            </a>
+                        @else
+                            {{ $monitoring->mainlog->desc }}
+                        @endif
                     </div>
                 </div>
             </div>
@@ -161,8 +190,7 @@
                     Activity Timeline
                 </h5>
                 <div class="tombol">
-                    <a href="#" data-id="{{ $monitoring->id }}"
-                        class="btn btn-warning arsip-mon">Arsip</a>
+                    <a href="#" data-id="{{ $monitoring->id }}" class="btn btn-warning arsip-mon">Arsip</a>
                     <a type="button" data-bs-toggle="modal" data-bs-target="#updateStatus">
                         <button type="button" class="btn btn-primary waves-effect waves-light">
                             Update Status
@@ -223,6 +251,7 @@
             </div>
         </div>
     </div>
+    @include('components.modal.monitoring.client.mainlog')
     @include('components.modal.monitoring.client.issueDet')
     @include('components.modal.monitoring.client.recommendation')
     @include('components.modal.monitoring.client.status')
@@ -231,13 +260,15 @@
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
     <link rel="stylesheet"
         href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
 @endpush
 
@@ -248,6 +279,7 @@
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
 @endpush
 
@@ -256,6 +288,7 @@
     <script src="{{ asset('assets') }}/includes/table-client-daily.js"></script>
     <script src="{{ asset('assets') }}/includes/table-issue-client-monitoring.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
+    <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush
 
 @push('script')

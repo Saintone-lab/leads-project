@@ -141,7 +141,7 @@
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="machineAnimation" class="form-control"
                                     placeholder="123xxxxxxxx" name="npwp"
-                                    value="{{ old('npwp', @$leads->npwp ?? '') }}">
+                                    value="{{ old('npwp', @$existing->npwp ?? '') }}">
                                 <label for="npwpAnimation">NPWP</label>
                             </div>
                         </div>

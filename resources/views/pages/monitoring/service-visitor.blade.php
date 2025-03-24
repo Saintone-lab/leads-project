@@ -64,88 +64,177 @@
                         </div>
                     </div>
                     <hr> --}}
-                    <div class="table-responsive text-nowrap mb-4">
-                        @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <th>Date</th>
-                                    <th>Condition</th>
-                                    <th>R Hr.</th>
-                                    <th>L Hr.</th>
-                                    <th>Press.</th>
-                                    <th>Temp. (85°C - 94°C)</th>
-                                    <th>Oil Lvl</th>
-                                    <th>Kebocoran</th>
-                                    <th>PIC</th>
-                                </thead>
-                                <tbody>
-                                    @foreach ($compressor as $item)
-                                        <tr>
-                                            @if (Auth::user()->role == 'Client')
-                                                <td>
-                                                    {{ $item['date'] }}
-                                                </td>
-                                            @else
-                                                <td>
-                                                    <div class="btn-group">
-                                                        <button type="button"
-                                                            class="btn btn-label-secondary dropdown-toggle waves-effect"
-                                                            data-bs-toggle="dropdown"
-                                                            aria-expanded="false">{{ $item['date'] }}</button>
-                                                        <ul class="dropdown-menu">
-                                                            <li>
-                                                                <a class=" dropdown-item cursor-pointer"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#editIssue-{{ $item['id'] }}">
-                                                                    Update Issue
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a class=" dropdown-item cursor-pointer"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#editMainlog-{{ $item['id'] }}">
-                                                                    Update Mainlog
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                    {{-- <a class="text-black text-decoration-underline cursor-pointer"
+
+                    @if (Auth::user()->role == 'Client')
+                        <h5>Daily Check</h5>
+                        <div class="table-responsive text-nowrap mb-4">
+                            @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <th>Date</th>
+                                        <th>Condition</th>
+                                        <th>R Hr.</th>
+                                        <th>L Hr.</th>
+                                        <th>Press.</th>
+                                        <th>Temp. (85°C - 94°C)</th>
+                                        <th>Oil Lvl</th>
+                                        <th>Kebocoran</th>
+                                        <th>PIC</th>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($compressor as $item)
+                                            <tr>
+                                                @if (Auth::user()->role == 'Client')
+                                                    <td>
+                                                        {{ $item['date'] }}
+                                                    </td>
+                                                @else
+                                                    <td>
+                                                        <div class="btn-group">
+                                                            <button type="button"
+                                                                class="btn btn-label-secondary dropdown-toggle waves-effect"
+                                                                data-bs-toggle="dropdown"
+                                                                aria-expanded="false">{{ $item['date'] }}</button>
+                                                            <ul class="dropdown-menu">
+                                                                <li>
+                                                                    <a class=" dropdown-item cursor-pointer"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#editIssue-{{ $item['id'] }}">
+                                                                        Update Issue
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a class=" dropdown-item cursor-pointer"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#editMainlog-{{ $item['id'] }}">
+                                                                        Update Mainlog
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        {{-- <a class="text-black text-decoration-underline cursor-pointer"
                                                     data-bs-toggle="modal" data-bs-target="#editIssue-{{ $item['id'] }}">
                                                     {{ $item['date'] }}
                                                 </a> --}}
-                                                </td>
-                                            @endif
-                                            <td>{{ $item['condition'] }}</td>
-                                            <td>{{ $item['running'] }}</td>
-                                            <td>{{ $item['loading'] }}</td>
-                                            <td>{{ $item['pressure'] }}</td>
-                                            <td>
-                                                @php
-                                                    $stringTemp = $item['temp'] ?? ''; // Pastikan nilai tidak null
-                                                    $tempNumber = null;
-
-                                                    if (preg_match('/\d+(\.\d+)?/', $stringTemp, $matches)) {
-                                                        $tempNumber = (float) $matches[0]; // Gunakan float agar mendukung desimal
-                                                    }
-                                                @endphp
-
-                                                @if (!is_null($tempNumber) && $tempNumber > 94)
-                                                    <p class="mb-0 fw-bold fs-6 text-danger">
-                                                        {{ $item['temp'] }}</p>
-                                                @else
-                                                    {{ $item['temp'] }}
+                                                    </td>
                                                 @endif
-                                            </td>
-                                            <td>{{ $item['oil_level'] }}</td>
-                                            <td>{{ $item['leak'] }}</td>
-                                            <td>{{ $item['pic'] }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
+                                                <td>{{ $item['condition'] }}</td>
+                                                <td>{{ $item['running'] }}</td>
+                                                <td>{{ $item['loading'] }}</td>
+                                                <td>{{ $item['pressure'] }}</td>
+                                                <td>
+                                                    @php
+                                                        $stringTemp = $item['temp'] ?? ''; // Pastikan nilai tidak null
+                                                        $tempNumber = null;
+
+                                                        if (preg_match('/\d+(\.\d+)?/', $stringTemp, $matches)) {
+                                                            $tempNumber = (float) $matches[0]; // Gunakan float agar mendukung desimal
+                                                        }
+                                                    @endphp
+
+                                                    @if (!is_null($tempNumber) && $tempNumber > 94)
+                                                        <p class="mb-0 fw-bold fs-6 text-danger">
+                                                            {{ $item['temp'] }}</p>
+                                                    @else
+                                                        {{ $item['temp'] }}
+                                                    @endif
+                                                </td>
+                                                <td>{{ $item['oil_level'] }}</td>
+                                                <td>{{ $item['leak'] }}</td>
+                                                <td>{{ $item['pic'] }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @else
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <th>Date</th>
+                                        <th>Condition</th>
+                                        <th>Temp IN</th>
+                                        <th>Temp OUT</th>
+                                        <th>Dew P.</th>
+                                        <th>Auto Drain</th>
+                                        <th>Fan Kondenser</th>
+                                        <th>Kebocoran</th>
+                                        <th>PIC</th>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($dryer as $item)
+                                            <tr>
+                                                @if (Auth::user()->role == 'Client')
+                                                    <td>
+                                                        {{ $item['date'] }}
+                                                    </td>
+                                                @else
+                                                    <td>
+                                                        <div class="btn-group">
+                                                            <button type="button"
+                                                                class="btn btn-label-secondary dropdown-toggle waves-effect"
+                                                                data-bs-toggle="dropdown"
+                                                                aria-expanded="false">{{ $item['date'] }}</button>
+                                                            <ul class="dropdown-menu">
+                                                                <li>
+                                                                    <a class=" dropdown-item cursor-pointer"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#editIssue-{{ $item['id'] }}">
+                                                                        Update Issue
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a class=" dropdown-item cursor-pointer"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#editMainlog-{{ $item['id'] }}">
+                                                                        Update Mainlog
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        {{-- <a class="text-black text-decoration-underline cursor-pointer"
+                                                    data-bs-toggle="modal" data-bs-target="#editIssue-{{ $item['id'] }}">
+                                                    {{ $item['date'] }}
+                                                </a> --}}
+                                                    </td>
+                                                @endif
+                                                <td>{{ $item['condition'] }}</td>
+                                                <td>{{ $item['temp'] }}</td>
+                                                <td>{{ $item['temp_out'] }}</td>
+                                                <td>{{ $item['dew'] }}</td>
+                                                <td>{{ $item['drain'] }}</td>
+                                                <td>{{ $item['fan'] }}</td>
+                                                <td>{{ $item['leak'] }}</td>
+                                                <td>{{ $item['pic'] }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @endif
+                        </div>
+                    @else
+                        @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
+                            <table class="datatable-compressor table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>Date</th>
+                                        <th>Condition</th>
+                                        <th>R Hr.</th>
+                                        <th>L Hr.</th>
+                                        <th>Press.</th>
+                                        <th>Temp. (85°C - 94°C)</th>
+                                        <th>Oil Lvl</th>
+                                        <th>Kebocoran</th>
+                                        <th>PIC</th>
+                                    </tr>
+                                </thead>
                             </table>
                         @else
-                            <table class="table table-bordered">
-                                <thead class="table-light">
+                        <table class="datatable-dryer table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>ID</th>
                                     <th>Date</th>
                                     <th>Condition</th>
                                     <th>Temp IN</th>
@@ -155,148 +244,70 @@
                                     <th>Fan Kondenser</th>
                                     <th>Kebocoran</th>
                                     <th>PIC</th>
-                                </thead>
-                                <tbody>
-                                    @foreach ($dryer as $item)
-                                        <tr>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <button type="button"
-                                                        class="btn btn-label-secondary dropdown-toggle waves-effect"
-                                                        data-bs-toggle="dropdown"
-                                                        aria-expanded="false">{{ $item['date'] }}</button>
-                                                    <ul class="dropdown-menu">
-                                                        <li>
-                                                            <a class=" dropdown-item cursor-pointer" data-bs-toggle="modal"
-                                                                data-bs-target="#editIssue-{{ $item['id'] }}">
-                                                                Update Issue
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class=" dropdown-item cursor-pointer" data-bs-toggle="modal"
-                                                                data-bs-target="#editMainlog-{{ $item['id'] }}">
-                                                                Update Mainlog
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                                {{-- <a class="text-black text-decoration-underline cursor-pointer"
-                                                    data-bs-toggle="modal" data-bs-target="#editIssue-{{ $item['id'] }}">
-                                                    {{ $item['date'] }}
-                                                </a> --}}
-                                            </td>
-                                            <td>{{ $item['condition'] }}</td>
-                                            <td>{{ $item['temp'] }}</td>
-                                            <td>{{ $item['temp_out'] }}</td>
-                                            <td>{{ $item['dew'] }}</td>
-                                            <td>{{ $item['drain'] }}</td>
-                                            <td>{{ $item['fan'] }}</td>
-                                            <td>{{ $item['leak'] }}</td>
-                                            <td>{{ $item['pic'] }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                </tr>
+                            </thead>
+                        </table>
                         @endif
-                    </div>
-
-                    <div class="issue mb-4">
-                        <h5>Issue Recommendation</h5>
-                        <div class="table-responsive text-nowrap mb-4">
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th style="width:10%;">Date</th>
-                                        <th>Issue</th>
-                                        <th style="width:25%;">Pic</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($issue as $issues)
-                                        <tr>
-                                            <td>{{ $issues->date ?? 'N/A' }}</td>
-                                            <td>
-                                                <pre class="mb-1"
-                                                    style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $issues->issue }}</pre>
-                                            </td>
-                                            <td>{{ $issues->name }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="mainlog mb-4">
-                        <h5>Maintenance Log</h5>
-                        <div class="table-responsive text-nowrap mb-4">
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th style="width:10%;">Date</th>
-                                        <th>Maintenance</th>
-                                        <th style="width:25%;">Pic</th>
-                                        {{-- <th style="width:10%;">Button</th> --}}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($mainlog as $item)
-                                        <tr>
-                                            <td>{{ $item->date ?? 'N/A' }}</td>
-                                            <td>
-                                                <pre class="mb-1"
-                                                    style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $item->main_desc }}</pre>
-                                            </td>
-                                            <td>{{ $item->name }}</td>
-                                            {{-- @if ($mainlog['id_service'] != null)
-                                                <td>
-                                                    <a class="btn btn-warning waves-effect"
-                                                        href="{{ route('service-reports.show', $mainlog['id_service']) }}">
-                                                        <i class="menu-icon tf-icons mdi mdi-eye-outline"></i>
-                                                    </a>
-                                                </td>
-                                            @elseif($mainlog['id_service'] == null && $mainlog['id_pic'] == Auth::user()->id)
-                                                <td>
-                                                    <a class="btn btn-primary waves-effect"
-                                                        href="{{ route('create.daily-monitoring-reports', [$mainlog['id'], $mainlog['id_machine']]) }}">
-                                                        <i class="menu-icon tf-icons mdi mdi-file-plus-outline"></i>
-                                                    </a>
-                                                </td>
-                                            @else
-                                                <td>
-                                                    Has No Reports
-                                                </td>
-                                            @endif --}}
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
+                    @endif
                     <div class="weekly mb-4">
-                        <h5>Weekly Monitoring</h5>
+                        <h5>Weekly Check</h5>
                         <div class="table-responsive text-nowrap mb-4">
                             <table class="table table-bordered">
                                 @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
                                     <thead class="table-light">
-                                        <th>Week</th>
-                                        <th>Condition</th>
-                                        <th>Vibration</th>
-                                        <th>Voltage</th>
-                                        <th>Ampere L</th>
-                                        <th>PIC</th>
+                                        <th style="vertical-align: middle;">Week</th>
+                                        <th style="vertical-align: middle;">Condition</th>
+                                        <th style="vertical-align: middle;">Vibration</th>
+                                        <th style="vertical-align: middle;">Voltage</th>
+                                        <th style="vertical-align: middle;">Ampere L</th>
+                                        <th style="vertical-align: middle;">Cleaning Cooler</th>
+                                        <th style="vertical-align: middle;">Cek Coupling / Belt</th>
+                                        <th style="vertical-align: middle;">Cleaning Compressor & Area</th>
+                                        <th style="vertical-align: middle;">PIC</th>
                                     </thead>
                                     <tbody>
-                                        @forelse ($weeks as $monweek)
+                                        @php
+                                            $noWeek = 1;
+                                        @endphp
+                                        @forelse ($weeksoy as $monweek)
                                             <tr>
-                                                <td>{{ $monweek['week'] }}</td>
+                                                <td>{{ $noWeek }}</td>
                                                 <td>{{ $monweek['condition'] }}</td>
                                                 <td>{{ $monweek['vibration'] }}</td>
                                                 <td>{{ $monweek['voltage'] }}</td>
                                                 <td>{{ $monweek['ampere'] }}</td>
+                                                <td>
+                                                    @if ($monweek['cooler'] == 1)
+                                                        <i
+                                                            class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                                    @else
+                                                        <i
+                                                            class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if ($monweek['coupling'] == 1)
+                                                        <i
+                                                            class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                                    @else
+                                                        <i
+                                                            class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if ($monweek['area'] == 1)
+                                                        <i
+                                                            class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                                    @else
+                                                        <i
+                                                            class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                                    @endif
+                                                </td>
                                                 <td>{{ $monweek['name'] }}</td>
                                             </tr>
+                                            @php
+                                                $noWeek++;
+                                            @endphp
                                         @empty
                                             <tr>
                                                 <td colspan="7">Belum Ada Monitoring week</td>
@@ -312,29 +323,101 @@
                                         <th>Auto Drain</th>
                                         <th>Pre</th>
                                         <th>After</th>
+                                        <th>Condensor</th>
                                         <th>PIC</th>
                                     </thead>
                                     <tbody>
-                                        @forelse ($weeks as $monweek)
+                                        @php
+                                            $noWeek = 1;
+                                        @endphp
+                                        @foreach ($weeksoy as $monweek)
                                             <tr>
-                                                <td>{{ $monweek['week'] }}</td>
+                                                <td>{{ $noWeek }}</td>
                                                 <td>{{ $monweek['condition'] }}</td>
                                                 <td>{{ $monweek['voltage'] }}</td>
                                                 <td>{{ $monweek['ampere'] }}</td>
                                                 <td>{{ $monweek['drain'] }}</td>
                                                 <td>{{ $monweek['pre'] }}</td>
                                                 <td>{{ $monweek['after'] }}</td>
+                                                <td>
+                                                    @if ($monweek['condensor'] == 1)
+                                                        <i
+                                                            class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                                    @else
+                                                        <i
+                                                            class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                                    @endif
+                                                </td>
                                                 <td>{{ $monweek['name'] }}</td>
                                             </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="8" class="text-center">Belum Ada Monitoring week</td>
-                                            </tr>
-                                        @endforelse
+                                            @php
+                                                $noWeek++;
+                                            @endphp
+                                        @endforeach
                                     </tbody>
                                 @endif
                             </table>
                         </div>
+                    </div>
+
+                    <div class="monthly mb-4">
+                        <h5>Monthly Check</h5>
+                        <div class="table-responsive text-nowrap mb-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <th>Date</th>
+                                    <th>HP (High Pressure)</th>
+                                    <th>LP (Low Pressure)</th>
+                                    <th>Strainer</th>
+                                </thead>
+                                <tbody>
+                                    @if ($monthly)
+                                        <tr>
+                                            <td>{{ \Carbon\Carbon::parse($monthly->date)->format('d-m-Y') }}</td>
+                                            <td>{{ $monthly->hp }}</td>
+                                            <td>{{ $monthly->lp }}</td>
+                                            <td>{{ $monthly->strainer }}</td>
+                                        </tr>
+                                    @else
+                                        <tr>
+                                            <td>-</td>
+                                            <td>-</td>
+                                            <td>-</td>
+                                            <td>-</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="issue mb-4">
+                        <table class="datatable-issue table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Issue</th>
+                                    <th>Recommendation</th>
+                                    <th>Part Number</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+
+                    <div class="mainlog mb-4">
+                        <table class="datatable-mainlog table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Maintenance</th>
+                                    <th>PIC</th>
+                                </tr>
+                            </thead>
+                        </table>
                     </div>
 
                     <div class="invoice mb-4">
@@ -531,14 +614,34 @@
 @endsection
 @push('after-style')
     <!-- Page CSS -->
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
 @endpush
 @push('after-script')
+    <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/FormValidation.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
 @endpush
 @push('page-script')
+    <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-compressor-daily.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-dryer-daily.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-daily-issue.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-daily-mainlog.js"></script>
 @endpush
 @push('script')
     <script>

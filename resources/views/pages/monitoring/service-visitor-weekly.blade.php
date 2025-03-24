@@ -32,7 +32,7 @@
                             <div class="mt-1">
                                 <span class="text-muted">WEEK - {{ request()->route('week') }}</span>
                             </div>
-                            <p class="text-muted mt-1">{{$startDate}} - {{$endDate}}</p>
+                            <p class="text-muted mt-1">{{ $startDate }} - {{ $endDate }}</p>
                         </div>
                     </div>
                     <hr class="my-2">
@@ -63,15 +63,15 @@
                     <div class="table-responsive text-nowrap mt-4">
                         <table class="table table-bordered">
                             <thead class="table-light">
-                                <th>Unit</th>
-                                <th>Condition</th>
-                                <th>Vibration</th>
-                                <th>Voltage</th>
-                                <th>Running Ampere</th>
-                                <th>Cooler</th>
-                                <th>Coupling</th>
-                                <th>Compressor/Area</th>
-                                <th>PIC</th>
+                                <th style="vertical-align: middle;">Unit</th>
+                                <th style="vertical-align: middle;">Condition</th>
+                                <th style="vertical-align: middle;">Vibration</th>
+                                <th style="vertical-align: middle;">Voltage</th>
+                                <th style="vertical-align: middle;">Running Ampere</th>
+                                <th style="vertical-align: middle;">Cleaning Cooler</th>
+                                <th style="vertical-align: middle;">Cek Coupling / Belt</th>
+                                <th style="vertical-align: middle;">Cleaning Compressor & Area</th>
+                                <th style="vertical-align: middle;">PIC</th>
                             </thead>
                             <tbody>
                                 @foreach ($monitoringAC as $item)
@@ -111,7 +111,7 @@
                                                     class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
                                             @endif
                                         </td>
-                                        <td>{{ $item->name ?? '-' }}</td>
+                                        <td>{{ $item->name }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

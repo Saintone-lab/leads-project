@@ -39,13 +39,13 @@
                                 </div>
                             </div>
                             <div class="col-12 col-lg-4">
-                                <label for="defaultInput" class="form-label">Week</label>
-                                <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control" name="weekl" type="number"
-                                        placeholder="1" value="{{ $weekNumber }}" disabled>
-                                    <input id="defaultInput" class="form-control" name="week" type="number"
-                                        placeholder="1" value="{{ $weekNumber }}" hidden>
-                                </div>
+                                <label for="defaultSelect" class="form-label">Week</label>
+                                <select id="conditionSelect" name="week" class="form-select">
+                                    <option value="1">Week 1</option>
+                                    <option value="2">Week 2</option>
+                                    <option value="3">Week 3</option>
+                                    <option value="4">Week 4</option>
+                                </select>
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -72,14 +72,16 @@
                                 </div>
                             </div>
                             <div class="col-12 col-lg-3 mb-3">
-                                <label for="defaultInput" class="form-label">Voltage (V) <span class="text-danger">* WAJIB INPUT (R/S/T)</span></label>
+                                <label for="defaultInput" class="form-label">Voltage (V) <span class="text-danger">* WAJIB
+                                        INPUT (R/S/T)</span></label>
                                 <div class="input-group input-group-merge">
                                     <input id="defaultInput" class="form-control offDisable" name="voltage" type="text"
                                         placeholder="R/S/T">
                                 </div>
                             </div>
                             <div class="col-12 col-lg-3 mb-3">
-                                <label for="defaultInput" class="form-label">Running Ampere (A) <span class="text-danger">* WAJIB INPUT (R/S/T)</span></label>
+                                <label for="defaultInput" class="form-label">Running Ampere (A) <span class="text-danger">*
+                                        WAJIB INPUT (R/S/T)</span></label>
                                 <div class="input-group input-group-merge">
                                     <input id="defaultInput" class="form-control offDisable" name="ampere" type="text"
                                         placeholder="R/S/T">
@@ -88,10 +90,12 @@
                             <div class="col-12 col-lg-2 mb-2">
                                 <div class="row">
                                     <div class="col-6 col-lg-12">
-                                        <label for="defaultInput" class="form-label">Cleaning Cooler Menggunakan Angin</label>
+                                        <label for="defaultInput" class="form-label">Cleaning Cooler Menggunakan
+                                            Angin</label>
                                     </div>
                                     <div class="col-6 col-lg-12">
-                                        <input class="form-check-input" type="checkbox" name="cooler" value="1" id="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" name="cooler" value="1"
+                                            id="defaultCheck1">
                                     </div>
                                 </div>
                             </div>
@@ -101,7 +105,8 @@
                                         <label for="defaultInput" class="form-label">Cek Coupling / V-Belt</label>
                                     </div>
                                     <div class="col-6 col-lg-12">
-                                        <input class="form-check-input" type="checkbox" name="coupling" value="1" id="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" name="coupling" value="1"
+                                            id="defaultCheck1">
                                     </div>
                                 </div>
                             </div>
@@ -111,7 +116,8 @@
                                         <label for="defaultInput" class="form-label">Cleaning Compressor/Area</label>
                                     </div>
                                     <div class="col-6 col-lg-12">
-                                        <input class="form-check-input" type="checkbox" name="area" value="1" id="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" name="area" value="1"
+                                            id="defaultCheck1">
                                     </div>
                                 </div>
                             </div>
@@ -150,14 +156,14 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-4 mb-3">
-                                <label for="defaultInput" class="form-label">Week</label>
-                                <div class="input-group input-group-merge">
-                                    <input id="defaultInput" class="form-control" name="weekl" type="number"
-                                        placeholder="1" value="{{ $weekNumber }}" disabled>
-                                    <input id="defaultInput" class="form-control" name="week" type="number"
-                                        placeholder="1" value="{{ $weekNumber }}" hidden>
-                                </div>
+                            <div class="col-12 col-lg-4">
+                                <label for="defaultSelect" class="form-label">Week</label>
+                                <select id="conditionSelect" name="week" class="form-select">
+                                    <option value="1">Week 1</option>
+                                    <option value="2">Week 2</option>
+                                    <option value="3">Week 3</option>
+                                    <option value="4">Week 4</option>
+                                </select>
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -170,7 +176,8 @@
                                 </select>
                             </div>
                             <div class="col-12 col-lg-3">
-                                <label for="defaultInput" class="form-label">Voltage (V) <span class="text-danger">* WAJIB INPUT (R/S/T)</span></label>
+                                <label for="defaultInput" class="form-label">Voltage (V) <span class="text-danger">*
+                                        WAJIB INPUT (R/S/T)</span></label>
                                 <div class="input-group input-group-merge">
                                     <input id="defaultInput" class="form-control offDisable" name="voltage"
                                         type="text" placeholder="R/S/T">
@@ -225,7 +232,8 @@
                                         <label for="defaultInput" class="form-label">Cleaning Kisi Kisi Kondensor</label>
                                     </div>
                                     <div class="col-6 col-lg-12">
-                                        <input class="form-check-input" type="checkbox" name="condensor" value="1" id="defaultCheck1">
+                                        <input class="form-check-input" type="checkbox" name="condensor" value="1"
+                                            id="defaultCheck1">
                                     </div>
                                 </div>
                             </div>
