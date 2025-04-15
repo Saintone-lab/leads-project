@@ -142,13 +142,14 @@ class MonitoringClientController extends Controller
             }
             $start->addMonths(6);
         }
-        // dd($semester);
+        // dd($data);
         return view('pages.monitoring.client.index', compact('month', 'year', 'allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'result', 'issued'));
     }
 
     public function editIssue(Request $request, $id)
     {
         $monitoring = Monitoring::find($id);
+        $monitoring->date = $request->date;
         $monitoring->issue = $request->issue;
         $monitoringSave = $monitoring->save();
         if ($monitoringSave) {
@@ -174,10 +175,11 @@ class MonitoringClientController extends Controller
         $quotes = Quotation::where('id_monitoring', $id)->get();
         $maintenance = Mainlog::whereNull('id_issue')->where('id_machine', $monitoring->id_machine)->get();
         // dd($quotes);
-        return view('pages.monitoring.client.detail', compact('monitoring', 'status', 'pn', 'quotes','maintenance'));
+        return view('pages.monitoring.client.detail', compact('monitoring', 'status', 'pn', 'quotes', 'maintenance'));
     }
 
-    public function addMainlog(Request $request, $id){
+    public function addMainlog(Request $request, $id)
+    {
         // dd($request->mainlog);
         // $idmon = $id;
         $mainlog = Mainlog::find($request->mainlog);
@@ -191,7 +193,7 @@ class MonitoringClientController extends Controller
         // $status->date = $request->date;
         $status->date = Carbon::today();
         $statusSave = $status->save();
-        
+
         if ($mainlogSave && $statusSave) {
             return redirect('/monitoring-client/fajarPaper')->with('success', 'Mainlog telah di tambah');
         }
@@ -491,7 +493,21 @@ class MonitoringClientController extends Controller
     public function reports()
     {
         $today = Carbon::today();
-        $summary = Monitoring::whereMonth('date', $today)->whereYear('date', $today)->whereNotNull('main_desc')->get();
+        $month = $today->format('m');
+        $summary = Monitoring::join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('main_log as ml', 'ml.id_issue', '=', 'monitoring.id')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->whereMonth('monitoring.date', $today)
+            ->whereYear('monitoring.date', $today)
+            ->select(
+                'monitoring.*',
+                'ml.desc',
+                'm.tag',
+                'm.location',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )
+            ->get();
         $quoteMon = Monitoring::join('quotation as q', 'monitoring.id', '=', 'q.id_monitoring')
             ->join('machine as m', 'monitoring.id_machine', '=', 'm.id')
             ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
@@ -516,7 +532,7 @@ class MonitoringClientController extends Controller
             ->whereYear('date', $today)
             ->get();
         // dd($statusMon);
-        return view('pages.monitoring.client.reports', compact('summary', 'quoteMon', 'statusMon'));
+        return view('pages.monitoring.client.reports', compact('month', 'summary', 'quoteMon', 'statusMon'));
     }
 
     public function reportsMonthly($month, $year)
@@ -529,12 +545,13 @@ class MonitoringClientController extends Controller
         $today = Carbon::today();
         $summary = Monitoring::join('machine as m', 'monitoring.id_machine', '=', 'm.id')
             ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('main_log as ml', 'ml.id_issue', '=', 'monitoring.id')
             ->join('unit as un', 'un.id', '=', 'sp.id_product')
             ->whereMonth('monitoring.date', $today)
             ->whereYear('monitoring.date', $today)
-            ->whereNotNull('main_desc')
             ->select(
                 'monitoring.*',
+                'ml.desc',
                 'm.tag',
                 'm.location',
                 DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
@@ -569,6 +586,73 @@ class MonitoringClientController extends Controller
     public function holdPrint()
     {
         $today = Carbon::today();
+        $latestStatus = StatusMonitoring::selectRaw('MAX(id) as id')
+            ->groupBy('id_monitoring');
+
+        $statusMon = StatusMonitoring::join('monitoring', 'monitoring.id', '=', 'status_monitoring.id_monitoring')
+            ->join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->whereIn('status_monitoring.id', $latestStatus)
+            ->where('status_monitoring.status', '3')
+            ->whereMonth('monitoring.date', $today)
+            ->whereYear('monitoring.date', $today)
+            ->select(
+                'monitoring.*',
+                'm.tag',
+                'm.location',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )
+            ->get();
+        $month = $today->format('F');
+        return view('pages.monitoring.client.hold-print', compact('statusMon', 'month'));
+    }
+    public function summaryPrintMonth($month)
+    {
+        $today = Carbon::today()->setMonth($month);
+        $summary = Monitoring::join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('main_log as ml', 'ml.id_issue', '=', 'monitoring.id')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->whereMonth('monitoring.date', $today)
+            ->whereYear('monitoring.date', $today)
+            ->select(
+                'monitoring.*',
+                'ml.desc',
+                'm.tag',
+                'm.location',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )
+            ->get();
+        $month = $today->format('F');
+        // dd($month);
+        return view('pages.monitoring.client.summary-print', compact('summary', 'month'));
+    }
+    public function quotePrintMonth($month)
+    {
+        $today = Carbon::today()->setMonth($month);
+
+        $quoteMon = Monitoring::join('quotation as q', 'monitoring.id', '=', 'q.id_monitoring')
+            ->join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->whereMonth('monitoring.date', $today)
+            ->whereYear('monitoring.date', $today)
+            ->select(
+                'monitoring.*',
+                'm.tag',
+                'm.location',
+                'q.title',
+                'q.no_quote',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )
+            ->get();
+        $month = $today->format('F');
+        return view('pages.monitoring.client.quote-print', compact('quoteMon', 'month'));
+    }
+    public function holdPrintMonth($month)
+    {
+        $today = Carbon::today()->setMonth($month);
         $latestStatus = StatusMonitoring::selectRaw('MAX(id) as id')
             ->groupBy('id_monitoring');
 

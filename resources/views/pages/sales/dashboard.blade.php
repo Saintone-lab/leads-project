@@ -40,17 +40,17 @@
                             <div class="card-info mt-4 pt-1">
                                 <h4 class="mb-2">
                                     {{ $dailyCall }}
-                                    <small class="text-muted fs-tiny">/
+                                    <small class="text-muted fs-tiny">/ 400
                                         @php
                                             if (is_array($weekPerMonth)) {
                                                 $jumlahData = count($weekPerMonth);
                                             }
                                         @endphp
-                                        @if ($jumlahData > 4)
+                                        {{-- @if ($jumlahData > 4)
                                             {{ round($target->dc + $target->dc / 4) }}
                                         @elseif($jumlahData == 4)
                                             {{ round($target->dc) }}
-                                        @endif
+                                        @endif --}}
                                     </small>
                                 </h4>
                                 <div class="badge bg-label-secondary rounded-pill">Daily Call</div>
@@ -123,12 +123,12 @@
                             <div class="card-info mt-4 pt-1">
                                 <h4 class="mb-2">
                                     {{ $quotation->count() }}
-                                    <small class="text-muted fs-tiny">/
-                                        @if ($jumlahData > 4)
+                                    <small class="text-muted fs-tiny">/ 100
+                                        {{-- @if ($jumlahData > 4)
                                             {{ round($target->quote + $target->quote / 4) }}
                                         @elseif($jumlahData == 4)
                                             {{ round($target->quote) }}
-                                        @endif
+                                        @endif --}}
                                     </small>
                                 </h4>
                                 <div class="badge bg-label-secondary rounded-pill">Quotation</div>
@@ -339,16 +339,17 @@
                                 <h4 class="mb-2">
                                     {{ $dailyCall }}
                                     <small class="text-muted fs-tiny">/
+                                        400
                                         @php
                                             if (is_array($weekPerMonth)) {
                                                 $jumlahData = count($weekPerMonth);
                                             }
                                         @endphp
-                                        @if ($jumlahData > 4)
+                                        {{-- @if ($jumlahData > 4)
                                             {{ round($target->dc + $target->dc / 4) }}
                                         @elseif($jumlahData == 4)
                                             {{ round($target->dc) }}
-                                        @endif
+                                        @endif --}}
                                     </small>
                                 </h4>
                                 <div class="badge bg-label-secondary rounded-pill">Daily Call</div>
@@ -372,11 +373,12 @@
                                 <h4 class="mb-2">
                                     {{ $customers }}
                                     <small class="text-muted fs-tiny">/
-                                        @if ($jumlahData > 4)
+                                        {{$jumlahCustomer}}
+                                        {{-- @if ($jumlahData > 4)
                                             {{ round($target->crm + $target->crm / 4) }}
                                         @elseif($jumlahData == 4)
                                             {{ round($target->crm) }}
-                                        @endif
+                                        @endif --}}
                                     </small>
                                 </h4>
                                 <div class="badge bg-label-secondary rounded-pill">CRM Existing</div>
@@ -399,12 +401,12 @@
                             <div class="card-info mt-4 pt-1">
                                 <h4 class="mb-2">
                                     {{ $quotation->count() }}
-                                    <small class="text-muted fs-tiny">/
-                                        @if ($jumlahData > 4)
+                                    <small class="text-muted fs-tiny">/ 100
+                                        {{-- @if ($jumlahData > 4)
                                             {{ round($target->quote + $target->quote / 4) }}
                                         @elseif($jumlahData == 4)
                                             {{ round($target->quote) }}
-                                        @endif
+                                        @endif --}}
                                     </small>
                                 </h4>
                                 <div class="badge bg-label-secondary rounded-pill">Quotation</div>

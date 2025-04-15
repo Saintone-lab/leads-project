@@ -71,6 +71,15 @@
                                     </div>
                                 </div>
                             @endif
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                             <div class="row mb-3">
                                 <div class="col-6 col-lg-3">
                                     <label for="defaultSelect" class="form-label">Condition</label>
@@ -124,6 +133,7 @@
                                 <div class="col-6 col-lg-3">
                                     <label for="defaultSelect" class="form-label">Cek Kebocoran</label>
                                     <select id="offDisable" name="leak" class="form-select offDisable">
+                                        <option value="">---------------</option>
                                         <option value="Ada">Ada</option>
                                         <option value="Tidak Ada">Tidak Ada</option>
                                     </select>
@@ -186,6 +196,15 @@
                                     </div>
                                 </div>
                             @endif
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                             <div class="row mb-3">
                                 <div class="col-6 col-lg-3">
                                     <label for="defaultSelect" class="form-label">Condition</label>
@@ -212,6 +231,7 @@
                                 <div class="col-6 col-lg-3">
                                     <label for="defaultSelect" class="form-label">Cek Kebocoran</label>
                                     <select id="offDisable" name="leak" class="form-select offDisable">
+                                        <option value="">---------------</option>
                                         <option value="Ada">Ada</option>
                                         <option value="Tidak Ada">Tidak Ada</option>
                                     </select>

@@ -33,7 +33,7 @@
         <div class="layout-container">
             <div class="container-xxl flex-grow-1 container-p-y">
                 <div class="container">
-                    <div class="card">
+                    <div class="card mb-4">
                         <div class="card-body">
                             <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-row flex-column">
                                 <div class="mb-xl-0 pb-1">
@@ -71,110 +71,128 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end mb-2">
-                                <a href="{{ route('log.daily-monitoring', $machine->id) }}"
-                                    class="btn btn-primary waves-effect">Issue & Maintenance Log</a>
-                            </div>
-                            <div class="d-flex justify-content-end">
-                                <a href="{{ route('visitor.weekly-monitoring', $machine->id) }}"
-                                    class="btn btn-success waves-effect">Go To Weekly Monitoring</a>
-                            </div>
-                            <h4>Result Monitoring </h4>
-                            <h5>Daily Check</h5>
-                            <div class="table-responsive text-nowrap mt-4">
-                                @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
-                                    <table class="table table-bordered">
-                                        <thead class="table-light">
-                                            <th>Date</th>
-                                            <th>Condition</th>
-                                            <th>R Hr.</th>
-                                            <th>L Hr.</th>
-                                            <th>Press.</th>
-                                            <th>Temp. (85°C - 94°C)</th>
-                                            <th>Oil Lvl</th>
-                                            <th>Kebocoran</th>
-                                            <th>PIC</th>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($compressor as $item)
-                                                <tr>
-                                                    <td>{{ $item['date'] }}</td>
-                                                    <td>{{ $item['condition'] }}</td>
-                                                    <td>{{ $item['running'] }}</td>
-                                                    <td>{{ $item['loading'] }}</td>
-                                                    <td>{{ $item['pressure'] }}</td>
-                                                    <td>
-                                                        @php
-                                                            $stringTemp = $item['temp'] ?? ''; // Pastikan nilai tidak null
-                                                            $tempNumber = null;
-
-                                                            if (preg_match('/\d+(\.\d+)?/', $stringTemp, $matches)) {
-                                                                $tempNumber = (float) $matches[0]; // Gunakan float agar mendukung desimal
-                                                            }
-                                                        @endphp
-
-                                                        @if (!is_null($tempNumber) && $tempNumber > 94)
-                                                            <p class="mb-0 fw-bold fs-6 text-danger">
-                                                                {{ $item['temp'] }}</p>
-                                                        @else
-                                                            {{ $item['temp'] }}
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $item['oil_level'] }}</td>
-                                                    <td>{{ $item['leak'] }}</td>
-                                                    <td>{{ $item['pic'] }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                @else
-                                    <table class="table table-bordered">
-                                        <thead class="table-light">
-                                            <th>Date</th>
-                                            <th>Condition</th>
-                                            <th>Temp IN</th>
-                                            <th>Temp OUT</th>
-                                            <th>Dew P.</th>
-                                            <th>Auto Drain</th>
-                                            <th>Fan</th>
-                                            <th>Kebocoran</th>
-                                            <th>PIC</th>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($dryer as $item)
-                                                <tr>
-                                                    <td>{{ $item['date'] }}</td>
-                                                    <td>{{ $item['condition'] }}</td>
-                                                    <td>{{ $item['temp'] }}</td>
-                                                    <td>{{ $item['temp_out'] }}</td>
-                                                    <td>{{ $item['dew'] }}</td>
-                                                    <td>{{ $item['drain'] }}</td>
-                                                    <td>{{ $item['fan'] }}</td>
-                                                    <td>{{ $item['leak'] }}</td>
-                                                    <td>{{ $item['pic'] }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                @endif
-                            </div>
-                            <div class="weekly mb-4">
-                                <h5>Weekly Check</h5>
-                                <div class="table-responsive text-nowrap mb-4">
-                                    <table class="table table-bordered">
-                                        @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
-                                            <thead class="table-light">
-                                                <th style="vertical-align: middle;">Week</th>
+                            <br>
+                            <div class="daily mb-4">
+                                <h4>Daily Check</h4>
+                                <div class="table-responsive text-nowrap mt-4">
+                                    @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
+                                        <table class="table table-bordered">
+                                            <thead class="table-light" align="center">
+                                                <th style="vertical-align: middle;">Date</th>
                                                 <th style="vertical-align: middle;">Condition</th>
-                                                <th style="vertical-align: middle;">Vibration</th>
-                                                <th style="vertical-align: middle;">Voltage</th>
-                                                <th style="vertical-align: middle;">Ampere L</th>
-                                                <th style="vertical-align: middle;">Cleaning Cooler</th>
-                                                <th style="vertical-align: middle;">Cek Coupling / Belt</th>
-                                                <th style="vertical-align: middle;">Cleaning Compressor & Area</th>
+                                                <th style="vertical-align: middle;">Running<br>Hour</th>
+                                                <th style="vertical-align: middle;">Load Hour</th>
+                                                <th style="vertical-align: middle;">Press.</th>
+                                                <th style="vertical-align: middle;">Temp.<br>(85°C - 94°C)</th>
+                                                <th style="vertical-align: middle;">Oil Level</th>
+                                                <th style="vertical-align: middle;">Kebocoran</th>
                                                 <th style="vertical-align: middle;">PIC</th>
                                             </thead>
                                             <tbody>
+                                                @foreach ($compressor as $item)
+                                                    <tr align="center">
+                                                        <td>{{ $item['date'] }}</td>
+                                                        <td>{{ $item['condition'] }}</td>
+                                                        <td>{{ $item['running'] }}</td>
+                                                        <td>{{ $item['loading'] }}</td>
+                                                        <td>{{ $item['pressure'] }}</td>
+                                                        <td>
+                                                            @php
+                                                                $stringTemp = $item['temp'] ?? ''; // Pastikan nilai tidak null
+                                                                $tempNumber = null;
+
+                                                                if (
+                                                                    preg_match('/\d+(\.\d+)?/', $stringTemp, $matches)
+                                                                ) {
+                                                                    $tempNumber = (float) $matches[0]; // Gunakan float agar mendukung desimal
+                                                                }
+                                                            @endphp
+
+                                                            @if (!is_null($tempNumber) && $tempNumber > 94)
+                                                                <p class="mb-0 fw-bold fs-6 text-danger">
+                                                                    {{ $item['temp'] }}</p>
+                                                            @else
+                                                                {{ $item['temp'] }}
+                                                            @endif
+                                                        </td>
+                                                        <td>{{ $item['oil_level'] }}</td>
+                                                        <td>{{ $item['leak'] }}</td>
+                                                        <td>{{ $item['pic'] }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    @else
+                                        <table class="table table-bordered">
+                                            <thead class="table-light" align="center">
+                                                <th style="vertical-align: middle;">Date</th>
+                                                <th style="vertical-align: middle;">Condition</th>
+                                                <th style="vertical-align: middle;">Temp. IN</th>
+                                                <th style="vertical-align: middle;">Temp. OUT</th>
+                                                <th style="vertical-align: middle;">Dewpoint</th>
+                                                <th style="vertical-align: middle;">Auto Drain</th>
+                                                <th style="vertical-align: middle;">Fan<br>Condensor</th>
+                                                <th style="vertical-align: middle;">Kebocoran</th>
+                                                <th style="vertical-align: middle;">PIC</th>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($dryer as $item)
+                                                    <tr align="center">
+                                                        <td>{{ $item['date'] }}</td>
+                                                        <td>{{ $item['condition'] }}</td>
+                                                        <td>{{ $item['temp'] }}</td>
+                                                        <td>{{ $item['temp_out'] }}</td>
+                                                        <td>
+                                                            @php
+                                                                $stringDew = $item['dew'] ?? ''; // Pastikan nilai tidak null
+                                                                $dewNumber = null;
+
+                                                                if (
+                                                                    preg_match('/\d+(\.\d+)?/', $stringDew, $matches)
+                                                                ) {
+                                                                    $dewNumber = (float) $matches[0]; // Gunakan float agar mendukung desimal
+                                                                }
+                                                            @endphp
+                                                            @if (!is_null($dewNumber) && $dewNumber > 10)
+                                                                <p class="mb-0 fw-bold fs-6 text-danger">
+                                                                    {{ $item['dew'] }}</p>
+                                                            @else
+                                                                {{ $item['dew'] }}
+                                                            @endif
+                                                        </td>
+                                                        <td>{{ $item['drain'] }}</td>
+                                                        <td>{{ $item['fan'] }}</td>
+                                                        <td>{{ $item['leak'] }}</td>
+                                                        <td>{{ $item['pic'] }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="weekly mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4>Weekly Check</h4>
+                                <div class="table-responsive text-nowrap mb-4">
+                                    <table class="table table-bordered">
+                                        @if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER')
+                                            <thead class="table-light" align="center">
+                                                <th style="vertical-align: middle;">Week</th>
+                                                <th style="vertical-align: middle;">Condition</th>
+                                                <th style="vertical-align: middle;">Vibration<br>(mm/s)</th>
+                                                <th style="vertical-align: middle;">Voltage (V)</th>
+                                                <th style="vertical-align: middle;">Ampere (A)</th>
+                                                <th style="vertical-align: middle;">Cleaning<br>Cooler</th>
+                                                <th style="vertical-align: middle;">Cek Coupling<br>/ Belt</th>
+                                                <th style="vertical-align: middle;">Cleaning<br>Compressor & Area</th>
+                                                <th style="vertical-align: middle;">PIC</th>
+                                            </thead>
+                                            <tbody align="center">
                                                 @php
                                                     $noWeek = 1;
                                                 @endphp
@@ -187,29 +205,37 @@
                                                         <td>{{ $monweek['ampere'] }}</td>
                                                         <td>
                                                             @if ($monweek['cooler'] == 1)
-                                                                <i
-                                                                    class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                                                {{-- <i
+                                                                class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i> --}}
+                                                                cleaning
                                                             @else
-                                                                <i
-                                                                    class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                                                {{-- <i
+                                                                class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i> --}}
+                                                                -
                                                             @endif
                                                         </td>
                                                         <td>
                                                             @if ($monweek['coupling'] == 1)
-                                                                <i
-                                                                    class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                                                {{-- <i
+                                                                    class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i> --}}
+                                                                Ok
+                                                            @elseif($monweek['coupling'] == 0)
+                                                                {{-- <i
+                                                                    class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i> --}}
+                                                                Not Ok
                                                             @else
-                                                                <i
-                                                                    class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                                                -
                                                             @endif
                                                         </td>
                                                         <td>
                                                             @if ($monweek['area'] == 1)
-                                                                <i
-                                                                    class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                                                {{-- <i
+                                                                class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i> --}}
+                                                                cleaning
                                                             @else
-                                                                <i
-                                                                    class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                                                {{-- <i
+                                                                class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i> --}}
+                                                                -
                                                             @endif
                                                         </td>
                                                         <td>{{ $monweek['name'] }}</td>
@@ -224,23 +250,23 @@
                                                 @endforelse
                                             </tbody>
                                         @else
-                                            <thead class="table-light">
-                                                <th>Week</th>
-                                                <th>Condition</th>
-                                                <th>Voltage</th>
-                                                <th>Ampere</th>
-                                                <th>Auto Drain</th>
-                                                <th>Pre</th>
-                                                <th>After</th>
-                                                <th>Condensor</th>
-                                                <th>PIC</th>
+                                            <thead class="table-light" align="center">
+                                                <th style="vertical-align: middle;">Week</th>
+                                                <th style="vertical-align: middle;">Condition</th>
+                                                <th style="vertical-align: middle;">Voltage (V)</th>
+                                                <th style="vertical-align: middle;">Ampere (A)</th>
+                                                <th style="vertical-align: middle;">Auto Drain</th>
+                                                <th style="vertical-align: middle;">Pre</th>
+                                                <th style="vertical-align: middle;">After</th>
+                                                <th style="vertical-align: middle;">Cleaning<br>Condensor</th>
+                                                <th style="vertical-align: middle;">PIC</th>
                                             </thead>
                                             <tbody>
                                                 @php
                                                     $noWeek = 1;
                                                 @endphp
                                                 @foreach ($weeksoy as $monweek)
-                                                    <tr>
+                                                    <tr align="center">
                                                         <td>{{ $noWeek }}</td>
                                                         <td>{{ $monweek['condition'] }}</td>
                                                         <td>{{ $monweek['voltage'] }}</td>
@@ -250,11 +276,13 @@
                                                         <td>{{ $monweek['after'] }}</td>
                                                         <td>
                                                             @if ($monweek['condensor'] == 1)
-                                                                <i
-                                                                    class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                                                {{-- <i
+                                                                    class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i> --}}
+                                                                cleaning
                                                             @else
-                                                                <i
-                                                                    class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                                                {{-- <i
+                                                                    class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i> --}}
+                                                                -
                                                             @endif
                                                         </td>
                                                         <td>{{ $monweek['name'] }}</td>
@@ -268,57 +296,68 @@
                                     </table>
                                 </div>
                             </div>
-                            <div class="monthly mb-4">
-                                <h5>Monthly Check</h5>
-                                <div class="table-responsive text-nowrap mb-4">
-                                    <table class="table table-bordered">
-                                        <thead class="table-light">
-                                            <th>Date</th>
-                                            <th>HP (High Pressure)</th>
-                                            <th>LP (Low Pressure)</th>
-                                            <th>Strainer</th>
-                                        </thead>
-                                        <tbody>
-                                            @if ($monthly)
-                                                <tr>
-                                                    <td>{{ \Carbon\Carbon::parse($monthly->date)->format('d-m-Y') }}
-                                                    </td>
-                                                    <td>{{ $monthly->hp }}</td>
-                                                    <td>{{ $monthly->lp }}</td>
-                                                    <td>{{ $monthly->strainer }}</td>
-                                                </tr>
-                                            @else
-                                                <tr>
-                                                    <td>-</td>
-                                                    <td>-</td>
-                                                    <td>-</td>
-                                                    <td>-</td>
-                                                </tr>
-                                            @endif
-                                        </tbody>
-                                    </table>
+                        </div>
+                    </div>
+
+                    @if ($machine->unit->unit->unit == 'REFRIGERANT AIR DRYER')
+                        <div class="monthly mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4>Monthly Check</h4>
+                                    <div class="table-responsive text-nowrap mb-4">
+                                        <table class="table table-bordered">
+                                            <thead class="table-light" align="center">
+                                                <th style="vertical-align: middle;">Date</th>
+                                                <th style="vertical-align: middle;">HP (High Pressure)</th>
+                                                <th style="vertical-align: middle;">LP (Low Pressure)</th>
+                                                <th style="vertical-align: middle;">Strainer</th>
+                                            </thead>
+                                            <tbody>
+                                                @if ($monthly)
+                                                    <tr>
+                                                        <td>{{ \Carbon\Carbon::parse($monthly->date)->format('d-m-Y') }}
+                                                        </td>
+                                                        <td>{{ $monthly->hp }}</td>
+                                                        <td>{{ $monthly->lp }}</td>
+                                                        <td>{{ $monthly->strainer }}</td>
+                                                    </tr>
+                                                @else
+                                                    <tr>
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                    </tr>
+                                                @endif
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="issue mb-4">
+                        </div>
+                    @endif
+
+                    <div class="issue mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4>Issue & Recommendation</h4>
                                 <div class="table-responsive text-nowrap">
                                     <table class="table table-bordered">
-                                        <thead class="table-light">
-                                            <th>No</th>
-                                            <th>Date</th>
-                                            <th>Issue</th>
-                                            <th>Recommendation</th>
-                                            <th>PN</th>
+                                        <thead class="table-light" align="center">
+                                            <th style="vertical-align: middle;">Date</th>
+                                            <th style="vertical-align: middle;">Issue</th>
+                                            <th style="vertical-align: middle;">Recommendation</th>
+                                            <th style="vertical-align: middle;">PN (Material)</th>
                                         </thead>
                                         <tbody>
                                             @php
                                                 $no = 0;
                                             @endphp
-                                            @foreach ($issue as $issues)
+                                            @forelse ($issue as $issues)
                                                 @php
                                                     $no++;
                                                 @endphp
                                                 <tr>
-                                                    <td>{{ $no }}</td>
                                                     <td>{{ $issues->date }}</td>
                                                     <td>
                                                         <pre class="mb-1"
@@ -330,36 +369,89 @@
                                                     </td>
                                                     <td>{{ $issues->pn }}</td>
                                                 </tr>
-                                            @endforeach
+                                            @empty
+                                                <tr>
+                                                    <td colspan="5" class="text-center">Belum Ada Issue</td>
+                                                </tr>
+                                            @endforelse
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                            <div class="mainlog mb-4">
-                                <div class="table-responsive text-nowrap">
+                        </div>
+                    </div>
+
+                    <div class="quote mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4>Quotation</h4>
+                                <div class="table-responsive text-nowrap mb-4">
                                     <table class="table table-bordered">
-                                        <thead class="table-light">
-                                            <th>No</th>
-                                            <th>Date</th>
-                                            <th>Maintenance Description</th>
+                                        <thead class="table-light" align="center">
+                                            <tr>
+                                                <th style="vertical-align: middle;">Date</th>
+                                                <th style="vertical-align: middle;">No. Quote</th>
+                                                <th style="vertical-align: middle;">No. PR</th>
+                                                <th style="vertical-align: middle;">Title</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($quotes as $quote)
+                                                <tr>
+                                                    <td>{{ \Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ route('quotation.show', $quote->id) }}"
+                                                            class="text-black">
+                                                            {{ $quote->no_quote }}
+                                                        </a>
+                                                    </td>
+                                                    <td>{{ $quote->no_pr }}</td>
+                                                    <td>{{ $quote->title }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="4" class="text-center">Belum Ada Quote
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mainlog mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4>Maintenance Log</h4>
+                                <div class="table-responsive text-nowrap">
+                                    <table class="table table-bordered" align="center">
+                                        <thead class="table-light" align="center">
+                                            <th style="vertical-align: middle;">Date</th>
+                                            <th style="vertical-align: middle;">Maintenance Description</th>
                                         </thead>
                                         <tbody>
                                             @php
                                                 $no = 0;
                                             @endphp
-                                            @foreach ($mainlog as $item)
+                                            @forelse ($mainlog as $item)
                                                 @php
                                                     $no++;
                                                 @endphp
                                                 <tr>
-                                                    <td>{{ $no }}</td>
                                                     <td>{{ $item->date }}</td>
                                                     <td>
                                                         <pre class="mb-1"
                                                             style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $item->desc }}</pre>
                                                     </td>
                                                 </tr>
-                                            @endforeach
+                                            @empty
+                                                <tr>
+                                                    <td colspan="3" class="text-center">Belum Ada Maintenance Log</td>
+                                                </tr>
+                                            @endforelse
                                         </tbody>
                                     </table>
                                 </div>

@@ -18,7 +18,7 @@
             </table>
         </div>
         <a class="btn btn-primary btn-outline-secondary d-grid mb-3 waves-effect float-end" target="_blank"
-            href="{{ route('monitoring.fajarPaper-summary-print') }}">
+            href="{{ route('monitoring.fajarPaper-summary-print', $month) }}">
             Download
         </a>
     </div>
@@ -41,9 +41,9 @@
                     </thead>
                 </table>
             </div>
-            <a class="btn btn-primary btn-outline-secondary d-grid mb-3 waves-effect float-end" target="_blank"
-                href="{{ route('monitoring.fajarPaper-summary-print') }}">
-                Download
+            <a class="btn btn-primary btn-outline-secondary d-grid mb-3 waves-effect float-end"
+                href="{{ route('summary.mainlog', \Carbon\Carbon::today()->month) }}">
+                Visitor
             </a>
         </div>
     </div>
@@ -67,7 +67,7 @@
                 </table>
             </div>
             <a class="btn btn-primary btn-outline-secondary d-grid mb-3 waves-effect float-end" target="_blank"
-                href="{{ route('monitoring.fajarPaper-quote-print') }}">
+                href="{{ route('monitoring.fajarPaper-quote-print', $month) }}">
                 Download
             </a>
         </div>
@@ -86,12 +86,13 @@
                             <th>Tag</th>
                             <th>Machine</th>
                             <th>Keterangan</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                 </table>
             </div>
             <a class="btn btn-primary btn-outline-secondary d-grid mb-3 waves-effect float-end" target="_blank"
-                href="{{ route('monitoring.fajarPaper-hold-print') }}">
+                href="{{ route('monitoring.fajarPaper-hold-print', $month) }}">
                 Download
             </a>
         </div>

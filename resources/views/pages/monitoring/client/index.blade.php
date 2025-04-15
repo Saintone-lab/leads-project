@@ -89,7 +89,7 @@
                                     <th>Tag</th>
                                     <th>Location</th>
                                     <th>PIC</th>
-                                    <th>Info</th>
+                                    <th>Date</th>
                                 </tr>
                             </thead>
                         </table>
@@ -119,26 +119,6 @@
                             </thead>
                         </table>
                     </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12">
-            <div class="demo-inline-spacing">
-                <div class="btn-group" id="dropdown-icon-demo">
-                    <button type="button" class="btn btn-primary dropdown-toggle waves-effect waves-light"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="mdi mdi-menu me-1"></i> Month
-                    </button>
-                    <ul class="dropdown-menu" style="">
-                        <li>
-                            <a href="javascript:void(0);" class="dropdown-item">Jan</a>
-                            <a href="javascript:void(0);" class="dropdown-item">Feb</a>
-                            <a href="javascript:void(0);" class="dropdown-item">Mar</a>
-                            <a href="javascript:void(0);" class="dropdown-item">Apr</a>
-                            <a href="javascript:void(0);" class="dropdown-item">Mei</a>
-                            <a href="javascript:void(0);" class="dropdown-item">Jun</a>
-                        </li>
-                    </ul>
                 </div>
             </div>
         </div>

@@ -25,9 +25,9 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "new" },
-                { data: "sku" },
+                // { data: "new" },
                 { data: "brand" },
+                { data: "sku" },
                 { data: "pn" },
                 { data: "serial" },
                 { data: "power" },
@@ -38,9 +38,9 @@ $(function () {
             ],
             columnDefs: [
                 {
-                    targets: 6,
+                    targets: 5,
                     render: function (data, type, full, row) {
-                        var photo = full['image'];
+                        var photo = full['desc'];
                         if (type === "display") {
                             if (data === null || data === "") {
                                 return "-";
@@ -56,32 +56,32 @@ $(function () {
                         return data;
                     },
                 },
-                {
-                    targets: 3,
-                    render: function (data, type, full, row) {
-                        var newu = full['new'];
-                        var second = full['second'];
-                        var rental = full['rental'];
+                // {
+                //     targets: 3,
+                //     render: function (data, type, full, row) {
+                //         var newu = full['new'];
+                //         var second = full['second'];
+                //         var rental = full['rental'];
                         
-                        var status = [];
+                //         var status = [];
                 
-                        if (rental === '1') {
-                            status.push('Rental');
-                        }
+                //         if (rental === '1') {
+                //             status.push('Rental');
+                //         }
                 
-                        if (second === '1') {
-                            status.push('Second Unit');
-                        }
+                //         if (second === '1') {
+                //             status.push('Second Unit');
+                //         }
                 
-                        if (newu === '1') {
-                            status.push('New Unit');
-                        }
+                //         if (newu === '1') {
+                //             status.push('New Unit');
+                //         }
                 
-                        var statusText = status.length === 0 ? '-' : status.join(' & ');
+                //         var statusText = status.length === 0 ? '-' : status.join(' & ');
                 
-                        return statusText;
-                    },
-                },
+                //         return statusText;
+                //     },
+                // },
                 {
                     // For Responsive
                     className: "control",
@@ -128,7 +128,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 11,
+                    targets: 10,
                     render: function (data, type, full, meta) {
                         var $title = full["status"];
                         var $status = {
@@ -162,7 +162,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 12,
+                    targets: 11,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
             ],

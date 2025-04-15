@@ -79,8 +79,8 @@
                             <th></th>
                             <th></th>
                             <th>ID</th>
-                            <th>SKU</th>
                             <th>Brand</th>
+                            <th>SKU</th>
                             <th>Type</th>
                             <th>Sn</th>
                             <th>Power</th>
@@ -98,9 +98,9 @@
                             <th></th>
                             <th></th>
                             <th>ID</th>
-                            <th>Info</th>
-                            <th>Unit</th>
+                            {{-- <th>Info</th> --}}
                             <th>Brand</th>
+                            <th>Unit</th>
                             <th>Type</th>
                             <th>SN</th>
                             <th>Power</th>
@@ -115,13 +115,15 @@
         </div>
     </div>
     @include('components.modal.warehouse.unit.form')
+    @foreach ($units as $unitr)
+        @include('components.modal.warehouse.unit.form-edit')
+    @endforeach
 @endsection()
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
-    <link rel="stylesheet"
-        href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
@@ -144,4 +146,51 @@
     <script src="{{ asset('assets') }}/includes/table-unit.js"></script>
     <script src="{{ asset('assets') }}/includes/table-unit-sales.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
+@endpush
+
+@push('script')
+    <script>
+        $(document).ready(function() {
+            function formatNumber(n) {
+                return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+            }
+            $(".price-label").on('keyup click change', function() {
+                var input = $(this)
+                var input_val = input.val();
+
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                $(`#semuanya`).val(nomorInt);
+                console.log('ini value semuanya :' + $('#semuanya').val());
+            });
+            $(".harga-label").on('keyup click change', function() {
+                var input = $(this)
+                var input_val = input.val();
+                var idHarga = input.data('id');
+
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                $(`#harga` + idHarga).val(nomorInt);
+                console.log('ini value harga :' + $('#harga' + idHarga).val());
+            });
+        });
+    </script>
 @endpush

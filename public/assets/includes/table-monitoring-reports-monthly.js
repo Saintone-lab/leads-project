@@ -37,6 +37,9 @@ $(function () {
                 { data: "tag" },
                 { data: "machine" },
                 {
+                    data: "issue",
+                },
+                {
                     data: "status",
                 },
             ],
@@ -60,6 +63,59 @@ $(function () {
                 {
                     responsivePriority: 1,
                     targets: 2,
+                },
+                {
+                    targets: 7,
+                    render: function (data, type, full, row) {
+                        var $status_number = full["status"];
+                        var status_desc = full["status_desc"];
+                        var $status = {
+                            0: {
+                                title: "Proccess FU to User",
+                                class: " bg-label-info",
+                                colorTip: "tooltip-info",
+                                titleTip: status_desc,
+                            },
+                            1: {
+                                title: "Proccess FU to User",
+                                class: " bg-label-info",
+                                colorTip: "tooltip-info",
+                                titleTip: status_desc,
+                            },
+                            2: {
+                                title: "Send Inquiry",
+                                class: " bg-label-warning",
+                                colorTip: "tooltip-warning",
+                                titleTip: status_desc,
+                            },
+                            3: {
+                                title: "Hold by User",
+                                class: " bg-label-danger",
+                                colorTip: "tooltip-danger",
+                                titleTip: status_desc,
+                            },
+                            4: {
+                                title: "Done",
+                                class: " bg-label-success",
+                                colorTip: "tooltip-success",
+                                titleTip: "Done",
+                            },
+                        };
+                        if (typeof $status[$status_number] === "undefined") {
+                            return data;
+                        }
+                        return (
+                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
+                            $status[$status_number].colorTip +
+                            '" title="' +
+                            $status[$status_number].titleTip +
+                            '" class="badge rounded-pill ' +
+                            $status[$status_number].class +
+                            '">' +
+                            $status[$status_number].title +
+                            "</span>"
+                        );
+                    },
                 },
             ],
             // order: [[2, "desc"]],

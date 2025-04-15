@@ -36,7 +36,7 @@ $(function () {
                 { data: "tag" },
                 { data: "machine" },
                 {
-                    data: "main_desc",
+                    data: "desc",
                 },
             ],
             columnDefs: [

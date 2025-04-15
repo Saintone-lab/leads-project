@@ -81,9 +81,13 @@ class DashboardController extends Controller
                 ->where('o.level', '1')
                 ->take(5)
                 ->get();
+
+            $jumlahCustomer = Client::where('role','Customers')->where('id_sales', Auth::user()->id)->count(); 
+            // dd($jumlahCustomer);
             return view(
                 "pages.sales.dashboard",
                 compact(
+                    'jumlahCustomer',
                     'notulens',
                     'prospects',
                     'leveledProspect',

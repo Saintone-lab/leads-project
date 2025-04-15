@@ -31,7 +31,7 @@ if (Auth::check()) {
         s.bar,
         s.air_cap,
         m.status,
-        s.price
+        m.price
             FROM 
                 machine m
             JOIN 

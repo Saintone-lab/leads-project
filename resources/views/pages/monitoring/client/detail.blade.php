@@ -73,7 +73,7 @@
         <div class="col-12 mb-4">
             <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold m-0 pt-2">
-                    Quotation
+                    quotation
                 </h5>
                 <a href="{{ route('monitoring.create-quotation', $monitoring->id) }}" type="button"
                     class="btn btn-primary waves-effect waves-light">
@@ -91,6 +91,7 @@
                                     <th>No. PR</th>
                                     <th>Title</th>
                                     <th>Nominal</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -98,18 +99,56 @@
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</td>
                                         <td>
-                                            <a href="{{ route('quotation.show', $quote->id) }}"
-                                                class="text-black">
+                                            <a href="{{ route('quotation.show', $quote->id) }}" class="text-black">
                                                 {{ $quote->no_quote }}
                                             </a>
                                         </td>
                                         <td>{{ $quote->no_pr }}</td>
                                         <td>{{ $quote->title }}</td>
                                         <td>Rp {{ number_format($quote->harga_total, 0, ',', '.') }}</td>
+                                        @php
+                                            switch ($quote->status) {
+                                                case 20:
+                                                    $labelColor = 'secondary';
+                                                    $title = 'Send WA / Email';
+                                                    break;
+                                                case 30:
+                                                    $labelColor = 'dark';
+                                                    $title = 'Inquiry Accepted';
+                                                    break;
+                                                case 40:
+                                                    $labelColor = 'info';
+                                                    $title = 'Progress Follow Up';
+                                                    break;
+                                                case 60:
+                                                    $labelColor = 'primary';
+                                                    $title = 'Negotiation / Revisi';
+                                                    break;
+                                                case 80:
+                                                    $labelColor = 'warning';
+                                                    $title = 'Hot Prospect';
+                                                    break;
+                                                case 100:
+                                                    $labelColor = 'success';
+                                                    $title = 'Done PO';
+                                                    break;
+                                                case 0:
+                                                    $labelColor = 'danger';
+                                                    $title = 'Loss';
+                                                    break;
+                                                default:
+                                                    return 0;
+                                                    break;
+                                            }
+                                        @endphp
+                                        <td>
+                                            <span
+                                                class="badge bg-label-{{ $labelColor }}">{{ $quote->status }}%</span>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center">Belum Ada Quote</td>
+                                        <td colspan="6" class="text-center">Belum Ada Quote</td>
                                     </tr>
                                 @endforelse
                             </tbody>

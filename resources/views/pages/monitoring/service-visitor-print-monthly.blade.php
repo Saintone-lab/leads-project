@@ -39,7 +39,6 @@
         <table class="table table-bordered">
             <thead class="table-light">
                 <th>Machine</th>
-                <th>Date</th>
                 <th>Condition</th>
                 <th>HP (High Pressure)</th>
                 <th>LP (Low Pressure)</th>
@@ -52,7 +51,6 @@
                         <td>{{ $item->unit->brand }} {{ $item->unit->unit->sku }} || {{ $item->tag }}
                             - {{ $item->location }}
                         </td>
-                        <td>{{ $item->date ?? '-' }}</td>
                         <td>{{ $item->condition ?? '-' }}</td>
                         <td>{{ $item->hp ?? '-' }}</td>
                         <td>{{ $item->lp ?? '-' }}</td>
@@ -66,8 +64,11 @@
     <div class="row mt-5">
         <div class="col-4 mt-5 text-center">
             <p>PT Reftech Jaya Optima</p>
-            <div class="pb-5"></div>
-            <p class="pt-3">Angel Irene</p>
+            <div class="">
+                <img src="{{ url('') . '/asset/sign/ttdAngel.jpg' }}" alt="" srcset=""
+                    height="100">
+            </div>
+            <p>Angel Irene</p>
         </div>
         <div class="col-4"></div>
         <div class="col-4 mt-5 text-center">

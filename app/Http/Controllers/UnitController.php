@@ -30,7 +30,8 @@ class UnitController extends Controller
     public function index()
     {
         $unit = SerialProduct::whereNotNull('detail')->get();
-        return view('pages.warehouse.unit.index', compact('unit'));
+        $units = Machine::where('id_client', 5508)->get();
+        return view('pages.warehouse.unit.index', compact('unit','units'));
     }
 
     /**
@@ -50,28 +51,30 @@ class UnitController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {$rule = [
-        'desc' =>
-            'required',
+    {
+        $rule = [
+            'desc' =>
+                'required',
 
-        'serial' =>
-            'required',
-    ];
+            'serial' =>
+                'required',
+        ];
 
-    $message = [
-        'desc.required' => 'Field desc Wajib Diisi',
-        'serial.required' => 'Field serial Wajib Diisi',
-    ];
-    $this->validate($request, $rule, $message);
-    $machine = new Machine();
-    $machine->id_client = 5508;
-    $machine->id_unit = $request->unit;
-    $machine->serial = $request->serial;
-    $machine->status = $request->status;
-    $machine->desc = $request->desc;
-    $machine->tag = $request->tag;
-    $machine->location = $request->location;
-    $unitSave = $machine->save();
+        $message = [
+            'desc.required' => 'Field desc Wajib Diisi',
+            'serial.required' => 'Field serial Wajib Diisi',
+        ];
+        $this->validate($request, $rule, $message);
+        $machine = new Machine();
+        $machine->id_client = 5387;
+        $machine->id_unit = $request->unit;
+        $machine->serial = $request->serial;
+        $machine->status = $request->status;
+        $machine->desc = $request->desc;
+        $machine->tag = $request->tag;
+        $machine->price = $request->semuanya;
+        $machine->location = '-';
+        $unitSave = $machine->save();
         if ($unitSave) {
             return redirect('/unit')->with('message', 'data telah di tambahkan');
         }
@@ -356,7 +359,7 @@ class UnitController extends Controller
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         return view("pages.sales.quotation.unit.detail", compact('quote', 'status', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'lastQuote', 'primQuote', 'quotations', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
-    
+
     public function indexGlobal()
     {
         return view('pages.warehouse.unit.index-global');
@@ -508,5 +511,16 @@ class UnitController extends Controller
     {
         return view('pages.warehouse.unit.cor-factor');
 
+    }
+    public function updateUnitReftech(Request $request, $id)
+    {
+        $machine = Machine::find($id);
+        $machine->status = $request->status;
+        $machine->price = $request->total;
+        // dd($request->all());
+        $unitSave = $machine->save();
+        if ($unitSave) {
+            return redirect('/unit')->with('message', 'data telah di tambahkan');
+        }
     }
 }

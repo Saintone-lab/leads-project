@@ -130,7 +130,14 @@
                                 <td>{{ $item['condition'] }}</td>
                                 <td>{{ $item['temp'] }}</td>
                                 <td>{{ $item['temp_out'] }}</td>
-                                <td>{{ $item['dew'] }}</td>
+                                <td>
+                                    @if (!is_null($item['dew']) && $item['dew'] > 10)
+                                        <p class="mb-0 fw-bold fs-6 text-danger">
+                                            {{ $item['dew'] }}</p>
+                                    @else
+                                        {{ $item['dew'] }}
+                                    @endif
+                                </td>
                                 <td>{{ $item['drain'] }}</td>
                                 <td>{{ $item['fan'] }}</td>
                                 <td>{{ $item['leak'] }}</td>
@@ -259,36 +266,43 @@
         </div>
 
 
-        <div class="monthly mb-4">
-            <h5>Monthly Check</h5>
-            <div class="table-responsive text-nowrap mb-4">
-                <table class="table table-bordered">
-                    <thead class="table-light">
-                        <th>Date</th>
-                        <th>HP (High Pressure)</th>
-                        <th>LP (Low Pressure)</th>
-                        <th>Strainer</th>
-                    </thead>
-                    <tbody>
-                        @if ($monthly)
-                            <tr>
-                                <td>{{ \Carbon\Carbon::parse($monthly->date)->format('d-m-Y') }}</td>
-                                <td>{{ $monthly->hp }}</td>
-                                <td>{{ $monthly->lp }}</td>
-                                <td>{{ $monthly->strainer }}</td>
-                            </tr>
-                        @else
-                            <tr>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                            </tr>
-                        @endif
-                    </tbody>
-                </table>
+        @if ($machine->unit->unit->unit == 'REFRIGERANT AIR DRYER')
+            <div class="card invoice-preview-card mb-4">
+                <div class="card-body">
+                    <div class="monthly mb-4">
+                        <h5>Monthly Check</h5>
+                        <div class="table-responsive text-nowrap mb-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <th>Date</th>
+                                    <th>HP (High Pressure)</th>
+                                    <th>LP (Low Pressure)</th>
+                                    <th>Strainer</th>
+                                </thead>
+                                <tbody>
+                                    @if ($monthly)
+                                        <tr>
+                                            <td>{{ \Carbon\Carbon::parse($monthly->date)->format('d-m-Y') }}</td>
+                                            <td>{{ $monthly->hp }}</td>
+                                            <td>{{ $monthly->lp }}</td>
+                                            <td>{{ $monthly->strainer }}</td>
+                                        </tr>
+                                    @else
+                                        <tr>
+                                            <td>-</td>
+                                            <td>-</td>
+                                            <td>-</td>
+                                            <td>-</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-        </div>
+        @endif
 
         <div class="issue mt-5">
             <h5>Issue & Recommendation</h5>
@@ -314,6 +328,39 @@
                                 <td>{{ $issues->pn ?? '-' }}</td>
                             </tr>
                         @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="quote mb-4">
+            <div class="table-responsive text-nowrap mb-4">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>No. Quote</th>
+                            <th>No. PR</th>
+                            <th>Title</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($quotes as $quote)
+                            <tr>
+                                <td>{{ \Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</td>
+                                <td>
+                                    <a href="{{ route('quotation.show', $quote->id) }}" class="text-black">
+                                        {{ $quote->no_quote }}
+                                    </a>
+                                </td>
+                                <td>{{ $quote->no_pr }}</td>
+                                <td>{{ $quote->title }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center">Belum Ada Quote</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

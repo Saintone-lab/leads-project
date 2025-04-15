@@ -83,15 +83,6 @@ $(function () {
                                 "Update Issue" +
                                 "</a>" +
                                 "</li>" +
-                                "<li>" +
-                                '<a class=" dropdown-item cursor-pointer"' +
-                                'data-bs-toggle="modal"' +
-                                'data-bs-target="#editMainlog-' +
-                                id +
-                                '">' +
-                                "Update Mainlog" +
-                                "</a>" +
-                                "</li>" +
                                 "</ul>" +
                                 "</div>"
                             );

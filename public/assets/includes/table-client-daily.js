@@ -42,7 +42,13 @@ $(function () {
                         }
                     },
                 },
-                { data: "condition" },
+                {
+                    data: "date",
+                    render: function (data, type, row) {
+                        if (!data) return "-"; // Jika data kosong/null, tampilkan "-"
+                        return data.split(" ")[1] || "-"; // Ambil hanya waktu
+                    },
+                },
             ],
             columnDefs: [
                 {
@@ -70,29 +76,29 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var detailRoute = route("service-manager.show", $dataId);
+                            var condition = full["condition"];
+                            var detailRoute = route(
+                                "service-manager.show",
+                                $dataId
+                            );
+                            if (condition === null) {
+                                var condition_class = " bg-danger";
+                            } else {
+                                var condition_class = " bg-success";
+                            }
                             return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                                '<span class="badge badge-dot ' +
+                                condition_class +
+                                '">' +
+                                "</span>  " +
+                                '<a class="text-dark" href="' +
+                                detailRoute +
+                                '">' +
+                                data +
+                                "</a>"
                             );
                         }
                         return data;
-                    },
-                },
-                {
-                    // Label Status Name
-                    targets: 7,
-                    render: function (data, type, full, meta) {
-                        if (data === null){
-                            var condition_class = " bg-danger";
-                        }else{
-                            var condition_class = " bg-success";
-                        }
-                        return (
-                            '<span class="badge badge-dot ' +
-                            condition_class +
-                            '">' +
-                            "</span>"
-                        );
                     },
                 },
             ],

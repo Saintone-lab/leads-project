@@ -40,16 +40,16 @@
             <div class="table-responsive text-nowrap">
                 @if ($item['unit'] != 'REFRIGERANT AIR DRYER')
                     <table class="table table-bordered">
-                        <thead class="table-light">
-                            <th>Date</th>
-                            <th>Condition</th>
-                            <th>R Hr.</th>
-                            <th>L Hr.</th>
-                            <th>Press.</th>
-                            <th>Temp. (85°C - 94°C)</th>
-                            <th>Oil Lvl</th>
-                            <th>Kebocoran</th>
-                            <th>PIC</th>
+                        <thead class="table-light" align="center">
+                            <th style="vertical-align: middle;">Date</th>
+                            <th style="vertical-align: middle;">Condition</th>
+                            <th style="vertical-align: middle;">Running<br>Hour</th>
+                            <th style="vertical-align: middle;">Load<br>Hour</th>
+                            <th style="vertical-align: middle;">Press.</th>
+                            <th style="vertical-align: middle;">Temp.<br>(85°C - 95°C)</th>
+                            <th style="vertical-align: middle;">Oil<br>Level</th>
+                            <th style="vertical-align: middle;">Kebocoran</th>
+                            <th style="vertical-align: middle;">PIC</th>
                         </thead>
                         <tbody>
                             @foreach ($item['daily'] as $daily)
@@ -85,16 +85,16 @@
                     </table>
                 @else
                     <table class="table table-bordered">
-                        <thead class="table-light">
-                            <th>Date</th>
-                            <th>Condition</th>
-                            <th>Temp IN</th>
-                            <th>Temp OUT</th>
-                            <th>Dew P.</th>
-                            <th>Auto Drain</th>
-                            <th>Fan Kondenser</th>
-                            <th>Kebocoran</th>
-                            <th>PIC</th>
+                        <thead class="table-light" align="center">
+                            <th style="vertical-align: middle;">Date</th>
+                            <th style="vertical-align: middle;">Condition</th>
+                            <th style="vertical-align: middle;">Temp. IN</th>
+                            <th style="vertical-align: middle;">Temp. OUT</th>
+                            <th style="vertical-align: middle;">Dew P.</th>
+                            <th style="vertical-align: middle;">Auto<br>Drain</th>
+                            <th style="vertical-align: middle;">Fan<br>Kondenser</th>
+                            <th style="vertical-align: middle;">Kebocoran</th>
+                            <th style="vertical-align: middle;">PIC</th>
                         </thead>
                         <tbody>
                             @foreach ($item['daily'] as $daily)
@@ -199,7 +199,123 @@
 
             <div class="weekly mb-5">
                 <h5>Weekly Monitoring</h5>
+
                 <div class="table-responsive text-nowrap mb-4">
+                    <table class="table table-bordered">
+                        @if ($item['unit'] == 'REFRIGERANT AIR DRYER')
+                            <thead class="table-light">
+                                <th style="vertical-align: middle;">Week</th>
+                                <th style="vertical-align: middle;">Condition</th>
+                                <th style="vertical-align: middle;">Vibration</th>
+                                <th style="vertical-align: middle;">Voltage</th>
+                                <th style="vertical-align: middle;">Ampere L</th>
+                                <th style="vertical-align: middle;">Cleaning Cooler</th>
+                                <th style="vertical-align: middle;">Cek Coupling / Belt</th>
+                                <th style="vertical-align: middle;">Cleaning Compressor & Area</th>
+                                <th style="vertical-align: middle;">PIC</th>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $noWeek = 1;
+                                @endphp
+                                @forelse ($item['weekly'] as $monweek)
+                                    <tr>
+                                        <td>{{ $noWeek }}</td>
+                                        <td>{{ $monweek['condition'] }}</td>
+                                        <td>{{ $monweek['vibration'] }}</td>
+                                        <td>{{ $monweek['voltage'] }}</td>
+                                        <td>{{ $monweek['ampere'] }}</td>
+                                        <td>
+                                            @if ($monweek['cooler'] == 1)
+                                                {{-- <i
+                                                class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i> --}}
+                                                cleaning
+                                            @else
+                                                {{-- <i
+                                                class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i> --}}
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($monweek['coupling'] == 1)
+                                                {{-- <i
+                                                    class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i> --}}
+                                                Ok
+                                            @else
+                                                {{-- <i
+                                                    class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i> --}}
+                                                Not Ok
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($monweek['area'] == 1)
+                                                {{-- <i
+                                                class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i> --}}
+                                                cleaning
+                                            @else
+                                                {{-- <i
+                                                class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i> --}}
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>{{ $monweek['name'] }}</td>
+                                    </tr>
+                                    @php
+                                        $noWeek++;
+                                    @endphp
+                                @empty
+                                    <tr>
+                                        <td colspan="7">Belum Ada Monitoring week</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        @else
+                            <thead class="table-light">
+                                <th>Week</th>
+                                <th>Condition</th>
+                                <th>Voltage</th>
+                                <th>Ampere</th>
+                                <th>Auto Drain</th>
+                                <th>Pre</th>
+                                <th>After</th>
+                                <th>Condensor</th>
+                                <th>PIC</th>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $noWeek = 1;
+                                @endphp
+                                @foreach ($item['weekly'] as $monweek)
+                                    <tr>
+                                        <td>{{ $noWeek }}</td>
+                                        <td>{{ $monweek['condition'] }}</td>
+                                        <td>{{ $monweek['voltage'] }}</td>
+                                        <td>{{ $monweek['ampere'] }}</td>
+                                        <td>{{ $monweek['drain'] }}</td>
+                                        <td>{{ $monweek['pre'] }}</td>
+                                        <td>{{ $monweek['after'] }}</td>
+                                        <td>
+                                            @if ($monweek['condensor'] == 1)
+                                                {{-- <i
+                                                    class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i> --}}
+                                                cleaning
+                                            @else
+                                                {{-- <i
+                                                    class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i> --}}
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>{{ $monweek['name'] }}</td>
+                                    </tr>
+                                    @php
+                                        $noWeek++;
+                                    @endphp
+                                @endforeach
+                            </tbody>
+                        @endif
+                    </table>
+                </div>
+                {{-- <div class="table-responsive text-nowrap mb-4">
                     <table class="table table-bordered">
                         @if ($item['unit'] != 'REFRIGERANT AIR DRYER')
                             <thead class="table-light">
@@ -221,7 +337,7 @@
                                         <td>{{ $monweek['voltage'] }}</td>
                                         <td>{{ $monweek['ampere'] }}</td>
                                         <td>
-                                            @if ($monweek['cooling'] == 1)
+                                            @if ($monweek['cooler'] == 1)
                                                 <i
                                                     class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
                                             @else
@@ -293,7 +409,7 @@
                             </tbody>
                         @endif
                     </table>
-                </div>
+                </div> --}}
             </div>
 
             @if ($item['unit'] == 'REFRIGERANT AIR DRYER')
@@ -302,16 +418,21 @@
                     <div class="table-responsive text-nowrap mb-4">
                         <table class="table table-bordered">
                             <thead class="table-light">
-                                <th>Date</th>
-                                <th>refrigerasi</th>
-                                <th>Strainer</th>
-                                <th>PIC</th>
-                            </thead>
+                                <thead class="table-light">
+                                    <th>Date</th>
+                                    <th>Condition</th>
+                                    <th>HP (High Pressure)</th>
+                                    <th>LP (Low Pressure)</th>
+                                    <th>Strainer</th>
+                                    <th>PIC</th>
+                                </thead>
                             <tbody>
                                 @forelse ($item['monthly'] as $monweek)
                                     <tr>
                                         <td>{{ $monweek['date'] ?? '-' }}</td>
-                                        <td>{{ $monweek['refrigerasi'] ?? '-' }}</td>
+                                        <td>{{ $monweek['condition'] ?? '-' }}</td>
+                                        <td>{{ $monweek['hp'] ?? '-' }}</td>
+                                        <td>{{ $monweek['lp'] ?? '-' }}</td>
                                         <td>{{ $monweek['strainer'] ?? '-' }}</td>
                                         <td>{{ $monweek['pic'] ?? '-' }}</td>
                                     </tr>
@@ -330,8 +451,11 @@
                 <tr>
                     <td class="text-center">
                         <p>PT Reftech Jaya Optima</p>
-                        <div class="pb-5"></div>
-                        <p class="pt-3">Angel Irene</p>
+                        <div class="">
+                            <img src="{{ url('') . '/asset/sign/ttdAngel.jpg' }}" alt="" srcset=""
+                                height="100">
+                        </div>
+                        <p>Angel Irene</p>
                     </td>
                     <td style="width: 50%"></td> <!-- Kolom kosong untuk jarak tengah -->
                     <td class="text-center">

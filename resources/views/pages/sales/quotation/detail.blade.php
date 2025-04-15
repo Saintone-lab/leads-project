@@ -402,7 +402,7 @@
                 @if (Auth::user()->role == 'Sales')
                     <div class="card mb-3">
                         <div class="card-body">
-                            @if ((Auth::user()->id == '1' || Auth::user()->id == '16') && $invoice->count() < 1)
+                            @if ((Auth::user()->id == '1' || Auth::user()->id == '16' || Auth::user()->id == '23' ) && $invoice->count() < 1)
                                 <a href="#" data-id="{{ $quote->id }}"
                                     class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
                                     {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>

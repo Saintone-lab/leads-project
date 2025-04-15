@@ -64,6 +64,7 @@
                             <th>Tag</th>
                             <th>Machine</th>
                             <th>Keterangan</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                 </table>

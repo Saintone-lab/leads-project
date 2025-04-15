@@ -9,8 +9,10 @@ use App\Models\Monitoring;
 use App\Models\MonitoringMonthly;
 use App\Models\MonitoringWeekly;
 use App\Models\Pic;
+use App\Models\Quotation;
 use App\Models\Reports;
 use App\Models\StatusMonitoring;
+use App\Models\User;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
@@ -70,6 +72,16 @@ class MonitoringController extends Controller
     }
     public function storeDaily(Request $request, $id)
     {
+        if ($request->condition != "Off") {
+            $rule = [
+                'leak' => 'required',
+            ];
+            $message = [
+                'leak.required' => 'Cek Kebocoran Wajib Dipilih!',
+            ];
+            $this->validate($request, $rule, $message);
+        }
+
         // dd($request->all());
         $machine = Machine::find($id);
         // dd($machine->unit->unit->unit);
@@ -78,16 +90,16 @@ class MonitoringController extends Controller
         $monitoring->id_pic = Auth::user()->id;
         $monitoring->condition = $request->condition;
         if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER') {
-            $monitoring->running = number_format($request->running, 0, ',', '.') . ' Hour';
-            $monitoring->loading = number_format($request->loading, 0, ',', '.') . ' Hour';
-            if (is_numeric($request->pressure) && strpos($request->pressure, ',') === false) {
-                $monitoring->pressure = $request->pressure . ',0' . ' Bar';
-            } else {
-                $monitoring->pressure = $request->pressure . ' Bar';
-            }
-            $monitoring->oil_level = $request->oil;
-
             if ($request->condition == 'Running') {
+                $monitoring->leak = $request->leak;
+                $monitoring->running = number_format($request->running, 0, ',', '.') . ' Hour';
+                $monitoring->loading = number_format($request->loading, 0, ',', '.') . ' Hour';
+                if (is_numeric($request->pressure) && strpos($request->pressure, ',') === false) {
+                    $monitoring->pressure = $request->pressure . ',0' . ' Bar';
+                } else {
+                    $monitoring->pressure = $request->pressure . ' Bar';
+                }
+                $monitoring->oil_level = $request->oil;
                 $monitoring->temp = $request->temperature . " °C";
                 if ($request->issue == null) {
                     if ($request->temperature <= 94) {
@@ -105,6 +117,15 @@ class MonitoringController extends Controller
                     }
                 }
             } elseif ($request->condition == 'Stand By') {
+                $monitoring->leak = $request->leak;
+                $monitoring->running = number_format($request->running, 0, ',', '.') . ' Hour';
+                $monitoring->loading = number_format($request->loading, 0, ',', '.') . ' Hour';
+                if (is_numeric($request->pressure) && strpos($request->pressure, ',') === false) {
+                    $monitoring->pressure = $request->pressure . ',0' . ' Bar';
+                } else {
+                    $monitoring->pressure = $request->pressure . ' Bar';
+                }
+                $monitoring->oil_level = $request->oil;
                 $monitoring->temp = $request->temperature . " °C";
                 if ($request->issue == null) {
                     if ($request->temperature <= 94) {
@@ -122,6 +143,15 @@ class MonitoringController extends Controller
                     }
                 }
             } elseif ($request->condition == 'Off') {
+                $monitoring->leak = 'Tidak Ada';
+                $monitoring->running = '-';
+                $monitoring->loading = '-';
+                if (is_numeric($request->pressure) && strpos($request->pressure, ',') === false) {
+                    $monitoring->pressure = '-';
+                } else {
+                    $monitoring->pressure = '-';
+                }
+                $monitoring->oil_level = '-';
                 $monitoring->temp = "-";
                 if ($request->issue == null) {
                     if ($request->temperature <= 94) {
@@ -140,11 +170,11 @@ class MonitoringController extends Controller
                 }
             }
         } else {
-            $monitoring->dew = $request->dew;
-            $monitoring->fan = $request->fan;
-            $monitoring->drain = $request->drain;
-
             if ($request->condition == 'Running') {
+                $monitoring->dew = $request->dew;
+                $monitoring->fan = $request->fan;
+                $monitoring->drain = $request->drain;
+                $monitoring->leak = $request->leak;
                 $monitoring->temp = $request->temperature_in . " °C";
                 $monitoring->temp_out = $request->temperature_out . " °C";
                 if ($request->issue != null) {
@@ -163,6 +193,10 @@ class MonitoringController extends Controller
                     }
                 }
             } elseif ($request->condition == 'Stand By') {
+                $monitoring->dew = $request->dew;
+                $monitoring->fan = $request->fan;
+                $monitoring->drain = $request->drain;
+                $monitoring->leak = $request->leak;
                 $monitoring->temp = $request->temperature_in . " °C";
                 $monitoring->temp_out = $request->temperature_out . " °C";
                 if ($request->issue != null) {
@@ -181,27 +215,15 @@ class MonitoringController extends Controller
                     }
                 }
             } elseif ($request->condition == 'Off') {
-                $monitoring->temp = $request->temperature_in . "-";
-                $monitoring->temp_out = $request->temperature_out . "-";
-                if ($request->issue != null) {
-                    if ($request->dew <= 10) {
-                        $monitoring->issue = 'Off';
-                    } else {
-                        $monitoring->issue = 'Off: High dew';
-                    }
-                } else {
-                    if ($request->issue != null) {
-                        if ($request->dew <= 10) {
-                            $monitoring->issue = 'Off : ' . $request->issue;
-                        } else {
-                            $monitoring->issue = 'Off : ' . $request->issue . ', High dew';
-                        }
-                    }
-                }
+                $monitoring->dew = '-';
+                $monitoring->fan = '-';
+                $monitoring->drain = '-';
+                $monitoring->leak = 'Tidak Ada';
+                $monitoring->temp = "-";
+                $monitoring->temp_out = "-";
             }
         }
         $monitoring->recommendation = '-';
-        $monitoring->leak = $request->leak;
         if (Auth::user()->code == 'RMD') {
             $monitoring->date = $request->date;
         } else {
@@ -236,6 +258,7 @@ class MonitoringController extends Controller
             $monitoring['picture'] = $imagename;
 
         }
+        $monitoring->created_at = Carbon::now()->addHour(7);
         $monitorSave = $monitoring->save();
         if ($monitorSave) {
             $statMonitoring = new StatusMonitoring();
@@ -246,9 +269,11 @@ class MonitoringController extends Controller
             $statMonitoring->date = Carbon::today();
             $statMonitoringSave = $statMonitoring->save();
         }
-        dd($monitoring);
+        // dd($monitoring);
         if ($monitorSave) {
-            return redirect('/monitoring/daily/' . $id)->with('success', 'Data telah di buat');
+            return redirect('/monitoring/daily/' . $id)->with('message', 'Data telah di buat');
+        } else {
+
         }
     }
     public function storeService(Request $request, $monitoring, $id)
@@ -295,23 +320,54 @@ class MonitoringController extends Controller
     public function storeMainLog(Request $request, $id)
     {
         // dd($monitoring);
+        $monitoring = Monitoring::find($id);
+        // dd($monitoring->id_machine);
         $mainlog = new Mainlog();
-        $mainlog->id_machine = $id;
+        $mainlog->id_machine = $monitoring->id_machine;
         $mainlog->id_teknisi = auth::user()->id;
         $mainlog->desc = $request->main_desc;
         $mainlog->next = $request->main_next;
         $mainlog->date = Carbon::today();
         $monitorSave = $mainlog->save();
         if ($monitorSave) {
-            return redirect('/service-manager')->with('message', 'Data telah di save');
+            return redirect('/monitoring-service-create/' . $id . '/' . $monitoring->id_machine)->with('message', 'Data telah di save');
         }
+    }
+
+    public function storeMainLogService(Request $request, $id)
+    {
+        // dd($monitoring);
+        // dd($monitoring->id_machine);
+        $mainlog = new Mainlog();
+        $mainlog->id_machine = $id;
+        $mainlog->id_teknisi = $request->teknisi;
+        $mainlog->desc = $request->main_desc;
+        $mainlog->next = $request->main_next;
+        $mainlog->date = $request->date;
+        $monitorSave = $mainlog->save();
+        if ($monitorSave) {
+            return redirect('/service-manager-daily/' . $id . '/' . Carbon::today()->format('m'))->with('message', 'Data telah di save');
+        }
+    }
+    public function deleteMainlog($id)
+    {
+        $mainlog = Mainlog::find($id);
+        $mainlogDel = $mainlog->delete();
+        if ($mainlogDel) {
+            return 1;
+        } else {
+            return 0;
+        }
+
     }
     public function visitorDaily($id)
     {
         $machine = Machine::find($id);
         $client = Client::find($machine->id_client);
 
-        $today = Carbon::today();
+        $today = Carbon::today()
+            // ->subMonth(1)
+        ;
 
         $startOfMonth = $today->copy()->startOfMonth();
         $startOfMonthDate = $today->copy()->startOfMonth();
@@ -405,7 +461,7 @@ class MonitoringController extends Controller
         // Return data
         $monitoringThisMonth = response()->json($compressor);
 
-        $weeks = [1, 2, 3, 4];
+        $weeks = [1, 2, 3, 4, 5];
         $weeksoy = collect($weeks)->map(function ($week) use ($id, $today) {
             $data = MonitoringWeekly::join('users as u', 'u.id', '=', 'monitoring_weekly.id_pic')
                 ->where('id_machine', $id)
@@ -427,7 +483,7 @@ class MonitoringController extends Controller
                 'drain' => '-',
                 'pre' => '-',
                 'cooler' => 0,
-                'coupling' => 0,
+                'coupling' => 2,
                 'area' => 0,
                 'condensor' => 0,
                 'after' => '-',
@@ -437,8 +493,6 @@ class MonitoringController extends Controller
                 'name' => '-',
             ];
         })->toArray();
-
-
 
         $issue = Monitoring::leftJoin('pn_monitoring as pn', 'pn.id_monitoring', '=', 'monitoring.id')
             ->join('users as u', 'u.id', '=', 'monitoring.id_pic')
@@ -456,11 +510,18 @@ class MonitoringController extends Controller
             ->groupBy('monitoring.id')
             ->get();
 
-        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $today->month)->whereNot('desc', '-')->whereNot('desc', 'normal')->whereNot('desc', 'Normal')->whereNotNull('desc')->select('main_log.*', 'u.name')->get();
+        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $today->month)->whereNotNull('desc')->select('main_log.*', 'u.name')->get();
+        $quotes = Quotation::join('detail_quotation as d', 'd.id_quotation', '=', 'quotation.id')
+            ->leftJoin('serial_product as sp', 'sp.id', '=', 'd.id_equivalent')
+            ->join('machine as m', 'm.id_unit', '=', 'sp.id')
+            ->where('m.id_client', 1277)
+            ->where('m.id', $id)
+            ->where('quotation.is_primary', 1)
+            ->whereMonth('estimated_date', $today->month)->get();
 
         $monthly = MonitoringMonthly::whereMonth('date', $today->month)->where('id_machine', $id)->first();
 
-        return view('pages.monitoring.visitor', compact('machine', 'client', 'compressor', 'dryer','weeksoy','issue','mainlog','monthly'));
+        return view('pages.monitoring.visitor', compact('quotes', 'machine', 'client', 'compressor', 'dryer', 'weeksoy', 'issue', 'mainlog', 'monthly'));
     }
 
     public function logDaily($id)
@@ -609,10 +670,19 @@ class MonitoringController extends Controller
         $monitoring = new MonitoringMonthly();
         $monitoring->id_machine = $id;
         $monitoring->id_pic = Auth::user()->id;
-        $monitoring->strainer = $request->strainer;
-        $monitoring->lp = $request->lp;
-        $monitoring->hp = $request->hp;
-        $monitoring->date = Carbon::today();
+        if ($request->condition = "Off") {
+            $monitoring->condition = $request->condition;
+            $monitoring->strainer = '-';
+            $monitoring->lp = '-';
+            $monitoring->hp = '-';
+            $monitoring->date = Carbon::today();
+        } else {
+            $monitoring->condition = $request->condition;
+            $monitoring->strainer = $request->strainer;
+            $monitoring->lp = $request->lp;
+            $monitoring->hp = $request->hp;
+            $monitoring->date = Carbon::today();
+        }
         $monitorSave = $monitoring->save();
         if ($monitorSave) {
             return redirect('/service-manager')->with('message', 'Data telah dibuat');
@@ -773,6 +843,10 @@ class MonitoringController extends Controller
             'monitoring' => function ($query) use ($month, $year) {
                 $query->whereMonth('date', $month)
                     ->whereYear('date', $year);
+            },
+            'mainlog' => function ($query) use ($month, $year) {
+                $query->whereMonth('date', $month)
+                    ->whereYear('date', $year);
             }
         ])->where('id_client', 1277)->whereNotBetween('id', [472, 481])->get();
 
@@ -791,22 +865,21 @@ class MonitoringController extends Controller
                         'pic' => $log->pic->name
                     ];
                 }),
-                'mainlog' => $machine->monitoring->filter(function ($mainlog) {
-                    return !is_null($mainlog->main_desc) && $mainlog->main_desc !== '-';
+                'mainlog' => $machine->mainlog->filter(function ($mainlog) {
+                    return !is_null($mainlog->desc) && $mainlog->desc !== '-';
                 })->map(function ($mainlog) {
                     return [
                         'id' => $mainlog->id,
-                        'id_pic' => $mainlog->id_pic,
+                        'id_pic' => $mainlog->id_teknisi,
                         'id_machine' => $mainlog->machine->id,
-                        'id_service' => $mainlog->reports->first()->id ?? NULL,
-                        'log' => $mainlog->main_desc,
+                        'id_service' => optional($mainlog->issue?->reports->first())->id,
+                        'log' => $mainlog->desc,
                         'date' => \Carbon\Carbon::parse($mainlog->date)->format('d'),
-                        'technician' => $mainlog->technician
+                        'technician' => $mainlog->teknisi->name
                     ];
                 }),
             ];
         });
-
         return view('pages.monitoring.service-index', compact('month', 'year', 'allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'result'));
     }
     public function showServiceM($id)
@@ -836,11 +909,13 @@ class MonitoringController extends Controller
         // dd($dates);
 
         // Ambil data monitoring dari database
-        $monitoringData = Monitoring::whereBetween('date', [$startOfMonth, $endOfMonth])
+        $monitoringData = Monitoring::whereBetween('monitoring.date', [$startOfMonth, $endOfMonth])
             ->where('id_machine', $id)
             ->join('users as u', 'u.id', '=', 'monitoring.id_pic')
             ->join('machine as m', 'm.id', '=', 'monitoring.id_machine')
-            ->get(['monitoring.*', 'u.name', 'm.id as id_machine'])
+            ->leftJoin('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->leftJoin('unit as un', 'un.id', '=', 'sp.id_product')
+            ->get(['monitoring.*', 'u.name', 'm.id as id_machine', 'un.unit'])
             ->map(function ($item) {
                 $item->date = Carbon::parse($item->date)->format('d-m-Y'); // Format tanggal
                 return $item;
@@ -851,12 +926,17 @@ class MonitoringController extends Controller
             return [
                 'id' => $item->id ?? '-',
                 'id_machine' => $item->id_machine ?? '-',
+                'unit' => $item->unit ?? '-',
                 'running' => $item->running ?? '-',
                 'loading' => $item->loading ?? '-',
                 'pressure' => $item->pressure ?? '-',
+                'dew' => $item->dew ?? '-',
+                'drain' => $item->drain ?? '-',
                 'temp' => $item->temp ?? '-',
+                'temp_out' => $item->temp_out ?? '-',
                 'condition' => $item->condition ?? '-',
                 'oil_level' => $item->oil_level ?? '-',
+                'fan' => $item->fan ?? '-',
                 'leak' => $item->leak ?? '-',
                 'pic' => $item->name ?? '-',
                 'issue' => $item->issue ?? '-',
@@ -872,14 +952,19 @@ class MonitoringController extends Controller
                 'date' => $date,
                 'id' => $compressorIndexed[$date]['id'] ?? '-',
                 'id_machine' => $compressorIndexed[$date]['id_machine'] ?? '-',
+                'unit' => $compressorIndexed[$date]['unit'] ?? '-',
                 'running' => $compressorIndexed[$date]['running'] ?? '-',
                 'loading' => $compressorIndexed[$date]['loading'] ?? '-',
                 'pressure' => $compressorIndexed[$date]['pressure'] ?? '-',
                 'temp' => $compressorIndexed[$date]['temp'] ?? '-',
+                'temp_out' => $dryerIndexed[$date]['temp_out'] ?? '-',
+                'dew' => $dryerIndexed[$date]['dew'] ?? '-',
+                'drain' => $dryerIndexed[$date]['drain'] ?? '-',
                 'condition' => $compressorIndexed[$date]['condition'] ?? '-',
                 'oil_level' => $compressorIndexed[$date]['oil_level'] ?? '-',
                 'leak' => $compressorIndexed[$date]['leak'] ?? '-',
                 'pic' => $compressorIndexed[$date]['pic'] ?? '-',
+                'fan' => $dryerIndexed[$date]['fan'] ?? '-',
                 'issue' => $compressorIndexed[$date]['issue'] ?? '-',
                 'main_desc' => $compressorIndexed[$date]['main_desc'] ?? '-',
             ];
@@ -946,7 +1031,7 @@ class MonitoringController extends Controller
             ->get();
 
         // test weekly
-        $weeks = [1, 2, 3, 4];
+        $weeks = [1, 2, 3, 4, 5];
         $weeksoy = collect($weeks)->map(function ($week) use ($id, $month, $today) {
             $data = MonitoringWeekly::join('users as u', 'u.id', '=', 'monitoring_weekly.id_pic')
                 ->where('id_machine', $id)
@@ -968,7 +1053,7 @@ class MonitoringController extends Controller
                 'drain' => '-',
                 'pre' => '-',
                 'cooler' => 0,
-                'coupling' => 0,
+                'coupling' => 2,
                 'area' => 0,
                 'condensor' => 0,
                 'after' => '-',
@@ -980,8 +1065,8 @@ class MonitoringController extends Controller
         })->toArray();
         // dd($weeksoy);
         // $mainlog = Mainlog::join('users as u', 'u.id', '-', 'main_log.id_teknisi')->where('id_monitoring', $id)->whereMonth('date', $month)->get();
-        $mainlog = Monitoring::join('users as u', 'u.id', '=', 'monitoring.id_pic')->where('id_machine', $id)->whereMonth('date', $month)->whereNot('main_desc', '-')->whereNot('main_desc', 'normal')->whereNot('main_desc', 'Normal')->whereNotNull('main_desc')->select('monitoring.*', 'u.name')->get();
-        // dd($issue);
+        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $today->month)->whereNotNull('desc')->select('main_log.*', 'u.name')->get();
+        // dd($compressor);
         $weekly = MonitoringWeekly::where('id_machine', $id)->whereMonth('date', $month)->whereYear('date', $today->year)->get();
         $reports = Reports::where('id_machine', $id)->whereMonth('date', $month)->whereYear('date', $today->year)->orderBy('date')->get();
 
@@ -1037,8 +1122,13 @@ class MonitoringController extends Controller
         // dd($weeks);
 
         $monthly = MonitoringMonthly::whereMonth('date', $month)->where('id_machine', $id)->first();
+        $quotes = Quotation::join('detail_quotation as d', 'd.id_quotation', '=', 'quotation.id')->where('d.id_equivalent', $id)->whereMonth('estimated_date', $month)->get();
         // dd($monthly);
-        return view('pages.monitoring.service-visitor', compact('monthly', 'machine', 'client', 'compressor', 'dryer', 'months', 'issue', 'mainlog', 'weekly', 'reports', 'weeksoy'));
+
+        $teknisi = User::get();
+        // dd($teknisi);
+
+        return view('pages.monitoring.service-visitor', compact('teknisi', 'quotes', 'monthly', 'machine', 'client', 'compressor', 'dryer', 'months', 'issue', 'mainlog', 'weekly', 'reports', 'weeksoy'));
     }
     public function visitorDailyServicePrint($id, $month)
     {
@@ -1163,7 +1253,8 @@ class MonitoringController extends Controller
                 'u.name',
                 DB::raw("GROUP_CONCAT(pn.pn SEPARATOR ' | ') as pn")
             )->get();
-        $mainlog = Monitoring::join('users as u', 'u.id', '=', 'monitoring.id_pic')->where('id_machine', $id)->whereMonth('date', $month)->whereNot('main_desc', '-')->whereNot('main_desc', 'normal')->whereNot('main_desc', 'Normal')->whereNotNull('main_desc')->select('monitoring.*', 'u.name')->get();
+        // $mainlog = Monitoring::join('users as u', 'u.id', '=', 'monitoring.id_pic')->where('id_machine', $id)->whereMonth('date', $month)->whereNot('main_desc', '-')->whereNot('main_desc', 'normal')->whereNot('main_desc', 'Normal')->whereNotNull('main_desc')->select('monitoring.*', 'u.name')->get();
+        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $today->month)->whereNotNull('desc')->select('main_log.*', 'u.name')->get();
 
         $weekly = MonitoringWeekly::where('id_machine', $id)->whereMonth('date', $month)->whereYear('date', $today->year)->get();
         $reports = Reports::where('id_machine', $id)->whereMonth('date', $month)->whereYear('date', $today->year)->orderBy('date')->get();
@@ -1217,8 +1308,9 @@ class MonitoringController extends Controller
         }
         // dd($weeks);
         $monthly = MonitoringMonthly::whereMonth('date', $month)->where('id_machine', $id)->first();
+        $quotes = Quotation::where('id_monitoring', $id)->get();
 
-        return view('pages.monitoring.service-visitor-print', compact('monthly', 'machine', 'client', 'compressor', 'dryer', 'issue', 'mainlog', 'weekly', 'reports', 'weeks'));
+        return view('pages.monitoring.service-visitor-print', compact('quotes', 'monthly', 'machine', 'client', 'compressor', 'dryer', 'issue', 'mainlog', 'weekly', 'reports', 'weeks'));
     }
     public function visitorWeeklyService($id, $week)
     {
@@ -1322,6 +1414,9 @@ class MonitoringController extends Controller
             ->whereNotBetween('machine.id', [472, 481])
             ->where('u.unit', 'REFRIGERANT AIR DRYER')
             ->where('machine.id_client', $client->id)
+            ->where(function ($query) use ($month) {
+                $query->whereMonth('mm.date', $month)->orWhereNull('mm.date');
+            })
             ->select('machine.*', 'mm.*', 'us.name', 'machine.id as idM')
             ->groupBy('machine.id')
             ->get();
@@ -1358,6 +1453,9 @@ class MonitoringController extends Controller
             ->whereNotBetween('machine.id', [472, 481])
             ->where('u.unit', 'REFRIGERANT AIR DRYER')
             ->where('machine.id_client', $client->id)
+            ->where(function ($query) use ($month) {
+                $query->whereMonth('mm.date', $month)->orWhereNull('mm.date');
+            })
             ->select('machine.*', 'mm.*', 'us.name', 'machine.id as idM')
             ->groupBy('machine.id')
             ->get();
@@ -1382,6 +1480,10 @@ class MonitoringController extends Controller
             'monitoring' => function ($query) use ($month, $year) {
                 $query->whereMonth('date', $month)
                     ->whereYear('date', $year);
+            },
+            'mainlog' => function ($query) use ($month, $year) {
+                $query->whereMonth('date', $month)
+                    ->whereYear('date', $year);
             }
         ])
             ->whereNotBetween('machine.id', [472, 481])
@@ -1404,23 +1506,23 @@ class MonitoringController extends Controller
                         'pic' => $log->pic->name
                     ];
                 }),
-                'mainlog' => $machine->monitoring->filter(function ($mainlog) {
-                    return !is_null($mainlog->main_desc) && $mainlog->main_desc !== '-';
+                'mainlog' => $machine->mainlog->filter(function ($mainlog) {
+                    return !is_null($mainlog->desc) && $mainlog->desc !== '-';
                 })->map(function ($mainlog) {
                     return [
                         'id' => $mainlog->id,
-                        'id_pic' => $mainlog->id_pic,
+                        'id_pic' => $mainlog->id_teknisi,
                         'id_machine' => $mainlog->machine->id,
-                        'id_service' => $mainlog->reports->first()->id ?? NULL,
-                        'log' => $mainlog->main_desc,
+                        'id_service' => optional($mainlog->issue?->reports->first())->id,
+                        'log' => $mainlog->desc,
                         'date' => \Carbon\Carbon::parse($mainlog->date)->format('d'),
-                        'technician' => $mainlog->technician
+                        'technician' => $mainlog->teknisi->name
                     ];
                 }),
             ];
         });
 
-        // dd($day);
+        // dd($machines);
 
         // $mainlog = $machinesmain->filter(function ($machine) {
         //     return $machine->monitoring->isNotEmpty();
@@ -1527,22 +1629,194 @@ class MonitoringController extends Controller
 
     public function issueUpdate(Request $request, $id, $month)
     {
+        if ($request->condition != "Off") {
+            $rule = [
+                'leak' => 'required',
+            ];
+            $message = [
+                'leak.required' => 'Cek Kebocoran Wajib Dipilih!',
+            ];
+            $this->validate($request, $rule, $message);
+        }
+
+        // dd($request->all());
+        // dd($machine->unit->unit->unit);
         $monitoring = Monitoring::find($id);
-        // dd($monitoring->id_machine);
-        $monitoring->issue = $request->issue;
-        $monitoringSave = $monitoring->save();
-        if ($monitoringSave) {
+        $machine = Machine::find($monitoring->id_machine);
+        $monitoring->condition = $request->condition;
+        if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER') {
+            if ($request->condition == 'Running') {
+                $monitoring->leak = $request->leak;
+                $monitoring->running = number_format($request->running, 0, ',', '.') . ' Hour';
+                $monitoring->loading = number_format($request->loading, 0, ',', '.') . ' Hour';
+                if (is_numeric($request->pressure) && strpos($request->pressure, ',') === false) {
+                    $monitoring->pressure = $request->pressure . ',0' . ' Bar';
+                } else {
+                    $monitoring->pressure = $request->pressure . ' Bar';
+                }
+                $monitoring->oil_level = $request->oil;
+                $monitoring->temp = $request->temperature . " °C";
+                if ($request->issue == null) {
+                    if ($request->temperature <= 94) {
+                        $monitoring->issue = null;
+                    } else {
+                        $monitoring->issue = 'High Temperature';
+                    }
+                } else {
+                    if ($request->issue != null) {
+                        if ($request->temperature <= 94) {
+                            $monitoring->issue = $request->issue;
+                        } else {
+                            $monitoring->issue = $request->issue . ', High Temperature';
+                        }
+                    }
+                }
+            } elseif ($request->condition == 'Stand By') {
+                $monitoring->leak = $request->leak;
+                $monitoring->running = number_format($request->running, 0, ',', '.') . ' Hour';
+                $monitoring->loading = number_format($request->loading, 0, ',', '.') . ' Hour';
+                if (is_numeric($request->pressure) && strpos($request->pressure, ',') === false) {
+                    $monitoring->pressure = $request->pressure . ',0' . ' Bar';
+                } else {
+                    $monitoring->pressure = $request->pressure . ' Bar';
+                }
+                $monitoring->oil_level = $request->oil;
+                $monitoring->temp = $request->temperature . " °C";
+                if ($request->issue == null) {
+                    if ($request->temperature <= 94) {
+                        $monitoring->issue = 'Stand By';
+                    } else {
+                        $monitoring->issue = 'Stand By: High Temperature';
+                    }
+                } else {
+                    if ($request->issue != null) {
+                        if ($request->temperature <= 94) {
+                            $monitoring->issue = 'Stand By : ' . $request->issue;
+                        } else {
+                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature';
+                        }
+                    }
+                }
+            } elseif ($request->condition == 'Off') {
+                $monitoring->leak = '-';
+                $monitoring->running = '-';
+                $monitoring->loading = '-';
+                if (is_numeric($request->pressure) && strpos($request->pressure, ',') === false) {
+                    $monitoring->pressure = '-';
+                } else {
+                    $monitoring->pressure = '-';
+                }
+                $monitoring->oil_level = $request->oil;
+                $monitoring->temp = "-";
+                if ($request->issue == null) {
+                    if ($request->temperature <= 94) {
+                        $monitoring->issue = 'Off';
+                    } else {
+                        $monitoring->issue = 'Off: High Temperature';
+                    }
+                } else {
+                    if ($request->issue != null) {
+                        if ($request->temperature <= 94) {
+                            $monitoring->issue = 'Off : ' . $request->issue;
+                        } else {
+                            $monitoring->issue = 'Off : ' . $request->issue . ', High Temperature';
+                        }
+                    }
+                }
+            }
+        } else {
+            $monitoring->dew = $request->dew;
+
+            if ($request->condition == 'Running') {
+                $monitoring->fan = $request->fan;
+                $monitoring->drain = $request->drain;
+                $monitoring->leak = $request->leak;
+                $monitoring->temp = $request->temperature_in . " °C";
+                $monitoring->temp_out = $request->temperature_out . " °C";
+                if ($request->issue != null) {
+                    if ($request->dew <= 10) {
+                        $monitoring->issue = null;
+                    } else {
+                        $monitoring->issue = 'High dew';
+                    }
+                } else {
+                    if ($request->issue != null) {
+                        if ($request->dew <= 10) {
+                            $monitoring->issue = $request->issue;
+                        } else {
+                            $monitoring->issue = $request->issue . ', High dew';
+                        }
+                    }
+                }
+            } elseif ($request->condition == 'Stand By') {
+                $monitoring->fan = $request->fan;
+                $monitoring->drain = $request->drain;
+                $monitoring->leak = $request->leak;
+                $monitoring->temp = $request->temperature_in . " °C";
+                $monitoring->temp_out = $request->temperature_out . " °C";
+                if ($request->issue != null) {
+                    if ($request->dew <= 10) {
+                        $monitoring->issue = 'Stand By';
+                    } else {
+                        $monitoring->issue = 'Stand By: High dew';
+                    }
+                } else {
+                    if ($request->issue != null) {
+                        if ($request->dew <= 10) {
+                            $monitoring->issue = 'Stand By : ' . $request->issue;
+                        } else {
+                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High dew';
+                        }
+                    }
+                }
+            } elseif ($request->condition == 'Off') {
+                $monitoring->fan = '-';
+                $monitoring->drain = '-';
+                $monitoring->leak = '-';
+                $monitoring->temp = $request->temperature_in . "-";
+                $monitoring->temp_out = $request->temperature_out . "-";
+                if ($request->issue != null) {
+                    if ($request->dew <= 10) {
+                        $monitoring->issue = 'Off';
+                    } else {
+                        $monitoring->issue = 'Off: High dew';
+                    }
+                } else {
+                    if ($request->issue != null) {
+                        if ($request->dew <= 10) {
+                            $monitoring->issue = 'Off : ' . $request->issue;
+                        } else {
+                            $monitoring->issue = 'Off : ' . $request->issue . ', High dew';
+                        }
+                    }
+                }
+            }
+        }
+        $monitoring->recommendation = '-';
+        $monitorSave = $monitoring->save();
+        // dd($monitoring);
+        // if ($monitorSave) {
+        //     $statMonitoring = new StatusMonitoring();
+        //     $statMonitoring->id_monitoring = $monitoring->id;
+        //     $statMonitoring->id_pic = Auth::user()->id;
+        //     $statMonitoring->status = '0';
+        //     $statMonitoring->desc = 'Monitoring Issues Created';
+        //     $statMonitoring->date = Carbon::today();
+        //     $statMonitoringSave = $statMonitoring->save();
+        // }
+        // dd($monitoring);
+        if ($monitorSave) {
             return redirect('/service-manager-daily/' . $monitoring->id_machine . '/' . $month)->with('massage', 'data telah dibuat');
         }
     }
     public function mainlogUpdate(Request $request, $id, $month)
     {
-        $monitoring = Monitoring::find($id);
+        $mainlog = Mainlog::find($id);
         // dd($request->all());
-        $monitoring->main_desc = $request->main_desc;
-        $monitoringSave = $monitoring->save();
-        if ($monitoringSave) {
-            return redirect('/service-manager-daily/' . $monitoring->id_machine . '/' . $month)->with('massage', 'data telah dibuat');
+        $mainlog->desc = $request->desc;
+        $mainlogSave = $mainlog->save();
+        if ($mainlogSave) {
+            return redirect('/service-manager-daily/' . $mainlog->id_machine . '/' . $month)->with('massage', 'data telah dibuat');
         }
     }
 
@@ -1572,6 +1846,10 @@ class MonitoringController extends Controller
                 $query->whereMonth('date', $month)
                     ->whereYear('date', $year);
             },
+            'mainlog' => function ($query) use ($month, $year) {
+                $query->whereMonth('date', $month)
+                    ->whereYear('date', $year);
+            },
         ])
             // ->join('unit as u', 'machine.id_unit', '=', 'u.id')
             ->whereNotBetween('machine.id', [472, 481])
@@ -1584,7 +1862,7 @@ class MonitoringController extends Controller
 
         $result = $machines->filter(function ($machine) {
             return $machine->monitoring->isNotEmpty();
-        })->map(function ($machine) use ($startOfMonth, $endOfMonth, $endDate) {
+        })->map(function ($machine) use ($startOfMonth, $endOfMonth, $endDate, $date) {
             $dates = [];
             $dateCursor = $startOfMonth->copy(); // Pastikan startOfMonth tidak berubah
             $dateWeek = $startOfMonth->copy(); // Pastikan startOfMonth tidak berubah
@@ -1639,53 +1917,87 @@ class MonitoringController extends Controller
                 }
             }
 
-            $weeks = [];
-            while ($dateWeek->lte($endOfMonth)) {
-                $weekNumber = $dateWeek->format('W');
-                $weeks[$weekNumber] = [
-                    'minggu' => "$weekNumber",
-                    'week' => '-',
+            // $weeks = [];
+            // while ($dateWeek->lte($endOfMonth)) {
+            //     $weekNumber = $dateWeek->format('W');
+            //     $weeks[$weekNumber] = [
+            //         'minggu' => "$weekNumber",
+            //         'week' => '-',
+            //         'condition' => '-',
+            //         'voltage' => '-',
+            //         'ampere' => '-',
+            //         'idle' => '-',
+            //         'vibration' => '-',
+            //         'cooler' => '-',
+            //         'coupling' => '-',
+            //         'area' => '-',
+            //         'dew' => '-',
+            //         'drain' => '-',
+            //         'pre' => '-',
+            //         'after' => '-',
+            //         'condensor' => '-',
+            //         'desc' => '-',
+            //         'date' => '-',
+            //         'name' => '-'
+            //     ];
+            //     $dateWeek->addWeek();
+            // }
+            $today = Carbon::createFromFormat('d-m-Y', $date);
+
+            // dd($today);
+            $weeks = [1, 2, 3, 4, 5];
+            $weeksoy = collect($weeks)->map(function ($week) use ($today) {
+                $data = MonitoringWeekly::join('users as u', 'u.id', '=', 'monitoring_weekly.id_pic')
+                    ->where('week', $week)
+                    ->whereMonth('monitoring_weekly.date', $today->month)
+                    ->whereYear('monitoring_weekly.date', $today->year)
+                    ->select('monitoring_weekly.*', 'u.name')
+                    ->first();
+
+                return $data ?? [
+                    'id_pic' => '-',
+                    'id_machine' => '-',
                     'condition' => '-',
                     'voltage' => '-',
                     'ampere' => '-',
-                    'idle' => '-',
                     'vibration' => '-',
-                    'cooler' => '-',
-                    'coupling' => '-',
-                    'area' => '-',
-                    'dew' => '-',
+                    'idle' => '-',
+                    'week' => '-',
                     'drain' => '-',
                     'pre' => '-',
+                    'cooler' => 0,
+                    'coupling' => 2,
+                    'area' => 0,
+                    'condensor' => 0,
                     'after' => '-',
-                    'condensor' => '-',
                     'desc' => '-',
+                    'type' => '-',
                     'date' => '-',
-                    'name' => '-'
+                    'name' => '-',
                 ];
-                $dateWeek->addWeek();
-            }
+            })->toArray();
 
             // Isi data yang ada ke dalam minggu
-            foreach ($machine->monitoringW as $item) {
-                $weekNumber = Carbon::parse($item->date)->format('W');
-                $weeks[$weekNumber]['week'] = $item->week;
-                $weeks[$weekNumber]['condition'] = $item->condition;
-                $weeks[$weekNumber]['voltage'] = $item->voltage;
-                $weeks[$weekNumber]['ampere'] = $item->ampere;
-                $weeks[$weekNumber]['idle'] = $item->idle;
-                $weeks[$weekNumber]['vibration'] = $item->vibration;
-                $weeks[$weekNumber]['cooler'] = $item->cooler;
-                $weeks[$weekNumber]['coupling'] = $item->coupling;
-                $weeks[$weekNumber]['area'] = $item->area;
-                $weeks[$weekNumber]['dew'] = $item->dew;
-                $weeks[$weekNumber]['drain'] = $item->drain;
-                $weeks[$weekNumber]['pre'] = $item->pre;
-                $weeks[$weekNumber]['after'] = $item->after;
-                $weeks[$weekNumber]['condensor'] = $item->condensor;
-                $weeks[$weekNumber]['desc'] = $item->desc;
-                $weeks[$weekNumber]['date'] = is_string($item->date) ? date('d-m-Y', strtotime($item->date)) : Carbon::parse($item->date)->format('d-m-Y');
-                $weeks[$weekNumber]['name'] = $item->pic->name;
-            }
+            // foreach ($machine->monitoringW as $item) {
+            //     $weekNumber = Carbon::parse($item->date)->format('W');
+            //     $weeks[$weekNumber]['week'] = $item->week;
+            //     $weeks[$weekNumber]['condition'] = $item->condition;
+            //     $weeks[$weekNumber]['voltage'] = $item->voltage;
+            //     $weeks[$weekNumber]['ampere'] = $item->ampere;
+            //     $weeks[$weekNumber]['idle'] = $item->idle;
+            //     $weeks[$weekNumber]['vibration'] = $item->vibration;
+            //     $weeks[$weekNumber]['cooler'] = $item->cooler;
+            //     $weeks[$weekNumber]['coupling'] = $item->coupling;
+            //     $weeks[$weekNumber]['area'] = $item->area;
+            //     $weeks[$weekNumber]['dew'] = $item->dew;
+            //     $weeks[$weekNumber]['drain'] = $item->drain;
+            //     $weeks[$weekNumber]['pre'] = $item->pre;
+            //     $weeks[$weekNumber]['after'] = $item->after;
+            //     $weeks[$weekNumber]['condensor'] = $item->condensor;
+            //     $weeks[$weekNumber]['desc'] = $item->desc;
+            //     $weeks[$weekNumber]['date'] = is_string($item->date) ? date('d-m-Y', strtotime($item->date)) : Carbon::parse($item->date)->format('d-m-Y');
+            //     $weeks[$weekNumber]['name'] = $item->pic->name;
+            // }
 
             return [
                 'machine' => $machine->unit->brand . ' ' . $machine->unit->unit->sku . ' - ' . $machine->tag,
@@ -1693,7 +2005,7 @@ class MonitoringController extends Controller
                 'unit' => $machine->unit->unit->unit,
                 'id' => $machine->id,
                 'daily' => $dates,
-                'weekly' => $weeks,
+                'weekly' => $weeksoy,
                 'log' => $machine->monitoring->filter(function ($log) {
                     return !is_null($log->issue) && $log->issue !== '-' && strtolower($log->issue) !== 'normal';
                 })->map(function ($log) {
@@ -1703,18 +2015,17 @@ class MonitoringController extends Controller
                         'pic' => optional($log->pic)->name
                     ];
                 }),
-                'mainlog' => $machine->monitoring->filter(function ($mainlog) {
-                    return !is_null($mainlog->main_desc) && $mainlog->main_desc !== '-';
+                'mainlog' => $machine->mainlog->filter(function ($mainlog) {
+                    return !is_null($mainlog->desc) && $mainlog->desc !== '-';
                 })->map(function ($mainlog) {
                     return [
                         'id' => $mainlog->id,
-                        'id_pic' => $mainlog->id_pic,
-                        'id_machine' => optional($mainlog->machine)->id,
-                        'id_service' => optional(optional($mainlog->reports)->first())->id,
-                        'log' => $mainlog->main_desc,
-                        'date' => Carbon::parse($mainlog->date)->format('d-m-y'),
-                        'pic' => optional($mainlog->pic)->name,
-                        'technician' => $mainlog->technician
+                        'id_pic' => $mainlog->id_teknisi,
+                        'id_machine' => $mainlog->machine->id,
+                        'id_service' => optional($mainlog->issue?->reports->first())->id,
+                        'log' => $mainlog->desc,
+                        'date' => \Carbon\Carbon::parse($mainlog->date)->format('d'),
+                        'technician' => $mainlog->teknisi->name
                     ];
                 }),
                 'reports' => $machine->reports->map(function ($report) {
@@ -1742,6 +2053,7 @@ class MonitoringController extends Controller
                 }),
                 'monthly' => collect($machine->monitoringM)->map(function ($monitoringM) {
                     return [
+                        'condition' => $monitoringM->condition,
                         'hp' => $monitoringM->hp,
                         'lp' => $monitoringM->lp,
                         'strainer' => $monitoringM->strainer,
@@ -1753,6 +2065,37 @@ class MonitoringController extends Controller
         });
         // dd($result);
         return view('pages.monitoring.allMachine', compact('result'));
+    }
+
+    public function summaryMainlog($month)
+    {
+        $today = Carbon::today();
+        $month = $month;
+        $mainlog = Mainlog::join('machine', 'main_log.id_machine', '=', 'machine.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->where('machine.id_client', 1277)
+            ->whereNotBetween('machine.id', [472, 481])
+            ->orderBy('machine.location')
+            ->whereMonth('main_log.date', $month)->whereYear('main_log.date', $today->year)
+            ->select('main_log.*', DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"), 'machine.location', 'machine.serial', 'machine.tag')->get();
+        // dd($mainlog);
+        return view('pages.monitoring.summary', compact('mainlog', 'month'));
+    }
+    public function summaryMainlogPrint($month)
+    {
+        $today = Carbon::today();
+        $month = $month;
+        $mainlog = Mainlog::join('machine', 'main_log.id_machine', '=', 'machine.id')
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->where('machine.id_client', 1277)
+            ->whereNotBetween('machine.id', [472, 481])
+            ->orderBy('machine.location')
+            ->whereMonth('main_log.date', $month)->whereYear('main_log.date', $today->year)
+            ->select('main_log.*', DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"), 'machine.location', 'machine.serial', 'machine.tag')->get();
+        // dd($mainlog);
+        return view('pages.monitoring.summary-print', compact('mainlog', 'month'));
     }
 
     protected function convertToRoman($month)

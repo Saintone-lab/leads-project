@@ -309,14 +309,14 @@ class EmployeeController extends Controller
             'crm => required',
             'quote => required',
             'po => required',
-            'total => required',
+            // 'total => required',
         ];
         $customMessages = [
             'dc.required' => 'Field dc Wajib Diisi!',
             'crm.required' => 'Field crm Wajib Diisi!',
             'quote.required' => 'Field quote Wajib Diisi',
             'po.required' => 'Field po Wajib Diisi',
-            'total.required' => 'Field code Wajib Diisi',
+            // 'total.required' => 'Field code Wajib Diisi',
         ];
         $this->validate($request, $rule, $customMessages);
         $sales = User::find($id);
@@ -330,7 +330,7 @@ class EmployeeController extends Controller
         }
         $target->quote = $request->quote;
         $target->po = $request->po;
-        $target->total = $request->total;
+        $target->total = $request->semuanya;
         $status = $target->save();
         if ($status) {
             return redirect('/employee/' . $id)->with('message', 'Target telah diubah');

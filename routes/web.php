@@ -209,6 +209,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/unit', UnitController::class);
     Route::get('/unit-global', [UnitController::class, 'indexGlobal'])->name('unit-global.index');
     Route::post('/unit-global', [UnitController::class, 'storeGlobal'])->name('unit-global.store');
+    Route::patch('/unit-reftech/{id}', [UnitController::class, 'updateUnitReftech'])->name('unit-reftech.edit');
     Route::get('/unit-global/{id}', [UnitController::class, 'showGlobal'])->name('unit-global.show');
     Route::get('/cor-factor/calculator', [UnitController::class, 'corfac'])->name('calculator.correction');
 
@@ -298,6 +299,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/monitoring-service-store/{monitoring}/{id}', [MonitoringController::class, 'storeService'])->name('store.daily-monitoring-reports');
     Route::post('/monitoring/daily-store/{id}', [MonitoringController::class, 'storeDaily'])->name('store.daily-monitoring');
     Route::post('/monitoring/daily-mainlog/{id}', [MonitoringController::class, 'storeMainLog'])->name('store.daily-mainlog');
+    Route::post('/monitoring/daily-mainlog-service/{id}', [MonitoringController::class, 'storeMainLogService'])->name('store.daily-mainlog-service');
+    Route::delete('/monitoring/daily-mainlog/{id}', [MonitoringController::class, 'deleteMainLog'])->name('delete.daily-mainlog');
     Route::get('/monitoring/weekly/{id}', [MonitoringController::class, 'indexWeekly'])->name('index.weekly-monitoring');
     Route::get('/monitoring/weekly-create/{id}', [MonitoringController::class, 'createWeekly'])->name('create.weekly-monitoring');
     Route::post('/monitoring/weekly-store/{id}', [MonitoringController::class, 'storeWeekly'])->name('store.weekly-monitoring');
@@ -323,8 +326,14 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/monitoring-client/fajarPaper-summary-print', [MonitoringClientController::class, 'summaryPrint'])->name('monitoring.fajarPaper-summary-print');
     Route::get('/monitoring-client/fajarPaper-hold-print', [MonitoringClientController::class, 'holdPrint'])->name('monitoring.fajarPaper-hold-print');
     Route::get('/monitoring-client/fajarPaper-quote-print', [MonitoringClientController::class, 'quotePrint'])->name('monitoring.fajarPaper-quote-print');
+    Route::get('/monitoring-client/fajarPaper-summary-print/{month}', [MonitoringClientController::class, 'summaryPrintMonth'])->name('monitoring.fajarPaper-summary-print-month');
+    Route::get('/monitoring-client/fajarPaper-hold-print/{month}', [MonitoringClientController::class, 'holdPrintMonth'])->name('monitoring.fajarPaper-hold-print-month');
+    Route::get('/monitoring-client/fajarPaper-quote-print/{month}', [MonitoringClientController::class, 'quotePrintMonth'])->name('monitoring.fajarPaper-quote-print-month');
+    Route::get('/monitoring-summary/{month}', [MonitoringController::class, 'summaryMainlog'])->name('summary.mainlog');
+    Route::get('/monitoring-summary/print/{month}', [MonitoringController::class, 'summaryMainlogPrint'])->name('summary.mainlog-print');
 
-    Route::get('/db/monitoring/compressor/{id}/{month}', function ($id,$month) {
+
+    Route::get('/db/monitoring/compressor/{id}/{month}', function ($id, $month) {
         $setday = Carbon::today();
         $today = $setday->setMonth($month);
         $year = $today->year;
@@ -456,14 +465,15 @@ Route::group(["middleware" => "auth"], function () {
             )
             ->groupBy('monitoring.id')
             ->get();
+
         return response()->json(['data' => $issue]);
     });
     Route::get('/db/monitoring/mainlog/{id}/{month}', function ($id, $month) {
         $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')
-        ->where('id_machine', $id)
-        ->whereMonth('date', $month)
-        ->select('main_log.*', 'u.name')
-        ->get();
+            ->where('id_machine', $id)
+            ->whereMonth('date', $month)
+            ->select('main_log.*', 'u.name')
+            ->get();
 
 
         return response()->json(['data' => $mainlog]);
@@ -492,19 +502,21 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/monitoring/summary', function () {
         $today = Carbon::today();
-        $summary = Monitoring::join('machine as m', 'monitoring.id_machine', '=', 'm.id')
+        $summary = Mainlog::join('machine as m', 'main_log.id_machine', '=', 'm.id')
             ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
             ->join('unit as un', 'un.id', '=', 'sp.id_product')
-            ->whereMonth('monitoring.date', $today)
-            ->whereYear('monitoring.date', $today)
-            ->whereNotNull('main_desc')
+            ->whereMonth('main_log.date', $today->month)
+            ->whereYear('main_log.date', $today->year)
             ->select(
-                'monitoring.*',
+                'main_log.id',
+                'main_log.desc',
+                DB::raw("DATE_FORMAT(main_log.date, '%d-%m-%Y') as date"),
                 'm.tag',
                 'm.location',
                 DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
             )
             ->get();
+
         return response()->json(['data' => $summary]);
     });
     Route::get('/db/monitoring/quote', function () {
@@ -536,12 +548,14 @@ Route::group(["middleware" => "auth"], function () {
             ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
             ->join('unit as un', 'un.id', '=', 'sp.id_product')
             ->whereIn('status_monitoring.id', $latestStatus)
-            ->where('status_monitoring.status', '3')
+            ->whereIn('status_monitoring.status', ['3', '0', '1'])
             ->whereMonth('monitoring.date', $today)
             ->whereYear('monitoring.date', $today)
             ->select(
                 'monitoring.*',
                 'm.tag',
+                'status_monitoring.desc as status_desc',
+                'status_monitoring.status',
                 'm.location',
                 DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
             )
@@ -579,12 +593,13 @@ Route::group(["middleware" => "auth"], function () {
         $today = Carbon::today();
         $summary = Monitoring::join('machine as m', 'monitoring.id_machine', '=', 'm.id')
             ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->join('main_log as ml', 'ml.id_issue', '=', 'monitoring.id')
             ->join('unit as un', 'un.id', '=', 'sp.id_product')
             ->whereMonth('monitoring.date', $month)
             ->whereYear('monitoring.date', $year)
-            ->whereNotNull('main_desc')
             ->select(
                 'monitoring.*',
+                'ml.desc',
                 'm.tag',
                 'm.location',
                 DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
@@ -621,12 +636,14 @@ Route::group(["middleware" => "auth"], function () {
             ->join('serial_product as sp', 'sp.id', '=', 'm.id_unit')
             ->join('unit as un', 'un.id', '=', 'sp.id_product')
             ->whereIn('status_monitoring.id', $latestStatus)
-            ->where('status_monitoring.status', '3')
+            ->whereIn('status_monitoring.status', ['3', '0', '1'])
             ->whereMonth('monitoring.date', $month)
             ->whereYear('monitoring.date', $year)
             ->select(
                 'monitoring.*',
                 'm.tag',
+                'status_monitoring.desc as status_desc',
+                'status_monitoring.status',
                 'm.location',
                 DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
             )
@@ -733,7 +750,6 @@ Route::group(["middleware" => "auth"], function () {
         $currentStartDate = $lastDate->addDay()->startOfMonth();
 
         while ($currentStartDate->lte($endOfYear)) {
-            $monthNumber = 1;
             $firstDate = $currentStartDate->copy();
             $lastDate = $currentStartDate->copy()->endOfMonth();
 
@@ -1906,6 +1922,7 @@ Route::group(["middleware" => "auth"], function () {
                 DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),
                 'm.condition',
                 'u.unit',
+                'm.created_at as date',
                 'us.name'
             )
             ->get();

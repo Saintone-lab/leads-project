@@ -54,6 +54,24 @@ $(function () {
                     responsivePriority: 1,
                     targets: 2,
                 },
+                {
+                    targets: [2,3,4],
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var id = full["id"];
+                            return (
+                                '<a class="text-black cursor-pointer"' +
+                                'data-bs-toggle="modal"' +
+                                'data-bs-target="#editMainlog-' +
+                                id +
+                                '">' +
+                                data +
+                                "</a>"
+                            );
+                        }
+                        return data;
+                    },
+                },
             ],
             drawCallback: function (settings) {
                 console.log("drawCallback");

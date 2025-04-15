@@ -3,7 +3,7 @@
 @section('content')
     <div class="row invoice-preview">
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
-            <div class="card invoice-preview-card">
+            <div class="card invoice-preview-card mb-4">
                 <div class="card-body">
                     <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-row flex-column">
                         <div class="mb-xl-0 pb-1">
@@ -199,7 +199,14 @@
                                                 <td>{{ $item['condition'] }}</td>
                                                 <td>{{ $item['temp'] }}</td>
                                                 <td>{{ $item['temp_out'] }}</td>
-                                                <td>{{ $item['dew'] }}</td>
+                                                <td>
+                                                    @if (!is_null($item['dew']) && $item['dew'] > 10)
+                                                        <p class="mb-0 fw-bold fs-6 text-danger">
+                                                            {{ $item['dew'] }}</p>
+                                                    @else
+                                                        {{ $item['dew'] }}
+                                                    @endif
+                                                </td>
                                                 <td>{{ $item['drain'] }}</td>
                                                 <td>{{ $item['fan'] }}</td>
                                                 <td>{{ $item['leak'] }}</td>
@@ -230,25 +237,30 @@
                                 </thead>
                             </table>
                         @else
-                        <table class="datatable-dryer table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>Date</th>
-                                    <th>Condition</th>
-                                    <th>Temp IN</th>
-                                    <th>Temp OUT</th>
-                                    <th>Dew P.</th>
-                                    <th>Auto Drain</th>
-                                    <th>Fan Kondenser</th>
-                                    <th>Kebocoran</th>
-                                    <th>PIC</th>
-                                </tr>
-                            </thead>
-                        </table>
+                            <table class="datatable-dryer table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>Date</th>
+                                        <th>Condition</th>
+                                        <th>Temp IN</th>
+                                        <th>Temp OUT</th>
+                                        <th>Dew P.</th>
+                                        <th>Auto Drain</th>
+                                        <th>Fan Kondenser</th>
+                                        <th>Kebocoran</th>
+                                        <th>PIC</th>
+                                    </tr>
+                                </thead>
+                            </table>
                         @endif
                     @endif
+                </div>
+            </div>
+
+            <div class="card invoice-preview-card mb-4">
+                <div class="card-body">
                     <div class="weekly mb-4">
                         <h5>Weekly Check</h5>
                         <div class="table-responsive text-nowrap mb-4">
@@ -278,29 +290,35 @@
                                                 <td>{{ $monweek['ampere'] }}</td>
                                                 <td>
                                                     @if ($monweek['cooler'] == 1)
-                                                        <i
-                                                            class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                                        {{-- <i
+                                                        class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i> --}}
+                                                        cleaning
                                                     @else
-                                                        <i
-                                                            class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                                        {{-- <i
+                                                        class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i> --}}
+                                                        -
                                                     @endif
                                                 </td>
                                                 <td>
                                                     @if ($monweek['coupling'] == 1)
-                                                        <i
-                                                            class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                                        {{-- <i
+                                                            class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i> --}}
+                                                        Ok
                                                     @else
-                                                        <i
-                                                            class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                                        {{-- <i
+                                                            class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i> --}}
+                                                        Not Ok
                                                     @endif
                                                 </td>
                                                 <td>
                                                     @if ($monweek['area'] == 1)
-                                                        <i
-                                                            class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                                        {{-- <i
+                                                        class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i> --}}
+                                                        cleaning
                                                     @else
-                                                        <i
-                                                            class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                                        {{-- <i
+                                                        class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i> --}}
+                                                        -
                                                     @endif
                                                 </td>
                                                 <td>{{ $monweek['name'] }}</td>
@@ -341,11 +359,13 @@
                                                 <td>{{ $monweek['after'] }}</td>
                                                 <td>
                                                     @if ($monweek['condensor'] == 1)
-                                                        <i
-                                                            class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i>
+                                                        {{-- <i
+                                                            class="mdi mdi-check-circle-outline scaleX-n1-rtl text-success me-1 mdi-14px"></i> --}}
+                                                        cleaning
                                                     @else
-                                                        <i
-                                                            class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i>
+                                                        {{-- <i
+                                                            class="mdi mdi-alpha-x-circle-outline scaleX-n1-rtl text-danger me-1 mdi-14px"></i> --}}
+                                                        -
                                                     @endif
                                                 </td>
                                                 <td>{{ $monweek['name'] }}</td>
@@ -360,37 +380,47 @@
                         </div>
                     </div>
 
-                    <div class="monthly mb-4">
-                        <h5>Monthly Check</h5>
-                        <div class="table-responsive text-nowrap mb-4">
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <th>Date</th>
-                                    <th>HP (High Pressure)</th>
-                                    <th>LP (Low Pressure)</th>
-                                    <th>Strainer</th>
-                                </thead>
-                                <tbody>
-                                    @if ($monthly)
-                                        <tr>
-                                            <td>{{ \Carbon\Carbon::parse($monthly->date)->format('d-m-Y') }}</td>
-                                            <td>{{ $monthly->hp }}</td>
-                                            <td>{{ $monthly->lp }}</td>
-                                            <td>{{ $monthly->strainer }}</td>
-                                        </tr>
-                                    @else
-                                        <tr>
-                                            <td>-</td>
-                                            <td>-</td>
-                                            <td>-</td>
-                                            <td>-</td>
-                                        </tr>
-                                    @endif
-                                </tbody>
-                            </table>
+                </div>
+            </div>
+            @if ($machine->unit->unit->unit == 'REFRIGERANT AIR DRYER')
+                <div class="card invoice-preview-card mb-4">
+                    <div class="card-body">
+                        <div class="monthly mb-4">
+                            <h5>Monthly Check</h5>
+                            <div class="table-responsive text-nowrap mb-4">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <th>Date</th>
+                                        <th>HP (High Pressure)</th>
+                                        <th>LP (Low Pressure)</th>
+                                        <th>Strainer</th>
+                                    </thead>
+                                    <tbody>
+                                        @if ($monthly)
+                                            <tr>
+                                                <td>{{ \Carbon\Carbon::parse($monthly->date)->format('d-m-Y') }}</td>
+                                                <td>{{ $monthly->hp }}</td>
+                                                <td>{{ $monthly->lp }}</td>
+                                                <td>{{ $monthly->strainer }}</td>
+                                            </tr>
+                                        @else
+                                            <tr>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                            </tr>
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
 
+                    </div>
+                </div>
+            @endif
+            <div class="card invoice-preview-card mb-4">
+                <div class="card-body">
                     <div class="issue mb-4">
                         <table class="datatable-issue table table-striped">
                             <thead>
@@ -406,8 +436,50 @@
                         </table>
                     </div>
 
+                </div>
+            </div>
+            <div class="card invoice-preview-card mb-4">
+                <div class="card-body">
+                    <div class="quote mb-4">
+                        <h4>Quotattion</h4>
+                        <div class="table-responsive text-nowrap mb-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>No. Quote</th>
+                                        <th>No. PR</th>
+                                        <th>Title</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($quotes as $quote)
+                                        <tr>
+                                            <td>{{ \Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</td>
+                                            <td>
+                                                <a href="{{ route('quotation.show', $quote->id) }}" class="text-black">
+                                                    {{ $quote->no_quote }}
+                                                </a>
+                                            </td>
+                                            <td>{{ $quote->no_pr }}</td>
+                                            <td>{{ $quote->title }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center">Belum Ada Quote</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="card invoice-preview-card mb-4">
+                <div class="card-body">
                     <div class="mainlog mb-4">
-                        <table class="datatable-mainlog table table-striped">
+                        {{-- <table class="datatable-mainlog table table-striped">
                             <thead>
                                 <tr>
                                     <th></th>
@@ -417,13 +489,69 @@
                                     <th>PIC</th>
                                 </tr>
                             </thead>
-                        </table>
+                        </table> --}}
+                        <div class="d-flex justify-content-between mb-4">
+                            <h5>Maintenance Log</h5>
+                            <button type="button" class="btn btn-primary d-grid waves-effect" data-bs-toggle="modal"
+                                data-bs-target="#addMainLog">+ Mainlog</button>
+                        </div>
+                        <div class="table-responsive text-nowrap mb-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Maintenance</th>
+                                        <th>PIC</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($mainlog as $main)
+                                        <tr>
+                                            <td>
+                                                {{ \Carbon\Carbon::parse($main->date)->format('d-m-Y') }}
+                                            </td>
+                                            <td>
+                                                {{ $main->desc }}
+                                            </td>
+                                            <td>
+                                                {{ $main->teknisi->name }}
+                                            </td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <a data-id="{{ $main->id }}" data-month="{{ $months }}"
+                                                        data-machine="{{ $machine->id }}"
+                                                        class="btn btn-sm btn-label-danger delete-mainlog waves-effect">
+                                                        <i
+                                                            class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                                    </a>
+                                                    <a class="btn btn-sm btn-label-warning waves-effect"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#editMainlog-{{ $main->id }}">
+                                                        <i
+                                                            class="menu-icon tf-icons mdi mdi-14px mdi-file-edit-outline m-0"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center">Belum Ada Mainlog</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
+                </div>
+            </div>
+            <div class="card invoice-preview-card mb-4">
+                <div class="card-body">
                     <div class="invoice mb-4">
                         @foreach ($reports as $service)
                             <hr>
-                            <div class="card invoice-preview-card">
+                            <div class="card invoice-preview-card mb-4">
                                 <div class="card-body">
                                     <div
                                         class="d-flex justify-content-between flex-xl-row flex-md-column flex-row flex-column">
@@ -607,9 +735,12 @@
         </div>
         {{-- End : Button Invoice --}}
         @foreach ($compressor as $comp)
-            @include('components.modal.monitoring.mainlog')
             @include('components.modal.monitoring.issue')
         @endforeach
+        @foreach ($mainlog as $log)
+            @include('components.modal.monitoring.mainlog')
+        @endforeach
+        @include('components.modal.monitoring.mainlog-create-service')
     </div>
 @endsection
 @push('after-style')
@@ -665,6 +796,87 @@
 
             $('#backButton').click(function() {
                 window.history.back();
+            });
+        });
+
+        function validateInput(event) {
+            const input = event.target;
+            // Izinkan hanya angka dan koma
+            input.value = input.value.replace(/[^0-9,]/g, '');
+        }
+        $('#conditionSelect').on('change', function() {
+            var condition = $(this).val();
+            var disable = $('.offDisable');
+            var number = $('#numberInput');
+
+            if (condition == 'Off') {
+                disable.prop('disabled', true);
+                // number.prop('disabled', true);
+            } else {
+                // number.prop('disabled', false);
+                disable.prop('disabled', false);
+            }
+            console.log(number);
+
+            console.log(condition);
+        });
+        $(document).on('click', '.delete-mainlog', function() {
+            var id = $(this).data('id');
+            var month = $(this).data('month');
+            var machine = $(this).data('machine');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('monitoring') }}/daily-mainlog/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Your file has been deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/service-manager-daily/' +
+                                        machine + '/' + month;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
             });
         });
     </script>

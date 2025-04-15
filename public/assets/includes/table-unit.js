@@ -26,8 +26,8 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "sku" },
                 { data: "brand" },
+                { data: "sku" },
                 { data: "pn" },
                 { data: "serial" },
                 { data: "power" },
@@ -79,7 +79,7 @@ $(function () {
                 //             var $dataId = full["id_p"];
                 //             var detailRoute = route("unit.show", $dataId);
                 //             return (
-                                
+
                 //             '<span>'+
                 //             '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>" +
                 //             "</span>"
@@ -89,11 +89,24 @@ $(function () {
                 //     },
                 // },
                 {
+                    targets: 3,
+                    render: function (data, type, full, row) {
+                        var dataId = full["id"];
+                        return (
+                            '<a href="javascript:;" class="text-black waves-effect waves-light" data-bs-target="#editUnit-' +
+                            dataId +
+                            '" data-bs-toggle="modal">' +
+                            data +
+                            "</a>"
+                        );
+                    },
+                },
+                {
                     targets: 10,
                     render: function (data, type, full, meta) {
                         var $title = full["status"];
                         var $status = {
-                            "Ready": {
+                            Ready: {
                                 title: $title,
                                 class: "bg-label-primary",
                             },
@@ -101,11 +114,11 @@ $(function () {
                                 title: $title,
                                 class: " bg-label-warning",
                             },
-                            "Sold": {
+                            Sold: {
                                 title: $title,
                                 class: " bg-label-secondary",
                             },
-                            "Service": {
+                            Service: {
                                 title: $title,
                                 class: " bg-label-danger",
                             },
@@ -400,9 +413,7 @@ $(function () {
                 },
             },
         });
-        $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Unit</h5>'
-        );
+        $("div.head-label").html('<h5 class="card-title mb-0">Table Unit</h5>');
     }
     dt_table_product_unit.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();

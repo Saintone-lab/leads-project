@@ -15,8 +15,8 @@
                     <div class="row mb-3">
                         <div class="col-6 mb-3">
                             <div class="form-floating form-floating-outline mb-3">
-                                <input type="date" class="form-control" name="" id="formDate"
-                                    value="{{ \Carbon\Carbon::today()->format('Y-m-d') }}" disabled>
+                                <input type="date" class="form-control" name="date" id="formDate"
+                                    value="{{ \Carbon\Carbon::today()->format('Y-m-d') }}">
                                 <label for="formDate">Date</label>
                             </div>
                         </div>
