@@ -135,8 +135,8 @@
                                     </div>
                                 </div>
                                 <div class="card-info">
-                                    <h5 class="mb-0">{{ $filteredPO[$item] }}</h5>
-                                    <small class="text-muted">PO</small>
+                                    <h5 class="mb-0">{{ $filteredLeads[$item] }}</h5>
+                                    <small class="text-muted">Leads</small>
                                 </div>
                             </div>
                         </div>

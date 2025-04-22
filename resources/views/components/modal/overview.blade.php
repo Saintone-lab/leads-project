@@ -145,7 +145,7 @@
                                     @php
                                         $totalPoFullWeek = 0;
                                     @endphp
-                                    @foreach ($dataPO[$user->name] as $week)
+                                    @foreach ($dataLeads[$user->name] as $week)
                                         <td>{{ $week }}</td>
                                         @php
                                             $totalPoFullWeek += $week;
@@ -154,10 +154,10 @@
                                     <td>{{ $totalPoFullWeek }}</td>
                                     <td>
                                         @if ($jumlahData > 4)
-                                            {{ round(($totalPoFullWeek / ($user->target[0]->po + $user->target[0]->po / 4)) * 100) }}
+                                            {{ round(($totalPoFullWeek / ($user->target[0]->leads + $user->target[0]->leads / 4)) * 100) }}
                                             %
                                         @elseif($jumlahData == 4)
-                                            {{ round(($totalPoFullWeek / $user->target[0]->po) * 100) }} %
+                                            {{ round(($totalPoFullWeek / $user->target[0]->leads) * 100) }} %
                                         @endif
                                     </td>
                                 </tr>

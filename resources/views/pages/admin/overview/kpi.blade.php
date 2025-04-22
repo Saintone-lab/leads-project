@@ -20,6 +20,21 @@
                             <div class="d-flex mb-2 gap-2">
                                 <a href="#activities">
                                     <div class="avatar">
+                                        <div class="avatar-initial bg-label-secondary rounded">
+                                            <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
+                                        </div>
+                                    </div>
+                                </a>
+                                <div class="card-info">
+                                    <h5 class="mb-0">{{ $totalLeads }}<span
+                                            class="text-muted fs-tiny fw-normal">/{{ $target->leads }}</span>
+                                    </h5>
+                                    <small class="text-muted">New Leads</small>
+                                </div>
+                            </div>
+                            <div class="d-flex mb-2 gap-2">
+                                <a href="#activities">
+                                    <div class="avatar">
                                         <div class="avatar-initial bg-label-info rounded">
                                             <i class="mdi mdi-phone-outline mdi-24px"></i>
                                         </div>
@@ -92,10 +107,9 @@
                                     </div>
                                 </a>
                                 <div class="card-info">
-                                    <h5 class="mb-0">{{ $totalPO }}<span
-                                            class="text-muted fs-tiny fw-normal">/{{ $target->po }}</span>
+                                    <h5 class="mb-0">{{ $totalPO }}
                                     </h5>
-                                    <small class="text-muted">PO</small>
+                                    <small class="text-muted">Purchase Order</small>
                                 </div>
                             </div>
                         </div>

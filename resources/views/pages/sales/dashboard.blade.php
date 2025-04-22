@@ -3,448 +3,176 @@
 @section('content')
     @if (Auth::user()->role == 'Sales' || Auth::user()->role == 'Support')
         <div class="row gy-4 mb-4">
-            @if (Auth::user()->detail[0]->area == 'Bekasi' ||
-                    Auth::user()->detail[0]->area == 'Jabodetabek' ||
-                    Auth::user()->detail[0]->area == 'Jawa Barat')
-                <!-- Congratulations card -->
-                <div class="col-xl-4 col-lg-4 col-12">
-                    <div class="card h-100">
-                        <div class="card-body text-nowrap">
-                            <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
-                                Congratulations <strong>{{ Auth::user()->name }}</strong> 🎉
-                            </h4>
-                            <p class="pb-0">Best seller of the month</p>
-                            <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPrice }}</h4>
-                            @php
-                                $jumlah_target = 0;
-                                $jumlah_target = ($poTotalPrice / $target->total) * 100;
-                                $formatted_jumlah_target = number_format($jumlah_target, 3);
-                            @endphp
-                            <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
-                            <a href="javascript:;" class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
-                        </div>
-                        <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
-                            class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
+            <!-- Congratulations card -->
+            <div class="col-xl-4 col-lg-4 col-md-12 col-sm-8 col-12">
+                <div class="card h-100">
+                    <div class="card-body text-nowrap">
+                        <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
+                            Congratulations <strong>{{ Auth::user()->name }}</strong> 🎉
+                        </h4>
+                        <p class="pb-0">Best seller of the month</p>
+                        <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPrice }}</h4>
+                        @php
+                            $jumlah_target = 0;
+                            $jumlah_target = ($poTotalPrice / $target->total) * 100;
+                            $formatted_jumlah_target = number_format($jumlah_target, 3);
+                        @endphp
+                        <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
+                        <a href="javascript:;" class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
                     </div>
+                    <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
+                        class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
                 </div>
+            </div>
+            <!--/ Congratulations card -->
+            <!-- Total New Leads chart -->
+            @if (Auth::user()->id != '4')
                 <div class="col">
                     <div class="card h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                                 <div class="avatar">
-                                    <div class="avatar-initial bg-label-info rounded">
-                                        <i class="mdi mdi-phone-outline mdi-24px"></i>
+                                    <div class="avatar-initial bg-label-secondary rounded">
+                                        <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
                                 <h4 class="mb-2">
-                                    {{ $dailyCall }}
-                                    <small class="text-muted fs-tiny">/ 400
-                                        @php
-                                            if (is_array($weekPerMonth)) {
-                                                $jumlahData = count($weekPerMonth);
-                                            }
-                                        @endphp
-                                        {{-- @if ($jumlahData > 4)
-                                            {{ round($target->dc + $target->dc / 4) }}
-                                        @elseif($jumlahData == 4)
-                                            {{ round($target->dc) }}
-                                        @endif --}}
-                                    </small>
-                                </h4>
-                                <div class="badge bg-label-secondary rounded-pill">Daily Call</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                <div class="avatar">
-                                    <div class="avatar-initial bg-label-primary rounded">
-                                        <i class="mdi mdi-account-multiple-outline mdi-24px"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">
-                                    {{ $customers }}
-                                    <small class="text-muted fs-tiny">/
-                                        @if ($jumlahData > 4)
-                                            {{ round($target->crm + $target->crm / 4) }}
-                                        @elseif($jumlahData == 4)
-                                            {{ round($target->crm) }}
-                                        @endif
-                                    </small>
-                                </h4>
-                                <div class="badge bg-label-secondary rounded-pill">CRM Existing</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                <div class="avatar">
-                                    <div class="avatar-initial bg-label-danger rounded">
-                                        <i class="mdi mdi-office-building-marker-outline mdi-24px"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">
-                                    {{ $visit }}
-                                    <small class="text-muted fs-tiny">/
-                                        @if ($jumlahData > 4)
-                                            {{ round($target->visit + $target->visit / 4) }}
-                                        @elseif($jumlahData == 4)
-                                            {{ round($target->visit) }}
-                                        @endif
-                                    </small>
-                                </h4>
-                                <div class="badge bg-label-secondary rounded-pill">Visit</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                <div class="avatar">
-                                    <div class="avatar-initial bg-label-warning rounded">
-                                        <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">
-                                    {{ $quotation->count() }}
-                                    <small class="text-muted fs-tiny">/ 100
-                                        {{-- @if ($jumlahData > 4)
-                                            {{ round($target->quote + $target->quote / 4) }}
-                                        @elseif($jumlahData == 4)
-                                            {{ round($target->quote) }}
-                                        @endif --}}
-                                    </small>
-                                </h4>
-                                <div class="badge bg-label-secondary rounded-pill">Quotation</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                <div class="avatar">
-                                    <div class="avatar-initial bg-label-success rounded">
-                                        <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">
-                                    {{ $po->count() }}
-                                    <small class="text-muted fs-tiny">/
-                                        @if ($jumlahData > 4)
-                                            {{ round($target->po + $target->po / 4) }}
-                                        @elseif($jumlahData == 4)
-                                            {{ round($target->po) }}
-                                        @endif
-                                    </small>
-                                </h4>
-                                <div class="badge bg-label-secondary rounded-pill">Pruchase Order</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {{-- <div class="col-xl-8 col-lg-8 col-12">
-                    <div class="row">
-                        <!--/ Congratulations card -->
-                        <!-- Total Leads -->
-                        <div class="col">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                        <div class="avatar">
-                                            <div class="avatar-initial bg-label-info rounded">
-                                                <i class="mdi mdi-phone-outline mdi-24px"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-info mt-4 pt-1">
-                                        <h4 class="mb-2">{{ $dailyCall }} <small class="text-muted fs-tiny">/
-                                                @php
-                                                    if (is_array($weekPerMonth)) {
-                                                        $jumlahData = count($weekPerMonth);
-                                                    }
-                                                @endphp
-                                                @if ($jumlahData > 4)
-                                                    {{ round($target->dc + $target->dc / 4) }}
-                                                @elseif($jumlahData == 4)
-                                                    {{ round($target->dc) }}
-                                                @endif
-                                            </small></h4>
-                                        <div class="badge bg-label-secondary rounded-pill">Daily Call</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!--/ Total Leads -->
-                        <!-- Total Expenses -->
-                        <div class="col">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                        <div class="avatar">
-                                            <div class="avatar-initial bg-label-primary rounded">
-                                                <i class="mdi mdi-account-multiple-outline mdi-24px"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-info mt-4 pt-1">
-                                        <h4 class="mb-2">{{ $customers }} <small class="text-muted fs-tiny">/
-                                                @if ($jumlahData > 4)
-                                                    {{ round($target->crm + $target->crm / 4) }}
-                                                @elseif($jumlahData == 4)
-                                                    {{ round($target->crm) }}
-                                                @endif
-                                            </small>
-                                        </h4>
-                                        <div class="badge bg-label-secondary rounded-pill">CRM Existing</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!--/ Total Expenses -->
-                        <!-- Total Expenses -->
-                        <div class="col">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                        <div class="avatar">
-                                            <div class="avatar-initial bg-label-danger rounded">
-                                                <i class="mdi mdi-office-building-marker-outline mdi-24px"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-info mt-4 pt-1">
-                                        <h4 class="mb-2">{{ $visit }} <small class="text-muted fs-tiny">/
-                                                @if ($jumlahData > 4)
-                                                    {{ round($target->visit + $target->visit / 4) }}
-                                                @elseif($jumlahData == 4)
-                                                    {{ round($target->visit) }}
-                                                @endif
-                                            </small>
-                                        </h4>
-                                        <div class="badge bg-label-secondary rounded-pill">Visit</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!--/ Total Expenses -->
-                        <!-- Total Profit chart -->
-                        <div class="col">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                        <div class="avatar">
-                                            <div class="avatar-initial bg-label-warning rounded">
-                                                <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-info mt-4 pt-1">
-                                        <h4 class="mb-2">{{ $quotation->count() }} <small class="text-muted fs-tiny">/
-                                                @if ($jumlahData > 4)
-                                                    {{ round($target->quote + $target->quote / 4) }}
-                                                @elseif($jumlahData == 4)
-                                                    {{ round($target->quote) }}
-                                                @endif
-                                            </small>
-                                        </h4>
-                                        <div class="badge bg-label-secondary rounded-pill">Quotation</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!--/ Total Profit chart -->
-                        <!-- Total Growth chart -->
-                        <div class="col">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                        <div class="avatar">
-                                            <div class="avatar-initial bg-label-success rounded">
-                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-info mt-4 pt-1">
-                                        <h4 class="mb-2">{{ $po->count() }} <small class="text-muted fs-tiny">/
-                                                @if ($jumlahData > 4)
-                                                    {{ round($target->po + $target->po / 4) }}
-                                                @elseif($jumlahData == 4)
-                                                    {{ round($target->po) }}
-                                                @endif
-                                            </small>
-                                        </h4>
-                                        <div class="badge bg-label-secondary rounded-pill">Pruchase Order</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> --}}
-                <!--/ Total Sales chart -->
-            @else
-                <!-- Congratulations card -->
-                <div class="col-xl-4 col-lg-4 col-md-12 col-sm-8 col-12">
-                    <div class="card h-100">
-                        <div class="card-body text-nowrap">
-                            <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
-                                Congratulations <strong>{{ Auth::user()->name }}</strong> 🎉
-                            </h4>
-                            <p class="pb-0">Best seller of the month</p>
-                            <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPrice }}</h4>
-                            @php
-                                $jumlah_target = 0;
-                                $jumlah_target = ($poTotalPrice / $target->total) * 100;
-                                $formatted_jumlah_target = number_format($jumlah_target, 3);
-                            @endphp
-                            <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
-                            <a href="javascript:;" class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
-                        </div>
-                        <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
-                            class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
-                    </div>
-                </div>
-                <!--/ Congratulations card -->
-                <!-- Total Leads -->
-                <div class="col-xl-2 col-lg-2 col-md-3 col-sm-4 col-6">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                <div class="avatar">
-                                    <div class="avatar-initial bg-label-info rounded">
-                                        <i class="mdi mdi-phone-outline mdi-24px"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">
-                                    {{ $dailyCall }}
-                                    <small class="text-muted fs-tiny">/
-                                        400
-                                        @php
-                                            if (is_array($weekPerMonth)) {
-                                                $jumlahData = count($weekPerMonth);
-                                            }
-                                        @endphp
-                                        {{-- @if ($jumlahData > 4)
-                                            {{ round($target->dc + $target->dc / 4) }}
-                                        @elseif($jumlahData == 4)
-                                            {{ round($target->dc) }}
-                                        @endif --}}
-                                    </small>
-                                </h4>
-                                <div class="badge bg-label-secondary rounded-pill">Daily Call</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--/ Total Leads -->
-                <!-- Total Expenses -->
-                <div class="col-xl-2 col-lg-2 col-md-3 col-sm-4 col-6">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                <div class="avatar">
-                                    <div class="avatar-initial bg-label-primary rounded">
-                                        <i class="mdi mdi-account-multiple-outline mdi-24px"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">
-                                    {{ $customers }}
-                                    <small class="text-muted fs-tiny">/
-                                        {{$jumlahCustomer}}
-                                        {{-- @if ($jumlahData > 4)
-                                            {{ round($target->crm + $target->crm / 4) }}
-                                        @elseif($jumlahData == 4)
-                                            {{ round($target->crm) }}
-                                        @endif --}}
-                                    </small>
-                                </h4>
-                                <div class="badge bg-label-secondary rounded-pill">CRM Existing</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--/ Total Expenses -->
-                <!-- Total Profit chart -->
-                <div class="col-xl-2 col-lg-2 col-md-3 col-sm-4 col-6">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                <div class="avatar">
-                                    <div class="avatar-initial bg-label-warning rounded">
-                                        <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">
-                                    {{ $quotation->count() }}
-                                    <small class="text-muted fs-tiny">/ 100
-                                        {{-- @if ($jumlahData > 4)
-                                            {{ round($target->quote + $target->quote / 4) }}
-                                        @elseif($jumlahData == 4)
-                                            {{ round($target->quote) }}
-                                        @endif --}}
-                                    </small>
-                                </h4>
-                                <div class="badge bg-label-secondary rounded-pill">Quotation</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--/ Total Profit chart -->
-                <!-- Total Growth chart -->
-                <div class="col-xl-2 col-lg-2 col-md-3 col-sm-4 col-6">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                <div class="avatar">
-                                    <div class="avatar-initial bg-label-success rounded">
-                                        <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">
-                                    {{ $po->count() }}
+                                    {{ $leads->count() }}
 
                                     <small class="text-muted fs-tiny">/
-                                        @if ($jumlahData > 4)
-                                            {{ round($target->po + $target->po / 4) }}
+                                        {{-- @if ($jumlahData > 4)
+                                            {{ round($target->leads + $target->leads / 4) }}
                                         @elseif($jumlahData == 4)
-                                            {{ round($target->po) }}
-                                        @endif
+                                            {{ round(num: $target->leads) }}
+                                        @endif --}}
+
+                                        {{ $target->leads }}
                                     </small>
                                 </h4>
-                                <div class="badge bg-label-secondary rounded-pill">Pruchase Order</div>
+                                <div class="badge bg-label-secondary rounded-pill">New Leads</div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!--/ Total Sales chart -->
             @endif
+            <!--/ Total New Leads chart -->
+            <!-- Total Leads -->
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                            <div class="avatar">
+                                <div class="avatar-initial bg-label-info rounded">
+                                    <i class="mdi mdi-phone-outline mdi-24px"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-info mt-4 pt-1">
+                            <h4 class="mb-2">
+                                {{ $dailyCall }}
+                                @if (Auth::user()->id != 3 && Auth::user()->id != 4)
+                                    <small class="text-muted fs-tiny">/
+                                        {{ $target->dc }}
+                                        @php
+                                            if (is_array($weekPerMonth)) {
+                                                $jumlahData = count($weekPerMonth);
+                                            }
+                                        @endphp
+                                        {{-- @if ($jumlahData > 4)
+                                            {{ round($target->dc + $target->dc / 4) }}
+                                        @elseif($jumlahData == 4)
+                                            {{ round($target->dc) }}
+                                        @endif --}}
+                                    </small>
+                                @endif
+                            </h4>
+                            <div class="badge bg-label-secondary rounded-pill">Daily Call</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--/ Total Leads -->
+            <!-- Total Expenses -->
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                            <div class="avatar">
+                                <div class="avatar-initial bg-label-primary rounded">
+                                    <i class="mdi mdi-account-multiple-outline mdi-24px"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-info mt-4 pt-1">
+                            <h4 class="mb-2">
+                                {{ $customers }}
+                                <small class="text-muted fs-tiny">/
+                                    {{ $jumlahCustomer }}
+                                    {{-- @if ($jumlahData > 4)
+                                            {{ round($target->crm + $target->crm / 4) }}
+                                        @elseif($jumlahData == 4)
+                                            {{ round($target->crm) }}
+                                        @endif --}}
+                                </small>
+                            </h4>
+                            <div class="badge bg-label-secondary rounded-pill">CRM Existing</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--/ Total Expenses -->
+            <!-- Total Profit chart -->
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                            <div class="avatar">
+                                <div class="avatar-initial bg-label-warning rounded">
+                                    <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-info mt-4 pt-1">
+                            <h4 class="mb-2">
+                                {{ $quotation->count() }}
+                                <small class="text-muted fs-tiny">/
+                                    {{ $target->quote }}
+                                    {{-- @if ($jumlahData > 4)
+                                            {{ round($target->quote + $target->quote / 4) }}
+                                        @elseif($jumlahData == 4)
+                                            {{ round($target->quote) }}
+                                        @endif --}}
+                                </small>
+                            </h4>
+                            <div class="badge bg-label-secondary rounded-pill">Quotation</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                            <div class="avatar">
+                                <div class="avatar-initial bg-label-success rounded">
+                                    <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-info mt-4 pt-1">
+                            <h4 class="mb-2">
+                                {{ $po->count() }}
+                            </h4>
+                            <div class="badge bg-label-secondary rounded-pill">Purchase Order</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--/ Total Profit chart -->
+            {{-- @endif --}}
         </div>
 
         <div class="row gy-4 mb-4">
@@ -943,6 +671,30 @@
                                                     </div>
                                                     @if ($user->role == 'Sales')
                                                         <div class="col-4">
+                                                            @if ($user->id != 3)
+                                                                <div class="d-flex mb-2 gap-2">
+                                                                    <a type="button" data-bs-toggle="modal"
+                                                                        data-bs-target="#overview-sales-{{ $item }}">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-secondary rounded">
+                                                                                <i
+                                                                                    class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </a>
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">
+                                                                            <span class="filtered-leads">
+                                                                                {{ $filteredLeads }}
+                                                                            </span>
+                                                                            <span
+                                                                                class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->leads }}</span>
+                                                                        </h5>
+                                                                        <small class="text-muted">New Leads</small>
+                                                                    </div>
+                                                                </div>
+                                                            @endif
                                                             <div class="d-flex mb-2 gap-2">
                                                                 <a type="button" data-bs-toggle="modal"
                                                                     data-bs-target="#overview-sales-{{ $item }}">
@@ -954,11 +706,15 @@
                                                                     </div>
                                                                 </a>
                                                                 <div class="card-info">
-                                                                    <h5 class="mb-0 filtered-dc">{{ $filteredDC }} <span
-                                                                            class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span>
+                                                                    <h5 class="mb-0">
+                                                                        <span
+                                                                            class="filtered-dc">{{ $filteredDC }}</span>
+                                                                        @if ($user->id != 3 && $user->id != 4)
+                                                                            <span
+                                                                                class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span>
+                                                                        @endif
                                                                     </h5>
-                                                                    <small
-                                                                        class="text-muted">{{ $user->id == '1' ? 'New Leads' : 'Daily Call' }}</small>
+                                                                    <small class="text-muted">Daily Call</small>
                                                                 </div>
                                                             </div>
                                                             <div class="d-flex mb-2 gap-2">
@@ -969,8 +725,12 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="card-info">
-                                                                    <h5 class="mb-0 filtered-crm">{{ $filteredCRM }}<span
-                                                                            class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->crm }}</span>
+                                                                    <h5 class="mb-0">
+                                                                        <span class=" filtered-crm">
+                                                                            {{ $filteredCRM }}
+                                                                        </span>
+                                                                        <span
+                                                                            class="text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] }}</span>
                                                                     </h5>
                                                                     <small class="text-muted">CRM</small>
                                                                 </div>
@@ -978,7 +738,7 @@
                                                             @php
                                                                 $lastDetail = $user->detail->last();
                                                             @endphp
-                                                            @if ($lastDetail->area == 'Bekasi' || $lastDetail->area == 'Jabodetabek' || $lastDetail->area == 'Jawa Barat')
+                                                            {{-- @if ($lastDetail->area == 'Bekasi' || $lastDetail->area == 'Jabodetabek' || $lastDetail->area == 'Jawa Barat')
                                                                 <div class="d-flex mb-2 gap-2">
                                                                     <div class="avatar">
                                                                         <div
@@ -995,7 +755,7 @@
                                                                         <small class="text-muted">Visit</small>
                                                                     </div>
                                                                 </div>
-                                                            @endif
+                                                            @endif --}}
                                                             <div class="d-flex mb-2 gap-2">
                                                                 <a href="{{ route('sales.quotation', $user->id) }}">
                                                                     <div class="avatar">
@@ -1007,8 +767,11 @@
                                                                     </div>
                                                                 </a>
                                                                 <div class="card-info">
-                                                                    <h5 class="mb-0 filtered-quote">
-                                                                        {{ $filteredQuote }}<span
+                                                                    <h5 class="mb-0">
+                                                                        <span class="filtered-quote">
+                                                                            {{ $filteredQuote }}
+                                                                        </span>
+                                                                        <span
                                                                             class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->quote }}</span>
                                                                     </h5>
                                                                     <small class="text-muted">Quotation</small>
@@ -1024,8 +787,8 @@
                                                                     </div>
                                                                 </a>
                                                                 <div class="card-info">
-                                                                    <h5 class="mb-0 filtered-po">{{ $filteredPO }}<span
-                                                                            class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->po }}</span>
+                                                                    <h5 class="mb-0 filtered-po">
+                                                                        {{ $filteredPO }}
                                                                     </h5>
                                                                     <small class="text-muted">PO</small>
                                                                 </div>
@@ -1179,8 +942,7 @@
                                                                 </a>
                                                                 <div class="card-info">
                                                                     <h5 class="mb-0 filtered-prospect-po">
-                                                                        {{ $filteredPO }}<span
-                                                                            class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->po }}</span>
+                                                                        {{ $filteredPO }}
                                                                     </h5>
                                                                     <small class="text-muted">PO</small>
                                                                 </div>
@@ -1192,7 +954,8 @@
                                                                     <div class="avatar">
                                                                         <div
                                                                             class="avatar-initial bg-label-success rounded">
-                                                                            <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                                            <i
+                                                                                class="mdi mdi-account-cart-plus mdi-24px"></i>
                                                                         </div>
                                                                     </div>
                                                                     <div class="card-info">
@@ -1655,7 +1418,7 @@
     <script src="{{ asset('assets') }}/includes/table-reports.js"></script>
     <script src="{{ asset('assets') }}/includes/table-reports-monitor.js"></script>
     <script src="{{ asset('assets') }}/includes/table-notulen.js"></script>
-    
+
     <script src="{{ asset('assets') }}/includes/table-client-compressor.js"></script>
     {{-- @if (Auth::user()->role == 'Admin') --}}
     <script>
@@ -1700,6 +1463,13 @@
                 }
             });
             $.ajax({
+                url: '/dashboard/filteredLeads/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-leads`).text(response);
+                }
+            });
+            $.ajax({
                 url: '/dashboard/filteredPo/' + id,
                 type: 'GET',
                 success: function(response) {
@@ -1718,6 +1488,15 @@
                 type: 'GET',
                 success: function(response) {
                     $(`.filtered-crm`).text(response);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredTargetCRM/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-target-crm`).text('/' + response);
+                    console.log(response);
+
                 }
             });
             $.ajax({

@@ -9,6 +9,8 @@ use App\Models\DetailQuotation;
 use App\Models\Machine;
 use App\Models\Mainlog;
 use App\Models\Monitoring;
+use App\Models\MonitoringMonthly;
+use App\Models\MonitoringWeekly;
 use App\Models\Pic;
 use App\Models\PnMonitoring;
 use App\Models\Product;
@@ -25,6 +27,12 @@ class MonitoringClientController extends Controller
 {
     public function index()
     {
+        $allDryer = Machine::join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->where('machine.id_client', 1277)
+            ->where('u.unit', 'REFRIGERANT AIR DRYER')
+            ->whereNotBetween('machine.id', [472, 481])
+            ->count();
         $allPlant = Machine::where('id_client', 1277)->whereNotBetween('id', [472, 481])->count();
         $allPlantMonitoring = Machine::where('id_client', 1277)->whereNotBetween('id', [472, 481])
             ->whereHas('monitoring', function ($query) {
@@ -61,10 +69,17 @@ class MonitoringClientController extends Controller
                 $query->whereDate('date', Carbon::today());
             })->count();
 
-
         $day = Carbon::today();
         $month = $day->month;
         $year = $day->year;
+
+        $weekly1 = MonitoringWeekly::where('week', 1)->whereMonth('date', $month)->whereYear('date', $year)->count();
+        $weekly2 = MonitoringWeekly::where('week', 2)->whereMonth('date', $month)->whereYear('date', $year)->count();
+        $weekly3 = MonitoringWeekly::where('week', 3)->whereMonth('date', $month)->whereYear('date', $year)->count();
+        $weekly4 = MonitoringWeekly::where('week', 4)->whereMonth('date', $month)->whereYear('date', $year)->count();
+        $weekly5 = MonitoringWeekly::where('week', 5)->whereMonth('date', $month)->whereYear('date', $year)->count();
+
+        $monthly = MonitoringMonthly::whereMonth('date', $month)->whereYear('date', $year)->count();
 
         $machines = Machine::with([
             'unit',
@@ -142,18 +157,23 @@ class MonitoringClientController extends Controller
             }
             $start->addMonths(6);
         }
-        // dd($data);
-        return view('pages.monitoring.client.index', compact('month', 'year', 'allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'result', 'issued'));
+        // dd($results);
+        return view('pages.monitoring.client.index', compact('month', 'year', 'allDryer', 'allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'result', 'issued', 'weekly1', 'weekly2', 'weekly3', 'weekly4', 'weekly5', 'monthly'));
     }
 
+    public function detailWeekly()
+    {
+        return view('pages.monitoring.client.detail-weekly');
+    }
     public function editIssue(Request $request, $id)
     {
         $monitoring = Monitoring::find($id);
-        $monitoring->date = $request->date;
+        // $monitoring->date = $request->date;
         $monitoring->issue = $request->issue;
         $monitoringSave = $monitoring->save();
         if ($monitoringSave) {
             $statusM = StatusMonitoring::where('id_monitoring', $id)->first();
+            $statusM->date = $request->date;
             $statusM->status = '1';
             $statussave = $statusM->save();
         }

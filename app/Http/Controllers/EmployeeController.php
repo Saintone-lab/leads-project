@@ -112,7 +112,7 @@ class EmployeeController extends Controller
                 $target->visit = 1;
             }
             $target->quote = $request->quote;
-            $target->po = $request->po;
+            $target->leads = $request->leads;
             $target->total = $request->total;
             $target->save();
         }
@@ -265,7 +265,7 @@ class EmployeeController extends Controller
                     $request->visit = 0;
                 }
                 $target->quote = $request->quote;
-                $target->po = $request->po;
+                $target->leads = $request->leads;
                 $target->total = $request->total;
                 $target->save();
                 $user->role = $request->role;
@@ -288,7 +288,7 @@ class EmployeeController extends Controller
                     $request->visit = NULL;
                 }
                 $target->quote = $request->quote;
-                $target->po = $request->po;
+                $target->leads = $request->leads;
                 $target->total = $request->total;
                 $target->save();
                 $user->role = $request->role;
@@ -329,7 +329,7 @@ class EmployeeController extends Controller
             $target->visit = $request->visit;
         }
         $target->quote = $request->quote;
-        $target->po = $request->po;
+        $target->leads = $request->leads;
         $target->total = $request->semuanya;
         $status = $target->save();
         if ($status) {

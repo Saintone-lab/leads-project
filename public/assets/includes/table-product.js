@@ -34,6 +34,12 @@ $(function () {
                 { data: "dimension" },
                 { data: "go" },
                 { data: "stock" },
+                {
+                    data: "po",
+                    render: function (data, type, row) {
+                        return data ?? "-";
+                    },
+                },
                 { data: "warehouse_stock" },
             ],
             columnDefs: [

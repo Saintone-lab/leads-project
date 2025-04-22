@@ -30,7 +30,9 @@ if (Auth::check()) {
         s.bar,
         s.air_cap,
         m.status,
-        m.price
+        m.price,
+        m.tag,
+        m.price_rental
             FROM 
                 machine m
             JOIN 

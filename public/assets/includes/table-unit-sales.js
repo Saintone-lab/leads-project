@@ -27,7 +27,6 @@ $(function () {
                 { data: "id" },
                 // { data: "new" },
                 { data: "brand" },
-                { data: "sku" },
                 { data: "pn" },
                 { data: "serial" },
                 { data: "power" },
@@ -35,12 +34,13 @@ $(function () {
                 { data: "air_cap" },
                 { data: "status" },
                 { data: "price", className: "text-end" },
+                { data: "price_rental", className: "text-end" },
             ],
             columnDefs: [
                 {
-                    targets: 5,
+                    targets: 4,
                     render: function (data, type, full, row) {
-                        var photo = full['desc'];
+                        var photo = full["desc"];
                         if (type === "display") {
                             if (data === null || data === "") {
                                 return "-";
@@ -62,23 +62,23 @@ $(function () {
                 //         var newu = full['new'];
                 //         var second = full['second'];
                 //         var rental = full['rental'];
-                        
+
                 //         var status = [];
-                
+
                 //         if (rental === '1') {
                 //             status.push('Rental');
                 //         }
-                
+
                 //         if (second === '1') {
                 //             status.push('Second Unit');
                 //         }
-                
+
                 //         if (newu === '1') {
                 //             status.push('New Unit');
                 //         }
-                
+
                 //         var statusText = status.length === 0 ? '-' : status.join(' & ');
-                
+
                 //         return statusText;
                 //     },
                 // },
@@ -128,42 +128,70 @@ $(function () {
                     },
                 },
                 {
-                    targets: 10,
+                    targets: 9,
                     render: function (data, type, full, meta) {
                         var $title = full["status"];
+                        var ket = full["tag"];
                         var $status = {
                             Ready: {
                                 title: $title,
                                 class: "bg-label-primary",
+                                colorTip: "tooltip-primary",
+                                titleTip: ket,
                             },
                             "On Rental": {
                                 title: $title,
                                 class: " bg-label-warning",
+                                colorTip: "tooltip-warning",
+                                titleTip: ket,
                             },
                             Sold: {
                                 title: $title,
                                 class: " bg-label-secondary",
+                                colorTip: "tooltip-secondary",
+                                titleTip: ket,
                             },
                             Service: {
                                 title: $title,
                                 class: " bg-label-danger",
+                                colorTip: "tooltip-danger",
+                                titleTip: ket,
                             },
                         };
                         if (typeof $status[$title] === "undefined") {
                             return data;
                         }
                         return (
-                            '<span class="badge rounded-pill ' +
+                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
+                            $status[$title].colorTip +
+                            '" title="' +
+                            $status[$title].titleTip +
+                            '" class="badge rounded-pill ' +
                             $status[$title].class +
                             '">' +
                             $status[$title].title +
                             "</span>"
                         );
+                        // return (
+                        //     '<span class="badge rounded-pill ' +
+                        //     $status[$title].class +
+                        //     '">' +
+                        //     $status[$title].title +
+                        //     "</span>"
+                        // );
                     },
                 },
                 {
-                    targets: 11,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                    targets: [10, 11],
+                    render: function (data, type, row) {
+                        if (data === null || data === undefined) {
+                            return "-";
+                        } else {
+                            return $.fn.dataTable.render
+                                .number(".", "", 0, "Rp.")
+                                .display(data);
+                        }
+                    },
                 },
             ],
             order: [[2, "desc"]],

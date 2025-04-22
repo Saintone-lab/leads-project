@@ -2,10 +2,267 @@
 @section('title', 'Monitoring machine')
 @section('content')
     <div class="row mb-4">
-        <div class="col-12 col-md-3 mb-2">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between">
+                        <h3>Daily</h3>
+                        <h4>{{ $allPlantMonitoring }}/ <span class="text-muted fs-3">{{ $allPlant }}</span></h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-primary rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-alpha-a-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <h6 class="mb-0 fw-semibold">
+                                            Plant BM 1-2
+                                        </h6>
+                                        <p class="fs-5">{{ $PM12Monitoring }}/ <span
+                                                class="text-muted fs-6">{{ $PM12 }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-primary rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-alpha-b-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <h6 class="mb-0 fw-semibold">
+                                            Plant BM 3-5
+                                        </h6>
+                                        <p class="fs-5">{{ $PM35Monitoring }}/ <span
+                                                class="text-muted fs-6">{{ $PM35 }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-primary rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-alpha-c-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <h6 class="mb-0 fw-semibold">
+                                            Plant BM 7-8
+                                        </h6>
+                                        <p class="fs-5">{{ $PM78Monitoring }}/ <span
+                                                class="text-muted fs-6">{{ $PM78 }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                        </div>
+                        <div class="col-6">
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-primary rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-alpha-d-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <h6 class="mb-0 fw-semibold">
+                                            GT 3 / BOILER
+                                        </h6>
+                                        <p class="fs-5">{{ $GT3Monitoring }}/ <span
+                                                class="text-muted fs-6">{{ $GT3 }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-primary rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-alpha-e-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <h6 class="mb-0 fw-semibold">
+                                            Plant GT 1-2
+                                        </h6>
+                                        <p class="fs-5">{{ $GTMonitoring }}/ <span
+                                                class="text-muted fs-6">{{ $GT }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-primary rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-alpha-f-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <h6 class="mb-0 fw-semibold">
+                                            Plant INC
+                                        </h6>
+                                        <p class="fs-5">{{ $INCMonitoring }}/ <span
+                                                class="text-muted fs-6">{{ $INC }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Weekly</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-info rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-numeric-1-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <a href="{{ route('monitoring.fajarPaper-detail-weekly') }}"
+                                            class="mb-0 fw-semibold fs-6 fw-medium text-black">
+                                            Week 1
+                                        </a>
+                                        <p class="fs-5">{{ $weekly1 }}/ <span
+                                                class="text-muted fs-6">{{ $allPlant }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-info rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-numeric-2-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <a href="{{ route('monitoring.fajarPaper-detail-weekly') }}"
+                                            class="mb-0 fw-semibold fs-6 fw-medium text-black">
+                                            Week 2
+                                        </a>
+                                        <p class="fs-5">{{ $weekly2 }}/ <span
+                                                class="text-muted fs-6">{{ $allPlant }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-info rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-numeric-3-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <a href="{{ route('monitoring.fajarPaper-detail-weekly') }}"
+                                            class="mb-0 fw-semibold fs-6 fw-medium text-black">
+                                            Week 3
+                                        </a>
+                                        <p class="fs-5">{{ $weekly3 }}/ <span
+                                                class="text-muted fs-6">{{ $allPlant }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                        </div>
+                        <div class="col-6">
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-info rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-numeric-4-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <a href="{{ route('monitoring.fajarPaper-detail-weekly') }}"
+                                            class="mb-0 fw-semibold fs-6 fw-medium text-black">
+                                            Week 4
+                                        </a>
+                                        <p class="fs-5">{{ $weekly4 }}/ <span
+                                                class="text-muted fs-6">{{ $allPlant }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-info rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-numeric-5-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <a href="{{ route('monitoring.fajarPaper-detail-weekly') }}"
+                                            class="mb-0 fw-semibold fs-6 fw-medium text-black">
+                                            Week 5
+                                        </a>
+                                        <p class="fs-5">{{ $weekly5 }}/ <span
+                                                class="text-muted fs-6">{{ $allPlant }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                    <h1 class="text-black">{{ $monthly }}/ <span class="text-muted fs-3">{{ $allDryer }}</span>
+                    </h1>
+                    <h5>Monthly</h5>
+                </div>
+            </div>
+        </div>
+        {{-- <div class="col-12 col-md-3 mb-2">
             <div class="card bg-label-success h-100">
                 <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
-                    <h1 class="text-black">{{ $allPlantMonitoring }}/ <span class="text-muted fs-3">{{ $allPlant }}</span>
+                    <h1 class="text-black">{{ $allPlantMonitoring }}/ <span
+                            class="text-muted fs-3">{{ $allPlant }}</span>
                     </h1>
                     <h5>Data Input Daily</h5>
                 </div>
@@ -71,7 +328,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
     <div class="row">
         <div class="col-12">
@@ -130,7 +387,8 @@
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
     <link rel="stylesheet"
         href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />

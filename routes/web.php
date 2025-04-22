@@ -307,6 +307,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/monitoring/monthly-create/{id}', [MonitoringController::class, 'createMonthly'])->name('create.monthly-monitoring');
     Route::post('/monitoring/monthly-store/{id}', [MonitoringController::class, 'storeMonthly'])->name('store.monthly-monitoring');
     Route::get('/monitoring-client/fajarPaper', [MonitoringClientController::class, 'index'])->name('monitoring.fajarPaper');
+    Route::get('/monitoring-client/fajarPaper-detail/weekly', [MonitoringClientController::class, 'detailWeekly'])->name('monitoring.fajarPaper-detail-weekly');
     Route::get('/monitoring-client/fajarPaper-archive', [MonitoringClientController::class, 'indexArsip'])->name('monitoring-arsip.fajarPaper');
     Route::get('/monitoring-client/fajarPaper/{id}', [MonitoringClientController::class, 'show'])->name('monitoring.fajarPaper-detail');
     Route::get('/monitoring-client/fajarPaper-quotation/{id}', [MonitoringClientController::class, 'createQuotation'])->name('monitoring.create-quotation');
@@ -918,6 +919,8 @@ Route::group(["middleware" => "auth"], function () {
                 'reports.jobdesc',
                 'reports.date',
                 'u.name',
+                'm.tag',
+                'm.location',
                 DB::raw("CONCAT(s.brand, ' ', un.sku) as brand_type")
             )
             ->get();
@@ -1084,11 +1087,16 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/dashboard/totalProspect/{sales}', [DashboardController::class, 'totalProspectAdmin'])->name('totalProspect.dashboard');
     Route::get('/dashboard/totalProspectPO/{sales}', [DashboardController::class, 'totalProspectedPO'])->name('totalProspectedPO.dashboard');
     Route::get('/dashboard/totalProspectQuote/{sales}', [DashboardController::class, 'totalProspectedQuotation'])->name('totalProspectedQuotation.dashboard');
+    Route::get('/dashboard/filteredLeads/{sales}', [DashboardController::class, 'filteredLeadsAdmin'])->name('filteredLeads.dashboard');
     Route::get('/dashboard/filteredPo/{sales}', [DashboardController::class, 'filteredPoAdmin'])->name('filteredPo.dashboard');
     Route::get('/dashboard/filteredQuote/{sales}', [DashboardController::class, 'filteredQuoteAdmin'])->name('filteredQuote.dashboard');
     Route::get('/dashboard/filteredDc/{sales}', [DashboardController::class, 'filteredDcAdmin'])->name('filteredDc.dashboard');
     Route::get('/dashboard/filteredVisit/{sales}', [DashboardController::class, 'filteredVisitAdmin'])->name('filteredVisit.dashboard');
     Route::get('/dashboard/filteredCRM/{sales}', [DashboardController::class, 'filteredCRMAdmin'])->name('filteredCRM.dashboard');
+    Route::get('/dashboard/filteredTargetLeads/{sales}', [DashboardController::class, 'filteredTargetLeadsAdmin'])->name('filteredTargetLeads.dashboard');
+    Route::get('/dashboard/filteredTargetQuote/{sales}', [DashboardController::class, 'filteredTargetQuoteAdmin'])->name('filteredTargetQuote.dashboard');
+    Route::get('/dashboard/filteredTargetDc/{sales}', [DashboardController::class, 'filteredTargetDcAdmin'])->name('filteredTargetDc.dashboard');
+    Route::get('/dashboard/filteredTargetCRM/{sales}', [DashboardController::class, 'filteredTargetCRMAdmin'])->name('filteredTargetCRM.dashboard');
     Route::get('/dashboard/filteredProspect/{sales}', [DashboardController::class, 'filteredProspect'])->name('filteredProspect.dashboard');
     Route::get('/dashboard/filteredProvide/{sales}', [DashboardController::class, 'filteredProvide'])->name('filteredProvide.dashboard');
     Route::get('/dashboard/filteredProspectPO/{sales}', [DashboardController::class, 'filteredProspectedPO'])->name('filteredProspect.dashboard');
@@ -1905,6 +1913,51 @@ Route::group(["middleware" => "auth"], function () {
             )
             ->get();
         return response()->json(['data' => $data]);
+    });
+    Route::get('/db/detail-weekly/fp', function () {
+
+        $month = now()->month;
+        $year = now()->year;
+
+        $machines = Machine::join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->whereNotBetween('machine.id', [472, 481])
+            ->where('machine.id_client', 1277)
+            ->select(
+                'machine.id',
+                'machine.tag',
+                'machine.location',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )
+            ->get();
+
+        $results = [];
+
+        foreach ($machines as $machine) {
+            $weeks = MonitoringWeekly::where('id_machine', $machine->id)
+                ->whereMonth('date', $month)
+                ->whereYear('date', $year)
+                ->pluck('week') // ambil kolom week
+                ->toArray();
+
+            $debug = MonitoringWeekly::where('id_machine', $machine->id)
+                ->whereMonth('date', $month)
+                ->whereYear('date', $year);
+
+            $results[] = [
+                'id' => $machine->id,
+                'machine' => $machine->machine,
+                'tag' => $machine->tag,
+                'location' => $machine->location,
+                'month' => $month,
+                'week1' => in_array(1, $weeks) ? 1 : 0,
+                'week2' => in_array(2, $weeks) ? 1 : 0,
+                'week3' => in_array(3, $weeks) ? 1 : 0,
+                'week4' => in_array(4, $weeks) ? 1 : 0,
+                'week5' => in_array(5, $weeks) ? 1 : 0,
+            ];
+        }
+        return response()->json(['data' => $results]);
     });
     Route::get('/db/compressor/fp', function () {
         $today = Carbon::today();

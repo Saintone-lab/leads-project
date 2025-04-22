@@ -42,8 +42,6 @@
                                 <label for="Unit" class="mb-2">Unit</label>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-12 col-md-6 mb-2">
                             <div class="form-floating form-floating-outline">
                                 <select class="form-select invoice-item-info" id="status"
@@ -63,18 +61,49 @@
                                 <label for="exampleFormControlSelect1">Status</label>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-12 col-md-6 mb-2">
                             <div class="form-floating form-floating-outline">
-                                <label for="priceAnimation">Price</label>
-                                <div class="input-group form-floating form-floating-outline" data-price="1">
-                                    <span class="input-group-text">Rp. </span>
-                                    <input type="text" class="form-control harga-label" id="harga-label"
-                                        data-id="{{$unitr->id}}" min="12" placeholder="Put harga Here" data-type="currency"
-                                        pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                        @blur="focused = false" value="{{ old('price', $unitr->price ?? '') }}">
-                                    <input class="form-control harga" type="number" name="total" id="harga{{$unitr->id}}"
-                                        value="{{ old('price', $unitr->price ?? '') }}" hidden>
-                                </div>
+                                <input type="text" id="tagAnimation" class="form-control" name="tag"
+                                    placeholder="Example: Second - Rental" value="{{ $unitr->tag }}">
+                                <label for="tagAnimation">Keterangan</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="descAnimation" class="form-control" name="desc"
+                                    placeholder="Example: CEO" value="{{ $unitr->desc }}">
+                                <label for="descAnimation">Url Google Drive</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-md-6 mb-2">
+                            <label for="priceAnimation">Price</label>
+                            <div class="input-group form-floating form-floating-outline" data-price="1">
+                                <span class="input-group-text">Rp. </span>
+                                <input type="text" class="form-control harga-label" id="harga-label"
+                                    data-id="{{ $unitr->id }}" min="12" placeholder="Put harga Here"
+                                    data-type="currency" pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                    @blur="focused = false" value="{{ old('price', $unitr->price ?? '') }}">
+                                <input class="form-control harga" type="number" name="total"
+                                    id="harga{{ $unitr->id }}" value="{{ old('price', $unitr->price ?? '') }}"
+                                    hidden>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 mb-2">
+                            <label for="priceAnimation">Price</label>
+                            <div class="input-group form-floating form-floating-outline" data-price="1">
+                                <span class="input-group-text">Rp. </span>
+                                <input type="text" class="form-control harga-rental-label" id="hargaRental"
+                                    data-id="{{ $unitr->id }}" min="12" placeholder="Put harga-rental Here"
+                                    data-type="currency" pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                    @blur="focused = false"
+                                    value="{{ old('price_rental', $unitr->price_rental ?? '') }}">
+                                <input class="form-control harga-rental" type="number" name="totalRental"
+                                    id="hargaRental{{ $unitr->id }}"
+                                    value="{{ old('price_rental', $unitr->price_rental ?? '') }}" hidden>
                             </div>
                         </div>
                     </div>

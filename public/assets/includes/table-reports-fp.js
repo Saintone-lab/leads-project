@@ -27,6 +27,8 @@ $(function () {
                 { data: "id" },
                 { data: "no_service" },
                 { data: "brand_type" },
+                { data: "tag" },
+                { data: "location" },
                 { data: "jobdesc" },
                 { data: "date" },
                 { data: "name" },

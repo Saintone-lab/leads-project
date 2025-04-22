@@ -178,6 +178,8 @@
                                         <th>ID</th>
                                         <th>No Service</th>
                                         <th>Brand Type</th>
+                                        <th>Tag</th>
+                                        <th>Location</th>
                                         <th>Job Desc</th>
                                         <th>Date</th>
                                         <th>Technician</th>

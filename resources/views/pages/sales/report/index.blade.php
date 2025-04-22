@@ -16,6 +16,21 @@
                             <div class="col-4">
                                 <p class="fw-medium fs-normal">Key Performance Indicator</p>
                                 <div class="d-flex mb-2 gap-2">
+                                    <a href="#po">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-secondary rounded">
+                                                <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="card-info">
+                                        <h5 class="mb-0">{{ $totalLeads }}<span
+                                                class="text-muted fs-tiny fw-normal">/{{ $target->leads }}</span>
+                                        </h5>
+                                        <small class="text-muted">New Leads</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex mb-2 gap-2">
                                     <a href="#activities">
                                         <div class="avatar">
                                             <div class="avatar-initial bg-label-info rounded">
@@ -27,8 +42,7 @@
                                         <h5 class="mb-0">{{ $totalDC }} <span
                                                 class="text-muted fs-tiny fw-normal">/{{ $target->dc }}</span>
                                         </h5>
-                                        <small
-                                            class="text-muted">{{ Auth::user()->id == '1' ? 'New Leads' : 'Daily Call' }}</small>
+                                        <small class="text-muted">Daily Call</small>
                                     </div>
                                 </div>
                                 <div class="d-flex mb-2 gap-2">
@@ -90,10 +104,9 @@
                                         </div>
                                     </a>
                                     <div class="card-info">
-                                        <h5 class="mb-0">{{ $totalPO }}<span
-                                                class="text-muted fs-tiny fw-normal">/{{ $target->po }}</span>
+                                        <h5 class="mb-0">{{ $totalLeads }}
                                         </h5>
-                                        <small class="text-muted">PO</small>
+                                        <small class="text-muted">Purchase Order</small>
                                     </div>
                                 </div>
                             </div>
@@ -183,6 +196,33 @@
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
+                        <tr>
+                            <td>
+                                <strong>New Leads</strong>
+                            </td>
+                            @php
+                                $totalLeadsFullWeek = 0;
+                            @endphp
+                            @foreach ($dataLeads as $week)
+                                <td>{{ $week['total'] }}</td>
+                                @php
+                                    $totalLeadsFullWeek += $week['total'];
+                                @endphp
+                            @endforeach
+                            <td>{{ $totalLeadsFullWeek }}</td>
+                            <td>
+                                @php
+                                    if (is_array($dataLeads)) {
+                                        $jumlahData = count($dataLeads);
+                                    }
+                                @endphp
+                                @if ($jumlahData > 4)
+                                    {{ round(($totalLeadsFullWeek / ($target->leads + $target->leads / 4)) * 100) }} %
+                                @elseif($jumlahData == 4)
+                                    {{ round(($totalLeadsFullWeek / $target->leads) * 100) }} %
+                                @endif
+                            </td>
+                        </tr>
                         <tr>
                             <td>
                                 <strong>Daily Call</strong>
@@ -293,11 +333,11 @@
                             @endforeach
                             <td>{{ $totalPoFullWeek }}</td>
                             <td>
-                                @if ($jumlahData > 4)
-                                    {{ round(($totalPoFullWeek / ($target->po + $target->po / 4)) * 100) }} %
+                                {{-- @if ($jumlahData > 4)
+                                    {{ round(($totalPoFullWeek / ($target->leads + $target->leads / 4)) * 100) }} %
                                 @elseif($jumlahData == 4)
-                                    {{ round(($totalPoFullWeek / $target->po) * 100) }} %
-                                @endif
+                                    {{ round(($totalPoFullWeek / $target->leads) * 100) }} %
+                                @endif --}}
                             </td>
                         </tr>
                     </tbody>

@@ -60,6 +60,18 @@
                                         {{ @$product->status == 'WATER CHILLER' ? 'selected' : '' }}>
                                         WATER CHILLER
                                     </option>
+                                    <option value="DESICANT DRYER"
+                                        {{ @$product->status == 'DESICANT DRYER' ? 'selected' : '' }}>
+                                        DESICANT DRYER
+                                    </option>
+                                    <option value="BOOSTER COMPRESSOR"
+                                        {{ @$product->status == 'BOOSTER COMPRESSOR' ? 'selected' : '' }}>
+                                        BOOSTER COMPRESSOR
+                                    </option>
+                                    <option value="HIGH PRESSURE COMPRESSOR"
+                                        {{ @$product->status == 'HIGH PRESSURE COMPRESSOR' ? 'selected' : '' }}>
+                                        HIGH PRESSURE COMPRESSOR
+                                    </option>
                                 </select>
                                 <label for="exampleFormControlSelect1">Unit</label>
                             </div>

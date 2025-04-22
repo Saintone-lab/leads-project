@@ -110,6 +110,7 @@
                             <th>Dimension</th>
                             <th>G/O</th>
                             <th>Stock BDG</th>
+                            <th>Pending PO</th>
                             <th>Stock BKS</th>
                         </tr>
                     </thead>

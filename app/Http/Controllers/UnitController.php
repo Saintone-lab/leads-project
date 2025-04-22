@@ -73,6 +73,7 @@ class UnitController extends Controller
         $machine->desc = $request->desc;
         $machine->tag = $request->tag;
         $machine->price = $request->semuanya;
+        $machine->price_rental = $request->rental;
         $machine->location = '-';
         $unitSave = $machine->save();
         if ($unitSave) {
@@ -517,6 +518,9 @@ class UnitController extends Controller
         $machine = Machine::find($id);
         $machine->status = $request->status;
         $machine->price = $request->total;
+        $machine->price_rental = $request->totalRental;
+        $machine->desc = $request->desc;
+        $machine->tag = $request->tag;
         // dd($request->all());
         $unitSave = $machine->save();
         if ($unitSave) {

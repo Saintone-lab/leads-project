@@ -177,7 +177,7 @@ class MonitoringController extends Controller
                 $monitoring->leak = $request->leak;
                 $monitoring->temp = $request->temperature_in . " °C";
                 $monitoring->temp_out = $request->temperature_out . " °C";
-                if ($request->issue != null) {
+                if ($request->issue == null) {
                     if ($request->dew <= 10) {
                         $monitoring->issue = null;
                     } else {
@@ -199,7 +199,7 @@ class MonitoringController extends Controller
                 $monitoring->leak = $request->leak;
                 $monitoring->temp = $request->temperature_in . " °C";
                 $monitoring->temp_out = $request->temperature_out . " °C";
-                if ($request->issue != null) {
+                if ($request->issue == null) {
                     if ($request->dew <= 10) {
                         $monitoring->issue = 'Stand By';
                     } else {

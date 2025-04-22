@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Activities;
+use App\Models\Client;
 use App\Models\Comment;
 use App\Models\Prospect;
 use App\Models\Quotation;
@@ -21,6 +22,7 @@ class ReportsController extends Controller
         $dataVisit = $this->getWeekDataVisit();
         $dataQuote = $this->getWeekDataQuote();
         $dataPo = $this->getWeekDataPo();
+        $dataLeads = $this->getWeekDataLeads();
         $target = Target::where('id_sales', Auth::user()->id)->first();
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
@@ -31,6 +33,7 @@ class ReportsController extends Controller
         $totalVisit = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'Visit')->where('client.id_sales', Auth::user()->id)->count();
         $totalQuote = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->whereMonth('estimated_date', $monthNow)->where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->count();
         $totalPO = Quotation::where('status', '100')->whereMonth('po_date', $monthNow)->where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->count();
+        $totalLeads = Client::whereMonth('created_at', $monthNow)->where('id_sales', Auth::user()->id)->count();
         $amountSales = Quotation::whereMonth('po_date', $monthNow)->where('status', '100')->where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $amountProspect = Quotation::whereMonth('estimated_date', $monthNow)->where('status', '80')->where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $amountQuote = Quotation::whereMonth('estimated_date', $monthNow)->whereIn('status', ['20', '30', '40', '60', '80'])->where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->sum('nett');
@@ -104,7 +107,7 @@ class ReportsController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view("pages.sales.report.index", compact("noSaleProspect", 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', "quotation", "dataDc", "dataQuote", "dataPo", "target", "dataCRM", "dataVisit", "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "amountSales", "amountQuote", "amountProspect"));
+        return view("pages.sales.report.index", compact("noSaleProspect", 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', "quotation", "dataDc", "dataQuote", "dataPo", "dataLeads", "target", "dataCRM", "dataVisit", "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLeads", "amountSales", "amountQuote", "amountProspect"));
     }
 
     protected function getWeekDataDC()
@@ -280,6 +283,39 @@ class ReportsController extends Controller
             ->where('id_sales', Auth::user()->id)
             ->where('level', '1')->where('is_primary', '1')
             ->where('status', '100')
+            ->groupBy('week')
+            ->orderBy('week')
+            ->pluck('total', 'week');
+        $fullMonthData = [];
+        for ($week = $weekStart; $week <= $endWeek; $week++) {
+            $weekKey = "{$week}";
+
+            $weekDays = date('t', strtotime($weekKey));
+            if ($weekDays >= 4) {
+                $fullMonthData[$weekKey] = [
+                    'week' => $weekKey,
+                    'total' => isset($dCallPerWeek[$weekKey]) ? $dCallPerWeek[$weekKey] : 0,
+                ];
+            }
+        }
+        return $fullMonthData;
+    }
+    protected function getWeekDataLeads()
+    {
+        $dateNow = Carbon::now();
+        $yearNow = $dateNow->year;
+        $monthNow = $dateNow->month;
+        $firstDayOfMonth = "{$yearNow}-{$monthNow}-01";
+        $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfMonth));
+
+        $firstDayOfWeek = date('N', strtotime($firstDayOfMonth));
+        $weekEnd = date('W', strtotime($firstDayOfMonth));
+        $endWeek = date('W', strtotime($lastDayOfMonth));
+        $weekStart = $firstDayOfWeek > 1 ? $weekEnd + 1 : $weekEnd;
+
+        $dCallPerWeek = Client::select(DB::raw('CONCAT(YEAR(created_at), "-", MONTH(created_at), "-W", WEEK(created_at, 4)) as created_at'), DB::raw('WEEK(created_at, 4) as week'), DB::raw('COUNT(*) as total'))
+            ->whereBetween('created_at', [$firstDayOfMonth, $lastDayOfMonth])
+            ->where('id_sales', Auth::user()->id)
             ->groupBy('week')
             ->orderBy('week')
             ->pluck('total', 'week');
