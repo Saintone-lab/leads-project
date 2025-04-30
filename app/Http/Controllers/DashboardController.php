@@ -132,8 +132,8 @@ class DashboardController extends Controller
             $totalForecast = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '80')->where('level', '1')->where('is_primary', '1')->sum('nett');
             $filteredLeads = Client::whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->where('id_sales', $firstSales->id)->count();
             $filteredPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
-            $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->count();
-            $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->where('name', 'CRM')->count();
+            $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->whereIn('activities.name', ['Daily Call', 'Follow Up'])->distinct('c.id')->count();
+            $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->where('name', 'CRM')->distinct('c.id')->count();
             $filteredQuote = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('level', '1')->where('is_primary', '1')->count();
             $filteredVisit = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->where('name', 'Visit')->count();
             $dataDc = $this->getWeekDataDC();
@@ -274,7 +274,7 @@ class DashboardController extends Controller
             $monthNow = $dateNow->month;
             $yearNow = $dateNow->year;
             return $sale->clients->flatMap(function ($client) use ($monthNow, $yearNow) {
-                return $client->activities()->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->get();
+                return $client->activities()->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->distinct('client.id')->get();
             })->count();
         });
         $filteredCRM = $sales->map(function ($sale) {
@@ -282,7 +282,7 @@ class DashboardController extends Controller
             $monthNow = $dateNow->month;
             $yearNow = $dateNow->year;
             return $sale->clients->flatMap(function ($client) use ($monthNow, $yearNow) {
-                return $client->activities()->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'CRM')->get();
+                return $client->activities()->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('status', 'Responded')->where('name', 'CRM')->groupBy('client.id')->get();
             })->count();
         });
         $filteredVisit = $sales->map(function ($sale) {
@@ -550,7 +550,14 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $sales)->where('status', 'Responded')->count();
+        $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')
+        ->whereYear('date', $yearNow)
+        ->whereMonth('date', $monthNow)
+        ->where('c.id_sales', $sales)
+        ->where('status', 'Responded')
+        ->whereIn('name', ['Daily Call', 'Follow Up'])
+        ->distinct('c.id')
+        ->count();
         return $filteredDC;
     }
     public function filteredCrmAdmin($sales)
@@ -558,7 +565,7 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $sales)->where('status', 'Responded')->where('name', 'CRM')->count();
+        $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $sales)->where('status', 'Responded')->where('name', 'CRM')->distinct('c.id')->count();
         return $filteredCRM;
     }
     public function filteredVisitAdmin($sales)
@@ -755,6 +762,7 @@ class DashboardController extends Controller
                         ->where(DB::raw('WEEK(date, 4)'), $weekKey)
                         ->whereIn('activities.name', ['Daily Call', 'Follow Up']) // Menggunakan whereIn untuk memeriksa beberapa nilai
                         ->where('status', 'Responded')
+                        ->distinct('c.id')
                         ->pluck('total')
                         ->first(); // Mengambil total aktivitas
 
@@ -804,6 +812,7 @@ class DashboardController extends Controller
                         ->where(DB::raw('WEEK(date, 4)'), $weekKey)
                         ->where('activities.name', 'Crm') // Menggunakan whereIn untuk memeriksa beberapa nilai
                         ->where('status', 'Responded')
+                        ->distinct('c.id')
                         ->pluck('total')
                         ->first(); // Mengambil total aktivitas
 
@@ -1047,6 +1056,7 @@ class DashboardController extends Controller
             ->where('u.id', Auth::user()->id)
             ->where('status', 'Responded')
             ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
+            ->distinct('c.id')
             ->count();
         return $dailyCall;
     }
@@ -1081,6 +1091,7 @@ class DashboardController extends Controller
             ->where('u.id', Auth::user()->id)
             ->where('status', 'Responded')
             ->where('activities.name', 'CRM')
+            ->distinct('c.id')
             ->count();
         return $customers;
     }

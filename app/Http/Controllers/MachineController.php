@@ -64,6 +64,7 @@ class MachineController extends Controller
         $machine->tag = $request->tag;
         $machine->location = $request->location;
         $machineSave = $machine->save();
+        // dd($machine);
         if ($machineSave) {
             return redirect('/existing/' . $request->id_client)->with('message', 'data telah ditambahkan');
         }

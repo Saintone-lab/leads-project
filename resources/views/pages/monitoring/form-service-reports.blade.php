@@ -54,6 +54,8 @@
                                 </option>
                                 <option value="General" {{ @$report->type == 'General' ? 'Selected' : '' }}>General Check
                                 </option>
+                                <option value="Cleaning" {{ @$report->type == 'Cleaning' ? 'Selected' : '' }}>Cleaning
+                                </option>
                             </select>
                             <label for="exampleFormControlSelect1">Service Type</label>
                         </div>

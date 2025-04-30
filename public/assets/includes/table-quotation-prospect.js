@@ -1,20 +1,19 @@
 $(function () {
-    var dt_table_detail_weekly = $(".datatable-detail-weekly");
-    var Url = "/db/detail-weekly/fp/";
+    var dt_table_quotation_prospect = $(".datatable-quotation-prospect");
+    var Url = "/db/quotation/prospect";
 
-    // console.log("ID:", id); // Output: ID: 2
-
-    if (dt_table_detail_weekly.length) {
+    if (dt_table_quotation_prospect.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_detail_weekly.DataTable({
+        var dt_quotation = dt_table_quotation_prospect.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
                 headers: {
                     "Content-Type": "application/json",
                 },
-                // success: function (hasil, url) {
-                //     console.log("Url:", url);
+
+                // success: function (hasil, Url) {
+                //     console.log("Url:", Url);
                 //     console.log(hasil);
                 // },
                 // error: function (error) {
@@ -27,23 +26,26 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "machine" },
-                { data: "tag" },
-                { data: "location" },
-                { data: "week1" },
-                { data: "week2" },
-                { data: "week3" },
-                { data: "week4" },
-                { data: "week5" },
-                { data: "cleaning" },
+                { data: "no_quote" },
+                { data: "client" },
+                // { data: "ru" },
+                { data: "nett" },
+                { data: "title" },
+                { data: "estimated_date" },
+                { data: "status" },
+                { data: "name" },
             ],
             columnDefs: [
+                {
+                    targets: 5,
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                },
                 {
                     // For Responsive
                     className: "control",
                     orderable: false,
                     searchable: false,
-                    responsivePriority: 5,
+                    responsivePriority: 2,
                     targets: 0,
                     render: function (data, type, full, meta) {
                         return "";
@@ -71,56 +73,132 @@ $(function () {
                 },
                 {
                     responsivePriority: 1,
-                    targets: 3,
+                    targets: 4,
                 },
                 {
                     targets: 3,
                     render: function (data, type, full, row) {
                         if (type === "display") {
-                            var month = full["month"];
-                            var dataId = full["id"];
-                            var detailRoute = route("service-manager-daily.visit", [dataId,month]);
+                            var $dataId = full["id"];
+                            var detailRoute = route("quotation.show", $dataId);
                             return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                                '<a class="text-dark" href="' +
+                                detailRoute +
+                                '">' +
+                                data +
+                                "</a>"
                             );
                         }
                         return data;
                     },
                 },
+                // {
+                //     // Label Status Name
+                //     targets: 5,
+                //     render: function (data, type, full, meta) {
+                //         var $ru = full["ru"];
+                //         var $status = {
+                //             User: {
+                //                 title: "U",
+                //                 class: "bg-label-info",
+                //             },
+                //             Reseller: {
+                //                 title: "R",
+                //                 class: " bg-label-dark",
+                //             },
+                //         };
+                //         if (typeof $status[$ru] === "undefined") {
+                //             return data;
+                //         }
+                //         return (
+                //             '<span class="badge rounded-pill ' +
+                //             $status[$ru].class +
+                //             '">' +
+                //             $status[$ru].title +
+                //             "</span>"
+                //         );
+                //     },
+                // },
                 {
-                    targets: 11,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            return (
-                                '<p class="fs-5">' + data + '/' +
-                                '<span class="text-muted fs-6">4</span></p>'
-                            );
-                        }
-                        return data;
-                    },
-                },
-                {
-                    // Label Status Name
-                    targets: [6,7,8,9,10],
+                    targets: 8,
                     render: function (data, type, full, meta) {
-                        if (data === 0){
-                            var condition_class = " bg-danger";
-                        }else if (data === 1){
-                            var condition_class = " bg-success";
+                        var $status_number = full["status"];
+                        var $titleTool = full["tip"];
+                        var $status = {
+                            20: {
+                                title: "20%",
+                                class: "bg-label-secondary",
+                                colorTip: "tooltip-secondary",
+                                titleTip: $titleTool,
+                            },
+                            30: {
+                                title: "30%",
+                                class: " bg-label-dark",
+                                colorTip: "tooltip-dark",
+                                titleTip: $titleTool,
+                            },
+                            40: {
+                                title: "40%",
+                                class: " bg-label-info",
+                                colorTip: "tooltip-info",
+                                titleTip: $titleTool,
+                            },
+                            60: {
+                                title: "60%",
+                                class: " bg-label-primary",
+                                colorTip: "tooltip-primary",
+                                titleTip: $titleTool,
+                            },
+                            80: {
+                                title: "80%",
+                                class: " bg-label-warning",
+                                colorTip: "tooltip-warning",
+                                titleTip: $titleTool,
+                            },
+                            90: {
+                                title: "Hold",
+                                class: " bg-warning",
+                                colorTip: "tooltip-warning",
+                                titleTip: $titleTool,
+                            },
+                            100: {
+                                title: "100%",
+                                class: " bg-label-success",
+                                colorTip: "tooltip-success",
+                                titleTip: $titleTool,
+                            },
+                            0: {
+                                title: "0%",
+                                class: " bg-label-danger",
+                                colorTip: "tooltip-danger",
+                                titleTip: $titleTool,
+                            },
+                        };
+                        if (typeof $status[$status_number] === "undefined") {
+                            return data;
                         }
                         return (
-                            '<span class="badge badge-dot ' +
-                            condition_class +
+                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
+                            $status[$status_number].colorTip +
+                            '" title="' +
+                            $status[$status_number].titleTip +
+                            '" class="badge rounded-pill ' +
+                            $status[$status_number].class +
                             '">' +
+                            $status[$status_number].title +
                             "</span>"
                         );
                     },
                 },
             ],
-            // order: [[2, "desc"]],
-            // dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            // displayLength: 7,
-            // lengthMenu: [7, 10, 25, 50, 75, 100],
+            drawCallback: function (settings) {
+                console.log("drawCallback");
+                $('[data-toggle="tooltip"]').tooltip();
+            },
+            order: [[2, "desc"]],
+            dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center">><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            displayLength: 10,
+            lengthMenu: [10, 25, 50, 75, 100],
             // buttons: [
             //     {
             //         extend: "collection",
@@ -132,7 +210,7 @@ $(function () {
             //                 text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
             //                 className: "dropdown-item",
             //                 exportOptions: {
-            //                     columns: [3, 4, 5, 6, 7, 8, 9],
+            //                     columns: [3, 4, 5, 6, 7],
             //                     // prevent avatar to be display
             //                     format: {
             //                         body: function (inner, coldex, rowdex) {
@@ -188,7 +266,7 @@ $(function () {
             //                 text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
             //                 className: "dropdown-item",
             //                 exportOptions: {
-            //                     columns: [3, 4, 5, 6, 7, 8, 9],
+            //                     columns: [3, 4, 5, 6, 7],
             //                     // prevent avatar to be display
             //                     format: {
             //                         body: function (inner, coldex, rowdex) {
@@ -225,7 +303,7 @@ $(function () {
             //                 text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
             //                 className: "dropdown-item",
             //                 exportOptions: {
-            //                     columns: [3, 4, 5, 6, 7, 8, 9],
+            //                     columns: [3, 4, 5, 6, 7],
             //                     // prevent avatar to be display
             //                     format: {
             //                         body: function (inner, coldex, rowdex) {
@@ -262,7 +340,7 @@ $(function () {
             //                 text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
             //                 className: "dropdown-item",
             //                 exportOptions: {
-            //                     columns: [3, 4, 5, 6, 7, 8, 9],
+            //                     columns: [3, 4, 5, 6, 7],
             //                     // prevent avatar to be display
             //                     format: {
             //                         body: function (inner, coldex, rowdex) {
@@ -299,7 +377,7 @@ $(function () {
             //                 text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
             //                 className: "dropdown-item",
             //                 exportOptions: {
-            //                     columns: [3, 4, 5, 6, 7, 8, 9],
+            //                     columns: [3, 4, 5, 6, 7],
             //                     // prevent avatar to be display
             //                     format: {
             //                         body: function (inner, coldex, rowdex) {
@@ -334,23 +412,19 @@ $(function () {
             //         ],
             //     },
             //     {
-            //         text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
-            //         className: "btn btn-primary",
-            //         attr: {
-            //             "data-bs-target": "#createProduct",
-            //             "data-bs-toggle": "modal",
+            //         text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Quotation</span>',
+            //         className: "btn btn-primary btn-new",
+            //         action: function (e, dt, node, config) {
+            //             window.location = route("create.quotation");
             //         },
             //     },
             // ],
-            drawCallback: function (settings) {
-                $('[data-toggle="tooltip"]').tooltip();
-            },
             responsive: {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal({
                         header: function (row) {
                             var data = row.data();
-                            return "Details of " + data["pn"];
+                            return "Details of " + data["full_name"];
                         },
                     }),
                     type: "column",
@@ -380,11 +454,9 @@ $(function () {
                 },
             },
         });
-        $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Detail Weekly</h5>'
-        );
+        $("div.hl-1").html('<h5 class="card-title mb-0">Quotations</h5>');
     }
-    dt_table_detail_weekly.on("draw", function () {
+    dt_table_quotation_prospect.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

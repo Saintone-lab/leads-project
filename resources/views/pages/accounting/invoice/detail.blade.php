@@ -644,11 +644,11 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 @if ($invoice->type == 'CT')
-                <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
-                    amount: #
-                    {{ $fullPrice }} Rupiah</p>
+                    <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
+                        amount: #
+                        {{ $fullPrice }} Rupiah</p>
                 @elseif ($invoice->type == 'DP')
                     <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
                         amount: #
@@ -790,6 +790,22 @@
                                 </button>
                             </a>
                         @endif
+                        @if (Auth::user()->role == 'Admin')
+                            <a type="button" data-bs-toggle="modal" data-bs-target="#addExpense"
+                                class="d-grid w-100 waves-effect mb-3">
+                                <button type="button" class="btn btn-linkedin">
+                                    Input Expense
+                                </button>
+                            </a>
+                            @if (@$expense)
+                                <a type="button" data-bs-toggle="modal" data-bs-target="#detailExpense"
+                                    class="d-grid w-100 waves-effect mb-3">
+                                    <button type="button" class="btn btn-facebook">
+                                        detail Expense
+                                    </button>
+                                </a>
+                            @endif
+                        @endif
                     </div>
                 </div>
                 <div class="card mb-3">
@@ -894,6 +910,8 @@
         @include('components.modal.invoice.date')
         @include('components.modal.invoice.desc')
         @include('components.modal.invoice.pph')
+        @include('components.modal.invoice.expense')
+        @include('components.modal.invoice.detail-expense')
         @include('components.modal.accounting.delivery.create-teknisi')
         @include('components.modal.accounting.delivery.create-ekspedisi')
     @endsection
@@ -910,6 +928,29 @@
     @endpush
     @push('script')
         <script>
+            function formatNumber(n) {
+                return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+            }
+
+            $(".invoice-item-price-label").on('keyup', function() {
+                var input = $(this)
+                var input_val = input.val();
+
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                console.log(nomorInt);
+                $(`#pricy`).val(nomorInt);
+            });
+
             // $(document).on('click', '.delete-contract', function() {
             //     var id = $(this).data('id');
             //     var quoteId = $(this).data('quote');
@@ -1223,6 +1264,63 @@
                                     })
                                     window.setTimeout(function() {
                                         window.location.href = '/invoice/' + id;
+                                    }, 2000);
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: 'Data Failed to Delete!'
+                                    });
+                                }
+                            }
+                        });
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            title: "Cancelled",
+                            text: "Your imaginary file is safe :)",
+                            icon: "error",
+                            customClass: {
+                                confirmButton: "btn btn-success waves-effect",
+                            },
+                        });
+                    }
+                });
+            });
+            $(document).on('click', '.delete-expense', function() {
+                var id = $(this).data('id');
+                var invoice = $(this).data('invoice');
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!",
+                    customClass: {
+                        confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                        cancelButton: "btn btn-label-secondary waves-effect",
+                    },
+                    buttonsStyling: false,
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            'url': '{{ url('invoice') }}/del-expense/' + id,
+                            'type': 'POST',
+                            'data': {
+                                '_method': 'DELETE',
+                                '_token': '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                if (response == 1) {
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "Deleted!",
+                                        text: "Your file has been deleted.",
+                                        customClass: {
+                                            confirmButton: "btn btn-success waves-effect",
+                                        },
+                                    })
+                                    window.setTimeout(function() {
+                                        window.location.href = '/invoice/' + invoice;
                                     }, 2000);
                                 } else {
                                     Swal.fire({

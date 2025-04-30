@@ -244,6 +244,26 @@
                                     </div>
                                 </div>
                             </li>
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-danger rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-file-document-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <a href="{{ route('monitoring.fajarPaper-detail-weekly') }}"
+                                            class="mb-0 fw-semibold fs-6 fw-medium text-black">
+                                            Service Reports
+                                        </a>
+                                        <p class="fs-5">{{ $cleaning }}/ <span
+                                                class="text-muted fs-6">240</span></p>
+                                    </div>
+                                </div>
+                            </li>
                         </div>
                     </div>
                 </div>

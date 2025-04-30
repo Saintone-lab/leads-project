@@ -77,6 +77,8 @@ use App\Http\Controllers\UserController;
 // });
 Route::get('/monitoring/button/{id}', [MonitoringController::class, 'button'])->name('button.monitoring');
 Route::get('/monitoring/daily-visit/{id}', [MonitoringController::class, 'visitorDaily'])->name('visitor.daily-monitoring');
+Route::get('/monitoring/kosongan', [MonitoringController::class, 'kosongan'])->name('kosongan.monitoring');
+Route::get('/monitoring-daily-visit/{id}/{month}', [MonitoringController::class, 'visitorDailyMonth'])->name('visitor-change.daily-monitoring');
 Route::get('/monitoring/daily-log/{id}', [MonitoringController::class, 'logDaily'])->name('log.daily-monitoring');
 Route::get('/monitoring/weekly-visit/{id}', [MonitoringController::class, 'visitorWeekly'])->name('visitor.weekly-monitoring');
 Route::get('/db/machine-monitoring-visit/{id}', [MonitoringController::class, 'getMonitoringCompressorThisMonth']);
@@ -114,6 +116,7 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk Quotation
     Route::resource('/quotation', QuotationController::class);
     Route::get('/quotation/leads/create', [QuotationController::class, 'create'])->name('create.quotation');
+    Route::get('/prospect-quotation', [QuotationController::class, 'prospect_quote'])->name('quotation.prospect');
     Route::get('/po', [QuotationController::class, 'po_quote'])->name('quotation.po');
     Route::get('/loss', [QuotationController::class, 'loss_quote'])->name('quotation.loss');
     Route::get('/quotation/{id}/change_status', [QuotationController::class, 'change_status'])->name('status.change.quotation');
@@ -303,7 +306,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/monitoring/daily-mainlog/{id}', [MonitoringController::class, 'deleteMainLog'])->name('delete.daily-mainlog');
     Route::get('/monitoring/weekly/{id}', [MonitoringController::class, 'indexWeekly'])->name('index.weekly-monitoring');
     Route::get('/monitoring/weekly-create/{id}', [MonitoringController::class, 'createWeekly'])->name('create.weekly-monitoring');
+    Route::get('/monitoring/weekly-edit/{id}', [MonitoringController::class, 'editWeekly'])->name('edit.weekly-monitoring');
     Route::post('/monitoring/weekly-store/{id}', [MonitoringController::class, 'storeWeekly'])->name('store.weekly-monitoring');
+    Route::post('/monitoring/weekly-update/{id}', [MonitoringController::class, 'updateWeekly'])->name('update.weekly-monitoring');
     Route::get('/monitoring/monthly-create/{id}', [MonitoringController::class, 'createMonthly'])->name('create.monthly-monitoring');
     Route::post('/monitoring/monthly-store/{id}', [MonitoringController::class, 'storeMonthly'])->name('store.monthly-monitoring');
     Route::get('/monitoring-client/fajarPaper', [MonitoringClientController::class, 'index'])->name('monitoring.fajarPaper');
@@ -970,7 +975,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/invoice/print_teknisi/{id}', [InvoiceController::class, 'print_teknisi'])->name('invoice.print_teknisi');
     Route::post('/invoice/form_teknisi/{id}', [InvoiceController::class, 'form_teknisi'])->name('invoice.form_teknisi');
     Route::delete('/invoice/del-sign/{id}', [InvoiceController::class, 'delete_hand_sign'])->name('invoice.del-sign');
+    Route::delete('/invoice/del-expense/{id}', [InvoiceController::class, 'deleteExpense'])->name('invoice.del-expense');
     Route::post('/invoice/pph/{id}', [InvoiceController::class, 'add_pph'])->name('invoice.pph');
+    Route::post('/invoice/expense/{id}', [InvoiceController::class, 'inputExpense'])->name('invoice.expense');
     Route::delete('/invoice/del-pph/{id}', [InvoiceController::class, 'delete_pph'])->name('invoice.del-pph');
     Route::get('/invoice/label_detail/{id}', [InvoiceController::class, 'label_detail'])->name('invoice.label_detail');
     Route::get('/invoice/label_print/{id}', [InvoiceController::class, 'label_print'])->name('invoice.label_print');
@@ -1248,6 +1255,12 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/quotation/archive', function () {
         require_once base_path('app/api/quotation/connectionArchive.php');
+    });
+    Route::get('/db/quotation/prospect', function () {
+        require_once base_path('app/api/quotation/connectionProspect.php');
+    });
+    Route::get('/db/quotation/prospect/sales', function () {
+        require_once base_path('app/api/quotation/connectionProspectSales.php');
     });
     Route::get('/db/quotation/sales/{id}', function ($id) {
         $dateNow = Carbon::now();
@@ -1915,7 +1928,6 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $data]);
     });
     Route::get('/db/detail-weekly/fp', function () {
-
         $month = now()->month;
         $year = now()->year;
 
@@ -1937,12 +1949,14 @@ Route::group(["middleware" => "auth"], function () {
             $weeks = MonitoringWeekly::where('id_machine', $machine->id)
                 ->whereMonth('date', $month)
                 ->whereYear('date', $year)
-                ->pluck('week') // ambil kolom week
+                ->pluck('week')
                 ->toArray();
 
-            $debug = MonitoringWeekly::where('id_machine', $machine->id)
+            $cleaning = Reports::where('id_machine', $machine->id)
                 ->whereMonth('date', $month)
-                ->whereYear('date', $year);
+                ->whereYear('date', $year)
+                ->where('type', 'Cleaning')
+                ->count();
 
             $results[] = [
                 'id' => $machine->id,
@@ -1950,6 +1964,7 @@ Route::group(["middleware" => "auth"], function () {
                 'tag' => $machine->tag,
                 'location' => $machine->location,
                 'month' => $month,
+                'cleaning' => $cleaning,
                 'week1' => in_array(1, $weeks) ? 1 : 0,
                 'week2' => in_array(2, $weeks) ? 1 : 0,
                 'week3' => in_array(3, $weeks) ? 1 : 0,

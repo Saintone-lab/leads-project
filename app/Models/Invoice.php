@@ -28,4 +28,8 @@ class Invoice extends Model
     {
         return $this->belongsTo('App\Models\Quotation', 'id_quotation', 'id');
     }
+    public function expense()
+    {
+        return $this->hasMany('App\Model\Expense', 'id_invoice');
+    }
 }

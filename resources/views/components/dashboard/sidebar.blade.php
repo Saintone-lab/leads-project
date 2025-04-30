@@ -91,6 +91,12 @@
                             <div data-i18n="Quotation">Quotation</div>
                         </a>
                     </li>
+                    <li
+                        class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">
+                        <a href="{{ route('quotation.prospect') }}" class="menu-link">
+                            <div data-i18n="Prospect">Prospect</div>
+                        </a>
+                    </li>
                     <li class="menu-item {{ request()->is('quote/*') || request()->is('quote/*/*') ? 'active' : '' }}">
                         <a href="{{ route('index-unit.quotation') }}" class="menu-link">
                             <div data-i18n="Quotation Unit">Quotation Unit</div>
@@ -439,6 +445,12 @@
                         class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('quotation/*') ? 'active' : '' }}">
                         <a href="{{ route('quotation.index') }}" class="menu-link">
                             <div data-i18n="Quotation">Quotation</div>
+                        </a>
+                    </li>
+                    <li
+                        class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">
+                        <a href="{{ route('quotation.prospect') }}" class="menu-link">
+                            <div data-i18n="Prospect">Prospect</div>
                         </a>
                     </li>
                     <li

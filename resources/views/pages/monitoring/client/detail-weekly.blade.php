@@ -22,6 +22,7 @@
                                         <th>Week 3</th>
                                         <th>Week 4</th>
                                         <th>Week 5</th>
+                                        <th>Cleaning</th>
                                     </tr>
                                 </thead>
                             </table>

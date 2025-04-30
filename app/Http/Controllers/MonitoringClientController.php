@@ -15,6 +15,7 @@ use App\Models\Pic;
 use App\Models\PnMonitoring;
 use App\Models\Product;
 use App\Models\Quotation;
+use App\Models\Reports;
 use App\Models\StatusMonitoring;
 use App\Models\Termncon;
 use App\Models\User;
@@ -80,6 +81,8 @@ class MonitoringClientController extends Controller
         $weekly5 = MonitoringWeekly::where('week', 5)->whereMonth('date', $month)->whereYear('date', $year)->count();
 
         $monthly = MonitoringMonthly::whereMonth('date', $month)->whereYear('date', $year)->count();
+
+        $cleaning = Reports::join('machine as m', 'm.id', '=','reports.id_machine')->where('m.id_client', 1277)->whereNotBetween('m.id', [472, 481])->whereMonth('date', $month)->whereYear('date', $year)->where('type', 'Cleaning')->count();
 
         $machines = Machine::with([
             'unit',
@@ -158,11 +161,56 @@ class MonitoringClientController extends Controller
             $start->addMonths(6);
         }
         // dd($results);
-        return view('pages.monitoring.client.index', compact('month', 'year', 'allDryer', 'allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'result', 'issued', 'weekly1', 'weekly2', 'weekly3', 'weekly4', 'weekly5', 'monthly'));
+        return view('pages.monitoring.client.index', compact('cleaning', 'month', 'year', 'allDryer', 'allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'result', 'issued', 'weekly1', 'weekly2', 'weekly3', 'weekly4', 'weekly5', 'monthly'));
     }
 
     public function detailWeekly()
-    {
+    {  
+        $month = now()->month;
+        $year = now()->year;
+
+        $machines = Machine::join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as un', 'un.id', '=', 'sp.id_product')
+            ->whereNotBetween('machine.id', [472, 481])
+            ->where('machine.id_client', 1277)
+            ->select(
+                'machine.id',
+                'machine.tag',
+                'machine.location',
+                DB::raw("CONCAT(sp.brand, ' ', un.sku) as machine")
+            )
+            ->get();
+
+        $results = [];
+
+        foreach ($machines as $machine) {
+            $weeks = MonitoringWeekly::where('id_machine', $machine->id)
+                ->whereMonth('date', $month)
+                ->whereYear('date', $year)
+                ->pluck('week')
+                ->toArray();
+
+            $cleaning = Reports::where('id_machine', $machine->id)
+                ->whereMonth('date', $month)
+                ->whereYear('date', $year)
+                ->where('type', 'Cleaning')
+                ->count();
+
+            $results[] = [
+                'id' => $machine->id,
+                'machine' => $machine->machine,
+                'tag' => $machine->tag,
+                'location' => $machine->location,
+                'month' => $month,
+                'cleaning' => $cleaning,
+                'week1' => in_array(1, $weeks) ? 1 : 0,
+                'week2' => in_array(2, $weeks) ? 1 : 0,
+                'week3' => in_array(3, $weeks) ? 1 : 0,
+                'week4' => in_array(4, $weeks) ? 1 : 0,
+                'week5' => in_array(5, $weeks) ? 1 : 0,
+            ];
+        }
+        // dd($weeks);
         return view('pages.monitoring.client.detail-weekly');
     }
     public function editIssue(Request $request, $id)

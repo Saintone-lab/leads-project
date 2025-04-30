@@ -691,7 +691,9 @@ class QuotationController extends Controller
             return redirect('/quotation/' . $id)->with("success", "Data Status Quotation Telah Diubah");
         }
     }
-
+    public function prospect_quote(){
+        return view('pages.sales.quotation.prospect.index');
+    }
     public function po_quote()
     {
         $quotation = Quotation::all();

@@ -58,7 +58,7 @@
                                 </a>
                                 <div class="card-info">
                                     <h5 class="mb-0">{{ $totalCRM }}<span
-                                            class="text-muted fs-tiny fw-normal">/{{ $target->crm }}</span>
+                                            class="text-muted fs-tiny fw-normal">/{{ $jumlahCustomer }}</span>
                                     </h5>
                                     <small class="text-muted">CRM</small>
                                 </div>
@@ -110,6 +110,20 @@
                                     <h5 class="mb-0">{{ $totalPO }}
                                     </h5>
                                     <small class="text-muted">Purchase Order</small>
+                                </div>
+                            </div>
+                            <div class="d-flex mb-2 gap-2">
+                                <a href="#po">
+                                    <div class="avatar">
+                                        <div class="avatar-initial bg-label-danger rounded">
+                                            <i class="mdi mdi-cart-minus mdi-24px"></i>
+                                        </div>
+                                    </div>
+                                </a>
+                                <div class="card-info">
+                                    <h5 class="mb-0">{{ $totalPO }}
+                                    </h5>
+                                    <small class="text-muted">Loss Quotation</small>
                                 </div>
                             </div>
                         </div>

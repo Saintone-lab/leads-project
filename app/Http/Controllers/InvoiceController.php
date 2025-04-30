@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Delivery;
 use App\Models\DetailQuotation;
+use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\ProductOut;
@@ -66,6 +67,8 @@ class InvoiceController extends Controller
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
         // dd($dquote->fee);
+        $expense = Expense::where('id_invoice', $id)->get();
+        $totalExpense = Expense::where('id_invoice', $id)->sum('total');
 
         $totalPph = 0;
         foreach ($dquote as $product) {
@@ -75,6 +78,8 @@ class InvoiceController extends Controller
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
         }
+        // $totalPph += $totalExpense;
+        $hargaAfterExpanse = $quote->harga_total - $totalExpense;
         $remaining = $quote->harga_total - $totalAmount;
         $harga = Payment::where('id_quotation', $quote->id)->get();
         $priceDp = $this->terbilang($quote->harga_total * @$harga[0]->percent / 100 - $totalPph);
@@ -91,7 +96,7 @@ class InvoiceController extends Controller
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $pOut = ProductOut::where('invoice', $invoice->no_invoice)->first();
         // dd($pOut);
-        return view('pages.accounting.invoice.detail', compact('noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
+        return view('pages.accounting.invoice.detail', compact('hargaAfterExpanse','totalExpense','expense','noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
     }
 
     /**
@@ -321,6 +326,31 @@ class InvoiceController extends Controller
         if ($invoiceSave) {
             return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
         }
+    }
+
+    public function inputExpense(Request $request, $id){
+        // dd($request->all());
+        $expense = new Expense();
+        $expense->id_invoice = $id;
+        $expense->desc = $request->desc;
+        $expense->qty = $request->qty;
+        $expense->price = $request->price;
+        $expense->total = $request->price * $request->qty;
+        $expenseSave = $expense->save();
+        if ($expenseSave) {
+            return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
+
+    public function deleteExpense($id){
+        $expense = Expense::find($id);
+        $expenseDel = $expense->delete();
+        if ($expenseDel) {
+            return 1;
+        } else {
+            return 0;
+        }
+        
     }
 
     public function do_ekspedisi($id)

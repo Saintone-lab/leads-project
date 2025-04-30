@@ -276,6 +276,7 @@
                                         <th style="vertical-align: middle;">Cek Coupling / Belt</th>
                                         <th style="vertical-align: middle;">Cleaning Compressor & Area</th>
                                         <th style="vertical-align: middle;">PIC</th>
+                                        <th style="vertical-align: middle;">Edit</th>
                                     </thead>
                                     <tbody>
                                         @php
@@ -322,6 +323,12 @@
                                                     @endif
                                                 </td>
                                                 <td>{{ $monweek['name'] }}</td>
+                                                <td>
+                                                    <a href="{{ route('edit.weekly-monitoring', $monweek['id']) }}"
+                                                        type="button" class="btn btn-primary">
+                                                        Edit
+                                                    </a>
+                                                </td>
                                             </tr>
                                             @php
                                                 $noWeek++;
@@ -343,6 +350,7 @@
                                         <th>After</th>
                                         <th>Condensor</th>
                                         <th>PIC</th>
+                                        <th>Edit</th>
                                     </thead>
                                     <tbody>
                                         @php
@@ -369,6 +377,14 @@
                                                     @endif
                                                 </td>
                                                 <td>{{ $monweek['name'] }}</td>
+                                                @if ($monweek['id'] != '-')
+                                                    <td>
+                                                        <a href="{{ route('edit.weekly-monitoring', $monweek['id']) }}"
+                                                            type="button" class="btn btn-primary">
+                                                            Edit
+                                                        </a>
+                                                    </td>
+                                                @endif
                                             </tr>
                                             @php
                                                 $noWeek++;

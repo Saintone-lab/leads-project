@@ -194,18 +194,20 @@ class OverviewController extends Controller
         $quotation = Quotation::where('status', '100')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->whereMonth('po_date', $month)->whereYear('po_date', $year)->get();
         // admin
         $target = Target::where('id_sales', $sales)->first();
-        $totalDC = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $month)->whereYear('date', $year)->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->where('client.id_sales', $sales)->count();
-        $totalCRM = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $month)->whereYear('date', $year)->where('status', 'Responded')->where('name', 'CRM')->where('client.id_sales', $sales)->count();
+        $totalDC = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $month)->whereYear('date', $year)->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->where('client.id_sales', $sales)->distinct('client.id')->count();
+        $totalCRM = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $month)->whereYear('date', $year)->where('status', 'Responded')->where('name', 'CRM')->where('client.id_sales', $sales)->distinct('client.id')->count();
         $totalVisit = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $month)->whereYear('date', $year)->where('status', 'Responded')->where('name', 'Visit')->where('client.id_sales', $sales)->count();
         $totalQuote = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
         $totalPO = Quotation::where('status', '100')->whereMonth('po_date', $month)->whereYear('po_date', $year)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
+        $totalLoss = Quotation::where('status', '0')->whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
         $totalLeads = Client::whereMonth('created_at', $month)->whereYear('created_at', $year)->where('id_sales', $sales)->count();
         $amountSales = Quotation::whereMonth('po_date', $month)->whereYear('po_date', $year)->where('status', '100')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $amountProspect = Quotation::whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->where('status', '80')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $amountQuote = Quotation::whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->whereIn('status', ['20', '30', '40', '60', '80'])->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->count();
-        return view('pages.admin.overview.kpi', compact('noSaleProspect', 'leveledProspect', 'user', 'dates', 'quotation', "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLeads", "amountSales", "amountQuote", "amountProspect", "target"));
+        $jumlahCustomer = Client::where('role', 'Customers')->where('id_sales', $sales)->count();
+        return view('pages.admin.overview.kpi', compact('jumlahCustomer','noSaleProspect', 'leveledProspect', 'user', 'dates', 'quotation', "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLeads", "amountSales", "amountQuote", "amountProspect", "target"));
     }
 
     public function overviewAdmin($semester, $sales)
@@ -234,16 +236,20 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-6-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+            $dCallPerMonth = Activities::select(
+                DB::raw('MONTH(date) as month'),
+                'activities.id_client'
+            )
                 ->join('client as c', 'activities.id_client', '=', 'c.id')
                 ->join('users as u', 'c.id_sales', '=', 'u.id')
                 ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
                 ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
                 ->where('status', 'Responded')
+                ->groupBy('month', 'activities.id_client')
+                ->get()
                 ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('total', 'month');
+                ->mapWithKeys(fn($items, $month) => [$month => $items->count()]);
 
             $fullMonthData = [];
             for ($month = 1; $month <= 6; $month++) {
@@ -268,16 +274,20 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-12-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+            $dCallPerMonth = Activities::select(
+                DB::raw('MONTH(date) as month'),
+                'activities.id_client'
+            )
                 ->join('client as c', 'activities.id_client', '=', 'c.id')
                 ->join('users as u', 'c.id_sales', '=', 'u.id')
                 ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
                 ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
                 ->where('status', 'Responded')
+                ->groupBy('month', 'activities.id_client')
+                ->get()
                 ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('total', 'month');
+                ->mapWithKeys(fn($items, $month) => [$month => $items->count()]);
 
             $fullMonthData = [];
             for ($month = 7; $month <= 12; $month++) {
@@ -306,16 +316,20 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-06-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+            $dCallPerMonth = Activities::select(
+                DB::raw('MONTH(date) as month'),
+                'activities.id_client'
+            )
                 ->join('client as c', 'activities.id_client', '=', 'c.id')
                 ->join('users as u', 'c.id_sales', '=', 'u.id')
                 ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
                 ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
                 ->where('status', 'Responded')
+                ->groupBy('month', 'activities.id_client')
+                ->get()
                 ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('total', 'month');
+                ->mapWithKeys(fn($items, $month) => [$month => $items->count()]);
 
             $fullMonthData = [];
             for ($month = 1; $month <= 6; $month++) {
@@ -339,16 +353,20 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-12-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+            $dCallPerMonth = Activities::select(
+                DB::raw('MONTH(date) as month'),
+                'activities.id_client'
+            )
                 ->join('client as c', 'activities.id_client', '=', 'c.id')
                 ->join('users as u', 'c.id_sales', '=', 'u.id')
                 ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
                 ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
                 ->where('status', 'Responded')
+                ->groupBy('month', 'activities.id_client')
+                ->get()
                 ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('total', 'month');
+                ->mapWithKeys(fn($items, $month) => [$month => $items->count()]);
 
             $fullMonthData = [];
             for ($month = 7; $month <= 12; $month++) {
@@ -376,16 +394,20 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-06-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+            $dCallPerMonth = Activities::select(
+                DB::raw('MONTH(date) as month'),
+                'activities.id_client'
+            )
                 ->join('client as c', 'activities.id_client', '=', 'c.id')
                 ->join('users as u', 'c.id_sales', '=', 'u.id')
                 ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
                 ->where('activities.name', 'CRM')
                 ->where('status', 'Responded')
+                ->groupBy(DB::raw('MONTH(date)'), 'activities.id_client')
+                ->get()
                 ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('total', 'month');
+                ->mapWithKeys(fn($items, $month) => [$month => $items->count()]);
 
             $fullMonthData = [];
             for ($month = 1; $month <= 6; $month++) {
@@ -409,16 +431,20 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-12-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+            $dCallPerMonth = Activities::select(
+                DB::raw('MONTH(date) as month'),
+                'activities.id_client'
+            )
                 ->join('client as c', 'activities.id_client', '=', 'c.id')
                 ->join('users as u', 'c.id_sales', '=', 'u.id')
                 ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', Auth::user()->id)
                 ->where('activities.name', 'CRM')
                 ->where('status', 'Responded')
+                ->groupBy(DB::raw('MONTH(date)'), 'activities.id_client')
+                ->get()
                 ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('total', 'month');
+                ->mapWithKeys(fn($items, $month) => [$month => $items->count()]);
 
             $fullMonthData = [];
             for ($month = 7; $month <= 12; $month++) {
@@ -910,16 +936,20 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-06-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+            $dCallPerMonth = Activities::select(
+                DB::raw('MONTH(date) as month'),
+                'activities.id_client'
+            )
                 ->join('client as c', 'activities.id_client', '=', 'c.id')
                 ->join('users as u', 'c.id_sales', '=', 'u.id')
                 ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
                 ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
                 ->where('status', 'Responded')
+                ->groupBy('month', 'activities.id_client')
+                ->get()
                 ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('total', 'month');
+                ->mapWithKeys(fn($items, $month) => [$month => $items->count()]);
 
             $fullMonthData = [];
             for ($month = 1; $month <= 6; $month++) {
@@ -944,16 +974,20 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-12-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+            $dCallPerMonth = Activities::select(
+                DB::raw('MONTH(date) as month'),
+                'activities.id_client'
+            )
                 ->join('client as c', 'activities.id_client', '=', 'c.id')
                 ->join('users as u', 'c.id_sales', '=', 'u.id')
                 ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
                 ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
                 ->where('status', 'Responded')
+                ->groupBy('month', 'activities.id_client')
+                ->get()
                 ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('total', 'month');
+                ->mapWithKeys(fn($items, $month) => [$month => $items->count()]);
 
             $fullMonthData = [];
             for ($month = 7; $month <= 12; $month++) {
@@ -982,16 +1016,20 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-06-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+            $dCallPerMonth = Activities::select(
+                DB::raw('MONTH(date) as month'),
+                'activities.id_client'
+            )
                 ->join('client as c', 'activities.id_client', '=', 'c.id')
                 ->join('users as u', 'c.id_sales', '=', 'u.id')
                 ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
                 ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
                 ->where('status', 'Responded')
+                ->groupBy('month', 'activities.id_client')
+                ->get()
                 ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('total', 'month');
+                ->mapWithKeys(fn($items, $month) => [$month => $items->count()]);
 
             $fullMonthData = [];
             for ($month = 1; $month <= 6; $month++) {
@@ -1015,16 +1053,20 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-12-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+            $dCallPerMonth = Activities::select(
+                DB::raw('MONTH(date) as month'),
+                'activities.id_client'
+            )
                 ->join('client as c', 'activities.id_client', '=', 'c.id')
                 ->join('users as u', 'c.id_sales', '=', 'u.id')
                 ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
                 ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
                 ->where('status', 'Responded')
+                ->groupBy('month', 'activities.id_client')
+                ->get()
                 ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('total', 'month');
+                ->mapWithKeys(fn($items, $month) => [$month => $items->count()]);
 
             $fullMonthData = [];
             for ($month = 7; $month <= 12; $month++) {
@@ -1053,16 +1095,20 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-06-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+            $dCallPerMonth = Activities::select(
+                DB::raw('MONTH(date) as month'),
+                'activities.id_client'
+            )
                 ->join('client as c', 'activities.id_client', '=', 'c.id')
                 ->join('users as u', 'c.id_sales', '=', 'u.id')
                 ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
                 ->where('activities.name', 'CRM')
                 ->where('status', 'Responded')
+                ->groupBy(DB::raw('MONTH(date)'), 'activities.id_client')
+                ->get()
                 ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('total', 'month');
+                ->mapWithKeys(fn($items, $month) => [$month => $items->count()]);
 
             $fullMonthData = [];
             for ($month = 1; $month <= 6; $month++) {
@@ -1086,16 +1132,20 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-12-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Activities::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+            $dCallPerMonth = Activities::select(
+                DB::raw('MONTH(date) as month'),
+                'activities.id_client'
+            )
                 ->join('client as c', 'activities.id_client', '=', 'c.id')
                 ->join('users as u', 'c.id_sales', '=', 'u.id')
                 ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
                 ->where('activities.name', 'CRM')
                 ->where('status', 'Responded')
+                ->groupBy(DB::raw('MONTH(date)'), 'activities.id_client')
+                ->get()
                 ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('total', 'month');
+                ->mapWithKeys(fn($items, $month) => [$month => $items->count()]);
 
             $fullMonthData = [];
             for ($month = 7; $month <= 12; $month++) {
