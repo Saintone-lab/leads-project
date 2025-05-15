@@ -105,9 +105,9 @@
                             <th>Power</th>
                             <th>Pressure</th>
                             <th>Capacity</th>
-                            <th>status</th>
+                            {{-- <th>status</th>
                             <th>Unit Price</th>
-                            <th>Rental Price</th>
+                            <th>Rental Price</th> --}}
                         </tr>
                     </thead>
                 </table>
@@ -117,6 +117,7 @@
     @include('components.modal.warehouse.unit.form')
     @foreach ($units as $unitr)
         @include('components.modal.warehouse.unit.form-edit')
+        @include('components.modal.warehouse.unit.detail')
     @endforeach
 @endsection()
 
@@ -190,6 +191,24 @@
                 $(`#rental`).val(nomorInt);
                 console.log('ini value rental :' + $('#rental').val());
             });
+            $(".best-label").on('keyup click change', function() {
+                var input = $(this)
+                var input_val = input.val();
+
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                $(`#best`).val(nomorInt);
+                console.log('ini value best :' + $('#best').val());
+            });
             $(".harga-label").on('keyup click change', function() {
                 var input = $(this)
                 var input_val = input.val();
@@ -227,6 +246,25 @@
                 var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
                 $(`#hargaRental` + idHarga).val(nomorInt);
                 console.log('ini value harga :' + $('#hargaRental' + idHarga).val());
+            });
+            $(".harga-best-label").on('keyup click change', function() {
+                var input = $(this)
+                var input_val = input.val();
+                var idHarga = input.data('id');
+
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                $(`#totalBest` + idHarga).val(nomorInt);
+                console.log('ini value harga :' + $('#totalBest' + idHarga).val());
             });
         });
     </script>

@@ -642,6 +642,16 @@
             </li>
 
             <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Product</span>
+            </li>
+            <li
+                class="menu-item {{ request()->is('unit-global') || request()->is('unit-global/*') ? 'active' : '' }}">
+                <a href="{{ route('unit-global.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
+                    <div data-i18n="Unit Global">Unit Global</div>
+                </a>
+            </li>
+            <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Archive</span>
             </li>
             <li class="menu-item">

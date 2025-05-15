@@ -29,7 +29,7 @@ $(function () {
                 { data: "unit" },
                 { data: "brand" },
                 { data: "pn" },
-                { data: "sn" },
+                { data: "voltage" },
                 { data: "power" },
                 { data: "bar" },
                 { data: "air_cap" },
@@ -37,6 +37,22 @@ $(function () {
                 { data: "price", className: "text-end" },
             ],
             columnDefs: [
+                {
+                    targets: 4,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $dataId = full["id_p"];
+                            var detailRoute = route("unit-global.show", $dataId);
+                            return (
+                                
+                            '<span>'+
+                            '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>" +
+                            "</span>"
+                            );
+                        }
+                        return data;
+                    },
+                },
                 {
                     targets: 6,
                     render: function (data, type, full, row) {

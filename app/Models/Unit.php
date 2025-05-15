@@ -46,4 +46,8 @@ class Unit extends Model
     {
         return $this->hasMany('App\Models\Machine', 'id_unit');
     }
+    public function sparepart()
+    {
+        return $this->hasMany('App\Models\Sparepart', 'id_unit');
+    }
 }

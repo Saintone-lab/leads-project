@@ -62,7 +62,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row g-2 mb-3">
                         <div class="col-12 col-md-6 mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="tagAnimation" class="form-control" name="tag"
@@ -75,6 +75,22 @@
                                 <input type="text" id="descAnimation" class="form-control" name="desc"
                                     placeholder="Example: CEO" value="{{ $unitr->desc }}">
                                 <label for="descAnimation">Url Google Drive</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-12 col-md-6 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <select class="form-select invoice-item-info" id="unit"
+                                    aria-label="Default select example" name="unit">
+                                    <option disabled>----- Info Unit -----</option>
+                                    <option value="Baru" {{ @$product->status_unit == 'Baru' ? 'selected' : '' }}>Baru
+                                    </option>
+                                    <option value="Second" {{ @$product->status_unit == 'Second' ? 'selected' : '' }}>
+                                        Second
+                                    </option>
+                                </select>
+                                <label for="exampleFormControlSelect1">Status Unit</label>
                             </div>
                         </div>
                     </div>
@@ -93,7 +109,7 @@
                             </div>
                         </div>
                         <div class="col-12 col-md-6 mb-2">
-                            <label for="priceAnimation">Price</label>
+                            <label for="priceAnimation">Price Rental</label>
                             <div class="input-group form-floating form-floating-outline" data-price="1">
                                 <span class="input-group-text">Rp. </span>
                                 <input type="text" class="form-control harga-rental-label" id="hargaRental"
@@ -104,6 +120,20 @@
                                 <input class="form-control harga-rental" type="number" name="totalRental"
                                     id="hargaRental{{ $unitr->id }}"
                                     value="{{ old('price_rental', $unitr->price_rental ?? '') }}" hidden>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 mb-2">
+                            <label for="priceAnimation">Best Price</label>
+                            <div class="input-group form-floating form-floating-outline" data-price="1">
+                                <span class="input-group-text">Rp. </span>
+                                <input type="text" class="form-control harga-best-label" id="hargabest"
+                                    data-id="{{ $unitr->id }}" min="12" placeholder="Put harga-best Here"
+                                    data-type="currency" pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                    @blur="focused = false"
+                                    value="{{ old('price_best', $unitr->price_best ?? '') }}">
+                                <input class="form-control harga-best" type="number" name="totalBest"
+                                    id="totalBest{{ $unitr->id }}"
+                                    value="{{ old('price_best', $unitr->price_best ?? '') }}" hidden>
                             </div>
                         </div>
                     </div>

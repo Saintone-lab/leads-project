@@ -32,14 +32,15 @@ if (Auth::check()) {
         m.status,
         m.price,
         m.tag,
-        m.price_rental
+        m.price_rental,
+        m.price_best
             FROM 
                 machine m
             JOIN 
                 serial_product s ON s.id = m.id_unit
             JOIN 
                 unit u ON u.id = s.id_product
-            WHERE m.id_client = 5508 
+            WHERE m.id_client = 5387 
             GROUP BY 
                 m.id";
 

@@ -32,4 +32,8 @@ class DetailProduct extends Model
     {
         return $this->hasMany('App\Models\DetailProductIn', 'id_detail_product');
     }
+    public function sparepart()
+    {
+        return $this->hasMany('App\Models\Sparepart', 'id_equivalent');
+    }
 }

@@ -100,9 +100,9 @@
                     <div class="row g-2 mb-3">
                         <div class="col-6 g-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="sn" class="form-control" name="sn"
-                                    placeholder="Serial Number" value="{{ old('sn', @$product->sn ?? '') }}">
-                                <label for="sn">Serial Number</label>
+                                <input type="text" id="voltage" class="form-control" name="voltage"
+                                    placeholder="Voltage" value="{{ old('voltage', @$product->voltage ?? '') }}">
+                                <label for="voltage">Voltage</label>
                             </div>
                         </div>
                         <div class="col g-2">

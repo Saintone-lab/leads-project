@@ -138,6 +138,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/quotation/{id}/download_payment', [QuotationController::class, 'download_payment'])->name('download-payment.quotation');
     Route::delete('/quotation/{id}/delete_payment', [QuotationController::class, 'delete_payment'])->name('delete-payment.quotation');
     Route::get('/quotation/revision/{id}', [QuotationController::class, 'edit_revisi'])->name('revisi.quotation');
+    Route::get('/quotation/revision-overhaul/{id}', [QuotationController::class, 'revisionService'])->name('revisi-overhaul.quotation');
     Route::get('/quotation/print/{id}', [QuotationController::class, 'print_quote'])->name('print.quotation');
     Route::get('/quotation/pdf/{id}', [QuotationController::class, 'pdf_quote'])->name('pdf.quotation');
     Route::get('/quotation/sales/{id}', [QuotationController::class, 'sales_quotation'])->name('sales.quotation');
@@ -154,6 +155,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/quote/service/create', [QuotationController::class, 'createService'])->name('create-service.quotation');
     Route::post('/quote/service/store', [QuotationController::class, 'storeService'])->name('store-service.quotation');
     Route::get('/quote/service-show/{id}', [QuotationController::class, 'showService'])->name('show-service.quotation');
+    Route::post('/quote/service-update/{id}', [QuotationController::class, 'updateService'])->name('update-service.quotation');
     Route::delete('/quote/service-delete/{id}', [QuotationController::class, 'destroyService'])->name('delete-service.quotation');
     Route::get('/quote/service-print/{id}', [QuotationController::class, 'printService'])->name('service-print.quotation');
 
@@ -212,6 +214,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/unit', UnitController::class);
     Route::get('/unit-global', [UnitController::class, 'indexGlobal'])->name('unit-global.index');
     Route::post('/unit-global', [UnitController::class, 'storeGlobal'])->name('unit-global.store');
+    Route::post('/store/sparepart/{id}', [UnitController::class, 'storeSparepart'])->name('unit-sparepart.store');
+    Route::delete('/delete/sparepart/{id}', [UnitController::class, 'deleteSparepart'])->name('unit-sparepart.delete');
     Route::patch('/unit-reftech/{id}', [UnitController::class, 'updateUnitReftech'])->name('unit-reftech.edit');
     Route::get('/unit-global/{id}', [UnitController::class, 'showGlobal'])->name('unit-global.show');
     Route::get('/cor-factor/calculator', [UnitController::class, 'corfac'])->name('calculator.correction');
@@ -287,7 +291,7 @@ Route::group(["middleware" => "auth"], function () {
             ->select(
                 'machine.*',
                 'u.bar',
-                'u.sn',
+                // 'u.voltage',
                 'u.sku',
                 's.brand',
             )
@@ -465,7 +469,10 @@ Route::group(["middleware" => "auth"], function () {
             ->whereNotNull('issue')
             ->whereMonth('monitoring.date', $month)
             ->select(
-                'monitoring.*',
+                DB::raw("DATE_FORMAT(monitoring.date, '%d-%m-%Y') as date"),
+                'monitoring.id',
+                'monitoring.issue',
+                'monitoring.recommendation',
                 'u.name',
                 DB::raw("IFNULL(GROUP_CONCAT(pn.pn SEPARATOR ' | '), '-') as pn")
             )
@@ -1947,7 +1954,7 @@ Route::group(["middleware" => "auth"], function () {
 
         foreach ($machines as $machine) {
             $weeks = MonitoringWeekly::where('id_machine', $machine->id)
-                ->whereMonth('date', $month)
+                ->whereMonth('date', operator: $month)
                 ->whereYear('date', $year)
                 ->pluck('week')
                 ->toArray();

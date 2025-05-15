@@ -730,7 +730,7 @@
                                                                             {{ $filteredCRM }}
                                                                         </span>
                                                                         <span
-                                                                            class="text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] }}</span>
+                                                                            class="text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] ?? 0 }}</span>
                                                                     </h5>
                                                                     <small class="text-muted">CRM</small>
                                                                 </div>

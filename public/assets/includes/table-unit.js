@@ -156,14 +156,46 @@ $(function () {
                     },
                 },
                 {
-                    targets: [10,11],
+                    targets: [10],
                     render: function (data, type, row) {
                         if (data === null || data === undefined) {
                             return "-";
                         } else {
-                            return $.fn.dataTable.render.number(".", "", 0, "Rp.").display(data);
+                            return $.fn.dataTable.render
+                                .number(".", "", 0, "Rp.")
+                                .display(data);
                         }
-                    }
+                    },
+                },
+                {
+                    targets: 11,
+                    render: function (data, type, full, meta) {
+                        var rentalprice = full["price_rental"];
+                        var bestprice = full["price_best"];
+
+                        if (rentalprice == null || rentalprice === "") {
+                            return data;
+                        }
+
+                        var formattedrentalprice = $.fn.dataTable.render
+                            .number(".", "", 0, "Rp.")
+                            .display(rentalprice);
+
+                        var formattedbestprice =
+                            bestprice != null && bestprice !== ""
+                                ? $.fn.dataTable.render
+                                      .number(".", "", 0, "Rp.")
+                                      .display(bestprice)
+                                : "-";
+
+                        return (
+                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="primary" title="' +
+                            formattedbestprice +
+                            '">' +
+                            formattedrentalprice +
+                            "</span>"
+                        );
+                    },
                 },
                 {
                     targets: [3, 4, 10, 11],

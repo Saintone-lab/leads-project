@@ -237,7 +237,7 @@
 
                         $.each(response, function(key, value) {
                             var option = $('<option></option>').attr('value', value.id)
-                                .text(value.brand + " " + value.sku + " " + value.sn +
+                                .text(value.brand + " " + value.sku +
                                     " || " + value.location + " - " + value.tag +
                                     " - " + value.serial);
                             if (value.id == selectedMachineId) {

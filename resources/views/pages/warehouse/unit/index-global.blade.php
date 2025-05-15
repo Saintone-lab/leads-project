@@ -82,7 +82,7 @@
                             <th>SKU</th>
                             <th>Brand</th>
                             <th>Type</th>
-                            <th>Sn</th>
+                            <th>Voltage</th>
                             <th>Power</th>
                             <th>Pressure</th>
                             <th>Capacity</th>
@@ -102,7 +102,7 @@
                             <th>Unit</th>
                             <th>Brand</th>
                             <th>Type</th>
-                            <th>SN</th>
+                            <th>Voltage</th>
                             <th>Power</th>
                             <th>Pressure</th>
                             <th>Capacity</th>
@@ -125,7 +125,7 @@
                             <th>SKU</th>
                             <th>Brand</th>
                             <th>Type</th>
-                            <th>Sn</th>
+                            <th>Voltage</th>
                             <th>Power</th>
                             <th>Pressure</th>
                             <th>Capacity</th>
@@ -145,7 +145,7 @@
                             <th>Unit</th>
                             <th>Brand</th>
                             <th>Type</th>
-                            <th>SN</th>
+                            <th>Voltage</th>
                             <th>Power</th>
                             <th>Pressure</th>
                             <th>Capacity</th>

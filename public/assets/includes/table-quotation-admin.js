@@ -80,7 +80,16 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var detailRoute = route("quotation.show", $dataId);
+                            var type = full["type"];
+                            type == "Sparepart"
+                                ? (detailRoute = route(
+                                      "quotation.show",
+                                      $dataId
+                                  ))
+                                : (detailRoute = route(
+                                      "show-service.quotation",
+                                      $dataId
+                                  ));
                             return (
                                 '<a class="text-dark" href="' +
                                 detailRoute +

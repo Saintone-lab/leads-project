@@ -7,19 +7,21 @@
     <div class="row mb-3">
         <div class="col-12 mb-4">
             <div class="card">
-                <div class="card-header pb-0">
-                    <div class="text-end text-muted">
-                        <a type="button" data-bs-toggle="modal" data-bs-target="#updateStock-{{ $product->id }}">
-                            <button type="button" class="btn btn-sm btn-label-success">Edit Stock</button>
-                        </a>
-                        <a type="button" data-bs-toggle="modal" data-bs-target="#updateProduct-{{ $product->id }}">
-                            <button type="button" class="btn btn-sm btn-label-primary">Edit</button>
-                        </a>
-                        <a href="#" data-id="{{ $product->id }}"
-                            class="btn btn-sm btn-label-danger delete-product">Delete
-                        </a>
+                @if (auth::user()->role == 'Admin')
+                    <div class="card-header pb-0">
+                        <div class="text-end text-muted">
+                            <a type="button" data-bs-toggle="modal" data-bs-target="#updateStock-{{ $product->id }}">
+                                <button type="button" class="btn btn-sm btn-label-success">Edit Stock</button>
+                            </a>
+                            <a type="button" data-bs-toggle="modal" data-bs-target="#updateProduct-{{ $product->id }}">
+                                <button type="button" class="btn btn-sm btn-label-primary">Edit</button>
+                            </a>
+                            <a href="#" data-id="{{ $product->id }}"
+                                class="btn btn-sm btn-label-danger delete-product">Delete
+                            </a>
+                        </div>
                     </div>
-                </div>
+                @endif
                 <div class="card-body">
                     <p class="card-text">
                     <div class="row mb-1">
@@ -164,110 +166,249 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-5 col-12 ">
-                <div class="d-flex justify-content-between mb-2">
-                    <h5 class="fw-bold pb-1 mb-2">
-                        Replacement
-                    </h5>
-                    <a type="button" data-bs-toggle="modal" data-bs-target="#createReplacement-{{ $product->id }}">
-                        <button type="button" class="btn btn-primary">
-                            + New Replacement
-                        </button>
-                    </a>
-                </div>
-                <div class="card">
-                    <div class="table-responsive text-nowrap h-100">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>PN</th>
-                                    <th>Desc</th>
-                                    {{-- @if (Auth::user()->role == 'Admin') --}}
+        @if (auth::user()->role == 'Admin')
+            <div class="row">
+                <div class="col-md-6 col-12 ">
+                    <div class="d-flex justify-content-between mb-2">
+                        <h5 class="fw-bold pb-1 mb-2">
+                            Sparepart Consumable Part
+                        </h5>
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#createSparepart">
+                            <button type="button" class="btn btn-primary">
+                                + New Sparepart
+                            </button>
+                        </a>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="table-responsive text-nowrap h-100">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>PN</th>
+                                        <th>Desc</th>
                                         <th>Quantity</th>
                                         <th>Stock</th>
-                                    {{-- @endif --}}
-                                    {{-- <th>Action</th> --}}
-                                </tr>
-                            </thead>
-                            <tbody class="table-border-bottom-0">
-                                @forelse ($details as $detail)
-                                    @php
-                                        $allRep = $detail->stock + $detail->warehouse_stock;
-                                    @endphp
-                                    <tr>
-                                        <td>
-                                            {{ $detail->replacement }}
-                                        </td>
-                                        <td>
-                                            {{ $allRep }} Unit
-                                        </td>
-                                        {{-- @if (Auth::user()->role == 'Admin') --}}
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-border-bottom-0">
+                                    @forelse ($consumable as $part)
+                                        @php
+                                            $allStock = $part->warehouse_stock + $part->stock;
+                                        @endphp
+                                        <tr>
                                             <td>
-                                                0
+                                                {{ $part->replacement }}
                                             </td>
                                             <td>
-                                                0
+                                                {{ $part->description }}
                                             </td>
-                                        {{-- @endif --}}
-                                        {{-- <td>
-                                            <a href="#" data-id="{{ $detail->id }}"
-                                                class="btn btn-sm btn-label-danger delete-replacement">
-                                                <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                                            </a>
-                                            <a type="button" data-bs-toggle="modal"
-                                                data-bs-target="#editReplacement-{{ $detail->id }}">
-                                                <button type="button" class="btn btn-sm btn-label-primary">
-                                                    <i
-                                                        class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i>
-                                                </button>
-                                            </a>
-                                        </td> --}}
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center">
-                                            Kamu belum punya Replacement.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                                            <td>
+                                                {{ $part->qty }} {{ $part->info_qty }}
+                                            </td>
+                                            <td>
+                                                {{ $allStock }}
+                                            </td>
+                                            <td>
+                                                <a href="#" data-id="{{ $part->id }}"
+                                                    class="btn btn-sm btn-label-danger delete-sparepart">
+                                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center">
+                                                Kamu belum punya Consumable Part.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md col-12 flex-1 mb-3">
-                <div class="d-flex justify-content-between mb-2">
                     <h5 class="fw-bold pb-1 mb-2">
-                        Equivalent
+                        Sparepart Non Consumable Part
                     </h5>
-                    <a type="button" data-bs-toggle="modal" data-bs-target="#createEquivalent-{{ $product->id }}">
-                        <button type="button" class="btn btn-primary">
-                            + New Equivalent
-                        </button>
-                    </a>
+                    <div class="card">
+                        <div class="table-responsive text-nowrap h-100">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>PN</th>
+                                        <th>Desc</th>
+                                        <th>Quantity</th>
+                                        <th>Stock</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-border-bottom-0">
+                                    @forelse ($nonconsumable as $part)
+                                        @php
+                                            $allStock = $part->warehouse_stock + $part->stock;
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                {{ $part->replacement }}
+                                            </td>
+                                            <td>
+                                                {{ $part->description }}
+                                            </td>
+                                            <td>
+                                                {{ $part->qty }} {{ $part->info_qty }}
+                                            </td>
+                                            <td>
+                                                {{ $allStock }}
+                                            </td>
+                                            <td>
+                                                <a href="#" data-id="{{ $part->id }}"
+                                                    class="btn btn-sm btn-label-danger delete-sparepart">
+                                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center">
+                                                Kamu belum punya Consumable Part.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div class="card">
-                    <div class="card-body">
-                        <table class="datatable-product-equivalent table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>Image</th>
-                                    <th>Brand</th>
-                                    <th>PN</th>
-                                    <th>Bar</th>
-                                    <th>Air Capacity</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                        </table>
+                <div class="col-md-6 col-12 flex-1 mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <h5 class="fw-bold pb-1 mb-2">
+                            Equivalent
+                        </h5>
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#createEquivalent-{{ $product->id }}">
+                            <button type="button" class="btn btn-primary">
+                                + New Equivalent
+                            </button>
+                        </a>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <table class="datatable-product-equivalent table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>Image</th>
+                                        <th>Brand</th>
+                                        <th>PN</th>
+                                        <th>Bar</th>
+                                        <th>Air Capacity</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @else
+            <div class="row">
+                <div class="col-md-6 col-12 ">
+                    <div class="d-flex justify-content-between mb-2">
+                        <h5 class="fw-bold pb-1 mb-2">
+                            Sparepart Consumable Part
+                        </h5>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="table-responsive text-nowrap h-100">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>PN</th>
+                                        <th>Desc</th>
+                                        <th>Quantity</th>
+                                        <th>Stock</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-border-bottom-0">
+                                    @forelse ($consumable as $part)
+                                        @php
+                                            $allStock = $part->warehouse_stock + $part->stock;
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                {{ $part->replacement }}
+                                            </td>
+                                            <td>
+                                                {{ $part->description }}
+                                            </td>
+                                            <td>
+                                                {{ $part->qty }} {{ $part->info_qty }}
+                                            </td>
+                                            <td>
+                                                {{ $allStock }}
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center">
+                                                Kamu belum punya Consumable Part.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-12 flex-1 mb-3">
+                    <h5 class="fw-bold pb-1 mb-2">
+                        Sparepart Non Consumable Part
+                    </h5>
+                    <div class="card">
+                        <div class="table-responsive text-nowrap h-100">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>PN</th>
+                                        <th>Desc</th>
+                                        <th>Quantity</th>
+                                        <th>Stock</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-border-bottom-0">
+                                    @forelse ($nonconsumable as $part)
+                                        @php
+                                            $allStock = $part->warehouse_stock + $part->stock;
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                {{ $part->replacement }}
+                                            </td>
+                                            <td>
+                                                {{ $part->description }}
+                                            </td>
+                                            <td>
+                                                {{ $part->qty }} {{ $part->info_qty }}
+                                            </td>
+                                            <td>
+                                                {{ $allStock }}
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center">
+                                                Kamu belum punya Consumable Part.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
         {{-- <div class="row">
             <div class="col-12 col-lg-6 mb-3">
                 <div class="card">
@@ -331,6 +472,7 @@
     </div>
     @include('components.modal.warehouse.unit.form-global')
     @include('components.modal.warehouse.unit.stock')
+    @include('components.modal.warehouse.unit.sparepart')
     @include('components.modal.warehouse.replacement.form')
     @include('components.modal.warehouse.equivalent.form-global')
     @php
@@ -513,6 +655,62 @@
                 if (result.value) {
                     $.ajax({
                         'url': '{{ url('product') }}/equivalent/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Your file has been deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    location.reload();
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.delete-sparepart', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('delete') }}/sparepart/' + id,
                         'type': 'POST',
                         'data': {
                             '_method': 'DELETE',

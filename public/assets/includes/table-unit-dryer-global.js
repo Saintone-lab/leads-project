@@ -29,7 +29,7 @@ $(function () {
                 { data: "sku" },
                 { data: "brand" },
                 { data: "pn" },
-                { data: "sn" },
+                { data: "voltage" },
                 { data: "power" },
                 { data: "bar" },
                 { data: "air_cap" },

@@ -81,7 +81,7 @@ class MonitoringController extends Controller
             ];
             $this->validate($request, $rule, $message);
         }
-
+        $dew = floatval(str_replace(',', '.', $request->dew));
         // dd($request->all());
         $machine = Machine::find($id);
         // dd($machine->unit->unit->unit);
@@ -178,14 +178,14 @@ class MonitoringController extends Controller
                 $monitoring->temp = $request->temperature_in . " °C";
                 $monitoring->temp_out = $request->temperature_out . " °C";
                 if ($request->issue == null) {
-                    if ($request->dew <= 10) {
+                    if ($dew <= 10) {
                         $monitoring->issue = null;
                     } else {
                         $monitoring->issue = 'High dew';
                     }
                 } else {
                     if ($request->issue != null) {
-                        if ($request->dew <= 10) {
+                        if ($dew <= 10) {
                             $monitoring->issue = $request->issue;
                         } else {
                             $monitoring->issue = $request->issue . ', High dew';
@@ -200,14 +200,14 @@ class MonitoringController extends Controller
                 $monitoring->temp = $request->temperature_in . " °C";
                 $monitoring->temp_out = $request->temperature_out . " °C";
                 if ($request->issue == null) {
-                    if ($request->dew <= 10) {
+                    if ($dew <= 10) {
                         $monitoring->issue = 'Stand By';
                     } else {
                         $monitoring->issue = 'Stand By: High dew';
                     }
                 } else {
                     if ($request->issue != null) {
-                        if ($request->dew <= 10) {
+                        if ($dew <= 10) {
                             $monitoring->issue = 'Stand By : ' . $request->issue;
                         } else {
                             $monitoring->issue = 'Stand By : ' . $request->issue . ', High dew';
@@ -673,7 +673,7 @@ class MonitoringController extends Controller
             ->groupBy('monitoring.id')
             ->get();
 
-        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $today->month)->whereNotNull('desc')->select('main_log.*', 'u.name')->get();
+        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $today->month)->whereNotNull('desc')->select('main_log.*', 'u.name')->orderBy('main_log.date', 'asc')->get();
         $quotes = Quotation::join('detail_quotation as d', 'd.id_quotation', '=', 'quotation.id')
             ->leftJoin('serial_product as sp', 'sp.id', '=', 'd.id_equivalent')
             ->join('machine as m', 'm.id_unit', '=', 'sp.id')
@@ -1299,7 +1299,7 @@ class MonitoringController extends Controller
         })->toArray();
         // dd($weeksoy);
         // $mainlog = Mainlog::join('users as u', 'u.id', '-', 'main_log.id_teknisi')->where('id_monitoring', $id)->whereMonth('date', $month)->get();
-        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $today->month)->whereNotNull('desc')->select('main_log.*', 'u.name')->get();
+        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $today->month)->whereNotNull('desc')->select('main_log.*', 'u.name')->orderBy('main_log.date', 'asc')->get();
         // dd($compressor);
         $weekly = MonitoringWeekly::where('id_machine', $id)->whereMonth('date', $month)->whereYear('date', $today->year)->get();
         $reports = Reports::where('id_machine', $id)->whereMonth('date', $month)->whereYear('date', $today->year)->orderBy('date')->get();

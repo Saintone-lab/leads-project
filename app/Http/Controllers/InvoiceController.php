@@ -12,6 +12,7 @@ use App\Models\ProductOut;
 use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\ReturnQ;
+use App\Models\SubtitleQuotation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -63,10 +64,13 @@ class InvoiceController extends Controller
         $totalAmount = 0;
         $invoice = Invoice::find($id);
         $quote = Quotation::where('id', $invoice->id_quotation)->first();
+        if ($quote->type != 'Sparepart') {
+            $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
+        }
+        // dd($quote->type);
         $return = ReturnQ::where('id_quotation', $invoice->id_quotation)->first();
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
-        // dd($dquote->fee);
         $expense = Expense::where('id_invoice', $id)->get();
         $totalExpense = Expense::where('id_invoice', $id)->sum('total');
 
@@ -96,7 +100,12 @@ class InvoiceController extends Controller
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $pOut = ProductOut::where('invoice', $invoice->no_invoice)->first();
         // dd($pOut);
-        return view('pages.accounting.invoice.detail', compact('hargaAfterExpanse','totalExpense','expense','noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
+        if ($quote->type == 'Sparepart') {
+            return view('pages.accounting.invoice.detail', compact('hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
+        } else {
+            return view('pages.accounting.invoice.detail', compact('subQuote','hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
+        }
+        
     }
 
     /**
@@ -214,6 +223,9 @@ class InvoiceController extends Controller
 
         $totalAmount = 0;
         $quote = Quotation::find($id);
+        if ($quote->type != 'Sparepart') {
+            $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $id)->get();
+        }
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
 
@@ -226,7 +238,11 @@ class InvoiceController extends Controller
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         $invoice = Invoice::where('id_quotation', $id)->orderBy('created_at', 'desc')->first();
         // dd($price);
-        return view('pages.accounting.invoice.before-accept', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));
+        if ($quote->type != 'Sparepart') {
+            return view('pages.accounting.invoice.before-accept', compact('quote', 'subQuote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));
+        } else {
+            return view('pages.accounting.invoice.before-accept', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));
+        }
     }
 
     public function print_invoice($id)
@@ -237,6 +253,10 @@ class InvoiceController extends Controller
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
 
+        if ($quote->type != 'Sparepart') {
+            $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
+            // dd($subQuote);
+        }
         $totalPph = 0;
         foreach ($dquote as $product) {
             $pph = ($product->amount * $product->pph) / 100;
@@ -254,7 +274,12 @@ class InvoiceController extends Controller
         // $pph = $quote->subtotal * $invoice->pph / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
         // dd($termncon);
-        return view("pages.accounting.invoice.detail-print", compact('harga', 'quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
+        if ($quote->type == 'Sparepart') {
+            return view("pages.accounting.invoice.detail-print", compact('harga', 'quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
+        } else {
+            return view("pages.accounting.invoice.detail-print", compact('subQuote','harga', 'quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
+        }
+        
     }
 
     public function hand_sign(Request $request, $id)
@@ -328,7 +353,8 @@ class InvoiceController extends Controller
         }
     }
 
-    public function inputExpense(Request $request, $id){
+    public function inputExpense(Request $request, $id)
+    {
         // dd($request->all());
         $expense = new Expense();
         $expense->id_invoice = $id;
@@ -342,7 +368,8 @@ class InvoiceController extends Controller
         }
     }
 
-    public function deleteExpense($id){
+    public function deleteExpense($id)
+    {
         $expense = Expense::find($id);
         $expenseDel = $expense->delete();
         if ($expenseDel) {
@@ -350,7 +377,7 @@ class InvoiceController extends Controller
         } else {
             return 0;
         }
-        
+
     }
 
     public function do_ekspedisi($id)

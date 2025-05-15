@@ -80,9 +80,16 @@ class MonitoringClientController extends Controller
         $weekly4 = MonitoringWeekly::where('week', 4)->whereMonth('date', $month)->whereYear('date', $year)->count();
         $weekly5 = MonitoringWeekly::where('week', 5)->whereMonth('date', $month)->whereYear('date', $year)->count();
 
+        $weekly1April = MonitoringWeekly::where('week', 1)->whereMonth('date', 4)->whereYear('date', $year)->count();
+        $weekly2April = MonitoringWeekly::where('week', 2)->whereMonth('date', 4)->whereYear('date', $year)->count();
+        $weekly3April = MonitoringWeekly::where('week', 3)->whereMonth('date', 4)->whereYear('date', $year)->count();
+        $weekly4April = MonitoringWeekly::where('week', 4)->whereMonth('date', 4)->whereYear('date', $year)->count();
+        $weekly5April = MonitoringWeekly::where('week', 5)->whereMonth('date', 4)->whereYear('date', $year)->count();
+
         $monthly = MonitoringMonthly::whereMonth('date', $month)->whereYear('date', $year)->count();
 
-        $cleaning = Reports::join('machine as m', 'm.id', '=','reports.id_machine')->where('m.id_client', 1277)->whereNotBetween('m.id', [472, 481])->whereMonth('date', $month)->whereYear('date', $year)->where('type', 'Cleaning')->count();
+        $cleaningApril = Reports::join('machine as m', 'm.id', '=', 'reports.id_machine')->where('m.id_client', 1277)->whereNotBetween('m.id', [472, 481])->whereMonth('date', 4)->whereYear('date', $year)->where('type', 'Cleaning')->count();
+        $cleaning = Reports::join('machine as m', 'm.id', '=', 'reports.id_machine')->where('m.id_client', 1277)->whereNotBetween('m.id', [472, 481])->whereMonth('date', $month)->whereYear('date', $year)->where('type', 'Cleaning')->count();
 
         $machines = Machine::with([
             'unit',
@@ -161,11 +168,44 @@ class MonitoringClientController extends Controller
             $start->addMonths(6);
         }
         // dd($results);
-        return view('pages.monitoring.client.index', compact('cleaning', 'month', 'year', 'allDryer', 'allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'result', 'issued', 'weekly1', 'weekly2', 'weekly3', 'weekly4', 'weekly5', 'monthly'));
+        return view('pages.monitoring.client.index', compact(
+            'cleaning',
+            'cleaningApril',
+            'month',
+            'year',
+            'allDryer',
+            'allPlant',
+            'allPlantMonitoring',
+            'GT',
+            'GTMonitoring',
+            'GT3',
+            'GT3Monitoring',
+            'INC',
+            'INCMonitoring',
+            'PM12',
+            'PM12Monitoring',
+            'PM35',
+            'PM35Monitoring',
+            'PM78',
+            'PM78Monitoring',
+            'result',
+            'issued',
+            'weekly1April',
+            'weekly2April',
+            'weekly3April',
+            'weekly4April',
+            'weekly5April',
+            'weekly1',
+            'weekly2',
+            'weekly3',
+            'weekly4',
+            'weekly5',
+            'monthly'
+        ));
     }
 
     public function detailWeekly()
-    {  
+    {
         $month = now()->month;
         $year = now()->year;
 

@@ -204,7 +204,8 @@
                             @endforeach
                             <tr class="border-top">
                                 <td colspan="4" class="px-4 border-right" style="background-color: #E7FF00">
-                                    <p class="fw-semibold mb-0 text-black">TOTAL PRICE, {{$quote->tax != 0 ?'INCLUDE' : 'EXCLUDE'}} VAT 11%</p>
+                                    <p class="fw-semibold mb-0 text-black">TOTAL PRICE,
+                                        {{ $quote->tax != 0 ? 'INCLUDE' : 'EXCLUDE' }} VAT 11%</p>
                                 </td>
                                 <td class="text-end px-4 border-left" style="background-color: #E7FF00">
                                     <p class="fw-semibold mb-0 text-end text-black">RP
@@ -374,6 +375,30 @@
             @endif --}}
 
             @if ($quote->level == '1')
+
+                @if ($quote->id_sales == Auth::user()->id && $quote->status != 100)
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <select class="form-select change-primary" name="changePrimary" id="changePrimary"
+                                    aria-label="Default select example">
+                                    @foreach ($quotations as $item)
+                                        <option data-id="{{ $item->id }}" value="{{ $item->id }}"
+                                            {{ $item->is_primary == '1' ? 'Selected' : '' }}>
+                                            {{ $item->no_quote }}{{ $item->num_rev >= 1 ? '-REV-' . $item->num_rev : '' }}
+                                            {{ $item->level == '0' ? '(Archived)' : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="changePrimary">Primary Quote</label>
+                            </div>
+                            <a class="btn btn-outline-primary d-grid w-100 mb-3 waves-effect"
+                                href="{{ route('revisi-overhaul.quotation', @$primQuote->id ?? $lastQuote->id) }}">
+                                + Revisi Quotation
+                            </a>
+                        </div>
+                    </div>
+                @endif
                 <div class="card mb-3">
                     <div class="card-body">
                         <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
@@ -412,10 +437,10 @@
                                     class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
                                     {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
                             @endif
-                            {{-- @if ($quote->status != '100') --}}
+                            @if ($quote->status != '100')
                             <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"
                                 data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
-                            {{-- @else
+                            @else
                                 @if ($quote->po_file != null)
                                     @if ($invoice->count() >= 1 && $invoice[0]->no_invoice == null)
                                         <button type="button"
@@ -477,7 +502,7 @@
                                             data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
                                     @endif
                                 @endif
-                            @endif --}}
+                            @endif
                         </div>
                     </div>
                     @if ($quote->status == 100 && isset($invoice))
@@ -890,7 +915,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/service-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -946,7 +971,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/service-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1002,7 +1027,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/service-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1058,7 +1083,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/service-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1114,7 +1139,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/service-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1170,7 +1195,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/service-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1226,7 +1251,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/service-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1339,7 +1364,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + quote;
+                                    window.location.href = '/quote/service-show/' + quote;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1377,7 +1402,7 @@
                 success: function(response) {
                     console.log('Perubahan status berhasil dikirim ke server');
                     window.setTimeout(function() {
-                        window.location.href = '/quotation/' + selectedValue;
+                        window.location.href = '/quote/service-show/' + selectedValue;
                     }, 10);
                 },
                 error: function(error) {

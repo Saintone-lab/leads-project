@@ -41,7 +41,7 @@ if (Auth::check()) {
                 serial_product s ON s.id = m.id_unit
             JOIN 
                 unit u ON u.id = s.id_product
-            WHERE m.id_client = 5508 
+            WHERE m.id_client = 5387 
             GROUP BY 
                 m.id ";
 
