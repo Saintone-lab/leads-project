@@ -28,11 +28,11 @@
                                     @foreach ($equivalent as $item)
                                         <option value="{{ $item->id }}">
                                             @if ($item->product)
-                                                {{ $item->replacement }} - {{ $item->product->id }} ||
+                                                {{ $item->brand }} {{ $item->pn }} - {{ $item->product->detail_desc }} ||
                                                 {{ $item->product->category }}
                                                 ({{ $item->product->go == 'Replacement' ? 'R' : 'G' }})
                                             @else
-                                                {{ $item->replacement }} - [Product Not Found]
+                                                {{ $item->pn }} - [Product Not Found]
                                             @endif
                                         </option>
                                     @endforeach
@@ -40,29 +40,12 @@
                                 <label for="select2Basic">Sparepart</label>
                             </div>
                         </div>
-                    </div>
-                    <div class="row g-2 mb-3">
-                        <div class="col-4 col-md-8">
+                        <div class="col-2 col-md-4">
                             <div class="form-floating form-floating-outline mb-4">
                                 <input type="number" class="form-control invoice-item-qty mb-3" placeholder="Min 1"
                                     name="qty" id="qty" min="1"
                                     value="{{ old('qty', @$sparepart->qty) }}">
                                 <label for="qty">Quantity</label>
-                            </div>
-                        </div>
-                        <div class="col-2 col-md-4">
-                            <div class="form-floating form-floating-outline mb-4">
-                                <select class="form-select invoice-item-info" id="info-qty"
-                                    aria-label="Default select example" name="info_qty">
-                                    <option>---Info---</option>
-                                    <option value="Pcs" {{ @$sparepart->info_qty == 'Pcs' ? 'selected' : '' }}>Pcs
-                                    </option>
-                                    <option value="Pail" {{ @$sparepart->info_qty == 'Pail' ? 'selected' : '' }}>Pail
-                                    </option>
-                                    <option value="Tube" {{ @$sparepart->info_qty == 'Tube' ? 'selected' : '' }}>Tube
-                                    </option>
-                                </select>
-                                <label for="exampleFormControlSelect1">Info</label>
                             </div>
                         </div>
                     </div>

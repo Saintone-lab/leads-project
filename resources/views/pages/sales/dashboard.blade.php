@@ -1069,7 +1069,7 @@
                 </div>
             </div>
         </div>
-        <div class="card mb-4">
+        {{-- <div class="card mb-4">
             <div class="card-datatable table-responsive pt-0">
                 <table class="datatable-notulen table table-striped">
                     <thead>
@@ -1085,7 +1085,7 @@
                     </thead>
                 </table>
             </div>
-        </div>
+        </div> --}}
         @php
             $item = 0;
         @endphp

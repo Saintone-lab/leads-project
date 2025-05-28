@@ -87,8 +87,8 @@
                         </div>
                         <div class="col-12 col-md-6 mb-2">
                             <div class="form-floating form-floating-outline">
-                                <select class="form-select invoice-item-info" id="unit"
-                                    aria-label="Default select example" name="unit">
+                                <select class="form-select invoice-item-info" id="status_unit"
+                                    aria-label="Default select example" name="status_unit">
                                     <option disabled>----- Info Unit -----</option>
                                     <option value="Baru" {{ @$product->status == 'Baru' ? 'selected' : '' }}>Baru
                                     </option>

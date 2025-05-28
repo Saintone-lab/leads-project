@@ -102,133 +102,237 @@
                 </div>
             </div>
         </div>
-
-        <div class="mb-2">
-            <table class="table table-borderless m-0" style="width: 100%">
-                <thead class="table-light border-top">
-                    <tr>
-                        <th class="no">No.</th>
-                        <th class="item text-nowrap">Item</th>
-                        <th class="price">Price</th>
-                        <th class="qty">Qty</th>
-                        <th class="disc">Disc</th>
-                        <th class="amount">Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                        $no = 0;
-                    @endphp
-                    @foreach ($dquote as $product)
-                        @php
-                            $no++;
-                        @endphp
-                        <tr style="font-size: 13px">
-                            <td class="align-top">{{ $no }}</td>
-                            <td class="text-nowrap align-top">
-                                <p class="mb-0 fw-semibold" style="font-size: 12px">
-                                    @if ($product->id_equivalent == '0')
-                                        -
-                                    @else
-                                        {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
-                                    @endif
-                                </p>
-                                <pre class="mb-0"
-                                    style="font-size: 10px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
-                            </td>
-                            <td class="align-top text-end">RP {{ number_format($product->price, 0, '', '.') }}</td>
-                            <td class="align-top">{{ $product->qty }} {{ $product->info_qty }}</td>
-                            <td class="align-top">{{ $product->disc }}%</td>
-                            <td class="align-top text-end">RP {{ number_format($product->amount, 0, '', '.') }}</td>
+        @if ($quote->type == 'Sparepart')
+            <div class="mb-2">
+                <table class="table table-borderless m-0" style="width: 100%">
+                    <thead class="table-light border-top">
+                        <tr>
+                            <th class="no">No.</th>
+                            <th class="item text-nowrap">Item</th>
+                            <th class="price">Price</th>
+                            <th class="qty">Qty</th>
+                            <th class="disc">Disc</th>
+                            <th class="amount">Amount</th>
                         </tr>
-                    @endforeach
-                    <tr class="">
-                        <td colspan="3" rowspan="2" class="align-top pt-4">
-                        </td>
-                        <td colspan="2" class="text-end pt-4 pb-0">
-                            <p class="mb-2">Subtotal:</p>
-                            @if ($quote->diskon != 0)
-                                <p class="mb-2">Discount:</p>
-                                <p class="mb-2">Total After Discount:</p>
-                            @endif
-                            <p class="mb-2">{{ $quote->tax == '11' ? 'Vat (11%)' : 'Vat' }}:</p>
-                            <p class="mb-2">Shipping Cost:</p>
-                        </td>
-                        </td>
+                    </thead>
+                    <tbody>
                         @php
-                            if ($quote->diskon > 0) {
-                                $afterDisc = $quote->subtotal - $quote->diskon;
-                            } else {
-                                $afterDisc = $quote->subtotal;
-                            }
-
-                            if ($quote->tax > 0) {
-                                $vat = ($afterDisc * $quote->tax) / 100;
-                            } else {
-                                $vat = 0;
-                            }
+                            $no = 0;
                         @endphp
-                        <td colspan="2" class="text-end pt-4 pb-0">
-                            <p class="fw-semibold mb-2">RP
-                                {{ number_format($quote->subtotal, 0, '', '.') }}</p>
-                            @if ($quote->diskon != 0)
+                        @foreach ($dquote as $product)
+                            @php
+                                $no++;
+                            @endphp
+                            <tr style="font-size: 13px">
+                                <td class="align-top">{{ $no }}</td>
+                                <td class="text-nowrap align-top">
+                                    <p class="mb-0 fw-semibold" style="font-size: 12px">
+                                        @if ($product->id_equivalent == '0')
+                                            -
+                                        @else
+                                            {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
+                                        @endif
+                                    </p>
+                                    <pre class="mb-0"
+                                        style="font-size: 10px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
+                                </td>
+                                <td class="align-top text-end">RP {{ number_format($product->price, 0, '', '.') }}</td>
+                                <td class="align-top">{{ $product->qty }} {{ $product->info_qty }}</td>
+                                <td class="align-top">{{ $product->disc }}%</td>
+                                <td class="align-top text-end">RP {{ number_format($product->amount, 0, '', '.') }}
+                                </td>
+                            </tr>
+                        @endforeach
+                        <tr class="">
+                            <td colspan="3" rowspan="2" class="align-top pt-4">
+                            </td>
+                            <td colspan="2" class="text-end pt-4 pb-0">
+                                <p class="mb-2">Subtotal:</p>
+                                @if ($quote->diskon != 0)
+                                    <p class="mb-2">Discount:</p>
+                                    <p class="mb-2">Total After Discount:</p>
+                                @endif
+                                <p class="mb-2">{{ $quote->tax == '11' ? 'Vat (11%)' : 'Vat' }}:</p>
+                                <p class="mb-2">Shipping Cost:</p>
+                            </td>
+                            </td>
+                            @php
+                                if ($quote->diskon > 0) {
+                                    $afterDisc = $quote->subtotal - $quote->diskon;
+                                } else {
+                                    $afterDisc = $quote->subtotal;
+                                }
+
+                                if ($quote->tax > 0) {
+                                    $vat = ($afterDisc * $quote->tax) / 100;
+                                } else {
+                                    $vat = 0;
+                                }
+                            @endphp
+                            <td colspan="2" class="text-end pt-4 pb-0">
                                 <p class="fw-semibold mb-2">RP
-                                    {{ number_format($quote->diskon, 0, '', '.') }}
+                                    {{ number_format($quote->subtotal, 0, '', '.') }}</p>
+                                @if ($quote->diskon != 0)
+                                    <p class="fw-semibold mb-2">RP
+                                        {{ number_format($quote->diskon, 0, '', '.') }}
+                                    <p class="fw-semibold mb-2">RP
+                                        {{ number_format($quote->subtotal - $quote->diskon, 0, '', '.') }}
+                                @endif
+                                <p class="fw-semibold mb-2">
+                                    {{ $tax == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
+                                </p>
                                 <p class="fw-semibold mb-2">RP
-                                    {{ number_format($quote->subtotal - $quote->diskon, 0, '', '.') }}
-                            @endif
-                            <p class="fw-semibold mb-2">
-                                {{ $tax == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
-                            </p>
-                            <p class="fw-semibold mb-2">RP
-                                {{ number_format($quote->shipping, 0, '', '.') }}</p>
-                        </td>
-                    </tr>
-                    <tr class="total">
-                        <td colspan="2" class="">
-                            <p class="mb-0 text-end">Total:</p>
-                        </td>
-                        <td colspan="2" class="">
-                            <p class="fw-semibold mb-0 text-end">Rp
-                                {{ number_format($quote->harga_total, 0, '', '.') }}</p>
-                        </td>
-                    </tr>
-                    <tr class="" style="height: 10px !important;">
-                        <td colspan="5" class="align-top" style="font-size: 1px;"> </td>
-                    </tr>
-                    <tr class="">
-                        <td colspan="3" rowspan="2" class="align-top pt-4">
-                        </td>
-                        <td colspan="2" class="note text-end align-top">
-                            <p class="mb-0">Note:</p>
-                        </td>
-                        <td colspan="2" class="note">
-                            <pre style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap; font-size: 12px;"
-                                class="fw-semibold mb-0">
+                                    {{ number_format($quote->shipping, 0, '', '.') }}</p>
+                            </td>
+                        </tr>
+                        <tr class="total">
+                            <td colspan="2" class="">
+                                <p class="mb-0 text-end">Total:</p>
+                            </td>
+                            <td colspan="2" class="">
+                                <p class="fw-semibold mb-0 text-end">Rp
+                                    {{ number_format($quote->harga_total, 0, '', '.') }}</p>
+                            </td>
+                        </tr>
+                        <tr class="" style="height: 10px !important;">
+                            <td colspan="5" class="align-top" style="font-size: 1px;"> </td>
+                        </tr>
+                        <tr class="">
+                            <td colspan="3" rowspan="2" class="align-top pt-4">
+                            </td>
+                            <td colspan="2" class="note text-end align-top">
+                                <p class="mb-0">Note:</p>
+                            </td>
+                            <td colspan="2" class="note">
+                                <pre style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap; font-size: 12px;"
+                                    class="fw-semibold mb-0">
                                 {{ $quote->termncon[0]->note }}
                             </pre>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="card-body">
-            <h5 class="mt-4 mb-3">Term & Condition</h5>
-            <div class="row">
-                <div class="col-3 fw-medium termc p-3">
-                    <p class="mb-1">Validity Of Quotation</p>
-                    <p class="mb-1">Price </p>
-                    <p class="mb-1">Delivery Process </p>
-                    <p class="mb-1">Payment </p>
-                </div>
-                <div class="col termc p-3">
-                    <p class="mb-1">: {{ $quote->termncon[0]->validity }}</p>
-                    <p class="mb-1">: {{ $quote->termncon[0]->pricing }}</p>
-                    <p class="mb-1">: {{ $quote->termncon[0]->delivery_process }}</p>
-                    <p class="mb-1">: {{ $quote->termncon[0]->payment }}</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-body">
+                <h5 class="mt-4 mb-3">Term & Condition</h5>
+                <div class="row">
+                    <div class="col-3 fw-medium termc p-3">
+                        <p class="mb-1">Validity Of Quotation</p>
+                        <p class="mb-1">Price </p>
+                        <p class="mb-1">Delivery Process </p>
+                        <p class="mb-1">Payment </p>
+                    </div>
+                    <div class="col termc p-3">
+                        <p class="mb-1">: {{ $quote->termncon[0]->validity }}</p>
+                        <p class="mb-1">: {{ $quote->termncon[0]->pricing }}</p>
+                        <p class="mb-1">: {{ $quote->termncon[0]->delivery_process }}</p>
+                        <p class="mb-1">: {{ $quote->termncon[0]->payment }}</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        @else
+            <div class="mb-2">
+                <table class="table table-borderless m-0" style="width: 100%">
+                    <thead class="table-light border-top">
+                        <tr>
+                            <th class="no">No.</th>
+                            <th class="item text-nowrap">Item</th>
+                            <th class="price">Price</th>
+                            <th class="qty">Qty</th>
+                            <th class="disc">Disc</th>
+                            <th class="amount">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $abjad = 64;
+                        @endphp
+                        @foreach ($subQuote as $subJudul)
+                            @php
+                                $no = 0;
+                                $abjad++;
+                            @endphp
+                            <tr style="font-size: 13px border-bottom:none !important;" class="border-top">
+                                <td class="align-top"
+                                    style="border-bottom:none !important; background-color: #f0f0f0;">
+                                    <p class="fw-bold mb-0">{{ chr($abjad) }}</p>
+                                </td>
+                                <td class="text-nowrap align-top" colspan="5"
+                                    style="border-bottom:none !important; background-color: #f0f0f0;">
+                                    <p class="fw-bold mb-0">{{ $subJudul->subtitle }}</p>
+                                </td>
+                            </tr>
+                            @foreach ($subJudul->detail as $product)
+                                <tr
+                                    style="font-size: 13px; border-bottom:none !important; border-top:none !important;">
+                                    <td class="align-top py-1" style="border-bottom:none !important;">
+                                        @php
+                                            $no++;
+                                        @endphp
+                                        <p class="mb-1">{{ $no }}</p>
+                                    </td>
+                                    <td class="text-nowrap align-top py-1" style="border-bottom:none !important;">
+                                        <p class="mb-1">{{ $product->product }}</p>
+                                        @if ($product->detail != '-')
+                                            <pre class="mb-0"
+                                                style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail }}</pre>
+                                        @endif
+                                    </td>
+                                    <td class="align-top py-1 text-end" style="border-bottom:none !important;">
+                                        <p class="mb-0">RP {{ number_format($product->price, 0, '', '.') }}</p>
+                                    </td>
+                                    <td class="align-top py-1" style="border-bottom:none !important;">
+                                        <p class="mb-0">{{ $product->qty }} {{ $product->info_qty }}</p>
+                                    </td>
+                                    <td class="align-top py-1 text-end" style="border-bottom:none !important;">
+                                        <p class="mb-0">RP {{ number_format($product->disc, 0, '', '.') }}</p>
+                                    </td>
+                                    <td class="align-top py-1 text-end" style="border-bottom:none !important;">
+                                        <p class="mb-0">RP {{ number_format($product->amount, 0, '', '.') }}</p>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endforeach
+                        <tr class="border-top">
+                            <td colspan="5" class="px-4 border-right" style="background-color: #E7FF00">
+                                <p class="fw-semibold mb-0 text-black">TOTAL PRICE,
+                                    {{ $quote->tax != 0 ? 'INCLUDE' : 'EXCLUDE' }} VAT 11%</p>
+                            </td>
+                            <td class="text-end px-4 border-left" style="background-color: #E7FF00">
+                                <p class="fw-semibold mb-0 text-end text-black">RP
+                                    {{ number_format($quote->harga_total, 0, '', '.') }}</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-body mb-2">
+                <h5>Note :</h5>
+                <pre class="mb-0"
+                    style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap; text-align: justify;">{{ $quote->termncon[0]->note }}</pre>
+            </div>
+            <div class="card-body">
+                <h5 class="my-4">Term & Condition</h5>
+                <div class="row">
+                    <div class="col-3 fw-medium">
+                        <p class="mb-1">Validity Of Quotation</p>
+                        <p class="mb-1">Price </p>
+                        <p class="mb-1">Delivery Process </p>
+                        <p class="mb-1">Payment </p>
+                        <p class="mb-1">Warranty </p>
+                    </div>
+                    <div class="col">
+                        <p class="mb-1">: {{ $quote->termncon[0]->validity }}</p>
+                        <p class="mb-1">: {{ $quote->termncon[0]->pricing }}</p>
+                        <p class="mb-1">: {{ $quote->termncon[0]->delivery_process }}</p>
+                        <p class="mb-1">: {{ $quote->termncon[0]->payment }}</p>
+                        <p class="mb-1">: {{ $quote->termncon[0]->warranty }}</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+
         @if ($sellcon->type == 'Selling')
             <div class="row mt-5">
                 <div class="col-4 my-3 text-center">

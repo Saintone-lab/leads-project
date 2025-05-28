@@ -55,7 +55,7 @@
                 <span class="menu-header-text">Client</span>
             </li>
             <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('ru') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
                     <div data-i18n="Client">Client</div>
@@ -75,6 +75,11 @@
                             <div data-i18n="Customers">Customers</div>
                         </a>
                     </li>
+                    <li class="menu-item {{ request()->is('ru') ? 'active' : '' }}">
+                        <a href="{{ route('ru.index') }}" class="menu-link">
+                            <div data-i18n="R/U">R/U</div>
+                        </a>
+                    </li>
                 </ul>
             </li>
 
@@ -91,8 +96,7 @@
                             <div data-i18n="Quotation">Quotation</div>
                         </a>
                     </li>
-                    <li
-                        class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">
                         <a href="{{ route('quotation.prospect') }}" class="menu-link">
                             <div data-i18n="Prospect">Prospect</div>
                         </a>
@@ -411,7 +415,7 @@
                 <span class="menu-header-text">Client</span>
             </li>
             <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('ru') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
                     <div data-i18n="Client">Client</div>
@@ -431,6 +435,11 @@
                             <div data-i18n="Customers">Customers</div>
                         </a>
                     </li>
+                    <li class="menu-item {{ request()->is('ru') ? 'active' : '' }}">
+                        <a href="{{ route('ru.index') }}" class="menu-link">
+                            <div data-i18n="R/U">R/U</div>
+                        </a>
+                    </li>
                 </ul>
             </li>
 
@@ -447,8 +456,7 @@
                             <div data-i18n="Quotation">Quotation</div>
                         </a>
                     </li>
-                    <li
-                        class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">
                         <a href="{{ route('quotation.prospect') }}" class="menu-link">
                             <div data-i18n="Prospect">Prospect</div>
                         </a>
@@ -692,7 +700,7 @@
                 <span class="menu-header-text">Client</span>
             </li>
             <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('ru') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
                     <div data-i18n="Client">Client</div>
@@ -710,6 +718,11 @@
                         class="menu-item {{ request()->is('existing') || request()->is('existing/*') ? 'active' : '' }}">
                         <a href="{{ route('existing.index') }}" class="menu-link">
                             <div data-i18n="Customers">Customers</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('ru') ? 'active' : '' }}">
+                        <a href="{{ route('ru.index') }}" class="menu-link">
+                            <div data-i18n="R/U">R/U</div>
                         </a>
                     </li>
                 </ul>
@@ -825,6 +838,13 @@
                 <a href="{{ route('unit.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
                     <div data-i18n="Unit">Unit</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('unit-global') || request()->is('unit-global/*') ? 'active' : '' }}">
+                <a href="{{ route('unit-global.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
+                    <div data-i18n="Unit Global">Unit Global</div>
                 </a>
             </li>
             <li class="menu-item {{ request()->is('product-in') || request()->is('product-in/*') ? 'active' : '' }}">
@@ -961,7 +981,8 @@
                             <div data-i18n="Summary">Summary</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('monitoring-client/fajarPaper-archive') ? 'active' : '' }}">
+                    <li
+                        class="menu-item {{ request()->is('monitoring-client/fajarPaper-archive') ? 'active' : '' }}">
                         <a href="{{ route('monitoring-arsip.fajarPaper') }}" class="menu-link">
                             <div data-i18n="Archived">Archived</div>
                         </a>

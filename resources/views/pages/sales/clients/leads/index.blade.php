@@ -19,25 +19,45 @@
     </h4>
 
     @if (Auth::user()->role == 'Sales')
-        <div class="card">
-            <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-leads table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>Company</th>
-                            <th>Address</th>
-                            <th>R/U</th>
-                            <th>Status</th>
-                            <th>Last Contact</th>
-                            <th>Next Follow Up</th>
-                        </tr>
-                    </thead>
-                </table>
+        @if (Auth::user()->id == '1' || Auth::user()->id == '16' || Auth::user()->id == '23')
+            <div class="card">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-leads-info table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Company</th>
+                                <th>Address</th>
+                                <th>Status</th>
+                                <th>Last Contact</th>
+                                <th>Next Follow Up</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
             </div>
-        </div>
+        @else
+            <div class="card">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-leads table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Company</th>
+                                <th>Address</th>
+                                <th>Status</th>
+                                <th>Last Contact</th>
+                                <th>Next Follow Up</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        @endif
     @elseif(Auth::user()->role == 'Admin' || Auth::user()->role == 'Technician')
         <div class="card">
             <div class="card-datatable table-responsive pt-0">
@@ -49,7 +69,6 @@
                             <th>ID</th>
                             <th>Company</th>
                             <th>Address</th>
-                            <th>R/U</th>
                             <th>Status</th>
                             <th>Last Contact</th>
                             <th>Next Follow Up</th>
@@ -93,6 +112,7 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/includes/table-leads.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-leads-info.js"></script>
     <script src="{{ asset('assets') }}/includes/table-leads-admin.js"></script>
 @endpush
 

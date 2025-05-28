@@ -158,6 +158,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/quote/service-update/{id}', [QuotationController::class, 'updateService'])->name('update-service.quotation');
     Route::delete('/quote/service-delete/{id}', [QuotationController::class, 'destroyService'])->name('delete-service.quotation');
     Route::get('/quote/service-print/{id}', [QuotationController::class, 'printService'])->name('service-print.quotation');
+    Route::get('/quote/service-print-no-image/{id}', [QuotationController::class, 'printNoImageService'])->name('service-print-no-image.quotation');
 
     // Route untuk Visit
     Route::get('/visits/leads', function () {
@@ -168,6 +169,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/existing', CrmController::class);
     Route::post('/existing/action/{id}', [CrmController::class, 'storeActionWithCrm'])->name('action.crm');
     Route::post('/existing/update-status/{id}', [CrmController::class, 'updateStatusAtDropdown'])->name('update-status.crm');
+    Route::get('/ru', [CrmController::class, 'ruIndex'])->name('ru.index');
 
     // Route untuk service Reports
     Route::resource('/service-reports', ServiceReportsController::class);
@@ -1242,6 +1244,18 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/customers', function () {
         require_once base_path('app/api/customers/connection.php');
     });
+    Route::get('/db/client/user', function () {
+        require_once base_path('app/api/customers/connectionUser.php');
+    });
+    Route::get('/db/client/reseller', function () {
+        require_once base_path('app/api/customers/connectionReseller.php');
+    });
+    Route::get('/db/client/user/admin', function () {
+        require_once base_path('app/api/customers/connectionUserAdmin.php');
+    });
+    Route::get('/db/client/reseller/admin', function () {
+        require_once base_path('app/api/customers/connectionResellerAdmin.php');
+    });
     Route::get('/db/crm', function () {
         require_once base_path('app/api/crm/connection.php');
     });
@@ -1483,6 +1497,8 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN s.semester = "2" THEN 12 
             END
         AND YEAR(q.po_date) = s.year
+        AND q.level = "1"
+        AND q.is_primary = "1"
         AND u.id = ' . $sales->id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(q.nett), 0) FROM quotation AS q 
         JOIN users AS u ON q.id_sales = u.id
         WHERE MONTH(q.po_date) BETWEEN 
@@ -1496,6 +1512,8 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN s.semester = "2" THEN 12 
             END
         AND YEAR(q.po_date) = s.year
+        AND q.level = "1"
+        AND q.is_primary = "1"
         AND u.id = ' . $sales->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
         JOIN users AS u ON q.id_sales = u.id
         WHERE MONTH(q.estimated_date) BETWEEN 
@@ -1509,6 +1527,8 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN s.semester = "2" THEN 12 
             END
         AND YEAR(q.estimated_date) = s.year
+        AND q.level = "1"
+        AND q.is_primary = "1"
         AND u.id = ' . $sales->id . ') AS quote'))
             ->get();
         return response()->json(['data' => $data]);
@@ -1657,6 +1677,8 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN s.semester = "2" THEN 12 
             END
         AND YEAR(q.po_date) = s.year
+        AND q.level = 1
+        AND q.is_primary = 1
         AND u.id = ' . Auth::user()->id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(q.nett), 0) FROM quotation AS q 
         JOIN users AS u ON q.id_sales = u.id
         WHERE MONTH(q.po_date) BETWEEN 
@@ -1670,6 +1692,8 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN s.semester = "2" THEN 12 
             END
         AND YEAR(q.po_date) = s.year
+        AND q.level = 1
+        AND q.is_primary = 1
         AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
         JOIN users AS u ON q.id_sales = u.id
         WHERE MONTH(q.estimated_date) BETWEEN 
@@ -1683,6 +1707,8 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN s.semester = "2" THEN 12 
             END
         AND YEAR(q.estimated_date) = s.year
+        AND q.level = 1
+        AND q.is_primary = 1
         AND u.id = ' . Auth::user()->id . ') AS quote'))
             ->get();
         return response()->json(['data' => $sales]);
@@ -1926,7 +1952,6 @@ Route::group(["middleware" => "auth"], function () {
             ->select(
                 'machine.*',
                 's.bar',
-                'u.sn',
                 'u.sku',
                 'u.unit',
                 's.brand',
@@ -2025,5 +2050,6 @@ Route::group(["middleware" => "auth"], function () {
         $data = PIC::where('id_client', $id)->get();
         return response()->json(['data' => $data]);
     });
+    
 });
 Auth::routes();

@@ -1,7 +1,7 @@
 @extends('layouts.sales.app')
 @section('title', $quote->no_quote)
 @php
-    if ($quote->flag == 'Reftech') {
+    if ($quote->pic->client->info == 'Reftech') {
         $bgColor = 'rgb(224, 248, 248)';
     } else {
         $bgColor = 'rgb(255, 232, 210)';
@@ -9,7 +9,7 @@
 @endphp
 <div class="invoice-print p-4">
     <div class="container-fluid flex-grow-1 container-p-y">
-        @if ($quote->flag == 'Reftech')
+        @if ($quote->pic->client->info == 'Reftech')
             <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
                 <div class="mb-xl-0 pb-1">
                     <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
@@ -127,7 +127,7 @@
                 </div>
                 <div class="col-4 text-end">
                     <p class="mb-1">
-                        {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}</p>
+                        {{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}</p>
                     <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                     <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                 </div>
@@ -248,7 +248,7 @@
         </div>
         <div class="mb-0">
             <p class="text-center mb-0">if you have any questions about this quotation, please contact :</p>
-            @if ($quote->flag == 'Reftech')
+            @if ($quote->pic->client->info == 'Reftech')
                 <p class="text-center">{{ $quote->sales->name }} {{ $quote->sales->phone }}</p>
             @else
                 <p class="text-center">+62 812-1000-0997</p>

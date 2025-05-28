@@ -6,6 +6,7 @@ use App\Models\Contract;
 use App\Models\DetailQuotation;
 use App\Models\Prospect;
 use App\Models\Quotation;
+use App\Models\SubtitleQuotation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -91,10 +92,17 @@ class ContractController extends Controller
         $contract = Contract::find($id);
         // dd($numberLastSP);
         $quote = Quotation::where('id', $contract->id_quotation)->first();
+        if ($quote->type != 'Sparepart') {
+            $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
+        }
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.accounting.contract.detail', compact('noSaleProspect', 'contract', 'quote', 'dquote', 'tax', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'numberLastSP', 'numberLastSNP', 'numberLastCP', 'numberLastCNP'));
+        if ($quote->type == 'Sparepart') {
+            return view('pages.accounting.contract.detail', compact('noSaleProspect', 'contract', 'quote', 'dquote', 'tax', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'numberLastSP', 'numberLastSNP', 'numberLastCP', 'numberLastCNP'));
+        } else {
+            return view('pages.accounting.contract.detail', compact('subQuote', 'noSaleProspect', 'contract', 'quote', 'dquote', 'tax', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'numberLastSP', 'numberLastSNP', 'numberLastCP', 'numberLastCNP'));
+        }
     }
 
     /**
@@ -182,9 +190,17 @@ class ContractController extends Controller
     {
         $sellcon = Contract::find($id);
         $quote = Quotation::where('id', $sellcon->id_quotation)->first();
+        if ($quote->type != 'Sparepart') {
+            $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
+        }
+        // dd($quote->type);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
-        return view('pages.accounting.contract.detail-print', compact('sellcon', 'quote', 'dquote', 'tax'));
+        if ($quote->type == 'Sparepart') {
+            return view('pages.accounting.contract.detail-print', compact('sellcon', 'quote', 'dquote', 'tax'));
+        } else {
+            return view('pages.accounting.contract.detail-print', compact('subQuote', 'sellcon', 'quote', 'dquote', 'tax'));
+        }
     }
     public function request_selling_contract($id)
     {

@@ -251,6 +251,7 @@ class QuotationController extends Controller
         $quotation->num_rev = 0;
         $quotation->destination = $request->destination;
         $quotation->no_pr = $request->no_pr;
+        $quotation->quote_for = $request->type;
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
         $quotation->note = "-";
@@ -476,6 +477,7 @@ class QuotationController extends Controller
             'delivery_process' => 'required',
             'payment' => 'required',
             'shipping' => 'required',
+            'type' => 'required',
         ];
         $message = [
             'no_quote.required' => 'Field No Quote Wajib Diisi',
@@ -485,6 +487,7 @@ class QuotationController extends Controller
             'expired_date.required' => 'Wajib isi Expired Date',
             'termcon.required' => 'Field Term and Conditions Wajib Diisi',
             'shipping.required' => 'Quotation Wajib memiliki harga Antar',
+            'type.required' => 'Quotation Wajib memiliki harga Antar',
         ];
         $this->validate($request, $rule, $message);
         // dd($request->all());
@@ -528,6 +531,7 @@ class QuotationController extends Controller
         $quotation->nett = $request->subtotal - $request->diskon;
         $quotation->total_no_tax = $request->total_no_tax;
         $quotation->harga_total = $request->harga_total;
+        $quotation->quote_for = $request->type;
         $quoteSave = $quotation->save();
         if ($quoteSave) {
             // Masukan Data Ke Tabel Detail Quotataion
@@ -691,7 +695,8 @@ class QuotationController extends Controller
             return redirect('/quotation/' . $id)->with("success", "Data Status Quotation Telah Diubah");
         }
     }
-    public function prospect_quote(){
+    public function prospect_quote()
+    {
         return view('pages.sales.quotation.prospect.index');
     }
     public function po_quote()
@@ -895,7 +900,11 @@ class QuotationController extends Controller
         $stats->note = $request->note;
         $stats->save();
         if ($quoteSave) {
-            return redirect('/quotation/' . $id)->with("success", "data telah ditambahkan");
+            if ($quotation->type == 'Sparepart') {
+                return redirect('/quotation/' . $id)->with("success", "data telah ditambahkan");
+            } else {
+                return redirect('/quote/service-show/' . $id)->with("success", "data telah ditambahkan");
+            }
         }
     }
     public function convert_flag(Request $request, $id)
@@ -935,7 +944,11 @@ class QuotationController extends Controller
 
         $quoteSave = $quote->save();
         if ($quoteSave) {
-            return redirect('/quotation/' . $quote->id)->with('message', 'Fees telah di tambahkan');
+            if ($quote->type == 'Sparepart') {
+                return redirect('/quotation/' . $id)->with("success", "data telah ditambahkan");
+            } else {
+                return redirect('/quote/service-show/' . $id)->with("success", "data telah ditambahkan");
+            }
         } else {
             return redirect()->back()->with('error', 'Failed to save quotation');
         }
@@ -975,8 +988,12 @@ class QuotationController extends Controller
         $invoice->sign = NULL;
         $invoiceSave = $invoice->save();
         if ($invoiceSave) {
-            return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');
-        } else {
+            if ($quote->type == 'Sparepart') {
+                return redirect('/quotation/' . $id)->with("success", "data telah ditambahkan");
+            } else {
+                return redirect('/quote/service-show/' . $id)->with("success", "data telah ditambahkan");
+            }
+        }else {
             return response()->json(['error' => 'No file uploaded.'], 400);
         }
 
@@ -988,7 +1005,7 @@ class QuotationController extends Controller
         if (!$quote) {
             return response()->json(['error' => 'Quotation not found.'], 404);
         }
-        
+
         // dd($request->file('uploadPO'));
         if ($request->hasFile('uploadPO')) {
             $foto = $request->file('uploadPO');
@@ -1037,7 +1054,7 @@ class QuotationController extends Controller
             } else {
                 return redirect('/quote/service-show/' . $id)->with('message', 'File has Uploaded');
             }
-            
+
         } else {
             return response()->json(['error' => 'No file uploaded.'], 400);
         }
@@ -1150,7 +1167,11 @@ class QuotationController extends Controller
         $payment->note = $request->note;
         $payment->save();
 
-        return redirect('/quotation/' . $id)->with('message', 'File has been uploaded.');
+            if ($quote->type == 'Sparepart') {
+                return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');
+            } else {
+                return redirect('/quote/service-show/' . $id)->with('message', 'File has Uploaded');
+            }
     }
     public function download_payment($id)
     {
@@ -1247,7 +1268,11 @@ class QuotationController extends Controller
         $quote->note = $request->note;
         $status = $quote->save();
         if ($status) {
-            return redirect('/quotation/' . $id)->with('massage', 'Data berhasil di buat');
+            if ($quote->type == 'Sparepart') {
+                return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');
+            } else {
+                return redirect('/quote/service-show/' . $id)->with('message', 'File has Uploaded');
+            }
         }
     }
 
@@ -1271,10 +1296,15 @@ class QuotationController extends Controller
     public function change_po(Request $request, $id)
     {
         $invoice = Invoice::find($id);
+        $quote = Quotation::find($invoice->id_quotation);
         $invoice->no_po = $request->po;
         $invoiceSave = $invoice->save();
         if ($invoiceSave) {
-            return redirect('/quotation/' . $invoice->id_quotation)->with('massage', 'Data berhasil di buat');
+            if ($quote->type == 'Sparepart') {
+                return redirect('/quotation/' . $quote->id)->with('message', 'File has Uploaded');
+            } else {
+                return redirect('/quote/service-show/' . $quote->id)->with('message', 'File has Uploaded');
+            }
         }
     }
     public function add_comment(Request $request, $id)
@@ -1295,9 +1325,13 @@ class QuotationController extends Controller
             if ($commentSave) {
                 return redirect('/quote/unit-detail/' . $quotation->id . '#viewComment')->with('message', 'data telah di tambahkan');
             }
-        } else {
+        } elseif ($previousUrl == 'quotation') {
             if ($commentSave) {
                 return redirect('/quotation/' . $id . '#viewComment')->with('massage', 'Data berhasil di buat');
+            }
+        }else{
+            if ($commentSave) {
+                return redirect('/quote/service-show/' . $id . '#viewComment')->with('massage', 'Data berhasil di buat');
             }
         }
     }
@@ -1601,6 +1635,7 @@ class QuotationController extends Controller
             'termcon.required' => 'Field Term and Conditions Wajib Diisi',
         ];
         $this->validate($request, $rule, $message);
+        $previousUrl = request()->create(url()->previous())->segment(2);
         // Masukan Data ke Tabel Quotataion
         $quotation = new Quotation();
         $quotation->id_pic = $request->id_pic;
@@ -1618,6 +1653,7 @@ class QuotationController extends Controller
         $quotation->expired_date = $request->expired_date;
         $quotation->po_date = NULL;
         $quotation->po_file = NULL;
+        $quotation->quote_for = $request->type;
         $quotation->type = 'Service';
         $quotation->level = '1';
         $quotation->estimated_date = $request->estimated_date;
@@ -1737,9 +1773,9 @@ class QuotationController extends Controller
         $quotation->status_date = Carbon::today();
         $quotation->note = "-";
         $quotation->expired_date = $request->expired_date;
+        $quotation->quote_for = $request->type;
         $quotation->po_date = NULL;
         $quotation->po_file = NULL;
-        $quotation->type = 'Service';
         $quotation->level = '1';
         $quotation->estimated_date = $request->estimated_date;
         if ($request->tax != NULL) {
@@ -1811,7 +1847,7 @@ class QuotationController extends Controller
             return redirect('/quote/service-show/' . $quotation->id)->with('message', 'data telah di tambahkan');
         }
     }
-    
+
     public function revisionService($id)
     {
         $quotation = Quotation::find($id);
@@ -1889,7 +1925,7 @@ class QuotationController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.sales.quotation.service.form', compact('quotation','subtitle','pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
+        return view('pages.sales.quotation.service.form', compact('quotation', 'subtitle', 'pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
     public function showService($id)
     {
@@ -2028,6 +2064,15 @@ class QuotationController extends Controller
         $afterDisc = $quote->subtotal - $quote->diskon;
         // dd($termncon);
         return view("pages.sales.quotation.service.detail-print", compact('quote', 'subQuote', 'tax', 'afterDisc'));
+    }
+    public function printNoImageService($id)
+    {
+        $quote = Quotation::where('id', $id)->first();
+        $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $id)->get();
+        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
+        $afterDisc = $quote->subtotal - $quote->diskon;
+        // dd($termncon);
+        return view("pages.sales.quotation.service.detail-print-no-image", compact('quote', 'subQuote', 'tax', 'afterDisc'));
     }
 
     public function loss_expired()

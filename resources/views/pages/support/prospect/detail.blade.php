@@ -162,10 +162,10 @@
                         <thead class="table-light">
                             <tr>
                                 <th>No Quote</th>
-                                <th>Description</th>
                                 <th>Client</th>
                                 <th>Status</th>
                                 <th>Value</th>
+                                <th>Detail</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -191,12 +191,17 @@
                                 @endphp
                                 <tr>
                                     <td>{{ $quotation->no_quote }}</td>
-                                    <td>{{ $quotation->desc }}</td>
                                     <td>{{ $quotation->pic->client->company }}</td>
                                     <td>
-                                        <p class="badge badge-label-{{ $color }}">{{ $quotation->status }}</p>
+                                        <p class="badge bg-label-{{ $color }}">{{ $quotation->status }}</p>
                                     </td>
-                                    <td class="text-end">{{ $quotation->nett }}</td>
+                                    <td class="text-end">RP {{ number_format($quotation->nett, 0, '', '.') }}</td>
+                                    <td>
+                                        <a href="{{route('quotation.show', $quotation->id)}}"
+                                            class="btn btn-info d-grid w-100 waves-effect">
+                                            <span class="mdi mdi-eye-outline"></span>
+                                        </a>
+                                    </td>
                                 </tr>
                             @else
                                 <tr>

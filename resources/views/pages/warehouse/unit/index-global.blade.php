@@ -98,7 +98,6 @@
                             <th></th>
                             <th></th>
                             <th>ID</th>
-                            <th>Info</th>
                             <th>Unit</th>
                             <th>Brand</th>
                             <th>Type</th>
@@ -106,8 +105,6 @@
                             <th>Power</th>
                             <th>Pressure</th>
                             <th>Capacity</th>
-                            <th>status</th>
-                            <th>Price</th>
                         </tr>
                     </thead>
                 </table>
@@ -141,7 +138,6 @@
                             <th></th>
                             <th></th>
                             <th>ID</th>
-                            <th>Info</th>
                             <th>Unit</th>
                             <th>Brand</th>
                             <th>Type</th>
@@ -149,8 +145,6 @@
                             <th>Power</th>
                             <th>Pressure</th>
                             <th>Capacity</th>
-                            <th>status</th>
-                            <th>Price</th>
                         </tr>
                     </thead>
                 </table>

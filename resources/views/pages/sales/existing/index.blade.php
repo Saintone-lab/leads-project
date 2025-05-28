@@ -28,9 +28,22 @@
             </div>
         </div>
     </div> --}}
+    @php
+        if (Auth::user()->role == 'Admin') {
+            $datatable = 'datatable-crm-admin';
+        } else {
+            if (Auth::user()->id == '1' || Auth::user()->id == '16' || Auth::user()->id == '23') {
+                $datatable = 'datatable-crm-info';
+            } else {
+                $datatable = 'datatable-crm';
+            }
+        }
+
+    @endphp
     <div class="card">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-{{Auth::user()->role == 'Admin' ? 'crm-admin' : 'crm'}} table table-striped" id="dataTableCrm">
+            <table class="{{$datatable}} table table-striped"
+                id="dataTableCrm">
                 <thead>
                     <tr>
                         <th></th>
@@ -82,6 +95,7 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
     <script src="{{ asset('assets') }}/includes/table-crm.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-crm-info.js"></script>
     <script src="{{ asset('assets') }}/includes/table-crm-admin.js"></script>
 @endpush
 @push('script')

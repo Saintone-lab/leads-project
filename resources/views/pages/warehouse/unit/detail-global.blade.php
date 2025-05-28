@@ -7,7 +7,7 @@
     <div class="row mb-3">
         <div class="col-12 mb-4">
             <div class="card">
-                @if (auth::user()->role == 'Admin')
+                @if (auth::user()->role == 'Admin' || auth::user()->role == 'Logistic')
                     <div class="card-header pb-0">
                         <div class="text-end text-muted">
                             <a type="button" data-bs-toggle="modal" data-bs-target="#updateStock-{{ $product->id }}">
@@ -44,10 +44,10 @@
                             </div>
                             <div class="row mb-1">
                                 <div class="col-3">
-                                    Serial Number
+                                    Voltage
                                 </div>
                                 <div class="col-9">
-                                    : {{ $product->sn }}
+                                    : {{ $product->voltage }}
                                 </div>
                             </div>
                             <div class="row mb-1">
@@ -166,7 +166,7 @@
                 </div>
             </div>
         </div>
-        @if (auth::user()->role == 'Admin')
+        @if (auth::user()->role == 'Admin' || auth::user()->role == 'Logistic')
             <div class="row">
                 <div class="col-md-6 col-12 ">
                     <div class="d-flex justify-content-between mb-2">
@@ -198,13 +198,13 @@
                                         @endphp
                                         <tr>
                                             <td>
-                                                {{ $part->replacement }}
+                                                {{ $part->pn }}
                                             </td>
                                             <td>
                                                 {{ $part->description }}
                                             </td>
                                             <td>
-                                                {{ $part->qty }} {{ $part->info_qty }}
+                                                {{ $part->qty }} {{ $part->equivalent->product->unit ?? 'Pcs' }}
                                             </td>
                                             <td>
                                                 {{ $allStock }}
@@ -249,13 +249,13 @@
                                         @endphp
                                         <tr>
                                             <td>
-                                                {{ $part->replacement }}
+                                                {{ $part->pn }}
                                             </td>
                                             <td>
                                                 {{ $part->description }}
                                             </td>
                                             <td>
-                                                {{ $part->qty }} {{ $part->info_qty }}
+                                                {{ $part->qty }} {{ $part->equivalent->product->unit ?? 'Pcs' }}
                                             </td>
                                             <td>
                                                 {{ $allStock }}
@@ -297,8 +297,6 @@
                                     <tr>
                                         <th></th>
                                         <th></th>
-                                        <th>ID</th>
-                                        <th>Image</th>
                                         <th>Brand</th>
                                         <th>PN</th>
                                         <th>Bar</th>
@@ -337,7 +335,7 @@
                                         @endphp
                                         <tr>
                                             <td>
-                                                {{ $part->replacement }}
+                                                {{ $part->pn }}
                                             </td>
                                             <td>
                                                 {{ $part->description }}
@@ -361,10 +359,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-12 flex-1 mb-3">
-                    <h5 class="fw-bold pb-1 mb-2">
-                        Sparepart Non Consumable Part
-                    </h5>
+                <div class="col-md-6 col-12">
+                    <div class="d-flex justify-content-between mb-2">
+                        <h5 class="fw-bold pb-1 mb-2">
+                            Sparepart Non Consumable Part
+                        </h5>
+                    </div>
                     <div class="card">
                         <div class="table-responsive text-nowrap h-100">
                             <table class="table table-striped">
@@ -383,7 +383,7 @@
                                         @endphp
                                         <tr>
                                             <td>
-                                                {{ $part->replacement }}
+                                                {{ $part->pn }}
                                             </td>
                                             <td>
                                                 {{ $part->description }}

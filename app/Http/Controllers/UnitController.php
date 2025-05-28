@@ -32,7 +32,7 @@ class UnitController extends Controller
     {
         $unit = SerialProduct::whereNotNull('detail')->get();
         $units = Machine::where('id_client', 5387)->get();
-        return view('pages.warehouse.unit.index', compact('unit','units'));
+        return view('pages.warehouse.unit.index', compact('unit', 'units'));
     }
 
     /**
@@ -71,7 +71,7 @@ class UnitController extends Controller
         $machine->id_unit = $request->unit;
         $machine->serial = $request->serial;
         $machine->status = $request->status;
-        $machine->status_unit = $request->unit;
+        $machine->status_unit = $request->status_unit;
         $machine->desc = $request->desc;
         $machine->tag = $request->tag;
         $machine->price = $request->semuanya;
@@ -165,7 +165,7 @@ class UnitController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.warehouse.unit.detail', compact('equivalent','product', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
+        return view('pages.warehouse.unit.detail', compact('equivalent', 'product', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
     }
 
     /**
@@ -192,7 +192,7 @@ class UnitController extends Controller
         $rule = [
             'sku' => 'required',
             'desc' => 'required',
-            'sn' => 'required',
+            'voltage' => 'required',
             'note' => 'required',
             'bar' => 'required',
         ];
@@ -201,7 +201,7 @@ class UnitController extends Controller
         $message = [
             'sku.required' => 'Field sku Wajib Diisi',
             'desc.required' => 'Field description Wajib Diisi',
-            'sn.required' => 'Field serial Number Wajib Diisi',
+            'voltage.required' => 'Field Voltage Wajib Diisi',
             'note.required' => 'Field note Wajib Diisi',
             'bar.required' => 'Field bar Wajib Diisi',
         ];
@@ -212,7 +212,7 @@ class UnitController extends Controller
         $unit->sku = $request->sku;
         $unit->status = $request->status;
         $unit->desc = $request->desc;
-        $unit->sn = $request->sn;
+        $unit->voltage = $request->voltage;
         $unit->bar = $request->bar;
         $unit->power = $request->power;
         $unit->connect = $request->connect;
@@ -385,7 +385,7 @@ class UnitController extends Controller
         $message = [
             'sku.required' => 'Field sku Wajib Diisi',
             'desc.required' => 'Field description Wajib Diisi',
-            'voltage.required' => 'Field serial Number Wajib Diisi',
+            'voltage.required' => 'Field voltage Wajib Diisi',
             'note.required' => 'Field note Wajib Diisi',
             'bar.required' => 'Field bar Wajib Diisi',
         ];
@@ -438,18 +438,20 @@ class UnitController extends Controller
     public function showGlobal($id)
     {
         $product = Unit::find($id);
-        $consumable = Sparepart::join('detail_product as dp', 'dp.id', '=', 'sparepart.id_equivalent')
-        ->join('product as p','p.id','=','dp.id_product')
-        ->where('p.category', 'Consumable Part')
-        ->select("sparepart.*", 'dp.replacement', 'p.description', 'p.warehouse_stock', 'p.stock')->get();
-        $nonconsumable = Sparepart::join('detail_product as dp', 'dp.id', '=', 'sparepart.id_equivalent')
-        ->join('product as p','p.id','=','dp.id_product')
-        ->where('p.category', 'Non Consumable Part')
-        ->select("sparepart.*", 'dp.replacement', 'p.description', 'p.warehouse_stock', 'p.stock')->get();
+        $consumable = Sparepart::join('serial_product as sp', 'sp.id', '=', 'sparepart.id_equivalent')
+            ->join('product as p', 'p.id', '=', 'sp.id_product')
+            ->where('p.category', 'Consumable Part')
+            ->where('sparepart.id_unit', $id)
+            ->select("sparepart.*", 'sp.pn', 'p.description', 'p.warehouse_stock', 'p.stock')->get();
+        $nonconsumable = Sparepart::join('serial_product as sp', 'sp.id', '=', 'sparepart.id_equivalent')
+            ->join('product as p', 'p.id', '=', 'sp.id_product')
+            ->where('p.category', 'Non Consumable Part')
+            ->where('sparepart.id_unit', $id)
+            ->select("sparepart.*", 'sp.pn', 'p.description', 'p.warehouse_stock', 'p.stock')->get();
         $allStock = $product->stock + $product->warehouse_stock;
         $details = DetailProduct::where('id_product', $id)->get();
         $serials = SerialProduct::where('id_product', $id)->get();
-        $equivalent = DetailProduct::all();
+        $equivalent = SerialProduct::where('rental','0')->where('second','0')->where('new','0')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
@@ -518,7 +520,7 @@ class UnitController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.warehouse.unit.detail-global', compact('nonconsumable', 'consumable','equivalent','product', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
+        return view('pages.warehouse.unit.detail-global', compact('nonconsumable', 'consumable', 'equivalent', 'product', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
     }
 
     public function corfac()
@@ -531,7 +533,7 @@ class UnitController extends Controller
         $machine = Machine::find($id);
         // dd($request->all());
         $machine->status = $request->status;
-        $machine->status_unit = $request->unit;
+        $machine->status_unit = $request->status_unit;
         $machine->price = $request->total;
         $machine->price_rental = $request->totalRental;
         $machine->price_best = $request->totalBest;
@@ -543,19 +545,18 @@ class UnitController extends Controller
         }
     }
 
-    public function storeSparepart(Request $request, $id){
+    public function storeSparepart(Request $request, $id)
+    {
         // Rules for validation
         $rule = [
             'id_equivalent' => 'required',
             'qty' => 'required',
-            'info_qty' => 'required',
         ];
 
         // Custom validation messages
         $message = [
             'id_equivalent.required' => 'Field Sparepart Wajib Diisi',
             'qty.required' => 'Field quantity Wajib Diisi',
-            'info_qty.required' => 'Field Info Quantity Wajib Diisi',
         ];
 
         $this->validate($request, $rule, $message);
@@ -563,13 +564,13 @@ class UnitController extends Controller
         $sparepart->id_unit = $id;
         $sparepart->id_equivalent = $request->id_equivalent;
         $sparepart->qty = $request->qty;
-        $sparepart->info_qty = $request->info_qty;
         $sparepartSave = $sparepart->save();
         if ($sparepartSave) {
-            return redirect('/unit-global/'. $id)->with('message', 'data telah ditambahkan');
+            return redirect('/unit-global/' . $id)->with('message', 'data telah ditambahkan');
         }
     }
-    public function deleteSparepart($id){
+    public function deleteSparepart($id)
+    {
         $sparepart = Sparepart::find($id);
         $delSparepart = $sparepart->delete();
         if ($delSparepart) {
@@ -577,6 +578,6 @@ class UnitController extends Controller
         } else {
             return 0;
         }
-        
+
     }
 }

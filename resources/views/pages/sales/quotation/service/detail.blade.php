@@ -401,10 +401,20 @@
                 @endif
                 <div class="card mb-3">
                     <div class="card-body">
-                        <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
-                            href="{{ route('service-print.quotation', $quote->id) }}">
-                            Download
-                        </a>
+                        <div class="row">
+                            <div class="col-6">
+                                <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect"
+                                    target="_blank" href="{{ route('service-print.quotation', $quote->id) }}">
+                                    Download ++
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a class="btn btn-warning btn-outline-secondary d-grid w-100 mb-3 waves-effect"
+                                    target="_blank" href="{{ route('service-print-no-image.quotation', $quote->id) }}">
+                                    Download --
+                                </a>
+                            </div>
+                        </div>
                         @if (Auth::user()->role == 'Sales')
                             @if ($quote->status != '100')
                                 <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
@@ -438,8 +448,8 @@
                                     {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
                             @endif
                             @if ($quote->status != '100')
-                            <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"
-                                data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
+                                <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"
+                                    data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
                             @else
                                 @if ($quote->po_file != null)
                                     @if ($invoice->count() >= 1 && $invoice[0]->no_invoice == null)
@@ -496,7 +506,8 @@
                                 @else
                                     @if ($quote->pic->client->address == '-' && $quote->pic->client->subAddress == '-')
                                         <button type="button"
-                                            class="btn btn-whatsapp d-grid w-100 waves-effect mb-3 btn-no-address">Upload PO</button>
+                                            class="btn btn-whatsapp d-grid w-100 waves-effect mb-3 btn-no-address">Upload
+                                            PO</button>
                                     @else
                                         <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
                                             data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
@@ -1364,7 +1375,8 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quote/service-show/' + quote;
+                                    window.location.href = '/quote/service-show/' +
+                                        quote;
                                 }, 2000);
                             } else {
                                 Swal.fire({

@@ -23,9 +23,55 @@
     {{--  ? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.   --}}
     <script src="{{ asset('assets') }}/js/config.js"></script>
     @routes
+    @if (Auth::check() && Auth::id() === 22)
+        <style>
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: url('{{ asset('asset/bg-shandy.gif') }}');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: center;
+                filter: blur(8px);
+                opacity: 0.9;
+                z-index: -1;
+            }
+            body{
+                cursor: url('{{ asset('asset/cursor-sandy.ico') }}'), auto;
+            }
+        </style>
+    @endif
+    @if ((Auth::check() && Auth::id() === 23) || Auth::id() === 16 || Auth::id() === 18)
+        <style>
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: url('{{ asset('asset/bg-ari.jpg') }}');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: center;
+                filter: blur(8px);
+                opacity: 0.9;
+                z-index: -1;
+            }
+        </style>
+    @endif
 </head>
 
 <body>
+    @if (Auth::check() && Auth::id() === 22)
+        <audio id="bgm" autoplay loop style="display: none;">
+            <source src="{{ asset('asset/bgm-sandy.mp3') }}" type="audio/mpeg">
+        </audio>
+    @endif
     <!--  Layout wrapper  -->
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
@@ -104,7 +150,7 @@
             var href = $(this).attr('href'); // Ambil URL tujuan
 
             console.log(id);
-            
+
             $.ajax({
                 url: '{{ url('quotation') }}/' + id + '/view_comment',
                 type: 'POST',
@@ -151,6 +197,22 @@
     @stack('page-script')
 
     @stack('script')
+
+    @if (Auth::check() && Auth::id() === 22)
+        <script>
+            const bgm = document.getElementById('bgm');
+
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    bgm.pause(); // tab tidak aktif → pause
+                } else {
+                    bgm.play().catch(() => {
+                        console.log("Autoplay diblokir. Perlu interaksi user.");
+                    }); // tab aktif kembali → play
+                }
+            });
+        </script>
+    @endif
 </body>
 
 </html>

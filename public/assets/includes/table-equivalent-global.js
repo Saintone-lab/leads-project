@@ -28,10 +28,6 @@ $(function () {
             columns: [
                 { data: "" },
                 { data: "id" },
-                { data: "id" },
-                {
-                    data: "image",
-                },
                 { data: "brand" },
                 { data: "pn" },
                 { data: "bar" },
@@ -56,17 +52,18 @@ $(function () {
                 //     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 // },
                 {
-                    targets: 3,
+                    targets: 2,
                     render: function (data, type, full, row) {
+                        var image = full['image'];
                         if (type === "display") {
                             if (data === null || data === "") {
                                 return "-";
                             }
                             return (
                                 '<a class="text-dark" target="_blank" href="' +
-                                data +
+                                image +
                                 '">' +
-                                "PHOTOS" +
+                                data+
                                 "</a>"
                             );
                         }
@@ -85,28 +82,13 @@ $(function () {
                     },
                 },
                 {
-                    // For Checkboxes
                     targets: 1,
-                    orderable: false,
-                    searchable: false,
-                    responsivePriority: 3,
-                    checkboxes: true,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender:
-                            '<input type="checkbox" class="form-check-input">',
-                    },
-                },
-                {
-                    targets: 2,
                     searchable: true,
                     visible: false,
                 },
                 {
                     responsivePriority: 1,
-                    targets: 3,
+                    targets: 2,
                 },
             ],
             // order: [[2, "desc"]],

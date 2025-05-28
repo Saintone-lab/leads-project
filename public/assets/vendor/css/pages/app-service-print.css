@@ -69,9 +69,14 @@
     .facilities,
     .ketenagakerjaan,
     .k3-teknisi {
+        page-break-inside: avoid;
+        break-inside: avoid;
         margin-top: 1vh;
-        page-break-before: always;
-        break-after: page;
+    }
+
+    .facilities {
+        page-break-before: auto;
+        break-after: auto;
     }
 
     ul li p {
@@ -129,7 +134,7 @@
     .dark-style .invoice-print th {
         color: #fff !important;
     }
-    .termncon{
+    .termncon {
         margin-top: 1vh;
     }
 }

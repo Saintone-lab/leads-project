@@ -2,7 +2,7 @@
 @section('title', 'Detail Quotation')
 @section('content')
     @php
-        if ($quote->flag == 'Reftech') {
+        if ($quote->pic->client->info == 'Reftech') {
             $bgColor = 'rgb(224, 248, 248)';
         } else {
             $bgColor = 'rgb(255, 232, 210)';
@@ -13,7 +13,7 @@
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
             <div class="card invoice-preview-card mb-3">
                 <div class="card-body">
-                    @if ($quote->flag == 'Reftech')
+                    @if ($quote->pic->client->info == 'Reftech')
                         <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
                             <div class="mb-xl-0 pb-1">
                                 <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
@@ -132,7 +132,7 @@
                         </div>
                         <div class="col-3 text-end">
                             <p class="mb-1">
-                                {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
+                                {{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
                             </p>
                             <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                             <p class="mb-1"> {{ $quote->pic->client->email }}</p>
@@ -405,7 +405,7 @@
                             @if ((Auth::user()->id == '1' || Auth::user()->id == '16' || Auth::user()->id == '23' ) && $invoice->count() < 1)
                                 <a href="#" data-id="{{ $quote->id }}"
                                     class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
-                                    {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
+                                    {{ $quote->pic->client->info == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
                             @endif
                             @if ($quote->status != '100')
                                 <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"

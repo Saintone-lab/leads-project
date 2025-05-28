@@ -381,6 +381,7 @@ class LeadsController extends Controller
         $leads->source = $request->source;
         $leads->npwp = $request->npwp;
         $leads->mobile = $request->mobile;
+        $leads->info = $request->info;
         $leads->address = $request->address;
         $leads->subAddress = $request->subAddress;
         $leads->area = $request->area;

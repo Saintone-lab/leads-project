@@ -69,8 +69,8 @@
                                 </div>
                             </div>
                             @if (@$quotation)
-                                <input type="text" name="destination" id="destination" value="{{ $quotation->destination }}"
-                                    hidden>
+                                <input type="text" name="destination" id="destination"
+                                    value="{{ $quotation->destination }}" hidden>
                             @endif
                             <div class="col-6 col-lg-2">
                                 <div class="form-floating form-floating-outline">
@@ -107,11 +107,28 @@
                             <div class="col-md-6">
                                 <div class="form-floating form-floating-outline mb-4">
                                     <input class="form-control" type="text" placeholder="Put your No PR Here ...."
-                                        id="no-pr-input" name="no_pr" value="{{ @$quotation->no_pr ?? '-'}}">
+                                        id="no-pr-input" name="no_pr" value="{{ @$quotation->no_pr ?? '-' }}">
                                     <label for="no-pr-input">No PR</label>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
+                                <div class="form-floating form-floating-outline mb-4">
+                                    <select class="form-select" id="Type"
+                                        aria-label="Default select example" name="type">
+                                        <option disabled>---Type---</option>
+                                        <option value="Sparepart" {{ @$quote->type == 'Sparepart' ? 'selected' : '' }}>Sparepart
+                                        </option>
+                                        <option value="Unit" {{ @$quote->type == 'Unit' ? 'selected' : '' }}>Unit
+                                        </option>
+                                        <option value="Rental" {{ @$quote->type == 'Rental' ? 'selected' : '' }}>Rental
+                                        </option>
+                                        <option value="Service" {{ @$quote->type == 'Service' ? 'selected' : '' }}>Service
+                                        </option>
+                                    </select>
+                                    <label for="exampleFormControlSelect1">Type</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <div class="form-floating form-floating-outline">
                                     <input class="form-control" type="text" id="assigned" name="id_sales"
                                         value="{{ Auth::user()->name }}" disabled>
@@ -138,7 +155,8 @@
                                                             class="select2 form-select invoice-item-product"
                                                             data-allow-clear="true" name="product[]"
                                                             data-id="{{ $id }}">
-                                                            <option value="">---- Choose Part Number Here ----</option>
+                                                            <option value="">---- Choose Part Number Here ----
+                                                            </option>
                                                             @foreach ($product as $products)
                                                                 <option value="{{ $products->id }}"
                                                                     data-replacement="{{ $products->id }}"
@@ -150,7 +168,8 @@
                                                                 </option>
                                                             @endforeach
                                                         </select>
-                                                        <label for="product-{{ $id }}">Product Part Number</label>
+                                                        <label for="product-{{ $id }}">Product Part
+                                                            Number</label>
                                                     </div>
                                                     <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-{{ $id }}"
                                                         placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]">{{ old('detail_product[]', $quote->detail_product) }}</textarea>
@@ -159,7 +178,8 @@
                                                     <p class="mb-2 repeater-title">Price</p>
                                                     <div class="input-group" data-price="1">
                                                         <span class="input-group-text">Rp. </span>
-                                                        <input type="text" class="form-control invoice-item-price-label"
+                                                        <input type="text"
+                                                            class="form-control invoice-item-price-label"
                                                             id="priceLabel-{{ $id }}"
                                                             data-id="{{ $id }}" min="0"
                                                             placeholder="Put Price Here" data-type="currency"
@@ -170,9 +190,11 @@
                                                             value="{{ old('price[]', @$quote->price ?? '') }}" hidden>
                                                     </div>
                                                     <div class="d-flex justify-content-between mb-3">
-                                                        <p>Stock : <span class="info-stock-label" id="info-stock-1"></span>
+                                                        <p>Stock : <span class="info-stock-label"
+                                                                id="info-stock-1"></span>
                                                         </p>
-                                                        <p>Weight : <span class="info-weight-label" id="info-weight-1"></span>
+                                                        <p>Weight : <span class="info-weight-label"
+                                                                id="info-weight-1"></span>
                                                             g
                                                         </p>
                                                     </div>
@@ -281,11 +303,14 @@
                                                         pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
                                                         @blur="focused = false" value="{{ old('price[]') }}">
                                                     <input class="form-control invoice-item-price" type="number"
-                                                        name="price[]" id="price-1" value="{{ old('price[]') }}" hidden>
+                                                        name="price[]" id="price-1" value="{{ old('price[]') }}"
+                                                        hidden>
                                                 </div>
                                                 <div class="d-flex justify-content-between mb-3">
-                                                    <p>Stock : <span class="info-stock-label" id="info-stock-1"></span></p>
-                                                    <p>Weight : <span class="info-weight-label" id="info-weight-1"></span> g
+                                                    <p>Stock : <span class="info-stock-label" id="info-stock-1"></span>
+                                                    </p>
+                                                    <p>Weight : <span class="info-weight-label" id="info-weight-1"></span>
+                                                        g
                                                     </p>
                                                 </div>
                                             </div>
@@ -296,7 +321,8 @@
                                                     min="1" value="{{ old('qty[]') }}">
                                                 <div class="form-floating form-floating-outline mb-4">
                                                     <select class="form-select invoice-item-info" id="info-qty-1"
-                                                        data-id="1" aria-label="Default select example" name="info_qty[]">
+                                                        data-id="1" aria-label="Default select example"
+                                                        name="info_qty[]">
                                                         <option disabled>---Info---</option>
                                                         <option value="Pcs">Pcs</option>
                                                         <option value="Set">Set</option>
@@ -312,9 +338,9 @@
                                             </div>
                                             <div class="col-md-1 col-12 mb-md-0 mb-3">
                                                 <p class="mb-2 repeater-title">Discount</p>
-                                                <input type="number" class="form-control invoice-item-disc" placeholder="%"
-                                                    name="disc[]" id="disc-1" data-id="1" min="0"
-                                                    value="{{ old('disc[]', '0') }}">
+                                                <input type="number" class="form-control invoice-item-disc"
+                                                    placeholder="%" name="disc[]" id="disc-1" data-id="1"
+                                                    min="0" value="{{ old('disc[]', '0') }}">
                                             </div>
                                             <div class="col-md-1 col-12 pe-0">
                                                 <p class="mb-2 repeater-title">Amount</p>
@@ -391,7 +417,8 @@
                                 <div class="card shadow-none bg-light text-secondary border border-secondary mt-5 mb-3">
                                     <div class="card-body ">
                                         <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-start" for="collapsible-pincode">Sub
+                                            <label class="col-sm-4 col-form-label text-sm-start"
+                                                for="collapsible-pincode">Sub
                                                 Total :</label>
                                             <div class="col-sm-8">
                                                 @if (@$dquotation)
@@ -419,9 +446,11 @@
                                                 <select id="tax" class="form-select form-select-lg"
                                                     style="background: none; border: none;" name="tax">
                                                     <option disabled>-----Select Tax-----</option>
-                                                    <option value="0" {{ @$quotation->tax == '0' ? 'selected' : '' }}>
+                                                    <option value="0"
+                                                        {{ @$quotation->tax == '0' ? 'selected' : '' }}>
                                                         Without Tax</option>
-                                                    <option value="11" {{ @$quotation->tax == '11' ? 'selected' : '' }}>
+                                                    <option value="11"
+                                                        {{ @$quotation->tax == '11' ? 'selected' : '' }}>
                                                         <span> With PPN <small class="text-muted"> 12%</small> </span>
                                                     </option>
                                                 </select>
@@ -454,7 +483,8 @@
                                                 for="collapsible-pincode">Shipping :</label>
                                             <div class="col-sm-8">
                                                 <div class="input-group">
-                                                    <span class="input-group-text" style="background: none; border: none;">Rp.
+                                                    <span class="input-group-text"
+                                                        style="background: none; border: none;">Rp.
                                                     </span>
                                                     <input type="text" id="shipping-label" class="form-control"
                                                         placeholder="Shipping Cost Here....." data-type="currency"
@@ -462,7 +492,8 @@
                                                         pattern="^[0-9]\d{0,2}(\.\d{3})*$"
                                                         value="{{ old('shipping', @$quotation->shipping ? number_format(@$quotation->shipping, 0, '', '.') : '0') }}">
                                                     <input type="number" name="shipping" id="shipping"
-                                                        value="{{ old('shipping', @$quotation->shipping ?? '0') }}" hidden>
+                                                        value="{{ old('shipping', @$quotation->shipping ?? '0') }}"
+                                                        hidden>
                                                 </div>
                                             </div>
                                         </div>
@@ -475,7 +506,8 @@
                                                 for="collapsible-pincode">Discount :</label>
                                             <div class="col-sm-8">
                                                 <div class="input-group">
-                                                    <span class="input-group-text" style="background: none; border: none;">Rp.
+                                                    <span class="input-group-text"
+                                                        style="background: none; border: none;">Rp.
                                                     </span>
                                                     <input type="text" id="diskon-label" class="form-control"
                                                         placeholder="Discount Here....." data-type="currency"
@@ -503,7 +535,8 @@
                                                         name="harga_total"
                                                         value="{{ old('harga_total', @$quotation->harga_total ?? '') }}">
                                                 @else
-                                                    <p class="mb-0 harga-total-label" id="hargaTotalLabel" data-id="1">
+                                                    <p class="mb-0 harga-total-label" id="hargaTotalLabel"
+                                                        data-id="1">
                                                         {{ old('harga_total', @$quotation->harga_total ? 'RP ' . number_format(@$quotation->harga_total, 0, '', '.') : '') }}
                                                     </p>
                                                     <input type="number" id="hargaTotal" class="form-control"

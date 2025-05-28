@@ -93,7 +93,25 @@
                                 <label for="no-pr-input">No PR</label>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-3">
+                            <div class="form-floating form-floating-outline mb-4">
+                                <select class="form-select" id="Type" aria-label="Default select example"
+                                    name="type">
+                                    <option>---Type---</option>
+                                    <option value="Sparepart" {{ @$quote->type == 'Sparepart' ? 'selected' : '' }}>
+                                        Sparepart
+                                    </option>
+                                    <option value="Unit" {{ @$quote->type == 'Unit' ? 'selected' : '' }}>Unit
+                                    </option>
+                                    <option value="Rental" {{ @$quote->type == 'Rental' ? 'selected' : '' }}>Rental
+                                    </option>
+                                    <option value="Service" {{ @$quote->type == 'Service' ? 'selected' : '' }}>Service
+                                    </option>
+                                </select>
+                                <label for="exampleFormControlSelect1">Type</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="text" id="assigned" name="id_sales"
                                     value="{{ Auth::user()->name }}" disabled>

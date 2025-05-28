@@ -4,27 +4,50 @@
 <div class="invoice-print p-4">
     <div class="container-fluid flex-grow-1 container-p-y">
         <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
-            <div class="mb-xl-0 pb-1">
-                <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
-                    <span class="app-brand-logo demo">
-                        <span style="color: var(--bs-primary)">
-                            <img class="text-md"
-                                src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
-                                alt="" srcset="" class="img-logo">
+            @if ($service->pic->client->info == 'Reftech')
+                <div class="mb-xl-0 pb-1">
+                    <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
+                        <span class="app-brand-logo demo">
+                            <span style="color: var(--bs-primary)">
+                                <img class="text-md"
+                                    src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
+                                    alt="" srcset="" width="60%">
+                            </span>
                         </span>
-                    </span>
+                    </div>
+                    <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
+                    <div style="font-size: 10px">
+                        <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
+                        <p class="mb-1">Bandung – Jawa Barat 40218</p>
+                        <p class="mb-1">
+                            <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022
+                            54417653{{ '  |  ' }}<i
+                                class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
+                        </p>
+                    </div>
                 </div>
-                <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
-                <div style="font-size: 10px">
-                    <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
-                    <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                    <p class="mb-1">
-                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022
-                        54417653{{ '  |  ' }}<i
-                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
-                    </p>
+            @else
+                <div class="mb-xl-0 pb-1">
+                    <div class="d-flex svg-illustration align-items-center gap-2 mb-2">
+                        <span class="app-brand-logo demo">
+                            <span style="color: var(--bs-primary)">
+                                <img class="text-md" src="{{ asset('/asset') }}/logo/Kojisha-Log.png" alt=""
+                                    srcset="" width="60%">
+                            </span>
+                        </span>
+                    </div>
+                    <p class="mb-1 fw-bolder">PT Kojisha Innotiv Indonesia</p>
+                    <div style="font-size: 10px">
+                        <p class="mb-1">Jl. Nancep No. 45A, Setu</p>
+                        <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
+                        <p class="mb-1">
+                            <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62 812-1000-0997
+                            {{ '   ' }}<i
+                                class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
+                        </p>
+                    </div>
                 </div>
-            </div>
+            @endif
             <div class="text-end">
                 <h3 class="fw-bold">SERVICE REPORT</h3>
                 <div>
@@ -122,7 +145,8 @@
         </div>
         <div class="row mt-2">
             <div class="col-4 mt-5 text-center">
-                <p>PT Reftech Jaya Optima</p>
+                <p>{{ $service->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
+                </p>
                 @if (isset($service->technician->sign))
                     <img src="{{ url('') . '/' . $service->technician->sign }}" alt="" srcset=""
                         height="100">

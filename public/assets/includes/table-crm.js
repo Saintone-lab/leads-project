@@ -108,9 +108,29 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var detailRoute = route("existing.show", $dataId);
+                            var $status_ru = full["ru"];
+                            var $status = {
+                                User: {
+                                    title: "U",
+                                    class: "bg-success",
+                                },
+                                Reseller: {
+                                    title: "R",
+                                    class: " bg-warning",
+                                },
+                            };
+                            var detailRoute = route("detail.leads", $dataId);
                             return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                                '<a class="text-dark" href="' +
+                                detailRoute +
+                                '">' +
+                                '<span class="badge ' +
+                                $status[$status_ru].class +
+                                '">' +
+                                $status[$status_ru].title +
+                                "</span> " +
+                                data +
+                                "</a>"
                             );
                         }
                         return data;

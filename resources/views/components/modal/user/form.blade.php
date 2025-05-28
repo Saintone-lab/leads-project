@@ -42,13 +42,11 @@
                             <div class="text-muted small">Allowed JPG, GIF or PNG. Max size of 800K</div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-body pt-2 mt-1">
                     <div class="row mt-2 gy-4">
                         <h5 class="text-muted mb-0">
                             Email
                         </h5>
-                        <div class="col-md-6 mt-2">
+                        <div class="col-md-6 mt-2 mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="text" id="email" name="email"
                                     value="{{ old('email', @$users->email ?? '') }}"
@@ -85,116 +83,118 @@
                                 <i class="mdi mdi-eye-off-outline"></i>
                             </span>
                         </div> --}}
-                    </div>
-                    <h5 class="text-muted mb-0">
-                        Profile
-                    </h5>
-                    <div class="col-6 mt-2">
-                        <div class="form-floating form-floating-outline">
-                            <input class="form-control" type="number" id="nip" name="nip"
-                                value="{{ old('nip', @$users->nip ?? '') }}" placeholder="61256996" />
-                            <label for="nip">NIP</label>
+                        <h5 class="text-muted mb-0">
+                            Profile
+                        </h5>
+                        <div class="col-6 mt-2">
+                            <div class="form-floating form-floating-outline">
+                                <input class="form-control" type="number" id="nip" name="nip"
+                                    value="{{ old('nip', @$users->nip ?? '') }}" placeholder="61256996" />
+                                <label for="nip">NIP</label>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6 mt-2">
-                        <div class="form-floating form-floating-outline">
-                            <input class="form-control" type="date" id="Date" name="birthday"
-                                value="{{ old('birthday', @$users->birthday ?? now()->format('Y-m-d')) }}">
-                            <label for="Date">Birthday Date</label>
+                        <div class="col-6 mt-2">
+                            <div class="form-floating form-floating-outline">
+                                <input class="form-control" type="date" id="Date" name="birthday"
+                                    value="{{ old('birthday', @$users->birthday ?? now()->format('Y-m-d')) }}">
+                                <label for="Date">Birthday Date</label>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-floating form-floating-outline">
-                            <input class="form-control" type="text" id="name" name="name"
-                                value="{{ old('name', @$users->name ?? '') }}" placeholder="john doe" />
-                            <label for="name">Name</label>
+                        <div class="col-6">
+                            <div class="form-floating form-floating-outline">
+                                <input class="form-control" type="text" id="name" name="name"
+                                    value="{{ old('name', @$users->name ?? '') }}" placeholder="john doe" />
+                                <label for="name">Name</label>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-floating form-floating-outline fv-plugins-icon-container">
-                            <div class="input-group input-group-merge">
-                                <span class="input-group-text">+62</span>
-                                <div class="form-floating form-floating-outline">
-                                    <input type="text" class="form-control" pattern="[0-9]*"
-                                        placeholder="8123094857" id="phone" name="phone"
-                                        value="{{ old('phone', @$users->phone ? substr($users->phone, 3) : '') }}">
-                                    <label for="phone">Phone</label>
+                        <div class="col-6">
+                            <div class="form-floating form-floating-outline fv-plugins-icon-container">
+                                <div class="input-group input-group-merge">
+                                    <span class="input-group-text">+62</span>
+                                    <div class="form-floating form-floating-outline">
+                                        <input type="text" class="form-control" pattern="[0-9]*"
+                                            placeholder="8123094857" id="phone" name="phone"
+                                            value="{{ old('phone', @$users->phone ? substr($users->phone, 3) : '') }}">
+                                        <label for="phone">Phone</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-floating form-floating-outline">
-                            <textarea class="form-control h-px-100" rows="2" placeholder="Write your note here...." name="address"
-                                id="address">{{ @$users->address }}</textarea>
-                            <label for="address">Address</label>
-                        </div>
-                    </div>
-                    <h5 class="text-muted mb-0">
-                        Employee Data
-                    </h5>
-                    @if (empty($users))
-                        <div class="col-md-6 mt-2">
+                        <div class="col-12">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" class="form-control" id="area" name="area"
-                                    placeholder="Put Area here..." value="{{ old('area') }}" />
-                                <label for="area">Area</label>
+                                <textarea class="form-control h-px-100" rows="2" placeholder="Write your note here...." name="address"
+                                    id="address">{{ @$users->address }}</textarea>
+                                <label for="address">Address</label>
                             </div>
                         </div>
-                        <div class="col-md-6 mt-2">
-                            <div class="form-floating form-floating-outline">
-                                <input class="form-control" type="date" id="Date" name="date_in"
-                                    value="{{ old('date_in', @$users->date_in ?? now()->format('Y-m-d')) }}"
-                                    {{ @$users->date_in ? 'disabled' : '' }}>
-                                <label for="Date">Entry Date</label>
+                        <h5 class="text-muted mb-0">
+                            Employee Data
+                        </h5>
+                        @if (empty($users))
+                            <div class="col-md-6 mt-2">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" id="area" name="area"
+                                        placeholder="Put Area here..." value="{{ old('area') }}" />
+                                    <label for="area">Area</label>
+                                </div>
                             </div>
-                        </div>
+                            <div class="col-md-6 mt-2">
+                                <div class="form-floating form-floating-outline">
+                                    <input class="form-control" type="date" id="Date" name="date_in"
+                                        value="{{ old('date_in', @$users->date_in ?? now()->format('Y-m-d')) }}"
+                                        {{ @$users->date_in ? 'disabled' : '' }}>
+                                    <label for="Date">Entry Date</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" id="position" name="position"
+                                        placeholder="example: Sales Off store" value="{{ old('position') }}" />
+                                    <label for="position">Position</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group input-group-merge">
+                                    <div class="form-floating form-floating-outline">
+                                        <select class="form-select" id="ddSales"
+                                            aria-label="Default select example" name="role">
+                                            <option value="Sales">Sales</option>
+                                            <option value="Technician">Technician</option>
+                                            <option value="Accounting">Accounting</option>
+                                            <option value="Logistic">Logistic</option>
+                                            <option value="Supervisor">Supervisor</option>
+                                            <option value="Coordinator">Service Coordinator</option>
+                                            <option value="ServiceM">Service Admin</option>
+                                            <option value="Client">Client</option>
+                                        </select>
+                                        <label for="exampleFormControlSelect1">Role select</label>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                         <div class="col-md-6">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" class="form-control" id="position" name="position"
-                                    placeholder="example: Sales Off store" value="{{ old('position') }}" />
-                                <label for="position">Position</label>
+                                <input class="form-control" type="text" id="code" name="code"
+                                    value="{{ old('code', @$users->code ?? '') }}" placeholder="example: RZA" />
+                                <label for="code">Code</label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="input-group input-group-merge">
                                 <div class="form-floating form-floating-outline">
                                     <select class="form-select" id="ddSales" aria-label="Default select example"
-                                        name="role">
-                                        <option value="Sales">Sales</option>
-                                        <option value="Technician">Technician</option>
-                                        <option value="Accounting">Accounting</option>
-                                        <option value="Logistic">Logistic</option>
-                                        <option value="Supervisor">Supervisor</option>
-                                        <option value="Coordinator">Service Coordinator</option>
-                                        <option value="ServiceM">Service Admin</option>
-                                        <option value="Client">Client</option>
+                                        name="active">
+                                        <option value="1" {{ @$users->active == '1' ? 'selected' : '' }}>Active
+                                        </option>
+                                        <option value="0" {{ @$users->active == '0' ? 'selected' : '' }}>Non
+                                            Active
+                                        </option>
                                     </select>
-                                    <label for="exampleFormControlSelect1">Role select</label>
+                                    <label for="exampleFormControlSelect1">Active Status</label>
                                 </div>
                             </div>
                         </div>
-                    @endif
-                    <div class="col-md-6">
-                        <div class="form-floating form-floating-outline">
-                            <input class="form-control" type="text" id="code" name="code"
-                                value="{{ old('code', @$users->code ?? '') }}" placeholder="example: RZA" />
-                            <label for="code">Code</label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="input-group input-group-merge">
-                            <div class="form-floating form-floating-outline">
-                                <select class="form-select" id="ddSales" aria-label="Default select example"
-                                    name="active">
-                                    <option value="1" {{ @$users->active == '1' ? 'selected' : '' }}>Active
-                                    </option>
-                                    <option value="0" {{ @$users->active == '0' ? 'selected' : '' }}>Non Active
-                                    </option>
-                                </select>
-                                <label for="exampleFormControlSelect1">Active Status</label>
-                            </div>
-                        </div>
+
                     </div>
                     @if (empty($users))
                         <div class="row mt-2 gy-4" id="inputTarget">
@@ -249,11 +249,11 @@
                         </div>
                     @endif
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-label-secondary waves-effect"
-                    data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary waves-effect waves-light">Save changes</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-label-secondary waves-effect"
+                        data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary waves-effect waves-light">Save changes</button>
+                </div>
             </div>
         </div>
     </div>

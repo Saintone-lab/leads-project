@@ -28,7 +28,7 @@
                         </div>
                     @endif
                     <div class="row g-2 mb-3">
-                        <div class="col mb-2">
+                        {{-- <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <select class="form-select" id="selectSales" name="sales"
                                     aria-label="Default select example">
@@ -41,12 +41,28 @@
                                 </select>
                                 <label for="selectSales">Sales</label>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="company" class="form-control" name="company"
                                     placeholder="Mr/Mss xxxx" value="{{ old('company', @$existing->company ?? '') }}">
                                 <label for="company">Company</label>
+                            </div>
+                        </div>
+                        <div class="col mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <select class="form-select" id="selectVia" aria-label="Default select example"
+                                    name="info">
+                                    <option disabled>----- Choose Via -----</option>
+                                    <option value="Reftech"
+                                        {{ old('info', @$existing->info) == 'Reftech' ? 'selected' : '' }}>
+                                        Reftech
+                                    </option>
+                                    <option value="Kojisha"
+                                        {{ old('info', @$existing->info) == 'Kojisha' ? 'selected' : '' }}>Kojisha
+                                    </option>
+                                </select>
+                                <label for="selectSource">Via</label>
                             </div>
                         </div>
                     </div>

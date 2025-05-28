@@ -477,6 +477,8 @@ class ProspectController extends Controller
         $quotation->expired_date = $request->expired_date;
         $quotation->po_date = NULL;
         $quotation->po_file = NULL;
+        $quotation->quote_for = $request->type;
+        $quotation->type = 'Sparepart';
         $quotation->level = '1';
         $quotation->estimated_date = $request->estimated_date;
         if ($request->tax != NULL) {

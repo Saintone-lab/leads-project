@@ -25,7 +25,6 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "new" },
                 { data: "unit" },
                 { data: "brand" },
                 { data: "pn" },
@@ -33,12 +32,10 @@ $(function () {
                 { data: "power" },
                 { data: "bar" },
                 { data: "air_cap" },
-                { data: "status" },
-                { data: "price", className: "text-end" },
             ],
             columnDefs: [
                 {
-                    targets: 4,
+                    targets: 3,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id_p"];
@@ -54,7 +51,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 6,
+                    targets: 5,
                     render: function (data, type, full, row) {
                         var photo = full['image'];
                         if (type === "display") {
@@ -70,32 +67,6 @@ $(function () {
                             );
                         }
                         return data;
-                    },
-                },
-                {
-                    targets: 3,
-                    render: function (data, type, full, row) {
-                        var newu = full['new'];
-                        var second = full['second'];
-                        var rental = full['rental'];
-                        
-                        var status = [];
-                
-                        if (rental === '1') {
-                            status.push('Rental');
-                        }
-                
-                        if (second === '1') {
-                            status.push('Second Unit');
-                        }
-                
-                        if (newu === '1') {
-                            status.push('New Unit');
-                        }
-                
-                        var statusText = status.length === 0 ? '-' : status.join(' & ');
-                
-                        return statusText;
                     },
                 },
                 {
@@ -142,44 +113,6 @@ $(function () {
                             return data;
                         }
                     },
-                },
-                {
-                    targets: 11,
-                    render: function (data, type, full, meta) {
-                        var $title = full["status"];
-                        var $status = {
-                            Ready: {
-                                title: $title,
-                                class: "bg-label-primary",
-                            },
-                            "On Rental": {
-                                title: $title,
-                                class: " bg-label-warning",
-                            },
-                            Sold: {
-                                title: $title,
-                                class: " bg-label-secondary",
-                            },
-                            Service: {
-                                title: $title,
-                                class: " bg-label-danger",
-                            },
-                        };
-                        if (typeof $status[$title] === "undefined") {
-                            return data;
-                        }
-                        return (
-                            '<span class="badge rounded-pill ' +
-                            $status[$title].class +
-                            '">' +
-                            $status[$title].title +
-                            "</span>"
-                        );
-                    },
-                },
-                {
-                    targets: 12,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
             ],
             order: [[2, "desc"]],

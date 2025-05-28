@@ -199,7 +199,8 @@
                     @endforeach
                     <tr class="border-top">
                         <td colspan="4" class="px-4 border-right" style="background-color: #E7FF00">
-                            <p class="fw-semibold mb-0 text-black">TOTAL PRICE, {{$quote->tax != 0 ?'INCLUDE' : 'EXCLUDE'}} VAT 11%</p>
+                            <p class="fw-semibold mb-0 text-black">TOTAL PRICE,
+                                {{ $quote->tax != 0 ? 'INCLUDE' : 'EXCLUDE' }} VAT 11%</p>
                         </td>
                         <td class="text-end px-4 border-left" style="background-color: #E7FF00">
                             <p class="fw-semibold mb-0 text-end text-black">RP
@@ -234,10 +235,10 @@
                 </div>
             </div>
             <p class="text-center mb-0 mt-2">if you have any questions about this quotation, please contact :</p>
-            <p class="text-center">{{ $quote->sales->name }} {{ $quote->sales->phone }}</p>
+            <p class="text-center mb-0">{{ $quote->sales->name }} {{ $quote->sales->phone }}</p>
         </div>
         <div class="facilities">
-            <h3 class="text-center mb-3"> Service Facilities</h3>
+            {{-- <h3 class="text-center mb-3"> Service Facilities</h3>
             <ul>
                 <li>
                     <h5>WORKSHOP LOCATION:</h5>
@@ -361,7 +362,24 @@
                         </tr>
                     </table>
                 </li>
-            </ul>
+            </ul> --}}
+
+            <img src="{{ asset('asset') }}/facilities/1.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/2.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/3.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/4.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/5.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/6.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/7.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/8.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
         </div>
         {{-- <div class="ketenagakerjaan">
             <h3 class="text-center">SERTIFIKAT KETENAGAKERJAAN</h3>

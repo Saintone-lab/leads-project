@@ -22,6 +22,6 @@ class Sparepart extends Model
     }
     public function equivalent()
     {
-        return $this->belongsTo('App\Models\DetailProduct', 'id_equivalent', 'id');
+        return $this->belongsTo('App\Models\SerialProduct', 'id_equivalent', 'id');
     }
 }
