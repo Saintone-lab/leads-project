@@ -109,7 +109,7 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var detailRoute = route("existing.show", $dataId);
+                            var detailRoute = route("detail.customers", $dataId);
                             return (
                                 '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
                             );

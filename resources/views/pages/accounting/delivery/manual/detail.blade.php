@@ -139,7 +139,7 @@
                                             <td class="align-top">{{ $no }}</td>
                                             <td class="text-nowrap align-top">
                                                 <p class="mb-0 fw-semibold" style="font-size: 12px">
-                                                    {{ $product->pn->pn }}
+                                                    {{ $product->product }}
                                                 </p>
                                             </td>
                                             <td>
@@ -374,7 +374,7 @@
                                             <td class="text-nowrap align-top">
                                                 @foreach ($dDelivery as $product)
                                                     <p class="mb-0 fw-semibold">
-                                                        {{ $product->pn->brand }} {{ $product->pn->pn }}
+                                                        {{ $product->product }}
                                                         {{ $product->desc }}
                                                     </p>
                                                 @endforeach
@@ -458,7 +458,7 @@
             <div class="card mb-3">
                 <div class="card-body">
                     <a class="btn btn-primary d-grid w-100 mb-3 waves-effect" target="_blank"
-                        href="{{ route('print.delivery', $delivery->id) }}">
+                        href="{{ route('delivery.print_manual', $delivery->id) }}">
                         Download
                     </a>
                     <a type="button" data-bs-toggle="modal" data-bs-target="#descView"
@@ -485,7 +485,7 @@
                 </div>
             </div>
         </div>
-        @include('components.modal.delivery.desc')
+        {{-- @include('components.modal.delivery.desc') --}}
         @include('components.modal.accounting.delivery.change-date')
     @endsection
     @push('after-style')

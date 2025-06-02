@@ -211,6 +211,7 @@
                                                                     <option value="Lot">Lot</option>
                                                                     <option value="Meter">Meter</option>
                                                                     <option value="Hari">Hari</option>
+                                                                    <option value="Can">Can</option>
                                                                 </select>
                                                                 <label for="exampleFormControlSelect1">Info</label>
                                                             </div>
@@ -331,6 +332,7 @@
                                                             <option value="Lot">Lot</option>
                                                             <option value="Meter">Meter</option>
                                                             <option value="Hari">Hari</option>
+                                                            <option value="Can">Can</option>
                                                         </select>
                                                         <label for="exampleFormControlSelect1">Info</label>
                                                     </div>
@@ -629,6 +631,7 @@
                                             <option value="Lot">Lot</option>
                                             <option value="Meter">Meter</option>
                                             <option value="Hari">Hari</option>
+                                            <option value="Can">Can</option>
                                         </select>
                                         <label for="exampleFormControlSelect1">Info</label>
                                     </div>

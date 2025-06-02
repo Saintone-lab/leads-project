@@ -348,7 +348,7 @@
                 <div class="card mb-3">
                     <div class="card-body">
                         <div class="form-floating form-floating-outline mb-2">
-                            <select class="form-select change-primary" name="changePrimary" id="changePrimary"
+                            <select class="form-select change-primary{{$quote->type == 'Service' ? '-service' : ''}}" name="changePrimary" id="changePrimary"
                                 aria-label="Default select example">
                                 @foreach ($quotations as $item)
                                     <option data-id="{{ $item->id }}" value="{{ $item->id }}"
@@ -1373,6 +1373,29 @@
                     console.log('Perubahan status berhasil dikirim ke server');
                     window.setTimeout(function() {
                         window.location.href = '/quotation/' + selectedValue;
+                    }, 10);
+                },
+                error: function(error) {
+                    console.error('Gagal mengirim permintaan ke server:', error);
+                }
+            });
+        });
+        $(document).on('change', '.change-primary-service', function() {
+            var selectedValue = $(this).val();
+            var rowId = $(this).data('id');
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            $.ajax({
+                type: 'POST',
+                url: '/quotation/' + selectedValue + '/change_primary',
+                data: {
+                    status: selectedValue,
+                    _token: csrfToken
+                },
+                success: function(response) {
+                    console.log('Perubahan status berhasil dikirim ke server');
+                    window.setTimeout(function() {
+                        window.location.href = '/quote/service-show/' + selectedValue;
                     }, 10);
                 },
                 error: function(error) {

@@ -128,7 +128,7 @@ $(function () {
                                     class: " bg-label-instagram",
                                 },
                             };
-                            var detailRoute = route("detail.leads", $dataId);
+                            var detailRoute = route("existing.show", $dataId);
                             return (
                                 '<a class="text-dark" href="' +
                                 detailRoute +

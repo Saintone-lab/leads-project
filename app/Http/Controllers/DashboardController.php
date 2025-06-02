@@ -510,7 +510,7 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $totalProspect = Quotation::whereYear('po_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $totalProspect = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
         return $totalProspect;
     }
     public function totalProspectAdmin($sales)
@@ -518,7 +518,7 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $totalForecast = Quotation::whereYear('po_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->where('status', '80')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $totalForecast = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->where('status', '80')->where('level', '1')->where('is_primary', '1')->sum('nett');
         return $totalForecast;
     }
     public function filteredPOAdmin($sales)

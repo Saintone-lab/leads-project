@@ -48,40 +48,43 @@
                                 <label for="html5-date-input">Date</label>
                             </div>
                             <input type="text" name="type" id="type" value="ekspedisi" hidden>
-                            <input type="number" name="id_invoice" id="id_invoice" value="{{$invoice->id}}" hidden>
+                            <input type="number" name="id_invoice" id="id_invoice" value="{{ $invoice->id }}" hidden>
                         </div>
                     </div>
-                    @php
-                        $i = 0;
-                    @endphp
-                    @forelse ($dquote as $product)
-                        <hr>
-                        <div class="row g-2 mb-3">
-                            <div class="col-1"></div>
-                            <div class="col-3 mb-2 d-flex align-item-center">
-                                <p style="margin: auto">{{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
-                                </p>
-                            </div>
-                            <div class="col-6 mb-2">
-                                <div class="form-floating form-floating-outline mb-3">
-                                    <div class="input-group">
-                                        <input type="number" id="stock" class="form-control" name="qty[]"
-                                            value="0" max="{{ $product->qty }}" min="0">
-                                        <span class="input-group-text"
-                                            id="basic-addon43">{{ $product->info_qty }}</span>
+                    @if ($invoice->quote->type == 'Sparepart')
+                        @php
+                            $i = 0;
+                        @endphp
+                        @forelse ($dquote as $product)
+                            <hr>
+                            <div class="row g-2 mb-3">
+                                <div class="col-1"></div>
+                                <div class="col-3 mb-2 d-flex align-item-center">
+                                    <p style="margin: auto">{{ $product->equivalent->brand }}
+                                        {{ $product->equivalent->pn }}
+                                    </p>
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <div class="form-floating form-floating-outline mb-3">
+                                        <div class="input-group">
+                                            <input type="number" id="stock" class="form-control" name="qty[]"
+                                                value="0" max="{{ $product->qty }}" min="0">
+                                            <span class="input-group-text"
+                                                id="basic-addon43">{{ $product->info_qty }}</span>
+                                        </div>
                                     </div>
                                 </div>
+                                <div class="col-2">
+                                    <p>max : {{ $product->qty }}</p>
+                                </div>
                             </div>
-                            <div class="col-2">
-                                <p>max : {{ $product->qty }}</p>
-                            </div>
-                        </div>
-                        @php
-                            $i++;
-                        @endphp
-                    @empty
-                        <p> Anda Belum memiliki pn. </p>
-                    @endforelse
+                            @php
+                                $i++;
+                            @endphp
+                        @empty
+                            <p> Anda Belum memiliki pn. </p>
+                        @endforelse
+                    @endif
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-label-secondary waves-effect"

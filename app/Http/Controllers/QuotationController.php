@@ -1773,6 +1773,7 @@ class QuotationController extends Controller
         $quotation->status_date = Carbon::today();
         $quotation->note = "-";
         $quotation->expired_date = $request->expired_date;
+        $quotation->type = $quote->type;
         $quotation->quote_for = $request->type;
         $quotation->po_date = NULL;
         $quotation->po_file = NULL;

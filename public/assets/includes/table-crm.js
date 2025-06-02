@@ -119,7 +119,7 @@ $(function () {
                                     class: " bg-warning",
                                 },
                             };
-                            var detailRoute = route("detail.leads", $dataId);
+                            var detailRoute = route("existing.show", $dataId);
                             return (
                                 '<a class="text-dark" href="' +
                                 detailRoute +

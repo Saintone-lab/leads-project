@@ -996,6 +996,11 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/delivery/print/{id}', [DeliveryController::class, 'print_delivery'])->name('print.delivery');
     Route::post('/delivery/change_date/{id}', [DeliveryController::class, 'change_date'])->name('change_date.delivery');
     Route::post('/delivery/change_desc/{id}', [DeliveryController::class, 'change_desc'])->name('delivery.change_desc');
+    Route::post('/delivery/store_manual/{id}', [DeliveryController::class, 'store_manual'])->name('delivery.store_manual');
+    Route::get('/delivery/manual/{id}', [DeliveryController::class, 'show_manual'])->name('delivery.show_manual');
+    Route::get('/delivery/manual-print/{id}', [DeliveryController::class, 'print_delivery_manual'])->name('delivery.print_manual');
+    Route::get('/delivery/create-teknisi-manual/{id}', [DeliveryController::class, 'create_manual_teknisi'])->name('delivery.create_manual_teknisi');
+    Route::get('/delivery/create-ekspedisi-manual/{id}', [DeliveryController::class, 'create_manual_ekspedisi'])->name('delivery.create_manual_ekspedisi');
 
     Route::resource('/return', ReturnController::class);
     Route::post('/accept/return/{id}', [ReturnController::class, 'accept_return'])->name('return.accept');

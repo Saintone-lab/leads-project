@@ -95,15 +95,17 @@ class InvoiceController extends Controller
         // dd($price);
         $afterDisc = $quote->subtotal - $quote->diskon;
 
-        $doTek = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->get();
-        $doEks = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->get();
+        $doTek = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->whereNot('code','Manual')->get();
+        $doEks = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->whereNot('code','Manual')->get();
+        $doTekMan = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->where('code','Manual')->get();
+        $doEksMan = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->where('code','Manual')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $pOut = ProductOut::where('invoice', $invoice->no_invoice)->first();
-        // dd($pOut);
+        // dd($doTekMan);
         if ($quote->type == 'Sparepart') {
-            return view('pages.accounting.invoice.detail', compact('hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
+            return view('pages.accounting.invoice.detail', compact('hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks' , 'doTekMan', 'doEksMan'));
         } else {
-            return view('pages.accounting.invoice.detail', compact('subQuote','hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
+            return view('pages.accounting.invoice.detail', compact('subQuote','hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks' , 'doTekMan', 'doEksMan'));
         }
         
     }

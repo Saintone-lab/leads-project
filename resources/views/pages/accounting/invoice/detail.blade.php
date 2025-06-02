@@ -723,7 +723,8 @@
                                                 <p class="mb-0">{{ $product->disc }} %</p>
                                             </td>
                                             @if ($quote->tax != 0)
-                                                <td class="align-top py-1 text-end" style="border-bottom:none !important;">
+                                                <td class="align-top py-1 text-end"
+                                                    style="border-bottom:none !important;">
                                                     <p class="mb-0">RP {{ number_format($dpp, 0, '', '.') }}</p>
                                                 </td>
                                             @endif
@@ -1386,6 +1387,46 @@
                                     <a class="btn btn-whatsapp d-grid w-100 mb-3 waves-effect"
                                         href="{{ route('delivery.show', $ekspedisi->id) }}">
                                         Delivery Order Ekspedisi ({{ $eks }})
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <a href="{{ route('delivery.create_manual_teknisi', $invoice->id) }}" type="button"
+                                class="btn btn-instagram d-grid w-100 waves-effect mb-3">
+                                Create Delivery Order Manual Teknisi
+                            </a>
+                            <a href="{{ route('delivery.create_manual_ekspedisi', $invoice->id) }}" type="button"
+                                class="btn btn-pinterest d-grid w-100 waves-effect mb-3">
+                                Create Delivery Order Manual Ekspedisi
+                            </a>
+                        </div>
+                    </div>
+                    @php
+                        $eksMan = 0;
+                        $tekMan = 0;
+                    @endphp
+                    @if ($doTekMan->count() >= 1 || $doEksMan->count() >= 1)
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                @foreach ($doTekMan as $tekMannisi)
+                                    @php
+                                        $tekMan++;
+                                    @endphp
+                                    <a class="btn btn-instagram d-grid w-100 mb-3 waves-effect"
+                                        href="{{ route('delivery.show_manual', $tekMannisi->id) }}">
+                                        Delivery Order Teknisi ({{ $tekMan }})
+                                    </a>
+                                @endforeach
+                                @foreach ($doEksMan as $eksManpedisi)
+                                    @php
+                                        $eksMan++;
+                                    @endphp
+                                    <a class="btn btn-pinterest d-grid w-100 mb-3 waves-effect"
+                                        href="{{ route('delivery.show_manual', $eksManpedisi->id) }}">
+                                        Delivery Order Ekspedisi ({{ $eksMan }})
                                     </a>
                                 @endforeach
                             </div>

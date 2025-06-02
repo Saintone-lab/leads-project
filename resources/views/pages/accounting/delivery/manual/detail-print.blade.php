@@ -143,7 +143,7 @@
                                     <td class="align-top">{{ $no }}</td>
                                     <td class="text-nowrap align-top">
                                         <p class="mb-0 fw-semibold" style="font-size: 12px">
-                                            {{ $product->pn->pn }}
+                                            {{ $product->product }}
                                         </p>
                                     </td>
                                     <td>
@@ -372,7 +372,7 @@
                                 <td class="text-nowrap align-top">
                                     @foreach ($dDelivery as $product)
                                         <p class="mb-0 fw-semibold">
-                                            {{ $product->pn->brand }} {{ $product->pn->pn }}
+                                            {{ $product->product }}
                                             {{ $product->desc }}
                                         </p>
                                     @endforeach

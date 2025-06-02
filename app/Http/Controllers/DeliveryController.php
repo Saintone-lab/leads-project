@@ -7,6 +7,7 @@ use App\Models\DetailDelivery;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\Quotation;
+use App\Models\SubtitleQuotation;
 use Illuminate\Http\Request;
 
 class DeliveryController extends Controller
@@ -28,7 +29,7 @@ class DeliveryController extends Controller
      */
     public function create()
     {
-        //
+        return view('pages.accounting.delivery.manual.form');
     }
 
     /**
@@ -56,22 +57,30 @@ class DeliveryController extends Controller
         $delivery->date = $request->date;
         $delivery->destination = $request->destination;
         $delivery->type = $request->type;
+        $delivery->code = $quote->type;
         $deliverySave = $delivery->save();
-
-        foreach ($dQuote as $item => $value) {
-            if ($request->qty[$item] >= 1) {
-                $dDelivery = new DetailDelivery;
-                $dDelivery->id_delivery = $delivery->id;
-                $dDelivery->id_pn = $value->id_equivalent;
-                $dDelivery->desc = $value->detail_product;
-                $dDelivery->qty = $request->qty[$item];
-                $dDelivery->info_qty = $value->info_qty;
-                $delivery->view = '0';
-                $status = $dDelivery->save();
+        if ($quote->type == 'Sparepart') {
+            foreach ($dQuote as $item => $value) {
+                if ($request->qty[$item] >= 1) {
+                    $dDelivery = new DetailDelivery;
+                    $dDelivery->id_delivery = $delivery->id;
+                    $dDelivery->id_pn = $value->id_equivalent;
+                    $dDelivery->desc = $value->detail_product;
+                    $dDelivery->qty = $request->qty[$item];
+                    $dDelivery->info_qty = $value->info_qty;
+                    $delivery->view = '0';
+                    $status = $dDelivery->save();
+                }
             }
         }
-        if ($deliverySave && $status) {
-            return redirect('/delivery/' . $delivery->id)->with("success", "Data Delivery Telah Ditambahkan");
+        if ($quote->type == 'Sparepart') {
+            if ($deliverySave && $status) {
+                return redirect('/delivery/' . $delivery->id)->with("success", "Data Delivery Telah Ditambahkan");
+            }
+        } else {
+            if ($deliverySave) {
+                return redirect('/delivery/' . $delivery->id)->with("success", "Data Delivery Telah Ditambahkan");
+            }
         }
         // else {
         //     return redirect('/delivery/' . $delivery->id)->with("success", "Data Delivery Telah Ditambahkan");
@@ -91,8 +100,9 @@ class DeliveryController extends Controller
         $invoice = invoice::find($delivery->id_invoice);
         $quote = Quotation::find($invoice->id_quotation);
         // $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
+        $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
 
-        return view("pages.accounting.delivery.detail", compact('delivery', 'dDelivery', 'invoice', 'quote'));
+        return view("pages.accounting.delivery.detail", compact('subQuote', 'delivery', 'dDelivery', 'invoice', 'quote'));
     }
 
     /**
@@ -139,7 +149,86 @@ class DeliveryController extends Controller
             return 0;
         }
     }
+    public function create_manual_teknisi($id)
+    {
+        $invoice = Invoice::find($id);
+        return view('pages.accounting.delivery.manual.form-teknisi', compact('invoice'));
+    }
+    public function create_manual_ekspedisi($id)
+    {
+        $invoice = Invoice::find($id);
+        return view('pages.accounting.delivery.manual.form-ekspedisi', compact('invoice'));
+    }
+    public function store_manual(Request $request, $id)
+    {
+        $rule = [
+            'destination' =>
+                'required',
+        ];
+        $message = [
+            'destination.required' => 'Field Destination Wajib Diisi',
+        ];
+        $this->validate($request, $rule, $message);
+        // dd($request->all());
+        $invoice = Invoice::find($id);
+        // $quote = Quotation::find($invoice->id_quotation);
+        // $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
 
+        $delivery = new Delivery;
+        $delivery->id_invoice = $id;
+        $delivery->date = $request->date;
+        $delivery->destination = $request->destination;
+        $delivery->type = $request->type;
+        $delivery->code = 'Manual';
+        $deliverySave = $delivery->save();
+        // if ($quote->type == 'Sparepart') {
+        foreach ($request->product as $item => $value) {
+            $dDelivery = new DetailDelivery;
+            $dDelivery->id_delivery = $delivery->id;
+            $dDelivery->product = $request->product[$item];
+            $dDelivery->desc = $request->detail_product[$item];
+            $dDelivery->qty = $request->qty[$item];
+            $dDelivery->info_qty = $request->info_qty[$item];
+            $delivery->view = '0';
+            $status = $dDelivery->save();
+        }
+        // }
+        // if ($quote->type == 'Sparepart') {
+        if ($deliverySave && $status) {
+            return redirect('/delivery/manual/' . $delivery->id)->with("success", "Data Delivery Telah Ditambahkan");
+        }
+        // } else {
+        // if ($deliverySave) {
+        //         return redirect('/delivery/' . $delivery->id)->with("success", "Data Delivery Telah Ditambahkan");
+        //     }
+        // }
+        // else {
+        //     return redirect('/delivery/' . $delivery->id)->with("success", "Data Delivery Telah Ditambahkan");
+        // }
+    }
+
+    public function show_manual($id)
+    {
+        $delivery = Delivery::find($id);
+        $dDelivery = DetailDelivery::where('id_delivery', $id)->get();
+        $invoice = invoice::find($delivery->id_invoice);
+        $quote = Quotation::find($invoice->id_quotation);
+        // $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
+        $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
+
+        return view("pages.accounting.delivery.manual.detail", compact('subQuote', 'delivery', 'dDelivery', 'invoice', 'quote'));
+    }
+    public function print_delivery_manual($id)
+    {
+        $delivery = Delivery::find($id);
+        $dDelivery = DetailDelivery::where('id_delivery', $id)->get();
+        $invoice = invoice::find($delivery->id_invoice);
+        $quote = Quotation::find($invoice->id_quotation);
+        // $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
+        $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
+
+        return view("pages.accounting.delivery.manual.detail-print", compact('subQuote', 'delivery', 'dDelivery', 'invoice', 'quote'));
+    }
     public function print_delivery($id)
     {
         $delivery = Delivery::find($id);
@@ -147,8 +236,9 @@ class DeliveryController extends Controller
         $invoice = invoice::find($delivery->id_invoice);
         $quote = Quotation::find($invoice->id_quotation);
         // $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
+        $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
 
-        return view("pages.accounting.delivery.detail-print", compact('delivery', 'dDelivery', 'invoice', 'quote'));
+        return view("pages.accounting.delivery.detail-print", compact('subQuote', 'delivery', 'dDelivery', 'invoice', 'quote'));
     }
 
     public function change_date(Request $request, $id)
