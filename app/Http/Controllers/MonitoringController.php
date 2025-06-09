@@ -160,12 +160,10 @@ class MonitoringController extends Controller
                         $monitoring->issue = 'Off: High Temperature';
                     }
                 } else {
-                    if ($request->issue != null) {
-                        if ($request->temperature <= 94) {
-                            $monitoring->issue = 'Off : ' . $request->issue;
-                        } else {
-                            $monitoring->issue = 'Off : ' . $request->issue . ', High Temperature';
-                        }
+                    if ($request->temperature <= 94) {
+                        $monitoring->issue = 'Off : ' . $request->issue;
+                    } else {
+                        $monitoring->issue = 'Off : ' . $request->issue . ', High Temperature';
                     }
                 }
             }
@@ -206,12 +204,10 @@ class MonitoringController extends Controller
                         $monitoring->issue = 'Stand By: High dew';
                     }
                 } else {
-                    if ($request->issue != null) {
-                        if ($dew <= 10) {
-                            $monitoring->issue = 'Stand By : ' . $request->issue;
-                        } else {
-                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High dew';
-                        }
+                    if ($dew <= 10) {
+                        $monitoring->issue = 'Stand By : ' . $request->issue;
+                    } else {
+                        $monitoring->issue = 'Stand By : ' . $request->issue . ', High dew';
                     }
                 }
             } elseif ($request->condition == 'Off') {
@@ -903,7 +899,7 @@ class MonitoringController extends Controller
         $monitoring = new MonitoringMonthly();
         $monitoring->id_machine = $id;
         $monitoring->id_pic = Auth::user()->id;
-        if ($request->condition = "Off") {
+        if ($request->condition == "Off") {
             $monitoring->condition = $request->condition;
             $monitoring->strainer = '-';
             $monitoring->lp = '-';
@@ -1474,19 +1470,23 @@ class MonitoringController extends Controller
         // Return data
         $monitoringThisMonth = response()->json($compressor);
 
+
         $issue = Monitoring::leftJoin('pn_monitoring as pn', 'pn.id_monitoring', '=', 'monitoring.id')
             ->join('users as u', 'u.id', '=', 'monitoring.id_pic')
             ->where('id_machine', $id)
             ->whereNot('issue', '-')
             ->whereNot('issue', 'normal')
             ->whereNot('issue', 'Normal')
-            ->whereMonth('monitoring.date', $month)
             ->whereNotNull('issue')
+            ->whereMonth('monitoring.date', $month)
             ->select(
                 'monitoring.*',
                 'u.name',
-                DB::raw("GROUP_CONCAT(pn.pn SEPARATOR ' | ') as pn")
-            )->get();
+                DB::raw("IFNULL(GROUP_CONCAT(pn.pn SEPARATOR ' | '), '-') as pn")
+            )
+            ->groupBy('monitoring.id')
+            ->get();
+        // dd($id);
         // $mainlog = Monitoring::join('users as u', 'u.id', '=', 'monitoring.id_pic')->where('id_machine', $id)->whereMonth('date', $month)->whereNot('main_desc', '-')->whereNot('main_desc', 'normal')->whereNot('main_desc', 'Normal')->whereNotNull('main_desc')->select('monitoring.*', 'u.name')->get();
         $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $today->month)->whereNotNull('desc')->select('main_log.*', 'u.name')->get();
 
@@ -1932,10 +1932,10 @@ class MonitoringController extends Controller
                     }
                 }
             } elseif ($request->condition == 'Off') {
-                $monitoring->leak = '-';
+                $monitoring->leak = $request->leak;
                 $monitoring->running = '-';
                 $monitoring->loading = '-';
-                if (is_numeric($request->pressure) && strpos($request->pressure, ',') === false) {
+                if (is_numeric(value: $request->pressure) && strpos($request->pressure, ',') === false) {
                     $monitoring->pressure = '-';
                 } else {
                     $monitoring->pressure = '-';
@@ -1951,18 +1951,17 @@ class MonitoringController extends Controller
                 } else {
                     if ($request->issue != null) {
                         if ($request->temperature <= 94) {
-                            $monitoring->issue = 'Off : ' . $request->issue;
+                            $monitoring->issue = $request->issue;
                         } else {
-                            $monitoring->issue = 'Off : ' . $request->issue . ', High Temperature';
+                            $monitoring->issue = $request->issue . ', High Temperature';
                         }
                     }
                 }
             }
         } else {
-            $monitoring->dew = $request->dew;
-
             if ($request->condition == 'Running') {
                 $monitoring->fan = $request->fan;
+                $monitoring->dew = $request->dew;
                 $monitoring->drain = $request->drain;
                 $monitoring->leak = $request->leak;
                 $monitoring->temp = $request->temperature_in . " °C";
@@ -1985,6 +1984,7 @@ class MonitoringController extends Controller
             } elseif ($request->condition == 'Stand By') {
                 $monitoring->fan = $request->fan;
                 $monitoring->drain = $request->drain;
+                $monitoring->dew = $request->dew;
                 $monitoring->leak = $request->leak;
                 $monitoring->temp = $request->temperature_in . " °C";
                 $monitoring->temp_out = $request->temperature_out . " °C";
@@ -2006,22 +2006,21 @@ class MonitoringController extends Controller
             } elseif ($request->condition == 'Off') {
                 $monitoring->fan = '-';
                 $monitoring->drain = '-';
-                $monitoring->leak = '-';
-                $monitoring->temp = $request->temperature_in . "-";
-                $monitoring->temp_out = $request->temperature_out . "-";
-                if ($request->issue != null) {
+                $monitoring->dew = '-';
+                $monitoring->leak = $request->leak;
+                $monitoring->temp = "-";
+                $monitoring->temp_out = "-";
+                if ($request->issue == null) {
                     if ($request->dew <= 10) {
                         $monitoring->issue = 'Off';
                     } else {
                         $monitoring->issue = 'Off: High dew';
                     }
                 } else {
-                    if ($request->issue != null) {
-                        if ($request->dew <= 10) {
-                            $monitoring->issue = 'Off : ' . $request->issue;
-                        } else {
-                            $monitoring->issue = 'Off : ' . $request->issue . ', High dew';
-                        }
+                    if ($request->dew <= 10) {
+                        $monitoring->issue = $request->issue;
+                    } else {
+                        $monitoring->issue = $request->issue . ', High dew';
                     }
                 }
             }
@@ -2331,7 +2330,8 @@ class MonitoringController extends Controller
         // dd($mainlog);
         return view('pages.monitoring.summary-print', compact('mainlog', 'month'));
     }
-    public function kosongan(){
+    public function kosongan()
+    {
         return view('pages.kosongan');
     }
     protected function convertToRoman($month)

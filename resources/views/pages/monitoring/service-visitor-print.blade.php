@@ -333,7 +333,7 @@
             </div>
         </div>
 
-        <div class="quote mb-4">
+        {{-- <div class="quote mb-4">
             <div class="table-responsive text-nowrap mb-4">
                 <table class="table table-bordered">
                     <thead class="table-light">
@@ -364,7 +364,7 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div> --}}
 
         <div class="mainlog mt-5">
             <h5>Maintenance Log</h5>
@@ -384,7 +384,7 @@
                                 <td>{{ $item->date ?? 'N/A' }}</td>
                                 <td>
                                     <pre class="mb-1"
-                                        style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $item->main_desc }}</pre>
+                                        style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto;">{{ $item->desc }}</pre>
                                 </td>
                                 <td>{{ $item->name }}</td>
                                 {{-- @if ($mainlog['id_service'] != null)

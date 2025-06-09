@@ -53,9 +53,6 @@
                         <span
                             class="text-muted">{{ Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</span>
                     </div>
-                    <div class="mt-1">
-                        <span class=" fw-medium fs-6 badge bg-info text-black">{{ $quote->title }}</span>
-                    </div>
                 </div>
             </div>
         @else
@@ -137,10 +134,13 @@
             </div>
         </div>
 
-        <p>Sir/Madam,
+        <p class="mb-1">Sir/Madam,
             We are pleased to offer the under – we mention as per conditions and details described as following
             :
         </p>
+        <div class="mt-1 text-center">
+            <span class=" fw-medium fs-6 badge bg-label-secondary text-black">{{ $quote->title }}</span>
+        </div>
         <div class="mb-2">
             <table class="table table-bordered m-0" style="width: 100%">
                 <thead class="table-light border-top">

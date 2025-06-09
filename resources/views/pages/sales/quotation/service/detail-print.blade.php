@@ -155,6 +155,8 @@
                 <tbody>
                     @php
                         $abjad = 64;
+                        $totalBeforeDisc = $quote->subtotal + $totalDisc;
+                        $totalTax = $quote->subtotal * $quote->tax;
                     @endphp
                     @foreach ($subQuote as $subJudul)
                         @php
@@ -197,10 +199,29 @@
                             </tr>
                         @endforeach
                     @endforeach
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="text-end"> Subtotal :</td>
+                        <td class="text-end"> RP {{ number_format($totalBeforeDisc, 0, '', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="text-end"> Total Discount :</td>
+                        <td class="text-end"> RP {{ number_format($totalDisc, 0, '', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="text-end"> Total After Discount :</td>
+                        <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="text-end"> Total Tax :</td>
+                        <td class="text-end"> RP {{ number_format($totalTax, 0, '', '.') }}</td>
+                    </tr>
                     <tr class="border-top">
                         <td colspan="4" class="px-4 border-right" style="background-color: #E7FF00">
-                            <p class="fw-semibold mb-0 text-black">TOTAL PRICE,
-                                {{ $quote->tax != 0 ? 'INCLUDE' : 'EXCLUDE' }} VAT 11%</p>
+                            <p class="fw-semibold mb-0 text-black">TOTAL PRICE </p>
                         </td>
                         <td class="text-end px-4 border-left" style="background-color: #E7FF00">
                             <p class="fw-semibold mb-0 text-end text-black">RP

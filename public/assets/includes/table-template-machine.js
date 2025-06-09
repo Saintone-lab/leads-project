@@ -1,51 +1,36 @@
 $(function () {
-    var dt_table_customers = $(".datatable-customers-admin");
+    var dt_table_template_machine = $(".datatable-template-machine");
+    var Url = "/db/template-machine";
 
-    if (dt_table_customers.length) {
-        var dt_customers = dt_table_customers.DataTable({
-            ajax: assetsPath + "api/customers/connection.php",
+    if (dt_table_template_machine.length) {
+        $('[data-toggle="tooltip"]').tooltip();
+        var dt_master = dt_table_template_machine.DataTable({
+            ajax: {
+                type: "GET",
+                url: Url,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+
+                // success: function (hasil, Url) {
+                //     console.log("Url:", Url);
+                //     console.log(hasil);
+                // },
+                // error: function (error) {
+                //     console.log("Url:", Url);
+                //     console.error("Error:", error);
+                //     console.log("error disini");
+                // },
+            },
             columns: [
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "company" },
-                { data: "name_pic" },
-                { data: "area" },
-                { data: "ru" },
+                { data: "brand" },
+                { data: "sku" },
                 {
-                    data: "machine",
-                    render: function (data, type, row) {
-                        // Jika data adalah null atau undefined, kembalikan '-'
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            // Jika data memiliki nilai, kembalikan nilainya
-                            return type === "display" ? data : "-";
-                        }
-                    },
+                    data: "",
                 },
-                { data: "date",
-                render: function (data, type, row) {
-                    // Jika data adalah null atau undefined, kembalikan '-'
-                    if (data === null || data === undefined) {
-                        return "-";
-                    } else {
-                        // Jika data memiliki nilai, kembalikan nilainya
-                        return type === "display" ? data : "-";
-                    }
-                }, },
-                { data: "follow_up",
-                render: function (data, type, row) {
-                    // Jika data adalah null atau undefined, kembalikan '-'
-                    if (data === null || data === undefined) {
-                        return "-";
-                    } else {
-                        // Jika data memiliki nilai, kembalikan nilainya
-                        return type === "display" ? data : "-";
-                    }
-                }, },
-                { data: "name" },
-                { data: "" },
             ],
             columnDefs: [
                 {
@@ -83,63 +68,50 @@ $(function () {
                     responsivePriority: 1,
                     targets: 3,
                 },
+                // {
+                //     targets: 3,
+                //     render: function (data, type, full, row) {
+                //         if (type === "display") {
+                //             var $dataId = full["id_p"];
+                //             var detailRoute = route("product.show", $dataId);
+                //             var $title = full["modal_replacements"]
+                //             return (
+                                
+                //             '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' +
+                //             $title +
+                //             '">'+
+                //             '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>" +
+                //             "</span>"
+                //             );
+                //         }
+                //         return data;
+                //     },
+                // },
                 {
-                    // Label
-                    targets: 6,
-                    render: function (data, type, full, meta) {
-                        var $status_ru = full["ru"];
-                        var $status = {
-                            User: {
-                                title: "User",
-                                class: "bg-success",
-                            },
-                            Reseller: {
-                                title: "Reseller",
-                                class: " bg-warning",
-                            },
-                        };
-                        if (typeof $status[$status_ru] === "undefined") {
-                            return data;
-                        }
+                    targets: 5,
+                    render: function (data, type, full, row) {
+                        var id = full["id"];
+                        var routeEdit = route("template.edit", id);
+                        // var routeVisit = route("visitor.daily-monitoring", id);
                         return (
-                            '<span class="badge ' +
-                            $status[$status_ru].class +
-                            '">' +
-                            $status[$status_ru].title +
-                            "</span>"
-                        );
-                    },
-                },
-                {
-                    // Actions
-                    targets: -1,
-                    title: '<i class="mdi mdi-24px mdi-file-document-edit-outline"></i>',
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, full, meta) {
-                        var $dataId = full["id"];
-                        var $detailCustomerssUrl = route("existing.show", $dataId);
-                        return (
-                            '<div class="d-inline-block">' +
-                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
-                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<li><a href="' +
-                            $detailCustomerssUrl +
-                            '"class="dropdown-item">Details</a></li>' +
-                            '<div class="dropdown-divider"></div>' +
-                            '<li><a href="javascript:;" data-id="' +
-                            $dataId +
-                            '" class="dropdown-item text-danger delete-record">Delete</a></li>' +
-                            "</ul>" +
-                            "</div>"
+                            '<a href="#" data-id="' +
+                            id +
+                            '" class="btn btn-sm btn-label-danger delete-machine m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i></a>' +
+                            // '<a type="button" href="#" data-bs-toggle="modal" data-bs-target="#editMachine-' +
+                            // id +
+                            // '" data-id="' +
+                            // id +
+                            // '" class="btn btn-sm btn-label-primary"><i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i></a>' +
+                            '<a href="'+  routeEdit  +'" class="btn btn-sm btn-label-warning m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i></a>' 
+                            // '<a href="'+ routeVisit  +'" class="btn btn-sm btn-label-success m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-eye-outline m-0"></i></a>' 
                         );
                     },
                 },
             ],
             order: [[2, "desc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            displayLength: 7,
-            lengthMenu: [7, 10, 25, 50, 75, 100],
+            displayLength: 15,
+            lengthMenu: [15, 25, 50, 75, 100],
             buttons: [
                 {
                     extend: "collection",
@@ -151,7 +123,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6,],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -207,7 +179,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6,],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -244,7 +216,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6,],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -281,7 +253,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -318,7 +290,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
+                                columns: [3, 4, 5, 6,],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -352,7 +324,18 @@ $(function () {
                         },
                     ],
                 },
+                {
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Template Machine</span>',
+                    className: "btn btn-primary",
+                    attr: {
+                        "data-bs-target": "#createTemplate",
+                        "data-bs-toggle": "modal",
+                    },
+                },
             ],
+            drawCallback: function (settings) {
+                $('[data-toggle="tooltip"]').tooltip();
+            },
             responsive: {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal({
@@ -389,7 +372,10 @@ $(function () {
             },
         });
         $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Customers</h5>'
+            '<h5 class="card-title mb-0">Table Product</h5>'
         );
     }
+    dt_table_template_machine.on("draw", function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
 });

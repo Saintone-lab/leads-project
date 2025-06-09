@@ -2,7 +2,7 @@
 @section('title', 'Detail Quotation')
 @section('content')
     @php
-        if ($quote->pic->client->info == 'Reftech') {
+        if ($quote->flag == 'Reftech') {
             $bgColor = 'rgb(224, 248, 248)';
         } else {
             $bgColor = 'rgb(255, 232, 210)';
@@ -13,7 +13,7 @@
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
             <div class="card invoice-preview-card mb-3">
                 <div class="card-body">
-                    @if ($quote->pic->client->info == 'Reftech')
+                    @if ($quote->flag == 'Reftech')
                         <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
                             <div class="mb-xl-0 pb-1">
                                 <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
@@ -25,7 +25,7 @@
                                     </span>
                                 </div>
                                 <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
-                                <div style="font-size: 10px">
+                                <div style="font-size: 13px">
                                     <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
                                     <p class="mb-1">Bandung – Jawa Barat 40218</p>
                                     <p class="mb-1">
@@ -71,7 +71,7 @@
                                     </span>
                                 </div>
                                 <p class="mb-1 fw-bolder">PT Kojisha Innotiv Indonesia</p>
-                                <div style="font-size: 10px">
+                                <div style="font-size: 13px">
                                     <p class="mb-1">Jl. Nancep No. 45A, Setu</p>
                                     <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
                                     <p class="mb-1">
@@ -106,7 +106,7 @@
                     @endif
                 </div>
                 <hr class="my-0">
-                <div class="card-body mb-3">
+                <div class="card-body">
                     <div class="row">
                         <div class="col-6">
                             <h6 class="fw-semibold fs-4 mb-3">Quote To:</h6>
@@ -114,7 +114,7 @@
                         <div class="col-6 mb-2">
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="col-2 fw-medium">
                             <p class="mb-1">Company </p>
                             <p class="mb-1">Name PIC</p>
@@ -132,91 +132,114 @@
                         </div>
                         <div class="col-3 text-end">
                             <p class="mb-1">
-                                {{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
+                                {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
                             </p>
                             <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                             <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                         </div>
                     </div>
+                    <p class="mb-1">Sir/Madam,
+                        We are pleased to offer the under – we mention as per conditions and details described as following
+                        :
+                    </p>
+                    <div class="mt-1 text-center">
+                        <span class=" fw-medium fs-6 badge bg-label-secondary text-black">{{ $quote->title }}</span>
+                    </div>
                 </div>
                 <div class="table-responsive">
-                    <table class="table m-0">
+                    <table class="table table-bordered m-0">
                         <thead class="table-light border-top">
                             <tr>
-                                <th>No.</th>
-                                <th>Item</th>
-                                <th>Price</th>
+                                <th style="width: 1%">No.</th>
+                                <th style="width: 50%">Item Description</th>
                                 <th>Qty</th>
-                                <th>Discount</th>
-                                <th>Amount</th>
+                                <th>Price</th>
+                                <th>Total Price</th>
                             </tr>
                         </thead>
                         <tbody>
                             @php
-                                $no = 0;
+                                $abjad = 64;
+                                $totalBeforeDisc = $quote->subtotal + $totalDisc;
+                                $totalTax = $quote->subtotal * $quote->tax;
                             @endphp
-                            @foreach ($dquote as $product)
+                            @foreach ($subQuote as $subJudul)
                                 @php
-                                    $no++;
+                                    $no = 0;
+                                    $abjad++;
                                 @endphp
-                                <tr style="font-size: 13px">
-                                    <td class="align-top">{{ $no }}</td>
-                                    <td class="text-nowrap align-top">
-                                        <p class="mb-0 fw-semibold" style="font-size: 12px">
-                                            @if ($product->id_equivalent == '0')
-                                                -
-                                            @else
-                                                {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
-                                            @endif
-                                        </p>
-                                        <pre class="mb-0"
-                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
+                                <tr style="font-size: 13px border-bottom:none !important;" class="border-top">
+                                    <td class="align-top" style="border-bottom:none !important; background-color: #f0f0f0;">
+                                        <p class="fw-bold mb-0">{{ chr($abjad) }}</p>
                                     </td>
-                                    <td class="align-top text-end">RP {{ number_format($product->price, 0, '', '.') }}</td>
-                                    <td class="align-top">{{ $product->qty }} {{ $product->info_qty }} </td>
-                                    <td class="align-top">{{ $product->disc }}%</td>
-                                    <td class="align-top text-end">RP {{ number_format($product->amount, 0, '', '.') }}
+                                    <td class="text-nowrap align-top" colspan="4"
+                                        style="border-bottom:none !important; background-color: #f0f0f0;">
+                                        <p class="fw-bold mb-0">{{ $subJudul->subtitle }}</p>
                                     </td>
                                 </tr>
+                                @foreach ($subJudul->detail as $product)
+                                    <tr style="font-size: 13px; border-bottom:none !important; border-top:none !important;">
+                                        <td class="align-top py-1" style="border-bottom:none !important;">
+                                            @php
+                                                $no++;
+                                            @endphp
+                                            <p class="mb-1">{{ $no }}</p>
+                                        </td>
+                                        <td class="text-nowrap align-top py-1" style="border-bottom:none !important;">
+                                            <p class="mb-1">{{ $product->product }}</p>
+                                            @if ($product->detail != '-')
+                                                <pre class="mb-0"
+                                                    style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail }}</pre>
+                                            @endif
+                                        </td>
+                                        <td class="align-top py-1" style="border-bottom:none !important;">
+                                            <p class="mb-0">{{ $product->qty }} {{ $product->info_qty }}</p>
+                                        </td>
+                                        <td class="align-top py-1 text-end" style="border-bottom:none !important;">
+                                            <p class="mb-0">RP {{ number_format($product->price, 0, '', '.') }}</p>
+                                        </td>
+                                        <td class="align-top py-1 text-end" style="border-bottom:none !important;">
+                                            <p class="mb-0">RP {{ number_format($product->amount, 0, '', '.') }}</p>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             @endforeach
                             <tr>
-                                <td colspan="3" class="align-top px-4 py-5">
-                                    <span>Thanks for your business</span>
+                                <td colspan="3"></td>
+                                <td class="text-end"> Subtotal :</td>
+                                <td class="text-end"> RP {{ number_format($totalBeforeDisc, 0, '', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"></td>
+                                <td class="text-end"> Total Discount :</td>
+                                <td class="text-end"> RP {{ number_format($totalDisc, 0, '', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"></td>
+                                <td class="text-end"> Total After Discount :</td>
+                                <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"></td>
+                                <td class="text-end"> Total Tax :</td>
+                                <td class="text-end"> RP {{ number_format($totalTax, 0, '', '.') }}</td>
+                            </tr>
+                            <tr class="border-top">
+                                <td colspan="4" class="px-4 border-right" style="background-color: #E7FF00">
+                                    <p class="fw-semibold mb-0 text-black">TOTAL PRICE </p>
                                 </td>
-                                <td colspan="2" class="text-end px-4 py-5">
-                                    <p class="mb-2">Subtotal:</p>
-                                    <p class="mb-2">Discount Quote:</p>
-                                    <p class="mb-2">Subtotal After Discount:</p>
-                                    <p class="mb-2">DPP On VAT:</p>
-                                    <p class="mb-2">Tax {{ $quote->tax != NULL ? '(12%)' : '' }}:</p>
-                                    <p class="mb-2">Shipping Cost:</p>
-                                    <p class="mb-0">Total:</p>
-                                </td>
-                                <td colspan="2" class="px-4 py-5">
-                                    <p class="fw-semibold mb-2 text-end">RP
-                                        {{ number_format($quote->subtotal, 0, '', '.') }}</p>
-                                    <p class="fw-semibold mb-2 text-end">RP
-                                        {{ number_format($quote->diskon, 0, '', '.') }}
-                                    </p>
-                                    <p class="fw-semibold mb-2 text-end">RP
-                                        {{ number_format($afterDisc, 0, '', '.') }}
-                                    </p>
-                                    @php
-                                        $dpp = $afterDisc * 11 / 12;
-                                    @endphp
-                                    <p class="fw-semibold mb-2 text-end">RP
-                                        {{ number_format($dpp, 0, '', '.') }}
-                                    </p>
-                                    <p class="fw-semibold mb-2 text-end">
-                                        {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
-                                    <p class="fw-semibold mb-2 text-end">RP
-                                        {{ number_format($quote->shipping, 0, '', '.') }}</p>
-                                    <p class="fw-semibold mb-0 text-end">RP
+                                <td class="text-end px-4 border-left" style="background-color: #E7FF00">
+                                    <p class="fw-semibold mb-0 text-end text-black">RP
                                         {{ number_format($quote->harga_total, 0, '', '.') }}</p>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <div class="card-body mt-2">
+                    <h5>Note :</h5>
+                    <pre class="mb-0"
+                        style="font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap; text-align: justify;">{{ $quote->termncon[0]->note }}</pre>
                 </div>
                 <div class="card-body mt-2">
                     <h5 class="my-4">Term & Condition</h5>
@@ -226,16 +249,20 @@
                             <p class="mb-1">Price </p>
                             <p class="mb-1">Delivery Process </p>
                             <p class="mb-1">Payment </p>
-                            <p class="mb-1">Note </p>
+                            <p class="mb-1">Warranty </p>
                         </div>
                         <div class="col">
                             <p class="mb-1">: {{ $quote->termncon[0]->validity }}</p>
                             <p class="mb-1">: {{ $quote->termncon[0]->pricing }}</p>
                             <p class="mb-1">: {{ $quote->termncon[0]->delivery_process }}</p>
                             <p class="mb-1">: {{ $quote->termncon[0]->payment }}</p>
-                            <p class="mb-1">: {{ $quote->termncon[0]->note }}</p>
+                            <p class="mb-1">: {{ $quote->termncon[0]->warranty }}</p>
                         </div>
                     </div>
+                </div>
+                <div class="card-body mt-2">
+                    <p class="text-center">if you have any questions about this quotation, please contact :</p>
+                    <p class="text-center">{{ $quote->sales->name }} {{ $quote->sales->phone }}</p>
                 </div>
             </div>
             @if ($status->count() >= 1)
@@ -344,11 +371,11 @@
         {{-- Button Invocie --}}
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
 
-            @if ($quote->id_sales == Auth::user()->id && $quote->status != 100)
+            {{-- @if ($quote->id_sales == Auth::user()->id && $quote->status != 100)
                 <div class="card mb-3">
                     <div class="card-body">
                         <div class="form-floating form-floating-outline mb-2">
-                            <select class="form-select change-primary{{$quote->type == 'Service' ? '-service' : ''}}" name="changePrimary" id="changePrimary"
+                            <select class="form-select change-primary" name="changePrimary" id="changePrimary"
                                 aria-label="Default select example">
                                 @foreach ($quotations as $item)
                                     <option data-id="{{ $item->id }}" value="{{ $item->id }}"
@@ -366,15 +393,49 @@
                         </a>
                     </div>
                 </div>
-            @endif
+            @endif --}}
 
             @if ($quote->level == '1')
+
+                @if ($quote->id_sales == Auth::user()->id && $quote->status != 100)
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <select class="form-select change-primary" name="changePrimary" id="changePrimary"
+                                    aria-label="Default select example">
+                                    @foreach ($quotations as $item)
+                                        <option data-id="{{ $item->id }}" value="{{ $item->id }}"
+                                            {{ $item->is_primary == '1' ? 'Selected' : '' }}>
+                                            {{ $item->no_quote }}{{ $item->num_rev >= 1 ? '-REV-' . $item->num_rev : '' }}
+                                            {{ $item->level == '0' ? '(Archived)' : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="changePrimary">Primary Quote</label>
+                            </div>
+                            <a class="btn btn-outline-primary d-grid w-100 mb-3 waves-effect"
+                                href="{{ route('overhaul-revision.quotation', @$primQuote->id ?? $lastQuote->id) }}">
+                                + Revisi Quotation
+                            </a>
+                        </div>
+                    </div>
+                @endif
                 <div class="card mb-3">
                     <div class="card-body">
-                        <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
-                            href="{{ route('print.quotation', $quote->id) }}">
-                            Download
-                        </a>
+                        <div class="row">
+                            <div class="col-12">
+                                <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect"
+                                    target="_blank" href="{{ route('overhaul-print.quotation', $quote->id) }}">
+                                    Download
+                                </a>
+                            </div>
+                            {{-- <div class="col-6">
+                                <a class="btn btn-warning btn-outline-secondary d-grid w-100 mb-3 waves-effect"
+                                    target="_blank" href="{{ route('service-print-no-image.quotation', $quote->id) }}">
+                                    Download --
+                                </a>
+                            </div> --}}
+                        </div>
                         @if (Auth::user()->role == 'Sales')
                             @if ($quote->status != '100')
                                 <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
@@ -402,11 +463,11 @@
                 @if (Auth::user()->role == 'Sales')
                     <div class="card mb-3">
                         <div class="card-body">
-                            {{-- @if ((Auth::user()->id == '1' || Auth::user()->id == '16' || Auth::user()->id == '23' ) && $invoice->count() < 1)
+                            @if ((Auth::user()->id == '1' || Auth::user()->id == '16') && $invoice->count() < 1)
                                 <a href="#" data-id="{{ $quote->id }}"
                                     class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
-                                    {{ $quote->pic->client->info == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
-                            @endif --}}
+                                    {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
+                            @endif
                             @if ($quote->status != '100')
                                 <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"
                                     data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
@@ -466,7 +527,8 @@
                                 @else
                                     @if ($quote->pic->client->address == '-' && $quote->pic->client->subAddress == '-')
                                         <button type="button"
-                                            class="btn btn-whatsapp d-grid w-100 waves-effect mb-3 btn-no-address">Upload PO</button>
+                                            class="btn btn-whatsapp d-grid w-100 waves-effect mb-3 btn-no-address">Upload
+                                            PO</button>
                                     @else
                                         <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
                                             data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
@@ -674,8 +736,8 @@
     @include('components.modal.quotation.request-bp')
     @include('components.modal.accounting.selling-contract')
     @include('components.modal.accounting.confirm-order')
-    @include('components.modal.quotation.insert-fee')
-    @include('components.modal.quotation.detail-fee')
+    {{-- @include('components.modal.quotation.insert-fee') --}}
+    {{-- @include('components.modal.quotation.detail-fee') --}}
     @include('components.modal.quotation.add-payment')
     @include('components.modal.quotation.mentions')
     @include('components.modal.quotation.detail-payment')
@@ -774,7 +836,7 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        'url': '{{ url('quotation') }}/' + id,
+                        'url': '{{ url('quote') }}/service-delete/' + id,
                         'type': 'POST',
                         'data': {
                             '_method': 'DELETE',
@@ -885,7 +947,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/overhaul-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -941,7 +1003,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/overhaul-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -997,7 +1059,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/overhaul-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1053,7 +1115,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/overhaul-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1109,7 +1171,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/overhaul-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1165,7 +1227,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/overhaul-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1221,7 +1283,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href = '/quote/overhaul-show/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1334,7 +1396,8 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + quote;
+                                    window.location.href = '/quote/overhaul-show/' +
+                                        quote;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1372,30 +1435,7 @@
                 success: function(response) {
                     console.log('Perubahan status berhasil dikirim ke server');
                     window.setTimeout(function() {
-                        window.location.href = '/quotation/' + selectedValue;
-                    }, 10);
-                },
-                error: function(error) {
-                    console.error('Gagal mengirim permintaan ke server:', error);
-                }
-            });
-        });
-        $(document).on('change', '.change-primary-service', function() {
-            var selectedValue = $(this).val();
-            var rowId = $(this).data('id');
-            var csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-            $.ajax({
-                type: 'POST',
-                url: '/quotation/' + selectedValue + '/change_primary',
-                data: {
-                    status: selectedValue,
-                    _token: csrfToken
-                },
-                success: function(response) {
-                    console.log('Perubahan status berhasil dikirim ke server');
-                    window.setTimeout(function() {
-                        window.location.href = '/quote/service-show/' + selectedValue;
+                        window.location.href = '/quote/overhaul-show/' + selectedValue;
                     }, 10);
                 },
                 error: function(error) {

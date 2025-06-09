@@ -29,6 +29,7 @@ use App\Http\Controllers\ReturnController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceReportsController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\WarehouseController;
 use App\Models\Activities;
@@ -39,6 +40,7 @@ use App\Models\DetailProduct;
 use App\Models\Invoice;
 use App\Models\Library;
 use App\Models\Machine;
+use App\Models\MachineTemplate;
 use App\Models\Mainlog;
 use App\Models\Monitoring;
 use App\Models\MonitoringWeekly;
@@ -159,6 +161,14 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/quote/service-delete/{id}', [QuotationController::class, 'destroyService'])->name('delete-service.quotation');
     Route::get('/quote/service-print/{id}', [QuotationController::class, 'printService'])->name('service-print.quotation');
     Route::get('/quote/service-print-no-image/{id}', [QuotationController::class, 'printNoImageService'])->name('service-print-no-image.quotation');
+    
+    Route::post('/quote/choose-machine', [QuotationController::class, 'chooseMachine'])->name('quotation.choose-machine');
+    Route::post('/quote/overhaul/store', [QuotationController::class, 'storeOverhaul'])->name('store-overhaul.quotation');
+    Route::get('/quote/overhaul-create/{id}', [QuotationController::class, 'createOverhaul'])->name('create-overhaul.quotation');
+    Route::get('/quote/overhaul-show/{id}', [QuotationController::class, 'showOverhaul'])->name('show-overhaul.quotation');
+    Route::get('/quote/overhaul-print/{id}', [QuotationController::class, 'printOverhaul'])->name('overhaul-print.quotation');
+    Route::get('/quote/overhaul-revision/{id}', [QuotationController::class, 'revisionOverhaul'])->name('overhaul-revision.quotation');
+    Route::post('/quote/overhaul-update/{id}', [QuotationController::class, 'updateOverhaul'])->name('overhaul-update.quotation');
 
     // Route untuk Visit
     Route::get('/visits/leads', function () {
@@ -1001,6 +1011,14 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/delivery/manual-print/{id}', [DeliveryController::class, 'print_delivery_manual'])->name('delivery.print_manual');
     Route::get('/delivery/create-teknisi-manual/{id}', [DeliveryController::class, 'create_manual_teknisi'])->name('delivery.create_manual_teknisi');
     Route::get('/delivery/create-ekspedisi-manual/{id}', [DeliveryController::class, 'create_manual_ekspedisi'])->name('delivery.create_manual_ekspedisi');
+    
+    Route::resource('/template', TemplateController::class);
+    Route::get('/template/machine_template/{id}', [TemplateController::class, 'create_template'])->name('template.create_template');
+    Route::post('/template/store_template/{id}', [TemplateController::class, 'store_template'])->name('template.store_template');
+    Route::get('/db/template-machine', function () {
+        $machine = MachineTemplate::all();
+        return response()->json(['data' => $machine]);
+    });
 
     Route::resource('/return', ReturnController::class);
     Route::post('/accept/return/{id}', [ReturnController::class, 'accept_return'])->name('return.accept');
@@ -2055,6 +2073,6 @@ Route::group(["middleware" => "auth"], function () {
         $data = PIC::where('id_client', $id)->get();
         return response()->json(['data' => $data]);
     });
-    
+
 });
 Auth::routes();

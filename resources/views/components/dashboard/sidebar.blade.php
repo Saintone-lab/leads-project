@@ -363,8 +363,8 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Template</span>
             </li>
-            <li class="menu-item {{ request()->is('employee') || request()->is('employee/*') ? 'active' : '' }}">
-                <a href="{{ route('employee.index') }}" class="menu-link">
+            <li class="menu-item {{ request()->is('template') || request()->is('template/*') ? 'active' : '' }}">
+                <a href="{{ route('template.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-note-multiple-outline"></i>
                     <div data-i18n="Machine">Machine</div>
                 </a>

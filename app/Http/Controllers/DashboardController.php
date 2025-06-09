@@ -112,7 +112,7 @@ class DashboardController extends Controller
             $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
             $poTotalPriceAdmin = Quotation::whereYear('po_date', $yearNow)->whereMonth("po_date", $monthNow)->where("status", "100")->where('level', '1')->where('is_primary', '1')->sum('nett');
             $formattedTotalPriceAdmin = $this->formatNumber($poTotalPriceAdmin);
-            $sales = User::whereIn('role', ['Sales', 'Support'])->where('active', '1')->get();
+            $sales = User::whereIn('role', ['Sales', 'Support'])->where('active', '1')->orderByDesc('id')->get();
             $firstSales = User::where('role', 'Sales')->first();
             $targett = Target::where('id_sales', $firstSales->id)->first('total');
             $targetAllSales = Target::join('users as u', 'u.id', '=', 'target.id_sales')->where('u.role', 'Sales')->where('u.active', '1')->sum('target.total');

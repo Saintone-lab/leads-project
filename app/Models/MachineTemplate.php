@@ -14,7 +14,7 @@ class MachineTemplate extends Model
         'updated_at'
     ];
     protected $fillable = [
-        'machine',
+        'brand',
         'sku'
     ];
     public function subtitle()

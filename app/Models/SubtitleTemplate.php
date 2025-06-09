@@ -19,7 +19,7 @@ class SubtitleTemplate extends Model
 
     public function machine()
     {
-        return $this->belongsTo('App\Models\Machine', 'id_machine', 'id');
+        return $this->belongsTo('App\Models\MachineTemplate', 'id_machine', 'id');
     }
     public function detail()
     {

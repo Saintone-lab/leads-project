@@ -81,15 +81,19 @@ $(function () {
                         if (type === "display") {
                             var $dataId = full["id"];
                             var type = full["type"];
-                            type == "Sparepart"
-                                ? (detailRoute = route(
-                                      "quotation.show",
-                                      $dataId
-                                  ))
-                                : (detailRoute = route(
-                                      "show-service.quotation",
-                                      $dataId
-                                  ));
+                            if (type == "Sparepart") {
+                                detailRoute = route("quotation.show", $dataId);
+                            } else if (type == "Service") {
+                                detailRoute = route(
+                                    "show-service.quotation",
+                                    $dataId
+                                );
+                            } else {
+                                detailRoute = route(
+                                    "show-overhaul.quotation",
+                                    $dataId
+                                );
+                            }
                             return (
                                 '<a class="text-dark" href="' +
                                 detailRoute +
