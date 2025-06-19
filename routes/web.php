@@ -32,6 +32,7 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\WatermarkController;
 use App\Models\Activities;
 use App\Models\Client;
 use App\Models\Comment;
@@ -87,6 +88,11 @@ Route::get('/db/machine-monitoring-visit/{id}', [MonitoringController::class, 'g
 Route::get('/db/dryer-monitoring-visit/{id}', [MonitoringController::class, 'getMonitoringDryerThisMonth']);
 
 Route::get('/service-reports/print/{id}', [ServiceReportsController::class, 'print_reports'])->name('service-reports.print');
+
+Route::get('/watermark', [WatermarkController::class, 'index'])->name('watermark.index');
+Route::post('/watermark/upload', [WatermarkController::class, 'upload'])->name('watermark.upload');
+Route::get('/watermark/download', [WatermarkController::class, 'downloadAll'])->name('watermark.download');
+Route::post('/watermark/reset', [WatermarkController::class, 'reset'])->name('watermark.reset');
 
 Route::group(["middleware" => "auth"], function () {
     Route::get('/', [DashboardController::class, 'index'])->middleware('check.expired')->name('dashboard');
@@ -148,7 +154,11 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/quotation/sparepart/{id}', [QuotationController::class, 'replacementDetailSparepart'])->name('detail.replacement');
     Route::get('/quotation/unit/{id}', [QuotationController::class, 'replacementDetailUnit'])->name('detail.replacement');
     Route::get('/quotation/client/{id}', function ($id) {
-        $client = Client::join('pic', 'pic.id_client', '=', 'client.id')->where('pic.id', $id)->get('client.*');
+        $client = Client::find($id);
+        return response()->json($client);
+    });
+    Route::get('/quotation/pic/{id}', function ($id) {
+        $client = Pic::where('pic.id_client', $id)->get();
         return response()->json($client);
     });
     Route::get('/quote/unit', [QuotationController::class, 'quotationUnit'])->name('index-unit.quotation');
@@ -161,12 +171,13 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/quote/service-delete/{id}', [QuotationController::class, 'destroyService'])->name('delete-service.quotation');
     Route::get('/quote/service-print/{id}', [QuotationController::class, 'printService'])->name('service-print.quotation');
     Route::get('/quote/service-print-no-image/{id}', [QuotationController::class, 'printNoImageService'])->name('service-print-no-image.quotation');
-    
+
     Route::post('/quote/choose-machine', [QuotationController::class, 'chooseMachine'])->name('quotation.choose-machine');
     Route::post('/quote/overhaul/store', [QuotationController::class, 'storeOverhaul'])->name('store-overhaul.quotation');
     Route::get('/quote/overhaul-create/{id}', [QuotationController::class, 'createOverhaul'])->name('create-overhaul.quotation');
     Route::get('/quote/overhaul-show/{id}', [QuotationController::class, 'showOverhaul'])->name('show-overhaul.quotation');
     Route::get('/quote/overhaul-print/{id}', [QuotationController::class, 'printOverhaul'])->name('overhaul-print.quotation');
+    Route::get('/quote/overhaul-print-no-image/{id}', [QuotationController::class, 'printNoImageOverhaul'])->name('overhaul-print-no-image.quotation');
     Route::get('/quote/overhaul-revision/{id}', [QuotationController::class, 'revisionOverhaul'])->name('overhaul-revision.quotation');
     Route::post('/quote/overhaul-update/{id}', [QuotationController::class, 'updateOverhaul'])->name('overhaul-update.quotation');
 
@@ -996,8 +1007,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/invoice/del-sign/{id}', [InvoiceController::class, 'delete_hand_sign'])->name('invoice.del-sign');
     Route::delete('/invoice/del-expense/{id}', [InvoiceController::class, 'deleteExpense'])->name('invoice.del-expense');
     Route::post('/invoice/pph/{id}', [InvoiceController::class, 'add_pph'])->name('invoice.pph');
+    Route::post('/invoice/pph_service/{id}', [InvoiceController::class, 'add_pph_service'])->name('invoice.pph_service');
     Route::post('/invoice/expense/{id}', [InvoiceController::class, 'inputExpense'])->name('invoice.expense');
     Route::delete('/invoice/del-pph/{id}', [InvoiceController::class, 'delete_pph'])->name('invoice.del-pph');
+    Route::delete('/invoice/del-pph-service/{id}', [InvoiceController::class, 'delete_pph_service'])->name('invoice.del-pph-service');
     Route::get('/invoice/label_detail/{id}', [InvoiceController::class, 'label_detail'])->name('invoice.label_detail');
     Route::get('/invoice/label_print/{id}', [InvoiceController::class, 'label_print'])->name('invoice.label_print');
     Route::post('/invoice/change_desc/{id}', [InvoiceController::class, 'change_desc'])->name('invoice.change_desc');
@@ -1011,12 +1024,20 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/delivery/manual-print/{id}', [DeliveryController::class, 'print_delivery_manual'])->name('delivery.print_manual');
     Route::get('/delivery/create-teknisi-manual/{id}', [DeliveryController::class, 'create_manual_teknisi'])->name('delivery.create_manual_teknisi');
     Route::get('/delivery/create-ekspedisi-manual/{id}', [DeliveryController::class, 'create_manual_ekspedisi'])->name('delivery.create_manual_ekspedisi');
-    
+
     Route::resource('/template', TemplateController::class);
     Route::get('/template/machine_template/{id}', [TemplateController::class, 'create_template'])->name('template.create_template');
     Route::post('/template/store_template/{id}', [TemplateController::class, 'store_template'])->name('template.store_template');
     Route::get('/db/template-machine', function () {
-        $machine = MachineTemplate::all();
+        $machine = MachineTemplate::select(
+            'id',
+            'kw',
+            'hp',
+            'brand',
+            'sku',
+            DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y') AS created"),
+            DB::raw("CONCAT(kw, ' / ', hp) AS kw_hp")
+        )->get();
         return response()->json(['data' => $machine]);
     });
 

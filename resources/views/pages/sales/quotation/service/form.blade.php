@@ -204,14 +204,49 @@
                                                                     aria-label="Default select example"
                                                                     name="info_qty[{{ $id }}][]">
                                                                     <option disabled>---Info---</option>
-                                                                    <option value="Pcs">Pcs</option>
-                                                                    <option value="Set">Set</option>
-                                                                    <option value="Pail">Pail</option>
-                                                                    <option value="Unit">Unit</option>
-                                                                    <option value="Lot">Lot</option>
-                                                                    <option value="Meter">Meter</option>
-                                                                    <option value="Hari">Hari</option>
-                                                                    <option value="Can">Can</option>
+                                                                    <option value="Pcs"
+                                                                        {{ $item->info_qty == 'Pcs' ? 'selected' : '' }}>
+                                                                        Pcs
+                                                                    </option>
+                                                                    <option value="Set"
+                                                                        {{ $item->info_qty == 'Set' ? 'selected' : '' }}>
+                                                                        Set
+                                                                    </option>
+                                                                    <option value="Pail"
+                                                                        {{ $item->info_qty == 'Pail' ? 'selected' : '' }}>
+                                                                        Pail
+                                                                    </option>
+                                                                    <option value="Unit"
+                                                                        {{ $item->info_qty == 'Unit' ? 'selected' : '' }}>
+                                                                        Unit
+                                                                    </option>
+                                                                    <option value="Lot"
+                                                                        {{ $item->info_qty == 'Lot' ? 'selected' : '' }}>
+                                                                        Lot
+                                                                    </option>
+                                                                    <option value="Meter"
+                                                                        {{ $item->info_qty == 'Meter' ? 'selected' : '' }}>
+                                                                        Meter
+                                                                    </option>
+                                                                    <option value="Can"
+                                                                        {{ $item->info_qty == 'Can' ? 'selected' : '' }}>
+                                                                        Can
+                                                                    </option>
+                                                                    <option value="Hari"
+                                                                        {{ $item->info_qty == 'Hari' ? 'selected' : '' }}>
+                                                                        Hari
+                                                                    </option>
+                                                                    <option value="Kg"
+                                                                        {{ $item->info_qty == 'Kg' ? 'selected' : '' }}>Kg
+                                                                    </option>
+                                                                    <option value="Tube"
+                                                                        {{ $item->info_qty == 'Tube' ? 'selected' : '' }}>
+                                                                        Tube
+                                                                    </option>
+                                                                    <option value="Titik"
+                                                                        {{ $item->info_qty == 'Titik' ? 'selected' : '' }}>
+                                                                        Titik
+                                                                    </option>
                                                                 </select>
                                                                 <label for="exampleFormControlSelect1">Info</label>
                                                             </div>
@@ -333,6 +368,9 @@
                                                             <option value="Meter">Meter</option>
                                                             <option value="Hari">Hari</option>
                                                             <option value="Can">Can</option>
+                                                            <option value="Kg">Kg</option>
+                                                            <option value="Tube">Tube</option>
+                                                            <option value="Titik">Titik</option>
                                                         </select>
                                                         <label for="exampleFormControlSelect1">Info</label>
                                                     </div>

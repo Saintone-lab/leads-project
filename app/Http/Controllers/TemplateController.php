@@ -42,16 +42,22 @@ class TemplateController extends Controller
         $rule = [
             'brand' => 'required',
             'sku' => 'required',
+            'kw' => 'required',
+            'hp' => 'required',
         ];
         $message = [
             'brand.required' => 'Field Brand Wajib Diisi',
             'sku.required' => 'Field Machine Wajib Diisi',
+            'kw.required' => 'Field KW Wajib Diisi',
+            'hp.required' => 'Field HP Wajib Diisi',
         ];
         // dd($request->all());
         $this->validate($request, $rule, $message);
         $template = new MachineTemplate;
         $template->brand = $request->brand;
         $template->sku = $request->sku;
+        $template->kw = $request->kw;
+        $template->hp = $request->hp;
         $templateSave = $template->save();
         if ($templateSave) {
             return redirect('/template/machine_template/' . $template->id)->with('message', 'data telah di tambahkan');
@@ -79,6 +85,7 @@ class TemplateController extends Controller
     {
         $machine = MachineTemplate::find($id);
         $subTemplate = SubtitleTemplate::with('detail')->where('id_machine', $id)->get();
+        dd($subTemplate);
 
         return view('pages.admin.template.edit', compact('machine', 'subTemplate'));
     }

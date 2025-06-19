@@ -1,4 +1,4 @@
-<form action="{{ route('invoice.pph', $invoice->id) }}" method="post" enctype="multipart/form-data">
+<form action="{{ $quote->type == 'Sparepart' ? route('invoice.pph', $invoice->id) : route('invoice.pph_service', $invoice->id) }}" method="post" enctype="multipart/form-data">
     {{-- {{ csrf_token() }} --}}
     @csrf
     <div class="modal animate__animated animate__fadeIn" id="addPph" tabindex="-1" style="display: none;"
@@ -20,22 +20,49 @@
                             </ul>
                         </div>
                     @endif
-                    @foreach ($dquote as $product)
-                        <div class="row g-2 mb-3">
-                            <div class="col-8">
-                                <p class="fw-medium">
-                                    {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
-                                </p>
-                            </div>
-                            <div class="col-4">
-                                <div class="input-group input-group-merge">
-                                    <input type="number" class="form-control" placeholder="2" name="pph[]"
-                                        aria-label="Amount (to the nearest dollar)" value="0">
-                                    <span class="input-group-text">%</span>
+                    @if ($quote->type == 'Sparepart')
+                        @foreach ($dquote as $product)
+                            <div class="row g-2 mb-3">
+                                <div class="col-8">
+                                    <p class="fw-medium">
+                                        {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
+                                    </p>
+                                </div>
+                                <div class="col-4">
+                                    <div class="input-group input-group-merge">
+                                        <input type="number" class="form-control" placeholder="2" name="pph[]"
+                                            aria-label="Amount (to the nearest dollar)" value="0">
+                                        <span class="input-group-text">%</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    @else
+                    @php
+                        $row = 0;
+                    @endphp
+                        @foreach ($subQuote as $product)
+                            @foreach ($product->detail as $details)
+                            @php
+                                $row++;
+                            @endphp
+                                <div class="row g-2 mb-3">
+                                    <div class="col-8">
+                                        <p class="fw-medium">
+                                            {{ $details->product }}
+                                        </p>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="input-group input-group-merge">
+                                            <input type="number" class="form-control" placeholder="2" name="pph[{{$row}}]"
+                                                aria-label="Amount (to the nearest dollar)" value="0">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endforeach
+                    @endif
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-label-secondary waves-effect"

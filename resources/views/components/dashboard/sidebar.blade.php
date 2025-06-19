@@ -387,11 +387,33 @@
                 </a>
             </li>
 
-            <li class="menu-item">
+            {{-- <li class="menu-item">
                 <a href="{{ url('pending-po') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-cart-arrow-down"></i>
                     <div data-i18n="Pending PO">Pending PO</div>
                 </a>
+            </li> --}}
+            
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Pending</span>
+            </li>
+            <li class="menu-item {{ request()->is('library/index/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-library-shelves"></i>
+                    <div data-i18n="Pending PO">Pending PO</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('library/index/marktool') ? 'active' : '' }}">
+                        <a href="{{ route('marktool.index') }}" class="menu-link">
+                            <div data-i18n="Progress">Progress</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('library/index/brosur') ? 'active' : '' }}">
+                        <a href="{{ route('brosur.index') }}" class="menu-link">
+                            <div data-i18n="Done">Done</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
         @elseif (auth::user()?->role == 'Sales')
             <!-- Dashboards -->

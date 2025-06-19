@@ -42,11 +42,12 @@
                                 <div class="form-floating form-floating-outline">
                                     <select id="select2Basic" class="select2 form-select form-select-lg invoice-item-client"
                                         data-allow-clear="true" name="id_pic" {{ @$quotation ? 'disabled' : '' }}>
-                                        <option> ---- Choose Pic Company Here ---- </option>
+                                        <option> ---- Choose Company Here ---- </option>
                                         @foreach ($pic as $charge)
                                             <option value="{{ $charge->id }}"
-                                                {{ @$quotation->id_pic == $charge->id ? 'selected' : '' }}>
-                                                {{ $charge->name_pic }} | {{ $charge->client->company }}</option>
+                                                {{ @$quotation->pic->id_client == $charge->id ? 'selected' : '' }}>
+                                                {{ $charge->company }}
+                                            </option>
                                         @endforeach
                                     </select>
                                     <label for="select2Basic">Client</label>
@@ -57,28 +58,32 @@
                             @endif
                             <div class="col-12 col-lg-3">
                                 <div class="form-floating form-floating-outline mb-2">
-                                    <select id="address-dropdown" class="select2 form-select invoice-item-destination"
-                                        data-allow-clear="true" name="destination" disabled>
+                                    <select id="pic-dropdown" class="select2 form-select invoice-item-pic"
+                                        data-allow-clear="true" name="pic" disabled>
                                         @if (@$quotation)
                                             <option selected>
-                                                {{ $quotation->destination == '1' ? $quotation->pic->client->address : $quotation->pic->client->subAddress }}
+                                                {{ $quotation->pic->name_pic }}
                                             </option>
                                         @endif
                                     </select>
-                                    <label for="address-dropdown">Destination Address</label>
+                                    <label for="pic-dropdown">Pic</label>
                                 </div>
                             </div>
                             @if (@$quotation)
-                                <input type="text" name="destination" id="destination"
-                                    value="{{ $quotation->destination }}" hidden>
+                                <input type="text" name="pic" id="destination" value="{{ $quotation->id_pic }}"
+                                    hidden>
                             @endif
-                            <div class="col-6 col-lg-2">
+                            <div class="col-12 col-lg-2">
                                 <div class="form-floating form-floating-outline">
                                     <input class="form-control" type="text" placeholder="Put Title Quotation Here ...."
                                         id="title" name="title" value="{{ old('title', @$quotation->title ?? '') }}">
                                     <label for="title">Title Quotation</label>
                                 </div>
                             </div>
+                            @if (@$quotation)
+                                <input type="text" name="destination" id="destination"
+                                    value="{{ $quotation->destination }}" hidden>
+                            @endif
                             <div class="col-6 col-lg-2">
                                 <div class="form-floating form-floating-outline">
                                     <input class="form-control" type="date" id="estimatedDate" name="estimated_date"
@@ -104,7 +109,20 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-12 col-lg-3">
+                                <div class="form-floating form-floating-outline mb-2">
+                                    <select id="address-dropdown" class="select2 form-select invoice-item-destination"
+                                        data-allow-clear="true" name="destination" disabled>
+                                        @if (@$quotation)
+                                            <option selected>
+                                                {{ $quotation->destination == '1' ? $quotation->pic->client->address : $quotation->pic->client->subAddress }}
+                                            </option>
+                                        @endif
+                                    </select>
+                                    <label for="address-dropdown">Destination Address</label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-3">
                                 <div class="form-floating form-floating-outline mb-4">
                                     <input class="form-control" type="text" placeholder="Put your No PR Here ...."
                                         id="no-pr-input" name="no_pr" value="{{ @$quotation->no_pr ?? '-' }}">
@@ -113,10 +131,11 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-floating form-floating-outline mb-4">
-                                    <select class="form-select" id="Type"
-                                        aria-label="Default select example" name="type">
+                                    <select class="form-select" id="Type" aria-label="Default select example"
+                                        name="type">
                                         <option disabled>---Type---</option>
-                                        <option value="Sparepart" {{ @$quote->type == 'Sparepart' ? 'selected' : '' }}>Sparepart
+                                        <option value="Sparepart" {{ @$quote->type == 'Sparepart' ? 'selected' : '' }}>
+                                            Sparepart
                                         </option>
                                         <option value="Unit" {{ @$quote->type == 'Unit' ? 'selected' : '' }}>Unit
                                         </option>
@@ -228,11 +247,20 @@
                                                             <option value="Meter"
                                                                 {{ $quote->info_qty == 'Meter' ? 'selected' : '' }}>Meter
                                                             </option>
+                                                            <option value="Can"
+                                                                {{ $quote->info_qty == 'Can' ? 'selected' : '' }}>Can
+                                                            </option>
                                                             <option value="Hari"
                                                                 {{ $quote->info_qty == 'Hari' ? 'selected' : '' }}>Hari
                                                             </option>
                                                             <option value="Kg"
                                                                 {{ $quote->info_qty == 'Kg' ? 'selected' : '' }}>Kg
+                                                            </option>
+                                                            <option value="Tube"
+                                                                {{ $quote->info_qty == 'Tube' ? 'selected' : '' }}>Tube
+                                                            </option>
+                                                            <option value="Titik"
+                                                                {{ $quote->info_qty == 'Titik' ? 'selected' : '' }}>Titik
                                                             </option>
                                                         </select>
                                                         <label for="exampleFormControlSelect1">Info</label>
@@ -330,8 +358,11 @@
                                                         <option value="Unit">Unit</option>
                                                         <option value="Lot">Lot</option>
                                                         <option value="Meter">Meter</option>
+                                                        <option value="Can">Can</option>
                                                         <option value="Hari">Hari</option>
                                                         <option value="Kg">Kg</option>
+                                                        <option value="Tube">Tube</option>
+                                                        <option value="Titik">Titik</option>
                                                     </select>
                                                     <label for="exampleFormControlSelect1">Info</label>
                                                 </div>
@@ -702,6 +733,13 @@
                         width: '100%',
                     });
                 }
+                function initializeSelect2PIC() {
+                    $('.invoice-item-pic').select2({
+                        placeholder: ' ---- Choose PIC Here ---- ',
+                        allowClear: true,
+                        width: '100%',
+                    });
+                }
 
                 function formatNumber(n) {
                     return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
@@ -757,25 +795,48 @@
 
                 $(`.invoice-item-client`).on('change', function(ev) {
                     var clientId = $(this).val();
+                    console.log(clientId);
+
                     $.ajax({
                         url: '/quotation/client/' + clientId,
                         type: 'GET',
                         success: function(response) {
+                            // console.log(response);
+
                             // Mengosongkan dropdown detail produk
                             $(`.invoice-item-destination`).empty();
                             // Mengisi dropdown detail produk dengan hasil yang diterima
-                            $.each(response, function(key, value) {
-                                $(`.invoice-item-destination`).append(
-                                    '<option value="' +
-                                    1 + '">' + value.address +
-                                    '</option>' +
-                                    '<option value="' +
-                                    2 + '">' + value.subAddress +
-                                    '</option>'
-                                );
-                            });
+                            // $.each(response, function(key, value) {
+                            $(`.invoice-item-destination`).append(
+                                '<option value="' +
+                                1 + '">' + response.address +
+                                '</option>' +
+                                '<option value="' +
+                                2 + '">' + response.subAddress +
+                                '</option>'
+                            );
                             // Mengaktifkan dropdown detail produk
                             $(`.invoice-item-destination`).prop('disabled', false);
+                        }
+                    });
+                    $.ajax({
+                        url: '/quotation/pic/' + clientId,
+                        type: 'GET',
+                        success: function(response) {
+                            console.log(response);
+
+                            // Mengosongkan dropdown detail produk
+                            $(`.invoice-item-pic`).empty();
+                            // Mengisi dropdown detail produk dengan hasil yang diterima
+                            $.each(response, function(key, value) {
+                            $(`.invoice-item-pic`).append(
+                                '<option value="' +
+                                value.id + '">' + value.name_pic +
+                                '</option>'
+                            );
+                            });
+                            // Mengaktifkan dropdown detail produk
+                            $(`.invoice-item-pic`).prop('disabled', false);
                         }
                     });
                 });

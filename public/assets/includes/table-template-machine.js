@@ -28,6 +28,8 @@ $(function () {
                 { data: "id" },
                 { data: "brand" },
                 { data: "sku" },
+                { data: "kw_hp" },
+                { data: "created" },
                 {
                     data: "",
                 },
@@ -88,7 +90,7 @@ $(function () {
                 //     },
                 // },
                 {
-                    targets: 5,
+                    targets: -1,
                     render: function (data, type, full, row) {
                         var id = full["id"];
                         var routeEdit = route("template.edit", id);

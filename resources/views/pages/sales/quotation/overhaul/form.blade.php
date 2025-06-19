@@ -11,8 +11,7 @@
         </div>
     @endif
     <form id="formAuthentication" class="mb-3 fv-plugins-bootstrap5 fv-plugins-framework"
-        action="{{ route('store-overhaul.quotation') }}"
-        method="post" enctype="multipart/form-data">
+        action="{{ route('store-overhaul.quotation') }}" method="post" enctype="multipart/form-data">
         @csrf
         <div class="form-floating mb-3">
             <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
@@ -62,7 +61,8 @@
                     <div class="col-6 col-lg-2">
                         <div class="form-floating form-floating-outline">
                             <input class="form-control" type="text" placeholder="Put Title Quotation Here ...."
-                                id="title" name="title" value="{{ old('title', @$quotation->title ?? 'Overhaul ' . $machine->brand . ' ' . $machine->sku) }}">
+                                id="title" name="title"
+                                value="{{ old('title', @$quotation->title ?? 'Overhaul ' . $machine->brand . ' ' . $machine->sku) }}">
                             <label for="title">Title Quotation</label>
                         </div>
                     </div>
@@ -195,7 +195,7 @@
                                                                 id="qty-{{ $id }}-{{ $dataDetail }}"
                                                                 data-main="{{ $id }}"
                                                                 data-id="{{ $dataDetail }}" min="1"
-                                                                value="1">
+                                                                value="{{ $item->qty }}">
                                                             <div class="form-floating form-floating-outline">
                                                                 <select class="form-select invoice-item-info"
                                                                     id="info-qty-{{ $id }}-{{ $dataDetail }}"
@@ -204,14 +204,41 @@
                                                                     aria-label="Default select example"
                                                                     name="info_qty[{{ $id }}][]">
                                                                     <option disabled>---Info---</option>
-                                                                    <option value="Pcs">Pcs</option>
-                                                                    <option value="Set">Set</option>
-                                                                    <option value="Pail">Pail</option>
-                                                                    <option value="Unit">Unit</option>
-                                                                    <option value="Lot">Lot</option>
-                                                                    <option value="Meter">Meter</option>
-                                                                    <option value="Hari">Hari</option>
-                                                                    <option value="Can">Can</option>
+                                                                    <option value="Pcs"
+                                                                        {{ $item->info_qty == 'Pcs' ? 'selected' : '' }}>
+                                                                        Pcs
+                                                                    </option>
+                                                                    <option value="Set"
+                                                                        {{ $item->info_qty == 'Set' ? 'selected' : '' }}>
+                                                                        Set
+                                                                    </option>
+                                                                    <option value="Pail"
+                                                                        {{ $item->info_qty == 'Pail' ? 'selected' : '' }}>
+                                                                        Pail
+                                                                    </option>
+                                                                    <option value="Unit"
+                                                                        {{ $item->info_qty == 'Unit' ? 'selected' : '' }}>
+                                                                        Unit
+                                                                    </option>
+                                                                    <option value="Lot"
+                                                                        {{ $item->info_qty == 'Lot' ? 'selected' : '' }}>
+                                                                        Lot
+                                                                    </option>
+                                                                    <option value="Meter"
+                                                                        {{ $item->info_qty == 'Meter' ? 'selected' : '' }}>
+                                                                        Meter
+                                                                    </option>
+                                                                    <option value="Hari"
+                                                                        {{ $item->info_qty == 'Hari' ? 'selected' : '' }}>
+                                                                        Hari
+                                                                    </option>
+                                                                    <option value="Kg"
+                                                                        {{ $item->info_qty == 'Kg' ? 'selected' : '' }}>Kg
+                                                                    </option>
+                                                                    <option value="Tube"
+                                                                        {{ $item->info_qty == 'Tube' ? 'selected' : '' }}>
+                                                                        Tube
+                                                                    </option>
                                                                 </select>
                                                                 <label for="exampleFormControlSelect1">Info</label>
                                                             </div>
@@ -352,12 +379,12 @@
                                             <input type="number" id="subtotal" class="form-control" name="subtotal"
                                                 value="{{ old('subtotal', @$quotation->subtotal ?? '') }}">
                                         @else --}}
-                                            <p class="mb-0 subtotal-label" id="subtotal-label" data-main="1"
-                                                data-id="1">
-                                                {{ old('subtotal', $subtotal ? 'RP ' . number_format($subtotal, 0, '', '.') : '') }}
-                                            </p>
-                                            <input type="number" id="subtotal" class="form-control" name="subtotal"
-                                                value="{{ old('subtotal', $subtotal ?? '') }}" hidden>
+                                        <p class="mb-0 subtotal-label" id="subtotal-label" data-main="1"
+                                            data-id="1">
+                                            {{ old('subtotal', $subtotal ? 'RP ' . number_format($subtotal, 0, '', '.') : '') }}
+                                        </p>
+                                        <input type="number" id="subtotal" class="form-control" name="subtotal"
+                                            value="{{ old('subtotal', $subtotal ?? '') }}" hidden>
                                         {{-- @endif --}}
                                     </div>
                                 </div>
@@ -453,13 +480,12 @@
                                                 name="harga_total"
                                                 value="{{ old('harga_total', @$quotation->harga_total ?? '') }}">
                                         @else --}}
-                                            <p class="mb-0 harga-total-label" id="hargaTotalLabel" data-main="1"
-                                                data-id="1">
-                                                {{ old('harga_total', $totalPrice ? 'RP ' . number_format($totalPrice, 0, '', '.') : '') }}
-                                            </p>
-                                            <input type="number" id="hargaTotal" class="form-control"
-                                                name="harga_total"
-                                                value="{{ old('harga_total', $totalPrice ?? '') }}" hidden>
+                                        <p class="mb-0 harga-total-label" id="hargaTotalLabel" data-main="1"
+                                            data-id="1">
+                                            {{ old('harga_total', $totalPrice ? 'RP ' . number_format($totalPrice, 0, '', '.') : '') }}
+                                        </p>
+                                        <input type="number" id="hargaTotal" class="form-control" name="harga_total"
+                                            value="{{ old('harga_total', $totalPrice ?? '') }}" hidden>
                                         {{-- @endif --}}
                                     </div>
                                 </div>

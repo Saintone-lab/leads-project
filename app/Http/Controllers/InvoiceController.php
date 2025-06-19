@@ -61,6 +61,7 @@ class InvoiceController extends Controller
      */
     public function show($id)
     {
+        $invoice = Invoice::find($id);
         $totalAmount = 0;
         $invoice = Invoice::find($id);
         $quote = Quotation::where('id', $invoice->id_quotation)->first();
@@ -75,9 +76,19 @@ class InvoiceController extends Controller
         $totalExpense = Expense::where('id_invoice', $id)->sum('total');
 
         $totalPph = 0;
-        foreach ($dquote as $product) {
-            $pph = ($product->amount * $product->pph) / 100;
-            $totalPph += $pph;
+        if ($quote->type == 'Sparepart') {
+            foreach ($dquote as $product) {
+                $pph = ($product->amount * $product->pph) / 100;
+                $totalPph += $pph;
+            }
+        } else {
+            foreach ($subQuote as $subtitle) {
+                foreach ($subtitle->detail as $detail) {
+                    
+                $pph = ($detail->amount * $detail->pph) / 100;
+                $totalPph += $pph;
+                }
+            }
         }
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
@@ -95,19 +106,19 @@ class InvoiceController extends Controller
         // dd($price);
         $afterDisc = $quote->subtotal - $quote->diskon;
 
-        $doTek = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->whereNot('code','Manual')->get();
-        $doEks = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->whereNot('code','Manual')->get();
-        $doTekMan = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->where('code','Manual')->get();
-        $doEksMan = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->where('code','Manual')->get();
+        $doTek = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->whereNot('code', 'Manual')->get();
+        $doEks = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->whereNot('code', 'Manual')->get();
+        $doTekMan = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->where('code', 'Manual')->get();
+        $doEksMan = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->where('code', 'Manual')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $pOut = ProductOut::where('invoice', $invoice->no_invoice)->first();
         // dd($doTekMan);
         if ($quote->type == 'Sparepart') {
-            return view('pages.accounting.invoice.detail', compact('hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks' , 'doTekMan', 'doEksMan'));
+            return view('pages.accounting.invoice.detail', compact('hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
         } else {
-            return view('pages.accounting.invoice.detail', compact('subQuote','hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks' , 'doTekMan', 'doEksMan'));
+            return view('pages.accounting.invoice.detail', compact('subQuote', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
         }
-        
+
     }
 
     /**
@@ -279,9 +290,9 @@ class InvoiceController extends Controller
         if ($quote->type == 'Sparepart') {
             return view("pages.accounting.invoice.detail-print", compact('harga', 'quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
         } else {
-            return view("pages.accounting.invoice.detail-print", compact('subQuote','harga', 'quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
+            return view("pages.accounting.invoice.detail-print", compact('subQuote', 'harga', 'quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
         }
-        
+
     }
 
     public function hand_sign(Request $request, $id)
@@ -474,6 +485,22 @@ class InvoiceController extends Controller
             return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
         }
     }
+    public function add_pph_service(Request $request, $id)
+    {
+        $invoice = Invoice::find($id);
+        $subQuotes = SubtitleQuotation::with('detail')->where('id_quotation', $invoice->id_quotation)->get();
+        $row = 0;
+        foreach ($subQuotes as $subQuote) {
+            foreach ($subQuote->detail as $index => $value) {
+                $row++;
+                $value->pph = $request->pph[$row]; // pastikan $request->pph ada dan indexnya sesuai
+                $status = $value->save();
+            }
+        }
+        if ($status) {
+            return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
 
     public function delete_pph($id)
     {
@@ -482,6 +509,24 @@ class InvoiceController extends Controller
         foreach ($dQuote as $item => $value) {
             $value->pph = 0;
             $status = $value->save();
+        }
+        if ($status) {
+            return 1;
+        } else {
+            return 0;
+        }
+
+    }
+    public function delete_pph_service($id)
+    {
+        $invoice = Invoice::find($id);
+        $subQuotes = SubtitleQuotation::with('detail')->where('id_quotation', $invoice->id_quotation)->get();
+
+        foreach ($subQuotes as $subQuote) {
+            foreach ($subQuote->detail as $index => $value) {
+                $value->pph = 0;
+                $status = $value->save();
+            }
         }
         if ($status) {
             return 1;

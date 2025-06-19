@@ -6,7 +6,7 @@
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
             <div class="card invoice-preview-card">
                 <div class="card-body">
-                    @if ($invoice->flag == 'Reftech')
+                    @if ($quote->pic->client->info == 'Reftech')
                         <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
                             <div class="mb-xl-0 pb-1">
                                 <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
@@ -113,7 +113,7 @@
                         }
                     @endphp
                     <h5>Invoice To</h5>
-                    <div class="table-responsive text-nowrap">
+                    <div class="table-responsive">
                         <table class="table table-bordered" style="border: 1px solid black;">
                             <tr>
                                 <td rowspan="3" style="vertical-align: top; width: 50%;">
@@ -248,7 +248,7 @@
                                     </td>
                                 </tr>
                                 @php
-                                    if ($invoice->flag == 'Reftech') {
+                                    if ($quote->pic->client->info == 'Reftech') {
                                         $bgColor = 'rgb(224, 248, 248)';
                                     } else {
                                         $bgColor = 'rgb(255, 232, 210)';
@@ -751,7 +751,7 @@
                                     </td>
                                 </tr>
                                 @php
-                                    if ($invoice->flag == 'Reftech') {
+                                    if ($quote->pic->client->info == 'Reftech') {
                                         $bgColor = 'rgb(224, 248, 248)';
                                     } else {
                                         $bgColor = 'rgb(255, 232, 210)';
@@ -1184,28 +1184,28 @@
                                 <p class="mb-1">Acc No. </p>
                                 <p class="mb-1">Swift Code </p>
                             </div>
-                            @if ($invoice->flag == 'Reftech' && $invoice->quote->tax == 0)
+                            @if ($quote->pic->client->info == 'Reftech' && $invoice->quote->tax == 0)
                                 <div class="col">
                                     <p class="mb-1">: Bank BCA (IDR)</p>
                                     <p class="mb-1">: ARIEP RACHMAN</p>
                                     <p class="mb-1">: 166 - 2242 - 271</p>
                                     <p class="mb-1">: -</p>
                                 </div>
-                            @elseif ($invoice->flag == 'Reftech' && $invoice->quote->tax > 0)
+                            @elseif ($quote->pic->client->info == 'Reftech' && $invoice->quote->tax > 0)
                                 <div class="col">
                                     <p class="mb-1">: Bank BCA (IDR)</p>
                                     <p class="mb-1">: PT. REFTECH JAYA OPTIMA</p>
                                     <p class="mb-1">: 008 - 6289 - 789</p>
                                     <p class="mb-1">: CENAIDJA</p>
                                 </div>
-                            @elseif ($invoice->flag == 'Kojisha' && $invoice->quote->tax == 0)
+                            @elseif ($quote->pic->client->info == 'Kojisha' && $invoice->quote->tax == 0)
                                 <div class="col">
                                     <p class="mb-1">: Bank BCA (IDR)</p>
                                     <p class="mb-1">: REGITA DWI MELINDA</p>
                                     <p class="mb-1">: 1560239137</p>
                                     <p class="mb-1">: - </p>
                                 </div>
-                            @elseif ($invoice->flag == 'Kojisha' && $invoice->quote->tax > 0)
+                            @elseif ($quote->pic->client->info == 'Kojisha' && $invoice->quote->tax > 0)
                                 <div class="col">
                                     <p class="mb-1">: Bank BCA (IDR)</p>
                                     <p class="mb-1">: KOJISHA INNOTIV INDONESIA PT</p>
@@ -1216,7 +1216,7 @@
                         </div>
                     </div>
                     <div class="col"></div>
-                    @if ($invoice->flag == 'Reftech')
+                    @if ($quote->pic->client->info == 'Reftech')
                         <div class="col-4 my-5 text-center">
                             <p>Bandung,
                                 {{ Carbon\Carbon::parse($invoice->date)->locale('ID')->translatedFormat('d F Y') }}
@@ -1297,7 +1297,8 @@
                 <div class="card mb-3">
                     <div class="card-body">
                         @if ($totalPph > 0)
-                            <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-pph mb-3"
+                            <a href="#"
+                                class="btn btn-danger d-grid w-100 waves-effect {{ $quote->type == 'Sparepart' ? 'delete-pph' : 'delete-pph-service' }} mb-3"
                                 data-id="{{ $invoice->id }}">Delete PPH</a>
                         @else
                             <a type="button" data-bs-toggle="modal" data-bs-target="#addPph"
@@ -1804,6 +1805,62 @@
                     if (result.value) {
                         $.ajax({
                             'url': '{{ url('invoice') }}/del-pph/' + id,
+                            'type': 'POST',
+                            'data': {
+                                '_method': 'DELETE',
+                                '_token': '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                if (response == 1) {
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "Deleted!",
+                                        text: "Your file has been deleted.",
+                                        customClass: {
+                                            confirmButton: "btn btn-success waves-effect",
+                                        },
+                                    })
+                                    window.setTimeout(function() {
+                                        window.location.href = '/invoice/' + id;
+                                    }, 2000);
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: 'Data Failed to Delete!'
+                                    });
+                                }
+                            }
+                        });
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            title: "Cancelled",
+                            text: "Your imaginary file is safe :)",
+                            icon: "error",
+                            customClass: {
+                                confirmButton: "btn btn-success waves-effect",
+                            },
+                        });
+                    }
+                });
+            });
+            $(document).on('click', '.delete-pph-service', function() {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!",
+                    customClass: {
+                        confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                        cancelButton: "btn btn-label-secondary waves-effect",
+                    },
+                    buttonsStyling: false,
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            'url': '{{ url('invoice') }}/del-pph-service/' + id,
                             'type': 'POST',
                             'data': {
                                 '_method': 'DELETE',

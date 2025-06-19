@@ -375,7 +375,7 @@
                                                 @foreach ($dDelivery as $product)
                                                     <p class="mb-0 fw-semibold">
                                                         {{ $product->product }}
-                                                        {{ $product->desc }}
+                                                        {{ $product->desc ?? '' }}
                                                     </p>
                                                 @endforeach
                                             </td>

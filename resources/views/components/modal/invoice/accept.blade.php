@@ -18,13 +18,13 @@
                             <div class="row">
                                 <div class="col-12 mb-3">
                                     @php
-                                        if ($quote->flag == 'Reftech') {
+                                        if ($quote->pic->client->info == 'Reftech') {
                                             $code = 'RJO';
                                         } else {
                                             $code = 'KII';
                                         }
 
-                                        if ($quote->flag == 'Reftech') {
+                                        if ($quote->pic->client->info == 'Reftech') {
                                             $nextCode = 'RJO';
                                         } else {
                                             $code = 'KII';

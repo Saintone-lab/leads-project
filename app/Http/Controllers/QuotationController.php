@@ -134,7 +134,8 @@ class QuotationController extends Controller
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
+        $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->where('c.id_sales', Auth::user()->id)->get('pic.*');
+        // $pic = client::where('client.id_sales', Auth::user()->id)->get();
         $sales = User::where('role', 'sales')->get();
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
         // dd($product);
@@ -638,6 +639,8 @@ class QuotationController extends Controller
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::all();
+        // $pic = client::where('client.id_sales', Auth::user()->id)->get();
+        // dd($pic);
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
         $sales = User::where('role', 'sales')->get();
         // dd($dquotation);
@@ -982,7 +985,7 @@ class QuotationController extends Controller
         $invoice->id_quotation = $id;
         $invoice->no_po = $request->po;
         $invoice->no_invoice = NULL;
-        $invoice->flag = $quote->flag;
+        $invoice->flag = $quote->pic->client->info;
         $invoice->type = 'BP';
         $invoice->date = Carbon::today();
         $invoice->term = NULL;
@@ -1042,7 +1045,7 @@ class QuotationController extends Controller
                 $invoice = new Invoice;
                 $invoice->id_quotation = $id;
                 $invoice->no_po = $request->po;
-                $invoice->flag = $quote->flag;
+                $invoice->flag = $quote->pic->client->info;
                 $invoice->no_invoice = NULL;
                 $invoice->type = 'CT';
                 $invoice->date = Carbon::today();
@@ -1677,6 +1680,7 @@ class QuotationController extends Controller
         $quotation->fee = 0;
         $quotation->nett = $request->subtotal - $request->diskon;
         $quotation->total_no_tax = $request->total_no_tax;
+        $quotation->flag = $client->info;
         $quotation->harga_total = $request->harga_total;
         $quoteSave = $quotation->save();
         $quotation->primary_id = $quotation->id;
@@ -1941,7 +1945,9 @@ class QuotationController extends Controller
 
         foreach ($subQuote as $subtitle) {
             foreach ($subtitle->detail as $detail) {
-                $totalDisc += ($detail->amount * $detail->disc / 100);
+                $amountBeforeDisc = $detail->amount / (1 - ($detail->disc / 100));
+                // dd($amountBeforeDisc);
+                $totalDisc += ($amountBeforeDisc * $detail->disc / 100);
             }
         }
         $quotations = Quotation::where('primary_id', $quote->primary_id)->get();
@@ -2077,7 +2083,8 @@ class QuotationController extends Controller
 
         foreach ($subQuote as $subtitle) {
             foreach ($subtitle->detail as $detail) {
-                $totalDisc += ($detail->amount * $detail->disc / 100);
+                $amountBeforeDisc = $detail->amount / (1 - ($detail->disc / 100));
+                $totalDisc += ($amountBeforeDisc * $detail->disc / 100);
             }
         }
         // dd($termncon);
@@ -2093,7 +2100,8 @@ class QuotationController extends Controller
 
         foreach ($subQuote as $subtitle) {
             foreach ($subtitle->detail as $detail) {
-                $totalDisc += ($detail->amount * $detail->disc / 100);
+                $amountBeforeDisc = $detail->amount / (1 - ($detail->disc / 100));
+                $totalDisc += ($amountBeforeDisc * $detail->disc / 100);
             }
         }
         // dd($termncon);
@@ -2272,6 +2280,7 @@ class QuotationController extends Controller
         $quotation->fee = 0;
         $quotation->nett = $request->subtotal - $request->diskon;
         $quotation->total_no_tax = $request->total_no_tax;
+        $quotation->flag = $client->info;
         $quotation->harga_total = $request->harga_total;
         $quoteSave = $quotation->save();
         $quotation->primary_id = $quotation->id;
@@ -2336,7 +2345,8 @@ class QuotationController extends Controller
 
         foreach ($subQuote as $subtitle) {
             foreach ($subtitle->detail as $detail) {
-                $totalDisc += ($detail->amount * $detail->disc / 100);
+                $amountBeforeDisc = $detail->amount / (1 - ($detail->disc / 100));
+                $totalDisc += ($amountBeforeDisc * $detail->disc / 100);
             }
         }
         $quotations = Quotation::where('primary_id', $quote->primary_id)->get();
@@ -2448,11 +2458,29 @@ class QuotationController extends Controller
 
         foreach ($subQuote as $subtitle) {
             foreach ($subtitle->detail as $detail) {
-                $totalDisc += ($detail->amount * $detail->disc / 100);
+                $amountBeforeDisc = $detail->amount / (1 - ($detail->disc / 100));
+                $totalDisc += ($amountBeforeDisc * $detail->disc / 100);
             }
         }
         // dd($termncon);
         return view("pages.sales.quotation.overhaul.detail-print", compact('totalDisc', 'quote', 'subQuote', 'tax', 'afterDisc'));
+    }
+    public function printNoImageOverhaul($id)
+    {
+        $quote = Quotation::where('id', $id)->first();
+        $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $id)->get();
+        $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
+        $afterDisc = $quote->subtotal - $quote->diskon;
+        $totalDisc = 0;
+
+        foreach ($subQuote as $subtitle) {
+            foreach ($subtitle->detail as $detail) {
+                $amountBeforeDisc = $detail->amount / (1 - ($detail->disc / 100));
+                $totalDisc += ($amountBeforeDisc * $detail->disc / 100);
+            }
+        }
+        // dd($termncon);
+        return view("pages.sales.quotation.overhaul.detail-print-no-image", compact('totalDisc', 'quote', 'subQuote', 'tax', 'afterDisc'));
     }
     public function revisionOverhaul($id)
     {

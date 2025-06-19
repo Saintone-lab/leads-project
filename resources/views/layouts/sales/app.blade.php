@@ -72,6 +72,11 @@
             <source src="{{ asset('asset/bgm-sandy.mp3') }}" type="audio/mpeg">
         </audio>
     @endif
+    @if (Auth::check() && Auth::id() === 16)
+        <audio id="bgm" autoplay loop style="display: none;">
+            <source src="{{ asset('asset/sound-ari.mp3') }}" type="audio/mpeg">
+        </audio>
+    @endif
     <!--  Layout wrapper  -->
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">

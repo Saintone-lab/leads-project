@@ -1,7 +1,7 @@
 @extends('layouts.sales.app')
 @section('title', $quote->no_quote)
 @php
-    if ($quote->flag == 'Reftech') {
+    if ($quote->pic->client->info == 'Reftech') {
         $bgColor = 'rgb(224, 248, 248)';
     } else {
         $bgColor = 'rgb(255, 232, 210)';
@@ -9,7 +9,7 @@
 @endphp
 <div class="invoice-print p-2">
     <div class="container-fluid flex-grow-1 container-p-y">
-        @if ($quote->flag == 'Reftech')
+        @if ($quote->pic->client->info == 'Reftech')
             <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
                 <div class="mb-xl-0 pb-1">
                     <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
@@ -127,7 +127,8 @@
                 </div>
                 <div class="col-4 text-end">
                     <p class="mb-1">
-                        {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}</p>
+                        {{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
+                    </p>
                     <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                     <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                 </div>
@@ -148,6 +149,7 @@
                         <th style="width: 1%">No.</th>
                         <th style="width: 50%">Item Description</th>
                         <th>Qty</th>
+                        <th>Disc</th>
                         <th>Price</th>
                         <th>Total Price</th>
                     </tr>
@@ -156,7 +158,6 @@
                     @php
                         $abjad = 64;
                         $totalBeforeDisc = $quote->subtotal + $totalDisc;
-                        $totalTax = $quote->subtotal * $quote->tax;
                     @endphp
                     @foreach ($subQuote as $subJudul)
                         @php
@@ -167,7 +168,7 @@
                             <td class="align-top" style="border-bottom:none !important; background-color: #f0f0f0;">
                                 <p class="fw-bold mb-0">{{ chr($abjad) }}</p>
                             </td>
-                            <td class="text-nowrap align-top" colspan="4"
+                            <td class="text-nowrap align-top" colspan="5"
                                 style="border-bottom:none !important; background-color: #f0f0f0;">
                                 <p class="fw-bold mb-0">{{ $subJudul->subtitle }}</p>
                             </td>
@@ -193,6 +194,9 @@
                                 <td class="align-top py-1 text-end" style="border-bottom:none !important;">
                                     <p class="mb-0">RP {{ number_format($product->price, 0, '', '.') }}</p>
                                 </td>
+                                <td class="align-top py-1" style="border-bottom:none !important;">
+                                    <p class="mb-0">{{ $product->disc }} %</p>
+                                </td>
                                 <td class="align-top py-1 text-end" style="border-bottom:none !important;">
                                     <p class="mb-0">RP {{ number_format($product->amount, 0, '', '.') }}</p>
                                 </td>
@@ -200,27 +204,27 @@
                         @endforeach
                     @endforeach
                     <tr>
-                        <td colspan="3"></td>
+                        <td colspan="4"></td>
                         <td class="text-end"> Subtotal :</td>
-                        <td class="text-end"> RP {{ number_format($totalBeforeDisc, 0, '', '.') }}</td>
+                        <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
                     </tr>
-                    <tr>
-                        <td colspan="3"></td>
+                    {{-- <tr>
+                        <td colspan="4"></td>
                         <td class="text-end"> Total Discount :</td>
                         <td class="text-end"> RP {{ number_format($totalDisc, 0, '', '.') }}</td>
                     </tr>
                     <tr>
-                        <td colspan="3"></td>
+                        <td colspan="4"></td>
                         <td class="text-end"> Total After Discount :</td>
                         <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
-                    </tr>
+                    </tr> --}}
                     <tr>
-                        <td colspan="3"></td>
+                        <td colspan="4"></td>
                         <td class="text-end"> Total Tax :</td>
-                        <td class="text-end"> RP {{ number_format($totalTax, 0, '', '.') }}</td>
+                        <td class="text-end"> RP {{ number_format($tax, 0, '', '.') }}</td>
                     </tr>
                     <tr class="border-top">
-                        <td colspan="4" class="px-4 border-right" style="background-color: #E7FF00">
+                        <td colspan="5" class="px-4 border-right" style="background-color: #E7FF00">
                             <p class="fw-semibold mb-0 text-black">TOTAL PRICE </p>
                         </td>
                         <td class="text-end px-4 border-left" style="background-color: #E7FF00">
@@ -258,6 +262,156 @@
             <p class="text-center mb-0 mt-2">if you have any questions about this quotation, please contact :</p>
             <p class="text-center mb-0">{{ $quote->sales->name }} {{ $quote->sales->phone }}</p>
         </div>
+        <div class="facilities">
+            {{-- <h3 class="text-center mb-3"> Service Facilities</h3>
+            <ul>
+                <li>
+                    <h5>WORKSHOP LOCATION:</h5>
+                </li>
+                <li style="list-style-type: none;">
+                    <div class="row">
+                        <div class="col-6">
+                            <img src="{{ asset('asset') }}/facilities/Team.jpg" alt="team image"
+                                class="d-block w-100" id="uploadedAvatar">
+                        </div>
+                        <div class="col-6">
+                            <p class="fs-3 mb-0"> Address:</p>
+                            <p class="fs-5">Jl. Nancep No.45, Cibening, Kec. Setu,
+                                Kabupaten Bekasi, Jawa Barat 17320</p>
+                        </div>
+                    </div>
+                </li>
+                <li class="mt-2">
+                    <h5>TOOLS & HEAVY MACHIENARIES AT WORKSHOP FACILITES:</h5>
+                </li>
+                <li style="list-style-type: none;">
+                    <table class="table-bordered">
+                        <tr>
+                            <td>
+                                <img src="{{ asset('asset') }}/facilities/Workbench-2.jpg" alt="workbench"
+                                    class="d-block w-100 h-75" id="uploadedAvatar">
+                            </td>
+                            <td>
+                                <img src="{{ asset('asset') }}/facilities/Workbench.jpg" alt="workbench"
+                                    class="d-block w-100 h-75" id="uploadedAvatar">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">
+                                <p class="fw-bolder">Airend Workbench -Multi purposed</p>
+                                <p>(Large Cap. : tested up to 315 kW Airend) - 1 Unit</p>
+                            </td>
+                            <td class="text-center">
+                                <p class="fw-bolder">Airend Workbench – Multi purposed</p>
+                                <p>(Medium Cap.: tested 15 - 37 kW Airend) - 1 Unit</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <img src="{{ asset('asset') }}/facilities/hydraulic-Jack.jpg" alt="hydraulic"
+                                    class="d-block w-100 h-75" id="uploadedAvatar">
+                            </td>
+                            <td>
+                                <img src="{{ asset('asset') }}/facilities/Heater-Bearing.jpg" alt="heater"
+                                    class="d-block w-100 h-75" id="uploadedAvatar">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">
+                                <p class="fw-bolder">Hydraulic jack kapasitas 50ton - <span class="fw-normal">1
+                                        Unit</span></p>
+                            </td>
+                            <td class="text-center">
+                                <p class="fw-bolder">Heater Bearing induction</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <img src="{{ asset('asset') }}/facilities/Crane.jpg" alt="crane"
+                                    class="d-block w-100 h-75" id="uploadedAvatar">
+                            </td>
+                            <td>
+                                <img src="{{ asset('asset') }}/facilities/Flow-Meter.jpg" alt="flow meter"
+                                    class="d-block w-100 h-75" id="uploadedAvatar">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">
+                                <p class="fw-bolder">Crane Capacity 3 ton - <span class="fw-normal">1 Unit</span>
+                                </p>
+                            </td>
+                            <td class="text-center">
+                                <p class="fw-bolder">Flow Meter - <span class="fw-normal">1 Set</span></p>
+                            </td>
+                        </tr>
+                    </table>
+                </li>
+                <li> INSTRUMENT MEASUREMENT:</li>
+                <li style="list-style-type: none;">
+                    <table class="table-bordered">
+                        <tr>
+                            <td>
+                                <img src="{{ asset('asset') }}/facilities/Vibration-Meter.jpg" alt="vibration meter"
+                                    class="d-block w-100 h-75" id="uploadedAvatar">
+                            </td>
+                            <td>
+                                <img src="{{ asset('asset') }}/facilities/Dew-Point-Meter.jpg" alt="Dew meter"
+                                    class="d-block w-100 h-75" id="uploadedAvatar">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">
+                                <p class="fw-bolder">Vibration Meter</p>
+                            </td>
+                            <td class="text-center">
+                                <p class="fw-bolder">Pressure Dewpoint Meter</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <img src="{{ asset('asset') }}/facilities/Megger-Tester.jpg" alt="hydraulic"
+                                    class="d-block w-100 h-75" id="uploadedAvatar">
+                            </td>
+                            <td>
+                                <img src="{{ asset('asset') }}/facilities/Dial-Gauge.jpg" alt="heater"
+                                    class="d-block w-100 h-75" id="uploadedAvatar">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">
+                                <p class="fw-bolder">Megger Tester</p>
+                            </td>
+                            <td class="text-center">
+                                <p class="fw-bolder">Dial Gauge</p>
+                            </td>
+                        </tr>
+                    </table>
+                </li>
+            </ul> --}}
+
+            <img src="{{ asset('asset') }}/facilities/1.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/2.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/3.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/4.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/5.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/6.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/7.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+            <img src="{{ asset('asset') }}/facilities/8.jpg" alt="heater" class="m-0 d-block w-100 h-100"
+                id="uploadedAvatar">
+        </div>
+        {{-- <div class="ketenagakerjaan">
+            <h3 class="text-center">SERTIFIKAT KETENAGAKERJAAN</h3>
+        </div>
+        <div class="k3-teknisi">
+            <h3 class="text-center">SERTIFIKAT K3 TEKNISI</h3>
+        </div> --}}
     </div>
 </div>
 @push('after-style')

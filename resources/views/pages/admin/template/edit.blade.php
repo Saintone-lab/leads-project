@@ -87,7 +87,7 @@
                                                                 id="qty-{{ $id }}-{{ $dataDetail }}"
                                                                 data-main="{{ $id }}"
                                                                 data-id="{{ $dataDetail }}" min="1"
-                                                                value="1">
+                                                                value="{{$item->qty}}">
                                                             <div class="form-floating form-floating-outline">
                                                                 <select class="form-select invoice-item-info"
                                                                     id="info-qty-{{ $id }}-{{ $dataDetail }}"
@@ -96,14 +96,14 @@
                                                                     aria-label="Default select example"
                                                                     name="info_qty[{{ $id }}][]">
                                                                     <option disabled>---Info---</option>
-                                                                    <option value="Pcs">Pcs</option>
-                                                                    <option value="Set">Set</option>
-                                                                    <option value="Pail">Pail</option>
-                                                                    <option value="Unit">Unit</option>
-                                                                    <option value="Lot">Lot</option>
-                                                                    <option value="Meter">Meter</option>
-                                                                    <option value="Hari">Hari</option>
-                                                                    <option value="Can">Can</option>
+                                                                    <option value="Pcs" {{$item->info_qty == 'Pcs' ? 'Selected' : ''}}>Pcs</option>
+                                                                    <option value="Set" {{$item->info_qty == 'Set' ? 'Selected' : ''}}>Set</option>
+                                                                    <option value="Pail" {{$item->info_qty == 'Pail' ? 'Selected' : ''}}>Pail</option>
+                                                                    <option value="Unit" {{$item->info_qty == 'Unit' ? 'Selected' : ''}}>Unit</option>
+                                                                    <option value="Lot" {{$item->info_qty == 'Lot' ? 'Selected' : ''}}>Lot</option>
+                                                                    <option value="Meter" {{$item->info_qty == 'Meter' ? 'Selected' : ''}}>Meter</option>
+                                                                    <option value="Hari" {{$item->info_qty == 'Hari' ? 'Selected' : ''}}>Hari</option>
+                                                                    <option value="Can" {{$item->info_qty == 'Can' ? 'Selected' : ''}}>Can</option>
                                                                 </select>
                                                                 <label for="exampleFormControlSelect1">Info</label>
                                                             </div>
@@ -115,7 +115,7 @@
                                                                 id="disc-{{ $id }}-{{ $dataDetail }}"
                                                                 data-main="{{ $id }}"
                                                                 data-id="{{ $dataDetail }}" min="0"
-                                                                value="{{ old('disc[' . $id . '][]', '0') }}">
+                                                                value="{{ $item->disc }}">
                                                         </div>
                                                         <div class="col-md-1 col-12 pe-0">
                                                             <p class="mb-2 repeater-title">Amount</p>

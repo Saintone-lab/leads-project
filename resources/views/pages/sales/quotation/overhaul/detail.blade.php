@@ -2,7 +2,7 @@
 @section('title', 'Detail Quotation')
 @section('content')
     @php
-        if ($quote->flag == 'Reftech') {
+        if ($quote->pic->client->info == 'Reftech') {
             $bgColor = 'rgb(224, 248, 248)';
         } else {
             $bgColor = 'rgb(255, 232, 210)';
@@ -13,7 +13,7 @@
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
             <div class="card invoice-preview-card mb-3">
                 <div class="card-body">
-                    @if ($quote->flag == 'Reftech')
+                    @if ($quote->pic->client->info == 'Reftech')
                         <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
                             <div class="mb-xl-0 pb-1">
                                 <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
@@ -132,7 +132,7 @@
                         </div>
                         <div class="col-3 text-end">
                             <p class="mb-1">
-                                {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
+                                {{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
                             </p>
                             <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                             <p class="mb-1"> {{ $quote->pic->client->email }}</p>
@@ -154,6 +154,7 @@
                                 <th style="width: 50%">Item Description</th>
                                 <th>Qty</th>
                                 <th>Price</th>
+                                <th>Disc</th>
                                 <th>Total Price</th>
                             </tr>
                         </thead>
@@ -172,7 +173,7 @@
                                     <td class="align-top" style="border-bottom:none !important; background-color: #f0f0f0;">
                                         <p class="fw-bold mb-0">{{ chr($abjad) }}</p>
                                     </td>
-                                    <td class="text-nowrap align-top" colspan="4"
+                                    <td class="text-nowrap align-top" colspan="5"
                                         style="border-bottom:none !important; background-color: #f0f0f0;">
                                         <p class="fw-bold mb-0">{{ $subJudul->subtitle }}</p>
                                     </td>
@@ -198,6 +199,9 @@
                                         <td class="align-top py-1 text-end" style="border-bottom:none !important;">
                                             <p class="mb-0">RP {{ number_format($product->price, 0, '', '.') }}</p>
                                         </td>
+                                        <td class="align-top py-1" style="border-bottom:none !important;">
+                                            <p class="mb-0">{{ $product->disc }} %</p>
+                                        </td>
                                         <td class="align-top py-1 text-end" style="border-bottom:none !important;">
                                             <p class="mb-0">RP {{ number_format($product->amount, 0, '', '.') }}</p>
                                         </td>
@@ -205,27 +209,27 @@
                                 @endforeach
                             @endforeach
                             <tr>
-                                <td colspan="3"></td>
+                                <td colspan="4"></td>
                                 <td class="text-end"> Subtotal :</td>
-                                <td class="text-end"> RP {{ number_format($totalBeforeDisc, 0, '', '.') }}</td>
+                                <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
                             </tr>
-                            <tr>
-                                <td colspan="3"></td>
+                            {{-- <tr>
+                                <td colspan="4"></td>
                                 <td class="text-end"> Total Discount :</td>
                                 <td class="text-end"> RP {{ number_format($totalDisc, 0, '', '.') }}</td>
                             </tr>
                             <tr>
-                                <td colspan="3"></td>
+                                <td colspan="4"></td>
                                 <td class="text-end"> Total After Discount :</td>
                                 <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
-                            </tr>
+                            </tr> --}}
                             <tr>
-                                <td colspan="3"></td>
+                                <td colspan="4"></td>
                                 <td class="text-end"> Total Tax :</td>
-                                <td class="text-end"> RP {{ number_format($totalTax, 0, '', '.') }}</td>
+                                <td class="text-end"> RP {{ number_format($tax, 0, '', '.') }}</td>
                             </tr>
                             <tr class="border-top">
-                                <td colspan="4" class="px-4 border-right" style="background-color: #E7FF00">
+                                <td colspan="5" class="px-4 border-right" style="background-color: #E7FF00">
                                     <p class="fw-semibold mb-0 text-black">TOTAL PRICE </p>
                                 </td>
                                 <td class="text-end px-4 border-left" style="background-color: #E7FF00">
@@ -423,18 +427,18 @@
                 <div class="card mb-3">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-12">
+                            <div class="col-6">
                                 <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect"
                                     target="_blank" href="{{ route('overhaul-print.quotation', $quote->id) }}">
-                                    Download
+                                    Download ++
                                 </a>
                             </div>
-                            {{-- <div class="col-6">
+                            <div class="col-6">
                                 <a class="btn btn-warning btn-outline-secondary d-grid w-100 mb-3 waves-effect"
-                                    target="_blank" href="{{ route('service-print-no-image.quotation', $quote->id) }}">
+                                    target="_blank" href="{{ route('overhaul-print-no-image.quotation', $quote->id) }}">
                                     Download --
                                 </a>
-                            </div> --}}
+                            </div>
                         </div>
                         @if (Auth::user()->role == 'Sales')
                             @if ($quote->status != '100')
@@ -466,7 +470,7 @@
                             @if ((Auth::user()->id == '1' || Auth::user()->id == '16') && $invoice->count() < 1)
                                 <a href="#" data-id="{{ $quote->id }}"
                                     class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
-                                    {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
+                                    {{ $quote->pic->client->info == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
                             @endif
                             @if ($quote->status != '100')
                                 <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"

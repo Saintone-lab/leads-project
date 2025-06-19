@@ -53,9 +53,6 @@
                         <span
                             class="text-muted">{{ Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</span>
                     </div>
-                    <div class="mt-1">
-                        <span class=" fw-medium fs-6 badge bg-info text-black">{{ $quote->title }}</span>
-                    </div>
                 </div>
             </div>
         @else
@@ -130,18 +127,20 @@
                 </div>
                 <div class="col-4 text-end">
                     <p class="mb-1">
-                        {{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
-                    </p>
+                        {{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}</p>
                     <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                     <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                 </div>
             </div>
         </div>
 
-        <p>Sir/Madam,
+        <p class="mb-1">Sir/Madam,
             We are pleased to offer the under – we mention as per conditions and details described as following
             :
         </p>
+        <div class="mt-1 text-center">
+            <span class=" fw-medium fs-6 badge bg-label-secondary text-black">{{ $quote->title }}</span>
+        </div>
         <div class="mb-2">
             <table class="table table-bordered m-0" style="width: 100%">
                 <thead class="table-light border-top">
@@ -149,8 +148,8 @@
                         <th style="width: 1%">No.</th>
                         <th style="width: 50%">Item Description</th>
                         <th>Qty</th>
-                        <th>Disc</th>
                         <th>Price</th>
+                        <th>Disc</th>
                         <th>Total Price</th>
                     </tr>
                 </thead>
@@ -262,156 +261,6 @@
             <p class="text-center mb-0 mt-2">if you have any questions about this quotation, please contact :</p>
             <p class="text-center mb-0">{{ $quote->sales->name }} {{ $quote->sales->phone }}</p>
         </div>
-        <div class="facilities">
-            {{-- <h3 class="text-center mb-3"> Service Facilities</h3>
-            <ul>
-                <li>
-                    <h5>WORKSHOP LOCATION:</h5>
-                </li>
-                <li style="list-style-type: none;">
-                    <div class="row">
-                        <div class="col-6">
-                            <img src="{{ asset('asset') }}/facilities/Team.jpg" alt="team image"
-                                class="d-block w-100" id="uploadedAvatar">
-                        </div>
-                        <div class="col-6">
-                            <p class="fs-3 mb-0"> Address:</p>
-                            <p class="fs-5">Jl. Nancep No.45, Cibening, Kec. Setu,
-                                Kabupaten Bekasi, Jawa Barat 17320</p>
-                        </div>
-                    </div>
-                </li>
-                <li class="mt-2">
-                    <h5>TOOLS & HEAVY MACHIENARIES AT WORKSHOP FACILITES:</h5>
-                </li>
-                <li style="list-style-type: none;">
-                    <table class="table-bordered">
-                        <tr>
-                            <td>
-                                <img src="{{ asset('asset') }}/facilities/Workbench-2.jpg" alt="workbench"
-                                    class="d-block w-100 h-75" id="uploadedAvatar">
-                            </td>
-                            <td>
-                                <img src="{{ asset('asset') }}/facilities/Workbench.jpg" alt="workbench"
-                                    class="d-block w-100 h-75" id="uploadedAvatar">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">
-                                <p class="fw-bolder">Airend Workbench -Multi purposed</p>
-                                <p>(Large Cap. : tested up to 315 kW Airend) - 1 Unit</p>
-                            </td>
-                            <td class="text-center">
-                                <p class="fw-bolder">Airend Workbench – Multi purposed</p>
-                                <p>(Medium Cap.: tested 15 - 37 kW Airend) - 1 Unit</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img src="{{ asset('asset') }}/facilities/hydraulic-Jack.jpg" alt="hydraulic"
-                                    class="d-block w-100 h-75" id="uploadedAvatar">
-                            </td>
-                            <td>
-                                <img src="{{ asset('asset') }}/facilities/Heater-Bearing.jpg" alt="heater"
-                                    class="d-block w-100 h-75" id="uploadedAvatar">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">
-                                <p class="fw-bolder">Hydraulic jack kapasitas 50ton - <span class="fw-normal">1
-                                        Unit</span></p>
-                            </td>
-                            <td class="text-center">
-                                <p class="fw-bolder">Heater Bearing induction</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img src="{{ asset('asset') }}/facilities/Crane.jpg" alt="crane"
-                                    class="d-block w-100 h-75" id="uploadedAvatar">
-                            </td>
-                            <td>
-                                <img src="{{ asset('asset') }}/facilities/Flow-Meter.jpg" alt="flow meter"
-                                    class="d-block w-100 h-75" id="uploadedAvatar">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">
-                                <p class="fw-bolder">Crane Capacity 3 ton - <span class="fw-normal">1 Unit</span>
-                                </p>
-                            </td>
-                            <td class="text-center">
-                                <p class="fw-bolder">Flow Meter - <span class="fw-normal">1 Set</span></p>
-                            </td>
-                        </tr>
-                    </table>
-                </li>
-                <li> INSTRUMENT MEASUREMENT:</li>
-                <li style="list-style-type: none;">
-                    <table class="table-bordered">
-                        <tr>
-                            <td>
-                                <img src="{{ asset('asset') }}/facilities/Vibration-Meter.jpg" alt="vibration meter"
-                                    class="d-block w-100 h-75" id="uploadedAvatar">
-                            </td>
-                            <td>
-                                <img src="{{ asset('asset') }}/facilities/Dew-Point-Meter.jpg" alt="Dew meter"
-                                    class="d-block w-100 h-75" id="uploadedAvatar">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">
-                                <p class="fw-bolder">Vibration Meter</p>
-                            </td>
-                            <td class="text-center">
-                                <p class="fw-bolder">Pressure Dewpoint Meter</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img src="{{ asset('asset') }}/facilities/Megger-Tester.jpg" alt="hydraulic"
-                                    class="d-block w-100 h-75" id="uploadedAvatar">
-                            </td>
-                            <td>
-                                <img src="{{ asset('asset') }}/facilities/Dial-Gauge.jpg" alt="heater"
-                                    class="d-block w-100 h-75" id="uploadedAvatar">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">
-                                <p class="fw-bolder">Megger Tester</p>
-                            </td>
-                            <td class="text-center">
-                                <p class="fw-bolder">Dial Gauge</p>
-                            </td>
-                        </tr>
-                    </table>
-                </li>
-            </ul> --}}
-
-            <img src="{{ asset('asset') }}/facilities/1.jpg" alt="heater" class="m-0 d-block w-100 h-100"
-                id="uploadedAvatar">
-            <img src="{{ asset('asset') }}/facilities/2.jpg" alt="heater" class="m-0 d-block w-100 h-100"
-                id="uploadedAvatar">
-            <img src="{{ asset('asset') }}/facilities/3.jpg" alt="heater" class="m-0 d-block w-100 h-100"
-                id="uploadedAvatar">
-            <img src="{{ asset('asset') }}/facilities/4.jpg" alt="heater" class="m-0 d-block w-100 h-100"
-                id="uploadedAvatar">
-            <img src="{{ asset('asset') }}/facilities/5.jpg" alt="heater" class="m-0 d-block w-100 h-100"
-                id="uploadedAvatar">
-            <img src="{{ asset('asset') }}/facilities/6.jpg" alt="heater" class="m-0 d-block w-100 h-100"
-                id="uploadedAvatar">
-            <img src="{{ asset('asset') }}/facilities/7.jpg" alt="heater" class="m-0 d-block w-100 h-100"
-                id="uploadedAvatar">
-            <img src="{{ asset('asset') }}/facilities/8.jpg" alt="heater" class="m-0 d-block w-100 h-100"
-                id="uploadedAvatar">
-        </div>
-        {{-- <div class="ketenagakerjaan">
-            <h3 class="text-center">SERTIFIKAT KETENAGAKERJAAN</h3>
-        </div>
-        <div class="k3-teknisi">
-            <h3 class="text-center">SERTIFIKAT K3 TEKNISI</h3>
-        </div> --}}
     </div>
 </div>
 @push('after-style')

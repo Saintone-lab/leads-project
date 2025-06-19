@@ -14,6 +14,8 @@
                         <th>ID</th>
                         <th>brand</th>
                         <th>machine</th>
+                        <th>kw / hp</th>
+                        <th>date</th>
                         <th>Action</th>
                     </tr>
                 </thead>

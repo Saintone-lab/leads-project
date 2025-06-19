@@ -158,7 +158,7 @@
                             @endforeach
                             <tr>
                                 <td colspan="3"></td>
-                                <td>{{ $qty }} {{ $product->info_qty }} </td>
+                                <td>{{ $qty }}</td>
                             </tr>
                         </tbody>
                     @else
