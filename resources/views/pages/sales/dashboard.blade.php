@@ -640,15 +640,14 @@
                     <div class="card-body pb-3">
                         <ul class="nav nav-tabs nav-tabs-widget pb-3 gap-2 d-flex flex-nowrap" role="tablist">
                             @foreach ($sales as $user)
-                                <li class="nav-item change-sales" role="presentation" style="width: 80%;"
+                                <li class="nav-item change-sales" role="presentation" style="width: 15%;height: 15%;"
                                     data-id="{{ $user->id }}">
-                                    <div class="nav-link btn {{ $user->id == 1 ? 'active' : '' }} d-flex flex-column align-items-center justify-content-center"
+                                    <img class="nav-link btn {{ $user->id == 1 ? 'active' : '' }} d-flex flex-column align-items-center justify-content-center"
                                         role="tab" data-bs-toggle="tab"
                                         data-bs-target="#navs-sales-{{ $user->id }}"
-                                        aria-controls="navs-sales-{{ $user->id }}" aria-selected="true">
-                                        <img src="{{ url('') . '/' . $user->image }}" alt="" srcset=""
-                                            style="width : 100%; height:100%; object-fit: cover;">
-                                    </div>
+                                        aria-controls="navs-sales-{{ $user->id }}" aria-selected="true"
+                                        src="{{ url('') . '/' . $user->image }}" alt="" srcset=""
+                                        style="width : 75px !important; height:75px !important; object-fit: cover; padding: 10px;">
                                 </li>
                             @endforeach
                             <span class="tab-slider" style="left: 0px; width: 112px; bottom: 0px;"></span>
@@ -1054,14 +1053,14 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th></th>
+                                    {{-- <th></th> --}}
                                     <th>ID</th>
                                     <th>Quote No.</th>
                                     <th>Company</th>
                                     <th>Total Price</th>
                                     <th>Status</th>
                                     <th>Assigned</th>
-                                    <th>Actions</th>
+                                    {{-- <th>Actions</th> --}}
                                 </tr>
                             </thead>
                         </table>

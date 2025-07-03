@@ -1,45 +1,46 @@
 $(function () {
-    var dt_table_product = $(".datatable-product");
-    var Url = "db/product";
+    var dt_table_overview_po_prospect = $(".datatable-overview-po-prospect");
+    var Url = "/db/overview/po-prospect/";
+    var path = window.location.pathname;
+    var segments = path.split("/");
 
-    if (dt_table_product.length) {
-        $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product.DataTable({
+    var sales = segments[segments.length - 2]; // Mendapatkan segment kedua dari belakang
+    var dateRep = segments[segments.length - 1]; // Mendapatkan segment terakhir
+
+    if (dt_table_overview_po_prospect.length) {
+        var dt_po = dt_table_overview_po_prospect.DataTable({
             ajax: {
                 type: "GET",
-                url: Url,
+                url: Url + sales + "/" + dateRep,
                 headers: {
                     "Content-Type": "application/json",
                 },
+                dataSrc: function (response) {
+                    // Mengambil total_nett dari response dan mengubah po-head-label
+                    var totalNett = response.total_nett || 0;
+                    $("div.po-head-label").html(
+                        '<h5 class="card-title mb-0">Table PO - Total PO: Rp ' +
+                            totalNett +
+                            "</h5>"
+                    );
 
-                // success: function (hasil, Url) {
-                //     console.log("Url:", Url);
-                //     console.log(hasil);
-                // },
-                // error: function (error) {
-                //     console.log("Url:", Url);
-                //     console.error("Error:", error);
-                //     console.log("error disini");
-                // },
+                    // Return data untuk datatable
+                    return response.data;
+                },
+                error: function (error) {
+                    console.error("Error:", error);
+                },
             },
             columns: [
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "commodity" },
-                { data: "brand" },
-                { data: "pn" },
-                { data: "price" },
-                { data: "descrip" },
-                { data: "dimension" },
-                { data: "stock" },
-                {
-                    data: "po",
-                    render: function (data, type, row) {
-                        return data ?? "-";
-                    },
-                },
-                { data: "warehouse_stock" },
+                { data: "no_quote" },
+                { data: "company" },
+                { data: "title" },
+                { data: "po_date" },
+                { data: "nett" },
+                { data: "name" },
             ],
             columnDefs: [
                 {
@@ -81,61 +82,31 @@ $(function () {
                     targets: 3,
                     render: function (data, type, full, row) {
                         if (type === "display") {
-                            var $dataId = full["id_p"];
-                            var detailRoute = route("product.show", $dataId);
-                            var $title = full["modal_replacements"];
+                            var $dataId = full["id"];
+                            var detailRoute = route("quotation.show", $dataId);
                             return (
-                                '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' +
-                                $title +
-                                '">' +
                                 '<a class="text-dark" href="' +
                                 detailRoute +
                                 '">' +
                                 data +
-                                "</a>" +
-                                "</span>"
+                                "</a>"
                             );
                         }
                         return data;
                     },
                 },
                 {
-                    targets: 6,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            // Ambil nilai last_modal
-                            var lastModal = full["last_modal"];
-
-                            var formattedModal =
-                                lastModal === null || lastModal === undefined
-                                    ? "-"
-                                    : $.fn.dataTable.render
-                                          .number(".", ",", 0, "Rp.")
-                                          .display(lastModal);
-                            var formattedData =
-                                data === null || data === undefined
-                                    ? "-"
-                                    : $.fn.dataTable.render
-                                          .number(".", ",", 0, "Rp.")
-                                          .display(data);
-
-                            // Buat tooltip dan konten yang ditampilkan
-                            return (
-                                '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="Last HPP ' +
-                                formattedModal +
-                                '">' +
-                                formattedData +
-                                "</span>"
-                            );
-                        }
-                        return data;
-                    },
+                    targets: 7,
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
             ],
+            drawCallback: function (settings) {
+                $('[data-toggle="tooltip"]').tooltip();
+            },
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            displayLength: 15,
-            lengthMenu: [15, 25, 50, 75, 100],
+            dom: '<"card-header flex-column flex-md-row"<"po-head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            displayLength: 50,
+            lengthMenu: [50, 75, 100],
             buttons: [
                 {
                     extend: "collection",
@@ -147,7 +118,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -203,7 +174,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -240,7 +211,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -277,7 +248,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -314,7 +285,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -348,18 +319,7 @@ $(function () {
                         },
                     ],
                 },
-                {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
-                    className: "btn btn-primary",
-                    attr: {
-                        "data-bs-target": "#createProduct",
-                        "data-bs-toggle": "modal",
-                    },
-                },
             ],
-            drawCallback: function (settings) {
-                $('[data-toggle="tooltip"]').tooltip();
-            },
             responsive: {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal({
@@ -395,11 +355,5 @@ $(function () {
                 },
             },
         });
-        $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Product</h5>'
-        );
     }
-    dt_table_product.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
 });

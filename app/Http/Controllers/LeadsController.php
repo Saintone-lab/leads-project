@@ -381,7 +381,9 @@ class LeadsController extends Controller
         $leads->source = $request->source;
         $leads->npwp = $request->npwp;
         $leads->mobile = $request->mobile;
-        $leads->info = $request->info;
+        if (Auth::user()->id == 1 || Auth::user()->id == 16) {
+            $leads->info = $request->info;
+        }
         $leads->address = $request->address;
         $leads->subAddress = $request->subAddress;
         $leads->area = $request->area;

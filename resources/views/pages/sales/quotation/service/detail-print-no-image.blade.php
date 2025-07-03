@@ -192,13 +192,17 @@
                                     <p class="mb-0">{{ $product->qty }} {{ $product->info_qty }}</p>
                                 </td>
                                 <td class="align-top py-1 text-end" style="border-bottom:none !important;">
-                                    <p class="mb-0">RP {{ number_format($product->price, 0, '', '.') }}</p>
+                                    <p class="mb-0">
+                                        {{ $product->amount == 0 ? 'SBO' : 'RP ' . number_format($product->price, 0, '', '.') }}
+                                    </p>
                                 </td>
                                 <td class="align-top py-1" style="border-bottom:none !important;">
-                                    <p class="mb-0">{{ $product->disc }} %</p>
+                                    <p class="mb-0">{{ $product->amount == 0 ? '-' : $product->disc . ' %' }}</p>
                                 </td>
                                 <td class="align-top py-1 text-end" style="border-bottom:none !important;">
-                                    <p class="mb-0">RP {{ number_format($product->amount, 0, '', '.') }}</p>
+                                    <p class="mb-0">
+                                        {{ $product->amount == 0 ? 'SBO' : 'RP ' . number_format($product->amount, 0, '', '.') }}
+                                    </p>
                                 </td>
                             </tr>
                         @endforeach
@@ -208,12 +212,14 @@
                         <td class="text-end"> Subtotal :</td>
                         <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
                     </tr>
+                    @if ($quote->diskon != 0)
+                        <tr>
+                            <td colspan="4"></td>
+                            <td class="text-end"> Discount :</td>
+                            <td class="text-end"> RP {{ number_format($quote->diskon, 0, '', '.') }}</td>
+                        </tr>
+                    @endif
                     {{-- <tr>
-                        <td colspan="4"></td>
-                        <td class="text-end"> Total Discount :</td>
-                        <td class="text-end"> RP {{ number_format($totalDisc, 0, '', '.') }}</td>
-                    </tr>
-                    <tr>
                         <td colspan="4"></td>
                         <td class="text-end"> Total After Discount :</td>
                         <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>

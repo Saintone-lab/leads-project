@@ -20,7 +20,14 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT p.*, s.image, s.brand, s.pn, s.price, CONCAT(p.stock, ' - ', p.warehouse_stock ) AS stok FROM product p
+        $query = "SELECT p.*, CONCAT(' (', 
+            CASE 
+                WHEN p.go = 'Replacement' THEN 'R'
+                WHEN p.go = 'Genuine' THEN 'G'
+                ELSE p.go
+            END
+        , ')', p.description) as descrip,
+        s.image, s.brand, s.pn, s.price, CONCAT(p.stock, ' - ', p.warehouse_stock ) AS stok FROM product p
         RIGHT JOIN serial_product s on p.id = s.id_product";
 
         $stmt = $pdo->prepare($query);

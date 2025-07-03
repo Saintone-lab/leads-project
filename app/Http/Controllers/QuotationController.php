@@ -14,6 +14,7 @@ use App\Models\DetailServiceQuotation;
 use App\Models\Invoice;
 use App\Models\MachineTemplate;
 use App\Models\Payment;
+use App\Models\PendingPO;
 use App\Models\Pic;
 use App\Models\Product;
 use App\Models\Prospect;
@@ -134,8 +135,8 @@ class QuotationController extends Controller
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->where('c.id_sales', Auth::user()->id)->get('pic.*');
-        // $pic = client::where('client.id_sales', Auth::user()->id)->get();
+        // $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->where('c.id_sales', Auth::user()->id)->get('pic.*');
+        $pic = client::where('client.id_sales', Auth::user()->id)->get();
         $sales = User::where('role', 'sales')->get();
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
         // dd($product);
@@ -215,8 +216,9 @@ class QuotationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        $pic = Pic::find($request->id_pic);
+    {  
+        // dd($request->pic);
+        $pic = Pic::find($request->pic);
         $client = Client::find($pic->id_client);
         $rule = [
             'no_quote' => 'required',
@@ -245,7 +247,7 @@ class QuotationController extends Controller
         // dd($request);
         // Masukan Data ke Tabel Quotataion
         $quotation = new Quotation();
-        $quotation->id_pic = $request->id_pic;
+        $quotation->id_pic = $request->pic;
         $quotation->id_sales = $request->id_sales;
         $quotation->id_service = NULL;
         $quotation->id_support = $client->id_support;
@@ -689,7 +691,12 @@ class QuotationController extends Controller
             $client->id_issues = '5';
             $client->role = 'Customers';
             $isuSave = $client->save();
-
+            
+            $pending = new PendingPO;
+            $pending->status = 0;
+            $pending->id_quotation = $quotation->primary_id;
+            $pending->date = Carbon::now();
+            $pending->save();
         }
         $changeStats = new ChangeStatus;
         $changeStats->id_quotation = $quotation->primary_id;
@@ -905,6 +912,15 @@ class QuotationController extends Controller
         $stats->status = '100';
         $stats->note = $request->note;
         $stats->save();
+
+        if ($quotation->type == 'Sparepart') {
+            $pending = new PendingPO;
+            $pending->status = 0;
+            $pending->id_quotation = $quotation->primary_id;
+            $pending->date = Carbon::now();
+            $pending->save();
+        }
+
         if ($quoteSave) {
             if ($quotation->type == 'Sparepart') {
                 return redirect('/quotation/' . $id)->with("success", "data telah ditambahkan");

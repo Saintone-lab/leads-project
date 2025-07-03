@@ -6,7 +6,7 @@
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
             <div class="card invoice-preview-card">
                 <div class="card-body">
-                    @if ($quote->flag == 'Reftech')
+                    @if ($quote->pic->client->info == 'Reftech')
                         <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
                             <div class="mb-xl-0 pb-1">
                                 <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
@@ -112,7 +112,7 @@
                         </div>
                         <div class="col-3 text-end">
                             <p class="mb-1">
-                                {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
+                                {{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
                             </p>
                             <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                             <p class="mb-1"> {{ $quote->pic->client->email }}</p>

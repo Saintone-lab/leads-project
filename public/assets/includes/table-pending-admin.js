@@ -1,10 +1,10 @@
 $(function () {
-    var dt_table_product = $(".datatable-product");
-    var Url = "db/product";
+    var dt_table_pending_po = $(".datatable-pending-po");
+    var Url = "db/pending/po";
 
-    if (dt_table_product.length) {
+    if (dt_table_pending_po.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product.DataTable({
+        var dt_pending = dt_table_pending_po.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -26,20 +26,17 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "commodity" },
-                { data: "brand" },
-                { data: "pn" },
-                { data: "price" },
-                { data: "descrip" },
-                { data: "dimension" },
-                { data: "stock" },
+                { data: "name" },
+                { data: "company" },
                 {
-                    data: "po",
+                    data: "no_po",
                     render: function (data, type, row) {
-                        return data ?? "-";
+                        return data ? data : "belum ada invoice";
                     },
                 },
-                { data: "warehouse_stock" },
+                { data: "status" },
+                { data: "status_p" },
+                { data: "id" },
             ],
             columnDefs: [
                 {
@@ -75,25 +72,36 @@ $(function () {
                 },
                 {
                     responsivePriority: 1,
-                    targets: 3,
+                    targets: 4,
                 },
                 {
-                    targets: 3,
+                    targets: -1,
                     render: function (data, type, full, row) {
                         if (type === "display") {
-                            var $dataId = full["id_p"];
-                            var detailRoute = route("product.show", $dataId);
-                            var $title = full["modal_replacements"];
+                            var id = full["id"];
+                            detailRoute = route("pending-po.edit", id);
                             return (
-                                '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' +
-                                $title +
-                                '">' +
-                                '<a class="text-dark" href="' +
+                                '<a class="btn btn-primary" href="' +
                                 detailRoute +
                                 '">' +
+                                "Product" +
+                                "</a>"
+                            );
+                        }
+                        return data;
+                    },
+                },
+                {
+                    targets: 4,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var id = full["id"];
+                            return (
+                                '<a class="text-black cursor-pointer" data-bs-toggle="modal" data-bs-target="#detailPending-' +
+                                id +
+                                '">' +
                                 data +
-                                "</a>" +
-                                "</span>"
+                                "</a>"
                             );
                         }
                         return data;
@@ -101,41 +109,88 @@ $(function () {
                 },
                 {
                     targets: 6,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            // Ambil nilai last_modal
-                            var lastModal = full["last_modal"];
-
-                            var formattedModal =
-                                lastModal === null || lastModal === undefined
-                                    ? "-"
-                                    : $.fn.dataTable.render
-                                          .number(".", ",", 0, "Rp.")
-                                          .display(lastModal);
-                            var formattedData =
-                                data === null || data === undefined
-                                    ? "-"
-                                    : $.fn.dataTable.render
-                                          .number(".", ",", 0, "Rp.")
-                                          .display(data);
-
-                            // Buat tooltip dan konten yang ditampilkan
-                            return (
-                                '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="Last HPP ' +
-                                formattedModal +
-                                '">' +
-                                formattedData +
-                                "</span>"
-                            );
+                    render: function (data, type, full, meta) {
+                        var $status_number = full["status"];
+                        var $status = {
+                            null: {
+                                title: "Quotation PO",
+                                class: "bg-label-info",
+                            },
+                            0: {
+                                title: "Quotation PO",
+                                class: "bg-label-info",
+                            },
+                            1: {
+                                title: "Cek OG",
+                                class: " bg-label-warning",
+                            },
+                            2: {
+                                title: "Done",
+                                class: " bg-label-success",
+                            },
+                        };
+                        if (typeof $status[$status_number] === "undefined") {
+                            return data;
                         }
-                        return data;
+                        return (
+                            '<span class="badge rounded-pill ' +
+                            $status[$status_number].class +
+                            '">' +
+                            $status[$status_number].title +
+                            "</span>"
+                        );
+                    },
+                },
+                {
+                    targets: 7,
+                    render: function (data, type, full, meta) {
+                        var $status_number = full["status_p"];
+                        var $titleTool = full["note_p"];
+                        var $status = {
+                            null: {
+                                title: "Belum Ada Invoice",
+                                class: "bg-label-danger",
+                                colorTip: "tooltip-danger",
+                                titleTip: $titleTool,
+                            },
+                            0: {
+                                title: "Not Confirmed Yet",
+                                class: "bg-label-warning",
+                                colorTip: "tooltip-warning",
+                                titleTip: $titleTool,
+                            },
+                            1: {
+                                title: "Confirmed Payment",
+                                class: " bg-label-success",
+                                colorTip: "tooltip-success",
+                                titleTip: $titleTool,
+                            },
+                        };
+                        if (typeof $status[$status_number] === "undefined") {
+                            return data;
+                        }
+                        return (
+                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
+                            $status[$status_number].colorTip +
+                            '" title="' +
+                            $status[$status_number].titleTip +
+                            '" class="badge rounded-pill ' +
+                            $status[$status_number].class +
+                            '">' +
+                            $status[$status_number].title +
+                            "</span>"
+                        );
                     },
                 },
             ],
+            drawCallback: function (settings) {
+                console.log("drawCallback");
+                $('[data-toggle="tooltip"]').tooltip();
+            },
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            displayLength: 15,
-            lengthMenu: [15, 25, 50, 75, 100],
+            dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            displayLength: 10,
+            lengthMenu: [10, 25, 50, 75, 100],
             buttons: [
                 {
                     extend: "collection",
@@ -147,7 +202,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -203,7 +258,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -240,7 +295,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -277,7 +332,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -314,7 +369,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [3, 4, 5, 6, 7],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -348,24 +403,20 @@ $(function () {
                         },
                     ],
                 },
-                {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
-                    className: "btn btn-primary",
-                    attr: {
-                        "data-bs-target": "#createProduct",
-                        "data-bs-toggle": "modal",
-                    },
-                },
+                // {
+                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New pending</span>',
+                //     className: "btn btn-primary btn-new",
+                //     action: function (e, dt, node, config) {
+                //         window.location = route("create.pending");
+                //     },
+                // },
             ],
-            drawCallback: function (settings) {
-                $('[data-toggle="tooltip"]').tooltip();
-            },
             responsive: {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal({
                         header: function (row) {
                             var data = row.data();
-                            return "Details of " + data["company"];
+                            return "Details of " + data["full_name"];
                         },
                     }),
                     type: "column",
@@ -395,11 +446,9 @@ $(function () {
                 },
             },
         });
-        $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Product</h5>'
-        );
+        $("div.hl-1").html('<h5 class="card-title mb-0">Table Pending PO</h5>');
     }
-    dt_table_product.on("draw", function () {
+    dt_table_pending_po.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

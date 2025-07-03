@@ -18,6 +18,7 @@ use App\Http\Controllers\MonitoringClientController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotulenController;
 use App\Http\Controllers\OverviewController;
+use App\Http\Controllers\PendingController;
 use App\Http\Controllers\PicController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductInController;
@@ -46,6 +47,7 @@ use App\Models\Mainlog;
 use App\Models\Monitoring;
 use App\Models\MonitoringWeekly;
 use App\Models\Notulen;
+use App\Models\PendingPO;
 use App\Models\Pic;
 use App\Models\ProductIn;
 use App\Models\Prospect;
@@ -1014,6 +1016,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/invoice/label_detail/{id}', [InvoiceController::class, 'label_detail'])->name('invoice.label_detail');
     Route::get('/invoice/label_print/{id}', [InvoiceController::class, 'label_print'])->name('invoice.label_print');
     Route::post('/invoice/change_desc/{id}', [InvoiceController::class, 'change_desc'])->name('invoice.change_desc');
+    Route::post('/invoice/confirm_payment/{id}', [InvoiceController::class, 'confirm_payment'])->name('invoice.confirm_payment');
+    Route::post('/invoice/undo_confirm_payment/{id}', [InvoiceController::class, 'undo_confirm_payment'])->name('invoice.undo_confirm_payment');
 
     Route::resource('/delivery', DeliveryController::class);
     Route::get('/delivery/print/{id}', [DeliveryController::class, 'print_delivery'])->name('print.delivery');
@@ -1140,6 +1144,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/library/store/manbook', [LibraryController::class, 'store_manbook'])->name(name: 'store_manbook.library');
 
     Route::resource('/notulen', NotulenController::class);
+
+    // Pending PO
+    Route::resource('/pending-po', PendingController::class);
+    Route::get('/pending-po-done', [PendingController::class, 'indexDone'])->name('pending-po.done');
 
     // Dashboard Function
     Route::get('/dashboard/totalPo/{sales}', [DashboardController::class, 'totalPoAdmin'])->name('totalPo.dashboard');
@@ -1578,6 +1586,55 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $data]);
     });
 
+    Route::get('/db/sales/overview-prospect/{id}', function ($id) {
+        $sales = User::find($id);
+        $data = DB::table('sales_reports AS s')
+            ->select('s.*', DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
+        WHERE MONTH(q.po_date) BETWEEN 
+            CASE 
+                WHEN s.semester = "1" THEN 1 
+                WHEN s.semester = "2" THEN 7 
+            END 
+        AND 
+            CASE 
+                WHEN s.semester = "1" THEN 6 
+                WHEN s.semester = "2" THEN 12 
+            END
+        AND YEAR(q.po_date) = s.year
+        AND q.level = "1"
+        AND q.is_primary = "1"
+        AND q.id_support = ' . $id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(q.nett), 0) FROM quotation AS q 
+        WHERE MONTH(q.po_date) BETWEEN 
+            CASE 
+                WHEN s.semester = "1" THEN 1 
+                WHEN s.semester = "2" THEN 7 
+            END 
+        AND 
+            CASE 
+                WHEN s.semester = "1" THEN 6 
+                WHEN s.semester = "2" THEN 12 
+            END
+        AND YEAR(q.po_date) = s.year
+        AND q.level = "1"
+        AND q.is_primary = "1"
+        AND q.id_support = ' . $id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
+        WHERE MONTH(q.estimated_date) BETWEEN 
+            CASE 
+                WHEN s.semester = "1" THEN 1 
+                WHEN s.semester = "2" THEN 7 
+            END 
+        AND 
+            CASE 
+                WHEN s.semester = "1" THEN 6 
+                WHEN s.semester = "2" THEN 12 
+            END
+        AND YEAR(q.estimated_date) = s.year
+        AND q.level = "1"
+        AND q.is_primary = "1"
+        AND q.id_support = ' . $id . ') AS quote'))
+            ->get();
+        return response()->json(['data' => $data]);
+    });
     // Detail Overview
     Route::get('/db/overview/call/{sales}/{date}', function ($sales, $date) {
         $dateRep = "01-" . $date;
@@ -1620,6 +1677,29 @@ Route::group(["middleware" => "auth"], function () {
             ->whereMonth('po_date', $month)
             ->whereYear('po_date', $year)
             ->get(['no_quote', 'client.company', 'nett', 'title', 'po_date', 'status', 'quotation.note', 'quotation.id']);
+
+        $totalNett = Quotation::whereMonth('po_date', $month)->whereYear('po_date', $year)->where('status', '100')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $formattedTotalNett = number_format($totalNett, 0, ',', '.');
+        return response()->json([
+            'data' => $data,
+            'total_nett' => $formattedTotalNett
+        ]);
+    });
+    Route::get('/db/overview/po-prospect/{sales}/{date}', function ($sales, $date) {
+        $dateRep = "01-" . $date;
+        $dateCarbon = Carbon::createFromFormat('d-m-Y', $dateRep);
+
+        $month = $dateCarbon->month;
+        $year = $dateCarbon->year;
+        $data = Quotation::join('pic', 'quotation.id_pic', '=', 'pic.id')
+            ->join('client', 'pic.id_client', '=', 'client.id')
+            ->join('users as s', 's.id', '=', 'quotation.id_sales')
+            ->where('quotation.id_support', $sales)
+            ->where('quotation.status', '100')
+            ->where('level', '1')->where('is_primary', '1')
+            ->whereMonth('po_date', $month)
+            ->whereYear('po_date', $year)
+            ->get(['s.name','no_quote', 'client.company', 'nett', 'title', 'po_date', 'status', 'quotation.note', 'quotation.id']);
 
         $totalNett = Quotation::whereMonth('po_date', $month)->whereYear('po_date', $year)->where('status', '100')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $formattedTotalNett = number_format($totalNett, 0, ',', '.');
@@ -2092,6 +2172,44 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/pic/{id}', function ($id) {
         $data = PIC::where('id_client', $id)->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pending/po', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->whereNot('pending_po.status',2)
+            ->select(
+                'pending_po.id',
+                'u.name',
+                'c.company',
+                'i.no_po',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pending/po/done', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->where('pending_po.status',2)
+            ->select(
+                'pending_po.id',
+                'u.name',
+                'c.company',
+                'i.no_po',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+            )
+            ->get();
         return response()->json(['data' => $data]);
     });
 

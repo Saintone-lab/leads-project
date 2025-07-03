@@ -316,7 +316,9 @@ class CrmController extends Controller
         $existings->source = $request->source;
         $existings->npwp = $request->npwp;
         $existings->mobile = $request->mobile;
-        $existings->info = $request->info;
+        if (Auth::user()->id == 1 || Auth::user()->id == 16) {
+            $existings->info = $request->info;
+        }
         $existings->address = $request->address;
         $existings->subAddress = $request->subAddress;
         $existings->area = $request->area;
@@ -404,7 +406,7 @@ class CrmController extends Controller
             return response()->json(['error' => 'Metode request tidak valid'], 405);
         }
     }
-    
+
     public function ruIndex()
     {
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();

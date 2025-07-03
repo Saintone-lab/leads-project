@@ -25,7 +25,8 @@ class OverviewController extends Controller
     public function index()
     {
         $sales = User::where('role', 'Sales')->where('active', '1')->get();
-        return view('pages.overview', compact('sales'));
+        $support = User::find(22);
+        return view('pages.overview', compact('sales', 'support'));
     }
 
     /**
@@ -204,30 +205,111 @@ class OverviewController extends Controller
         $amountSales = Quotation::whereMonth('po_date', $month)->whereYear('po_date', $year)->where('status', '100')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $amountProspect = Quotation::whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->where('status', '80')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $amountQuote = Quotation::whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->whereIn('status', ['20', '30', '40', '60', '80'])->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $amountQuoteLoss = Quotation::whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->where('status', '0')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->count();
         $jumlahCustomer = Client::where('role', 'Customers')->where('id_sales', $sales)->count();
-        return view('pages.admin.overview.kpi', compact('jumlahCustomer','noSaleProspect', 'leveledProspect', 'user', 'dates', 'quotation', "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLeads", "amountSales", "amountQuote", "amountProspect", "target"));
+        // support
+        $filteredProspect = Prospect::whereYear('date', $year)->whereMonth('date', $month)->where('id_support', $sales)->count();
+        $filteredProvide = Prospect::whereYear('date', $year)->whereMonth('date', $month)->where('provide', '!=', '0')->where('id_support', $sales)->count();
+        $filteredProspectQuote = Quotation::whereYear('estimated_date', $year)->whereMonth('estimated_date', $month)->where('id_support', $sales)->where('level', '1')->where('is_primary', '1')->count();
+        $filteredProspectPO = Quotation::whereYear('po_date', $year)->whereMonth('po_date', $month)->where('id_support', $sales)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+        $totalProspectQuote = Quotation::whereYear('estimated_date', $year)->whereMonth('estimated_date', $month)->where('id_support', $sales)->where('status', '!=', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $totalProspectPO = Quotation::whereYear('po_date', $year)->whereMonth('po_date', $month)->where('id_support', $sales)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        return view('pages.admin.overview.kpi', compact('totalProspectPO', 'totalProspectQuote', 'filteredProvide', 'filteredProspectPO', 'filteredProspectQuote', 'filteredProspect', 'jumlahCustomer', 'noSaleProspect', 'leveledProspect', 'user', 'dates', 'quotation', "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLoss", "totalLeads", "amountSales", "amountQuote", "amountQuoteLoss", "amountProspect", "target"));
     }
 
     public function overviewAdmin($semester, $sales)
     {
         $report = SalesReports::find($semester);
+        if ($report->semester == 1) {
+            $first = "{$report->year}-01-01";
+            $last = "{$report->year}-06-01";
+            $lastDay = date('Y-m-t', strtotime($last));
+        } else {
+            $first = "{$report->year}-07-01";
+            $last = "{$report->year}-12-01";
+            $lastDay = date('Y-m-t', strtotime($last));
+        }
+        $semester = $report->semester;
+
+        $months = $semester == 1
+            ? [1, 2, 3, 4, 5, 6]       // Semester 1: Jan - Jun
+            : [7, 8, 9, 10, 11, 12];   // Semester 2: Jul - Des
+
+        $currentYear = $report->year ?? date('Y'); // Misal kamu punya kolom tahun
+
+        $customerCounts = [];
+
+        foreach ($months as $month) {
+            $lastDay = Carbon::create($currentYear, $month)->endOfMonth();
+
+            $count = Client::where('role', 'Customers')
+                ->whereDate('created_at', '<=', $lastDay)
+                ->count();
+
+            $customerCounts[] = [
+                'month' => $lastDay->format('F'),
+                'count' => $count,
+            ];
+        }
+
+        $avgCRM = 0;
+        foreach ($customerCounts as $customer) {
+            $avgCRM = +$customer['count'];
+        }
+        $averageCRM = round($avgCRM / 6);
+
+        // dataSemester
+        $quoteSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
+        $POSemester = Quotation::whereBetween('po_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 100)->where('level', '1')->where('is_primary', '1')->count();
+        $lossSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->count();
+        $totalQuoteSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('harga_total');
+        $totalPOSemester = Quotation::whereBetween('po_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 100)->where('level', '1')->where('is_primary', '1')->sum('harga_total');
+        $totalLossSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->sum('harga_total');
+        $totalDCSemester = Activities::whereBetween('date', [$first, $lastDay])->rightJoin('client', 'client.id', '=', 'activities.id_client')->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->where('client.id_sales', $sales)->count();
+        $totalCRMSemester = Activities::whereBetween('date', [$first, $lastDay])->rightJoin('client', 'client.id', '=', 'activities.id_client')->where('status', 'Responded')->where('name', 'CRM')->where('client.id_sales', $sales)->distinct('client.id')->count();
+        $totalLeadsSemester = Client::whereBetween('created_date', [$first, $lastDay])->count();
+        // dd($averageCRM);
+
+        //  Prospect Semster
+        $quoteSemesterProspect = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_support', $sales)->where('level', '1')->where('is_primary', '1')->count();
+        $POSemesterProspect = Quotation::whereBetween('po_date', [$first, $lastDay])->where('id_support', $sales)->where('status', 100)->where('level', '1')->where('is_primary', '1')->count();
+        $lossSemesterProspect = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_support', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->count();
+        $totalQuoteSemesterProspect = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_support', $sales)->where('level', '1')->where('is_primary', '1')->sum('harga_total');
+        $totalPOSemesterProspect = Quotation::whereBetween('po_date', [$first, $lastDay])->where('id_support', $sales)->where('status', 100)->where('level', '1')->where('is_primary', '1')->sum('harga_total');
+        $totalLossSemesterProspect = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_support', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->sum('harga_total');
+        // dd($totalPOSemesterProspect);
+
+        // data all month
         $getDC = $this->getMonthlyDataDCSales($report->semester, $report->year, $sales);
         $cardDC = $this->cardMonthlyDCSales($report->semester, $report->year, $sales);
         $getCRM = $this->getMonthlyDataCRMSales($report->semester, $report->year, $sales);
         $getVisit = $this->getMonthlyDataVisitSales($report->semester, $report->year, $sales);
         $getQuote = $this->getMonthlyDataQuoteSales($report->semester, $report->year, $sales);
         $getPO = $this->getMonthlyDataPOSales($report->semester, $report->year, $sales);
+        $getLoss = $this->getMonthlyDataLossSales($report->semester, $report->year, $sales);
         $getLeads = $this->getMonthlyDataLeadsSales($report->semester, $report->year, $sales);
-        $getPOModal = $this->getMonthlyDataPOModalSales($report->semester, $report->year, $sales);
         $getTotalForecast = $this->getMonthlyDataTotalForecastSales($report->semester, $report->year, $sales);
         $getTotalPO = $this->getMonthlyDataTotalPOSales($report->semester, $report->year, $sales);
+        // dd($getLoss);
+
+        // Prospect
+        $getProspect = $this->getMonthlyDataProspect($report->semester, $report->year, $sales);
+        $getProspectProvide = $this->getMonthlyDataProvideProspect($report->semester, $report->year, $sales);
+        $getQuoteProspect = $this->getMonthlyDataQuoteProspect($report->semester, $report->year, $sales);
+        $getPOProspect = $this->getMonthlyDataPOProspect($report->semester, $report->year, $sales);
+        $getTotalForecastProspect = $this->getMonthlyDataTotalForecastProspect($report->semester, $report->year, $sales);
+        $getTotalPOProspect = $this->getMonthlyDataTotalPOProspect($report->semester, $report->year, $sales);
         $targett = Target::where('id_sales', $sales)->pluck('total')->sum();
+        $target = Target::where('id_sales', $sales)->first();
         $user = User::find($sales);
-        // dd($getPO);
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.admin.overview.detail', compact('noSaleProspect', 'report', 'getDC', 'getCRM', 'getVisit', 'getQuote', 'getPO', 'getLeads', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'targett', 'user'));
+
+        $getPOModal = $this->getMonthlyDataPOModalSales($report->semester, $report->year, $sales);
+        // dd($target);
+
+        return view('pages.admin.overview.detail', compact('averageCRM', 'totalDCSemester','totalCRMSemester','totalLeadsSemester','totalLossSemesterProspect', 'totalPOSemesterProspect', 'totalQuoteSemesterProspect', 'lossSemesterProspect', 'POSemesterProspect', 'quoteSemesterProspect', 'totalCRMSemester', 'totalDCSemester', 'totalLossSemester', 'totalPOSemester', 'totalQuoteSemester', 'lossSemester', 'POSemester', 'quoteSemester', 'getPOProspect', 'getQuoteProspect', 'getProspectProvide', 'getProspect', 'getTotalForecastProspect', 'getTotalPOProspect', 'noSaleProspect', 'report', 'getDC', 'getCRM', 'getVisit', 'getQuote', 'getPO', 'getLoss', 'getLeads', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'target', 'targett', 'user'));
     }
     protected function getMonthlyDataDC($semester, $year)
     {
@@ -1367,6 +1449,329 @@ class OverviewController extends Controller
             return $fullMonthData;
         }
     }
+    protected function getMonthlyDataLossSales($semester, $year, $sales)
+    {
+        if ($semester == 1) {
+            $firstDayOfMonth = "{$year}-01-01";
+            $firstDayOfLastMonth = "{$year}-06-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('COUNT(*) as total'))
+                ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_sales', $sales)
+                ->where('status', '0')
+                ->where('level', '1')->where('is_primary', '1')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 1; $month <= 6; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        } else {
+            $firstDayOfMonth = "{$year}-07-01";
+            $firstDayOfLastMonth = "{$year}-12-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('COUNT(*) as total'))
+                ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_sales', $sales)
+                ->where('status', '0')
+                ->where('level', '1')->where('is_primary', '1')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 7; $month <= 12; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        }
+    }
+    protected function getMonthlyDataProspect($semester, $year, $sales)
+    {
+        if ($semester == 1) {
+            $firstDayOfMonth = "{$year}-01-01";
+            $firstDayOfLastMonth = "{$year}-06-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Prospect::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+                ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_support', $sales)
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 1; $month <= 6; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        } else {
+            $firstDayOfMonth = "{$year}-07-01";
+            $firstDayOfLastMonth = "{$year}-12-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Prospect::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+                ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_support', $sales)
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 7; $month <= 12; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        }
+    }
+    protected function getMonthlyDataProvideProspect($semester, $year, $sales)
+    {
+        if ($semester == 1) {
+            $firstDayOfMonth = "{$year}-01-01";
+            $firstDayOfLastMonth = "{$year}-06-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Prospect::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+                ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_support', $sales)
+                ->where('provide', '!=', '0')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 1; $month <= 6; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        } else {
+            $firstDayOfMonth = "{$year}-07-01";
+            $firstDayOfLastMonth = "{$year}-12-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Prospect::select(DB::raw('CONCAT(YEAR(date), "-", MONTH(date)) as date'), DB::raw('month(date) as month'), DB::raw('COUNT(*) as total'))
+                ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_support', $sales)
+                ->where('provide', '!=', '0')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 7; $month <= 12; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        }
+    }
+    protected function getMonthlyDataQuoteProspect($semester, $year, $sales)
+    {
+        if ($semester == 1) {
+            $firstDayOfMonth = "{$year}-01-01";
+            $firstDayOfLastMonth = "{$year}-06-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('COUNT(*) as total'))
+                ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_support', $sales)
+                ->where('level', '1')->where('is_primary', '1')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 1; $month <= 6; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        } else {
+            $firstDayOfMonth = "{$year}-07-01";
+            $firstDayOfLastMonth = "{$year}-12-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('COUNT(*) as total'))
+                ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_support', $sales)
+                ->where('level', '1')->where('is_primary', '1')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 7; $month <= 12; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        }
+    }
+    protected function getMonthlyDataPOProspect($semester, $year, $sales)
+    {
+        if ($semester == 1) {
+            $firstDayOfMonth = "{$year}-01-01";
+            $firstDayOfLastMonth = "{$year}-06-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('COUNT(*) as total'))
+                ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_support', $sales)
+                ->where('status', '100')
+                ->where('level', '1')->where('is_primary', '1')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 1; $month <= 6; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        } else {
+            $firstDayOfMonth = "{$year}-07-01";
+            $firstDayOfLastMonth = "{$year}-12-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('COUNT(*) as total'))
+                ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_support', $sales)
+                ->where('status', '100')
+                ->where('level', '1')->where('is_primary', '1')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 7; $month <= 12; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        }
+    }
     protected function getMonthlyDataLeadsSales($semester, $year, $sales)
     {
         if ($semester == 1) {
@@ -1431,18 +1836,29 @@ class OverviewController extends Controller
     }
     protected function getMonthlyDataPOModalSales($semester, $year, $sales)
     {
+        $user = User::find($sales);
         if ($semester == 1) {
             $firstDayOfMonth = "{$year}-01-01";
             $firstDayOfLastMonth = "{$year}-06-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Quotation::select('quotation.*')
-                ->selectRaw('MONTH(po_date) as month')
-                ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
-                ->where('quotation.id_sales', $sales)
-                ->where('status', '100')
-                ->where('level', '1')->where('is_primary', '1')
-                ->get();
+            if ($user->role == 'Sales') {
+                $dCallPerMonth = Quotation::select('quotation.*')
+                    ->selectRaw('MONTH(po_date) as month')
+                    ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                    ->where('quotation.id_sales', $sales)
+                    ->where('status', '100')
+                    ->where('level', '1')->where('is_primary', '1')
+                    ->get();
+            } else {
+                $dCallPerMonth = Quotation::select('quotation.*')
+                    ->selectRaw('MONTH(po_date) as month')
+                    ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                    ->where('quotation.id_support', $sales)
+                    ->where('status', '100')
+                    ->where('level', '1')->where('is_primary', '1')
+                    ->get();
+            }
             // dd($sales);
             $fullMonthData = [];
             for ($month = 1; $month <= 6; $month++) {
@@ -1468,13 +1884,23 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-12-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Quotation::select('quotation.*')
-                ->selectRaw('MONTH(po_date) as month')
-                ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
-                ->where('quotation.id_sales', $sales)
-                ->where('status', '100')
-                ->where('level', '1')->where('is_primary', '1')
-                ->get();
+            if ($user->role == 'Sales') {
+                $dCallPerMonth = Quotation::select('quotation.*')
+                    ->selectRaw('MONTH(po_date) as month')
+                    ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                    ->where('quotation.id_sales', $sales)
+                    ->where('status', '100')
+                    ->where('level', '1')->where('is_primary', '1')
+                    ->get();
+            } else {
+                $dCallPerMonth = Quotation::select('quotation.*')
+                    ->selectRaw('MONTH(po_date) as month')
+                    ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                    ->where('quotation.id_support', $sales)
+                    ->where('status', '100')
+                    ->where('level', '1')->where('is_primary', '1')
+                    ->get();
+            }
             // dd($dCallPerMonth);
             $fullMonthData = [];
             for ($month = 7; $month <= 12; $month++) {
@@ -1564,6 +1990,72 @@ class OverviewController extends Controller
             return $fullMonthData;
         }
     }
+    protected function getMonthlyDataTotalForecastProspect($semester, $year, $sales)
+    {
+        if ($semester == 1) {
+            $firstDayOfMonth = "{$year}-01-01";
+            $firstDayOfLastMonth = "{$year}-06-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(nett) as total'))
+                ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_support', $sales)
+                ->where('level', '1')->where('is_primary', '1')
+                ->whereIn('status', ['20', '30', '40', '60', '80', '100'])
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 1; $month <= 6; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        } else {
+            $firstDayOfMonth = "{$year}-07-01";
+            $firstDayOfLastMonth = "{$year}-12-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(estimated_date), "-", MONTH(estimated_date)) as date'), DB::raw('month(estimated_date) as month'), DB::raw('SUM(nett) as total'))
+                ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_support', $sales)
+                ->where('level', '1')->where('is_primary', '1')
+                ->whereIn('status', ['20', '30', '40', '60', '80'])
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 7; $month <= 12; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        }
+    }
     protected function getMonthlyDataTotalPOSales($semester, $year, $sales)
     {
         if ($semester == 1) {
@@ -1606,6 +2098,73 @@ class OverviewController extends Controller
             $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(nett) as total'))
                 ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
                 ->where('id_sales', $sales)
+                ->where('level', '1')->where('is_primary', '1')
+                ->where('status', '100')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+            // dd($dCallPerMonth);
+
+            $fullMonthData = [];
+            for ($month = 7; $month <= 12; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+
+            return $fullMonthData;
+        }
+    }
+    protected function getMonthlyDataTotalPOProspect($semester, $year, $sales)
+    {
+        if ($semester == 1) {
+            $firstDayOfMonth = "{$year}-01-01";
+            $firstDayOfLastMonth = "{$year}-06-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(nett) as total'))
+                ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_support', $sales)
+                ->where('level', '1')->where('is_primary', '1')
+                ->where('status', '100')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
+
+            $fullMonthData = [];
+            for ($month = 1; $month <= 6; $month++) {
+                $monthKey = "{$month}";
+                $carbonMonth = Carbon::parse($firstDayOfMonth);
+                $formattedMonth = isset($plusMonth) ? $plusMonth->format('F') : $carbonMonth->format('F');
+                $monthDays = date('t', strtotime($monthKey));
+                if ($monthDays >= 4) {
+                    $fullMonthData[$monthKey] = [
+                        'month' => $formattedMonth,
+                        'total' => isset($dCallPerMonth[$monthKey]) ? $dCallPerMonth[$monthKey] : 0,
+                    ];
+                }
+                $plusMonth = isset($plusMonth) ? $plusMonth->addMonth() : $carbonMonth->addMonth();
+            }
+            // dd($fullMonthData);
+
+            return $fullMonthData;
+        } else {
+            $firstDayOfMonth = "{$year}-07-01";
+            $firstDayOfLastMonth = "{$year}-12-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(nett) as total'))
+                ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_support', $sales)
                 ->where('level', '1')->where('is_primary', '1')
                 ->where('status', '100')
                 ->groupBy('month')

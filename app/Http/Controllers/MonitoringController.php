@@ -105,14 +105,14 @@ class MonitoringController extends Controller
                     if ($request->temperature <= 94) {
                         $monitoring->issue = null;
                     } else {
-                        $monitoring->issue = 'High Temperature';
+                        $monitoring->issue = 'High Temperature : '. $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
                         if ($request->temperature <= 94) {
                             $monitoring->issue = $request->issue;
                         } else {
-                            $monitoring->issue = $request->issue . ', High Temperature';
+                            $monitoring->issue = $request->issue . ', High Temperature : '. $request->temperature . " °C";
                         }
                     }
                 }
@@ -131,14 +131,14 @@ class MonitoringController extends Controller
                     if ($request->temperature <= 94) {
                         $monitoring->issue = 'Stand By';
                     } else {
-                        $monitoring->issue = 'Stand By: High Temperature';
+                        $monitoring->issue = 'Stand By: High Temperature : '. $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
                         if ($request->temperature <= 94) {
                             $monitoring->issue = 'Stand By : ' . $request->issue;
                         } else {
-                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature';
+                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature : '. $request->temperature . " °C";
                         }
                     }
                 }
@@ -157,13 +157,13 @@ class MonitoringController extends Controller
                     if ($request->temperature <= 94) {
                         $monitoring->issue = 'Off';
                     } else {
-                        $monitoring->issue = 'Off: High Temperature';
+                        $monitoring->issue = 'Off: High Temperature : '. $request->temperature . " °C";
                     }
                 } else {
                     if ($request->temperature <= 94) {
                         $monitoring->issue = 'Off : ' . $request->issue;
                     } else {
-                        $monitoring->issue = 'Off : ' . $request->issue . ', High Temperature';
+                        $monitoring->issue = 'Off : ' . $request->issue . ', High Temperature : '. $request->temperature . " °C";
                     }
                 }
             }
@@ -1186,14 +1186,14 @@ class MonitoringController extends Controller
                 'loading' => $compressorIndexed[$date]['loading'] ?? '-',
                 'pressure' => $compressorIndexed[$date]['pressure'] ?? '-',
                 'temp' => $compressorIndexed[$date]['temp'] ?? '-',
-                'temp_out' => $dryerIndexed[$date]['temp_out'] ?? '-',
-                'dew' => $dryerIndexed[$date]['dew'] ?? '-',
-                'drain' => $dryerIndexed[$date]['drain'] ?? '-',
+                'temp_out' => $compressorIndexed[$date]['temp_out'] ?? '-',
+                'dew' => $compressorIndexed[$date]['dew'] ?? '-',
+                'drain' => $compressorIndexed[$date]['drain'] ?? '-',
                 'condition' => $compressorIndexed[$date]['condition'] ?? '-',
                 'oil_level' => $compressorIndexed[$date]['oil_level'] ?? '-',
                 'leak' => $compressorIndexed[$date]['leak'] ?? '-',
                 'pic' => $compressorIndexed[$date]['pic'] ?? '-',
-                'fan' => $dryerIndexed[$date]['fan'] ?? '-',
+                'fan' => $compressorIndexed[$date]['fan'] ?? '-',
                 'issue' => $compressorIndexed[$date]['issue'] ?? '-',
                 'main_desc' => $compressorIndexed[$date]['main_desc'] ?? '-',
             ];
@@ -1894,14 +1894,14 @@ class MonitoringController extends Controller
                     if ($request->temperature <= 94) {
                         $monitoring->issue = null;
                     } else {
-                        $monitoring->issue = 'High Temperature';
+                        $monitoring->issue = 'High Temperature : '. $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
                         if ($request->temperature <= 94) {
                             $monitoring->issue = $request->issue;
                         } else {
-                            $monitoring->issue = $request->issue . ', High Temperature';
+                            $monitoring->issue = $request->issue . ', High Temperature : '. $request->temperature . " °C";
                         }
                     }
                 }
@@ -1920,14 +1920,14 @@ class MonitoringController extends Controller
                     if ($request->temperature <= 94) {
                         $monitoring->issue = 'Stand By';
                     } else {
-                        $monitoring->issue = 'Stand By: High Temperature';
+                        $monitoring->issue = 'Stand By: High Temperature : '. $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
                         if ($request->temperature <= 94) {
                             $monitoring->issue = 'Stand By : ' . $request->issue;
                         } else {
-                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature';
+                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature : '. $request->temperature . " °C";
                         }
                     }
                 }
@@ -1946,14 +1946,14 @@ class MonitoringController extends Controller
                     if ($request->temperature <= 94) {
                         $monitoring->issue = 'Off';
                     } else {
-                        $monitoring->issue = 'Off: High Temperature';
+                        $monitoring->issue = 'Off: High Temperature : '. $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
                         if ($request->temperature <= 94) {
                             $monitoring->issue = $request->issue;
                         } else {
-                            $monitoring->issue = $request->issue . ', High Temperature';
+                            $monitoring->issue = $request->issue . ', High Temperature : '. $request->temperature . " °C";
                         }
                     }
                 }

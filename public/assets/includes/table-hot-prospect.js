@@ -16,18 +16,18 @@ $(function () {
             },
             columns: [
                 { data: "" },
-                { data: "id" },
+                // { data: "id" },
                 { data: "id" },
                 { data: "no_quote" },
                 { data: "company" },
                 { data: "nett" },
                 { data: "status" },
                 { data: "name" },
-                { data: "" },
+                // { data: "" },
             ],
             columnDefs: [
                 {
-                    targets: 5,
+                    targets: 4,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
                 {
@@ -41,33 +41,63 @@ $(function () {
                         return "";
                     },
                 },
+                // {
+                //     // For Checkboxes
+                //     targets: 1,
+                //     orderable: false,
+                //     searchable: false,
+                //     responsivePriority: 3,
+                //     checkboxes: true,
+                //     render: function () {
+                //         return '<input type="checkbox" class="dt-checkboxes form-check-input">';
+                //     },
+                //     checkboxes: {
+                //         selectAllRender:
+                //             '<input type="checkbox" class="form-check-input">',
+                //     },
+                // },
                 {
-                    // For Checkboxes
                     targets: 1,
-                    orderable: false,
-                    searchable: false,
-                    responsivePriority: 3,
-                    checkboxes: true,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender:
-                            '<input type="checkbox" class="form-check-input">',
-                    },
-                },
-                {
-                    targets: 2,
                     searchable: true,
                     visible: false,
                 },
                 {
                     responsivePriority: 1,
-                    targets: 4,
+                    targets: 3,
+                },
+                {
+                    targets: 2,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $dataId = full["id"];
+                            var type = full["type"];
+                            if (type == "Sparepart") {
+                                detailRoute = route("quotation.show", $dataId);
+                            } else if (type == "Service") {
+                                detailRoute = route(
+                                    "show-service.quotation",
+                                    $dataId
+                                );
+                            } else {
+                                detailRoute = route(
+                                    "show-overhaul.quotation",
+                                    $dataId
+                                );
+                            }
+                            return (
+                                '<a class="text-dark" href="' +
+                                detailRoute +
+                                '">' +
+                                data +
+                                "</a>"
+                            );
+                        }
+                        return data;
+                    },
                 },
                 {
                     // Label Status Percent
-                    targets: 6,
+                    targets: 5,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $titleTool = full["note"];
@@ -131,29 +161,29 @@ $(function () {
                         );
                     },
                 },
-                {
-                    // Actions
-                    targets: -1,
-                    title: "Actions",
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, full, meta) {
-                        var $dataId = full["id"];
-                        var $detailQUrl = route("quotation.show", $dataId);
-                        return (
-                            '<div class="d-inline-block">' +
-                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
-                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<li><a href="' +
-                            $detailQUrl +
-                            '" class="dropdown-item">Details</a></li>' +
-                            '<div class="dropdown-divider"></div>' +
-                            '<li><a href="javascript:;" class="dropdown-item text-danger delete-record">Delete</a></li>' +
-                            "</ul>" +
-                            "</div>"
-                        );
-                    },
-                },
+                // {
+                //     // Actions
+                //     targets: -1,
+                //     title: "Actions",
+                //     orderable: false,
+                //     searchable: false,
+                //     render: function (data, type, full, meta) {
+                //         var $dataId = full["id"];
+                //         var $detailQUrl = route("quotation.show", $dataId);
+                //         return (
+                //             '<div class="d-inline-block">' +
+                //             '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
+                //             '<ul class="dropdown-menu dropdown-menu-end m-0">' +
+                //             '<li><a href="' +
+                //             $detailQUrl +
+                //             '" class="dropdown-item">Details</a></li>' +
+                //             '<div class="dropdown-divider"></div>' +
+                //             '<li><a href="javascript:;" class="dropdown-item text-danger delete-record">Delete</a></li>' +
+                //             "</ul>" +
+                //             "</div>"
+                //         );
+                //     },
+                // },
             ],
             drawCallback: function (settings) {
                 $('[data-toggle="tooltip"]').tooltip();

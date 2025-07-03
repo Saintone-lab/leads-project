@@ -15,6 +15,12 @@ return new class extends Migration
     {
         Schema::create('detail_pending_po', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('id_pending');
+            $table->foreignId('id_replacement');
+            $table->integer('qty');
+            $table->string('status');
+            $table->string('desc');
+            $table->longText('note');
             $table->timestamps();
         });
     }

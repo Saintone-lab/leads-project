@@ -554,6 +554,26 @@ class InvoiceController extends Controller
             return redirect('/invoice/' . $id)->with('error', 'Terjadi kesalahan saat mengirim data');
         }
     }
+    public function confirm_payment(Request $request, $id){
+        $invoice = Invoice::find($id);
+        $invoice->status_p = 1;
+        $invoice->note_p = $request->note;
+        $invoiceSave = $invoice->save();
+        if ($invoiceSave) {
+            return redirect('/invoice/' . $id)->with('message', 'Data telah terkirim');
+        } 
+    }
+    public function undo_confirm_payment ($id){
+        $invoice = Invoice::find($id);
+        $invoice->status_p = 0;
+        $invoice->note_p = null;
+        $invoiceSave = $invoice->save();
+        if ($invoiceSave) {
+            return 1;
+        } else{
+            return 0;
+        }
+    }
     private function terbilang($number)
     {
         $number = abs($number);

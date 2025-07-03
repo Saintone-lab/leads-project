@@ -397,19 +397,19 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Pending</span>
             </li>
-            <li class="menu-item {{ request()->is('library/index/*') ? 'open' : '' }}">
+            <li class="menu-item {{ request()->is('pending-po') || request()->is('pending-po/*') || request()->is('pending-po-done')  ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon tf-icons mdi mdi-library-shelves"></i>
+                    <i class="menu-icon tf-icons mdi mdi-text-box-multiple"></i>
                     <div data-i18n="Pending PO">Pending PO</div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('library/index/marktool') ? 'active' : '' }}">
-                        <a href="{{ route('marktool.index') }}" class="menu-link">
+                    <li class="menu-item {{ request()->is('pending-po') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.index') }}" class="menu-link">
                             <div data-i18n="Progress">Progress</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('library/index/brosur') ? 'active' : '' }}">
-                        <a href="{{ route('brosur.index') }}" class="menu-link">
+                    <li class="menu-item {{ request()->is('pending-po-done') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.done') }}" class="menu-link">
                             <div data-i18n="Done">Done</div>
                         </a>
                     </li>
@@ -539,7 +539,7 @@
                     <div data-i18n="Service Report">Service Report</div>
                 </a>
             </li>
-            @if (auth::user()->id == 4)
+            @if (auth::user()->id == 3 || auth::user()->id == 4 )
                 <li
                     class="menu-item {{ request()->is('service-manager') || request()->is('service-manager/*') ? 'active' : '' }}">
                     <a href="{{ route('service-manager.index') }}" class="menu-link">

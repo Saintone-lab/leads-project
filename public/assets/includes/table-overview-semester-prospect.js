@@ -1,17 +1,18 @@
 $(function () {
-    var dt_table_product = $(".datatable-product");
-    var Url = "db/product";
+    var dt_table_semester_overview_prospect = $(".datatable-overview-semester-prospect");
+    var Url = "/db/sales/overview-prospect/";
+    var path = window.location.pathname;
+    var id = path.substring(path.lastIndexOf('/') + 1);
 
-    if (dt_table_product.length) {
+    if (dt_table_semester_overview_prospect.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product.DataTable({
+        var dt_sales_reports = dt_table_semester_overview_prospect.DataTable({
             ajax: {
                 type: "GET",
-                url: Url,
+                url: Url + id,
                 headers: {
                     "Content-Type": "application/json",
                 },
-
                 // success: function (hasil, Url) {
                 //     console.log("Url:", Url);
                 //     console.log(hasil);
@@ -26,20 +27,12 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "commodity" },
-                { data: "brand" },
-                { data: "pn" },
+                { data: "year" },
+                { data: "semester" },
+                { data: "quote" },
+                { data: "total" },
                 { data: "price" },
-                { data: "descrip" },
-                { data: "dimension" },
-                { data: "stock" },
-                {
-                    data: "po",
-                    render: function (data, type, row) {
-                        return data ?? "-";
-                    },
-                },
-                { data: "warehouse_stock" },
+                { data: "" },
             ],
             columnDefs: [
                 {
@@ -78,64 +71,47 @@ $(function () {
                     targets: 3,
                 },
                 {
-                    targets: 3,
+                    targets: 4,
                     render: function (data, type, full, row) {
                         if (type === "display") {
-                            var $dataId = full["id_p"];
-                            var detailRoute = route("product.show", $dataId);
-                            var $title = full["modal_replacements"];
                             return (
-                                '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' +
-                                $title +
-                                '">' +
-                                '<a class="text-dark" href="' +
-                                detailRoute +
-                                '">' +
-                                data +
-                                "</a>" +
-                                "</span>"
+                                'Semester ' +
+                                data
                             );
                         }
                         return data;
                     },
                 },
+                
                 {
-                    targets: 6,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            // Ambil nilai last_modal
-                            var lastModal = full["last_modal"];
-
-                            var formattedModal =
-                                lastModal === null || lastModal === undefined
-                                    ? "-"
-                                    : $.fn.dataTable.render
-                                          .number(".", ",", 0, "Rp.")
-                                          .display(lastModal);
-                            var formattedData =
-                                data === null || data === undefined
-                                    ? "-"
-                                    : $.fn.dataTable.render
-                                          .number(".", ",", 0, "Rp.")
-                                          .display(data);
-
-                            // Buat tooltip dan konten yang ditampilkan
-                            return (
-                                '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="Last HPP ' +
-                                formattedModal +
-                                '">' +
-                                formattedData +
-                                "</span>"
-                            );
-                        }
-                        return data;
+                    targets: 7,
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                },
+                {
+                    // Actions
+                    targets: -1,
+                    title: "Actions",
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, full, meta) {
+                        var path = window.location.pathname;
+                        var id = path.substring(path.lastIndexOf('/') + 1);
+                        var $detailQUrl = route('overview-sales.semester', [full["id"], id]);
+                        return (
+                            '<div class="d-inline-block">' +
+                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
+                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
+                            '<li><a href="' + $detailQUrl + '" class="dropdown-item">Details</a></li>' +
+                            "</ul>" +
+                            "</div>"
+                        );
                     },
                 },
             ],
-            order: [[2, "desc"]],
+            order: [[2, "asc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            displayLength: 15,
-            lengthMenu: [15, 25, 50, 75, 100],
+            displayLength: 7,
+            lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
                 {
                     extend: "collection",
@@ -349,10 +325,10 @@ $(function () {
                     ],
                 },
                 {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Year/Semester</span>',
                     className: "btn btn-primary",
                     attr: {
-                        "data-bs-target": "#createProduct",
+                        "data-bs-target": "#createReports",
                         "data-bs-toggle": "modal",
                     },
                 },
@@ -399,7 +375,7 @@ $(function () {
             '<h5 class="card-title mb-0">Table Product</h5>'
         );
     }
-    dt_table_product.on("draw", function () {
+    dt_table_semester_overview_prospect.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

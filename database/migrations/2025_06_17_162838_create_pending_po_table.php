@@ -15,6 +15,9 @@ return new class extends Migration
     {
         Schema::create('pending_po', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('id_quotation');
+            $table->string('status');
+            $table->date('date');
             $table->timestamps();
         });
     }

@@ -88,7 +88,6 @@
                             <th>Brand</th>
                             <th>PN</th>
                             <th>Desc</th>
-                            <th>G/O</th>
                             <th>Stock BDG</th>
                             <th>Stock BKS</th>
                             <th>Price</th>
@@ -108,7 +107,7 @@
                             <th>Price</th>
                             <th>Desc</th>
                             <th>Dimension</th>
-                            <th>G/O</th>
+                            {{-- <th>G/O</th> --}}
                             <th>Stock BDG</th>
                             <th>Pending PO</th>
                             <th>Stock BKS</th>

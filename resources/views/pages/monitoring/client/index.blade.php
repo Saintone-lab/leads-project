@@ -139,6 +139,142 @@
         <div class="col">
             <div class="card">
                 <div class="card-header">
+                    <h3>Weekly Juni</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-info rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-numeric-1-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <a href="{{ route('monitoring.fajarPaper-detail-weekly') }}"
+                                            class="mb-0 fw-semibold fs-6 fw-medium text-black">
+                                            Week 1
+                                        </a>
+                                        <p class="fs-5">{{ $weekly1April }}/ <span
+                                                class="text-muted fs-6">{{ $allPlant }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-info rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-numeric-2-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <a href="{{ route('monitoring.fajarPaper-detail-weekly') }}"
+                                            class="mb-0 fw-semibold fs-6 fw-medium text-black">
+                                            Week 2
+                                        </a>
+                                        <p class="fs-5">{{ $weekly2April }}/ <span
+                                                class="text-muted fs-6">{{ $allPlant }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-info rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-numeric-3-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <a href="{{ route('monitoring.fajarPaper-detail-weekly') }}"
+                                            class="mb-0 fw-semibold fs-6 fw-medium text-black">
+                                            Week 3
+                                        </a>
+                                        <p class="fs-5">{{ $weekly3April }}/ <span
+                                                class="text-muted fs-6">{{ $allPlant }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                        </div>
+                        <div class="col-6">
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-info rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-numeric-4-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <a href="{{ route('monitoring.fajarPaper-detail-weekly') }}"
+                                            class="mb-0 fw-semibold fs-6 fw-medium text-black">
+                                            Week 4
+                                        </a>
+                                        <p class="fs-5">{{ $weekly4April }}/ <span
+                                                class="text-muted fs-6">{{ $allPlant }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-info rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-numeric-5-circle-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <a href="{{ route('monitoring.fajarPaper-detail-weekly') }}"
+                                            class="mb-0 fw-semibold fs-6 fw-medium text-black">
+                                            Week 5
+                                        </a>
+                                        <p class="fs-5">{{ $weekly5April }}/ <span
+                                                class="text-muted fs-6">{{ $allPlant }}</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="d-flex pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <div class="avatar-initial bg-label-danger rounded">
+                                        <div>
+                                            <i class="mdi mdi-48px mdi-file-document-outline"></i>
+                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <a href="{{ route('monitoring.fajarPaper-detail-weekly') }}"
+                                            class="mb-0 fw-semibold fs-6 fw-medium text-black">
+                                            Service Reports
+                                        </a>
+                                        <p class="fs-5">{{ $cleaningApril }}/ <span
+                                                class="text-muted fs-6">240</span></p>
+                                    </div>
+                                </div>
+                            </li>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
                     <h3>Weekly</h3>
                 </div>
                 <div class="card-body">
@@ -272,7 +408,7 @@
             </div>
         </div>
 
-        <div class="col">
+        {{-- <div class="col">
             <div class="card h-100">
                 <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
                     <h1 class="text-black">{{ $monthly }}/ <span class="text-muted fs-3">{{ $allDryer }}</span>
@@ -280,7 +416,7 @@
                     <h5>Monthly</h5>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         {{-- <div class="col-12 col-md-3 mb-2">
             <div class="card bg-label-success h-100">

@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetailPendingPO;
+use App\Models\DetailProduct;
+use App\Models\DetailQuotation;
+use App\Models\PendingPO;
+use App\Models\Quotation;
+use App\Models\SerialProduct;
 use Illuminate\Http\Request;
 
 class PendingController extends Controller
@@ -13,7 +19,24 @@ class PendingController extends Controller
      */
     public function index()
     {
-        //
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->select(
+                'pending_po.id',
+                'u.name',
+                'c.company',
+                'i.no_po',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+            )
+            ->get();
+        // dd($data);
+        $pendingPO = PendingPO::with('detail')->get();
+        return view('pages.pending.index', compact('pendingPO'));
     }
 
     /**
@@ -56,7 +79,21 @@ class PendingController extends Controller
      */
     public function edit($id)
     {
-        //
+        $pending = PendingPO::find($id);
+        $quote = Quotation::find($pending->id_quotation);
+        $Dquote = DetailQuotation::where('id_quotation', $pending->id_quotation)->get();
+        $dPending = DetailPendingPO::where('id_pending', $id)->get();
+
+        $fullRep = [];
+        $no = 0;
+        foreach ($Dquote as $item) {
+            $equivalent = SerialProduct::find($item->id_equivalent);
+            $fullRep[$no] = DetailProduct::where('id_product', $equivalent->id_product)->get();
+            $no++;
+        }
+        // dd($fullRep);
+        // dd($dPending);
+        return view('pages.pending.form', compact('Dquote', 'fullRep', 'pending', 'quote', 'dPending', 'id'));
     }
 
     /**
@@ -68,7 +105,48 @@ class PendingController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // dd($request->all());
+        $pending = PendingPO::find($id);
+        $quote = Quotation::find($pending->id_quotation);
+        $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
+        $dPending = DetailPendingPO::where('id_pending', $id)->get();
+
+        // Hapus data lama
+        foreach ($dPending as $item) {
+            $item->delete();
+        }
+
+        // Simpan data baru
+        $totalPendingQty = 0;
+        foreach ($dQuote as $key => $value) {
+            $itemPending = new DetailPendingPO;
+            $itemPending->id_pending = $id;
+            $itemPending->id_replacement = $request->replacement[$key];
+            $itemPending->desc = $request->desc[$key];
+            $itemPending->qty = $request->qty[$key];
+            $itemPending->note = $request->note[$key];
+            if ($value->qty == $request->qty[$key]) {
+                $itemPending->status = 0;
+            } else {
+                $itemPending->status = 1;
+            }
+            $itemPending->save();
+            $totalPendingQty += $request->qty[$key];
+        }
+
+        $totalQuoteQty = $dQuote->sum('qty');
+        // $totalPendingQty = DetailPendingPO::where('id_pending', $id)->sum('qty');
+        // dd($totalPendingQty);
+
+        if ($totalPendingQty == $totalQuoteQty) {
+            $pending->status = 2;
+            $pending->save();
+        }else {
+            $pending->status = 1;
+            $pending->save();
+        }
+
+        return redirect('/pending-po')->with('message', 'Pending PO telah dibuat');
     }
 
     /**
@@ -80,5 +158,25 @@ class PendingController extends Controller
     public function destroy($id)
     {
         //
+    }
+    public function indexDone()
+    {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->select(
+                'pending_po.id',
+                'u.name',
+                'c.company',
+                'i.no_po',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+            )
+            ->get();
+        // dd($data);
+        return view('pages.pending.done');
     }
 }

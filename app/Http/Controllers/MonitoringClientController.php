@@ -80,11 +80,11 @@ class MonitoringClientController extends Controller
         $weekly4 = MonitoringWeekly::where('week', 4)->whereMonth('date', $month)->whereYear('date', $year)->count();
         $weekly5 = MonitoringWeekly::where('week', 5)->whereMonth('date', $month)->whereYear('date', $year)->count();
 
-        $weekly1April = MonitoringWeekly::where('week', 1)->whereMonth('date', 4)->whereYear('date', $year)->count();
-        $weekly2April = MonitoringWeekly::where('week', 2)->whereMonth('date', 4)->whereYear('date', $year)->count();
-        $weekly3April = MonitoringWeekly::where('week', 3)->whereMonth('date', 4)->whereYear('date', $year)->count();
-        $weekly4April = MonitoringWeekly::where('week', 4)->whereMonth('date', 4)->whereYear('date', $year)->count();
-        $weekly5April = MonitoringWeekly::where('week', 5)->whereMonth('date', 4)->whereYear('date', $year)->count();
+        $weekly1April = MonitoringWeekly::where('week', 1)->whereMonth('date', 6)->whereYear('date', $year)->count();
+        $weekly2April = MonitoringWeekly::where('week', 2)->whereMonth('date', 6)->whereYear('date', $year)->count();
+        $weekly3April = MonitoringWeekly::where('week', 3)->whereMonth('date', 6)->whereYear('date', $year)->count();
+        $weekly4April = MonitoringWeekly::where('week', 4)->whereMonth('date', 6)->whereYear('date', $year)->count();
+        $weekly5April = MonitoringWeekly::where('week', 5)->whereMonth('date', 6)->whereYear('date', $year)->count();
 
         $monthly = MonitoringMonthly::whereMonth('date', $month)->whereYear('date', $year)->count();
 

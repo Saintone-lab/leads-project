@@ -11,268 +11,390 @@
                     <img src="{{ url('') . '/' . $user->image }}" alt="" srcset="" class="h-100 w-100">
                 </div>
                 <div class="col-12 col-md-9">
-                    <div class="row">
-                        <div class="col-12">
-                            <h4>{{ $user->name }}</h4>
-                        </div>
-                        <div class="col-4">
-                            <p class="fw-medium fs-normal">Key Performance Indicator</p>
-                            <div class="d-flex mb-2 gap-2">
-                                <a href="#activities">
-                                    <div class="avatar">
-                                        <div class="avatar-initial bg-label-secondary rounded">
-                                            <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
-                                        </div>
-                                    </div>
-                                </a>
-                                <div class="card-info">
-                                    <h5 class="mb-0">{{ $totalLeads }}<span
-                                            class="text-muted fs-tiny fw-normal">/{{ $target->leads }}</span>
-                                    </h5>
-                                    <small class="text-muted">New Leads</small>
-                                </div>
+                    @if ($user->role == 'Sales')
+                        <div class="row">
+                            <div class="col-12">
+                                <h4>{{ $user->name }}</h4>
                             </div>
-                            <div class="d-flex mb-2 gap-2">
-                                <a href="#activities">
-                                    <div class="avatar">
-                                        <div class="avatar-initial bg-label-info rounded">
-                                            <i class="mdi mdi-phone-outline mdi-24px"></i>
-                                        </div>
-                                    </div>
-                                </a>
-                                <div class="card-info">
-                                    <h5 class="mb-0">{{ $totalDC }} <span
-                                            class="text-muted fs-tiny fw-normal">/{{ $target->dc }}</span>
-                                    </h5>
-                                    <small
-                                        class="text-muted">{{ $user->id == '1' ? 'New Leads' : 'Daily Call' }}</small>
-                                </div>
-                            </div>
-                            <div class="d-flex mb-2 gap-2">
-                                <a href="#activities">
-                                    <div class="avatar">
-                                        <div class="avatar-initial bg-label-primary rounded">
-                                            <i class="mdi mdi-account-multiple-outline mdi-24px"></i>
-                                        </div>
-                                    </div>
-                                </a>
-                                <div class="card-info">
-                                    <h5 class="mb-0">{{ $totalCRM }}<span
-                                            class="text-muted fs-tiny fw-normal">/{{ $jumlahCustomer }}</span>
-                                    </h5>
-                                    <small class="text-muted">CRM</small>
-                                </div>
-                            </div>
-                            @php
-                                $lastDetail = $user->detail->last();
-                            @endphp
-                            @if ($lastDetail->area == 'Bekasi' || $lastDetail->area == 'Jabodetabek' || $lastDetail->area == 'Jawa Barat')
+                            <div class="col-4">
+                                <p class="fw-medium fs-normal">Key Performance Indicator</p>
                                 <div class="d-flex mb-2 gap-2">
                                     <a href="#activities">
                                         <div class="avatar">
-                                            <div class="avatar-initial bg-label-danger rounded">
-                                                <i class="mdi mdi-office-building-marker-outline mdi-24px"></i>
+                                            <div class="avatar-initial bg-label-secondary rounded">
+                                                <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
                                             </div>
                                         </div>
                                     </a>
                                     <div class="card-info">
-                                        <h5 class="mb-0">{{ $totalVisit }}<span
-                                                class="text-muted fs-tiny fw-normal">/{{ $target->visit }}</span>
+                                        <h5 class="mb-0">{{ $totalLeads }}<span
+                                                class="text-muted fs-tiny fw-normal">/{{ $target->leads }}</span>
                                         </h5>
-                                        <small class="text-muted">Visit</small>
+                                        <small class="text-muted">New Leads</small>
                                     </div>
                                 </div>
-                            @endif
-                            <div class="d-flex mb-2 gap-2">
-                                <a href="#quote">
-                                    <div class="avatar">
-                                        <div class="avatar-initial bg-label-warning rounded">
-                                            <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
-                                        </div>
-                                    </div>
-                                </a>
-                                <div class="card-info">
-                                    <h5 class="mb-0">{{ $totalQuote }}<span
-                                            class="text-muted fs-tiny fw-normal">/{{ $target->quote }}</span>
-                                    </h5>
-                                    <small class="text-muted">Quotation</small>
-                                </div>
-                            </div>
-                            <div class="d-flex mb-2 gap-2">
-                                <a href="#po">
-                                    <div class="avatar">
-                                        <div class="avatar-initial bg-label-success rounded">
-                                            <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                        </div>
-                                    </div>
-                                </a>
-                                <div class="card-info">
-                                    <h5 class="mb-0">{{ $totalPO }}
-                                    </h5>
-                                    <small class="text-muted">Purchase Order</small>
-                                </div>
-                            </div>
-                            <div class="d-flex mb-2 gap-2">
-                                <a href="#po">
-                                    <div class="avatar">
-                                        <div class="avatar-initial bg-label-danger rounded">
-                                            <i class="mdi mdi-cart-minus mdi-24px"></i>
-                                        </div>
-                                    </div>
-                                </a>
-                                <div class="card-info">
-                                    <h5 class="mb-0">{{ $totalPO }}
-                                    </h5>
-                                    <small class="text-muted">Loss Quotation</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-8">
-                            <p class="fw-medium fs-normal">Achievement</p>
-
-                            <div class="d-flex align-items-center gap-2">
                                 <div class="d-flex mb-2 gap-2">
-                                    <div class="avatar">
-                                        <div class="avatar-initial bg-label-success rounded">
-                                            <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                    <a href="#activities">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-info rounded">
+                                                <i class="mdi mdi-phone-outline mdi-24px"></i>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </a>
                                     <div class="card-info">
-                                        <h5 class="mb-0">Rp
-                                            {{ number_format($amountSales, 2, ',', '.') }}
-                                            @php
-                                                $jumlah_target = [];
-                                                if (isset($target->total) && $target->total != 0) {
-                                                    $jumlah_target = ($amountSales / $target->total) * 100;
-                                                } else {
-                                                    $jumlah_target = 0;
-                                                }
-                                            @endphp
-                                            <span class="text-success mb-0">
-                                                {{ number_format($jumlah_target, 3) }}%
-                                            </span>
+                                        <h5 class="mb-0">{{ $totalDC }} <span
+                                                class="text-muted fs-tiny fw-normal">/{{ $target->dc }}</span>
                                         </h5>
-                                        <small class="text-muted">Total Sales</small>
+                                        <small
+                                            class="text-muted">{{ $user->id == '1' ? 'New Leads' : 'Daily Call' }}</small>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="d-flex align-items-center gap-2">
                                 <div class="d-flex mb-2 gap-2">
-                                    <div class="avatar">
-                                        <div class="avatar-initial bg-label-primary rounded">
-                                            <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                    <a href="#activities">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-primary rounded">
+                                                <i class="mdi mdi-account-multiple-outline mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="card-info">
+                                        <h5 class="mb-0">{{ $totalCRM }}<span
+                                                class="text-muted fs-tiny fw-normal">/{{ $jumlahCustomer }}</span>
+                                        </h5>
+                                        <small class="text-muted">CRM</small>
+                                    </div>
+                                </div>
+                                @php
+                                    $lastDetail = $user->detail->last();
+                                @endphp
+                                @if ($lastDetail->area == 'Bekasi' || $lastDetail->area == 'Jabodetabek' || $lastDetail->area == 'Jawa Barat')
+                                    <div class="d-flex mb-2 gap-2">
+                                        <a href="#activities">
+                                            <div class="avatar">
+                                                <div class="avatar-initial bg-label-danger rounded">
+                                                    <i class="mdi mdi-office-building-marker-outline mdi-24px"></i>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <div class="card-info">
+                                            <h5 class="mb-0">{{ $totalVisit }}<span
+                                                    class="text-muted fs-tiny fw-normal">/{{ $target->visit }}</span>
+                                            </h5>
+                                            <small class="text-muted">Visit</small>
                                         </div>
                                     </div>
+                                @endif
+                                <div class="d-flex mb-2 gap-2">
+                                    <a href="#quote">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-warning rounded">
+                                                <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                    </a>
                                     <div class="card-info">
-                                        <h5 class="mb-0">
-                                            Rp
-                                            {{ number_format($amountQuote, 2, ',', '.') }}
+                                        <h5 class="mb-0">{{ $totalQuote }}<span
+                                                class="text-muted fs-tiny fw-normal">/{{ $target->quote }}</span>
                                         </h5>
                                         <small class="text-muted">Quotation</small>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="d-flex align-items-center gap-2">
                                 <div class="d-flex mb-2 gap-2">
-                                    <div class="avatar">
-                                        <div class="avatar-initial bg-label-warning rounded">
-                                            <i class="mdi mdi-email-alert-outline mdi-24px"></i>
+                                    <a href="#po">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-success rounded">
+                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="card-info">
+                                        <h5 class="mb-0">{{ $totalPO }}
+                                        </h5>
+                                        <small class="text-muted">Purchase Order</small>
+                                    </div>
+                                </div>
+                                {{-- <div class="d-flex mb-2 gap-2">
+                                    <a href="#po">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-danger rounded">
+                                                <i class="mdi mdi-cart-minus mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="card-info">
+                                        <h5 class="mb-0">{{ $totalLoss }}
+                                        </h5>
+                                        <small class="text-muted">Loss Quotation</small>
+                                    </div>
+                                </div> --}}
+                            </div>
+                            <div class="col-8">
+                                <p class="fw-medium fs-normal">Achievement</p>
+
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex mb-2 gap-2">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-success rounded">
+                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                        <div class="card-info">
+                                            <h5 class="mb-0">Rp
+                                                {{ number_format($amountSales, 2, ',', '.') }}
+                                                @php
+                                                    $jumlah_target = [];
+                                                    if (isset($target->total) && $target->total != 0) {
+                                                        $jumlah_target = ($amountSales / $target->total) * 100;
+                                                    } else {
+                                                        $jumlah_target = 0;
+                                                    }
+                                                @endphp
+                                                <span class="text-success mb-0">
+                                                    {{ number_format($jumlah_target, 3) }}%
+                                                </span>
+                                            </h5>
+                                            <small class="text-muted">Total Sales</small>
                                         </div>
                                     </div>
-                                    <div class="card-info">
-                                        <h5 class="mb-0">Rp {{ number_format($amountProspect, 2, ',', '.') }}
-                                        </h5>
-                                        <small class="text-muted">Hot Prospect</small>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex mb-2 gap-2">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-primary rounded">
+                                                <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                        <div class="card-info">
+                                            <h5 class="mb-0">
+                                                Rp
+                                                {{ number_format($amountQuote, 2, ',', '.') }}
+                                            </h5>
+                                            <small class="text-muted">Quotation</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex mb-2 gap-2">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-warning rounded">
+                                                <i class="mdi mdi-email-alert-outline mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                        <div class="card-info">
+                                            <h5 class="mb-0">Rp {{ number_format($amountProspect, 2, ',', '.') }}
+                                            </h5>
+                                            <small class="text-muted">Hot Prospect</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex mb-2 gap-2">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-danger rounded">
+                                                <i class="mdi mdi-cart-minus mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                        <div class="card-info">
+                                            <h5 class="mb-0">
+                                                Rp
+                                                {{ number_format($amountQuoteLoss, 2, ',', '.') }}
+                                            </h5>
+                                            <small class="text-muted">Loss Quotation</small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="row">
+                            <div class="col-12">
+                                <h4>{{ $user->name }}</h4>
+                            </div>
+                            <div class="col-4">
+                                <p class="fw-medium fs-normal">Key Performance Indicator</p>
+                                <div class="d-flex mb-2 gap-2">
+                                    <a href="#activities">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-info rounded">
+                                                <i class="mdi mdi-phone-outline mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="card-info">
+                                        <h5 class="mb-0">{{ $filteredProspect }} <span
+                                                class="text-muted fs-tiny fw-normal">/{{ $target->dc }}</span>
+                                        </h5>
+                                        <small class="text-muted">Prospect</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex mb-2 gap-2">
+                                    <a href="#activities">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-primary rounded">
+                                                <i class="mdi mdi-account-multiple-outline mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="card-info">
+                                        <h5 class="mb-0">{{ $filteredProvide }}<span
+                                                class="text-muted fs-tiny fw-normal">/{{ $jumlahCustomer }}</span>
+                                        </h5>
+                                        <small class="text-muted">Provided</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex mb-2 gap-2">
+                                    <a href="#quote">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-warning rounded">
+                                                <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="card-info">
+                                        <h5 class="mb-0">{{ $filteredProspectQuote }}<span
+                                                class="text-muted fs-tiny fw-normal">/{{ $target->quote }}</span>
+                                        </h5>
+                                        <small class="text-muted">Quotation</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex mb-2 gap-2">
+                                    <a href="#po">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-success rounded">
+                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="card-info">
+                                        <h5 class="mb-0">{{ $filteredProspectQuote }}
+                                        </h5>
+                                        <small class="text-muted">Purchase Order</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-8">
+                                <p class="fw-medium fs-normal">Achievement</p>
+
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex mb-2 gap-2">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-success rounded">
+                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                        <div class="card-info">
+                                            <h5 class="mb-0">Rp
+                                                {{ number_format($totalProspectPO, 2, ',', '.') }}
+                                            </h5>
+                                            <small class="text-muted">Total Sales</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex mb-2 gap-2">
+                                        <div class="avatar">
+                                            <div class="avatar-initial bg-label-primary rounded">
+                                                <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                            </div>
+                                        </div>
+                                        <div class="card-info">
+                                            <h5 class="mb-0">
+                                                Rp
+                                                {{ number_format($totalProspectQuote, 2, ',', '.') }}
+                                            </h5>
+                                            <small class="text-muted">Quotation</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-12 col-md-6 mb-3">
-            <div class="card" id="activities">
-                <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-overview-call table table-striped" id="dataTableCrm">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Company</th>
-                                <th>Status</th>
-                                <th>Note</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                    </table>
+    @if ($user->role == 'Sales')
+        <div class="row">
+            <div class="col-12 col-md-6 mb-3">
+                <div class="card" id="activities">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-overview-call table table-striped" id="dataTableCrm">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Company</th>
+                                    <th>Status</th>
+                                    <th>Note</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-12 col-md-6 mb-3">
-            <div class="card">
-                <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-overview-crm table table-striped" id="dataTableCrm">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Company</th>
-                                <th>Status</th>
-                                <th>Note</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                    </table>
+            <div class="col-12 col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-overview-crm table table-striped" id="dataTableCrm">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Company</th>
+                                    <th>Status</th>
+                                    <th>Note</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-12 mb-3">
-            <div class="card" id="quote">
-                <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-overview-quotation table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Quote No.</th>
-                                <th>Company</th>
-                                <th>Total Price</th>
-                                <th>Description</th>
-                                <th>Date Quotation</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                    </table>
+            <div class="col-12 mb-3">
+                <div class="card" id="quote">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-overview-quotation table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Total Price</th>
+                                    <th>Description</th>
+                                    <th>Date Quotation</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-12 mb-3">
-            <div class="card" id="quote">
-                <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-overview-po table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Quote No.</th>
-                                <th>Company</th>
-                                <th>Description</th>
-                                <th>Date PO</th>
-                                <th>Total Price</th>
-                            </tr>
-                        </thead>
-                    </table>
+            <div class="col-12 mb-3">
+                <div class="card" id="quote">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-overview-po table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Description</th>
+                                    <th>Date PO</th>
+                                    <th>Total Price</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-        {{-- <div class="col-12 mb-3">
+            {{-- <div class="col-12 mb-3">
             <div class="card" id="po">
                 <div class="table-responsive text-nowrap">
                     <table class="table">
@@ -324,7 +446,32 @@
                 </div>
             </div>
         </div> --}}
-    </div>
+        </div>
+    @else
+        <div class="row">
+            <div class="col-12 mb-3">
+                <div class="card" id="quote">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-overview-po-prospect table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Description</th>
+                                    <th>Date PO</th>
+                                    <th>Total Price</th>
+                                    <th>Sales</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection
 
 
@@ -355,6 +502,7 @@
     <script src="{{ asset('assets') }}/includes/table-overview-crm.js"></script>
     <script src="{{ asset('assets') }}/includes/table-overview-quotation.js"></script>
     <script src="{{ asset('assets') }}/includes/table-overview-po.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-overview-po-prospect.js"></script>
 @endpush
 
 @push('script')

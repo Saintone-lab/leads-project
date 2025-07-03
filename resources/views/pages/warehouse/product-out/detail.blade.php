@@ -20,7 +20,8 @@
                         <div class="text-end">
                             <h3 class="fw-bold">Barang Keluar ({{ $product->vers }})</h3>
                             <div>
-                                <span class="fw-bolder">#{{ $product->no_type == '1' ? $product->invoice : $product->po }}</span>
+                                <span
+                                    class="fw-bolder">#{{ $product->no_type == '1' ? $product->invoice : $product->po }}</span>
                             </div>
                             <div class="mt-1">
                                 <span class="text-muted">{{ Carbon\Carbon::parse($product->date)->format('d-m-Y') }}</span>
@@ -47,7 +48,8 @@
                             <p class="mb-1">Note</p>
                         </div>
                         <div class="col-8 col-lg-6">
-                            <p class="mb-1">: {{ $product->note }}</p>
+                            <pre
+                                style="font-size: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: auto; white-space: pre-wrap;">: {{ $product->note }}</pre>
                         </div>
                         <div class="col-4 col-lg-2 fw-medium">
                             <p class="mb-1">User</p>
@@ -114,7 +116,7 @@
                 <div class="card-body">
                     <div class="form-floating form-floating-outline mb-2">
                         <select class="form-select change-no" name="changeNo" id="changeNo"
-                            aria-label="Default select example" data-id="{{$product->id}}">
+                            aria-label="Default select example" data-id="{{ $product->id }}">
                             <option value="1" {{ $product->no_type == '1' ? 'Selected' : '' }}>
                                 No Invoice
                             </option>

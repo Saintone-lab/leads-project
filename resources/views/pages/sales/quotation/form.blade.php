@@ -253,6 +253,9 @@
                                                             <option value="Hari"
                                                                 {{ $quote->info_qty == 'Hari' ? 'selected' : '' }}>Hari
                                                             </option>
+                                                            <option value="Bulan"
+                                                                {{ $quote->info_qty == 'Bulan' ? 'selected' : '' }}>Bulan
+                                                            </option>
                                                             <option value="Kg"
                                                                 {{ $quote->info_qty == 'Kg' ? 'selected' : '' }}>Kg
                                                             </option>
@@ -360,6 +363,7 @@
                                                         <option value="Meter">Meter</option>
                                                         <option value="Can">Can</option>
                                                         <option value="Hari">Hari</option>
+                                                        <option value="Bulan">Bulan</option>
                                                         <option value="Kg">Kg</option>
                                                         <option value="Tube">Tube</option>
                                                         <option value="Titik">Titik</option>
@@ -733,6 +737,7 @@
                         width: '100%',
                     });
                 }
+
                 function initializeSelect2PIC() {
                     $('.invoice-item-pic').select2({
                         placeholder: ' ---- Choose PIC Here ---- ',
@@ -801,7 +806,7 @@
                         url: '/quotation/client/' + clientId,
                         type: 'GET',
                         success: function(response) {
-                            // console.log(response);
+                            console.log(response);
 
                             // Mengosongkan dropdown detail produk
                             $(`.invoice-item-destination`).empty();
@@ -829,11 +834,11 @@
                             $(`.invoice-item-pic`).empty();
                             // Mengisi dropdown detail produk dengan hasil yang diterima
                             $.each(response, function(key, value) {
-                            $(`.invoice-item-pic`).append(
-                                '<option value="' +
-                                value.id + '">' + value.name_pic +
-                                '</option>'
-                            );
+                                $(`.invoice-item-pic`).append(
+                                    '<option value="' +
+                                    value.id + '">' + value.name_pic +
+                                    '</option>'
+                                );
                             });
                             // Mengaktifkan dropdown detail produk
                             $(`.invoice-item-pic`).prop('disabled', false);

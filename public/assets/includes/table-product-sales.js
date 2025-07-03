@@ -19,15 +19,14 @@ $(function () {
                 { data: "image" },
                 { data: "brand" },
                 { data: "pn" },
-                { data: "description" },
-                { data: "go" },
+                { data: "descrip" },
                 { data: "stock" },
                 { data: "warehouse_stock" },
                 { data: "price" },
             ],
             columnDefs: [
                 {
-                    targets: 10,
+                    targets: 9,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
                 {
@@ -97,7 +96,7 @@ $(function () {
                 //     },
                 // },
                 {
-                    targets: [3, 4, 5, 9],
+                    targets: [3, 4, 5, 8],
                     render: function (data, type, row) {
                         if (data === null || data === undefined) {
                             return "-";

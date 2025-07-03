@@ -22,6 +22,13 @@ if (Auth::check()) {
         // Query database for data
         $query = "SELECT 
                     p.*,
+                    CONCAT(' (', 
+                        CASE 
+                            WHEN p.go = 'Replacement' THEN 'R'
+                            WHEN p.go = 'Genuine' THEN 'G'
+                            ELSE p.go
+                        END
+                    , ')', p.description) as descrip,
                     s.pn,
                     s.brand,
                     s.price,

@@ -1347,6 +1347,17 @@
                 @if (Auth::user()->role == 'Admin')
                     <div class="card mb-3">
                         <div class="card-body">
+                            @if ($invoice->status_p == 0)
+                                <button type="button" class="btn btn-primary w-100 waves-effect waves-light mb-3"
+                                    data-bs-toggle="modal" data-bs-target="#confirmPayment"> Confirm Payment </button>
+                            @else
+                                <a href="#" class="btn btn-danger d-grid w-100 waves-effect undo-payment mb-3"
+                                    data-id="{{ $invoice->id }}">Undo Confirm Payment</a>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="card mb-3">
+                        <div class="card-body">
                             <a type="button" data-bs-toggle="modal" data-bs-target="#doTeknisi"
                                 class="d-grid w-100 waves-effect mb-3">
                                 <button type="button" class="btn btn-success">
@@ -1468,6 +1479,7 @@
         @include('components.modal.invoice.date')
         @include('components.modal.invoice.desc')
         @include('components.modal.invoice.pph')
+        @include('components.modal.invoice.confirm')
         @include('components.modal.invoice.expense')
         @include('components.modal.invoice.detail-expense')
         @include('components.modal.accounting.delivery.create-teknisi')
@@ -1941,6 +1953,61 @@
                                         icon: 'error',
                                         title: 'Oops...',
                                         text: 'Data Failed to Delete!'
+                                    });
+                                }
+                            }
+                        });
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            title: "Cancelled",
+                            text: "Your imaginary file is safe :)",
+                            icon: "error",
+                            customClass: {
+                                confirmButton: "btn btn-success waves-effect",
+                            },
+                        });
+                    }
+                });
+            });
+            $(document).on('click', '.undo-payment', function() {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, Undo it!",
+                    customClass: {
+                        confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                        cancelButton: "btn btn-label-secondary waves-effect",
+                    },
+                    buttonsStyling: false,
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            'url': '{{ url('invoice') }}/undo_confirm_payment/' + id,
+                            'type': 'POST',
+                            'data': {
+                                '_token': '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                if (response == 1) {
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "Undone!",
+                                        text: "Your file has been undone.",
+                                        customClass: {
+                                            confirmButton: "btn btn-success waves-effect",
+                                        },
+                                    })
+                                    window.setTimeout(function() {
+                                        window.location.href = '/invoice/' + id;
+                                    }, 2000);
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: 'Data Failed to Undo!'
                                     });
                                 }
                             }
