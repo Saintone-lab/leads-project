@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Machine;
 use App\Models\Mainlog;
 use App\Models\Monitoring;
+use App\Models\MonitoringActivities;
 use App\Models\MonitoringMonthly;
 use App\Models\MonitoringWeekly;
 use App\Models\Pic;
@@ -105,14 +106,14 @@ class MonitoringController extends Controller
                     if ($request->temperature <= 94) {
                         $monitoring->issue = null;
                     } else {
-                        $monitoring->issue = 'High Temperature : '. $request->temperature . " °C";
+                        $monitoring->issue = 'High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
                         if ($request->temperature <= 94) {
                             $monitoring->issue = $request->issue;
                         } else {
-                            $monitoring->issue = $request->issue . ', High Temperature : '. $request->temperature . " °C";
+                            $monitoring->issue = $request->issue . ', High Temperature : ' . $request->temperature . " °C";
                         }
                     }
                 }
@@ -131,14 +132,14 @@ class MonitoringController extends Controller
                     if ($request->temperature <= 94) {
                         $monitoring->issue = 'Stand By';
                     } else {
-                        $monitoring->issue = 'Stand By: High Temperature : '. $request->temperature . " °C";
+                        $monitoring->issue = 'Stand By: High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
                         if ($request->temperature <= 94) {
                             $monitoring->issue = 'Stand By : ' . $request->issue;
                         } else {
-                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature : '. $request->temperature . " °C";
+                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature : ' . $request->temperature . " °C";
                         }
                     }
                 }
@@ -157,13 +158,13 @@ class MonitoringController extends Controller
                     if ($request->temperature <= 94) {
                         $monitoring->issue = 'Off';
                     } else {
-                        $monitoring->issue = 'Off: High Temperature : '. $request->temperature . " °C";
+                        $monitoring->issue = 'Off: High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
                     if ($request->temperature <= 94) {
                         $monitoring->issue = 'Off : ' . $request->issue;
                     } else {
-                        $monitoring->issue = 'Off : ' . $request->issue . ', High Temperature : '. $request->temperature . " °C";
+                        $monitoring->issue = 'Off : ' . $request->issue . ', High Temperature : ' . $request->temperature . " °C";
                     }
                 }
             }
@@ -736,7 +737,7 @@ class MonitoringController extends Controller
             $monitoring->voltage = $request->voltage . ' V';
             if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER') {
                 $monitoring->drain = $request->drain;
-                $monitoring->vibration = $request->vibration;
+                $monitoring->vibration = $request->v . '/' . $request->h . '/' . $request->a;
                 if ($request->cooler == 1) {
                     $monitoring->cooler = 1;
                 } else {
@@ -1894,14 +1895,14 @@ class MonitoringController extends Controller
                     if ($request->temperature <= 94) {
                         $monitoring->issue = null;
                     } else {
-                        $monitoring->issue = 'High Temperature : '. $request->temperature . " °C";
+                        $monitoring->issue = 'High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
                         if ($request->temperature <= 94) {
                             $monitoring->issue = $request->issue;
                         } else {
-                            $monitoring->issue = $request->issue . ', High Temperature : '. $request->temperature . " °C";
+                            $monitoring->issue = $request->issue . ', High Temperature : ' . $request->temperature . " °C";
                         }
                     }
                 }
@@ -1920,14 +1921,14 @@ class MonitoringController extends Controller
                     if ($request->temperature <= 94) {
                         $monitoring->issue = 'Stand By';
                     } else {
-                        $monitoring->issue = 'Stand By: High Temperature : '. $request->temperature . " °C";
+                        $monitoring->issue = 'Stand By: High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
                         if ($request->temperature <= 94) {
                             $monitoring->issue = 'Stand By : ' . $request->issue;
                         } else {
-                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature : '. $request->temperature . " °C";
+                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature : ' . $request->temperature . " °C";
                         }
                     }
                 }
@@ -1946,14 +1947,14 @@ class MonitoringController extends Controller
                     if ($request->temperature <= 94) {
                         $monitoring->issue = 'Off';
                     } else {
-                        $monitoring->issue = 'Off: High Temperature : '. $request->temperature . " °C";
+                        $monitoring->issue = 'Off: High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
                         if ($request->temperature <= 94) {
                             $monitoring->issue = $request->issue;
                         } else {
-                            $monitoring->issue = $request->issue . ', High Temperature : '. $request->temperature . " °C";
+                            $monitoring->issue = $request->issue . ', High Temperature : ' . $request->temperature . " °C";
                         }
                     }
                 }
@@ -2333,6 +2334,127 @@ class MonitoringController extends Controller
     public function kosongan()
     {
         return view('pages.kosongan');
+    }
+    public function checkPlanning(Request $request)
+    {
+        $value = $request->input('planing');
+        $today = Carbon::now()->toDateString();
+
+        $monitoring = MonitoringActivities::whereDate('date', $today)->first();
+
+        if ($monitoring) {
+            $monitoring->planning = $value;
+            $monitoring->save();
+        } else {
+            $monitAct = new MonitoringActivities();
+            $monitAct->date = $today;
+            $monitAct->planning = $value;
+            $monitAct->save();
+        }
+
+        return response()->json(['status' => 'success', 'planing' => $value]);
+    }
+    public function checkSync(Request $request)
+    {
+        $value = $request->input('sync');
+        $today = Carbon::now()->toDateString();
+
+        $monitoring = MonitoringActivities::whereDate('date', $today)->first();
+
+        if ($monitoring) {
+            $monitoring->sync = $value;
+            $monitoring->save();
+        } else {
+            $monitAct = new MonitoringActivities();
+            $monitAct->date = $today;
+            $monitAct->sync = $value;
+            $monitAct->save();
+        }
+
+        return response()->json(['status' => 'success', 'sync' => $value]);
+    }
+    public function checkAbnormal(Request $request)
+    {
+        $value = $request->input('abnormal');
+        $today = Carbon::now()->toDateString();
+
+        $monitoring = MonitoringActivities::whereDate('date', $today)->first();
+
+        if ($monitoring) {
+            $monitoring->abnormal = $value;
+            $monitoring->save();
+        } else {
+            $monitAct = new MonitoringActivities();
+            $monitAct->date = $today;
+            $monitAct->planning = $value;
+            $monitAct->save();
+        }
+
+        return response()->json(['status' => 'success', 'abnormal' => $value]);
+    }
+    public function checkLog(Request $request)
+    {
+        $value = $request->input('log');
+        $today = Carbon::now()->toDateString();
+
+        $monitoring = MonitoringActivities::whereDate('date', $today)->first();
+
+        if ($monitoring) {
+            $monitoring->log = $value;
+            $monitoring->save();
+        } else {
+            $monitAct = new MonitoringActivities();
+            $monitAct->date = $today;
+            $monitAct->planning = $value;
+            $monitAct->save();
+        }
+
+        return response()->json(['status' => 'success', 'log' => $value]);
+    }
+    public function checkTimeline(Request $request)
+    {
+        $value = $request->input('timeline');
+        $today = Carbon::now()->toDateString();
+
+        $monitoring = MonitoringActivities::whereDate('date', $today)->first();
+
+        if ($monitoring) {
+            $monitoring->timeline = $value;
+            $monitoring->save();
+        } else {
+            $monitAct = new MonitoringActivities();
+            $monitAct->date = $today;
+            $monitAct->planning = $value;
+            $monitAct->save();
+        }
+
+        return response()->json(['status' => 'success', 'timeline' => $value]);
+    }
+    public function checkPreventive(Request $request)
+    {
+        $value = $request->input('preventive');
+        $today = Carbon::now()->toDateString();
+
+        $monitoring = MonitoringActivities::whereDate('date', $today)->first();
+
+        if ($monitoring) {
+            $monitoring->preventive = $value;
+            $monitoring->save();
+        } else {
+            $monitAct = new MonitoringActivities();
+            $monitAct->date = $today;
+            $monitAct->planning = $value;
+            $monitAct->save();
+        }
+
+        return response()->json(['status' => 'success', 'preventive' => $value]);
+    }
+    public function activity()
+    {
+        $today = Carbon::now()->toDateString();
+        $user = User::find('25');
+        $monitoring = MonitoringActivities::whereDate('date', $today)->first();
+        return view('pages.monitoring.activities.kpi',compact('user','monitoring'));
     }
     protected function convertToRoman($month)
     {

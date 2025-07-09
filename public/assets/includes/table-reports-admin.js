@@ -1,6 +1,6 @@
 $(function () {
     var dt_table_reports_admin = $(".datatable-reports-admin");
-    var Url = "db/reports/admin";
+    var Url = "/db/reports/admin";
 
     if (dt_table_reports_admin.length) {
         var dt_reports_admin = dt_table_reports_admin.DataTable({

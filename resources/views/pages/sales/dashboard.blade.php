@@ -2,178 +2,425 @@
 @section('title', 'My Dashboard')
 @section('content')
     @if (Auth::user()->role == 'Sales' || Auth::user()->role == 'Support')
-        <div class="row gy-4 mb-4">
-            <!-- Congratulations card -->
-            <div class="col-xl-4 col-lg-4 col-md-12 col-sm-8 col-12">
-                <div class="card h-100">
-                    <div class="card-body text-nowrap">
-                        <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
-                            Congratulations <strong>{{ Auth::user()->name }}</strong> 🎉
-                        </h4>
-                        <p class="pb-0">Best seller of the month</p>
-                        <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPrice }}</h4>
-                        @php
-                            $jumlah_target = 0;
-                            $jumlah_target = ($poTotalPrice / $target->total) * 100;
-                            $formatted_jumlah_target = number_format($jumlah_target, 3);
-                        @endphp
-                        <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
-                        <a href="javascript:;" class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
+        @if (Auth::user()->id == 16)
+            <div class="row gy-4 mb-4">
+                <!-- Congratulations card -->
+                <div class="col-md-3 col-12">
+                    <div class="card h-100">
+                        <div class="card-body text-nowrap">
+                            <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
+                                Congratulations
+                                <strong>{{ Auth::user()->name }}</strong> 🎉
+                            </h4>
+                            <p class="pb-0">Best seller of the month</p>
+                            <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPrice }}</h4>
+                            @php
+                                $jumlah_target = 0;
+                                $jumlah_target = ($poTotalPrice / $target->total) * 100;
+                                $formatted_jumlah_target = number_format($jumlah_target, 3);
+                            @endphp
+                            <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
+                            <a href="javascript:;" class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
+                        </div>
+                        <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
+                            class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
                     </div>
-                    <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
-                        class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
+                </div>
+                <!--/ Congratulations card -->
+                <div class="col-md-9 col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Key Performance Indicator</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 col-12">
+                                    <div class="row mb-3">
+                                        <div class="col-4" style="padding-right: 0;">
+                                            <div class="card bg-primary text-white w-100">
+                                                <h5 class="card-title text-white text-center my-4">
+                                                    <i class="menu-icon tf-icons mdi mdi-reproduction m-0 fs-1"></i>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-8 d-flex flex-column justify-content-between">
+                                            <div class="card shadow-none bg-label-primary border-primary border-2">
+                                                <h5 class="card-title text-center my-2">
+                                                    New Product
+                                                </h5>
+                                            </div>
+                                            <div class="card shadow-none bg-label-primary border-primary border-2 mt-auto"
+                                                style="border: dashed;">
+                                                <h5 class="card-title text-center my-2">
+                                                    44 / 100
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-4" style="padding-right: 0;">
+                                            <div class="card bg-warning text-white w-100">
+                                                <h5 class="card-title text-white text-center my-4">
+                                                    <i class="menu-icon tf-icons mdi mdi-package-variant-closed-check m-0 fs-1"></i>
+                                                </h5>
+                                            </div>
+                                        </div>  
+                                        <div class="col-8 d-flex flex-column justify-content-between">
+                                            <div class="card shadow-none bg-label-warning border-warning border-2">
+                                                <h5 class="card-title text-center my-2">
+                                                    Akurasi Data
+                                                </h5>
+                                            </div>
+                                            <div class="card shadow-none bg-label-warning border-warning border-2 mt-auto"
+                                                style="border: dashed;">
+                                                <h5 class="card-title text-center my-2">
+                                                    44 / 100
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3 align-items-stretch">
+                                        <div class="col-4" style="padding-right: 0;">
+                                            <div class="card border-secondary border-1 w-100 h-100">
+                                                <h5 class="card-title text-center my-4">
+                                                    <i class="menu-icon tf-icons mdi mdi-truck-delivery-outline m-0 fs-1"></i>
+                                                </h5>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-8 d-flex flex-column justify-content-between">
+                                            <div class="card border-secondary border-1 shadow-none">
+                                                <h5 class="card-title text-center my-2">
+                                                    Delivery & Success
+                                                </h5>
+                                            </div>
+                                            <div class="card border-secondary border-2 shadow-none mt-auto"
+                                                style="border-style: dashed;">
+                                                <h5 class="card-title text-center my-2">
+                                                    90%
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <div class="row mb-3">
+                                        <div class="col-4" style="padding-right: 0;">
+                                            <div class="card bg-primary text-white w-100">
+                                                <h5 class="card-title text-white text-center my-4">
+                                                    <i class="menu-icon tf-icons mdi mdi-account-heart-outline m-0 fs-1"></i>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-8 d-flex flex-column justify-content-between">
+                                            <div class="card shadow-none bg-label-primary border-primary border-2">
+                                                <h5 class="card-title text-center my-2">
+                                                    Response Chat
+                                                </h5>
+                                            </div>
+                                            <div class="card shadow-none bg-label-primary border-primary border-2 mt-auto"
+                                                style="border: dashed;">
+                                                <h5 class="card-title text-center my-2">
+                                                    90 %
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-4" style="padding-right: 0;">
+                                            <div class="card bg-warning text-white w-100">
+                                                <h5 class="card-title text-white text-center my-4">
+                                                    <i class="menu-icon tf-icons mdi mdi-monitor-star m-0 fs-1"></i>
+                                                </h5>
+                                            </div>
+                                        </div>  
+                                        <div class="col-8 d-flex flex-column justify-content-between">
+                                            <div class="card shadow-none bg-label-warning border-warning border-2">
+                                                <h5 class="card-title text-center my-2">
+                                                    Score Toko
+                                                </h5>
+                                            </div>
+                                            <div class="card shadow-none bg-label-warning border-warning border-2 mt-auto"
+                                                style="border: dashed;">
+                                                <h5 class="card-title text-center my-2">
+                                                    5 / 5
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3 align-items-stretch">
+                                        <div class="col-4" style="padding-right: 0;">
+                                            <div class="card bg-success border-success text-white border-1 w-100 h-100">
+                                                <h5 class="card-title text-white text-center my-4">
+                                                    <i class="menu-icon tf-icons mdi mdi-cart-check m-0 fs-1"></i>
+                                                </h5>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-8 d-flex flex-column justify-content-between">
+                                            <div class="card bg-label-success border-success border-2 shadow-none">
+                                                <h5 class="card-title text-center my-2">
+                                                    Customer Care
+                                                </h5>
+                                            </div>
+                                            <div class="card bg-label-success border-success border-2 shadow-none mt-auto"
+                                                style="border-style: dashed;">
+                                                <h5 class="card-title text-center my-2">
+                                                    90%
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <div class="row mb-3">
+                                        <div class="col-4" style="padding-right: 0;">
+                                            <div class="card bg-primary text-white w-100">
+                                                <h5 class="card-title text-white text-center my-4">
+                                                    <i class="menu-icon tf-icons mdi mdi-whatsapp m-0 fs-1"></i>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-8 d-flex flex-column justify-content-between">
+                                            <div class="card shadow-none bg-label-primary border-primary border-2">
+                                                <h5 class="card-title text-center my-2">
+                                                    Update SW (3/Days)
+                                                </h5>
+                                            </div>
+                                            <div class="card shadow-none bg-label-primary border-primary border-2 mt-auto"
+                                                style="border: dashed;">
+                                                <h5 class="card-title text-center my-2">
+                                                    44 / 60
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-4" style="padding-right: 0;">
+                                            <div class="card bg-warning text-white w-100">
+                                                <h5 class="card-title text-white text-center my-4">
+                                                    <i class="menu-icon tf-icons mdi mdi-video-outline m-0 fs-1"></i>
+                                                </h5>
+                                            </div>
+                                        </div>  
+                                        <div class="col-8 d-flex flex-column justify-content-between">
+                                            <div class="card shadow-none bg-label-warning border-warning border-2">
+                                                <h5 class="card-title text-center my-2">
+                                                    Video ( 1/Days )
+                                                </h5>
+                                            </div>
+                                            <div class="card shadow-none bg-label-warning border-warning border-2 mt-auto"
+                                                style="border: dashed;">
+                                                <h5 class="card-title text-center my-2">
+                                                    90%
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3 align-items-stretch">
+                                        <div class="col-4" style="padding-right: 0;">
+                                            <div class="card border-secondary border-1 w-100 h-100">
+                                                <h5 class="card-title text-center my-4">
+                                                    -
+                                                    {{-- <i class="menu-icon tf-icons mdi mdi-account-group-outline m-0 fs-1"></i> --}}
+                                                </h5>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-8 d-flex flex-column justify-content-between">
+                                            <div class="card border-secondary border-1 shadow-none">
+                                                <h5 class="card-title text-center my-2">
+                                                    -
+                                                </h5>
+                                            </div>
+                                            <div class="card border-secondary border-2 shadow-none mt-auto"
+                                                style="border-style: dashed;">
+                                                <h5 class="card-title text-center my-2">
+                                                    -
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <!--/ Congratulations card -->
-            <!-- Total New Leads chart -->
-            @if (Auth::user()->id != '4')
+        @else
+            <div class="row gy-4 mb-4">
+                <!-- Congratulations card -->
+                <div class="col-xl-4 col-lg-4 col-md-12 col-sm-8 col-12">
+                    <div class="card h-100">
+                        <div class="card-body text-nowrap">
+                            <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
+                                Congratulations <strong>{{ Auth::user()->name }}</strong> 🎉
+                            </h4>
+                            <p class="pb-0">Best seller of the month</p>
+                            <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPrice }}</h4>
+                            @php
+                                $jumlah_target = 0;
+                                $jumlah_target = ($poTotalPrice / $target->total) * 100;
+                                $formatted_jumlah_target = number_format($jumlah_target, 3);
+                            @endphp
+                            <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
+                            <a href="javascript:;" class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
+                        </div>
+                        <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
+                            class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
+                    </div>
+                </div>
+                <!--/ Congratulations card -->
+                <!-- Total New Leads chart -->
+                @if (Auth::user()->id != '4')
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                    <div class="avatar">
+                                        <div class="avatar-initial bg-label-secondary rounded">
+                                            <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-info mt-4 pt-1">
+                                    <h4 class="mb-2">
+                                        {{ $leads->count() }}
+
+                                        <small class="text-muted fs-tiny">/
+                                            {{-- @if ($jumlahData > 4)
+                                        {{ round($target->leads + $target->leads / 4) }}
+                                    @elseif($jumlahData == 4)
+                                        {{ round(num: $target->leads) }}
+                                    @endif --}}
+
+                                            {{ $target->leads }}
+                                        </small>
+                                    </h4>
+                                    <div class="badge bg-label-secondary rounded-pill">New Leads</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                <!--/ Total New Leads chart -->
+                <!-- Total Leads -->
                 <div class="col">
                     <div class="card h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                                 <div class="avatar">
-                                    <div class="avatar-initial bg-label-secondary rounded">
-                                        <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
+                                    <div class="avatar-initial bg-label-info rounded">
+                                        <i class="mdi mdi-phone-outline mdi-24px"></i>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-info mt-4 pt-1">
                                 <h4 class="mb-2">
-                                    {{ $leads->count() }}
-
+                                    {{ $dailyCall }}
+                                    @if (Auth::user()->id != 3 && Auth::user()->id != 4)
+                                        <small class="text-muted fs-tiny">/
+                                            {{ $target->dc }}
+                                            @php
+                                                if (is_array($weekPerMonth)) {
+                                                    $jumlahData = count($weekPerMonth);
+                                                }
+                                            @endphp
+                                            {{-- @if ($jumlahData > 4)
+                                        {{ round($target->dc + $target->dc / 4) }}
+                                    @elseif($jumlahData == 4)
+                                        {{ round($target->dc) }}
+                                    @endif --}}
+                                        </small>
+                                    @endif
+                                </h4>
+                                <div class="badge bg-label-secondary rounded-pill">Daily Call</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--/ Total Leads -->
+                <!-- Total Expenses -->
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                <div class="avatar">
+                                    <div class="avatar-initial bg-label-primary rounded">
+                                        <i class="mdi mdi-account-multiple-outline mdi-24px"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-info mt-4 pt-1">
+                                <h4 class="mb-2">
+                                    {{ $customers }}
                                     <small class="text-muted fs-tiny">/
+                                        {{ $jumlahCustomer }}
                                         {{-- @if ($jumlahData > 4)
-                                            {{ round($target->leads + $target->leads / 4) }}
-                                        @elseif($jumlahData == 4)
-                                            {{ round(num: $target->leads) }}
-                                        @endif --}}
-
-                                        {{ $target->leads }}
+                                        {{ round($target->crm + $target->crm / 4) }}
+                                    @elseif($jumlahData == 4)
+                                        {{ round($target->crm) }}
+                                    @endif --}}
                                     </small>
                                 </h4>
-                                <div class="badge bg-label-secondary rounded-pill">New Leads</div>
+                                <div class="badge bg-label-secondary rounded-pill">CRM Existing</div>
                             </div>
                         </div>
                     </div>
                 </div>
-            @endif
-            <!--/ Total New Leads chart -->
-            <!-- Total Leads -->
-            <div class="col">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-info rounded">
-                                    <i class="mdi mdi-phone-outline mdi-24px"></i>
+                <!--/ Total Expenses -->
+                <!-- Total Profit chart -->
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                <div class="avatar">
+                                    <div class="avatar-initial bg-label-warning rounded">
+                                        <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card-info mt-4 pt-1">
-                            <h4 class="mb-2">
-                                {{ $dailyCall }}
-                                @if (Auth::user()->id != 3 && Auth::user()->id != 4)
+                            <div class="card-info mt-4 pt-1">
+                                <h4 class="mb-2">
+                                    {{ $quotation->count() }}
                                     <small class="text-muted fs-tiny">/
-                                        {{ $target->dc }}
-                                        @php
-                                            if (is_array($weekPerMonth)) {
-                                                $jumlahData = count($weekPerMonth);
-                                            }
-                                        @endphp
+                                        {{ $target->quote }}
                                         {{-- @if ($jumlahData > 4)
-                                            {{ round($target->dc + $target->dc / 4) }}
-                                        @elseif($jumlahData == 4)
-                                            {{ round($target->dc) }}
-                                        @endif --}}
+                                        {{ round($target->quote + $target->quote / 4) }}
+                                    @elseif($jumlahData == 4)
+                                        {{ round($target->quote) }}
+                                    @endif --}}
                                     </small>
-                                @endif
-                            </h4>
-                            <div class="badge bg-label-secondary rounded-pill">Daily Call</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--/ Total Leads -->
-            <!-- Total Expenses -->
-            <div class="col">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-primary rounded">
-                                    <i class="mdi mdi-account-multiple-outline mdi-24px"></i>
-                                </div>
+                                </h4>
+                                <div class="badge bg-label-secondary rounded-pill">Quotation</div>
                             </div>
                         </div>
-                        <div class="card-info mt-4 pt-1">
-                            <h4 class="mb-2">
-                                {{ $customers }}
-                                <small class="text-muted fs-tiny">/
-                                    {{ $jumlahCustomer }}
-                                    {{-- @if ($jumlahData > 4)
-                                            {{ round($target->crm + $target->crm / 4) }}
-                                        @elseif($jumlahData == 4)
-                                            {{ round($target->crm) }}
-                                        @endif --}}
-                                </small>
-                            </h4>
-                            <div class="badge bg-label-secondary rounded-pill">CRM Existing</div>
-                        </div>
                     </div>
                 </div>
-            </div>
-            <!--/ Total Expenses -->
-            <!-- Total Profit chart -->
-            <div class="col">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-warning rounded">
-                                    <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-info mt-4 pt-1">
-                            <h4 class="mb-2">
-                                {{ $quotation->count() }}
-                                <small class="text-muted fs-tiny">/
-                                    {{ $target->quote }}
-                                    {{-- @if ($jumlahData > 4)
-                                            {{ round($target->quote + $target->quote / 4) }}
-                                        @elseif($jumlahData == 4)
-                                            {{ round($target->quote) }}
-                                        @endif --}}
-                                </small>
-                            </h4>
-                            <div class="badge bg-label-secondary rounded-pill">Quotation</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="col">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-success rounded">
-                                    <i class="mdi mdi-cart-plus mdi-24px"></i>
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                <div class="avatar">
+                                    <div class="avatar-initial bg-label-success rounded">
+                                        <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card-info mt-4 pt-1">
-                            <h4 class="mb-2">
-                                {{ $po->count() }}
-                            </h4>
-                            <div class="badge bg-label-secondary rounded-pill">Purchase Order</div>
+                            <div class="card-info mt-4 pt-1">
+                                <h4 class="mb-2">
+                                    {{ $po->count() }}
+                                </h4>
+                                <div class="badge bg-label-secondary rounded-pill">Purchase Order</div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <!--/ Total Profit chart -->
+                {{-- @endif --}}
             </div>
-            <!--/ Total Profit chart -->
-            {{-- @endif --}}
-        </div>
+        @endif
 
         <div class="row gy-4 mb-4">
             {{-- Prospect Table --}}
@@ -1270,6 +1517,100 @@
             @include('components.modal.req-visit.form-visited')
         @endforeach
     @elseif(Auth::user()->role == 'ServiceM')
+        <div class="row mb-3">
+            <div class="col-12 col-md-3">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <img src="{{ url('') . '/' . $user->image }}" alt="" srcset=""
+                            class="h-100 w-100">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-9">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-1">
+                                <div class="form-check form-check-success">
+                                    <input class="form-check-input checkPlanning" type="checkbox" name="planing"
+                                        value="1" id="customCheckSuccess"
+                                        {{ @$monitoring && @$monitoring->planning ? 'checked' : '' }}>
+                                </div>
+                            </div>
+                            <div
+                                class="col alert-planning {{ @$monitoring && @$monitoring->planning ? 'alert-success' : '' }}">
+                                <div id="planing">Update Planning Pekerjaan Tim Lapangan</div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-1">
+                                <div class="form-check form-check-success">
+                                    <input class="form-check-input checkSync" type="checkbox" name="sync"
+                                        value="1" id="customCheckSuccess"
+                                        {{ @$monitoring && @$monitoring->sync ? 'checked' : '' }}>
+                                </div>
+                            </div>
+                            <div class="col alert-sync {{ @$monitoring && @$monitoring->sync ? 'alert-success' : '' }}">
+                                <div id="sync">Sinkronisasi Planing Dengan Aktual Pekerjaan</div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-1">
+                                <div class="form-check form-check-success">
+                                    <input class="form-check-input checkAbnormal" type="checkbox" name="abnormal"
+                                        value="1" id="customCheckSuccess"
+                                        {{ @$monitoring && @$monitoring->abnormal ? 'checked' : '' }}>
+                                </div>
+                            </div>
+                            <div
+                                class="col alert-abnormal {{ @$monitoring && @$monitoring->abnormal ? 'alert-success' : '' }}">
+                                <div id="sync">Cek Issue / Temuan Abnormal Dilapangan</div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-1">
+                                <div class="form-check form-check-success">
+                                    <input class="form-check-input checkLog" type="checkbox" name="log"
+                                        value="1" id="customCheckSuccess"
+                                        {{ @$monitoring && @$monitoring->log ? 'checked' : '' }}>
+                                </div>
+                            </div>
+                            <div class="col alert-log {{ @$monitoring && @$monitoring->log ? 'alert-success' : '' }}">
+                                <div id="log">Update Maintenance Log pekerjaan & Sinkronisasi Dengan Aktual Activity
+                                    di
+                                    Lapangan</div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-1">
+                                <div class="form-check form-check-success">
+                                    <input class="form-check-input checkTimeline" type="checkbox" name="timeline"
+                                        value="1" id="customCheckSuccess"
+                                        {{ @$monitoring && @$monitoring->timeline ? 'checked' : '' }}>
+                                </div>
+                            </div>
+                            <div
+                                class="col alert-timeline {{ @$monitoring && @$monitoring->timeline ? 'alert-success' : '' }}">
+                                <div id="timeline">Update Timeline Weekly Cleaning Dengan Actual Pekerjaan</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-1">
+                                <div class="form-check form-check-success">
+                                    <input class="form-check-input checkPreventive" type="checkbox" name="preventive"
+                                        value="1" id="customCheckSuccess"
+                                        {{ @$monitoring && @$monitoring->preventive ? 'checked' : '' }}>
+                                </div>
+                            </div>
+                            <div
+                                class="col alert-preventive {{ @$monitoring && @$monitoring->preventive ? 'alert-success' : '' }}">
+                                <div id="preventive">Update Timeline Preventive Maintenance ( Pergantian Sparepart )</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
                 <table class="datatable-reports-monitor table table-striped">
@@ -1555,6 +1896,166 @@
                 }
             });
 
+
+        });
+
+        $(document).ready(function() {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+            $('.checkPlanning').on('change', function() {
+                let isChecked = $(this).is(':checked');
+
+                // Tambah atau hapus class alert-success
+                if (isChecked) {
+                    $('.alert-planning').addClass('alert-success');
+                } else {
+                    $('.alert-planning').removeClass('alert-success');
+                }
+
+                $.ajax({
+                    url: '/check-planning', // sesuaikan dengan route kamu
+                    type: 'POST',
+                    data: {
+                        planing: isChecked ? 1 : 0,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        console.log('Planning status updated:', response);
+                    },
+                    error: function(xhr) {
+                        console.error('Terjadi error:', xhr.responseText);
+                    }
+                });
+            });
+
+            $('.checkSync').on('change', function() {
+                let isChecked = $(this).is(':checked');
+
+                // Tambah atau hapus class alert-success
+                if (isChecked) {
+                    $('.alert-sync').addClass('alert-success');
+                } else {
+                    $('.alert-sync').removeClass('alert-success');
+                }
+
+                $.ajax({
+                    url: '/check-sync', // sesuaikan dengan route kamu
+                    type: 'POST',
+                    data: {
+                        sync: isChecked ? 1 : 0,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        console.log('sync status updated:', response);
+                    },
+                    error: function(xhr) {
+                        console.error('Terjadi error:', xhr.responseText);
+                    }
+                });
+            });
+
+            $('.checkAbnormal').on('change', function() {
+                let isChecked = $(this).is(':checked');
+
+                // Tambah atau hapus class alert-success
+                if (isChecked) {
+                    $('.alert-abnormal').addClass('alert-success');
+                } else {
+                    $('.alert-abnormal').removeClass('alert-success');
+                }
+
+                $.ajax({
+                    url: '/check-abnormal', // sesuaikan dengan route kamu
+                    type: 'POST',
+                    data: {
+                        abnormal: isChecked ? 1 : 0,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        console.log('abnormal status updated:', response);
+                    },
+                    error: function(xhr) {
+                        console.error('Terjadi error:', xhr.responseText);
+                    }
+                });
+            });
+
+            $('.checkLog').on('change', function() {
+                let isChecked = $(this).is(':checked');
+
+                // Tambah atau hapus class alert-success
+                if (isChecked) {
+                    $('.alert-log').addClass('alert-success');
+                } else {
+                    $('.alert-log').removeClass('alert-success');
+                }
+
+                $.ajax({
+                    url: '/check-log', // sesuaikan dengan route kamu
+                    type: 'POST',
+                    data: {
+                        log: isChecked ? 1 : 0,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        console.log('log status updated:', response);
+                    },
+                    error: function(xhr) {
+                        console.error('Terjadi error:', xhr.responseText);
+                    }
+                });
+            });
+
+            $('.checkTimeline').on('change', function() {
+                let isChecked = $(this).is(':checked');
+
+                // Tambah atau hapus class alert-success
+                if (isChecked) {
+                    $('.alert-timeline').addClass('alert-success');
+                } else {
+                    $('.alert-timeline').removeClass('alert-success');
+                }
+
+                $.ajax({
+                    url: '/check-timeline', // sesuaikan dengan route kamu
+                    type: 'POST',
+                    data: {
+                        timeline: isChecked ? 1 : 0,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        console.log('timeline status updated:', response);
+                    },
+                    error: function(xhr) {
+                        console.error('Terjadi error:', xhr.responseText);
+                    }
+                });
+            });
+
+            $('.checkPreventive').on('change', function() {
+                let isChecked = $(this).is(':checked');
+
+                // Tambah atau hapus class alert-success
+                if (isChecked) {
+                    $('.alert-preventive').addClass('alert-success');
+                } else {
+                    $('.alert-preventive').removeClass('alert-success');
+                }
+
+                $.ajax({
+                    url: '/check-preventive', // sesuaikan dengan route kamu
+                    type: 'POST',
+                    data: {
+                        preventive: isChecked ? 1 : 0,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        console.log('preventive status updated:', response);
+                    },
+                    error: function(xhr) {
+                        console.error('Terjadi error:', xhr.responseText);
+                    }
+                });
+            });
 
         });
     </script>

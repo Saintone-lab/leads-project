@@ -366,7 +366,13 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/monitoring-client/fajarPaper-quote-print/{month}', [MonitoringClientController::class, 'quotePrintMonth'])->name('monitoring.fajarPaper-quote-print-month');
     Route::get('/monitoring-summary/{month}', [MonitoringController::class, 'summaryMainlog'])->name('summary.mainlog');
     Route::get('/monitoring-summary/print/{month}', [MonitoringController::class, 'summaryMainlogPrint'])->name('summary.mainlog-print');
-
+    Route::get('/daily/activity', [MonitoringController::class, 'activity'])->name('mainActivity.index');
+    Route::post('/check-planning', [MonitoringController::class, 'checkPlanning']);
+    Route::post('/check-sync', [MonitoringController::class, 'checkSync']);
+    Route::post('/check-abnormal', [MonitoringController::class, 'checkAbnormal']);
+    Route::post('/check-log', [MonitoringController::class, 'checkLog']);
+    Route::post('/check-timeline', [MonitoringController::class, 'checkTimeline']);
+    Route::post('/check-preventive', [MonitoringController::class, 'checkPreventive']);
 
     Route::get('/db/monitoring/compressor/{id}/{month}', function ($id, $month) {
         $setday = Carbon::today();
@@ -1699,7 +1705,7 @@ Route::group(["middleware" => "auth"], function () {
             ->where('level', '1')->where('is_primary', '1')
             ->whereMonth('po_date', $month)
             ->whereYear('po_date', $year)
-            ->get(['s.name','no_quote', 'client.company', 'nett', 'title', 'po_date', 'status', 'quotation.note', 'quotation.id']);
+            ->get(['s.name', 'no_quote', 'client.company', 'nett', 'title', 'po_date', 'status', 'quotation.note', 'quotation.id']);
 
         $totalNett = Quotation::whereMonth('po_date', $month)->whereYear('po_date', $year)->where('status', '100')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $formattedTotalNett = number_format($totalNett, 0, ',', '.');
@@ -2180,7 +2186,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->whereNot('pending_po.status',2)
+            ->whereNot('pending_po.status', 2)
             ->select(
                 'pending_po.id',
                 'u.name',
@@ -2199,7 +2205,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->where('pending_po.status',2)
+            ->where('pending_po.status', 2)
             ->select(
                 'pending_po.id',
                 'u.name',

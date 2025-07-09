@@ -41,11 +41,12 @@
                                 <div class="form-floating form-floating-outline">
                                     <select id="select2Basic" class="select2 form-select form-select-lg invoice-item-client"
                                         data-allow-clear="true" name="id_pic" {{ @$quotation ? 'disabled' : '' }}>
-                                        <option> ---- Choose Pic Company Here ---- </option>
+                                        <option> ---- Choose Company Here ---- </option>
                                         @foreach ($pic as $charge)
                                             <option value="{{ $charge->id }}"
-                                                {{ @$quotation->id_pic == $charge->id ? 'selected' : '' }}>
-                                                {{ $charge->name_pic }} | {{ $charge->client->company }}</option>
+                                                {{ @$quotation->pic->id_client == $charge->id ? 'selected' : '' }}>
+                                                {{ $charge->company }}
+                                            </option>
                                         @endforeach
                                     </select>
                                     <label for="select2Basic">Client</label>
@@ -56,28 +57,32 @@
                             @endif
                             <div class="col-12 col-lg-3">
                                 <div class="form-floating form-floating-outline mb-2">
-                                    <select id="address-dropdown" class="select2 form-select invoice-item-destination"
-                                        data-allow-clear="true" name="destination" disabled>
+                                    <select id="pic-dropdown" class="select2 form-select invoice-item-pic"
+                                        data-allow-clear="true" name="pic" disabled>
                                         @if (@$quotation)
                                             <option selected>
-                                                {{ $quotation->destination == '1' ? $quotation->pic->client->address : $quotation->pic->client->subAddress }}
+                                                {{ $quotation->pic->name_pic }}
                                             </option>
                                         @endif
                                     </select>
-                                    <label for="address-dropdown">Destination Address</label>
+                                    <label for="pic-dropdown">Pic</label>
                                 </div>
                             </div>
                             @if (@$quotation)
-                                <input type="text" name="destination" id="destination"
-                                    value="{{ $quotation->destination }}" hidden>
+                                <input type="text" name="pic" id="destination" value="{{ $quotation->id_pic }}"
+                                    hidden>
                             @endif
-                            <div class="col-6 col-lg-2">
+                            <div class="col-12 col-lg-2">
                                 <div class="form-floating form-floating-outline">
                                     <input class="form-control" type="text" placeholder="Put Title Quotation Here ...."
                                         id="title" name="title" value="{{ old('title', @$quotation->title ?? '') }}">
                                     <label for="title">Title Quotation</label>
                                 </div>
                             </div>
+                            @if (@$quotation)
+                                <input type="text" name="destination" id="destination"
+                                    value="{{ $quotation->destination }}" hidden>
+                            @endif
                             <div class="col-6 col-lg-2">
                                 <div class="form-floating form-floating-outline">
                                     <input class="form-control" type="date" id="estimatedDate" name="estimated_date"
@@ -103,10 +108,23 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-12 col-lg-3">
+                                <div class="form-floating form-floating-outline mb-2">
+                                    <select id="address-dropdown" class="select2 form-select invoice-item-destination"
+                                        data-allow-clear="true" name="destination" disabled>
+                                        @if (@$quotation)
+                                            <option selected>
+                                                {{ $quotation->destination == '1' ? $quotation->pic->client->address : $quotation->pic->client->subAddress }}
+                                            </option>
+                                        @endif
+                                    </select>
+                                    <label for="address-dropdown">Destination Address</label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-3">
                                 <div class="form-floating form-floating-outline mb-4">
                                     <input class="form-control" type="text" placeholder="Put your No PR Here ...."
-                                        id="no-pr-input" name="no_pr" value="{{ @$quotation ?? '-' }}">
+                                        id="no-pr-input" name="no_pr" value="{{ @$quotation->no_pr ?? '-' }}">
                                     <label for="no-pr-input">No PR</label>
                                 </div>
                             </div>
@@ -114,7 +132,7 @@
                                 <div class="form-floating form-floating-outline mb-4">
                                     <select class="form-select" id="Type" aria-label="Default select example"
                                         name="type">
-                                        <option>---Type---</option>
+                                        <option disabled>---Type---</option>
                                         <option value="Sparepart" {{ @$quote->type == 'Sparepart' ? 'selected' : '' }}>
                                             Sparepart
                                         </option>

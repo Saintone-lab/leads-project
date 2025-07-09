@@ -144,6 +144,12 @@
                     <div data-i18n="Service Report">Service Report</div>
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('/daily/activity') ? 'active' : '' }}">
+                <a href="{{ route('mainActivity.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <div data-i18n="Daily Activity">Daily Activity</div>
+                </a>
+            </li>
             <li
                 class="menu-item {{ request()->is('service-manager') || request()->is('service-manager/*') ? 'active' : '' }}">
                 <a href="{{ route('service-manager.index') }}" class="menu-link">
@@ -393,11 +399,12 @@
                     <div data-i18n="Pending PO">Pending PO</div>
                 </a>
             </li> --}}
-            
+
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Pending</span>
             </li>
-            <li class="menu-item {{ request()->is('pending-po') || request()->is('pending-po/*') || request()->is('pending-po-done')  ? 'open' : '' }}">
+            <li
+                class="menu-item {{ request()->is('pending-po') || request()->is('pending-po/*') || request()->is('pending-po-done') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-text-box-multiple"></i>
                     <div data-i18n="Pending PO">Pending PO</div>
@@ -539,7 +546,7 @@
                     <div data-i18n="Service Report">Service Report</div>
                 </a>
             </li>
-            @if (auth::user()->id == 3 || auth::user()->id == 4 )
+            @if (auth::user()->id == 3 || auth::user()->id == 4)
                 <li
                     class="menu-item {{ request()->is('service-manager') || request()->is('service-manager/*') ? 'active' : '' }}">
                     <a href="{{ route('service-manager.index') }}" class="menu-link">

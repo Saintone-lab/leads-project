@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Comment;
 use App\Models\DetailProduct;
 use App\Models\Issues;
+use App\Models\MonitoringActivities;
 use App\Models\Notulen;
 use App\Models\Product;
 use App\Models\Prospect;
@@ -142,10 +143,10 @@ class DashboardController extends Controller
             $dataQuote = $this->getWeekDataQuote();
             $dataLeads = $this->getWeekDataLeads();
             $dataPO = $this->getWeekDataPO();
-            $targetCrm = Client::where('role','Customers')
-            ->select('id_sales', DB::RAW('COUNT(*) as total'))
-            ->groupBy('id_sales')
-            ->pluck('total','id_sales')->toArray();
+            $targetCrm = Client::where('role', 'Customers')
+                ->select('id_sales', DB::RAW('COUNT(*) as total'))
+                ->groupBy('id_sales')
+                ->pluck('total', 'id_sales')->toArray();
             // Comment Buat Admin
             $firstComments = Comment::where('id_user', Auth::id())
                 ->groupBy('id_status')
@@ -213,15 +214,19 @@ class DashboardController extends Controller
                 )
             );
         } else {
+            $today = Carbon::now()->toDateString();
             $commodity = Product::count();
             $dproduct = DetailProduct::count();
             $sproduct = SerialProduct::count();
+            $user = User::find('25');
+            $monitoring = MonitoringActivities::whereDate('date', $today)->first();
 
             $visits = ReqVisit::whereNull('date')->get();
             $visited = ReqVisit::whereNotNull('date')->whereNull('visit_date')->get();
             return view(
                 "pages.sales.dashboard",
                 compact(
+                    'user',
                     'notulens',
                     'commodity',
                     'dproduct',
@@ -551,13 +556,13 @@ class DashboardController extends Controller
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
         $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')
-        ->whereYear('date', $yearNow)
-        ->whereMonth('date', $monthNow)
-        ->where('c.id_sales', $sales)
-        ->where('status', 'Responded')
-        ->whereIn('name', ['Daily Call', 'Follow Up'])
-        ->distinct('c.id')
-        ->count();
+            ->whereYear('date', $yearNow)
+            ->whereMonth('date', $monthNow)
+            ->where('c.id_sales', $sales)
+            ->where('status', 'Responded')
+            ->whereIn('name', ['Daily Call', 'Follow Up'])
+            ->distinct('c.id')
+            ->count();
         return $filteredDC;
     }
     public function filteredCrmAdmin($sales)

@@ -640,8 +640,8 @@ class QuotationController extends Controller
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::all();
-        // $pic = client::where('client.id_sales', Auth::user()->id)->get();
+        // $pic = Pic::all();
+        $pic = client::where('client.id_sales', Auth::user()->id)->get();
         // dd($pic);
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
         $sales = User::where('role', 'sales')->get();
@@ -1034,7 +1034,7 @@ class QuotationController extends Controller
 
             // Validate the file to ensure it's a PDF
             $request->validate([
-                'uploadPO' => 'required|file|mimes:pdf|max:2048',
+                'uploadPO' => 'required|file|mimes:pdf|max:3060',
             ]);
 
             // Get file extension
@@ -1560,7 +1560,8 @@ class QuotationController extends Controller
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
+        $pic = client::where('client.id_sales', Auth::user()->id)->get();
+        // $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
         $sales = User::where('role', 'sales')->get();
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
         // dd($product);
@@ -1635,7 +1636,7 @@ class QuotationController extends Controller
     public function storeService(Request $request)
     {
         // dd($request->all());
-        $pic = Pic::find($request->id_pic);
+        $pic = Pic::find($request->pic);
         $client = Client::find($pic->id_client);
         $rule = [
             'no_quote' => 'required',
@@ -1660,7 +1661,7 @@ class QuotationController extends Controller
         $previousUrl = request()->create(url()->previous())->segment(2);
         // Masukan Data ke Tabel Quotataion
         $quotation = new Quotation();
-        $quotation->id_pic = $request->id_pic;
+        $quotation->id_pic = $request->pic;
         $quotation->id_sales = $request->id_sales;
         $quotation->id_service = NULL;
         $quotation->id_support = $client->id_support;
@@ -1881,7 +1882,8 @@ class QuotationController extends Controller
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
+        $pic = client::where('client.id_sales', Auth::user()->id)->get();
+        // $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
         // dd($subtitle);
 
@@ -2152,7 +2154,8 @@ class QuotationController extends Controller
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
+        $pic = client::where('client.id_sales', Auth::user()->id)->get();
+        // $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
         $sales = User::where('role', 'sales')->get();
         // dd($product);
         $totalPrice = 0;
@@ -2234,7 +2237,7 @@ class QuotationController extends Controller
     public function storeOverhaul(Request $request)
     {
         // dd($request->all());
-        $pic = Pic::find($request->id_pic);
+        $pic = Pic::find($request->pic);
         $client = Client::find($pic->id_client);
         $rule = [
             'no_quote' => 'required',
@@ -2260,7 +2263,7 @@ class QuotationController extends Controller
         $previousUrl = request()->create(url()->previous())->segment(2);
         // Masukan Data ke Tabel Quotataion
         $quotation = new Quotation();
-        $quotation->id_pic = $request->id_pic;
+        $quotation->id_pic = $request->pic;
         $quotation->id_sales = $request->id_sales;
         $quotation->id_service = NULL;
         $quotation->id_support = $client->id_support;
@@ -2507,7 +2510,8 @@ class QuotationController extends Controller
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
+        $pic = client::where('client.id_sales', Auth::user()->id)->get();
+        // $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
         // dd($subtitle);
 

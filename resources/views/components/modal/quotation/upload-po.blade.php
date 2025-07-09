@@ -21,6 +21,7 @@
                                             <label for="formFile" class="form-label">Upload PO</label>
                                             <input class="form-control" type="file" id="formFile" name="uploadPO"
                                                 accept=".pdf">
+                                                <p><span class="fw-bold">Note :</span>File Maximal <span class="fw-bold">3 MB.</span></p>
                                         </div>
                                     </div>
                                 </div>
