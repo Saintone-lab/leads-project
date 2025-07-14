@@ -1,6 +1,6 @@
-<form action="{{ route('upload-po.quotation') }}" method="post" enctype="multipart/form-data">
+<form action="{{@$product[0] ? route('update.salon',@$product[0]->id) : route('store.salon')}}" method="post" enctype="multipart/form-data">
     @csrf
-    <div class="modal-onboarding modal fade animate__animated" id="uploadPo" tabindex="-1" style="display: none;"
+    <div class="modal-onboarding modal fade animate__animated" id="newProduct" tabindex="-1" style="display: none;"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content text-center">
@@ -14,44 +14,45 @@
                             <div class="row">
                                 <div class="col-12 mb-3">
                                     <div class="form-floating form-floating-outline">
-                                        <input class="form-control form-control-sm" type="text"
+                                        <input class="form-control" type="text"
                                             placeholder="Put Link New Product Here ...." id="product" name="product[]"
-                                            value="">
+                                            value="{{@$product[0]->product}}">
                                         <label for="product">Link 1</label>
                                     </div>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <div class="form-floating form-floating-outline">
-                                        <input class="form-control form-control-sm" type="text"
+                                        <input class="form-control" type="text"
                                             placeholder="Put Link New Product Here ...." id="product" name="product[]"
-                                            value="">
+                                            value="{{@$product[1]->product}}">
                                         <label for="product">Link 2</label>
                                     </div>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <div class="form-floating form-floating-outline">
-                                        <input class="form-control form-control-sm" type="text"
+                                        <input class="form-control" type="text"
                                             placeholder="Put Link New Product Here ...." id="product" name="product[]"
-                                            value="">
+                                            value="{{@$product[2]->product}}">
                                         <label for="product">Link 3</label>
                                     </div>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <div class="form-floating form-floating-outline">
-                                        <input class="form-control form-control-sm" type="text"
+                                        <input class="form-control" type="text"
                                             placeholder="Put Link New Product Here ...." id="product" name="product[]"
-                                            value="">
+                                            value="{{@$product[3]->product}}">
                                         <label for="product">Link 4</label>
                                     </div>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <div class="form-floating form-floating-outline">
-                                        <input class="form-control form-control-sm" type="text"
+                                        <input class="form-control" type="text"
                                             placeholder="Put Link New Product Here ...." id="product" name="product[]"
-                                            value="">
+                                            value="{{@$product[4]->product}}">
                                         <label for="product">Link 5</label>
                                     </div>
                                 </div>
+                                <input type="text" name="type" id="type" value="Product" hidden>
                             </div>
                         </form>
                     </div>

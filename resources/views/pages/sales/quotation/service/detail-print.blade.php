@@ -146,12 +146,12 @@
             <table class="table table-bordered m-0" style="width: 100%">
                 <thead class="table-light border-top">
                     <tr>
-                        <th style="width: 1%">No.</th>
-                        <th style="width: 50%">Item Description</th>
-                        <th>Qty</th>
-                        <th>Disc</th>
-                        <th>Price</th>
-                        <th>Total Price</th>
+                        <th class="text-center" style="width: 1%">No.</th>
+                        <th class="text-center" style="width: 50%">Item Description</th>
+                        <th class="text-center">Qty</th>
+                        <th class="text-center">Price (IDR)</th>
+                        <th class="text-center">Disc</th>
+                        <th class="text-center">Total Price (IDR)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -193,48 +193,48 @@
                                 </td>
                                 <td class="align-top py-1 text-end" style="border-bottom:none !important;">
                                     <p class="mb-0">
-                                        {{ $product->amount == 0 ? 'SBO' : 'RP ' . number_format($product->price, 0, '', '.') }}
+                                        {{ $product->amount == 0 ? 'SBO' : number_format($product->price, 0, '', '.') }}
                                     </p>
                                 </td>
-                                <td class="align-top py-1" style="border-bottom:none !important;">
+                                <td class="align-top py-1 text-center" style="border-bottom:none !important;">
                                     <p class="mb-0">{{ $product->amount == 0 ? '-' : $product->disc . ' %' }}</p>
                                 </td>
                                 <td class="align-top py-1 text-end" style="border-bottom:none !important;">
                                     <p class="mb-0">
-                                        {{ $product->amount == 0 ? 'SBO' : 'RP ' . number_format($product->amount, 0, '', '.') }}
+                                        {{ $product->amount == 0 ? 'SBO' : number_format($product->amount, 0, '', '.') }}
                                     </p>
                                 </td>
                             </tr>
                         @endforeach
                     @endforeach
                     <tr>
-                        <td colspan="4"></td>
-                        <td class="text-end"> Subtotal :</td>
-                        <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
+                        <td colspan="3"></td>
+                        <td colspan="2" class="text-end"> Subtotal :</td>
+                        <td class="text-end"> {{ number_format($quote->subtotal, 0, '', '.') }}</td>
                     </tr>
                     @if ($quote->diskon != 0)
                         <tr>
-                            <td colspan="4"></td>
-                            <td class="text-end"> Discount :</td>
-                            <td class="text-end"> RP {{ number_format($quote->diskon, 0, '', '.') }}</td>
+                            <td colspan="3"></td>
+                            <td colspan="2" class="text-end"> Discount :</td>
+                            <td class="text-end"> {{ number_format($quote->diskon, 0, '', '.') }}</td>
                         </tr>
                     @endif
                     {{-- <tr>
                         <td colspan="4"></td>
                         <td class="text-end"> Total After Discount :</td>
-                        <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
+                        <td class="text-end"> {{ number_format($quote->subtotal, 0, '', '.') }}</td>
                     </tr> --}}
                     <tr>
-                        <td colspan="4"></td>
-                        <td class="text-end"> Total Tax :</td>
-                        <td class="text-end"> RP {{ number_format($tax, 0, '', '.') }}</td>
+                        <td colspan="3"></td>
+                        <td colspan="2" class="text-end"> Total Tax :</td>
+                        <td class="text-end"> {{ number_format($tax, 0, '', '.') }}</td>
                     </tr>
                     <tr class="border-top">
                         <td colspan="5" class="px-4 border-right" style="background-color: #E7FF00">
                             <p class="fw-semibold mb-0 text-black">TOTAL PRICE </p>
                         </td>
                         <td class="text-end px-4 border-left" style="background-color: #E7FF00">
-                            <p class="fw-semibold mb-0 text-end text-black">RP
+                            <p class="fw-semibold mb-0 text-end text-black">
                                 {{ number_format($quote->harga_total, 0, '', '.') }}</p>
                         </td>
                     </tr>
@@ -304,11 +304,11 @@
                         </tr>
                         <tr>
                             <td class="text-center">
-                                <p class="fw-bolder">Airend Workbench -Multi purposed</p>
+                                <p class="fw-bolder">Airend Workbench -Multi puosed</p>
                                 <p>(Large Cap. : tested up to 315 kW Airend) - 1 Unit</p>
                             </td>
                             <td class="text-center">
-                                <p class="fw-bolder">Airend Workbench – Multi purposed</p>
+                                <p class="fw-bolder">Airend Workbench – Multi puosed</p>
                                 <p>(Medium Cap.: tested 15 - 37 kW Airend) - 1 Unit</p>
                             </td>
                         </tr>

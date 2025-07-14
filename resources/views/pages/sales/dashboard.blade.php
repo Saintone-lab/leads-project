@@ -37,7 +37,8 @@
                                 <div class="col-md-4 col-12">
                                     <div class="row mb-3">
                                         <div class="col-4" style="padding-right: 0;">
-                                            <div class="card bg-primary text-white w-100">
+                                            <div class="card bg-primary text-white w-100 cursor-pointer"
+                                                data-bs-toggle="modal" data-bs-target="#newProduct">
                                                 <h5 class="card-title text-white text-center my-4">
                                                     <i class="menu-icon tf-icons mdi mdi-reproduction m-0 fs-1"></i>
                                                 </h5>
@@ -52,19 +53,21 @@
                                             <div class="card shadow-none bg-label-primary border-primary border-2 mt-auto"
                                                 style="border: dashed;">
                                                 <h5 class="card-title text-center my-2">
-                                                    44 / 100
+                                                    {{ $productCount }} / 100
                                                 </h5>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col-4" style="padding-right: 0;">
-                                            <div class="card bg-warning text-white w-100">
+                                            <div class="card bg-warning text-white w-100 cursor-pointer"
+                                                data-bs-toggle="modal" data-bs-target="#accurData">
                                                 <h5 class="card-title text-white text-center my-4">
-                                                    <i class="menu-icon tf-icons mdi mdi-package-variant-closed-check m-0 fs-1"></i>
+                                                    <i
+                                                        class="menu-icon tf-icons mdi mdi-package-variant-closed-check m-0 fs-1"></i>
                                                 </h5>
                                             </div>
-                                        </div>  
+                                        </div>
                                         <div class="col-8 d-flex flex-column justify-content-between">
                                             <div class="card shadow-none bg-label-warning border-warning border-2">
                                                 <h5 class="card-title text-center my-2">
@@ -74,30 +77,64 @@
                                             <div class="card shadow-none bg-label-warning border-warning border-2 mt-auto"
                                                 style="border: dashed;">
                                                 <h5 class="card-title text-center my-2">
-                                                    44 / 100
+                                                    @if (@$akurasiCount[0])
+                                                        @php
+                                                            $dataAkurasi = $akurasiCount->count();
+                                                            $persenAkurasi = 0;
+                                                            $jumlahAkurasi = 0;
+                                                        @endphp
+                                                        @foreach ($akurasiCount as $item)
+                                                            @php
+                                                                $jumlahAkurasi += $item->average;
+                                                            @endphp
+                                                        @endforeach
+                                                        @php
+                                                            $jumlahAkurasi / $dataAkurasi;
+                                                            $persenAkurasi = ($jumlahAkurasi / 5) * 100;
+                                                        @endphp
+                                                    @endif
+                                                    {{ @$persenAkurasi ?? 0 }} %
                                                 </h5>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row mb-3 align-items-stretch">
+                                    <div class="row mb-3 align-items-stretch cursor-pointer">
                                         <div class="col-4" style="padding-right: 0;">
-                                            <div class="card border-secondary border-1 w-100 h-100">
-                                                <h5 class="card-title text-center my-4">
-                                                    <i class="menu-icon tf-icons mdi mdi-truck-delivery-outline m-0 fs-1"></i>
+                                            <div class="card border-warning bg-warning border-1 w-100 h-100" data-bs-toggle="modal"
+                                                data-bs-target="#delivery">
+                                                <h5 class="card-title text-center text-white my-4">
+                                                    <i
+                                                        class="menu-icon tf-icons mdi mdi-truck-delivery-outline m-0 fs-1"></i>
                                                 </h5>
                                             </div>
                                         </div>
 
                                         <div class="col-8 d-flex flex-column justify-content-between">
-                                            <div class="card border-secondary border-1 shadow-none">
+                                            <div class="card bg-label-warning border-warning border-1 shadow-none">
                                                 <h5 class="card-title text-center my-2">
                                                     Delivery & Success
                                                 </h5>
                                             </div>
-                                            <div class="card border-secondary border-2 shadow-none mt-auto"
+                                            <div class="card bg-label-warning border-warning border-2 shadow-none mt-auto"
                                                 style="border-style: dashed;">
                                                 <h5 class="card-title text-center my-2">
-                                                    90%
+                                                    @if (@$deliveryCount[0])
+                                                        @php
+                                                            $dataDelivery = $deliveryCount->count();
+                                                            $persenDelivery = 0;
+                                                            $jumlahDelivery = 0;
+                                                        @endphp
+                                                        @foreach ($deliveryCount as $item)
+                                                            @php
+                                                                $jumlahDelivery += $item->average;
+                                                            @endphp
+                                                        @endforeach
+                                                        @php
+                                                            $jumlahDelivery / $dataDelivery;
+                                                            $persenDelivery = ($jumlahDelivery / 5) * 100;
+                                                        @endphp
+                                                    @endif
+                                                    {{ @$persenDelivery ?? 0 }} %
                                                 </h5>
                                             </div>
                                         </div>
@@ -106,34 +143,53 @@
                                 <div class="col-md-4 col-12">
                                     <div class="row mb-3">
                                         <div class="col-4" style="padding-right: 0;">
-                                            <div class="card bg-primary text-white w-100">
+                                            <div class="card bg-warning text-white w-100 cursor-pointer"
+                                                data-bs-toggle="modal" data-bs-target="#response">
                                                 <h5 class="card-title text-white text-center my-4">
-                                                    <i class="menu-icon tf-icons mdi mdi-account-heart-outline m-0 fs-1"></i>
+                                                    <i
+                                                        class="menu-icon tf-icons mdi mdi-account-heart-outline m-0 fs-1"></i>
                                                 </h5>
                                             </div>
                                         </div>
                                         <div class="col-8 d-flex flex-column justify-content-between">
-                                            <div class="card shadow-none bg-label-primary border-primary border-2">
+                                            <div class="card shadow-none bg-label-warning border-warning border-2">
                                                 <h5 class="card-title text-center my-2">
                                                     Response Chat
                                                 </h5>
                                             </div>
-                                            <div class="card shadow-none bg-label-primary border-primary border-2 mt-auto"
+                                            <div class="card shadow-none bg-label-warning border-warning border-2 mt-auto"
                                                 style="border: dashed;">
                                                 <h5 class="card-title text-center my-2">
-                                                    90 %
+                                                    @if (@$responseCount[0])
+                                                        @php
+                                                            $dataResponse = $responseCount->count();
+                                                            $persenResponse = 0;
+                                                            $jumlahResponse = 0;
+                                                        @endphp
+                                                        @foreach ($responseCount as $item)
+                                                            @php
+                                                                $jumlahResponse += $item->average;
+                                                            @endphp
+                                                        @endforeach
+                                                        @php
+
+                                                            $persenResponse = $jumlahResponse / $dataResponse;
+                                                        @endphp
+                                                    @endif
+                                                    {{ @$persenResponse ?? 0 }} %
                                                 </h5>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col-4" style="padding-right: 0;">
-                                            <div class="card bg-warning text-white w-100">
+                                            <div class="card bg-warning text-white w-100 cursor-pointer"
+                                                data-bs-toggle="modal" data-bs-target="#rating">
                                                 <h5 class="card-title text-white text-center my-4">
                                                     <i class="menu-icon tf-icons mdi mdi-monitor-star m-0 fs-1"></i>
                                                 </h5>
                                             </div>
-                                        </div>  
+                                        </div>
                                         <div class="col-8 d-flex flex-column justify-content-between">
                                             <div class="card shadow-none bg-label-warning border-warning border-2">
                                                 <h5 class="card-title text-center my-2">
@@ -143,14 +199,30 @@
                                             <div class="card shadow-none bg-label-warning border-warning border-2 mt-auto"
                                                 style="border: dashed;">
                                                 <h5 class="card-title text-center my-2">
-                                                    5 / 5
+                                                    @if (@$ratingCount[0])
+                                                        @php
+                                                            $dataRating = $ratingCount->count();
+                                                            $persenRating = 0;
+                                                            $jumlahRating = 0;
+                                                        @endphp
+                                                        @foreach ($ratingCount as $item)
+                                                            @php
+                                                                $jumlahRating += $item->average;
+                                                            @endphp
+                                                        @endforeach
+                                                        @php
+                                                            $persenRating = $jumlahRating / $dataRating;
+                                                        @endphp
+                                                    @endif
+                                                    Rating {{ @$persenRating ?? 0 }}
                                                 </h5>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row mb-3 align-items-stretch">
                                         <div class="col-4" style="padding-right: 0;">
-                                            <div class="card bg-success border-success text-white border-1 w-100 h-100">
+                                            <div class="card bg-warning border-warning text-white border-1 w-100 h-100 cursor-pointer"
+                                                data-bs-toggle="modal" data-bs-target="#customer">
                                                 <h5 class="card-title text-white text-center my-4">
                                                     <i class="menu-icon tf-icons mdi mdi-cart-check m-0 fs-1"></i>
                                                 </h5>
@@ -158,15 +230,31 @@
                                         </div>
 
                                         <div class="col-8 d-flex flex-column justify-content-between">
-                                            <div class="card bg-label-success border-success border-2 shadow-none">
+                                            <div class="card bg-label-warning border-warning border-2 shadow-none">
                                                 <h5 class="card-title text-center my-2">
                                                     Customer Care
                                                 </h5>
                                             </div>
-                                            <div class="card bg-label-success border-success border-2 shadow-none mt-auto"
+                                            <div class="card bg-label-warning border-warning border-2 shadow-none mt-auto"
                                                 style="border-style: dashed;">
                                                 <h5 class="card-title text-center my-2">
-                                                    90%
+                                                    @if (@$customerCount[0])
+                                                        @php
+                                                            $dataCustomer = $customerCount->count();
+                                                            $persenCustomer = 0;
+                                                            $jumlahCustomer = 0;
+                                                        @endphp
+                                                        @foreach ($customerCount as $item)
+                                                            @php
+                                                                $jumlahCustomer += $item->average;
+                                                            @endphp
+                                                        @endforeach
+                                                        @php
+                                                            $jumlahCustomer / $dataCustomer;
+                                                            $persenCustomer = ($jumlahCustomer / 5) * 100;
+                                                        @endphp
+                                                    @endif
+                                                    {{ @$persenCustomer ?? 0 }} %
                                                 </h5>
                                             </div>
                                         </div>
@@ -175,7 +263,8 @@
                                 <div class="col-md-4 col-12">
                                     <div class="row mb-3">
                                         <div class="col-4" style="padding-right: 0;">
-                                            <div class="card bg-primary text-white w-100">
+                                            <div class="card bg-primary text-white w-100 cursor-pointer"
+                                                data-bs-toggle="modal" data-bs-target="#SWin">
                                                 <h5 class="card-title text-white text-center my-4">
                                                     <i class="menu-icon tf-icons mdi mdi-whatsapp m-0 fs-1"></i>
                                                 </h5>
@@ -190,53 +279,92 @@
                                             <div class="card shadow-none bg-label-primary border-primary border-2 mt-auto"
                                                 style="border: dashed;">
                                                 <h5 class="card-title text-center my-2">
-                                                    44 / 60
+                                                    @if (@$SWCount[0])
+                                                        @php
+                                                            $dataSW = $SWCount->count();
+                                                            $persenSW = 0;
+                                                            $jumlahSW = 0;
+                                                        @endphp
+                                                        @foreach ($SWCount as $item)
+                                                            @php
+                                                                    $jumlahSW += $item->airend;
+                                                                    $jumlahSW += $item->kojisha;
+                                                            @endphp
+                                                        @endforeach
+                                                        @php
+                                                            $persenSW = $jumlahSW / $dataSW;
+                                                        @endphp
+                                                    @endif
+                                                    {{ @$persenSW ?? 0 }} / 120
                                                 </h5>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col-4" style="padding-right: 0;">
-                                            <div class="card bg-warning text-white w-100">
+                                            <div class="card bg-primary text-white w-100 cursor-pointer"
+                                                data-bs-toggle="modal" data-bs-target="#video">
                                                 <h5 class="card-title text-white text-center my-4">
                                                     <i class="menu-icon tf-icons mdi mdi-video-outline m-0 fs-1"></i>
                                                 </h5>
                                             </div>
-                                        </div>  
+                                        </div>
                                         <div class="col-8 d-flex flex-column justify-content-between">
-                                            <div class="card shadow-none bg-label-warning border-warning border-2">
+                                            <div class="card shadow-none bg-label-primary border-primary border-2">
                                                 <h5 class="card-title text-center my-2">
                                                     Video ( 1/Days )
                                                 </h5>
                                             </div>
-                                            <div class="card shadow-none bg-label-warning border-warning border-2 mt-auto"
+                                            <div class="card shadow-none bg-label-primary border-primary border-2 mt-auto"
                                                 style="border: dashed;">
                                                 <h5 class="card-title text-center my-2">
-                                                    90%
+                                                    @if (@$videoCount[0])
+                                                        @php
+                                                            $dataVideo = $videoCount->count();
+                                                            $persenVideo = 0;
+                                                            $jumlahVideo = 0;
+                                                        @endphp
+                                                        @foreach ($videoCount as $item)
+                                                            @php
+                                                                if ($item->ig) {
+                                                                    $jumlahVideo += 30;
+                                                                }
+                                                                if ($item->tiktok) {
+                                                                    $jumlahVideo += 30;
+                                                                }
+                                                                if ($item->tokped) {
+                                                                    $jumlahVideo += 40;
+                                                                }
+                                                            @endphp
+                                                        @endforeach
+                                                        @php
+                                                            $persenVideo = $jumlahVideo / $dataVideo;
+                                                        @endphp
+                                                    @endif
+                                                    {{ @$persenVideo ?? 0 }} %
                                                 </h5>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row mb-3 align-items-stretch">
                                         <div class="col-4" style="padding-right: 0;">
-                                            <div class="card border-secondary border-1 w-100 h-100">
-                                                <h5 class="card-title text-center my-4">
-                                                    -
-                                                    {{-- <i class="menu-icon tf-icons mdi mdi-account-group-outline m-0 fs-1"></i> --}}
+                                            <div class="card border-success bg-success border-1 w-100 h-100">
+                                                <h5 class="card-title text-white text-center my-4">
+                                                    <i class="menu-icon tf-icons mdi mdi-cart-plus  m-0 fs-1"></i>
                                                 </h5>
                                             </div>
                                         </div>
 
                                         <div class="col-8 d-flex flex-column justify-content-between">
-                                            <div class="card border-secondary border-1 shadow-none">
+                                            <div class="card border-success bg-label-success border-1 shadow-none">
                                                 <h5 class="card-title text-center my-2">
-                                                    -
+                                                    Purchase Order
                                                 </h5>
                                             </div>
-                                            <div class="card border-secondary border-2 shadow-none mt-auto"
+                                            <div class="card border-success bg-label-success border-2 shadow-none mt-auto"
                                                 style="border-style: dashed;">
                                                 <h5 class="card-title text-center my-2">
-                                                    -
+                                                    {{$POCount}}
                                                 </h5>
                                             </div>
                                         </div>
@@ -247,6 +375,14 @@
                     </div>
                 </div>
             </div>
+            @include('components.modal.onlineSales.new-product')
+            @include('components.modal.onlineSales.akurasi-data')
+            @include('components.modal.onlineSales.delivery')
+            @include('components.modal.onlineSales.response')
+            @include('components.modal.onlineSales.rating')
+            @include('components.modal.onlineSales.customer')
+            @include('components.modal.onlineSales.sw')
+            @include('components.modal.onlineSales.video')
         @else
             <div class="row gy-4 mb-4">
                 <!-- Congratulations card -->
@@ -1764,6 +1900,282 @@
     <script>
         function formatNumber(n) {
             return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+        }
+
+        function validateFloatInputAkurasi(input) {
+            let value = input.value;
+
+            // Ganti titik ke koma otomatis
+            value = value.replace('.', ',');
+
+            // Hapus karakter selain angka dan koma
+            value = value.replace(/[^0-9,]/g, '');
+
+            // Hapus koma lebih dari satu
+            let parts = value.split(',');
+            if (parts.length > 2) {
+                value = parts[0] + ',' + parts[1];
+            }
+
+            // Batasi maksimum 5,0
+            if (value !== '') {
+                let number = parseFloat(value.replace(',', '.'));
+                if (!isNaN(number) && number > 5) {
+                    value = '5,0';
+                }
+            }
+
+            input.value = value;
+
+            // Ambil nilai dari kedua input
+            let airendEl = document.getElementById('airend');
+            let kojishaEl = document.getElementById('kojisha');
+            let averageEl = document.getElementById('average');
+            let averageTextEl = document.getElementById('averageText');
+
+            if (airendEl && kojishaEl && averageEl) {
+                let airend = airendEl.value.replace(',', '.');
+                let kojisha = kojishaEl.value.replace(',', '.');
+
+                let a = parseFloat(airend);
+                let b = parseFloat(kojisha);
+
+                if (!isNaN(a) && !isNaN(b)) {
+                    let avg = (a + b) / 2;
+                    let avgStr = avg.toFixed(1).replace('.', ',');
+                    averageEl.value = avgStr;
+                    averageTextEl.textContent = avgStr;
+                } else {
+                    averageEl.value = '';
+                    averageTextEl.textContent = '';
+                }
+            }
+        }
+
+        function validateFloatInputDelivery(input) {
+            let value = input.value;
+
+            // Ganti titik ke koma otomatis
+            value = value.replace('.', ',');
+
+            // Hapus karakter selain angka dan koma
+            value = value.replace(/[^0-9,]/g, '');
+
+            // Hapus koma lebih dari satu
+            let parts = value.split(',');
+            if (parts.length > 2) {
+                value = parts[0] + ',' + parts[1];
+            }
+
+            // Batasi maksimum 5,0
+            if (value !== '') {
+                let number = parseFloat(value.replace(',', '.'));
+                if (!isNaN(number) && number > 5) {
+                    value = '5,0';
+                }
+            }
+
+            input.value = value;
+
+            // Ambil nilai dari kedua input
+            let airendEl = document.getElementById('airendDelivery');
+            let kojishaEl = document.getElementById('kojishaDelivery');
+            let averageEl = document.getElementById('averageDelivery');
+            let averageTextEl = document.getElementById('averageDeliveryText');
+
+            if (airendEl && kojishaEl && averageEl) {
+                let airend = airendEl.value.replace(',', '.');
+                let kojisha = kojishaEl.value.replace(',', '.');
+
+                let a = parseFloat(airend);
+                let b = parseFloat(kojisha);
+
+                if (!isNaN(a) && !isNaN(b)) {
+                    let avg = (a + b) / 2;
+                    let avgStr = avg.toFixed(1).replace('.', ',');
+                    averageEl.value = avgStr;
+                    averageTextEl.textContent = avgStr;
+                } else {
+                    averageEl.value = '';
+                    averageTextEl.textContent = '';
+                }
+            }
+        }
+
+        function validateFloatInputResponse(input) {
+            let value = input.value;
+
+            // Ganti titik ke koma otomatis
+            value = value.replace('.', ',');
+
+            // Hapus karakter selain angka dan koma
+            value = value.replace(/[^0-9,]/g, '');
+
+            // Hapus koma lebih dari satu
+            let parts = value.split(',');
+            if (parts.length > 2) {
+                value = parts[0] + ',' + parts[1];
+            }
+
+            // Batasi maksimum 5,0
+            if (value !== '') {
+                let number = parseFloat(value.replace(',', '.'));
+                if (!isNaN(number) && number > 100) {
+                    value = '100';
+                }
+            }
+
+            input.value = value;
+
+            // Ambil nilai dari kedua input
+            let airendEl = document.getElementById('airendResponse');
+            let kojishaEl = document.getElementById('kojishaResponse');
+            let averageEl = document.getElementById('averageResponse');
+            let averageTextEl = document.getElementById('averageResponseText');
+
+            if (airendEl && kojishaEl && averageEl) {
+                let airend = airendEl.value.replace(',', '.');
+                let kojisha = kojishaEl.value.replace(',', '.');
+
+                let a = parseFloat(airend);
+                let b = parseFloat(kojisha);
+
+                if (!isNaN(a) && !isNaN(b)) {
+                    let avg = (a + b) / 2;
+                    let avgStr = avg.toFixed(1).replace('.', ',');
+                    averageEl.value = avgStr;
+                    averageTextEl.textContent = avgStr + '%';
+                } else {
+                    averageEl.value = '';
+                    averageTextEl.textContent = '';
+                }
+            }
+        }
+
+        function validateFloatInputRating(input) {
+            let value = input.value;
+
+            // Ganti titik ke koma otomatis
+            value = value.replace('.', ',');
+
+            // Hapus karakter selain angka dan koma
+            value = value.replace(/[^0-9,]/g, '');
+
+            // Hapus koma lebih dari satu
+            let parts = value.split(',');
+            if (parts.length > 2) {
+                value = parts[0] + ',' + parts[1];
+            }
+
+            // Batasi maksimum 5,0
+            if (value !== '') {
+                let number = parseFloat(value.replace(',', '.'));
+                if (!isNaN(number) && number > 5) {
+                    value = '5,0';
+                }
+            }
+
+            input.value = value;
+
+            // Ambil nilai dari kedua input
+            let airendEl = document.getElementById('airendRating');
+            let kojishaEl = document.getElementById('kojishaRating');
+            let averageEl = document.getElementById('averageRating');
+            let averageTextEl = document.getElementById('averageRatingText');
+
+            if (airendEl && kojishaEl && averageEl) {
+                let airend = airendEl.value.replace(',', '.');
+                let kojisha = kojishaEl.value.replace(',', '.');
+
+                let a = parseFloat(airend);
+                let b = parseFloat(kojisha);
+
+                if (!isNaN(a) && !isNaN(b)) {
+                    let avg = (a + b) / 2;
+                    let avgStr = avg.toFixed(1).replace('.', ',');
+                    averageEl.value = avgStr;
+                    averageTextEl.textContent = avgStr;
+                } else {
+                    averageEl.value = '';
+                    averageTextEl.textContent = '';
+                }
+            }
+        }
+
+        function validateFloatInputCustomer(input) {
+            let value = input.value;
+
+            // Ganti titik ke koma otomatis
+            value = value.replace('.', ',');
+
+            // Hapus karakter selain angka dan koma
+            value = value.replace(/[^0-9,]/g, '');
+
+            // Hapus koma lebih dari satu
+            let parts = value.split(',');
+            if (parts.length > 2) {
+                value = parts[0] + ',' + parts[1];
+            }
+
+            // Batasi maksimum 5,0
+            if (value !== '') {
+                let number = parseFloat(value.replace(',', '.'));
+                if (!isNaN(number) && number > 5) {
+                    value = '5,0';
+                }
+            }
+
+            input.value = value;
+
+            // Ambil nilai dari kedua input
+            let airendEl = document.getElementById('airendCustomer');
+            let kojishaEl = document.getElementById('kojishaCustomer');
+            let averageEl = document.getElementById('averageCustomer');
+            let averageTextEl = document.getElementById('averageCustomerText');
+
+            if (airendEl && kojishaEl && averageEl) {
+                let airend = airendEl.value.replace(',', '.');
+                let kojisha = kojishaEl.value.replace(',', '.');
+
+                let a = parseFloat(airend);
+                let b = parseFloat(kojisha);
+
+                if (!isNaN(a) && !isNaN(b)) {
+                    let avg = (a + b) / 2;
+                    let avgStr = avg.toFixed(1).replace('.', ',');
+                    averageEl.value = avgStr;
+                    averageTextEl.textContent = avgStr;
+                } else {
+                    averageEl.value = '';
+                    averageTextEl.textContent = '';
+                }
+            }
+        }
+
+        function validateMaxInput(input) {
+            let value = input.value;
+
+            // Ganti titik ke koma otomatis
+            value = value.replace('.', ',');
+
+            // Hapus karakter selain angka dan koma
+            value = value.replace(/[^0-9,]/g, '');
+
+            // Hapus koma lebih dari satu
+            let parts = value.split(',');
+            if (parts.length > 2) {
+                value = parts[0] + ',' + parts[1];
+            }
+
+            // Batasi maksimum 5,0
+            if (value !== '') {
+                let number = parseFloat(value.replace(',', '.'));
+                if (!isNaN(number) && number > 3) {
+                    value = 3;
+                }
+            }
+
+            input.value = value;
         }
 
         $('.change-sales').on('click', function(ev) {

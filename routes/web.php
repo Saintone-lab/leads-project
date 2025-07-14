@@ -27,6 +27,7 @@ use App\Http\Controllers\ProspectController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ReqVisitController;
 use App\Http\Controllers\ReturnController;
+use App\Http\Controllers\SalesOnlineController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceReportsController;
 use App\Http\Controllers\StockController;
@@ -1176,6 +1177,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/dashboard/filteredProspectPO/{sales}', [DashboardController::class, 'filteredProspectedPO'])->name('filteredProspect.dashboard');
     Route::get('/dashboard/filteredProspectQuote/{sales}', [DashboardController::class, 'filteredProspectedQuotation'])->name('filteredProspect.dashboard');
     Route::get('/dashboard/target/{sales}', [DashboardController::class, 'target'])->name('target.dashboard');
+    Route::post('/salesOnline/store', [SalesOnlineController::class, 'store'])->name('store.salon');
+    Route::post('/salesOnline/update/{id}', [SalesOnlineController::class, 'update'])->name('update.salon');
+    
     Route::get('/notifactivity', [DashboardController::class, 'notifIndex'])->name('index.notif');
     Route::get('/notifactivity/notif/{date}', [DashboardController::class, 'dateNotif'])->name('date.notif');
     Route::get('/notifactivity/notifAdmin/{date}', [DashboardController::class, 'dateNotifAdmin'])->name('date-admin.notif');

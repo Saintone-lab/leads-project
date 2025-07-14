@@ -1057,7 +1057,7 @@ class QuotationController extends Controller
             $quote->upload_date = Carbon::today();
             $quote->save();
             // create invoice quote
-            if (Auth::user()->id != '23') {
+            // if (Auth::user()->id != '23') {
                 $invoice = new Invoice;
                 $invoice->id_quotation = $id;
                 $invoice->no_po = $request->po;
@@ -1070,7 +1070,7 @@ class QuotationController extends Controller
                 $invoice->sign = NULL;
                 $invoice->pph = 0;
                 $invoice->save();
-            }
+            // }
             if ($quote->type == 'Sparepart') {
                 return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');
             } else {

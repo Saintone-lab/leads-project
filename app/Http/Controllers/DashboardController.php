@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\ReqVisit;
+use App\Models\SalesOnline;
 use App\Models\SerialProduct;
 use App\Models\Target;
 use App\Models\User;
@@ -84,11 +85,76 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get();
 
+            // Sales Online
+            $akurasi = SalesOnline::where('id_sales', Auth::user()->id)
+                ->where('type', 'Akurasi')
+                ->whereYear('date', Carbon::now()->year)
+                ->whereRaw('WEEK(date, 1) = ?', [Carbon::now()->weekOfYear])
+                ->first();
+            $delivery = SalesOnline::where('id_sales', Auth::user()->id)
+                ->where('type', 'Delivery')
+                ->whereYear('date', Carbon::now()->year)
+                ->whereRaw('WEEK(date, 1) = ?', [Carbon::now()->weekOfYear])
+                ->first();
+            $response = SalesOnline::where('id_sales', Auth::user()->id)
+                ->where('type', 'Response')
+                ->whereYear('date', Carbon::now()->year)
+                ->whereRaw('WEEK(date, 1) = ?', [Carbon::now()->weekOfYear])
+                ->first();
+            $rating = SalesOnline::where('id_sales', Auth::user()->id)
+                ->where('type', 'Rating')
+                ->whereYear('date', Carbon::now()->year)
+                ->whereRaw('WEEK(date, 1) = ?', [Carbon::now()->weekOfYear])
+                ->first();
+            $customer = SalesOnline::where('id_sales', Auth::user()->id)
+                ->where('type', 'Customer')
+                ->whereYear('date', Carbon::now()->year)
+                ->whereRaw('WEEK(date, 1) = ?', [Carbon::now()->weekOfYear])
+                ->first();
+            $video = SalesOnline::where('id_sales', Auth::user()->id)
+                ->where('type', 'Video')
+                ->whereDate('date', Carbon::now())->first();
+            $sw = SalesOnline::where('id_sales', Auth::user()->id)
+                ->where('type', 'SW')
+                ->whereDate('date', Carbon::now())->first();
+            $product = SalesOnline::where('id_sales', Auth::user()->id)
+                ->where('type', 'product')
+                ->whereDate('date', Carbon::now())->get();
+            // dd($product);
+
+            $akurasiCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Akurasi')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+            $deliveryCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Delivery')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+            $responseCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Response')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+            $ratingCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Rating')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+            $customerCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Customer')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+            $videoCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Video')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+            $SWCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'SW')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+            $productCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Product')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->count();
+            $POCount = Quotation::where('id_sales', Auth::user()->id)->where('is_primary', '1')->where('status', '100')->where('level', '1')->whereMonth('po_date', Carbon::now())->whereYear('po_date', Carbon::now())->count();
+
             $jumlahCustomer = Client::where('role', 'Customers')->where('id_sales', Auth::user()->id)->count();
-            // dd($jumlahCustomer);
+            // dd($ratingCount);
+
             return view(
                 "pages.sales.dashboard",
                 compact(
+                    'akurasi',
+                    'delivery',
+                    'response',
+                    'rating',
+                    'video',
+                    'sw',
+                    'customer',
+                    'product',
+                    'akurasiCount',
+                    'deliveryCount',
+                    'responseCount',
+                    'ratingCount',
+                    'videoCount',
+                    'customerCount',
+                    'SWCount',
+                    'POCount',
+                    'productCount',
                     'jumlahCustomer',
                     'notulens',
                     'prospects',
