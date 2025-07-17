@@ -108,27 +108,45 @@
                     </thead>
                 </table>
             </div>
-        @elseif (Auth::user()->role == 'Sales')
-            <div class="card mb-3">
-                <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-prospect-sales table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Company</th>
-                                <th>Prospect</th>
-                                <th>Date</th>
-                                <th>Support</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
+        </div>
+    @elseif (Auth::user()->role == 'Sales')
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-prospect-sales table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Company</th>
+                            <th>Prospect</th>
+                            <th>Date</th>
+                            <th>Support</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
-            @foreach ($prospects as $prospect)
-                @include('components.modal.prospect.confirm')
-            @endforeach
+        </div>
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-prospect-fu-sales table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Company</th>
+                            <th>Prospect</th>
+                            <th>Date</th>
+                            <th>Support</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        @foreach ($prospects as $prospect)
+            @include('components.modal.prospect.confirm')
+        @endforeach
     @endif
     </div>
     @include('components.modal.client.support.form')
@@ -162,6 +180,7 @@
     <script src="{{ asset('assets') }}/includes/table-prospect-support.js"></script>
     <script src="{{ asset('assets') }}/includes/table-prospect-support-admin.js"></script>
     <script src="{{ asset('assets') }}/includes/table-prospect-support-sales.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-prospect-support-fu-sales.js"></script>
 @endpush
 
 @push('script')

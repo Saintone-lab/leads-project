@@ -32,7 +32,7 @@
                                     <option> ---- Choose Uniit Here ---- </option>
                                     @foreach ($unit as $machine)
                                         <option value="{{ $machine->id }}">
-                                            {{ $machine->brand }} - {{ $machine->unit->sku ?? '-' }} ||
+                                            {{ $machine->brand }} - {{ $machine->pn ?? '-' }} ||
                                             {{ $machine->bar ?? '-' }} - {{ $machine->air_cap ?? '-' }}
                                         </option>
                                     @endforeach

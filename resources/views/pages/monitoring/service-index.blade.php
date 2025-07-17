@@ -1,7 +1,7 @@
 @extends('layouts.sales.app')
 @section('title', 'Monitoring machine')
 @section('content')
-    @if (Auth::user()->role != 'Technician')
+    @if (Auth::user()->role != 'Technician' || Auth::user()->id == 13)
         <div class="row mb-4">
             <div class="col-12 col-md-3 mb-2">
                 <div class="card bg-label-info h-100">

@@ -8,7 +8,9 @@ use App\Models\Client;
 use App\Models\Comment;
 use App\Models\CrmStatus;
 use App\Models\Issues;
+use App\Models\Machine;
 use App\Models\Prospect;
+use App\Models\SerialProduct;
 use App\Models\User;
 use App\Models\Activities;
 use App\Models\Visit;
@@ -229,8 +231,11 @@ class LeadsController extends Controller
      */
     public function show($id)
     {
+        $existing = Client::where('id', $id)->first();
         $leads = Client::where('id', $id)->first();
         $charge = PIC::where('id_client', $id)->get();
+        $unit = SerialProduct::whereNotNull('detail')->get();
+        $machines = Machine::where('id_client', $id)->get();
         $callhis = Activities::where('id_client', $id)->whereIn('name', ['Daily Call', 'Follow Up'])->get();
         $visit = Activities::where('id_client', $id)->where('name', 'Visit')->get();
         $quote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('level', '1')->get('quotation.*');
@@ -304,7 +309,7 @@ class LeadsController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.sales.clients.leads.detail', compact('noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'leads', 'callhis', 'quote', 'sales', 'charge', 'issue', 'visit'));
+        return view('pages.sales.clients.leads.detail', compact('existing','unit','machines','noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'leads', 'callhis', 'quote', 'sales', 'charge', 'issue', 'visit'));
     }
 
     /**

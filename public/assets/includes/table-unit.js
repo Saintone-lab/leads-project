@@ -471,7 +471,7 @@ $(function () {
                 },
             },
         });
-        $("div.head-label").html('<h5 class="card-title mb-0">Table Unit</h5>');
+        $("div.head-label").html('<h5 class="card-title mb-0">Table Unit Baru</h5>');
     }
     dt_table_product_unit.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();

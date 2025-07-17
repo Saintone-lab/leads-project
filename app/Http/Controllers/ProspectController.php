@@ -238,6 +238,7 @@ class ProspectController extends Controller
     {
         $prospect = Prospect::find($id);
         $quotation = Quotation::find($prospect->id_quotation);
+        $allQuotation = Quotation::where('id_pic',$prospect->id_pic)->get();
         $pic = Pic::where('id', $prospect->id_pic)->first();
         $client = Client::where('id', $pic->id_client)->first();
         $sales = User::where('role', 'Sales')->where('active', '1')->get();
@@ -312,7 +313,7 @@ class ProspectController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.support.prospect.detail', compact('prospect', 'comment', 'prospectComments', 'unreadComment', 'commentAdmin', 'quotation', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'pic', 'client', 'sales', 'user'));
+        return view('pages.support.prospect.detail', compact('allQuotation','prospect', 'comment', 'prospectComments', 'unreadComment', 'commentAdmin', 'quotation', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'pic', 'client', 'sales', 'user'));
     }
 
     /**
@@ -387,6 +388,17 @@ class ProspectController extends Controller
         }
     }
 
+    public function onProcessFU($id)
+    {
+        $prospect = Prospect::find($id);
+        $prospect->level = '9';
+        $prospectSave = $prospect->save();
+        if ($prospectSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
     public function without_quotation($id)
     {
         $prospect = Prospect::find($id);
@@ -540,6 +552,16 @@ class ProspectController extends Controller
         $prospectSave = $prospect->save();
         if ($prospectSave) {
             return redirect('/quotation/' . $quotation->id)->with('message', 'data telah di tambahkan');
+        }
+    }
+
+    public function choose_quotation(Request $request, $id){
+        $prospect = Prospect::find($id);
+        $prospect->id_quotation = $request->id_quotation;
+        $prospect->level = '1';
+        $prospectSave = $prospect->save();
+        if ($prospectSave) {
+            return redirect('/quotation/'. $request->id_quotation);
         }
     }
 

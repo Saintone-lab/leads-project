@@ -3,42 +3,45 @@
     <div class="invoice-print p-4">
         <div class="container-fluid flex-grow-1 container-p-y">
             @if ($quote->pic->client->info == 'Reftech')
-                <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
-                    <div class="mb-xl-0 pb-1">
-                        <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
-                            <span class="app-brand-logo demo">
-                                <span style="color: var(--bs-primary)">
-                                    <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt=""
-                                        srcset="" width="60%">
+                <div
+                    class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column {{ $quote->tax == 0 ? 'float-end' : '' }}">
+                    @if ($quote->tax != 0)
+                        <div class="mb-xl-0 pb-1">
+                            <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
+                                <span class="app-brand-logo demo">
+                                    <span style="color: var(--bs-primary)">
+                                        <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png"
+                                            alt="" srcset="" width="60%">
+                                    </span>
                                 </span>
-                            </span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <div class="info">
-                                <p class="mb-1 fw-bolder">Office Address :</p>
-                                <div style="font-size: 10px">
-                                    <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
-                                    <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                                    <p class="mb-1">
-                                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022
-                                        54417653
-                                        {{ '   ' }}<i
-                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@reftech.id
-                                    </p>
-                                    <p class="mb-1">
-                                    </p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div class="info">
+                                    <p class="mb-1 fw-bolder">Office Address :</p>
+                                    <div style="font-size: 10px">
+                                        <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
+                                        <p class="mb-1">Bandung – Jawa Barat 40218</p>
+                                        <p class="mb-1">
+                                            <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022
+                                            54417653
+                                            {{ '   ' }}<i
+                                                class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@reftech.id
+                                        </p>
+                                        <p class="mb-1">
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="npwp_add">
+                                    <p class="mb-1 fw-bolder">NPWP Address :</p>
+                                    <pre
+                                        style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">Komp. Negia Kencana Residence Blok B, No.2 Pasanggrahan, Ujung Berung Kota Bandung - Jawa Barat 40199</pre>
+                                    <p class="mb-1 text-black fw-medium p-1"
+                                        style="background-color: rgb(224, 221, 255); font-size :10px;">
+                                        NPWP : 73.728.571.8-429.000</p>
                                 </div>
                             </div>
-                            <div class="npwp_add">
-                                <p class="mb-1 fw-bolder">NPWP Address :</p>
-                                <pre
-                                    style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">Komp. Negia Kencana Residence Blok B, No.2 Pasanggrahan, Ujung Berung Kota Bandung - Jawa Barat 40199</pre>
-                                <p class="mb-1 text-black fw-medium p-1"
-                                    style="background-color: rgb(224, 221, 255); font-size :10px;">
-                                    NPWP : 73.728.571.8-429.000</p>
-                            </div>
                         </div>
-                    </div>
+                    @endif
                     <div class="text-end">
                         <h1 class="fw-bold title-reftech">INVOICE</h1>
                         <div>
@@ -50,40 +53,44 @@
                     </div>
                 </div>
             @else
-                <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
-                    <div class="mb-xl-0 pb-1">
-                        <div class="d-flex svg-illustration align-items-center gap-2 mb-2">
-                            <span class="app-brand-logo demo">
-                                <span style="color: var(--bs-primary)">
-                                    <img class="text-md" src="{{ asset('/asset') }}/logo/Logo-update-size.png"
-                                        alt="" srcset="" width="60%">
+                <div
+                    class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column {{ $quote->tax == 0 ? 'float-end' : '' }}">
+                    @if ($quote->tax != 0)
+                        <div class="mb-xl-0 pb-1">
+                            <div class="d-flex svg-illustration align-items-center gap-2 mb-2">
+                                <span class="app-brand-logo demo">
+                                    <span style="color: var(--bs-primary)">
+                                        <img class="text-md" src="{{ asset('/asset') }}/logo/Logo-update-size.png"
+                                            alt="" srcset="" width="60%">
+                                    </span>
                                 </span>
-                            </span>
-                        </div>
+                            </div>
 
-                        <div class="d-flex justify-content-between">
-                            <div class="info">
-                                <p class="mb-1 fw-bolder">Office Address :</p>
-                                <div style="font-size: 10px">
-                                    <p class="mb-1">Jl. Nancep No. 45A, Setu</p>
-                                    <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
-                                    <p class="mb-1">
-                                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62
-                                        812-1000-0997
-                                        {{ ' | ' }}<i
-                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
+                            <div class="d-flex justify-content-between">
+                                <div class="info">
+                                    <p class="mb-1 fw-bolder">Office Address :</p>
+                                    <div style="font-size: 10px">
+                                        <p class="mb-1">Jl. Nancep No. 45A, Setu</p>
+                                        <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
+                                        <p class="mb-1">
+                                            <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62
+                                            812-1000-0997
+                                            {{ ' | ' }}<i
+                                                class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
+                                    </div>
+                                </div>
+                                <div class="npwp_add">
+                                    <p class="mb-1 fw-bolder">NPWP Address :</p>
+                                    <pre
+                                        style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">Jl. Nancep No. 45, Setu Cisaat RT. 001 RW. 003 Cibening, Setu</pre>
+                                    </p>
+                                    <p class="mb-1 text-black fw-medium p-1"
+                                        style="background-color: rgb(255, 235, 221)">
+                                        NPWP : 96.484.859.2-413.000</p>
                                 </div>
                             </div>
-                            <div class="npwp_add">
-                                <p class="mb-1 fw-bolder">NPWP Address :</p>
-                                <pre
-                                    style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">Jl. Nancep No. 45, Setu Cisaat RT. 001 RW. 003 Cibening, Setu</pre>
-                                </p>
-                                <p class="mb-1 text-black fw-medium p-1" style="background-color: rgb(255, 235, 221)">
-                                    NPWP : 96.484.859.2-413.000</p>
-                            </div>
                         </div>
-                    </div>
+                    @endif
                     <div class="text-end">
                         <h1 class="fw-bold" style="color: rgb(175, 29, 23);">INVOICE</h1>
                         <div>
@@ -317,7 +324,8 @@
                             @if ($invoice->type == 'CT')
                                 @if ($quote->diskon != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -327,7 +335,8 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">Total After Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -361,7 +370,8 @@
                                                         DPP Atas PPN
                                                     </p>
                                                 </td>
-                                                <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
+                                                <td id="price" class="pr-4 py-0"
+                                                    style="padding-left: 0 !important;">
                                                     @php
                                                         $dpp = ($quote->subtotal * 11) / 12;
                                                     @endphp
@@ -391,7 +401,8 @@
                                         </tr>
                                     @endif
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -415,7 +426,8 @@
                                 @endif
                                 @if ($quote->shipping != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">Shipping Cost</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -446,7 +458,8 @@
                                 @endphp
                                 @if ($quote->diskon != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -498,7 +511,8 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -582,7 +596,8 @@
                                 @endphp
                                 @if ($quote->diskon != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -592,7 +607,8 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">Total After Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -629,7 +645,8 @@
                                 </tr>
                                 @if ($totalPph > 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">PPH</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -659,7 +676,8 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="3" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -883,7 +901,8 @@
                             @if ($invoice->type == 'CT')
                                 @if ($quote->diskon != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -893,7 +912,8 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">Total After Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -927,7 +947,8 @@
                                                         DPP Atas PPN
                                                     </p>
                                                 </td>
-                                                <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
+                                                <td id="price" class="pr-4 py-0"
+                                                    style="padding-left: 0 !important;">
                                                     @php
                                                         $dpp = ($quote->subtotal * 11) / 12;
                                                     @endphp
@@ -957,7 +978,8 @@
                                         </tr>
                                     @endif
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -981,7 +1003,8 @@
                                 @endif
                                 @if ($quote->shipping != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">Shipping Cost</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -1012,7 +1035,8 @@
                                 @endphp
                                 @if ($quote->diskon != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -1064,7 +1088,8 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -1148,7 +1173,8 @@
                                 @endphp
                                 @if ($quote->diskon != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -1158,7 +1184,8 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-medium" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">Total After Discount</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -1195,7 +1222,8 @@
                                 </tr>
                                 @if ($totalPph > 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">PPH</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -1225,7 +1253,8 @@
                                         </td>
                                     </tr>
                                     <tr class="fw-medium py-0" style="font-size: 13px">
-                                        <td colspan="2" class="text-end py-0" style="padding-right: 10px !important;">
+                                        <td colspan="2" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
                                             <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
                                         </td>
                                         <td class="pr-4 py-0" style="padding-left: 0 !important;">
@@ -1291,12 +1320,14 @@
                 @endif
             </div>
             @if (@$harga)
-                <p class="fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:100%; font-size:14px;">
+                <p class="fw-medium mt-2 p-2"
+                    style="background-color: rgb(248, 248, 248); width:100%; font-size:14px;">
                     Say
                     amount: #
                     {{ strtoupper($price) }} RUPIAH</p>
             @else
-                <p class="fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:100%; font-size:14px;">
+                <p class="fw-medium mt-2 p-2"
+                    style="background-color: rgb(248, 248, 248); width:100%; font-size:14px;">
                     Say
                     amount: #
                     {{ strtoupper($fullPrice) }} RUPIAH</p>
@@ -1347,7 +1378,9 @@
                     <div class="col-4 mt-4 text-center">
                         <p class="mb-0">Bandung,
                             {{ Carbon\Carbon::parse($invoice->date)->locale('ID')->translatedFormat('d F Y') }}</p>
-                        <p class="fs-normal fw-bolder">PT. Reftech Jaya Optima</p>
+                        @if ($quote->tax != 0)
+                            <p class="fs-normal fw-bolder">PT. Reftech Jaya Optima</p>
+                        @endif
                         @if (isset($invoice->sign))
                             <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset=""
                                 height="77">
@@ -1361,7 +1394,9 @@
                 @else
                     <div class="col-4 mt-4 text-center">
                         <p class="mb-0">Bekasi, {{ Carbon\Carbon::parse($invoice->date)->format('d F Y') }}</p>
-                        <p class="fs-normal fw-bolder">PT. Kojisha Innotiv Indonesia </p>
+                        @if ($quote->tax != 0)
+                            <p class="fs-normal fw-bolder">PT. Kojisha Innotiv Indonesia </p>
+                        @endif
                         @if (isset($invoice->sign))
                             <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset=""
                                 height="77">

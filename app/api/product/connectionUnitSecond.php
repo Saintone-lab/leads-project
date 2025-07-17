@@ -25,7 +25,6 @@ if (Auth::check()) {
         u.sku,
         s.brand,
         s.pn,
-        s.new,
         m.serial,
         u.power,
         s.bar,
@@ -33,17 +32,34 @@ if (Auth::check()) {
         m.status,
         m.price,
         m.tag,
-        m.desc,
-        m.price_rental
+        m.price_rental,
+        m.price_best
             FROM 
                 machine m
             JOIN 
                 serial_product s ON s.id = m.id_unit
             JOIN 
                 unit u ON u.id = s.id_product
-            WHERE m.id_client = 5387  AND m.status_unit = 'Baru'
+            WHERE m.id_client = 5387 AND m.status_unit = 'Second'
             GROUP BY 
-                m.id ";
+                m.id";
+
+        // $query = "SELECT 
+        // u.*,
+        // s.pn,
+        // s.brand,
+        // s.price,
+        // s.id AS id_pn,
+        // u.id AS id_p
+        //     FROM 
+        //         unit u
+        //     LEFT JOIN 
+        //         serial_product s ON u.id = s.id_product
+        //     LEFT JOIN 
+        //         detail_product dp ON u.id = dp.id_product
+        //         WHERE u.type = 'lokal' 
+        //     GROUP BY 
+        //         u.id, s.pn";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

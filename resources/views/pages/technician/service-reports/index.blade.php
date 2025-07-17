@@ -37,6 +37,7 @@
                         <th>Company</th>
                         <th>Job Desc</th>
                         <th>Unit Type</th>
+                        <th>Serial / Tag</th>
                         <th>Date</th>
                         <th>Sales</th>
                         <th>Technician</th>

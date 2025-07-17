@@ -34,10 +34,16 @@ class SalesOnlineController extends Controller
             $salon->id_sales = Auth::user()->id;
             if ($request->airend) {
                 $salon->airend = str_replace(',', '.', ($request->airend));
-                $salon->kojisha = str_replace(',', '.', ($request->kojisha));
-                if ($request->average) {
-                    $salon->average = str_replace(',', '.', ($request->average));
+                if (Auth::user()->id == '16') {
+                    $salon->kojisha = str_replace(',', '.', ($request->kojisha));
+                    if ($request->average) {
+                        $salon->average = str_replace(',', '.', ($request->average));
+                    }
+                } else {
+                    $salon->kojisha = 0;
+                    $salon->average = str_replace(',', '.', ($request->airend));
                 }
+
             } else {
                 $salon->airend = 0;
                 $salon->kojisha = 0;
@@ -85,8 +91,15 @@ class SalesOnlineController extends Controller
             $salon->id_sales = Auth::user()->id;
             if ($request->airend) {
                 $salon->airend = str_replace(',', '.', ($request->airend));
-                $salon->kojisha = str_replace(',', '.', ($request->kojisha));
-                $salon->average = str_replace(',', '.', ($request->average));
+
+                if (Auth::user()->id == 16) {
+                    $salon->kojisha = str_replace(',', '.', ($request->kojisha));
+                    $salon->average = str_replace(',', '.', ($request->average));
+                } else {
+                    $salon->kojisha = 0;
+                    $salon->average = $salon->airend = str_replace(',', '.', ($request->airend));
+                }
+
             } else {
                 $salon->airend = 0;
                 $salon->kojisha = 0;

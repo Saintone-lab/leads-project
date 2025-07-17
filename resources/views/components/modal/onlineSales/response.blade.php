@@ -13,10 +13,11 @@
                         <h4 class="onboarding-title text-body">CS Support</h4>
                         <form>
                             <div class="row mb-3">
-                                <div class="col-md-8 col-12">
+                                <div class="col-md-{{ $salesID = 16 ? '12' : '8' }} col-12">
                                     <div class="row align-items-center">
                                         <div class="col-4 mb-3">
-                                            <h5 class="text-start m-0">Airend Center</h5>
+                                            <h5 class="text-start m-0">
+                                                {{ $salesID == 16 ? 'Airend Center' : 'Part Compressor' }}</h5>
                                         </div>
                                         <div class="col-8 mb-3">
                                             <div class="input-group input-group-merge">
@@ -31,38 +32,42 @@
                                                 <span class="input-group-text">%</span>
                                             </div>
                                         </div>
-                                        <div class="col-4 mb-3">
-                                            <h5 class="text-start m-0">Kojisha</h5>
-                                        </div>
-                                        <div class="col-8 mb-3">
-                                            <div class="input-group input-group-merge">
-                                                <div class="form-floating form-floating-outline">
-                                                    <input type="text" class="form-control" id="kojishaResponse"
-                                                        name="kojisha" placeholder="Target" aria-label="Kojisha"
-                                                        aria-describedby="basic-addon11"
-                                                        oninput="validateFloatInputResponse(this)"
-                                                        value="{{ @$response->kojisha ? str_replace('.', ',', $response->kojisha) : '0' }}">
-                                                    <label for="basic-addon11">Kojisha</label>
+                                        @if ($salesID == 16)
+                                            <div class="col-4 mb-3">
+                                                <h5 class="text-start m-0">Kojisha</h5>
+                                            </div>
+                                            <div class="col-8 mb-3">
+                                                <div class="input-group input-group-merge">
+                                                    <div class="form-floating form-floating-outline">
+                                                        <input type="text" class="form-control" id="kojishaResponse"
+                                                            name="kojisha" placeholder="Target" aria-label="Kojisha"
+                                                            aria-describedby="basic-addon11"
+                                                            oninput="validateFloatInputResponse(this)"
+                                                            value="{{ @$response->kojisha ? str_replace('.', ',', $response->kojisha) : '0' }}">
+                                                        <label for="basic-addon11">Kojisha</label>
+                                                    </div>
+                                                    <span class="input-group-text">%</span>
                                                 </div>
-                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                @if ($salesID == 16)
+                                    <div class="col-md-4 col-12">
+                                        <div class="card text-center bg-label-secondary h-100">
+                                            <input type="text" name="average" id="averageResponse"
+                                                value="{{ @$response->average ? str_replace('.', ',', $response->average) : '0' }}"
+                                                hidden>
+                                            <div class="card-body">
+                                                <h5>Average</h5>
+                                                <p id="averageResponseText">
+                                                    {{ @$response->average ? str_replace('.', ',', $response->average) : '0' }}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4 col-12">
-                                    <div class="card text-center bg-label-secondary h-100">
-                                        <input type="text" name="type" id="type" value="Response" hidden>
-                                        <input type="text" name="average" id="averageResponse"
-                                            value="{{ @$response->average ? str_replace('.', ',', $response->average) : '0' }}"
-                                            hidden>
-                                        <div class="card-body">
-                                            <h5>Average</h5>
-                                            <p id="averageResponseText">
-                                                {{ @$response->average ? str_replace('.', ',', $response->average) : '0' }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
+                                @endif
+                                <input type="text" name="type" id="type" value="Response" hidden>
                             </div>
                         </form>
                     </div>

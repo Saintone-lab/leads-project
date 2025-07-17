@@ -3,29 +3,32 @@
 <div class="invoice-print p-4">
     <div class="container-fluid flex-grow-1 container-p-y">
         @if ($sellcon->type == 'Selling')
-            <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
-                <div class="mb-xl-0 pb-1">
-                    <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
-                        <span class="app-brand-logo demo">
-                            <span style="color: var(--bs-primary)">
-                                <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt=""
-                                    srcset="" width="60%">
+            <div
+                class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column {{ $quote->tax == 0 ? 'float-end' : '' }}">
+                @if ($quote->tax != '0')
+                    <div class="mb-xl-0 pb-1">
+                        <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
+                            <span class="app-brand-logo demo">
+                                <span style="color: var(--bs-primary)">
+                                    <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt=""
+                                        srcset="" width="60%">
+                                </span>
                             </span>
-                        </span>
+                        </div>
+                        <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
+                        <div style="font-size: 10px">
+                            <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
+                            <p class="mb-1">Bandung – Jawa Barat 40218</p>
+                            <p class="mb-1">
+                                <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
+                                {{ '  |  ' }}<i
+                                    class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@reftech.id
+                            </p>
+                            <p class="mb-1">
+                            </p>
+                        </div>
                     </div>
-                    <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
-                    <div style="font-size: 10px">
-                        <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
-                        <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                        <p class="mb-1">
-                            <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
-                            {{ '  |  ' }}<i
-                                class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@reftech.id
-                        </p>
-                        <p class="mb-1">
-                        </p>
-                    </div>
-                </div>
+                @endif
                 <div class="text-end">
                     <h3 class="fw-bold">SELLING CONTRACT</h3>
                     <div>
@@ -37,27 +40,30 @@
                 </div>
             </div>
         @else
-            <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
-                <div class="mb-xl-0 pb-1">
-                    <div class="d-flex svg-illustration align-items-center gap-2 mb-2">
-                        <span class="app-brand-logo demo">
-                            <span style="color: var(--bs-primary)">
-                                <img class="text-md" src="{{ asset('/asset') }}/logo/Logo-update-size.png"
-                                    alt="" srcset="" width="60%">
+            <div
+                class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column {{ $quote->tax == 0 ? 'float-end' : '' }}">
+                @if ($quote->tax != '0')
+                    <div class="mb-xl-0 pb-1">
+                        <div class="d-flex svg-illustration align-items-center gap-2 mb-2">
+                            <span class="app-brand-logo demo">
+                                <span style="color: var(--bs-primary)">
+                                    <img class="text-md" src="{{ asset('/asset') }}/logo/Logo-update-size.png"
+                                        alt="" srcset="" width="60%">
+                                </span>
                             </span>
-                        </span>
+                        </div>
+                        <p class="mb-1 fw-bolder">PT Kojisha Innotiv Indonesia</p>
+                        <div style="font-size: 10px">
+                            <p class="mb-1">Jl. Nancep No. 45A, Setu</p>
+                            <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
+                            <p class="mb-1">
+                                <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62 812-1000-0997
+                                {{ ' | ' }}<i
+                                    class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
+                            </p>
+                        </div>
                     </div>
-                    <p class="mb-1 fw-bolder">PT Kojisha Innotiv Indonesia</p>
-                    <div style="font-size: 10px">
-                        <p class="mb-1">Jl. Nancep No. 45A, Setu</p>
-                        <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
-                        <p class="mb-1">
-                            <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62 812-1000-0997
-                            {{ ' | ' }}<i
-                                class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
-                        </p>
-                    </div>
-                </div>
+                @endif
                 <div class="text-end">
                     <h3 class="fw-bold">Confirm Order</h3>
                     <div>
@@ -96,7 +102,11 @@
                 </div>
                 <div class="col-4 text-end">
                     <p class="mb-1">
-                        {{ $sellcon->type == 'Selling' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
+                        @if ($quote->tax != '0')
+                            {{ $sellcon->type == 'Selling' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
+                        @else
+                            {{ $quote->sales_name }}
+                        @endif
                     </p>
                     <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                 </div>
@@ -337,10 +347,17 @@
             <div class="row mt-5">
                 <div class="col-4 my-3 text-center">
                     <p class="fs-normal fw-medium">Authorized By,</p>
-                    <img src="{{ asset('/asset') }}/contract\sign-irene.jpeg" alt="" srcset=""
-                        style="width: 100px; height: 77px;">
+                    @if ($quote->tax != '0')
+                        <img src="{{ asset('/asset') }}/contract\sign-irene.jpeg" alt="" srcset=""
+                            style="width: 100px; height: 77px;">
+                    @else
+                        <img src="{{ asset('/asset') }}/sign\ttdirene.jpg" alt="" srcset=""
+                            style="width: 100px; height: 77px;">
+                    @endif
                     <p class="pt-3">Mrs. Irene</p>
-                    <p>PT. Reftech Jaya Optima</p>
+                    @if ($quote->tax != '0')
+                        <p>PT. Reftech Jaya Optima</p>
+                    @endif
                 </div>
                 <div class="col-4"></div>
                 <div class="col-4 mb-3 text-center">

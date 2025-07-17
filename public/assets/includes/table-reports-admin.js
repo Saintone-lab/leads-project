@@ -29,6 +29,7 @@ $(function () {
                 { data: "company" },
                 { data: "jobdesc" },
                 { data: "brand_type" },
+                { data: "serial_tag" },
                 { data: "date" },
                 { data: "sales" },
                 { data: "technician" },

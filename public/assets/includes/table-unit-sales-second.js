@@ -1,10 +1,10 @@
 $(function () {
-    var dt_table_product_sales_unit = $(".datatable-product-sales-unit");
-    var Url = "/db/sales/unit";
+    var dt_table_product_sales_unit_second = $(".datatable-product-sales-unit-second");
+    var Url = "/db/sales/unit/second";
 
-    if (dt_table_product_sales_unit.length) {
+    if (dt_table_product_sales_unit_second.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product_sales_unit.DataTable({
+        var dt_product = dt_table_product_sales_unit_second.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -166,7 +166,7 @@ $(function () {
                 // },
             ],
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            dom: '<"card-header flex-column flex-md-row"<"head-label-second unit-second text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
@@ -428,11 +428,11 @@ $(function () {
                 },
             },
         });
-        $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Unit Baru</h5>'
+        $("div.head-label-second.unit-second").html(
+            '<h5 class="card-title mb-0">Table Unit Second</h5>'
         );
     }
-    dt_table_product_sales_unit.on("draw", function () {
+    dt_table_product_sales_unit_second.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

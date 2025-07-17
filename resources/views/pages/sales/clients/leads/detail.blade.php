@@ -118,7 +118,7 @@
                     </button>
                 </a>
             </div>
-            
+
             {{-- @foreach ($charge as $pic) --}}
             <div class="card mb-2">
                 <div class="card-datatable table-responsive pt-0">
@@ -219,6 +219,104 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-12 mt-4">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold pb-1 mb-3">
+                    Machine
+                </h5>
+                <a type="button" data-bs-toggle="modal" data-bs-target="#createMachine">
+                    <button type="button" class="btn btn-primary">
+                        + Create New machine
+                    </button>
+                </a>
+            </div>
+            <div class="card">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-machine-client table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Category</th>
+                                <th>Brand</th>
+                                <th>Type</th>
+                                <th>SN</th>
+                                <th>Tag</th>
+                                <th>Location</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            {{-- <div class="row">
+                @foreach ($machines as $machine)
+                    <div class="col-6 col-md-4">
+                        <div class="card mb-2">
+                            <div class="card-header pb-0">
+                                <div class="text-end text-muted">
+                                    <a type="button" data-bs-toggle="modal"
+                                        data-bs-target="#createMachine{{ $machine->id }}">
+                                        <button type="button" class="btn btn-sm btn-label-warning">
+                                            Edit
+                                        </button>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-label-danger delete-machine"
+                                        data-id="{{ $machine->id }}">
+                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Brand
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->brand }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Type
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->type }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Serial Number
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->serial_number }} ({{$machine->reports->count() > 0 ? $machine->reports->count() : '0'}})
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Bar
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->bar }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Running Hour
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->running }}
+                                    </div>
+                                </div>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div> --}}
+        </div>
         <div class="col-md-6 my-3">
             <div class="d-flex justify-content-between mb-2">
                 <h5 class="fw-bold m-0 pt-2">
@@ -306,6 +404,10 @@
     @include('components.modal.pic.leads.form-create')
     @include('pages.sales.activities.form')
     @include('pages.sales.activities.form-visit')
+    @include('components.modal.machine.form')
+    @foreach ($machines as $machine)
+        @include('components.modal.machine.form-edit')
+    @endforeach
     @foreach ($charge as $pic)
         @include('components.modal.pic.leads.form-update')
     @endforeach

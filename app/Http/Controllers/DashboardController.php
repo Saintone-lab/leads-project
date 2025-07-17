@@ -120,8 +120,9 @@ class DashboardController extends Controller
             $product = SalesOnline::where('id_sales', Auth::user()->id)
                 ->where('type', 'product')
                 ->whereDate('date', Carbon::now())->get();
-            // dd($product);
-
+            $sales = Auth::user();
+            // dd($delivery);
+            // dd($sales);
             $akurasiCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Akurasi')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
             $deliveryCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Delivery')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
             $responseCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Response')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
@@ -138,6 +139,7 @@ class DashboardController extends Controller
             return view(
                 "pages.sales.dashboard",
                 compact(
+                    'sales',
                     'akurasi',
                     'delivery',
                     'response',

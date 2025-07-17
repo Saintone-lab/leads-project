@@ -2,7 +2,7 @@
 @section('title', 'My Dashboard')
 @section('content')
     @if (Auth::user()->role == 'Sales' || Auth::user()->role == 'Support')
-        @if (Auth::user()->id == 16)
+        @if (Auth::user()->id == 16 || Auth::user()->id == 23 )
             <div class="row gy-4 mb-4">
                 <!-- Congratulations card -->
                 <div class="col-md-3 col-12">
@@ -295,7 +295,7 @@
                                                             $persenSW = $jumlahSW / $dataSW;
                                                         @endphp
                                                     @endif
-                                                    {{ @$persenSW ?? 0 }} / 120
+                                                    {{ @$persenSW ?? 0 }} / {{Auth::user()->id == 16 ? '120' : '60'}}
                                                 </h5>
                                             </div>
                                         </div>
@@ -375,6 +375,9 @@
                     </div>
                 </div>
             </div>
+            @php
+                $salesID = $sales->id;
+            @endphp
             @include('components.modal.onlineSales.new-product')
             @include('components.modal.onlineSales.akurasi-data')
             @include('components.modal.onlineSales.delivery')

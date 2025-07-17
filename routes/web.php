@@ -1134,9 +1134,11 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/prospect/add_sales/{id}', [ProspectController::class, 'add_sales'])->name('add_sales.prospect');
     Route::post('/prospect/without_quotation/{id}', [ProspectController::class, 'without_quotation'])->name('without_quotation.prospect');
     Route::post('/prospect/with_quotation/{id}', [ProspectController::class, 'with_quotation'])->name('with_quotation.prospect');
+    Route::post('/prospect/onProcessFU/{id}', [ProspectController::class, 'onProcessFU'])->name('onProcessFU.prospect');
     Route::post('/prospect/no_respond/{id}', [ProspectController::class, 'no_respond'])->name('no_respond.prospect');
     Route::get('/prospect/create_quotation/{id}', [ProspectController::class, 'create_quotation'])->name('create_quotation.prospect');
     Route::post('/prospect/store_quotation/{id}', [ProspectController::class, 'store_quotation'])->name('store_quotation.prospect');
+    Route::post('/prospect/choose_quotation/{id}', [ProspectController::class, 'choose_quotation'])->name('choose_quotation.prospect');
     Route::post('/prospect/add_comment/{id}', [ProspectController::class, 'add_comment'])->name('add_comment.prospect');
     Route::post('/prospect/{id}/view_comment', [ProspectController::class, 'view_comment'])->name('view_comment.prospect');
 
@@ -1473,8 +1475,14 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/unit', function () {
         require_once base_path('app/api/product/connectionUnit.php');
     });
+    Route::get('/db/unit/second', function () {
+        require_once base_path('app/api/product/connectionUnitSecond.php');
+    });
     Route::get('/db/sales/unit', function () {
         require_once base_path('app/api/product/connectionSalesUnit.php');
+    });
+    Route::get('/db/sales/unit/second', function () {
+        require_once base_path('app/api/product/connectionSalesUnitSecond.php');
     });
     Route::get('/db/unit/global', function () {
         require_once base_path('app/api/product/connectionUnitGlobal.php');
@@ -2001,6 +2009,17 @@ Route::group(["middleware" => "auth"], function () {
             ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
             ->where('sale.id', Auth::id())
             ->whereNull('prospect.level')
+            ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.date', 'client.company', 'supp.name', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
+        return response()->json(['data' => $prospect]);
+    });
+    Route::get('/db/prospect/sales/fu', function () {
+        $prospect = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->leftJoin('users as sale', 'sale.id', '=', 'prospect.id_sales')
+            ->leftJoin('users as supp', 'supp.id', '=', 'prospect.id_support')
+            ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
+            ->where('sale.id', Auth::id())
+            ->where('prospect.level', '9')
             ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.date', 'client.company', 'supp.name', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);
     });

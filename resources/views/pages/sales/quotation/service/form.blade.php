@@ -253,6 +253,10 @@
                                                                         {{ $item->info_qty == 'Hari' ? 'selected' : '' }}>
                                                                         Hari
                                                                     </option>
+                                                                    <option value="Bulan"
+                                                                        {{ $item->info_qty == 'Bulan' ? 'selected' : '' }}>
+                                                                        Bulan
+                                                                    </option>
                                                                     <option value="Kg"
                                                                         {{ $item->info_qty == 'Kg' ? 'selected' : '' }}>Kg
                                                                     </option>
@@ -384,6 +388,7 @@
                                                             <option value="Lot">Lot</option>
                                                             <option value="Meter">Meter</option>
                                                             <option value="Hari">Hari</option>
+                                                            <option value="Bulan">Bulan</option>
                                                             <option value="Can">Can</option>
                                                             <option value="Kg">Kg</option>
                                                             <option value="Tube">Tube</option>
@@ -686,6 +691,7 @@
                                             <option value="Lot">Lot</option>
                                             <option value="Meter">Meter</option>
                                             <option value="Hari">Hari</option>
+                                            <option value="Bulan">Bulan</option>
                                             <option value="Can">Can</option>
                                         </select>
                                         <label for="exampleFormControlSelect1">Info</label>

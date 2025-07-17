@@ -70,10 +70,10 @@
             </div>
         </div>
     </div> --}}
-    <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0">
-            @if (Auth::user()->role == 'Admin')
-                <table class="datatable-product-unit table table-striped">
+    @if (Auth::user()->role == 'Admin')
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-product-unit table table-striped mb-3">
                     <thead>
                         <tr>
                             <th></th>
@@ -91,8 +91,34 @@
                         </tr>
                     </thead>
                 </table>
-            @else
-                <table class="datatable-product-sales-unit table table-striped">
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-product-unit-second table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Brand</th>
+                            <th>Type</th>
+                            <th>Sn</th>
+                            <th>Power</th>
+                            <th>Pressure</th>
+                            <th>Capacity</th>
+                            <th>status</th>
+                            <th>Unit Price</th>
+                            <th>Rental Price</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    @else
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-product-sales-unit table table-striped mb-3">
                     <thead>
                         <tr>
                             <th></th>
@@ -111,9 +137,32 @@
                         </tr>
                     </thead>
                 </table>
-            @endif
+            </div>
         </div>
-    </div>
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-product-sales-unit-second table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            {{-- <th>Info</th> --}}
+                            <th>Brand</th>
+                            <th>Type</th>
+                            <th>SN</th>
+                            <th>Power</th>
+                            <th>Pressure</th>
+                            <th>Capacity</th>
+                            {{-- <th>status</th>
+                            <th>Unit Price</th>
+                            <th>Rental Price</th> --}}
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    @endif
     @include('components.modal.warehouse.unit.form')
     @foreach ($units as $unitr)
         @include('components.modal.warehouse.unit.form-edit')
@@ -124,7 +173,8 @@
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
@@ -145,7 +195,9 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-unit.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-unit-second.js"></script>
     <script src="{{ asset('assets') }}/includes/table-unit-sales.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-unit-sales-second.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush
 

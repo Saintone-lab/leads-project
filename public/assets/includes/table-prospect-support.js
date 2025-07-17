@@ -130,6 +130,10 @@ $(function () {
                                 title: "Hot Prospect",
                                 class: " bg-label-warning",
                             },
+                            80: {
+                                title: "Hot Prospect Bangettt",
+                                class: " bg-label-warning",
+                            },
                             100: {
                                 title: "Done PO",
                                 class: " bg-label-success",

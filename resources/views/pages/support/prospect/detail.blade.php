@@ -197,7 +197,7 @@
                                     </td>
                                     <td class="text-end">RP {{ number_format($quotation->nett, 0, '', '.') }}</td>
                                     <td>
-                                        <a href="{{route('quotation.show', $quotation->id)}}"
+                                        <a href="{{ route('quotation.show', $quotation->id) }}"
                                             class="btn btn-info d-grid w-100 waves-effect">
                                             <span class="mdi mdi-eye-outline"></span>
                                         </a>
@@ -393,10 +393,42 @@
                                 data-id="{{ $prospect->id }}">
                                 No Quote
                             </a>
+                            <a href="#" class="btn btn-whatsapp d-grid w-100 waves-effect fu-wa mb-3"
+                                data-id="{{ $prospect->id }}">
+                                On Process Follow UP WA
+                            </a>
                             <a href="#" class="btn btn-warning d-grid w-100 waves-effect no-respond mb-3"
                                 data-id="{{ $prospect->id }}">
                                 No Respond
                             </a>
+                        </div>
+                    </div>
+                @elseif ($prospect->level == 9)
+                    <div class="card">
+                        <div class="card-body">
+                            <a href="#" class="btn btn-primary d-grid w-100 waves-effect with-quote mb-4"
+                                data-id="{{ $prospect->id }}">
+                                Create Quote
+                            </a>
+                            <p class="text-center mb-4">- or -</p>
+                            <form action="{{ route('choose_quotation.prospect', $prospect->id) }}" method="post"
+                                enctype="multipart/form-data">
+                                @csrf
+                                <div class="form-floating form-floating-outline mb-2">
+                                    <select class="form-select" id="Type" aria-label="Default select example"
+                                        name="id_quotation">
+                                        @forelse ($allQuotation as $item)
+                                            <option value="{{ $item->id }}">
+                                                {{ $item->no_quote }} - {{ $item->title }}
+                                            </option>
+                                        @empty
+                                            <option value="" disabled>No Quotation</option>
+                                        @endforelse
+                                    </select>
+                                    <label for="exampleFormControlSelect1">Choose Quotation</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary waves-effect waves-light float-end">Choose</button>
+                            </form>
                         </div>
                     </div>
                 @endif
@@ -595,6 +627,63 @@
                                     icon: 'error',
                                     title: 'Oops...',
                                     text: 'Data Failed Without Quotation!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "You cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.fu-wa', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure move to Process?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Follow Up!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('prospect') }}/' + 'onProcessFU/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Converted!",
+                                    text: "Your file has been converted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href =
+                                        '/prospect/';
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed On Process!'
                                 });
                             }
                         }
