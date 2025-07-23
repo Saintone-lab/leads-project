@@ -4,7 +4,7 @@
         <div class="container-fluid flex-grow-1 container-p-y">
             @if ($quote->pic->client->info == 'Reftech')
                 <div
-                    class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column {{ $quote->tax == 0 ? 'float-end' : '' }}">
+                    class="d-flex justify-content-{{ $quote->tax == 0 ? 'end' : 'between' }} flex-xl-row flex-md-column flex-sm-row flex-column">
                     @if ($quote->tax != 0)
                         <div class="mb-xl-0 pb-1">
                             <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
@@ -1376,7 +1376,7 @@
                 <div class="col"></div>
                 @if ($quote->pic->client->info == 'Reftech')
                     <div class="col-4 mt-4 text-center">
-                        <p class="mb-0">Bandung,
+                        <p class="{{$quote->tax != 0 ? 'mb-0' : 'mb-3'}}">Bandung,
                             {{ Carbon\Carbon::parse($invoice->date)->locale('ID')->translatedFormat('d F Y') }}</p>
                         @if ($quote->tax != 0)
                             <p class="fs-normal fw-bolder">PT. Reftech Jaya Optima</p>

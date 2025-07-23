@@ -223,15 +223,15 @@
                                     <td class="text-end"> Discount :</td>
                                     <td class="text-end"> RP {{ number_format($quote->diskon, 0, '', '.') }}</td>
                                 </tr>
+                                <tr>
+                                    <td colspan="4"></td>
+                                    <td class="text-end"> Total After Discount :</td>
+                                    <td class="text-end"> RP {{ number_format($quote->subtotal - $quote->diskon, 0, '', '.') }}</td>
+                                </tr>
                             @endif
-                            {{-- <tr>
-                                <td colspan="4"></td>
-                                <td class="text-end"> Total After Discount :</td>
-                                <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
-                            </tr> --}}
                             <tr>
                                 <td colspan="4"></td>
-                                <td class="text-end"> Total Tax :</td>
+                                <td class="text-end"> Total After :</td>
                                 <td class="text-end"> RP {{ number_format($tax, 0, '', '.') }}</td>
                             </tr>
                             <tr class="border-top">

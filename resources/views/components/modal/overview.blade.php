@@ -1,4 +1,4 @@
-<div class="modal animate__animated animate__fadeIn" id="overview-sales-{{ $item }}" tabindex="-1"
+<div class="modal animate__animated animate__fadeIn" id="overview-sales-{{ $user->id }}" tabindex="-1"
     style="display: none;" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">

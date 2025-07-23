@@ -218,6 +218,12 @@
                             <td colspan="2" class="text-end"> Discount :</td>
                             <td class="text-end"> {{ number_format($quote->diskon, 0, '', '.') }}</td>
                         </tr>
+                        <tr>
+                            <td colspan="4"></td>
+                            <td class="text-end"> Total After Discount :</td>
+                            <td class="text-end"> RP
+                                {{ number_format($quote->subtotal - $quote->diskon, 0, '', '.') }}</td>
+                        </tr>
                     @endif
                     {{-- <tr>
                         <td colspan="4"></td>

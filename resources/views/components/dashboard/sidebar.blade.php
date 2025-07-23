@@ -43,6 +43,21 @@
                     <div data-i18n="Reports">Reports</div>
                 </a>
             </li> --}}
+            @php
+                $today = \Carbon\Carbon::now();
+                $semester = $today->month > 6 ? 2 : 1;
+
+                $semesterNow = \App\Models\SalesReports::where('semester', $semester)
+                    ->where('year', $today->year)
+                    ->first();
+            @endphp
+            <li
+                class="menu-item {{ request()->is('report/*') ? 'active' : '' }}">
+                <a href="{{ route('report.semester', $semesterNow) }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-chart-areaspline"></i>
+                    <div data-i18n="Reports">Reports</div>
+                </a>
+            </li>
             <li
                 class="menu-item {{ request()->is('overview') || request()->is('overview/*') || request()->is('overview/*/*') ? 'active' : '' }}">
                 <a href="{{ url('/overview') }}" class="menu-link">

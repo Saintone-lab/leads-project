@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Comment;
 use App\Models\Prospect;
 use App\Models\Quotation;
+use App\Models\SalesOnline;
 use App\Models\SalesReports;
 use App\Models\Target;
 use App\Models\User;
@@ -201,6 +202,7 @@ class OverviewController extends Controller
         $totalQuote = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
         $totalPO = Quotation::where('status', '100')->whereMonth('po_date', $month)->whereYear('po_date', $year)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
         $totalLoss = Quotation::where('status', '0')->whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
+        $totalProspect = Quotation::where('status', '80')->whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
         $totalLeads = Client::whereMonth('created_at', $month)->whereYear('created_at', $year)->where('id_sales', $sales)->count();
         $amountSales = Quotation::whereMonth('po_date', $month)->whereYear('po_date', $year)->where('status', '100')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $amountProspect = Quotation::whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->where('status', '80')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
@@ -216,7 +218,18 @@ class OverviewController extends Controller
         $filteredProspectPO = Quotation::whereYear('po_date', $year)->whereMonth('po_date', $month)->where('id_support', $sales)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
         $totalProspectQuote = Quotation::whereYear('estimated_date', $year)->whereMonth('estimated_date', $month)->where('id_support', $sales)->where('status', '!=', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
         $totalProspectPO = Quotation::whereYear('po_date', $year)->whereMonth('po_date', $month)->where('id_support', $sales)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
-        return view('pages.admin.overview.kpi', compact('totalProspectPO', 'totalProspectQuote', 'filteredProvide', 'filteredProspectPO', 'filteredProspectQuote', 'filteredProspect', 'jumlahCustomer', 'noSaleProspect', 'leveledProspect', 'user', 'dates', 'quotation', "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLoss", "totalLeads", "amountSales", "amountQuote", "amountQuoteLoss", "amountProspect", "target"));
+        // Overview Ari
+        $akurasiCount = SalesOnline::where('id_sales', $sales)->where('type', 'Akurasi')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+        $deliveryCount = SalesOnline::where('id_sales', $sales)->where('type', 'Delivery')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+        $responseCount = SalesOnline::where('id_sales', $sales)->where('type', 'Response')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+        $ratingCount = SalesOnline::where('id_sales', $sales)->where('type', 'Rating')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+        $customerCount = SalesOnline::where('id_sales', $sales)->where('type', 'Customer')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+        $videoCount = SalesOnline::where('id_sales', $sales)->where('type', 'Video')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+        $SWCount = SalesOnline::where('id_sales', $sales)->where('type', 'SW')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
+        $productCount = SalesOnline::where('id_sales', $sales)->where('type', 'Product')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->count();
+        $POCount = Quotation::where('id_sales', $sales)->where('is_primary', '1')->where('status', '100')->where('level', '1')->whereMonth('po_date', Carbon::now())->whereYear('po_date', Carbon::now())->count();
+
+        return view('pages.admin.overview.kpi', compact('POCount','productCount','SWCount','videoCount','customerCount','ratingCount','responseCount','deliveryCount','akurasiCount','totalProspect','totalProspectPO', 'totalProspectQuote', 'filteredProvide', 'filteredProspectPO', 'filteredProspectQuote', 'filteredProspect', 'jumlahCustomer', 'noSaleProspect', 'leveledProspect', 'user', 'dates', 'quotation', "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLoss", "totalLeads", "amountSales", "amountQuote", "amountQuoteLoss", "amountProspect", "target"));
     }
 
     public function overviewAdmin($semester, $sales)
@@ -264,9 +277,9 @@ class OverviewController extends Controller
         $quoteSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
         $POSemester = Quotation::whereBetween('po_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 100)->where('level', '1')->where('is_primary', '1')->count();
         $lossSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->count();
-        $totalQuoteSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('harga_total');
-        $totalPOSemester = Quotation::whereBetween('po_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 100)->where('level', '1')->where('is_primary', '1')->sum('harga_total');
-        $totalLossSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->sum('harga_total');
+        $totalQuoteSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $totalPOSemester = Quotation::whereBetween('po_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 100)->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $totalLossSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $totalDCSemester = Activities::whereBetween('date', [$first, $lastDay])->rightJoin('client', 'client.id', '=', 'activities.id_client')->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->where('client.id_sales', $sales)->count();
         $totalCRMSemester = Activities::whereBetween('date', [$first, $lastDay])->rightJoin('client', 'client.id', '=', 'activities.id_client')->where('status', 'Responded')->where('name', 'CRM')->where('client.id_sales', $sales)->distinct('client.id')->count();
         $totalLeadsSemester = Client::whereBetween('created_date', [$first, $lastDay])->count();
@@ -276,9 +289,9 @@ class OverviewController extends Controller
         $quoteSemesterProspect = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_support', $sales)->where('level', '1')->where('is_primary', '1')->count();
         $POSemesterProspect = Quotation::whereBetween('po_date', [$first, $lastDay])->where('id_support', $sales)->where('status', 100)->where('level', '1')->where('is_primary', '1')->count();
         $lossSemesterProspect = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_support', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->count();
-        $totalQuoteSemesterProspect = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_support', $sales)->where('level', '1')->where('is_primary', '1')->sum('harga_total');
-        $totalPOSemesterProspect = Quotation::whereBetween('po_date', [$first, $lastDay])->where('id_support', $sales)->where('status', 100)->where('level', '1')->where('is_primary', '1')->sum('harga_total');
-        $totalLossSemesterProspect = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_support', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->sum('harga_total');
+        $totalQuoteSemesterProspect = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_support', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $totalPOSemesterProspect = Quotation::whereBetween('po_date', [$first, $lastDay])->where('id_support', $sales)->where('status', 100)->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $totalLossSemesterProspect = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_support', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->sum('nett');
         // dd($totalPOSemesterProspect);
 
         // data all month
@@ -309,7 +322,98 @@ class OverviewController extends Controller
         $getPOModal = $this->getMonthlyDataPOModalSales($report->semester, $report->year, $sales);
         // dd($target);
 
-        return view('pages.admin.overview.detail', compact('averageCRM', 'totalDCSemester','totalCRMSemester','totalLeadsSemester','totalLossSemesterProspect', 'totalPOSemesterProspect', 'totalQuoteSemesterProspect', 'lossSemesterProspect', 'POSemesterProspect', 'quoteSemesterProspect', 'totalCRMSemester', 'totalDCSemester', 'totalLossSemester', 'totalPOSemester', 'totalQuoteSemester', 'lossSemester', 'POSemester', 'quoteSemester', 'getPOProspect', 'getQuoteProspect', 'getProspectProvide', 'getProspect', 'getTotalForecastProspect', 'getTotalPOProspect', 'noSaleProspect', 'report', 'getDC', 'getCRM', 'getVisit', 'getQuote', 'getPO', 'getLoss', 'getLeads', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'target', 'targett', 'user'));
+        return view('pages.admin.overview.detail', compact('averageCRM', 'totalDCSemester', 'totalCRMSemester', 'totalLeadsSemester', 'totalLossSemesterProspect', 'totalPOSemesterProspect', 'totalQuoteSemesterProspect', 'lossSemesterProspect', 'POSemesterProspect', 'quoteSemesterProspect', 'totalCRMSemester', 'totalDCSemester', 'totalLossSemester', 'totalPOSemester', 'totalQuoteSemester', 'lossSemester', 'POSemester', 'quoteSemester', 'getPOProspect', 'getQuoteProspect', 'getProspectProvide', 'getProspect', 'getTotalForecastProspect', 'getTotalPOProspect', 'noSaleProspect', 'report', 'getDC', 'getCRM', 'getVisit', 'getQuote', 'getPO', 'getLoss', 'getLeads', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'target', 'targett', 'user'));
+    }
+    public function reportsSemester($semester)
+    {
+        $report = SalesReports::find($semester);
+        $semester = SalesReports::all();
+        $startMonth = $report->semester == 1 ? 1 : 7;
+        $endMonth = $report->semester == 1 ? 6 : 12;
+        if ($report->semester == 1) {
+            $firstDayOfMonth = "{$report->year}-1-01";
+            $firstDayOfLastMonth = "{$report->year}-6-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+        } else {
+            $firstDayOfMonth = "{$report->year}-07-01";
+            $firstDayOfLastMonth = "{$report->year}-12-01";
+            $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
+        }
+        $poCount = Quotation::whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+        $lossCount = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->where('status', '0')->where('level', '1')->where('is_primary', '1')->count();
+        $quoteCount = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereIn('status', ['20', '40', '60', '80', '90'])->where('level', '1')->where('is_primary', '1')->count();
+        $quoteOnCount = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->where('level', '1')->where('is_primary', '1')->count();
+        $poTotal = Quotation::whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $lossTotal = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $quoteTotal = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereIn('status', ['20', '40', '60', '80', '90'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $quoteOnTotal = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $sales = User::where('role', 'Sales')->where('active', '1')->get();
+        $target = Target::orderBy('id_sales')->groupBy('id_sales')->get();
+        $totalTarget = $target->sum('total');
+        $support = User::find('22');
+        $dataSupport = DB::table('quotation')
+            ->selectRaw('MONTH(po_date) as bulan, SUM(nett) as total')
+            ->whereNotNull('id_support')
+            ->where('status', 100)
+            ->where('level', '1')
+            ->where('is_primary', '1')
+            ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->groupBy(DB::raw('MONTH(po_date)'))
+            ->get();
+        $poTotalSupport = Quotation::whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+
+        // dd($dataSupport);
+
+        $data = [];
+
+        foreach ($sales as $user) {
+            $poTotalSales = Quotation::whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])->where('id_sales', $user->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $bulanan = DB::table('quotation')
+                ->selectRaw('MONTH(po_date) as bulan, SUM(nett) as total')
+                ->where('id_sales', $user->id)
+                ->where('status', 100)
+                ->where('level', '1')
+                ->where('is_primary', '1')
+                ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->groupBy(DB::raw('MONTH(po_date)'))
+                ->pluck('total', 'bulan')
+                ->toArray();
+            $jumlah = [];
+            for ($i = $startMonth; $i <= $endMonth; $i++) {
+                $jumlah[] = [
+                    'bulan' => $i,
+                    'total' => (int) ($bulanan[$i] ?? 0)
+                ];
+            }
+
+            $data[] = [
+                'id' => $user->id,
+                'image' => $user->image,
+                'name' => $user->name,
+                'target' => $target->where('id_sales', $user->id)->pluck('total')->first(),
+                'total' => $poTotalSales,
+                'jumlah' => $jumlah
+            ];
+        }
+        // dd($data);
+        return view('pages.admin.report', compact(
+            'poCount',
+            'lossCount',
+            'quoteCount',
+            'quoteOnCount',
+            'poTotal',
+            'lossTotal',
+            'quoteTotal',
+            'quoteOnTotal',
+            'sales',
+            'data',
+            'totalTarget',
+            'report',
+            'semester',
+            'support',
+            'dataSupport',
+            'poTotalSupport'
+        ));
     }
     protected function getMonthlyDataDC($semester, $year)
     {

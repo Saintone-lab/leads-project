@@ -211,6 +211,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/overview/sales/{id}', [OverviewController::class, 'semesterOverviewSales'])->name('overview.semester');
     Route::get('/detail-overview/{sales}/{date}', [OverviewController::class, 'detailSemesterOverview'])->name('detail-overview.semester');
     Route::get('/overview/{semester}/{sales}', [OverviewController::class, 'overviewAdmin'])->name('overview-sales.semester');
+    Route::get('/report/{semester}', [OverviewController::class, 'reportsSemester'])->name('report.semester');
     // Route untuk PO
     Route::get('/pending-po', function () {
         return view('pages.sales.po.pending.index');

@@ -2,7 +2,7 @@
 @section('title', 'My Dashboard')
 @section('content')
     @if (Auth::user()->role == 'Sales' || Auth::user()->role == 'Support')
-        @if (Auth::user()->id == 16 || Auth::user()->id == 23 )
+        @if (Auth::user()->id == 16 || Auth::user()->id == 23)
             <div class="row gy-4 mb-4">
                 <!-- Congratulations card -->
                 <div class="col-md-3 col-12">
@@ -100,8 +100,8 @@
                                     </div>
                                     <div class="row mb-3 align-items-stretch cursor-pointer">
                                         <div class="col-4" style="padding-right: 0;">
-                                            <div class="card border-warning bg-warning border-1 w-100 h-100" data-bs-toggle="modal"
-                                                data-bs-target="#delivery">
+                                            <div class="card border-warning bg-warning border-1 w-100 h-100"
+                                                data-bs-toggle="modal" data-bs-target="#delivery">
                                                 <h5 class="card-title text-center text-white my-4">
                                                     <i
                                                         class="menu-icon tf-icons mdi mdi-truck-delivery-outline m-0 fs-1"></i>
@@ -287,15 +287,15 @@
                                                         @endphp
                                                         @foreach ($SWCount as $item)
                                                             @php
-                                                                    $jumlahSW += $item->airend;
-                                                                    $jumlahSW += $item->kojisha;
+                                                                $jumlahSW += $item->airend;
+                                                                $jumlahSW += $item->kojisha;
                                                             @endphp
                                                         @endforeach
                                                         @php
                                                             $persenSW = $jumlahSW / $dataSW;
                                                         @endphp
                                                     @endif
-                                                    {{ @$persenSW ?? 0 }} / {{Auth::user()->id == 16 ? '120' : '60'}}
+                                                    {{ @$persenSW ?? 0 }} / {{ Auth::user()->id == 16 ? '120' : '60' }}
                                                 </h5>
                                             </div>
                                         </div>
@@ -364,7 +364,7 @@
                                             <div class="card border-success bg-label-success border-2 shadow-none mt-auto"
                                                 style="border-style: dashed;">
                                                 <h5 class="card-title text-center my-2">
-                                                    {{$POCount}}
+                                                    {{ $POCount }}
                                                 </h5>
                                             </div>
                                         </div>
@@ -780,7 +780,16 @@
                             $formatted_jumlah_target = number_format($jumlah_target, 3);
                         @endphp
                         <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
-                        <a href="javascript:;" class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
+                        @php
+                            $today = \Carbon\Carbon::now();
+                            $semester = $today->month > 6 ? 2 : 1;
+
+                            $semesterNow = \App\Models\SalesReports::where('semester', $semester)
+                                ->where('year', $today->year)
+                                ->first();
+                        @endphp
+                        <a href="{{ route('report.semester', $semesterNow) }}"
+                            class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
                     </div>
                     <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
                         class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
@@ -1059,7 +1068,7 @@
                                                             @if ($user->id != 3)
                                                                 <div class="d-flex mb-2 gap-2">
                                                                     <a type="button" data-bs-toggle="modal"
-                                                                        data-bs-target="#overview-sales-{{ $item }}">
+                                                                        data-bs-target="#overview-sales-{{ $user->id }}">
                                                                         <div class="avatar">
                                                                             <div
                                                                                 class="avatar-initial bg-label-secondary rounded">
@@ -1079,47 +1088,49 @@
                                                                         <small class="text-muted">New Leads</small>
                                                                     </div>
                                                                 </div>
-                                                            @endif
-                                                            <div class="d-flex mb-2 gap-2">
-                                                                <a type="button" data-bs-toggle="modal"
-                                                                    data-bs-target="#overview-sales-{{ $item }}">
-                                                                    <div class="avatar">
-                                                                        <button type="button"
-                                                                            class="avatar-initial bg-label-info rounded">
-                                                                            <i class="mdi mdi-phone-outline mdi-24px"></i>
-                                                                        </button>
-                                                                    </div>
-                                                                </a>
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0">
-                                                                        <span
-                                                                            class="filtered-dc">{{ $filteredDC }}</span>
-                                                                        @if ($user->id != 3 && $user->id != 4)
+                                                                <div class="d-flex mb-2 gap-2">
+                                                                    <a type="button" data-bs-toggle="modal"
+                                                                        data-bs-target="#overview-sales-{{ $user->id }}">
+                                                                        <div class="avatar">
+                                                                            <button type="button"
+                                                                                class="avatar-initial bg-label-info rounded">
+                                                                                <i
+                                                                                    class="mdi mdi-phone-outline mdi-24px"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </a>
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">
                                                                             <span
-                                                                                class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span>
-                                                                        @endif
-                                                                    </h5>
-                                                                    <small class="text-muted">Daily Call</small>
-                                                                </div>
-                                                            </div>
-                                                            <div class="d-flex mb-2 gap-2">
-                                                                <div class="avatar">
-                                                                    <div class="avatar-initial bg-label-primary rounded">
-                                                                        <i
-                                                                            class="mdi mdi-account-multiple-outline mdi-24px"></i>
+                                                                                class="filtered-dc">{{ $filteredDC }}</span>
+                                                                            @if ($user->id != 3 && $user->id != 4)
+                                                                                <span
+                                                                                    class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span>
+                                                                            @endif
+                                                                        </h5>
+                                                                        <small class="text-muted">Daily Call</small>
                                                                     </div>
                                                                 </div>
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0">
-                                                                        <span class=" filtered-crm">
-                                                                            {{ $filteredCRM }}
-                                                                        </span>
-                                                                        <span
-                                                                            class="text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] ?? 0 }}</span>
-                                                                    </h5>
-                                                                    <small class="text-muted">CRM</small>
+                                                                <div class="d-flex mb-2 gap-2">
+                                                                    <div class="avatar">
+                                                                        <div
+                                                                            class="avatar-initial bg-label-primary rounded">
+                                                                            <i
+                                                                                class="mdi mdi-account-multiple-outline mdi-24px"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">
+                                                                            <span class=" filtered-crm">
+                                                                                {{ $filteredCRM }}
+                                                                            </span>
+                                                                            <span
+                                                                                class="text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] ?? 0 }}</span>
+                                                                        </h5>
+                                                                        <small class="text-muted">CRM</small>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
+                                                            @endif
                                                             @php
                                                                 $lastDetail = $user->detail->last();
                                                             @endphp
