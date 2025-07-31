@@ -115,7 +115,7 @@
                             <label for="no-pr-input">No PR</label>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2 col-4">
                         <div class="form-floating form-floating-outline mb-4">
                             <select class="form-select" id="Type" aria-label="Default select example" name="type">
                                 <option disabled>---Type---</option>
@@ -132,7 +132,21 @@
                             <label for="exampleFormControlSelect1">Type</label>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2 col-4">
+                        <div class="form-floating form-floating-outline">
+                            <select class="form-select" id="selectWeek" aria-label="Default select example"
+                                name="week">
+                                <option disabled>----- Choose Week -----</option>
+                                <option value="1" {{ @$quote->week == '1' ? 'selected' : '' }}>Week 1</option>
+                                <option value="2" {{ @$quote->week == '2' ? 'selected' : '' }}>Week 2</option>
+                                <option value="3" {{ @$quote->week == '3' ? 'selected' : '' }}>Week 3</option>
+                                <option value="4" {{ @$quote->week == '4' ? 'selected' : '' }}>Week 4</option>
+                                <option value="5" {{ @$quote->week == '5' ? 'selected' : '' }}>Week 5</option>
+                            </select>
+                            <label for="selectWeek">Week</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-4">
                         <div class="form-floating form-floating-outline">
                             <input class="form-control" type="text" id="assigned" name="id_sales"
                                 value="{{ Auth::user()->name }}" disabled>

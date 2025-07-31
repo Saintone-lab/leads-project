@@ -42,7 +42,7 @@ class ActivitiesController extends Controller
         if ($request->issues == '4') {
             $leads->role = 'Customers';
         }
-        dd($request);
+        dd($request->all());
 
         $action = new Activities;
         $action->client_id = $request->client_id;

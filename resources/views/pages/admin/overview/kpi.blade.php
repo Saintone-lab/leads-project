@@ -364,7 +364,7 @@
                                     <h5 class="text-end my-3 mx-2">Rp {{ number_format($amountSales, 2, ',', '.') }}</h5>
                                 </div>
                             </div>
-                            <div class="col-4 mb-3">
+                            {{-- <div class="col-4 mb-3">
                                 <div class="badge bg-label-dark w-100">
                                     <h5 class="my-3 text-start">Hot Prospect</h5>
                                 </div>
@@ -379,7 +379,7 @@
                                     <h5 class="text-end my-3 mx-2">Rp {{ number_format($amountProspect, 2, ',', '.') }}
                                     </h5>
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="col-4 mb-3">
                                 <div class="badge bg-label-dark w-100">
                                     <h5 class="my-3 text-start">Loss Quotation</h5>
@@ -412,8 +412,10 @@
                     <div class="col-md-4 col-12">
                         <div class="row mb-3">
                             <div class="col-4" style="padding-right: 0;">
-                                <div class="card bg-primary text-white w-100">
-                                    <h5 class="card-title text-white text-center my-4">
+                                <div class="card bg-primary text-white w-100" data-bs-toggle="modal"
+                                    data-bs-target="#newProduct">
+                                    <h5 class="card-title
+                                    text-white text-center my-4">
                                         <i class="menu-icon tf-icons mdi mdi-reproduction m-0 fs-1"></i>
                                     </h5>
                                 </div>
@@ -608,16 +610,16 @@
                                             @php
                                                 $dataCustomer = $customerCount->count();
                                                 $persenCustomer = 0;
-                                                $jumlahCustomer = 0;
+                                                $jumlahCustomers = 0;
                                             @endphp
                                             @foreach ($customerCount as $item)
                                                 @php
-                                                    $jumlahCustomer += $item->average;
+                                                    $jumlahCustomers += $item->average;
                                                 @endphp
                                             @endforeach
                                             @php
-                                                $jumlahCustomer / $dataCustomer;
-                                                $persenCustomer = ($jumlahCustomer / 5) * 100;
+                                                $jumlahCustomers / $dataCustomer;
+                                                $persenCustomer = ($jumlahCustomers / 5) * 100;
                                             @endphp
                                         @endif
                                         {{ @$persenCustomer ?? 0 }} %
@@ -715,7 +717,7 @@
                             <div class="col-4" style="padding-right: 0;">
                                 <div class="card border-success bg-success border-1 w-100 h-100">
                                     <h5 class="card-title text-white text-center my-4">
-                                        <i class="menu-icon tf-icons mdi mdi-cart-plus  m-0 fs-1"></i>
+                                        <i class="menu-icon tf-icons mdi mdi-account-group  m-0 fs-1"></i>
                                     </h5>
                                 </div>
                             </div>
@@ -723,13 +725,13 @@
                             <div class="col-8 d-flex flex-column justify-content-between">
                                 <div class="card border-success bg-label-success border-1 shadow-none">
                                     <h5 class="card-title text-center my-2">
-                                        Purchase Order
+                                        CRM
                                     </h5>
                                 </div>
                                 <div class="card border-success bg-label-success border-2 shadow-none mt-auto"
                                     style="border-style: dashed;">
-                                    <h5 class="card-title text-center my-2">
-                                        {{ $POCount }}
+                                    <h5 class="card-title text-center my-2">{{ $totalCRM }}<span
+                                            class="text-muted fs-tiny fw-normal">/{{ $jumlahCustomer }}</span>
                                     </h5>
                                 </div>
                             </div>
@@ -922,6 +924,7 @@
             </div>
         </div>
     @endif
+    @include('components.modal.onlineSales.kpi.new-product')
 @endsection
 
 

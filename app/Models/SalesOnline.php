@@ -15,7 +15,7 @@ class SalesOnline extends Model
         'date'
     ];
     protected $fillable = [
-        'airend', 'kojisha', 'average', 'product', 'ig', 'tiktok', 'tokped', 'type'
+        'airend', 'kojisha', 'average', 'product', 'desc_product', 'ig', 'tiktok', 'tokped', 'type'
     ];
 
     public function machine()

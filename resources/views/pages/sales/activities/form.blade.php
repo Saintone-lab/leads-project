@@ -48,6 +48,19 @@
                         </div>
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
+                                <select class="form-select" id="selectWeek" aria-label="Default select example" name="week">
+                                    <option disabled>----- Choose Week -----</option>
+                                    <option value="1">Week 1</option>
+                                    <option value="2">Week 2</option>
+                                    <option value="3">Week 3</option>
+                                    <option value="4">Week 4</option>
+                                    <option value="5">Week 5</option>
+                                </select>
+                                <label for="selectWeek">Week</label>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <div class="form-floating form-floating-outline">
                                 <input type="text" id="scheduleAnimation" class="form-control" name="note"
                                     placeholder="Put Your Note Here...." value="-">
                                 <label for="scheduleAnimation">Note</label>

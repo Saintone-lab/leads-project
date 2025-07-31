@@ -40,7 +40,8 @@
                                     <select class="form-select" id="selectVia" aria-label="Default select example"
                                         name="info">
                                         <option disabled>----- Choose Via -----</option>
-                                        <option value="Reftech" {{ old('info', @$leads->info) == 'Reftech' ? 'selected' : '' }}>
+                                        <option value="Reftech"
+                                            {{ old('info', @$leads->info) == 'Reftech' ? 'selected' : '' }}>
                                             Reftech
                                         </option>
                                         <option value="Kojisha"
@@ -50,6 +51,22 @@
                                     <label for="selectSource">Via</label>
                                 </div>
                             </div>
+                            @if (empty($leads))
+                                <div class="col mb-2">
+                                    <div class="form-floating form-floating-outline">
+                                        <select class="form-select" id="selectWeek" aria-label="Default select example"
+                                            name="week" {{ @$leads ? 'disabled' : '' }}>
+                                            <option disabled>----- Choose Week -----</option>
+                                            <option value="1">Week 1</option>
+                                            <option value="2">Week 2</option>
+                                            <option value="3">Week 3</option>
+                                            <option value="4">Week 4</option>
+                                            <option value="5">Week 5</option>
+                                        </select>
+                                        <label for="selectWeek">Week</label>
+                                    </div>
+                                </div>
+                            @endif
                         @else
                             <div class="col-12 mb-2">
                                 <div class="form-floating form-floating-outline">

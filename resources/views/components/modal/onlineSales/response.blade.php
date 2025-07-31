@@ -13,7 +13,7 @@
                         <h4 class="onboarding-title text-body">CS Support</h4>
                         <form>
                             <div class="row mb-3">
-                                <div class="col-md-{{ $salesID = 16 ? '12' : '8' }} col-12">
+                                <div class="col-md-{{ $salesID == 16 ? '8' : '12' }} col-12">
                                     <div class="row align-items-center">
                                         <div class="col-4 mb-3">
                                             <h5 class="text-start m-0">

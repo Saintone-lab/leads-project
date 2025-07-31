@@ -128,7 +128,7 @@
                                 <label for="no-pr-input">No PR</label>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2 col-4">
                             <div class="form-floating form-floating-outline mb-4">
                                 <select class="form-select" id="Type" aria-label="Default select example"
                                     name="type">
@@ -146,7 +146,21 @@
                                 <label for="exampleFormControlSelect1">Type</label>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2 col-4">
+                            <div class="form-floating form-floating-outline">
+                                <select class="form-select" id="selectWeek" aria-label="Default select example"
+                                    name="week">
+                                    <option disabled>----- Choose Week -----</option>
+                                    <option value="1" {{ @$quote->week == '1' ? 'selected' : '' }}>Week 1</option>
+                                    <option value="2" {{ @$quote->week == '2' ? 'selected' : '' }}>Week 2</option>
+                                    <option value="3" {{ @$quote->week == '3' ? 'selected' : '' }}>Week 3</option>
+                                    <option value="4" {{ @$quote->week == '4' ? 'selected' : '' }}>Week 4</option>
+                                    <option value="5" {{ @$quote->week == '5' ? 'selected' : '' }}>Week 5</option>
+                                </select>
+                                <label for="selectWeek">Week</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-4">
                             <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="text" id="assigned" name="id_sales"
                                     value="{{ Auth::user()->name }}" disabled>
@@ -568,6 +582,23 @@
                     width: '100%',
                 });
             }
+
+            function initializeSelect2Address() {
+                $('.invoice-item-destination').select2({
+                    placeholder: ' ---- Choose Destination Here ---- ',
+                    allowClear: true,
+                    width: '100%',
+                });
+            }
+
+            function initializeSelect2PIC() {
+                $('.invoice-item-pic').select2({
+                    placeholder: ' ---- Choose PIC Here ---- ',
+                    allowClear: true,
+                    width: '100%',
+                });
+            }
+
             $(document).ready(function() {
                 // Panggil fungsi inisialisasi saat halaman dimuat
                 initializeSelect2Product();
@@ -729,25 +760,48 @@
 
             $(`.invoice-item-client`).on('change', function(ev) {
                 var clientId = $(this).val();
+                console.log(clientId);
+
                 $.ajax({
                     url: '/quotation/client/' + clientId,
                     type: 'GET',
                     success: function(response) {
+                        console.log(response);
+
                         // Mengosongkan dropdown detail produk
                         $(`.invoice-item-destination`).empty();
                         // Mengisi dropdown detail produk dengan hasil yang diterima
+                        // $.each(response, function(key, value) {
+                        $(`.invoice-item-destination`).append(
+                            '<option value="' +
+                            1 + '">' + response.address +
+                            '</option>' +
+                            '<option value="' +
+                            2 + '">' + response.subAddress +
+                            '</option>'
+                        );
+                        // Mengaktifkan dropdown detail produk
+                        $(`.invoice-item-destination`).prop('disabled', false);
+                    }
+                });
+                $.ajax({
+                    url: '/quotation/pic/' + clientId,
+                    type: 'GET',
+                    success: function(response) {
+                        console.log(response);
+
+                        // Mengosongkan dropdown detail produk
+                        $(`.invoice-item-pic`).empty();
+                        // Mengisi dropdown detail produk dengan hasil yang diterima
                         $.each(response, function(key, value) {
-                            $(`.invoice-item-destination`).append(
+                            $(`.invoice-item-pic`).append(
                                 '<option value="' +
-                                1 + '">' + value.address +
-                                '</option>' +
-                                '<option value="' +
-                                2 + '">' + value.subAddress +
+                                value.id + '">' + value.name_pic +
                                 '</option>'
                             );
                         });
                         // Mengaktifkan dropdown detail produk
-                        $(`.invoice-item-destination`).prop('disabled', false);
+                        $(`.invoice-item-pic`).prop('disabled', false);
                     }
                 });
             });

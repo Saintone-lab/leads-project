@@ -228,8 +228,28 @@ class OverviewController extends Controller
         $SWCount = SalesOnline::where('id_sales', $sales)->where('type', 'SW')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
         $productCount = SalesOnline::where('id_sales', $sales)->where('type', 'Product')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->count();
         $POCount = Quotation::where('id_sales', $sales)->where('is_primary', '1')->where('status', '100')->where('level', '1')->whereMonth('po_date', Carbon::now())->whereYear('po_date', Carbon::now())->count();
+        $onlineSales = SalesOnline::selectRaw("DATE_FORMAT(date, '%d-%m-%Y') as date")
+            ->selectRaw("GROUP_CONCAT(product SEPARATOR '|') as product")
+            ->selectRaw("GROUP_CONCAT(desc_product SEPARATOR '|') as desc_product")
+            ->whereMonth('date', Carbon::now())
+            ->whereYear('date', Carbon::now())
+            ->groupBy(DB::raw("DATE_FORMAT(date, '%d-%m-%Y')"))
+            ->orderBy(DB::raw("STR_TO_DATE(DATE_FORMAT(date, '%d-%m-%Y'), '%d-%m-%Y')"))
+            ->get();
 
-        return view('pages.admin.overview.kpi', compact('POCount','productCount','SWCount','videoCount','customerCount','ratingCount','responseCount','deliveryCount','akurasiCount','totalProspect','totalProspectPO', 'totalProspectQuote', 'filteredProvide', 'filteredProspectPO', 'filteredProspectQuote', 'filteredProspect', 'jumlahCustomer', 'noSaleProspect', 'leveledProspect', 'user', 'dates', 'quotation', "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLoss", "totalLeads", "amountSales", "amountQuote", "amountQuoteLoss", "amountProspect", "target"));
+        $onSale = $onlineSales->map(function ($row) {
+            return [
+                'date' => $row->date,
+                'qty' => $row->product->count(),
+                'link' => [
+                    'product' => explode('|', $row->product),
+                    'desc_product' => explode('|', $row->desc_product)
+                ]
+            ];
+        });
+        // dd($onSale);
+
+        return view('pages.admin.overview.kpi', compact('onSale','POCount', 'productCount', 'SWCount', 'videoCount', 'customerCount', 'ratingCount', 'responseCount', 'deliveryCount', 'akurasiCount', 'totalProspect', 'totalProspectPO', 'totalProspectQuote', 'filteredProvide', 'filteredProspectPO', 'filteredProspectQuote', 'filteredProspect', 'jumlahCustomer', 'noSaleProspect', 'leveledProspect', 'user', 'dates', 'quotation', "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLoss", "totalLeads", "amountSales", "amountQuote", "amountQuoteLoss", "amountProspect", "target"));
     }
 
     public function overviewAdmin($semester, $sales)

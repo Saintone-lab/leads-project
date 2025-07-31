@@ -1,6 +1,6 @@
 @extends('layouts.sales.app')
 @section('title', $sellcon->no_contract)
-<div class="invoice-print p-4">
+<div class="invoice-print p-4 text-black">
     <div class="container-fluid flex-grow-1 container-p-y">
         @if ($sellcon->type == 'Selling')
             <div
@@ -389,8 +389,13 @@
 </div>
 @push('after-style')
     <!-- Page CSS -->
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice-print.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-contract-print.css" />
     <link rel="stylesheet" href="style.css">
+    <style>
+        p, h5, h4, h3, h2, h1{
+            color: black;
+        }
+    </style>
 @endpush
 @push('after-script')
     <script src="{{ asset('assets') }}/js/app-invoice-print.js"></script>

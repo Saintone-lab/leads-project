@@ -206,6 +206,7 @@ class LeadsController extends Controller
         $leads->mobile = $request->mobile;
         $leads->address = $request->address;
         $leads->subAddress = $request->subAddress;
+        $leads->week = $request->week;
         $leads->area = $request->area;
         $leadsave = $leads->save();
 
@@ -444,6 +445,7 @@ class LeadsController extends Controller
 
     public function storeActionWithLeads(Request $request, $id)
     {
+        // dd($request->all());
         $leads = Client::where("id", $id)->first();
         $leads->id_issues = $request->issues;
         if ($request->issues == '5') {
@@ -464,6 +466,7 @@ class LeadsController extends Controller
         }
         $action->status = $request->status;
         $action->action = $request->action;
+        $action->week = $request->week;
         $action->note = $request->note;
         $action->date = \Carbon\Carbon::today();
         $action->follow_up = $request->follow_up;

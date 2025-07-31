@@ -51,8 +51,7 @@
                     ->where('year', $today->year)
                     ->first();
             @endphp
-            <li
-                class="menu-item {{ request()->is('report/*') ? 'active' : '' }}">
+            <li class="menu-item {{ request()->is('report/*') ? 'active' : '' }}">
                 <a href="{{ route('report.semester', $semesterNow) }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-chart-areaspline"></i>
                     <div data-i18n="Reports">Reports</div>
@@ -159,12 +158,12 @@
                     <div data-i18n="Service Report">Service Report</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('/daily/activity') ? 'active' : '' }}">
+            {{-- <li class="menu-item {{ request()->is('/daily/activity') ? 'active' : '' }}">
                 <a href="{{ route('mainActivity.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
                     <div data-i18n="Daily Activity">Daily Activity</div>
                 </a>
-            </li>
+            </li> --}}
             <li
                 class="menu-item {{ request()->is('service-manager') || request()->is('service-manager/*') ? 'active' : '' }}">
                 <a href="{{ route('service-manager.index') }}" class="menu-link">
@@ -271,8 +270,8 @@
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
                     <div data-i18n="Prospect">Prospect</div>
-                    @if (@$leveledProspect >= 1)
-                        <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
+                    @if (@$noSaleProspect >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $noSaleProspect }}</div>
                     @endif
                 </a>
                 <ul class="menu-sub">
@@ -280,6 +279,9 @@
                         class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') ? 'active' : '' }}">
                         <a href="{{ route('prospect.index') }}" class="menu-link">
                             <div data-i18n="Prospect">Prospect</div>
+                            @if (@$noSaleProspect >= 1)
+                                <div class="badge bg-danger rounded-pill ms-auto">{{ $noSaleProspect }}</div>
+                            @endif
                         </a>
                     </li>
                     <li class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">
@@ -667,6 +669,9 @@
                         class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') ? 'active' : '' }}">
                         <a href="{{ route('prospect.index') }}" class="menu-link">
                             <div data-i18n="Prospect">Prospect</div>
+                            @if (@$leveledProspect >= 1)
+                                <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
+                            @endif
                         </a>
                     </li>
                     <li class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">

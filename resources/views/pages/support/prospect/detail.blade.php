@@ -320,7 +320,7 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-md">
                                     <div
-                                        class="form-check custom-option custom-option-icon  {{ @$prospect->provide == '1' ? 'checked disabled' : '' }} h-100">
+                                        class="form-check custom-option custom-option-icon  {{ @$prospect->provide == '1' ? 'checked' : '' }}{{ @$prospect->quotation ? 'disabled' : '' }} h-100">
                                         <label class="form-check-label custom-option-content" for="provideCheck1">
                                             <span class="custom-option-body">
                                                 <i class="mdi mdi-file-check-outline"></i>
@@ -329,13 +329,14 @@
                                             </span>
                                             <input name="provideCheck" class="form-check-input check-provide"
                                                 type="radio" value="1" id="provideCheck1"
-                                                {{ @$prospect->provide == '1' ? 'checked disabled' : '' }}>
+                                                {{ @$prospect->provide == '1' ? 'checked' : '' }}
+                                                {{ @$prospect->quotation ? 'disabled' : '' }}>
                                         </label>
                                     </div>
                                 </div>
                                 <div class="col-md">
                                     <div
-                                        class="form-check custom-option custom-option-icon  {{ @$prospect->provide == '0' ? 'checked' : '' }} h-100">
+                                        class="form-check custom-option custom-option-icon  {{ @$prospect->provide == '0' ? 'checked' : '' }} {{ @$prospect->quotation ? 'disabled' : '' }} h-100">
                                         <label class="form-check-label custom-option-content" for="provideCheck2">
                                             <span class="custom-option-body">
                                                 <i class="mdi mdi-file-alert-outline"></i>
@@ -344,15 +345,15 @@
                                             </span>
                                             <input name="provideCheck" class="form-check-input check-no-provide"
                                                 type="radio" value="0" id="provideCheck2"
-                                                {{ @$prospect->provide == '0' ? 'checked' : '' }}{{ @$prospect->provide == '1' ? ' disabled' : '' }}>
+                                                {{ @$prospect->provide == '0' ? 'checked' : '' }}{{ @$prospect->quotation ? 'disabled' : '' }}>
                                         </label>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-floating form-floating-outline form-sales"
-                                {{ @$prospect->provide == '1' ? 'disabled' : 'hidden' }}>
+                                {{ @$prospect->provide == '1' ? '' : 'hidden' }}>
                                 <select class="form-select" id="selectSales" aria-label="Default select example"
-                                    name="sales" {{ @$prospect->id_sales ? 'disabled' : '' }}>
+                                    name="sales" {{ @$prospect->quotation ? 'disabled' : '' }}>
                                     <option disabled="">----- Choose Sales -----</option>
                                     @foreach ($sales as $user)
                                         <option value="{{ $user->id }}"
@@ -363,7 +364,7 @@
                                 <label for="selectSales">Sales</label>
                             </div>
                         </div>
-                        <div class="card-footer float-end" {{ @$prospect->provide == '1' ? 'hidden' : '' }}>
+                        <div class="card-footer float-end">
                             <button type="submit" class="btn btn-primary waves-effect waves-light">Submit</button>
                         </div>
                     </form>
@@ -427,7 +428,8 @@
                                     </select>
                                     <label for="exampleFormControlSelect1">Choose Quotation</label>
                                 </div>
-                                <button type="submit" class="btn btn-primary waves-effect waves-light float-end">Choose</button>
+                                <button type="submit"
+                                    class="btn btn-primary waves-effect waves-light float-end">Choose</button>
                             </form>
                         </div>
                     </div>

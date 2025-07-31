@@ -216,7 +216,7 @@ class QuotationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {  
+    {
         // dd($request->pic);
         $pic = Pic::find($request->pic);
         $client = Client::find($pic->id_client);
@@ -256,6 +256,7 @@ class QuotationController extends Controller
         $quotation->num_rev = 0;
         $quotation->destination = $request->destination;
         $quotation->no_pr = $request->no_pr;
+        $quotation->week = $request->week;
         $quotation->quote_for = $request->type;
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
@@ -674,6 +675,7 @@ class QuotationController extends Controller
             $quote->expired_date = Carbon::now()->addMonth();
             if ($request->status == "100") {
                 $quote->po_date = Carbon::now();
+                $quote->week_po = $request->week;
             }
             $stats = $quote->save();
         }
@@ -691,7 +693,7 @@ class QuotationController extends Controller
             $client->id_issues = '5';
             $client->role = 'Customers';
             $isuSave = $client->save();
-            
+
             $pending = new PendingPO;
             $pending->status = 0;
             $pending->id_quotation = $quotation->primary_id;
@@ -898,6 +900,7 @@ class QuotationController extends Controller
         foreach ($allQuote as $quote) {
             $quote->status = "100";
             $quote->note = $request->note;
+            $quote->week_po = $request->week;
             $quote->po_date = $request->po_date;
             $quoteSave = $quote->save();
         }
@@ -1058,18 +1061,18 @@ class QuotationController extends Controller
             $quote->save();
             // create invoice quote
             // if (Auth::user()->id != '23') {
-                $invoice = new Invoice;
-                $invoice->id_quotation = $id;
-                $invoice->no_po = $request->po;
-                $invoice->flag = $quote->pic->client->info;
-                $invoice->no_invoice = NULL;
-                $invoice->type = 'CT';
-                $invoice->date = Carbon::today();
-                $invoice->term = NULL;
-                $invoice->invoiceTo = NULL;
-                $invoice->sign = NULL;
-                $invoice->pph = 0;
-                $invoice->save();
+            $invoice = new Invoice;
+            $invoice->id_quotation = $id;
+            $invoice->no_po = $request->po;
+            $invoice->flag = $quote->pic->client->info;
+            $invoice->no_invoice = NULL;
+            $invoice->type = 'CT';
+            $invoice->date = Carbon::today();
+            $invoice->term = NULL;
+            $invoice->invoiceTo = NULL;
+            $invoice->sign = NULL;
+            $invoice->pph = 0;
+            $invoice->save();
             // }
             if ($quote->type == 'Sparepart') {
                 return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');
@@ -1480,7 +1483,7 @@ class QuotationController extends Controller
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
+        $pic = client::where('client.id_sales', Auth::user()->id)->get();
         $sales = User::where('role', 'sales')->get();
         $product = Unit::join('serial_product as s', 's.id_product', '=', 'unit.id')->get(['unit.id as comId', 'unit.sku', 's.id', 's.pn', 's.brand']);
         // dd($product);
@@ -1669,6 +1672,7 @@ class QuotationController extends Controller
         $quotation->primary_id = 0;
         $quotation->num_rev = 0;
         $quotation->destination = $request->destination;
+        $quotation->week = $request->week;
         $quotation->no_pr = NULL;
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
@@ -2271,6 +2275,7 @@ class QuotationController extends Controller
         $quotation->primary_id = 0;
         $quotation->num_rev = 0;
         $quotation->destination = $request->destination;
+        $quotation->week = $request->week;
         $quotation->no_pr = NULL;
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();

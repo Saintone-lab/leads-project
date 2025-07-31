@@ -92,7 +92,7 @@ Route::get('/db/dryer-monitoring-visit/{id}', [MonitoringController::class, 'get
 
 Route::get('/service-reports/print/{id}', [ServiceReportsController::class, 'print_reports'])->name('service-reports.print');
 
-Route::get('/watermark', [WatermarkController::class, 'index'])->name('watermark.index');
+Route::get('/watermark/index', [WatermarkController::class, 'index'])->name('watermark.index');
 Route::post('/watermark/upload', [WatermarkController::class, 'upload'])->name('watermark.upload');
 Route::get('/watermark/download', [WatermarkController::class, 'downloadAll'])->name('watermark.download');
 Route::post('/watermark/reset', [WatermarkController::class, 'reset'])->name('watermark.reset');

@@ -1485,13 +1485,8 @@
         @php
             $item = 0;
         @endphp
-        @foreach ($sales as $user)
-            @if ($user->role == 'Sales')
+        @foreach ($dataOverview as $overview)
                 @include('components.modal.overview')
-                @php
-                    $item++;
-                @endphp
-            @endif
         @endforeach
     @elseif(Auth::user()->role == 'Logistic')
         <h4 class="fw-bold py-3 mb-4">

@@ -1,6 +1,6 @@
-<div class="modal animate__animated animate__fadeIn" id="overview-sales-{{ $user->id }}" tabindex="-1"
+<div class="modal animate__animated animate__fadeIn" id="overview-sales-{{ $overview['salesId'] }}" tabindex="-1"
     style="display: none;" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title text-center" id="exampleModalLabel5"> Report
@@ -9,21 +9,17 @@
             </div>
             <div class="modal-body">
                 <div class="card mb-4">
-                    <h5 class="card-header">Assigned: {{ $user->name }}</h5>
+                    <h5 class="card-header">Assigned: {{ $overview['sales'] }}</h5>
                     <div class="table-responsive text-nowrap">
                         <table class="table">
                             <thead class="table-light">
                                 <tr>
                                     <th>Description</th>
-                                    @php
-                                        $allWeek = 1;
-                                    @endphp
-                                    @foreach ($dataQuote[$user->name] as $week)
-                                        <th>Week {{ $allWeek }}</th>
-                                        @php
-                                            $allWeek += 1;
-                                        @endphp
-                                    @endforeach
+                                    <th>Week 1</th>
+                                    <th>Week 2</th>
+                                    <th>Week 3</th>
+                                    <th>Week 4</th>
+                                    <th>Week 5</th>
                                     <th>Total</th>
                                     <th>Presentase</th>
                                 </tr>
@@ -31,12 +27,12 @@
                             <tbody class="table-border-bottom-0">
                                 <tr>
                                     <td>
-                                        <strong>{{$user->id == '1' ? 'New Leads' : 'Daily Call'}}</strong>
+                                        <strong>Daily Call</strong>
                                     </td>
                                     @php
                                         $totalDCFullWeek = 0;
                                     @endphp
-                                    @foreach ($dataDc[$user->name] as $week)
+                                    @foreach ($overview['dc'] as $week)
                                         <td>{{ $week }}</td>
                                         @php
                                             $totalDCFullWeek += $week;
@@ -44,17 +40,8 @@
                                     @endforeach
                                     <td>{{ $totalDCFullWeek }}</td>
                                     <td>
-                                        @php
-                                            if (is_array($dataDc)) {
-                                                $jumlahData = count($dataDc);
-                                            }
-                                        @endphp
-                                        @if ($jumlahData > 4)
-                                            {{ round(($totalDCFullWeek / ($user->target[0]->dc + $user->target[0]->dc / 4)) * 100) }}
-                                            %
-                                        @elseif($jumlahData == 4)
-                                            {{ round(($totalDCFullWeek / $user->target[0]->dc) * 100) }} %
-                                        @endif
+                                        {{ round(($totalDCFullWeek / ($user->target[0]->dc + $user->target[0]->dc / 4)) * 100) }}
+                                        %
                                     </td>
                                 </tr>
                                 <tr>
@@ -64,7 +51,7 @@
                                     @php
                                         $totalCRMFullWeek = 0;
                                     @endphp
-                                    @foreach ($dataCRM[$user->name] as $week)
+                                    @foreach ($overview['crm'] as $week)
                                         <td>{{ $week }}</td>
                                         @php
                                             $totalCRMFullWeek += $week;
@@ -77,15 +64,11 @@
                                                 $jumlahData = count($dataCRM);
                                             }
                                         @endphp
-                                        @if ($jumlahData > 4)
-                                            {{ round(($totalCRMFullWeek / ($user->target[0]->crm + $user->target[0]->crm / 4)) * 100) }}
-                                            %
-                                        @elseif($jumlahData == 4)
-                                            {{ round(($totalCRMFullWeek / $user->target[0]->crm) * 100) }} %
-                                        @endif
+                                        {{ round(($totalCRMFullWeek / ($user->target[0]->crm + $user->target[0]->crm / 4)) * 100) }}
+                                        %
                                     </td>
                                 </tr>
-                                @if ($user->detail[0]->area == 'Bekasi' || $user->detail[0]->area == 'Jabodetabek' || $user->detail[0]->area == 'Jawa Barat')
+                                {{-- @if ($user->detail[0]->area == 'Bekasi' || $user->detail[0]->area == 'Jabodetabek' || $user->detail[0]->area == 'Jawa Barat')
                                     <tr>
                                         <td>
                                             <strong>Visit</strong>
@@ -114,7 +97,7 @@
                                             @endif
                                         </td>
                                     </tr>
-                                @endif
+                                @endif --}}
                                 <tr>
                                     <td>
                                         <strong>Quotation</strong>
@@ -122,7 +105,7 @@
                                     @php
                                         $totalQuoteFullWeek = 0;
                                     @endphp
-                                    @foreach ($dataQuote[$user->name] as $week)
+                                    @foreach ($overview['quote'] as $week)
                                         <td>{{ $week }}</td>
                                         @php
                                             $totalQuoteFullWeek += $week;
@@ -130,12 +113,8 @@
                                     @endforeach
                                     <td>{{ $totalQuoteFullWeek }}</td>
                                     <td>
-                                        @if ($jumlahData > 4)
-                                            {{ round(($totalQuoteFullWeek / ($user->target[0]->quote + $user->target[0]->quote / 4)) * 100) }}
-                                            %
-                                        @elseif($jumlahData == 4)
-                                            {{ round(($totalQuoteFullWeek / $user->target[0]->quote) * 100) }} %
-                                        @endif
+                                        {{ round(($totalQuoteFullWeek / ($user->target[0]->quote + $user->target[0]->quote / 4)) * 100) }}
+                                        %
                                     </td>
                                 </tr>
                                 <tr>
@@ -145,7 +124,7 @@
                                     @php
                                         $totalPoFullWeek = 0;
                                     @endphp
-                                    @foreach ($dataLeads[$user->name] as $week)
+                                    @foreach ($overview['po'] as $week)
                                         <td>{{ $week }}</td>
                                         @php
                                             $totalPoFullWeek += $week;
@@ -153,12 +132,8 @@
                                     @endforeach
                                     <td>{{ $totalPoFullWeek }}</td>
                                     <td>
-                                        @if ($jumlahData > 4)
-                                            {{ round(($totalPoFullWeek / ($user->target[0]->leads + $user->target[0]->leads / 4)) * 100) }}
-                                            %
-                                        @elseif($jumlahData == 4)
-                                            {{ round(($totalPoFullWeek / $user->target[0]->leads) * 100) }} %
-                                        @endif
+                                        {{ round(($totalPoFullWeek / ($user->target[0]->quote + $user->target[0]->quote / 4)) * 100) }}
+                                        %
                                     </td>
                                 </tr>
                             </tbody>

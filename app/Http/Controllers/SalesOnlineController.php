@@ -18,6 +18,7 @@ class SalesOnlineController extends Controller
                     $salon = new SalesOnline();
                     $salon->id_sales = Auth::user()->id;
                     $salon->product = $request->product[$key];
+                    $salon->desc_product = $request->desc_product[$key];
                     $salon->airend = 0;
                     $salon->kojisha = 0;
                     $salon->average = 0;
@@ -75,6 +76,7 @@ class SalesOnlineController extends Controller
                     $salon = new SalesOnline();
                     $salon->id_sales = Auth::user()->id;
                     $salon->product = $request->product[$key];
+                    $salon->desc_product = $request->desc_product[$key];
                     $salon->airend = 0;
                     $salon->kojisha = 0;
                     $salon->average = 0;

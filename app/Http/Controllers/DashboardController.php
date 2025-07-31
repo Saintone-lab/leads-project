@@ -209,6 +209,9 @@ class DashboardController extends Controller
             $dataCRM = $this->getWeekDataCRM();
             $dataVisit = $this->getWeekDataVisit();
             $dataQuote = $this->getWeekDataQuote();
+            $dataOverview = $this->getDataOverview();
+
+            // dd($dataOverview);
             $dataLeads = $this->getWeekDataLeads();
             $dataPO = $this->getWeekDataPO();
             $targetCrm = Client::where('role', 'Customers')
@@ -253,6 +256,7 @@ class DashboardController extends Controller
             return view(
                 "pages.sales.dashboard",
                 compact(
+                    'dataOverview',
                     'noSaleProspect',
                     'notulens',
                     'targetSales',
@@ -1167,5 +1171,217 @@ class DashboardController extends Controller
             ->distinct('c.id')
             ->count();
         return $customers;
+    }
+    // protected function getDataOverview()
+    // {
+    //     $users = User::where('role', 'Sales')->get();
+
+    //     $data = [];
+    //     $month = Carbon::now()->month;
+    //     $year = Carbon::now()->year;
+
+    //     foreach ($users as $user) {
+    //         $leadCounts = collect([
+    //             1 => 0,
+    //             2 => 0,
+    //             3 => 0,
+    //             4 => 0,
+    //             5 => 0,
+    //         ]);
+
+    //         $crmCounts = collect([
+    //             1 => 0,
+    //             2 => 0,
+    //             3 => 0,
+    //             4 => 0,
+    //             5 => 0,
+    //         ]);
+
+    //         $quoteCounts = collect([
+    //             1 => 0,
+    //             2 => 0,
+    //             3 => 0,
+    //             4 => 0,
+    //             5 => 0,
+    //         ]);
+
+    //         $poCounts = collect([
+    //             1 => 0,
+    //             2 => 0,
+    //             3 => 0,
+    //             4 => 0,
+    //             5 => 0,
+    //         ]);
+
+    //         // Ambil semua clients milik user
+    //         foreach ($user->clients as $client) {
+    //             $activities = $client->activities()
+    //                 ->where('name', 'CRM')
+    //                 ->whereMonth('date', $month)
+    //                 ->whereYear('date', $year)
+    //                 ->get();
+
+    //             foreach ($activities as $activity) {
+    //                 $week = (int) $activity->week;
+
+    //                 if (isset($crmCounts[$week])) {
+    //                     $crmCounts->put($week, $crmCounts->get($week, 0) + 1);
+    //                 }
+    //             }
+    //         }
+
+    //         $leads = $user->clients()
+    //             ->whereMonth('created_at', $month)
+    //             ->whereYear('created_at', $year)
+    //             ->get();
+
+    //         foreach ($leads as $lead) {
+    //             $week = (int) $lead->week;
+
+    //             if (isset($leadCounts[$week])) {
+    //                 $leadCounts->put($week, $leadCounts->get($week, 0) + 1);
+    //             }
+    //         }
+    //         $quotations = $user->quotation()
+    //             ->whereMonth('estimated_date', $month)
+    //             ->whereYear('estimated_date', $year)
+    //             ->where('level', '1')
+    //             ->where('is_primary', '1')
+    //             ->get();
+
+    //         foreach ($quotations as $quote) {
+    //             $week = (int) $quote->week;
+
+    //             if (isset($quoteCounts[$week])) {
+    //                 $quoteCounts->put($week, $quoteCounts->get($week, 0) + 1);
+    //             }
+    //         }
+
+    //         $POs = $user->quotation()
+    //             ->whereMonth('estimated_date', $month)
+    //             ->whereYear('estimated_date', $year)
+    //             ->where('status', '100')
+    //             ->where('level', '1')
+    //             ->where('is_primary', '1')
+    //             ->get();
+
+    //         foreach ($POs as $po) {
+    //             $week = (int) $po->week;
+
+    //             if (isset($poCounts[$week])) {
+    //                 $poCounts->put($week, $poCounts->get($week, 0) + 1);
+    //             }
+    //         }
+
+    //         $data[] = [
+    //             'salesId' => $user->id,
+    //             'sales' => $user->name,
+    //             'lead' => $leadCounts,
+    //             'crm' => $crmCounts,
+    //             'quote' => $quoteCounts,
+    //             'po' => $poCounts,
+    //         ];
+    //     }
+    //     return $data;
+    // }
+
+    protected function getDataOverview()
+    {
+        $month = Carbon::now()->month;
+        $year = Carbon::now()->year;
+
+        $users = User::with('clients')->where('role', 'Sales')->get();
+
+        // Ambil semua data sekaligus untuk bulan & tahun ini
+        $allDC = Activities::whereIn('name', ['Daily Call', 'Follow Up'])
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->get();
+
+        $allActivities = Activities::where('name', 'CRM')
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->get();
+
+        $allLeads = Client::whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->get();
+
+        $allQuotes = Quotation::whereMonth('estimated_date', $month)
+            ->whereYear('estimated_date', $year)
+            ->where('level', '1')
+            ->where('is_primary', '1')
+            ->get();
+
+        $allPOs = Quotation::whereMonth('po_date', $month)
+            ->whereYear('po_date', $year)
+            ->where('level', '1')
+            ->where('is_primary', '1')
+            ->get();
+        // dd($allQuotes);
+        $data = [];
+
+        foreach ($users as $user) {
+            $leadCounts = collect([1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
+            $dcCounts = collect([1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
+            $crmCounts = collect([1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
+            $quoteCounts = collect([1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
+            $poCounts = collect([1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
+
+            // Filter data yang berkaitan dengan user saat ini
+            $clientIds = $user->clients->pluck('id');
+
+            $userActivities = $allActivities->whereIn('id_client', $clientIds);
+            $userDC = $allDC->whereIn('id_client', $clientIds);
+            $userLeads = $allLeads->whereIn('id_sales', [$user->id]);
+            $userQuotes = $allQuotes->where('id_sales', $user->id);
+            $userPOs = $allPOs->where('id_sales', $user->id);
+
+            foreach ($userActivities as $activity) {
+                $week = (int) $activity->week;
+                if (isset($crmCounts[$week])) {
+                    $crmCounts->put($week, $crmCounts->get($week) + 1);
+                }
+            }
+            foreach ($userDC as $dc) {
+                $week = (int) $dc->week;
+                if (isset($dcCounts[$week])) {
+                    $dcCounts->put($week, $dcCounts->get($week) + 1);
+                }
+            }
+
+            foreach ($userLeads as $lead) {
+                $week = (int) $lead->week;
+                if (isset($leadCounts[$week])) {
+                    $leadCounts->put($week, $leadCounts->get($week) + 1);
+                }
+            }
+
+            foreach ($userQuotes as $quote) {
+                $week = (int) $quote->week;
+                if (isset($quoteCounts[$week])) {
+                    $quoteCounts->put($week, $quoteCounts->get($week) + 1);
+                }
+            }
+
+            foreach ($userPOs as $po) {
+                $week = (int) $po->week;
+                if (isset($poCounts[$week])) {
+                    $poCounts->put($week, $poCounts->get($week) + 1);
+                }
+            }
+
+            $data[] = [
+                'salesId' => $user->id,
+                'sales' => $user->name,
+                'lead' => $leadCounts,
+                'dc' => $dcCounts,
+                'crm' => $crmCounts,
+                'quote' => $quoteCounts,
+                'po' => $poCounts,
+            ];
+        }
+
+        return $data;
     }
 }

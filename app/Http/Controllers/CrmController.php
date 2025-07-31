@@ -378,6 +378,7 @@ class CrmController extends Controller
         $action->id_client = $id;
         $action->name = "CRM";
         $action->status = $request->status;
+        $action->week = $request->week;
         $action->action = $request->action;
         $action->note = $request->note;
         $action->date = $request->date;
