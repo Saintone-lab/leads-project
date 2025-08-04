@@ -202,7 +202,7 @@
                                         {{ number_format($afterDisc, 0, '', '.') }}
                                     </p>
                                     @php
-                                        $dpp = $afterDisc * 11 / 12;
+                                        $dpp = ($afterDisc * 11) / 12;
                                     @endphp
                                     {{-- <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($dpp, 0, '', '.') }}
@@ -348,8 +348,8 @@
                 <div class="card mb-3">
                     <div class="card-body">
                         <div class="form-floating form-floating-outline mb-2">
-                            <select class="form-select change-primary{{$quote->type == 'Service' ? '-service' : ''}}" name="changePrimary" id="changePrimary"
-                                aria-label="Default select example">
+                            <select class="form-select change-primary{{ $quote->type == 'Service' ? '-service' : '' }}"
+                                name="changePrimary" id="changePrimary" aria-label="Default select example">
                                 @foreach ($quotations as $item)
                                     <option data-id="{{ $item->id }}" value="{{ $item->id }}"
                                         {{ $item->is_primary == '1' ? 'Selected' : '' }}>
@@ -402,7 +402,7 @@
                 @if (Auth::user()->role == 'Sales')
                     <div class="card mb-3">
                         <div class="card-body">
-                            {{-- @if ((Auth::user()->id == '1' || Auth::user()->id == '16' || Auth::user()->id == '23' ) && $invoice->count() < 1)
+                            {{-- @if ((Auth::user()->id == '1' || Auth::user()->id == '16' || Auth::user()->id == '23') && $invoice->count() < 1)
                                 <a href="#" data-id="{{ $quote->id }}"
                                     class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
                                     {{ $quote->pic->client->info == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
@@ -443,8 +443,10 @@
                                         @endif
                                     @endif
                                     <div class="d-flex justify-content-between mb-3">
-                                        <a href="{{ route('download-po.quotation', $quote->id) }}"
-                                            class="btn btn-primary d-grid w-100 waves-effect"> Download PO</a>
+                                        <button class="btn btn-primary d-grid w-100 waves-effect"
+                                            onclick="copyDownloadLink('{{ route('download-po.quotation', $quote->id) }}')">
+                                            Copy Link PO
+                                        </button>
                                         <a href="#"
                                             class="btn btn-label-danger d-grid waves-effect delete-file mx-2"
                                             data-id="{{ $quote->id }}"> <i
@@ -466,7 +468,8 @@
                                 @else
                                     @if ($quote->pic->client->address == '-' && $quote->pic->client->subAddress == '-')
                                         <button type="button"
-                                            class="btn btn-whatsapp d-grid w-100 waves-effect mb-3 btn-no-address">Upload PO</button>
+                                            class="btn btn-whatsapp d-grid w-100 waves-effect mb-3 btn-no-address">Upload
+                                            PO</button>
                                     @else
                                         <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
                                             data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
@@ -1418,5 +1421,16 @@
                 buttonsStyling: false,
             });
         });
+
+        function copyDownloadLink(link) {
+            navigator.clipboard.writeText(link)
+                .then(() => {
+                    alert('Link berhasil disalin!');
+                })
+                .catch(err => {
+                    alert('Gagal menyalin link');
+                    console.error(err);
+                });
+        }
     </script>
 @endpush

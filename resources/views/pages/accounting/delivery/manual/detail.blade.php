@@ -117,7 +117,7 @@
                     </div>
                     <div class="table-responsive mb-5">
                         <table class="table table-bordered m-0" style="border: 1px solid rgb(60, 60, 60)">
-                            @if ($invoice->quote->type == 'Sparepart')
+                            {{-- @if ($invoice->quote->type == 'Sparepart') --}}
                             <thead class="table-light">
                                 <tr>
                                     <th>No.</th>
@@ -157,7 +157,7 @@
                                         <td>{{ $qty }} {{ $product->info_qty }} </td>
                                     </tr>
                                 </tbody>
-                            @else
+                            {{-- @else
                             <thead class="table-light">
                                 <tr>
                                     <th>No.</th>
@@ -206,7 +206,7 @@
                                         @endforeach
                                     @endforeach
                                 </tbody>
-                            @endif
+                            @endif --}}
                         </table>
                     </div>
                     <div class="row">
@@ -349,7 +349,7 @@
                                         <th class="text-center">Qty</th>
                                         <th class="text-center" style="width: 80%">Description</th>
                                     </tr>
-                                    @if ($quote->type == 'Sparepart')
+                                    {{-- @if ($quote->type == 'Sparepart') --}}
                                         @php
                                             $no = 0;
                                         @endphp
@@ -380,7 +380,7 @@
                                                 @endforeach
                                             </td>
                                         </tr>
-                                    @else
+                                    {{-- @else
                                         @php
                                             $abjad = 64;
                                             $totalPph = 0;
@@ -415,15 +415,11 @@
                                                     <td class="text-nowrap align-top py-1"
                                                         style="border-bottom:none !important;">
                                                         <p class="mb-0">{{ $product->product }}</p>
-                                                        {{-- @if ($product->detail != '-')
-                                                    <pre class="mb-0"
-                                                        style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail }}</pre>
-                                                @endif --}}
                                                     </td>
                                                 </tr>
                                             @endforeach
                                         @endforeach
-                                    @endif
+                                    @endif --}}
                                     <tr>
                                         <td colspan="3">
                                             <div class="row mb-3">

@@ -1064,212 +1064,668 @@
                                                         </div>
                                                     </div>
                                                     @if ($user->role == 'Sales')
-                                                        <div class="col-4">
-                                                            @if ($user->id != 3)
-                                                                <div class="d-flex mb-2 gap-2">
-                                                                    <a type="button" data-bs-toggle="modal"
-                                                                        data-bs-target="#overview-sales-{{ $user->id }}">
+                                                        @if ($user->id == 16 || $user->id == 23)
+                                                            <div class="col-6">
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-info rounded">
+                                                                                <i
+                                                                                    class="mdi mdi-reproduction mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-2 d-flex align-items-center p-0">
+                                                                        <h4 class="filtered-percent-product fs-5 m-0">
+                                                                            0 %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">Upload Product</h5>
+                                                                            <small>
+                                                                                <span class="filtered-product">
+                                                                                    0
+                                                                                </span>
+                                                                                <span
+                                                                                    class="filtered-target-product text-muted fs-tiny fw-normal">/
+                                                                                    100</span>
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-whatsapp rounded">
+                                                                                <i class="mdi mdi-whatsapp mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-2 d-flex align-items-center p-0">
+                                                                        <h4 class="filtered-percent-sw fs-5 m-0">
+                                                                            0 %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">Upload SW</h5>
+                                                                            <small>
+                                                                                <span class="filtered-sw">
+                                                                                    0
+                                                                                </span>
+                                                                                <span
+                                                                                    class="filtered-target-sw text-muted fs-tiny fw-normal">/
+                                                                                    {{ $user->id == 16 ? '120' : '60' }}</span>
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
                                                                         <div class="avatar">
                                                                             <div
                                                                                 class="avatar-initial bg-label-secondary rounded">
                                                                                 <i
-                                                                                    class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
+                                                                                    class="mdi mdi-video-outline mdi-24px"></i>
                                                                             </div>
                                                                         </div>
-                                                                    </a>
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span class="filtered-leads">
-                                                                                {{ $filteredLeads }}
-                                                                            </span>
-                                                                            <span
-                                                                                class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->leads }}</span>
-                                                                        </h5>
-                                                                        <small class="text-muted">New Leads</small>
+                                                                    </div>
+                                                                    <div class="col-2 d-flex align-items-center p-0">
+                                                                        <h4 class="filtered-percent-video fs-5 m-0">
+                                                                            0 %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">Upload Video</h5>
+                                                                            <small>
+                                                                                <span class="filtered-video">
+                                                                                    0
+                                                                                </span>
+                                                                                <span
+                                                                                    class="filtered-target-video text-muted fs-tiny fw-normal">/
+                                                                                    100%</span>
+                                                                            </small>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="d-flex mb-2 gap-2">
-                                                                    <a type="button" data-bs-toggle="modal"
-                                                                        data-bs-target="#overview-sales-{{ $user->id }}">
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
                                                                         <div class="avatar">
-                                                                            <button type="button"
+                                                                            <div
+                                                                                class="avatar-initial bg-label-primary rounded">
+                                                                                <i
+                                                                                    class="mdi mdi-account-multiple-outline mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-2 d-flex align-items-center p-0">
+                                                                        <h4 class="filtered-percent-crm fs-5 m-0">
+                                                                            0 %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">CRM</h5>
+                                                                            <small>
+                                                                                <span class="filtered-crm">
+                                                                                    {{ $filteredCRM }}
+                                                                                </span>
+                                                                                <span
+                                                                                    class="filtered-target-crm text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] }}</span>
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-warning rounded">
+                                                                                <i
+                                                                                    class="mdi mdi-package-variant-closed-check mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-2 d-flex align-items-center p-0">
+                                                                        <h4 class="filtered-percent-status fs-5 m-0">
+                                                                            0 %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">Status Product</h5>
+                                                                            <small>
+                                                                                <span class="filtered-status">
+                                                                                    0
+                                                                                </span>
+                                                                                <span
+                                                                                    class="filtered-target-status text-muted fs-tiny fw-normal">/
+                                                                                    5,0</span>
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-facebook rounded">
+                                                                                <i
+                                                                                    class="mdi mdi-truck-delivery-outline mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-2 d-flex align-items-center p-0">
+                                                                        <h4 class="filtered-percent-delivery fs-5 m-0">
+                                                                            0 %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">Delivery Status</h5>
+                                                                            <small>
+                                                                                <span class="filtered-delivery">
+                                                                                    0
+                                                                                </span>
+                                                                                <span
+                                                                                    class="filtered-target-delivery text-muted fs-tiny fw-normal">/
+                                                                                    5,0</span>
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-dark rounded">
+                                                                                <i class="mdi mdi-cart-check mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-2 d-flex align-items-center p-0">
+                                                                        <h4 class="filtered-percent-customer fs-5 m-0">
+                                                                            0 %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">Customer Care</h5>
+                                                                            <small>
+                                                                                <span class="filtered-customer">
+                                                                                    0
+                                                                                </span>
+                                                                                <span
+                                                                                    class="filtered-target-customer text-muted fs-tiny fw-normal">/
+                                                                                    5,0</span>
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-pinterest rounded">
+                                                                                <i
+                                                                                    class="mdi mdi-account-heart-outline mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-2 d-flex align-items-center p-0">
+                                                                        <h4 class="filtered-percent-response fs-5 m-0">
+                                                                            0 %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">Chat Response</h5>
+                                                                            <small>
+                                                                                <span class="filtered-response">
+                                                                                    0
+                                                                                </span>
+                                                                                <span
+                                                                                    class="filtered-target-response text-muted fs-tiny fw-normal">/
+                                                                                    100%</span>
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-reddit rounded">
+                                                                                <i
+                                                                                    class="mdi mdi-monitor-star mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-2 d-flex align-items-center p-0">
+                                                                        <h4 class="filtered-percent-rating fs-5 m-0">
+                                                                            0 %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">Store Performance</h5>
+                                                                            <small>
+                                                                                <span class="filtered-rating">
+                                                                                    0
+                                                                                </span>
+                                                                                <span
+                                                                                    class="filtered-target-rating text-muted fs-tiny fw-normal">/
+                                                                                    5.0</span>
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-success rounded">
+                                                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-2 d-flex align-items-center p-0">
+                                                                        <h4 class="admin-target-total-po fs-5-po m-0">
+                                                                            0 %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">Purchase Order</h5>
+                                                                            <small>
+                                                                                <span class="admin-total-po">
+                                                                                    Rp 0
+                                                                                </span>
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                {{-- <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-success rounded">
+                                                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-10">
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">
+                                                                                <span class="admin-total-po">
+                                                                                    Rp
+                                                                                    {{ number_format($totalPO, 0, ',', '.') }}
+                                                                                </span>
+                                                                                @php
+                                                                                    $targetPO =
+                                                                                        ($totalPO /
+                                                                                            $targetSales[$item][0]
+                                                                                                ->total) *
+                                                                                        100;
+                                                                                    if ($targetPO <= 80) {
+                                                                                        $color = 'danger';
+                                                                                    } elseif ($targetPO <= 100) {
+                                                                                        $color = 'warning';
+                                                                                    } else {
+                                                                                        $color = 'success';
+                                                                                    }
+                                                                                @endphp
+                                                                                <span
+                                                                                    class="admin-target-total-po bg-label-{{ $color }} fs-tiny fw-normal">{{ round($targetPO) }}
+                                                                                    %</span>
+                                                                            </h5>
+                                                                            <small class="text-muted">Purchase
+                                                                                Order</small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div> --}}
+                                                            </div>
+                                                        @else
+                                                            <div class="col-6">
+                                                                @if ($user->id == 1 || $user->id == 2 || $user->id == 32)
+                                                                    <div class="row mb-2">
+                                                                        <div class="col-2">
+                                                                            <div class="avatar">
+                                                                                <div
+                                                                                    class="avatar-initial bg-label-secondary rounded">
+                                                                                    <i
+                                                                                        class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-2 d-flex align-items-center">
+                                                                            @php
+                                                                                $targetLeads =
+                                                                                    ($filteredLeads /
+                                                                                        $targetSales[$item][0]->leads) *
+                                                                                    100;
+                                                                            @endphp
+                                                                            <h4 class="filtered-percent-leads m-0">
+                                                                                {{ round($targetLeads) }} %</h4>
+                                                                        </div>
+                                                                        <div class="col-8">
+
+                                                                            <div class="card-info">
+                                                                                <h5 class="mb-0">
+                                                                                    <span class="filtered-leads">
+                                                                                        {{ $filteredLeads }}
+                                                                                    </span>
+                                                                                    <span
+                                                                                        class="filtered-target-leads text-muted fs-tiny fw-normal">/
+                                                                                        {{ $targetSales[$item][0]->leads }}</span>
+                                                                                </h5>
+                                                                                <small class="text-muted">New Leads</small>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row mb-2">
+                                                                        <div class="col-2">
+                                                                            <div class="avatar">
+                                                                                <div
+                                                                                    class="avatar-initial bg-label-info rounded">
+                                                                                    <i
+                                                                                        class="mdi mdi-phone-outline mdi-24px"></i>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-2 d-flex align-items-center">
+                                                                            @php
+                                                                                $targetDC =
+                                                                                    ($filteredDC /
+                                                                                        $targetSales[$item][0]->dc) *
+                                                                                    100;
+                                                                            @endphp
+                                                                            <h4 class="filtered-percent-dc m-0">
+                                                                                {{ round($targetDC) }} %</h4>
+                                                                        </div>
+                                                                        <div class="col-8">
+
+                                                                            <div class="card-info">
+                                                                                <h5 class="mb-0">
+                                                                                    <span class="filtered-dc">
+                                                                                        {{ $filteredDC }}
+                                                                                    </span>
+                                                                                    <span
+                                                                                        class="filtered-target-dc text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span>
+                                                                                </h5>
+                                                                                <small class="text-muted">Daily
+                                                                                    Call</small>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @endif
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-primary rounded">
+                                                                                <i
+                                                                                    class="mdi mdi-account-multiple-outline mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-2 d-flex align-items-center">
+                                                                        @php
+                                                                            $targetCRM =
+                                                                                ($filteredCRM / $targetCrm[$user->id]) *
+                                                                                100;
+                                                                        @endphp
+                                                                        <h4 class="filtered-percent-crm m-0">
+                                                                            {{ round($targetCRM) }} %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">
+                                                                                <span class="filtered-crm">
+                                                                                    {{ $filteredCRM }}
+                                                                                </span>
+                                                                                <span
+                                                                                    class="filtered-target-crm text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] }}</span>
+                                                                            </h5>
+                                                                            <small class="text-muted">CRM</small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                @php
+                                                                    $lastDetail = $user->detail->last();
+                                                                @endphp
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-warning rounded">
+                                                                                <i
+                                                                                    class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-2 d-flex align-items-center">
+                                                                        @php
+                                                                            $targetQuote =
+                                                                                ($filteredQuote /
+                                                                                    $targetSales[$item][0]->quote) *
+                                                                                100;
+                                                                        @endphp
+                                                                        <h4 class="filtered-percent-quote m-0">
+                                                                            {{ round($targetQuote) }} %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">
+                                                                                <span class="filtered-quote">
+                                                                                    {{ $filteredQuote }}
+                                                                                </span>
+                                                                                <span
+                                                                                    class="filtered-target-quote text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->quote }}</span>
+                                                                            </h5>
+                                                                            <small class="text-muted">Quotation</small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-success rounded">
+                                                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-2 d-flex align-items-center">
+                                                                        @php
+                                                                            $targetProspect =
+                                                                                $allProspect > 0
+                                                                                    ? ($filteredProspect /
+                                                                                            $allProspect) *
+                                                                                        100
+                                                                                    : 0;
+                                                                        @endphp
+                                                                        <h4 class="filtered-percent-prospect m-0">
+                                                                            {{ round($targetProspect) }} %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">
+                                                                                <span class="filtered-prospect">
+                                                                                    {{ $filteredProspect }}
+                                                                                </span>
+                                                                                <span
+                                                                                    class="filtered-all-prospect text-muted fs-tiny fw-normal">/{{ $allProspect }}</span>
+                                                                            </h5>
+                                                                            <small class="text-muted">Prospect</small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-secondary rounded">
+                                                                                <i class="mdi mdi-cart mdi-24px"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-10">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">
+                                                                                <span class="admin-total-quotation">
+                                                                                    Rp
+                                                                                    {{ number_format($totalQuotation, 0, ',', '.') }}
+                                                                                </span>
+                                                                            </h5>
+                                                                            <small class="text-muted">Quotation</small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
                                                                                 class="avatar-initial bg-label-info rounded">
                                                                                 <i
-                                                                                    class="mdi mdi-phone-outline mdi-24px"></i>
-                                                                            </button>
+                                                                                    class="mdi mdi-cart-arrow-down mdi-24px"></i>
+                                                                            </div>
                                                                         </div>
-                                                                    </a>
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span
-                                                                                class="filtered-dc">{{ $filteredDC }}</span>
-                                                                            @if ($user->id != 3 && $user->id != 4)
-                                                                                <span
-                                                                                    class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span>
-                                                                            @endif
-                                                                        </h5>
-                                                                        <small class="text-muted">Daily Call</small>
+                                                                    </div>
+                                                                    <div class="col-10">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">
+                                                                                <span class="admin-total-prospect">
+                                                                                    Rp
+                                                                                    {{ number_format($totalProspect, 0, ',', '.') }}
+                                                                                </span>
+                                                                            </h5>
+                                                                            <small class="text-muted">Prospect</small>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="d-flex mb-2 gap-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-primary rounded">
-                                                                            <i
-                                                                                class="mdi mdi-account-multiple-outline mdi-24px"></i>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-warning rounded">
+                                                                                <i class="mdi mdi-cart-heart mdi-24px"></i>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span class=" filtered-crm">
-                                                                                {{ $filteredCRM }}
-                                                                            </span>
-                                                                            <span
-                                                                                class="text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] ?? 0 }}</span>
-                                                                        </h5>
-                                                                        <small class="text-muted">CRM</small>
+                                                                    <div class="col-10">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">
+                                                                                <span class="admin-total-hot-prospect">
+                                                                                    Rp
+                                                                                    {{ number_format($totalHotProspect, 0, ',', '.') }}
+                                                                                </span>
+                                                                            </h5>
+                                                                            <small class="text-muted">Hot Prospect</small>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            @endif
-                                                            @php
-                                                                $lastDetail = $user->detail->last();
-                                                            @endphp
-                                                            {{-- @if ($lastDetail->area == 'Bekasi' || $lastDetail->area == 'Jabodetabek' || $lastDetail->area == 'Jawa Barat')
-                                                                <div class="d-flex mb-2 gap-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-danger rounded">
-                                                                            <i
-                                                                                class="mdi mdi-office-building-marker-outline mdi-24px"></i>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-danger rounded">
+                                                                                <i class="mdi mdi-cart-minus mdi-24px"></i>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0 filtered-visit">
-                                                                            {{ $filteredVisit }}<span
-                                                                                class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->visit }}</span>
-                                                                        </h5>
-                                                                        <small class="text-muted">Visit</small>
+                                                                    <div class="col-10">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">
+                                                                                <span class="admin-total-loss">
+                                                                                    Rp
+                                                                                    {{ number_format($totalLoss, 0, ',', '.') }}
+                                                                                </span>
+                                                                            </h5>
+                                                                            <small class="text-muted">Quotation
+                                                                                Loss</small>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            @endif --}}
-                                                            <div class="d-flex mb-2 gap-2">
-                                                                <a href="{{ route('sales.quotation', $user->id) }}">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-warning rounded">
-                                                                            <i
-                                                                                class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-2">
+                                                                        <div class="avatar">
+                                                                            <div
+                                                                                class="avatar-initial bg-label-success rounded">
+                                                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                </a>
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0">
-                                                                        <span class="filtered-quote">
-                                                                            {{ $filteredQuote }}
-                                                                        </span>
-                                                                        <span
-                                                                            class="text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->quote }}</span>
-                                                                    </h5>
-                                                                    <small class="text-muted">Quotation</small>
-                                                                </div>
-                                                            </div>
-                                                            <div class="d-flex mb-2 gap-2">
-                                                                <a href="{{ route('sales.po', $user->id) }}">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-success rounded">
-                                                                            <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </a>
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0 filtered-po">
-                                                                        {{ $filteredPO }}
-                                                                    </h5>
-                                                                    <small class="text-muted">PO</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-8">
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <div class="d-flex mb-2 gap-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-success rounded">
-                                                                            <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="card-info">
-                                                                        <div
-                                                                            class="total-percentage-po d-flex justify-center">
-                                                                            <h5 class="mb-0 total-po">Rp
-                                                                                {{ number_format($totalPO, 2, ',', '.') }}
+                                                                    <div class="col-10">
+
+                                                                        <div class="card-info">
+                                                                            <h5 class="mb-0">
+                                                                                <span class="admin-total-po">
+                                                                                    Rp
+                                                                                    {{ number_format($totalPO, 0, ',', '.') }}
+                                                                                </span>
                                                                                 @php
-                                                                                    $jumlah_target =
-                                                                                        ($totalPO / $targett->total) *
+                                                                                    $targetPO =
+                                                                                        ($totalPO /
+                                                                                            $targetSales[$item][0]
+                                                                                                ->total) *
                                                                                         100;
+                                                                                    if ($targetPO <= 80) {
+                                                                                        $color = 'danger';
+                                                                                    } elseif ($targetPO <= 100) {
+                                                                                        $color = 'warning';
+                                                                                    } else {
+                                                                                        $color = 'success';
+                                                                                    }
                                                                                 @endphp
+                                                                                <span
+                                                                                    class="admin-target-total-po bg-label-{{ $color }} fs-tiny fw-normal">{{ round($targetPO) }}
+                                                                                    %</span>
                                                                             </h5>
-                                                                            <h5 class="text-success mb-0 target-po"
-                                                                                style="margin-left: 8px;">
-                                                                                {{ number_format($jumlah_target, 3) }}%
-                                                                            </h5>
+                                                                            <small class="text-muted">Purchase
+                                                                                Order</small>
                                                                         </div>
-                                                                        <small class="text-muted">Total Sales</small>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <div class="d-flex mb-2 gap-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-primary rounded">
-                                                                            <i
-                                                                                class="mdi mdi-email-multiple-outline mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0 total-forecast">
-                                                                            Rp
-                                                                            {{ number_format($totalForecast, 2, ',', '.') }}
-                                                                        </h5>
-                                                                        <small class="text-muted">Quotation</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <div class="d-flex mb-2 gap-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-warning rounded">
-                                                                            <i
-                                                                                class="mdi mdi-email-alert-outline mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0 total-prospect">Rp
-                                                                            {{ number_format($totalProspect, 2, ',', '.') }}
-                                                                        </h5>
-                                                                        <small class="text-muted">Hot Prospect</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                                                        @endif
+                                                        <div class="col-12">
                                                             <div class="row mt-3">
                                                                 @php
                                                                     $month = date('m');
                                                                     $year = date('Y');
                                                                     $dateNow = $month . '-' . $year;
                                                                 @endphp
-                                                                <div class="col-6">
+                                                                <div class="col-2">
+                                                                    <a class="btn btn-warning d-grid w-100 waves-effect text-white h-100"
+                                                                        type="button" data-bs-toggle="modal"
+                                                                        data-bs-target="#overview-sales-{{ $user->id }}">
+                                                                        Info
+                                                                    </a>
+                                                                </div>
+                                                                <div class="col-4">
                                                                     <a class="btn btn-facebook d-grid w-100 waves-effect h-100"
                                                                         href="{{ route('detail-overview.semester', ['sales' => $user->id, 'date' => $dateNow]) }}">
-                                                                        Overview {{ date('F') }}
+                                                                        Detail
                                                                     </a>
                                                                 </div>
                                                                 <div class="col-6">
                                                                     <a class="btn btn-secondary d-grid w-100 waves-effect h-100"
                                                                         href="{{ route('overview.semester', $user->id) }}">
-                                                                        Overview Semester
+                                                                        Semester
                                                                     </a>
                                                                 </div>
                                                             </div>
@@ -1280,10 +1736,9 @@
                                                                 {{-- <a type="button" data-bs-toggle="modal"
                                                                     data-bs-target="#overview-sales-{{ $item }}"> --}}
                                                                 <div class="avatar">
-                                                                    <button type="button"
-                                                                        class="avatar-initial bg-label-info rounded">
+                                                                    <div class="avatar-initial bg-label-info rounded">
                                                                         <i class="mdi mdi-phone-outline mdi-24px"></i>
-                                                                    </button>
+                                                                    </div>
                                                                 </div>
                                                                 {{-- </a> --}}
                                                                 <div class="card-info">
@@ -1351,7 +1806,7 @@
                                                                         <div
                                                                             class="avatar-initial bg-label-success rounded">
                                                                             <i
-                                                                                class="mdi mdi-account-cart-plus mdi-24px"></i>
+                                                                                class="mdi mdi-cart-plus mdi-24px"></i>
                                                                         </div>
                                                                     </div>
                                                                     <div class="card-info">
@@ -1364,10 +1819,6 @@
                                                                                         ($totalPO / $targett->total) *
                                                                                         100;
                                                                                 @endphp
-                                                                            </h5>
-                                                                            <h5 class="text-success mb-0 target-po"
-                                                                                style="margin-left: 8px;">
-                                                                                {{ number_format($jumlah_target, 3) }}%
                                                                             </h5>
                                                                         </div>
                                                                         <small class="text-muted">Total Sales</small>
@@ -1415,16 +1866,23 @@
                                                                     $year = date('Y');
                                                                     $dateNow = $month . '-' . $year;
                                                                 @endphp
-                                                                <div class="col-6">
+                                                                <div class="col-2">
+                                                                    <a class="btn btn-warning d-grid w-100 waves-effect h-100"
+                                                                        type="button" data-bs-toggle="modal"
+                                                                        data-bs-target="#overview-sales-{{ $item }}">
+                                                                        Info
+                                                                    </a>
+                                                                </div>
+                                                                <div class="col-4">
                                                                     <a class="btn btn-facebook d-grid w-100 waves-effect h-100"
                                                                         href="{{ route('detail-overview.semester', ['sales' => $user->id, 'date' => $dateNow]) }}">
-                                                                        Overview {{ date('F') }}
+                                                                        Detail
                                                                     </a>
                                                                 </div>
                                                                 <div class="col-6">
                                                                     <a class="btn btn-secondary d-grid w-100 waves-effect h-100"
                                                                         href="{{ route('overview.semester', $user->id) }}">
-                                                                        Overview Semester
+                                                                        Semester
                                                                     </a>
                                                                 </div>
                                                             </div>
@@ -1486,7 +1944,7 @@
             $item = 0;
         @endphp
         @foreach ($dataOverview as $overview)
-                @include('components.modal.overview')
+            @include('components.modal.overview')
         @endforeach
     @elseif(Auth::user()->role == 'Logistic')
         <h4 class="fw-bold py-3 mb-4">
@@ -2190,39 +2648,8 @@
         $('.change-sales').on('click', function(ev) {
             var id = $(this).data('id');
             // console.log( 'sales ini ber id : ' + id);
-            $.ajax({
-                url: '/dashboard/totalPo/' + id,
-                type: 'GET',
-                success: function(response) {
-                    total = formatNumber(response);
-                    $(`.total-po`).text('Rp ' + total);
-                }
-            });
-            $.ajax({
-                url: '/dashboard/target/' + id,
-                type: 'GET',
-                success: function(response) {
-                    var targetPercentage = (response / 100).toFixed(3);
-                    $(`.target-po`).text(targetPercentage + '%');
-                    console.log(targetPercentage);
-                }
-            });
-            $.ajax({
-                url: '/dashboard/totalProspect/' + id,
-                type: 'GET',
-                success: function(response) {
-                    total = formatNumber(response);
-                    $(`.total-prospect`).text('Rp ' + total);
-                }
-            });
-            $.ajax({
-                url: '/dashboard/totalForecast/' + id,
-                type: 'GET',
-                success: function(response) {
-                    total = formatNumber(response);
-                    $(`.total-forecast`).text('Rp ' + total);
-                }
-            });
+
+            // Ajax Sales Kiri
             $.ajax({
                 url: '/dashboard/filteredLeads/' + id,
                 type: 'GET',
@@ -2231,10 +2658,18 @@
                 }
             });
             $.ajax({
-                url: '/dashboard/filteredPo/' + id,
+                url: '/dashboard/filteredPercentLeads/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-po`).text(response);
+                    $(`.filtered-percent-leads`).text(response + '%');
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredTargetLeads/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-target-leads`).text('/ ' + response.leads);
+                    console.log(response.leads);
                 }
             });
             $.ajax({
@@ -2245,6 +2680,20 @@
                 }
             });
             $.ajax({
+                url: '/dashboard/filteredPercentDc/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-percent-dc`).text(response + '%');
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredTargetDc/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-target-dc`).text('/ ' + response.dc);
+                }
+            });
+            $.ajax({
                 url: '/dashboard/filteredCRM/' + id,
                 type: 'GET',
                 success: function(response) {
@@ -2252,19 +2701,17 @@
                 }
             });
             $.ajax({
-                url: '/dashboard/filteredTargetCRM/' + id,
+                url: '/dashboard/filteredPercentCRM/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-target-crm`).text('/' + response);
-                    console.log(response);
-
+                    $(`.filtered-percent-crm`).text(response + ' %');
                 }
             });
             $.ajax({
-                url: '/dashboard/filteredVisit/' + id,
+                url: '/dashboard/filteredTargetCRM/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-visit`).text(response);
+                    $(`.filtered-target-crm`).text('/ ' + response);
                 }
             });
             $.ajax({
@@ -2272,6 +2719,113 @@
                 type: 'GET',
                 success: function(response) {
                     $(`.filtered-quote`).text(response);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredPercentQuote/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-percent-quote`).text(response + '%');
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredTargetQuote/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-target-quote`).text('/ ' + response.quote);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredProspectAdmin/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-prospect`).text(response);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredPercentProspect/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-percent-prospect`).text(response + '%');
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredAllProspect/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-all-prospect`).text('/ ' + response);
+                }
+            });
+
+            // Ajax Sales Kanan
+            $.ajax({
+                url: '/dashboard/totalQuotation/' + id,
+                type: 'GET',
+                success: function(response) {
+                    total = formatNumber(response);
+                    $(`.admin-total-quotation`).text('Rp ' + total);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/totalProspect/' + id,
+                type: 'GET',
+                success: function(response) {
+                    total = formatNumber(response);
+                    $(`.admin-total-prospect`).text('Rp ' + total);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/totalHotProspect/' + id,
+                type: 'GET',
+                success: function(response) {
+                    total = formatNumber(response);
+                    $(`.admin-total-hot-prospect`).text('Rp ' + total);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/totalLoss/' + id,
+                type: 'GET',
+                success: function(response) {
+                    total = formatNumber(response);
+                    $(`.admin-total-loss`).text('Rp ' + total);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/totalPo/' + id,
+                type: 'GET',
+                success: function(response) {
+                    total = formatNumber(response);
+                    $(`.admin-total-po`).text('Rp ' + total);
+                }
+            });
+            $.ajax({
+                url: '/dashboard/totalTargetPo/' + id,
+                type: 'GET',
+                success: function(response) {
+                    total = formatNumber(response);
+                    let color = 'danger';
+                    if (response > 80 && response <= 100) {
+                        color = 'warning';
+                    } else if (response > 100) {
+                        color = 'success';
+                    }
+
+                    // Update class
+                    const $el = $(`.admin-target-total-po`);
+                    $el.removeClass(
+                            'bg-label-danger bg-label-warning bg-label-success')
+                        .addClass(`bg-label-${color}`);
+                    $(`.admin-target-total-po`).text(response + ' %');
+                }
+            });
+
+            $.ajax({
+                url: '/dashboard/target/' + id,
+                type: 'GET',
+                success: function(response) {
+                    var targetPercentage = (response / 100).toFixed(3);
+                    $(`.target-po`).text(targetPercentage + '%');
+                    console.log(targetPercentage);
                 }
             });
             $.ajax({
@@ -2309,6 +2863,94 @@
                     $(`.total-prospect-po`).text('Rp ' + response);
                 }
             });
+            // Ajax Online Sales
+            $.ajax({
+                url: '/dashboard/filteredProduct/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-product`).text(response);
+                    $(`.filtered-percent-product`).text(response + ' %');
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredSW/' + id,
+                type: 'GET',
+                success: function(response) {
+                    const value = parseFloat(response) || 0;
+                    $(`.filtered-sw`).text(value);
+
+                    let percent;
+                    if (id === 16) {
+                        percent = (value / 120) * 100;
+                    } else {
+                        percent = (value / 60) * 100;
+                    }
+
+                    $(`.filtered-percent-sw`).text(percent.toFixed(1) + ' %');
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredVideo/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-video`).text(response);
+                    $(`.filtered-percent-video`).text(response + ' %');
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredStat/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-status`).text(response);
+                    const value = parseFloat(response) || 0;
+                    let percent;
+                        percent = value / 5 * 100;
+                    $(`.filtered-percent-status`).text(percent.toFixed(1) + ' %');
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredDelivery/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-delivery`).text(response);
+                    const value = parseFloat(response) || 0;
+                    let percent;
+                        percent = value / 5 * 100;
+                    $(`.filtered-percent-delivery`).text(percent.toFixed(1) + ' %');
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredCustomer/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-customer`).text(response);
+                    const value = parseFloat(response) || 0;
+                    let percent;
+                        percent = value / 5 * 100;
+                    $(`.filtered-percent-customer`).text(percent.toFixed(1) + ' %');
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredResponse/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-response`).text(response);
+                    $(`.filtered-percent-response`).text(response + ' %');
+                }
+            });
+            $.ajax({
+                url: '/dashboard/filteredRating/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.filtered-rating`).text(response);
+                    const value = parseFloat(response) || 0;
+                    let percent;
+                        percent = value / 5 * 100;
+                    $(`.filtered-percent-rating`).text(percent.toFixed(1) + ' %');
+                }
+            });
+
+            // Ajax Support
             $.ajax({
                 url: '/dashboard/totalProspectQuote/' + id,
                 type: 'GET',
@@ -2316,7 +2958,13 @@
                     $(`.total-prospect-quotation`).text('Rp ' + response);
                 }
             });
-
+            $.ajax({
+                url: '/dashboard/totalProspectPO/' + id,
+                type: 'GET',
+                success: function(response) {
+                    $(`.total-percentage-po`).text('Rp ' + response);
+                }
+            });
 
         });
 

@@ -436,8 +436,10 @@
                                         @endif
                                     @endif
                                     <div class="d-flex justify-content-between mb-3">
-                                        <a href="{{ route('download-po.quotation', $quote->id) }}"
-                                            class="btn btn-primary d-grid w-100 waves-effect"> Download PO</a>
+                                        <button class="btn btn-primary d-grid w-100 waves-effect"
+                                            onclick="copyDownloadLink('{{ route('download-po.quotation', $quote->id) }}')">
+                                            Copy Link PO
+                                        </button>
                                         <a href="#"
                                             class="btn btn-label-danger d-grid waves-effect delete-file mx-2"
                                             data-id="{{ $quote->id }}"> <i
@@ -1322,7 +1324,8 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quote/unit-detail/' + quote;
+                                    window.location.href = '/quote/unit-detail/' +
+                                        quote;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -1368,5 +1371,16 @@
                 }
             });
         });
+
+        function copyDownloadLink(link) {
+            navigator.clipboard.writeText(link)
+                .then(() => {
+                    alert('Link berhasil disalin!');
+                })
+                .catch(err => {
+                    alert('Gagal menyalin link');
+                    console.error(err);
+                });
+        }
     </script>
 @endpush

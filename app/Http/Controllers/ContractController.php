@@ -19,6 +19,20 @@ class ContractController extends Controller
      */
     public function index()
     {
+        $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.level', '0')
+            ->count();
+        $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->whereNull('invoice.no_invoice')
+            ->count();
         $contracts = Contract::where('level', '0')->get();
         // dd($contracts->quotation);
         $today = Carbon::now();
@@ -37,7 +51,7 @@ class ContractController extends Controller
         $formattedNumberCP = $this->generateNextContractNumber($numberLastCP, '001');
         $formattedNumberCNP = $this->generateNextContractNumber($numberLastCNP, '001');
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.accounting.request.index', compact('noSaleProspect', 'contracts', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'numberLastSP', 'numberLastSNP', 'numberLastCP', 'numberLastCNP'));
+        return view('pages.accounting.request.index', compact('requestContract','requestInvoice','noSaleProspect', 'contracts', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'numberLastSP', 'numberLastSNP', 'numberLastCP', 'numberLastCNP'));
     }
 
     /**
@@ -69,6 +83,20 @@ class ContractController extends Controller
      */
     public function show($id)
     {
+        $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.level', '0')
+            ->count();
+        $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->whereNull('invoice.no_invoice')
+            ->count();
         $today = Carbon::now();
         $thisYear = $today->year;
         $numberLastSP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $today)->where('q.tax', '11')->where('contract.type', 'Selling')->where('contract.level', '1')->groupBy('contract.id')->orderByDesc('contract.id')->first('contract.no_contract');
@@ -99,9 +127,9 @@ class ContractController extends Controller
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         if ($quote->type == 'Sparepart') {
-            return view('pages.accounting.contract.detail', compact('noSaleProspect', 'contract', 'quote', 'dquote', 'tax', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'numberLastSP', 'numberLastSNP', 'numberLastCP', 'numberLastCNP'));
+            return view('pages.accounting.contract.detail', compact('requestContract','requestInvoice','noSaleProspect', 'contract', 'quote', 'dquote', 'tax', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'numberLastSP', 'numberLastSNP', 'numberLastCP', 'numberLastCNP'));
         } else {
-            return view('pages.accounting.contract.detail', compact('subQuote', 'noSaleProspect', 'contract', 'quote', 'dquote', 'tax', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'numberLastSP', 'numberLastSNP', 'numberLastCP', 'numberLastCNP'));
+            return view('pages.accounting.contract.detail', compact('requestContract','requestInvoice','subQuote', 'noSaleProspect', 'contract', 'quote', 'dquote', 'tax', 'thisYear', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'numberLastSP', 'numberLastSNP', 'numberLastCP', 'numberLastCNP'));
         }
     }
 
@@ -178,13 +206,41 @@ class ContractController extends Controller
     }
     public function index_selling()
     {
+        $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.level', '0')
+            ->count();
+        $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->whereNull('invoice.no_invoice')
+            ->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view("pages.accounting.contract.index-selling", compact('noSaleProspect'));
+        return view("pages.accounting.contract.index-selling", compact('requestContract','requestInvoice','noSaleProspect'));
     }
     public function index_order()
     {
+        $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.level', '0')
+            ->count();
+        $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->whereNull('invoice.no_invoice')
+            ->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view("pages.accounting.contract.index-order", compact('noSaleProspect'));
+        return view("pages.accounting.contract.index-order", compact('requestContract','requestInvoice','noSaleProspect'));
     }
     public function contract_print($id)
     {

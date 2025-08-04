@@ -25,25 +25,46 @@
                                 </tr>
                             </thead>
                             <tbody class="table-border-bottom-0">
-                                <tr>
-                                    <td>
-                                        <strong>Daily Call</strong>
-                                    </td>
-                                    @php
-                                        $totalDCFullWeek = 0;
-                                    @endphp
-                                    @foreach ($overview['dc'] as $week)
-                                        <td>{{ $week }}</td>
+                                @if ($overview['salesId'] == 1 || $overview['salesId'] == 2 || $overview['salesId'] == 32)
+                                    <tr>
+                                        <td>
+                                            <strong>New Leads</strong>
+                                        </td>
                                         @php
-                                            $totalDCFullWeek += $week;
+                                            $totalLeadsFullWeek = 0;
                                         @endphp
-                                    @endforeach
-                                    <td>{{ $totalDCFullWeek }}</td>
-                                    <td>
-                                        {{ round(($totalDCFullWeek / ($user->target[0]->dc + $user->target[0]->dc / 4)) * 100) }}
-                                        %
-                                    </td>
-                                </tr>
+                                        @foreach ($overview['leads'] as $week)
+                                            <td>{{ $week }}</td>
+                                            @php
+                                                $totalLeadsFullWeek += $week;
+                                            @endphp
+                                        @endforeach
+                                        <td>{{ $totalLeadsFullWeek }}</td>
+                                        <td>
+                                            {{ round(($totalLeadsFullWeek / ($user->target[0]->leads + $user->target[0]->leads / 4)) * 100) }}
+                                            %
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Daily Call</strong>
+                                        </td>
+                                        @php
+                                            $totalDCFullWeek = 0;
+                                        @endphp
+                                        @foreach ($overview['dc'] as $week)
+                                            <td>{{ $week }}</td>
+                                            @php
+                                                $totalDCFullWeek += $week;
+                                            @endphp
+                                        @endforeach
+                                        <td>{{ $totalDCFullWeek }}</td>
+                                        <td>
+                                            {{ round(($totalDCFullWeek / ($user->target[0]->dc + $user->target[0]->dc / 4)) * 100) }}
+                                            %
+                                        </td>
+                                    </tr>
+                                @endif
                                 <tr>
                                     <td>
                                         <strong>CRM</strong>

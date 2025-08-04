@@ -1160,21 +1160,47 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/pending-po-done', [PendingController::class, 'indexDone'])->name('pending-po.done');
 
     // Dashboard Function
-    Route::get('/dashboard/totalPo/{sales}', [DashboardController::class, 'totalPoAdmin'])->name('totalPo.dashboard');
-    Route::get('/dashboard/totalForecast/{sales}', [DashboardController::class, 'totalForecastAdmin'])->name('totalForecast.dashboard');
+    // Ajax Sales Kanan
+    Route::get('/dashboard/totalQuotation/{sales}', [DashboardController::class, 'totalQuotationAdmin'])->name('totalQuotation.dashboard');
     Route::get('/dashboard/totalProspect/{sales}', [DashboardController::class, 'totalProspectAdmin'])->name('totalProspect.dashboard');
-    Route::get('/dashboard/totalProspectPO/{sales}', [DashboardController::class, 'totalProspectedPO'])->name('totalProspectedPO.dashboard');
-    Route::get('/dashboard/totalProspectQuote/{sales}', [DashboardController::class, 'totalProspectedQuotation'])->name('totalProspectedQuotation.dashboard');
+    Route::get('/dashboard/totalHotProspect/{sales}', [DashboardController::class, 'totalHotProspectAdmin'])->name('totalHotProspect.dashboard');
+    Route::get('/dashboard/totalLoss/{sales}', [DashboardController::class, 'totalLossAdmin'])->name('totalLoss.dashboard');
+    Route::get('/dashboard/totalPo/{sales}', [DashboardController::class, 'totalPoAdmin'])->name('totalPo.dashboard');
+    Route::get('/dashboard/totalTargetPo/{sales}', [DashboardController::class, 'totalTargetPoAdmin'])->name('totalTargetPo.dashboard');
+    // Ajax Sales Kiri
     Route::get('/dashboard/filteredLeads/{sales}', [DashboardController::class, 'filteredLeadsAdmin'])->name('filteredLeads.dashboard');
-    Route::get('/dashboard/filteredPo/{sales}', [DashboardController::class, 'filteredPoAdmin'])->name('filteredPo.dashboard');
-    Route::get('/dashboard/filteredQuote/{sales}', [DashboardController::class, 'filteredQuoteAdmin'])->name('filteredQuote.dashboard');
     Route::get('/dashboard/filteredDc/{sales}', [DashboardController::class, 'filteredDcAdmin'])->name('filteredDc.dashboard');
-    Route::get('/dashboard/filteredVisit/{sales}', [DashboardController::class, 'filteredVisitAdmin'])->name('filteredVisit.dashboard');
     Route::get('/dashboard/filteredCRM/{sales}', [DashboardController::class, 'filteredCRMAdmin'])->name('filteredCRM.dashboard');
+    Route::get('/dashboard/filteredQuote/{sales}', [DashboardController::class, 'filteredQuoteAdmin'])->name('filteredQuote.dashboard');
+    Route::get('/dashboard/filteredProspectAdmin/{sales}', [DashboardController::class, 'filteredProspectAdmin'])->name('filteredProspect.dashboard');
+    Route::get('/dashboard/filteredAllProspect/{sales}', [DashboardController::class, 'filteredAllProspectAdmin'])->name('filteredAllProspect.dashboard');
     Route::get('/dashboard/filteredTargetLeads/{sales}', [DashboardController::class, 'filteredTargetLeadsAdmin'])->name('filteredTargetLeads.dashboard');
     Route::get('/dashboard/filteredTargetQuote/{sales}', [DashboardController::class, 'filteredTargetQuoteAdmin'])->name('filteredTargetQuote.dashboard');
     Route::get('/dashboard/filteredTargetDc/{sales}', [DashboardController::class, 'filteredTargetDcAdmin'])->name('filteredTargetDc.dashboard');
     Route::get('/dashboard/filteredTargetCRM/{sales}', [DashboardController::class, 'filteredTargetCRMAdmin'])->name('filteredTargetCRM.dashboard');
+    Route::get('/dashboard/filteredTargetProspect/{sales}', [DashboardController::class, 'filteredTargetProspectAdmin'])->name('filteredTargetProspect.dashboard');
+    Route::get('/dashboard/filteredPercentLeads/{sales}', [DashboardController::class, 'filteredPercentLeadsAdmin'])->name('filteredPercentLeads.dashboard');
+    Route::get('/dashboard/filteredPercentQuote/{sales}', [DashboardController::class, 'filteredPercentQuoteAdmin'])->name('filteredPercentQuote.dashboard');
+    Route::get('/dashboard/filteredPercentDc/{sales}', [DashboardController::class, 'filteredPercentDcAdmin'])->name('filteredPercentDc.dashboard');
+    Route::get('/dashboard/filteredPercentCRM/{sales}', [DashboardController::class, 'filteredPercentCRMAdmin'])->name('filteredPercentCRM.dashboard');
+    Route::get('/dashboard/filteredPercentProspect/{sales}', [DashboardController::class, 'filteredPercentProspectAdmin'])->name('filteredPercentProspect.dashboard');
+    // ajax sales online
+    Route::get('/dashboard/filteredProduct/{sales}', [DashboardController::class, 'filteredProductAdmin'])->name('filteredProduct.dashboard');
+    Route::get('/dashboard/filteredSW/{sales}', [DashboardController::class, 'filteredSWAdmin'])->name('filteredSW.dashboard');
+    Route::get('/dashboard/filteredVideo/{sales}', [DashboardController::class, 'filteredVideoAdmin'])->name('filteredVideo.dashboard');
+    Route::get('/dashboard/filteredDelivery/{sales}', [DashboardController::class, 'filteredDeliveryAdmin'])->name('filteredDelivery.dashboard');
+    Route::get('/dashboard/filteredStat/{sales}', [DashboardController::class, 'filteredStatAdmin'])->name('filteredVideo.dashboard');
+    Route::get('/dashboard/filteredCustomer/{sales}', [DashboardController::class, 'filteredCustomerAdmin'])->name('filteredVideo.dashboard');
+    Route::get('/dashboard/filteredResponse/{sales}', [DashboardController::class, 'filteredResponseAdmin'])->name('filteredVideo.dashboard');
+    Route::get('/dashboard/filteredRating/{sales}', [DashboardController::class, 'filteredRatingAdmin'])->name('filteredVideo.dashboard');
+
+    Route::get('/dashboard/totalForecast/{sales}', [DashboardController::class, 'totalForecastAdmin'])->name('totalForecast.dashboard');
+    Route::get('/dashboard/totalProspectPO/{sales}', [DashboardController::class, 'totalProspectedPO'])->name('totalProspectedPO.dashboard');
+    Route::get('/dashboard/totalProspectQuote/{sales}', [DashboardController::class, 'totalProspectedQuotation'])->name('totalProspectedQuotation.dashboard');
+    // Route::get('/dashboard/totalTargetPO/{sales}', [DashboardController::class, 'target'])->name('target.dashboard');
+
+    Route::get('/dashboard/filteredPo/{sales}', [DashboardController::class, 'filteredPoAdmin'])->name('filteredPo.dashboard');
+    Route::get('/dashboard/filteredVisit/{sales}', [DashboardController::class, 'filteredVisitAdmin'])->name('filteredVisit.dashboard');
     Route::get('/dashboard/filteredProspect/{sales}', [DashboardController::class, 'filteredProspect'])->name('filteredProspect.dashboard');
     Route::get('/dashboard/filteredProvide/{sales}', [DashboardController::class, 'filteredProvide'])->name('filteredProvide.dashboard');
     Route::get('/dashboard/filteredProspectPO/{sales}', [DashboardController::class, 'filteredProspectedPO'])->name('filteredProspect.dashboard');
@@ -1182,7 +1208,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/dashboard/target/{sales}', [DashboardController::class, 'target'])->name('target.dashboard');
     Route::post('/salesOnline/store', [SalesOnlineController::class, 'store'])->name('store.salon');
     Route::post('/salesOnline/update/{id}', [SalesOnlineController::class, 'update'])->name('update.salon');
-    
+
     Route::get('/notifactivity', [DashboardController::class, 'notifIndex'])->name('index.notif');
     Route::get('/notifactivity/notif/{date}', [DashboardController::class, 'dateNotif'])->name('date.notif');
     Route::get('/notifactivity/notifAdmin/{date}', [DashboardController::class, 'dateNotifAdmin'])->name('date-admin.notif');
@@ -1807,7 +1833,9 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/sales/overview', function () {
         $sales = DB::table('sales_reports AS s')
-            ->select('s.*', DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
+            ->select(
+                's.*',
+                DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
         JOIN users AS u ON q.id_sales = u.id
         WHERE MONTH(q.po_date) BETWEEN 
             CASE 
@@ -1820,9 +1848,10 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN s.semester = "2" THEN 12 
             END
         AND YEAR(q.po_date) = s.year
-        AND q.level = 1
-        AND q.is_primary = 1
-        AND u.id = ' . Auth::user()->id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(q.nett), 0) FROM quotation AS q 
+        AND q.level = "1"
+        AND q.is_primary = "1"
+        AND u.id = ' . Auth::user()->id . ') AS total'),
+                DB::raw('(SELECT COALESCE(SUM(q.nett), 0) FROM quotation AS q 
         JOIN users AS u ON q.id_sales = u.id
         WHERE MONTH(q.po_date) BETWEEN 
             CASE 
@@ -1835,9 +1864,10 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN s.semester = "2" THEN 12 
             END
         AND YEAR(q.po_date) = s.year
-        AND q.level = 1
-        AND q.is_primary = 1
-        AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
+        AND q.level = "1"
+        AND q.is_primary = "1"
+        AND u.id = ' . Auth::user()->id . ') AS price'),
+                DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
         JOIN users AS u ON q.id_sales = u.id
         WHERE MONTH(q.estimated_date) BETWEEN 
             CASE 
@@ -1850,9 +1880,20 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN s.semester = "2" THEN 12 
             END
         AND YEAR(q.estimated_date) = s.year
-        AND q.level = 1
-        AND q.is_primary = 1
-        AND u.id = ' . Auth::user()->id . ') AS quote'))
+        AND q.level = "1"
+        AND q.is_primary = "1"
+        AND u.id = ' . Auth::user()->id . ') AS quote'),
+        DB::raw(' CASE 
+                WHEN s.semester = "1" THEN 1 
+                WHEN s.semester = "2" THEN 7 
+            END AS firstMonth
+        '),
+        DB::raw(' CASE 
+                WHEN s.semester = "1" THEN 6 
+                WHEN s.semester = "2" THEN 12 
+            END AS lastMonth
+        ')
+            )
             ->get();
         return response()->json(['data' => $sales]);
     });

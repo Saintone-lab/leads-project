@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Activities;
 use App\Models\Client;
 use App\Models\Comment;
+use App\Models\Contract;
 use App\Models\DetailProduct;
 use App\Models\Issues;
 use App\Models\MonitoringActivities;
@@ -178,18 +179,31 @@ class DashboardController extends Controller
                 )
             );
         } elseif (Auth::user()->role == 'Admin') {
+            $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.level', '0')
+            ->count();
+            $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+                ->join('client', 'client.id', '=', 'pic.id_client')
+                ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+                ->join('users', 'users.id', '=', 'quotation.id_sales')
+                ->where('status', '100')
+                ->whereNotNull('quotation.po_file')
+                ->whereNull('invoice.no_invoice')
+                ->count();
             $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
             $poTotalPriceAdmin = Quotation::whereYear('po_date', $yearNow)->whereMonth("po_date", $monthNow)->where("status", "100")->where('level', '1')->where('is_primary', '1')->sum('nett');
             $formattedTotalPriceAdmin = $this->formatNumber($poTotalPriceAdmin);
             $sales = User::whereIn('role', ['Sales', 'Support'])->where('active', '1')->orderByDesc('id')->get();
-            $firstSales = User::where('role', 'Sales')->orderByDesc('id')->first();
+            $firstSales = User::find(1);
             $targett = Target::where('id_sales', $firstSales->id)->first('total');
             $targetAllSales = Target::join('users as u', 'u.id', '=', 'target.id_sales')->where('u.role', 'Sales')->where('u.active', '1')->sum('target.total');
             // dd($targetAllSales);
             $targetSales = $sales->map(function ($sale) {
                 return $sale->target()->groupBy('id_sales')->get();
             });
-            $totalPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
             // dd($totalPO);
             // $totalProspectQuote = Quotation::whereYear('date', $yearNow)->whereMonth('date', $monthNow)->whereNotNull('id_support')->where('status', '!=', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
             // $prospectedQuotation = Prospect::join('quotation as q', 'q.id', '=', 'prospect.id_quotation')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('provide', '!=', '0')->where('status', '!=', '100')->where('q.level', '1')->where('is_primary', '1')->count();
@@ -197,14 +211,23 @@ class DashboardController extends Controller
             // $prospectedQuotationTotal = Prospect::join('quotation as q', 'q.id', '=', 'prospect.id_quotation')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('provide', '!=', '0')->where('status', '!=', '100')->where('q.level', '1')->where('is_primary', '1')->sum('q.nett');
             // $prospectedPOTotal = Prospect::join('quotation as q', 'q.id', '=', 'prospect.id_quotation')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('provide', '!=', '0')->where('status', '100')->where('q.level', '1')->where('is_primary', '1')->sum('q.nett');
             // dd($totalProspectQuote);
-            $totalProspect = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $totalProspectSupport = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
             $totalForecast = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '80')->where('level', '1')->where('is_primary', '1')->sum('nett');
+
+            $totalQuotation = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $totalProspect = Quotation::join('prospect as p', 'quotation.id', '=', 'p.id_quotation')->whereNotNull('id_quotation')->whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $firstSales->id)->whereIn('status', ['80', '90'])->where('quotation.level', '1')->where('is_primary', '1')->sum('nett');
+            $totalHotProspect = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->whereIn('status', ['80', '90'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $totalLoss = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $totalPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
             $filteredLeads = Client::whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->where('id_sales', $firstSales->id)->count();
-            $filteredPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
             $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->whereIn('activities.name', ['Daily Call', 'Follow Up'])->distinct('c.id')->count();
             $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->where('name', 'CRM')->distinct('c.id')->count();
             $filteredQuote = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('level', '1')->where('is_primary', '1')->count();
+            $filteredProspect = Prospect::whereNotNull('id_quotation')->whereMonth('date', $monthNow)->whereYear('date', $yearNow)->count();
+            $allProspect = Prospect::whereMonth('date', $monthNow)->whereYear('date', $yearNow)->count();
+            $filteredPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
             $filteredVisit = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->where('name', 'Visit')->count();
+
             $dataDc = $this->getWeekDataDC();
             $dataCRM = $this->getWeekDataCRM();
             $dataVisit = $this->getWeekDataVisit();
@@ -256,9 +279,13 @@ class DashboardController extends Controller
             return view(
                 "pages.sales.dashboard",
                 compact(
+                    'requestContract',
+                    'requestInvoice',
                     'dataOverview',
                     'noSaleProspect',
                     'notulens',
+                    'totalProspectSupport',
+                    'totalForecast',
                     'targetSales',
                     'targetCrm',
                     'sales',
@@ -269,10 +296,15 @@ class DashboardController extends Controller
                     'filteredVisit',
                     'filteredDC',
                     'filteredQuote',
+                    'filteredProspect',
+                    'allProspect',
                     'poTotalPriceAdmin',
                     'formattedTotalPriceAdmin',
-                    'totalForecast',
+                    'totalQuotation',
                     'totalProspect',
+                    'totalHotProspect',
+                    'totalLoss',
+                    'totalPO',
                     'dataQuote',
                     'dataLeads',
                     'dataPO',
@@ -574,6 +606,39 @@ class DashboardController extends Controller
         return $adminNotif;
 
     }
+    // Ajax Sales Kanan
+    public function totalQuotationAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+        $totalQuotation = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
+        return $totalQuotation;
+    }
+    public function totalProspectAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+        $totalProspect = Quotation::join('prospect as p', 'quotation.id', '=', 'p.id_quotation')->whereNotNull('id_quotation')->whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->whereIn('status', ['80', '90'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+        return $totalProspect;
+    }
+    public function totalHotProspectAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+        $totalHotProspect = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->whereIn('status', ['80', '90'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+        return $totalHotProspect;
+    }
+    public function totalLossAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+        $totalProspect = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        return $totalProspect;
+    }
     public function totalPoAdmin($sales)
     {
         $dateNow = Carbon::now();
@@ -582,22 +647,27 @@ class DashboardController extends Controller
         $totalPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $sales)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
         return $totalPO;
     }
-    public function totalForecastAdmin($sales)
+    public function totalTargetPoAdmin($sales)
     {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $totalProspect = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
-        return $totalProspect;
+
+        $totalPO = Quotation::whereYear('po_date', $yearNow)
+            ->whereMonth('po_date', $monthNow)
+            ->where('id_sales', $sales)
+            ->where('status', '100')
+            ->where('level', '1')
+            ->where('is_primary', '1')
+            ->sum('nett');
+
+        $target = Target::where('id_sales', $sales)->first('total');
+
+        $totalTarget = ($totalPO / $target->total) * 100;
+
+        return round($totalTarget, 2);
     }
-    public function totalProspectAdmin($sales)
-    {
-        $dateNow = Carbon::now();
-        $monthNow = $dateNow->month;
-        $yearNow = $dateNow->year;
-        $totalForecast = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->where('status', '80')->where('level', '1')->where('is_primary', '1')->sum('nett');
-        return $totalForecast;
-    }
+
     public function filteredPOAdmin($sales)
     {
         $dateNow = Carbon::now();
@@ -606,6 +676,7 @@ class DashboardController extends Controller
         $filteredPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $sales)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
         return $filteredPO;
     }
+    // Ajax Kiri Sales
     public function filteredLeadsAdmin($sales)
     {
         $dateNow = Carbon::now();
@@ -614,13 +685,20 @@ class DashboardController extends Controller
         $filteredLeads = Quotation::whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->where('id_sales', $sales)->count();
         return $filteredLeads;
     }
-    public function filteredQuoteAdmin($sales)
+    public function filteredPercentLeadsAdmin($sales)
     {
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $filteredQuote = Quotation::whereYear('po_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
-        return $filteredQuote;
+        $filteredLeads = Quotation::whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->where('id_sales', $sales)->count();
+        $target = Target::where('id_sales', $sales)->first('leads');
+        $leadsTarget = ($filteredLeads / $target->leads) * 100;
+        return round($leadsTarget);
+    }
+    public function filteredTargetLeadsAdmin($sales)
+    {
+        $target = Target::where('id_sales', $sales)->first('leads');
+        return $target;
     }
     public function filteredDcAdmin($sales)
     {
@@ -637,6 +715,28 @@ class DashboardController extends Controller
             ->count();
         return $filteredDC;
     }
+    public function filteredTargetDcAdmin($sales)
+    {
+        $target = Target::where('id_sales', $sales)->first('dc');
+        return $target;
+    }
+    public function filteredPercentDcAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+        $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')
+            ->whereYear('date', $yearNow)
+            ->whereMonth('date', $monthNow)
+            ->where('c.id_sales', $sales)
+            ->where('status', 'Responded')
+            ->whereIn('name', ['Daily Call', 'Follow Up'])
+            ->distinct('c.id')
+            ->count();
+        $target = Target::where('id_sales', $sales)->first('dc');
+        $dcTarget = ($filteredDC / $target->dc) * 100;
+        return round($dcTarget);
+    }
     public function filteredCrmAdmin($sales)
     {
         $dateNow = Carbon::now();
@@ -645,6 +745,216 @@ class DashboardController extends Controller
         $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $sales)->where('status', 'Responded')->where('name', 'CRM')->distinct('c.id')->count();
         return $filteredCRM;
     }
+    public function filteredTargetCRMAdmin($sales)
+    {
+        $target = Client::where('role', 'Customers')->where('id_sales', $sales)->count();
+        return $target;
+    }
+    public function filteredPercentCRMAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+        $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $sales)->where('status', 'Responded')->where('name', 'CRM')->distinct('c.id')->count();
+        $target = Client::where('role', 'Customers')->where('id_sales', $sales)->count();
+        $crmTarget = ($filteredCRM / $target) * 100;
+        return round($crmTarget);
+    }
+    public function filteredQuoteAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+        $filteredQuote = Quotation::whereYear('po_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
+        return $filteredQuote;
+    }
+    public function filteredTargetQuoteAdmin($sales)
+    {
+        $target = Target::where('id_sales', $sales)->first('quote');
+        return $target;
+    }
+    public function filteredPercentQuoteAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+        $filteredQuote = Quotation::whereYear('po_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
+        $target = Target::where('id_sales', $sales)->first('quote');
+        $quoteTarget = ($filteredQuote / $target->quote) * 100;
+        return round($quoteTarget);
+    }
+    public function filteredProspectAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+        $filteredProspect = Prospect::whereNotNull('id_quotation')->whereMonth('date', $monthNow)->whereYear('date', $yearNow)->where('id_sales', $sales)->count();
+        return $filteredProspect;
+    }
+    public function filteredAllProspectAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+        $allProspect = Prospect::whereMonth('date', $monthNow)->whereYear('date', $yearNow)->where('id_sales', $sales)->count();
+        return $allProspect;
+    }
+    public function filteredPercentProspectAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+        $filteredProspect = Prospect::whereNotNull('id_quotation')->whereMonth('date', $monthNow)->whereYear('date', $yearNow)->where('id_sales', $sales)->count();
+        $allProspect = Prospect::whereMonth('date', $monthNow)->whereYear('date', $yearNow)->where('id_sales', $sales)->count();
+        $prospectTarget = ($filteredProspect / $allProspect ?? 0) * 100;
+        return round($prospectTarget);
+    }
+
+    // Ajax Kiri Online
+    public function filteredProductAdmin($sales)
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+        $product = SalesOnline::where('type', 'Product')->whereMonth('date', $monthNow)->whereYear('date', $yearNow)->where('id_sales', $sales)->count();
+        return $product;
+    }
+    public function filteredSWAdmin($sales)
+    {
+        $monthNow = now()->month;
+        $yearNow = now()->year;
+
+        $airendSum = SalesOnline::where('type', 'SW')
+            ->whereMonth('date', $monthNow)
+            ->whereYear('date', $yearNow)
+            ->where('id_sales', $sales)
+            ->sum('airend');
+
+        $kojishaSum = SalesOnline::where('type', 'SW')
+            ->whereMonth('date', $monthNow)
+            ->whereYear('date', $yearNow)
+            ->where('id_sales', $sales)
+            ->sum('kojisha');
+
+        return $airendSum + $kojishaSum;
+    }
+    public function filteredVideoAdmin($sales)
+    {
+        $monthNow = now()->month;
+        $yearNow = now()->year;
+
+        $totalVideo = 0;
+
+        $video = SalesOnline::where('type', 'Video')
+            ->whereMonth('date', $monthNow)
+            ->whereYear('date', $yearNow)
+            ->where('id_sales', $sales)
+            ->get();
+
+        if ($video->isEmpty()) {
+            return 0; // Hindari pembagian nol
+        }
+
+        foreach ($video as $item) {
+            if (!empty($item->ig)) {
+                $totalVideo += 30;
+            }
+            if (!empty($item->tiktok)) {
+                $totalVideo += 30;
+            }
+            if (!empty($item->tokped)) {
+                $totalVideo += 30;
+            }
+        }
+
+        return $totalVideo / $video->count();
+    }
+    public function filteredStatAdmin($sales)
+    {
+        $monthNow = now()->month;
+        $yearNow = now()->year;
+
+        $stat = SalesOnline::where('type', 'Akurasi')
+            ->whereMonth('date', $monthNow)
+            ->whereYear('date', $yearNow)
+            ->where('id_sales', $sales)
+            ->get();
+
+        if ($stat->isEmpty()) {
+            return 0; // atau null, tergantung kebutuhan
+        }
+
+        return $stat->sum('average') / $stat->count();
+    }
+    public function filteredDeliveryAdmin($sales)
+    {
+        $monthNow = now()->month;
+        $yearNow = now()->year;
+
+        $delivery = SalesOnline::where('type', 'Delivery')
+            ->whereMonth('date', $monthNow)
+            ->whereYear('date', $yearNow)
+            ->where('id_sales', $sales)
+            ->get();
+
+        if ($delivery->isEmpty()) {
+            return 0; // atau null, tergantung kebutuhan
+        }
+
+        return $delivery->sum('average') / $delivery->count();
+    }
+    public function filteredCustomerAdmin($sales)
+    {
+        $monthNow = now()->month;
+        $yearNow = now()->year;
+
+        $customer = SalesOnline::where('type', 'Customer')
+            ->whereMonth('date', $monthNow)
+            ->whereYear('date', $yearNow)
+            ->where('id_sales', $sales)
+            ->get();
+
+        if ($customer->isEmpty()) {
+            return 0; // atau null, tergantung kebutuhan
+        }
+
+        return $customer->sum('average') / $customer->count();
+    }
+    public function filteredResponseAdmin($sales)
+    {
+        $monthNow = now()->month;
+        $yearNow = now()->year;
+
+        $response = SalesOnline::where('type', 'Response')
+            ->whereMonth('date', $monthNow)
+            ->whereYear('date', $yearNow)
+            ->where('id_sales', $sales)
+            ->get();
+
+        if ($response->isEmpty()) {
+            return 0; // atau null, tergantung kebutuhan
+        }
+
+        return $response->sum('average') / $response->count();
+    }
+    public function filteredRatingAdmin($sales)
+    {
+        $monthNow = now()->month;
+        $yearNow = now()->year;
+
+        $rating = SalesOnline::where('type', 'Rating')
+            ->whereMonth('date', $monthNow)
+            ->whereYear('date', $yearNow)
+            ->where('id_sales', $sales)
+            ->get();
+
+        if ($rating->isEmpty()) {
+            return 0; // atau null, tergantung kebutuhan
+        }
+
+        return $rating->sum('average') / $rating->count();
+    }
+
     public function filteredVisitAdmin($sales)
     {
         $dateNow = Carbon::now();
@@ -653,36 +963,7 @@ class DashboardController extends Controller
         $filteredVisit = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $sales)->where('status', 'Responded')->where('name', 'Visit')->count();
         return $filteredVisit;
     }
-    public function filteredTargetLeadsAdmin($sales)
-    {
-        $target = Target::where('id_sales', $sales)->first('leads');
-        return $target;
-    }
-    public function filteredTargetDcAdmin($sales)
-    {
-        $target = Target::where('id_sales', $sales)->first('dc');
-        return $target;
-    }
-    public function filteredTargetCRMAdmin($sales)
-    {
-        $target = Client::where('role', 'Customers')->where('id_sales', $sales)->count();
-        return $target;
-    }
-    public function filteredTargetQuoteAdmin($sales)
-    {
-        $target = Target::where('id_sales', $sales)->first('quote');
-        return $target;
-    }
-    public function target($sales)
-    {
-        $dateNow = Carbon::now();
-        $monthNow = $dateNow->month;
-        $yearNow = $dateNow->year;
-        $totalPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $sales)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
-        $target = Target::where('id_sales', $sales)->first('total');
-        $totalTarget = ($totalPO / $target->total) * 10000;
-        return $totalTarget;
-    }
+
     public function filteredProspect($support)
     {
         $dateNow = Carbon::now();
@@ -732,7 +1013,6 @@ class DashboardController extends Controller
         $totalProspectPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_support', $support)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
         $formattedPO = number_format($totalProspectPO, 0, ",", ".");
         return $formattedPO;
-
     }
 
     protected function formatNumber($number)
@@ -1374,7 +1654,7 @@ class DashboardController extends Controller
             $data[] = [
                 'salesId' => $user->id,
                 'sales' => $user->name,
-                'lead' => $leadCounts,
+                'leads' => $leadCounts,
                 'dc' => $dcCounts,
                 'crm' => $crmCounts,
                 'quote' => $quoteCounts,

@@ -238,18 +238,20 @@ class OverviewController extends Controller
             ->get();
 
         $onSale = $onlineSales->map(function ($row) {
+            $productArray = explode('|', $row->product);
+
             return [
                 'date' => $row->date,
-                'qty' => $row->product->count(),
+                'qty' => count($productArray),
                 'link' => [
-                    'product' => explode('|', $row->product),
+                    'product' => $productArray,
                     'desc_product' => explode('|', $row->desc_product)
                 ]
             ];
         });
         // dd($onSale);
 
-        return view('pages.admin.overview.kpi', compact('onSale','POCount', 'productCount', 'SWCount', 'videoCount', 'customerCount', 'ratingCount', 'responseCount', 'deliveryCount', 'akurasiCount', 'totalProspect', 'totalProspectPO', 'totalProspectQuote', 'filteredProvide', 'filteredProspectPO', 'filteredProspectQuote', 'filteredProspect', 'jumlahCustomer', 'noSaleProspect', 'leveledProspect', 'user', 'dates', 'quotation', "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLoss", "totalLeads", "amountSales", "amountQuote", "amountQuoteLoss", "amountProspect", "target"));
+        return view('pages.admin.overview.kpi', compact('onSale', 'POCount', 'productCount', 'SWCount', 'videoCount', 'customerCount', 'ratingCount', 'responseCount', 'deliveryCount', 'akurasiCount', 'totalProspect', 'totalProspectPO', 'totalProspectQuote', 'filteredProvide', 'filteredProspectPO', 'filteredProspectQuote', 'filteredProspect', 'jumlahCustomer', 'noSaleProspect', 'leveledProspect', 'user', 'dates', 'quotation', "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLoss", "totalLeads", "amountSales", "amountQuote", "amountQuoteLoss", "amountProspect", "target"));
     }
 
     public function overviewAdmin($semester, $sales)
