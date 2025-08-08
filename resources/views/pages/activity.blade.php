@@ -17,83 +17,79 @@
                     <h6 class="mb-2">Baru</h6>
                     <ul class="list-group list-group-flush">
                         @if (Auth::user()->role == 'Admin')
-                            @if (@$notifAdmin)
-                                @forelse ($notifAdmin as $item)
-                                    <a href="{{ route('quotation.show', $item->idQ) }}#viewComment"
-                                        class="view-quote {{ $item->level == 1 ? 'bg-label-secondary' : '' }}"
-                                        data-id="{{ $item->idC }}" data-quotation="{{ $item->idQ }}">
-                                        <li
-                                            class="list-group-item list-group-item-action dropdown-notifications-item view-quote">
-                                            <div class="d-flex gap-2">
-                                                <div class="flex-shrink-0">
-                                                    <div class="avatar me-1">
-                                                        <img src="{{ url('') . '/' . $item->image }}" alt
-                                                            class="w-px-40 h-auto rounded-circle" />
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex flex-column flex-grow-1 overflow-hidden w-px-200">
-                                                    <h6 class="mb-1 text-truncate">{{ $item->name }}</h6>
-                                                    <small class="text-truncate text-body">New Replies on your
-                                                        Comments! {{ $item->no_quote }} </small>
-                                                </div>
-                                                @php
-                                                    $date = \Carbon\Carbon::parse($item->date);
-                                                @endphp
-                                                <div class="flex-shrink-0 dropdown-notifications-actions">
-                                                    <small
-                                                        class="text-muted">{{ $date->diffInHours(Carbon\Carbon::now()) > 24 ? $date->format('d M y h:i:s') : $date->diffForHumans() }}</small>
+                            @forelse ($notifAdmin as $item)
+                                <a href="{{ route('quotation.show', $item->idQ) }}#viewComment"
+                                    class="view-quote {{ $item->level == 1 ? 'bg-label-secondary' : '' }}"
+                                    data-id="{{ $item->idC }}" data-quotation="{{ $item->idQ }}">
+                                    <li
+                                        class="list-group-item list-group-item-action dropdown-notifications-item view-quote">
+                                        <div class="d-flex gap-2">
+                                            <div class="flex-shrink-0">
+                                                <div class="avatar me-1">
+                                                    <img src="{{ url('') . '/' . $item->image }}" alt
+                                                        class="w-px-40 h-auto rounded-circle" />
                                                 </div>
                                             </div>
-                                        </li>
-                                    </a>
-                                @empty
-                                    <li class="list-group-item">No Notification found for this date.</li>
-                                @endforelse
-                            @endif
+                                            <div class="d-flex flex-column flex-grow-1 overflow-hidden w-px-200">
+                                                <h6 class="mb-1 text-truncate">{{ $item->name }}</h6>
+                                                <small class="text-truncate text-body">New Replies on your
+                                                    Comments! {{ $item->no_quote }} </small>
+                                            </div>
+                                            @php
+                                                $date = \Carbon\Carbon::parse($item->date);
+                                            @endphp
+                                            <div class="flex-shrink-0 dropdown-notifications-actions">
+                                                <small
+                                                    class="text-muted">{{ $date->diffInHours(Carbon\Carbon::now()) > 24 ? $date->format('d M y h:i:s') : $date->diffForHumans() }}</small>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </a>
+                            @empty
+                                <li class="list-group-item">No Notification found for this date.</li>
+                            @endforelse
                         @else
-                            @if (@$comment)
-                                @forelse ($comment as $item)
-                                    @php
-                                        if ($item->type == 'prospect') {
-                                            $route = 'prospect.show';
-                                        } else {
-                                            $route = 'quotation.show';
-                                        }
-                                    @endphp
-                                    <a href="{{ route($route, $item->idQ) }}#viewComment"
-                                        class="view-{{ $item->type == 'prospect' ? 'prospect' : 'quote' }} {{ $item->level == 1 ? 'bg-label-secondary' : '' }}"
-                                        data-id="{{ $item->idC }}" data-quotation="{{ $item->idQ }}">
-                                        <li
-                                            class="list-group-item list-group-item-action dropdown-notifications-item view-quote">
-                                            <div class="d-flex gap-2">
-                                                <div class="flex-shrink-0">
-                                                    <div class="avatar me-1">
-                                                        <img src="{{ url('') . '/' . $item->image }}" alt
-                                                            class="w-px-40 h-auto rounded-circle" />
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex flex-column flex-grow-1 overflow-hidden w-px-200">
-                                                    <h6 class="mb-1 text-truncate">
-                                                        {{ $item->type == 'prospect' ? 'Prospect ' : '' }}{{ $item->no_quote }}
-                                                    </h6>
-                                                    <small class="text-truncate text-body">New Comment on your
-                                                        {{ $item->type == 'prospect' ? 'Prospect!' : 'Quotations' }}!
-                                                    </small>
-                                                </div>
-                                                @php
-                                                    $date = \Carbon\Carbon::parse($item->date);
-                                                @endphp
-                                                <div class="flex-shrink-0 dropdown-notifications-actions">
-                                                    <small
-                                                        class="text-muted">{{ $date->diffInHours(Carbon\Carbon::now()) > 24 ? $date->format('d M y h:i:s') : $date->diffForHumans() }}</small>
+                            @forelse ($comment as $item)
+                                @php
+                                    if ($item->type == 'prospect') {
+                                        $route = 'prospect.show';
+                                    } else {
+                                        $route = 'quotation.show';
+                                    }
+                                @endphp
+                                <a href="{{ route($route, $item->idQ) }}#viewComment"
+                                    class="view-{{ $item->type == 'prospect' ? 'prospect' : 'quote' }} {{ $item->level == 1 ? 'bg-label-secondary' : '' }}"
+                                    data-id="{{ $item->idC }}" data-quotation="{{ $item->idQ }}">
+                                    <li
+                                        class="list-group-item list-group-item-action dropdown-notifications-item view-quote">
+                                        <div class="d-flex gap-2">
+                                            <div class="flex-shrink-0">
+                                                <div class="avatar me-1">
+                                                    <img src="{{ url('') . '/' . $item->image }}" alt
+                                                        class="w-px-40 h-auto rounded-circle" />
                                                 </div>
                                             </div>
-                                        </li>
-                                    </a>
-                                @empty
-                                    <li class="list-group-item">No Notification found for this date.</li>
-                                @endforelse
-                            @endif
+                                            <div class="d-flex flex-column flex-grow-1 overflow-hidden w-px-200">
+                                                <h6 class="mb-1 text-truncate">
+                                                    {{ $item->type == 'prospect' ? 'Prospect ' : '' }}{{ $item->no_quote }}
+                                                </h6>
+                                                <small class="text-truncate text-body">New Comment on your
+                                                    {{ $item->type == 'prospect' ? 'Prospect!' : 'Quotations' }}!
+                                                </small>
+                                            </div>
+                                            @php
+                                                $date = \Carbon\Carbon::parse($item->date);
+                                            @endphp
+                                            <div class="flex-shrink-0 dropdown-notifications-actions">
+                                                <small
+                                                    class="text-muted">{{ $date->diffInHours(Carbon\Carbon::now()) > 24 ? $date->format('d M y h:i:s') : $date->diffForHumans() }}</small>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </a>
+                            @empty
+                                <li class="list-group-item">No Notification found for this date.</li>
+                            @endforelse
                         @endif
                     </ul>
                 </div>

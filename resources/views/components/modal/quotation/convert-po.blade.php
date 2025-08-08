@@ -15,14 +15,14 @@
                         </div>
                         <form>
                             <div class="row">
-                                <div class="col mb-3">
+                                <div class="col-6 mb-3">
                                     <div class="form-floating form-floating-outline">
                                         <input class="form-control" type="date" id="po_date" name="po_date"
                                             value="{{ old('po_date', @$quote->po_date ?? now()->format('Y-m-d')) }}">
                                         <label for="po_date">Date PO</label>
                                     </div>
                                 </div>
-                                <div class="col mb-3">
+                                <div class="col-6 mb-3">
                                     <div class="form-floating form-floating-outline">
                                         <select class="form-select" id="selectWeek" aria-label="Default select example"
                                             name="week">
@@ -34,6 +34,26 @@
                                             <option value="5">Week 5</option>
                                         </select>
                                         <label for="selectWeek">Week</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="form-floating form-floating-outline">
+                                        <input class="form-control" type="text" id="type" name="type"
+                                            value="{{ $quote->type == 'Sparepart'  && $quote->quote_for == 'Sparepart' ? 'Non Project' : 'Project' }}" disabled>
+                                        <label for="po_date">Date PO</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="form-floating form-floating-outline">
+                                        <select class="form-select" id="selectEkspidisi" aria-label="Default select example"
+                                            name="ekspidisi">
+                                            <option disabled>----- Choose Ekspidisi -----</option>
+                                            <option value="1">JNT / JNE / Cargo</option>
+                                            <option value="2">Send By Technian</option>
+                                            <option value="3">Taken Directly</option>
+                                            <option value="4">Others</option>
+                                        </select>
+                                        <label for="selectEkspidisi">Ekspidisi</label>
                                     </div>
                                 </div>
                                 <div class="col-12  mb-3">

@@ -50,6 +50,7 @@ use App\Models\MonitoringWeekly;
 use App\Models\Notulen;
 use App\Models\PendingPO;
 use App\Models\Pic;
+use App\Models\Product;
 use App\Models\ProductIn;
 use App\Models\Prospect;
 use App\Models\Quotation;
@@ -96,6 +97,8 @@ Route::get('/watermark/index', [WatermarkController::class, 'index'])->name('wat
 Route::post('/watermark/upload', [WatermarkController::class, 'upload'])->name('watermark.upload');
 Route::get('/watermark/download', [WatermarkController::class, 'downloadAll'])->name('watermark.download');
 Route::post('/watermark/reset', [WatermarkController::class, 'reset'])->name('watermark.reset');
+
+Route::get('/existing/yearly/{id}', [CrmController::class, 'detailPerYear'])->name('existing.yearly');
 
 Route::group(["middleware" => "auth"], function () {
     Route::get('/', [DashboardController::class, 'index'])->middleware('check.expired')->name('dashboard');
@@ -300,6 +303,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/sale-report', SalesReportController::class);
     Route::get('/sale-report/online/{id}', [SalesReportController::class, 'detailOnline'])->name('reports.online');
     Route::get('/sale-report/offline/{id}', [SalesReportController::class, 'detailOffline'])->name('reports.offline');
+    Route::get('/sales-report/yearly/{year}', [SalesReportController::class, 'yearly'])->name('reports.yearly');
 
     // Route untuk Employee
     Route::resource('/employee', EmployeeController::class);
@@ -1183,7 +1187,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/dashboard/filteredPercentQuote/{sales}', [DashboardController::class, 'filteredPercentQuoteAdmin'])->name('filteredPercentQuote.dashboard');
     Route::get('/dashboard/filteredPercentDc/{sales}', [DashboardController::class, 'filteredPercentDcAdmin'])->name('filteredPercentDc.dashboard');
     Route::get('/dashboard/filteredPercentCRM/{sales}', [DashboardController::class, 'filteredPercentCRMAdmin'])->name('filteredPercentCRM.dashboard');
-    Route::get('/dashboard/filteredPercentProspect/{sales}', [DashboardController::class, 'filteredPercentProspectAdmin'])->name('filteredPercentProspect.dashboard');
+    Route::get('/dashboard/filteredPercentProspectAdmin/{sales}', [DashboardController::class, 'filteredPercentProspectAdmin'])->name('filteredPercentProspect.dashboard');
     // ajax sales online
     Route::get('/dashboard/filteredProduct/{sales}', [DashboardController::class, 'filteredProductAdmin'])->name('filteredProduct.dashboard');
     Route::get('/dashboard/filteredSW/{sales}', [DashboardController::class, 'filteredSWAdmin'])->name('filteredSW.dashboard');
@@ -1194,17 +1198,20 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/dashboard/filteredResponse/{sales}', [DashboardController::class, 'filteredResponseAdmin'])->name('filteredVideo.dashboard');
     Route::get('/dashboard/filteredRating/{sales}', [DashboardController::class, 'filteredRatingAdmin'])->name('filteredVideo.dashboard');
 
-    Route::get('/dashboard/totalForecast/{sales}', [DashboardController::class, 'totalForecastAdmin'])->name('totalForecast.dashboard');
-    Route::get('/dashboard/totalProspectPO/{sales}', [DashboardController::class, 'totalProspectedPO'])->name('totalProspectedPO.dashboard');
-    Route::get('/dashboard/totalProspectQuote/{sales}', [DashboardController::class, 'totalProspectedQuotation'])->name('totalProspectedQuotation.dashboard');
     // Route::get('/dashboard/totalTargetPO/{sales}', [DashboardController::class, 'target'])->name('target.dashboard');
-
+    // Ajax Support
     Route::get('/dashboard/filteredPo/{sales}', [DashboardController::class, 'filteredPoAdmin'])->name('filteredPo.dashboard');
-    Route::get('/dashboard/filteredVisit/{sales}', [DashboardController::class, 'filteredVisitAdmin'])->name('filteredVisit.dashboard');
     Route::get('/dashboard/filteredProspect/{sales}', [DashboardController::class, 'filteredProspect'])->name('filteredProspect.dashboard');
     Route::get('/dashboard/filteredProvide/{sales}', [DashboardController::class, 'filteredProvide'])->name('filteredProvide.dashboard');
-    Route::get('/dashboard/filteredProspectPO/{sales}', [DashboardController::class, 'filteredProspectedPO'])->name('filteredProspect.dashboard');
+    Route::get('/dashboard/filteredNotProvide/{sales}', [DashboardController::class, 'filteredNotProvide'])->name('filteredNotProvide.dashboard');
     Route::get('/dashboard/filteredProspectQuote/{sales}', [DashboardController::class, 'filteredProspectedQuotation'])->name('filteredProspect.dashboard');
+    Route::get('/dashboard/filteredProspectPO/{sales}', [DashboardController::class, 'filteredProspectedPO'])->name('filteredProspect.dashboard');
+    Route::get('/dashboard/totalForecast/{sales}', [DashboardController::class, 'totalForecastAdmin'])->name('totalForecast.dashboard');
+    Route::get('/dashboard/totalProspectProspect/{sales}', [DashboardController::class, 'totalProspectedProspect'])->name('totalProspectedProspect.dashboard');
+    Route::get('/dashboard/totalProspectPO/{sales}', [DashboardController::class, 'totalProspectedPO'])->name('totalProspectedPO.dashboard');
+    Route::get('/dashboard/totalProspectQuote/{sales}', [DashboardController::class, 'totalProspectedQuotation'])->name('totalProspectedQuotation.dashboard');
+
+    Route::get('/dashboard/filteredVisit/{sales}', [DashboardController::class, 'filteredVisitAdmin'])->name('filteredVisit.dashboard');
     Route::get('/dashboard/target/{sales}', [DashboardController::class, 'target'])->name('target.dashboard');
     Route::post('/salesOnline/store', [SalesOnlineController::class, 'store'])->name('store.salon');
     Route::post('/salesOnline/update/{id}', [SalesOnlineController::class, 'update'])->name('update.salon');
@@ -1883,12 +1890,12 @@ Route::group(["middleware" => "auth"], function () {
         AND q.level = "1"
         AND q.is_primary = "1"
         AND u.id = ' . Auth::user()->id . ') AS quote'),
-        DB::raw(' CASE 
+                DB::raw(' CASE 
                 WHEN s.semester = "1" THEN 1 
                 WHEN s.semester = "2" THEN 7 
             END AS firstMonth
         '),
-        DB::raw(' CASE 
+                DB::raw(' CASE 
                 WHEN s.semester = "1" THEN 6 
                 WHEN s.semester = "2" THEN 12 
             END AS lastMonth
@@ -2282,6 +2289,81 @@ Route::group(["middleware" => "auth"], function () {
             )
             ->get();
         return response()->json(['data' => $data]);
+    });
+    Route::get('/db/sale-report/product/{year}', function ($year) {
+        $startDate1 = Carbon::createFromDate($year, 1)->startOfMonth()->toDateString();
+        $endDate1 = Carbon::createFromDate($year, 6)->endOfMonth()->toDateString();
+
+        $startDate2 = Carbon::createFromDate($year, 7)->startOfMonth()->toDateString();
+        $endDate2 = Carbon::createFromDate($year, 12)->endOfMonth()->toDateString();
+
+        $pOutSemester1 = DB::table('product as p')
+            ->join('detail_product as dp', 'dp.id_product', '=', 'p.id')
+            ->join('detail_product_out as dpo', 'dpo.id_detail_product', '=', 'dp.id')
+            ->join('product_out as po', 'dpo.id_product_out', '=', 'po.id')
+            ->whereIn('p.category', ['Consumable Part', 'Non Consumable Part'])
+            ->whereBetween('po.date', [$startDate1, $endDate1])
+            ->select('p.id', 'p.commodity', DB::raw('SUM(dpo.qty) as total_keluar'))
+            ->groupBy('p.id', 'p.commodity')
+            ->get();
+
+        $pOutSemester2 = DB::table('product as p')
+            ->join('detail_product as dp', 'dp.id_product', '=', 'p.id')
+            ->join('detail_product_out as dpo', 'dpo.id_detail_product', '=', 'dp.id')
+            ->join('product_out as po', 'dpo.id_product_out', '=', 'po.id')
+            ->whereIn('p.category', ['Consumable Part', 'Non Consumable Part'])
+            ->whereBetween('po.date', [$startDate2, $endDate2])
+            ->select('p.id', 'p.commodity', DB::raw('SUM(dpo.qty) as total_keluar'))
+            ->groupBy('p.id', 'p.commodity')
+            ->get();
+
+        $pInSemester1 = DB::table('product as p')
+            ->join('detail_product as dp', 'dp.id_product', '=', 'p.id')
+            ->join('detail_product_in as dpi', 'dpi.id_detail_product', '=', 'dp.id')
+            ->join('product_in as pi', 'dpi.id_product_in', '=', 'pi.id')
+            ->whereIn('p.category', ['Consumable Part', 'Non Consumable Part'])
+            ->whereBetween('pi.date', [$startDate1, $endDate1])
+            ->select('p.id', 'p.commodity', DB::raw('SUM(dpi.qty) as total_keluar'))
+            ->groupBy('p.id', 'p.commodity')
+            ->get();
+
+        $pInSemester2 = DB::table('product as p')
+            ->join('detail_product as dp', 'dp.id_product', '=', 'p.id')
+            ->join('detail_product_in as dpi', 'dpi.id_detail_product', '=', 'dp.id')
+            ->join('product_in as pi', 'dpi.id_product_in', '=', 'pi.id')
+            ->whereIn('p.category', ['Consumable Part', 'Non Consumable Part'])
+            ->whereBetween('pi.date', [$startDate2, $endDate2])
+            ->select('p.id', 'p.commodity', DB::raw('SUM(dpi.qty) as total_keluar'))
+            ->groupBy('p.id', 'p.commodity')
+            ->get();
+        $products = Product::whereIn('category', ['Consumable Part', 'Non Consumable Part'])->get();
+        $pIn1 = $pInSemester1->keyBy('id');
+        $pOut1 = $pOutSemester1->keyBy('id');
+        $pIn2 = $pInSemester2->keyBy('id');
+        $pOut2 = $pOutSemester2->keyBy('id');
+
+        $result = [];
+
+        foreach ($products as $product) {
+            $id = $product->id;
+
+            $in1 = $pIn1[$id]->total_keluar ?? 0;
+            $out1 = $pOut1[$id]->total_keluar ?? 0;
+            $in2 = $pIn2[$id]->total_keluar ?? 0;
+            $out2 = $pOut2[$id]->total_keluar ?? 0;
+
+            $result[] = [
+                'id' => $product->id,
+                'commodity' => $product->commodity,
+                'GO' => $product->go,
+                'pIn1' => $in1,
+                'pOut1' => $out1,
+                'pIn2' => $in2,
+                'pOut2' => $out2,
+                'AllStock' => $product->stock + $product->warehouse_stock,
+            ];
+        }
+        return response()->json(['data' => $result]);
     });
 
 });

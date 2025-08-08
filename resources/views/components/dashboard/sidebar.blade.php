@@ -210,6 +210,35 @@
                     </li>
                 </ul>
             </li>
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Marketting</span>
+            </li>
+            <li
+                class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') || request()->is('prospect-quotation') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <div data-i18n="Prospect">Prospect</div>
+                    @if (@$noSaleProspect >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $noSaleProspect }}</div>
+                    @endif
+                </a>
+                <ul class="menu-sub">
+                    <li
+                        class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') ? 'active' : '' }}">
+                        <a href="{{ route('prospect.index') }}" class="menu-link">
+                            <div data-i18n="Prospect">Prospect</div>
+                            @if (@$noSaleProspect >= 1)
+                                <div class="badge bg-danger rounded-pill ms-auto">{{ $noSaleProspect }}</div>
+                            @endif
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">
+                        <a href="{{ route('quotation.prospect') }}" class="menu-link">
+                            <div data-i18n="Quotation">Quotation</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Accounting</span>
@@ -277,47 +306,6 @@
                 </ul>
             </li>
 
-            <li
-                class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') || request()->is('prospect-quotation') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
-                    <div data-i18n="Prospect">Prospect</div>
-                    @if (@$noSaleProspect >= 1)
-                        <div class="badge bg-danger rounded-pill ms-auto">{{ $noSaleProspect }}</div>
-                    @endif
-                </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') ? 'active' : '' }}">
-                        <a href="{{ route('prospect.index') }}" class="menu-link">
-                            <div data-i18n="Prospect">Prospect</div>
-                            @if (@$noSaleProspect >= 1)
-                                <div class="badge bg-danger rounded-pill ms-auto">{{ $noSaleProspect }}</div>
-                            @endif
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">
-                        <a href="{{ route('quotation.prospect') }}" class="menu-link">
-                            <div data-i18n="Quotation">Quotation</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="menu-header fw-light mt-4">
-                <span class="menu-header-text">Notulen</span>
-            </li>
-
-            <li class="menu-item {{ request()->is('notulen') || request()->is('notulen/*') ? 'active' : '' }}">
-                <a href="{{ route('notulen.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-account-box-outline"></i>
-                    <div data-i18n="notulen">Notulen</div>
-                    {{-- @if (@$leveledProspect >= 1)
-                        <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
-                    @endif --}}
-                </a>
-            </li>
-
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">E-Stock</span>
             </li>
@@ -334,7 +322,8 @@
                 request()->is('stock') ||
                 request()->is('stock/*') ||
                 request()->is('sale-report') ||
-                request()->is('sale-report/*')
+                request()->is('sale-report/*') ||
+                request()->is('sales-report/yearly/*') 
                     ? 'open'
                     : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -379,6 +368,12 @@
                         class="menu-item {{ request()->is('sale-report') || request()->is('sale-report/*') ? 'active' : '' }}">
                         <a href="{{ route('sale-report.index') }}" class="menu-link">
                             <div data-i18n="Reports">Reports</div>
+                        </a>
+                    </li>
+                    <li
+                        class="menu-item {{ request()->is('sales-report/yearly/*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.yearly', \Carbon\Carbon::now()->format('Y')) }}" class="menu-link">
+                            <div data-i18n="Reports In / Out">Reports In / Out</div>
                         </a>
                     </li>
                 </ul>
@@ -477,6 +472,19 @@
                 <a href="{{ route('calculator.correction') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
                     <div data-i18n="Correction Factor Calc">Correction Factor Calc</div>
+                </a>
+            </li>
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Notulen</span>
+            </li>
+
+            <li class="menu-item {{ request()->is('notulen') || request()->is('notulen/*') ? 'active' : '' }}">
+                <a href="{{ route('notulen.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-account-box-outline"></i>
+                    <div data-i18n="notulen">Notulen</div>
+                    {{-- @if (@$leveledProspect >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
+                    @endif --}}
                 </a>
             </li>
         @elseif (auth::user()?->role == 'Sales')

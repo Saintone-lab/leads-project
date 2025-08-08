@@ -482,6 +482,24 @@ class CrmController extends Controller
 
         return view("pages.sales.clients.ru.index", compact('leveledProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'noSaleProspect'));
     }
+    public function detailPerYear($id)
+    {
+        $dateNow = Carbon::now();
+        $yearNow = $dateNow->year;
+        $client = Client::find($id);
+        $picIds = Pic::where('id_client', $id)->pluck('id'); // hanya ambil ID-nya
+        $quotePO = Quotation::whereIn('id_pic', $picIds)
+            ->whereYear('po_date', $yearNow)
+            ->where('status', '100')
+            ->where('is_primary', '1')
+            ->where('level', '1')
+            ->orderBy('po_date')
+            ->get();
+        return view(
+            'pages.sales.existing.yearly',
+            compact('client', 'quotePO')
+        );
+    }
     protected function getDataPerMonth()
     {
         // Misalkan Anda ingin mengambil data untuk semester pertama tahun 2024

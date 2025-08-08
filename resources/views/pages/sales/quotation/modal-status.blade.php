@@ -17,7 +17,7 @@
                         </div>
                         <form>
                             <div class="row">
-                                <div class="col">
+                                <div class="col-6">
                                     <div class="form-floating form-floating-outline mb-3">
                                         <select class="form-select" tabindex="0" id="statusChange" name="status">
                                             <option value="20" {{ $quote->status == '20' ? 'selected' : '' }}>Send
@@ -46,7 +46,7 @@
                                         <label for="statusChange">Status</label>
                                     </div>
                                 </div>
-                                <div class="col">
+                                <div class="col-6">
                                     <div class="form-floating form-floating-outline">
                                         <select class="form-select" id="selectWeek" aria-label="Default select example"
                                             name="week" id="week" disabled>
@@ -58,6 +58,26 @@
                                             <option value="5">Week 5</option>
                                         </select>
                                         <label for="selectWeek">Week</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="form-floating form-floating-outline">
+                                        <input class="form-control" type="text" id="type" name="type"
+                                            value="{{ $quote->type == 'Sparepart' && $quote->quote_for == 'Sparepart' ? 'Non Project' : 'Project' }}" disabled>
+                                        <label for="po_date">Date PO</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="form-floating form-floating-outline">
+                                        <select class="form-select" id="selectEkspedisi" aria-label="Default select example"
+                                            name="ekspidisi" disabled>
+                                            <option disabled>----- Choose Ekspidisi -----</option>
+                                            <option value="1">JNT / JNE / Cargo</option>
+                                            <option value="2">Send By Technian</option>
+                                            <option value="3">Taken Directly</option>
+                                            <option value="4">Others</option>
+                                        </select>
+                                        <label for="selectEkspidisi">Ekspidisi</label>
                                     </div>
                                 </div>
                                 <div class="col-12">
@@ -88,8 +108,10 @@
             function toggleWeekField() {
                 if ($('#statusChange').val() === '100') {
                     $('#selectWeek').prop('disabled', false);
+                    $('#selectEkspedisi').prop('disabled', false);
                 } else {
                     $('#selectWeek').prop('disabled', true).val('');
+                    $('#selectEkspedisi').prop('disabled', true).val('');
                 }
             }
 

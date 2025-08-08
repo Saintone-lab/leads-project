@@ -1898,12 +1898,10 @@ class MonitoringController extends Controller
                         $monitoring->issue = 'High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
-                    if ($request->issue != null) {
-                        if ($request->temperature <= 94) {
-                            $monitoring->issue = $request->issue;
-                        } else {
-                            $monitoring->issue = $request->issue . ', High Temperature : ' . $request->temperature . " °C";
-                        }
+                    if ($request->temperature <= 94) {
+                        $monitoring->issue = $request->issue;
+                    } else {
+                        $monitoring->issue = $request->issue . ', High Temperature : ' . $request->temperature . " °C";
                     }
                 }
             } elseif ($request->condition == 'Stand By') {
@@ -1924,12 +1922,10 @@ class MonitoringController extends Controller
                         $monitoring->issue = 'Stand By: High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
-                    if ($request->issue != null) {
-                        if ($request->temperature <= 94) {
-                            $monitoring->issue = 'Stand By : ' . $request->issue;
-                        } else {
-                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature : ' . $request->temperature . " °C";
-                        }
+                    if ($request->temperature <= 94) {
+                        $monitoring->issue = 'Stand By : ' . $request->issue;
+                    } else {
+                        $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature : ' . $request->temperature . " °C";
                     }
                 }
             } elseif ($request->condition == 'Off') {
@@ -1950,12 +1946,10 @@ class MonitoringController extends Controller
                         $monitoring->issue = 'Off: High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
-                    if ($request->issue != null) {
-                        if ($request->temperature <= 94) {
-                            $monitoring->issue = $request->issue;
-                        } else {
-                            $monitoring->issue = $request->issue . ', High Temperature : ' . $request->temperature . " °C";
-                        }
+                    if ($request->temperature <= 94) {
+                        $monitoring->issue = $request->issue;
+                    } else {
+                        $monitoring->issue = $request->issue . ', High Temperature : ' . $request->temperature . " °C";
                     }
                 }
             }
@@ -1967,19 +1961,17 @@ class MonitoringController extends Controller
                 $monitoring->leak = $request->leak;
                 $monitoring->temp = $request->temperature_in . " °C";
                 $monitoring->temp_out = $request->temperature_out . " °C";
-                if ($request->issue != null) {
+                if ($request->issue == null) {
                     if ($request->dew <= 10) {
                         $monitoring->issue = null;
                     } else {
                         $monitoring->issue = 'High dew';
                     }
                 } else {
-                    if ($request->issue != null) {
-                        if ($request->dew <= 10) {
-                            $monitoring->issue = $request->issue;
-                        } else {
-                            $monitoring->issue = $request->issue . ', High dew';
-                        }
+                    if ($request->dew <= 10) {
+                        $monitoring->issue = $request->issue;
+                    } else {
+                        $monitoring->issue = $request->issue . ', High dew';
                     }
                 }
             } elseif ($request->condition == 'Stand By') {
@@ -1989,19 +1981,17 @@ class MonitoringController extends Controller
                 $monitoring->leak = $request->leak;
                 $monitoring->temp = $request->temperature_in . " °C";
                 $monitoring->temp_out = $request->temperature_out . " °C";
-                if ($request->issue != null) {
+                if ($request->issue == null) {
                     if ($request->dew <= 10) {
                         $monitoring->issue = 'Stand By';
                     } else {
                         $monitoring->issue = 'Stand By: High dew';
                     }
                 } else {
-                    if ($request->issue != null) {
-                        if ($request->dew <= 10) {
-                            $monitoring->issue = 'Stand By : ' . $request->issue;
-                        } else {
-                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High dew';
-                        }
+                    if ($request->dew <= 10) {
+                        $monitoring->issue = 'Stand By : ' . $request->issue;
+                    } else {
+                        $monitoring->issue = 'Stand By : ' . $request->issue . ', High dew';
                     }
                 }
             } elseif ($request->condition == 'Off') {
@@ -2454,7 +2444,7 @@ class MonitoringController extends Controller
         $today = Carbon::now()->toDateString();
         $user = User::find('25');
         $monitoring = MonitoringActivities::whereDate('date', $today)->first();
-        return view('pages.monitoring.activities.kpi',compact('user','monitoring'));
+        return view('pages.monitoring.activities.kpi', compact('user', 'monitoring'));
     }
     protected function convertToRoman($month)
     {

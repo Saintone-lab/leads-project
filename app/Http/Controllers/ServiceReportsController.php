@@ -43,7 +43,7 @@ class ServiceReportsController extends Controller
         $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::join('client as c','c.id','=','pic.id_client')->where('c.role' , '=', 'Customers')->select('pic.*')->get();
+        $pic = Pic::join('client as c','c.id','=','pic.id_client')->select('pic.*')->get();
         return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow', 'clients'));
     }
 
