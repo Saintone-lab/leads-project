@@ -664,6 +664,7 @@ class QuotationController extends Controller
         $this->validate($request, $rule, $message);
 
         $quotation = Quotation::find($id);
+        $detQuote = DetailQuotation::where('id_quotation', $id)->get();
         $allQuote = Quotation::where('primary_id', $quotation->primary_id)->get();
         // dd($allQuote);
         $pic = Pic::where('id', $quotation->id_pic)->first();
@@ -693,6 +694,13 @@ class QuotationController extends Controller
             $client->id_issues = '5';
             $client->role = 'Customers';
             $isuSave = $client->save();
+
+            foreach ($detQuote as $item) {
+                $product = Product::join('serial_product as sp', 'sp.id', '=', 'product.id')->where('sp.id', $item->id_equivalent)->select('product.*')->first();
+                $product->stock -= $item->qty;
+                $product->pending_stock += $item->qty;
+                $product->save();
+            }
 
             $pending = new PendingPO;
             $pending->status = 0;
@@ -894,6 +902,7 @@ class QuotationController extends Controller
         $this->validate($request, $rule, $message);
         // dd($request);
         $quotation = Quotation::find($id);
+        $detQuote = DetailQuotation::where('id_quotation', $id)->get();
         $allQuote = Quotation::where('primary_id', $quotation->primary_id)->get();
         $pic = Pic::where('id', $quotation->id_pic)->first();
         $client = Client::where('id', $pic->id_client)->first();
@@ -916,10 +925,18 @@ class QuotationController extends Controller
         $stats->note = $request->note;
         $stats->save();
 
+        foreach ($detQuote as $item) {
+            $product = Product::join('serial_product as sp', 'sp.id', '=', 'product.id')->where('sp.id', $item->id_equivalent)->select('product.*')->first();
+            $product->stock -= $item->qty;
+            $product->pending_stock += $item->qty;
+            $product->save();
+        }
+
         if ($quotation->type == 'Sparepart') {
             $pending = new PendingPO;
             $pending->status = 0;
             $pending->id_quotation = $quotation->primary_id;
+            $pending->delivery = $request->ekspidisi;
             $pending->date = Carbon::now();
             $pending->save();
         }

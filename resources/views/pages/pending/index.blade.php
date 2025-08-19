@@ -3,19 +3,21 @@
 @section('content')
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-pending-po table table-striped">
+            <table class="datatable-pending-po-non-project-admin table table-bordered">
                 <thead>
                     <tr>
                         <th></th>
-                        <th></th>
+                        {{-- <th></th> --}}
                         <th>ID</th>
-                        <th>Sales</th>
-                        <th>Client</th>
-                        <th>NO PO</th>
-                        <th>Stats Pending</th>
-                        <th>Stats Payment</th>
+                        <th>PO Date</th>
+                        <th>PO No.</th>
+                        <th>Customer</th>
+                        <th>Part Desc</th>
+                        <th>Status Barang</th>
+                        <th>Payment Info</th>
                         {{-- @if (Auth::user()->role == 'Admin') --}}
-                        <th>Product</th>
+                        <th>Delivery</th>
+                        <th>:</th>
                         {{-- @endif --}}
                     </tr>
                 </thead>
@@ -56,7 +58,7 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-pending-admin.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-pending-non-project-admin.js"></script>
     <script src="{{ asset('assets') }}/includes/table-pending.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush

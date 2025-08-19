@@ -11,6 +11,7 @@ class PendingPO extends Model
     protected $table = "pending_po";
     protected $fillable = [
         'id_quotation',
+        'ekspidisi',
         'status',
     ];
     public function quote()

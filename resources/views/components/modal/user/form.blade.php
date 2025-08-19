@@ -69,8 +69,8 @@
                                     </span>
                                 </div>
                             </div>
-                            <div class="col-md-6 mt-2">
-                        @endif
+                            @endif
+                            {{-- <div class="col-md-6 mt-2"> --}}
                         {{-- <div class="input-group input-group-merge">
                             <div class="form-floating form-floating-outline">
                                 <input type="password" id="password"

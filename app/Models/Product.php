@@ -23,6 +23,7 @@ class Product extends Model
         'warehouse_stock',
         'frist_stock',
         'stock',
+        'pending_stock',
         'weight',
         'unit',
         'note',

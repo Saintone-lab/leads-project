@@ -8,6 +8,7 @@ use App\Models\Comment;
 use App\Models\Contract;
 use App\Models\DetailProduct;
 use App\Models\Issues;
+use App\Models\Machine;
 use App\Models\MonitoringActivities;
 use App\Models\Notulen;
 use App\Models\Product;
@@ -559,7 +560,7 @@ class DashboardController extends Controller
             ->orderBy('date', 'DESC')
             ->get();
 
-            // dd($comment[1]);
+        // dd($comment[1]);
 
         // =======================
         // 4. Activities

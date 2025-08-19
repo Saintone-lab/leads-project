@@ -41,6 +41,7 @@ use App\Models\Comment;
 use App\Models\Contract;
 use App\Models\DetailProduct;
 use App\Models\Invoice;
+use App\Models\Issues;
 use App\Models\Library;
 use App\Models\Machine;
 use App\Models\MachineTemplate;
@@ -62,6 +63,7 @@ use App\Models\Service;
 use App\Models\StatusMonitoring;
 use App\Models\User;
 use Carbon\Carbon;
+use FontLib\Table\Type\post;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadsController;
 use App\Http\Controllers\QuotationController;
@@ -370,6 +372,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/monitoring-client/fajarPaper-summary-print/{month}', [MonitoringClientController::class, 'summaryPrintMonth'])->name('monitoring.fajarPaper-summary-print-month');
     Route::get('/monitoring-client/fajarPaper-hold-print/{month}', [MonitoringClientController::class, 'holdPrintMonth'])->name('monitoring.fajarPaper-hold-print-month');
     Route::get('/monitoring-client/fajarPaper-quote-print/{month}', [MonitoringClientController::class, 'quotePrintMonth'])->name('monitoring.fajarPaper-quote-print-month');
+    Route::post('/monitoring-client/accept-issue/{id}', [MonitoringClientController::class, 'acceptIssue'])->name('monitoring.accept-issue');
     Route::get('/monitoring-summary/{month}', [MonitoringController::class, 'summaryMainlog'])->name('summary.mainlog');
     Route::get('/monitoring-summary/print/{month}', [MonitoringController::class, 'summaryMainlogPrint'])->name('summary.mainlog-print');
     Route::get('/daily/activity', [MonitoringController::class, 'activity'])->name('mainActivity.index');
@@ -1161,6 +1164,7 @@ Route::group(["middleware" => "auth"], function () {
 
     // Pending PO
     Route::resource('/pending-po', PendingController::class);
+    Route::patch('/pending-po/product/{id}', [PendingController::class, 'productEdit'])->name('pending-po.productEdit');
     Route::get('/pending-po-done', [PendingController::class, 'indexDone'])->name('pending-po.done');
 
     // Dashboard Function
@@ -1715,6 +1719,28 @@ Route::group(["middleware" => "auth"], function () {
         $data = Quotation::join('pic', 'quotation.id_pic', '=', 'pic.id')->join('client', 'pic.id_client', '=', 'client.id')->where('level', '1')->where('is_primary', '1')->where('quotation.id_sales', $sales)->whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->get(['no_quote', 'client.company', 'nett', 'title', 'estimated_date', 'status', 'quotation.note', 'quotation.id']);
         return response()->json(['data' => $data]);
     });
+    Route::get('/db/overview/loss/{sales}/{date}', function ($sales, $date) {
+        $dateRep = "01-" . $date;
+        $dateCarbon = Carbon::createFromFormat('d-m-Y', $dateRep);
+
+        $month = $dateCarbon->month;
+        $year = $dateCarbon->year;
+        $data = Quotation::join('pic', 'quotation.id_pic', '=', 'pic.id')
+            ->join('client', 'pic.id_client', '=', 'client.id')
+            ->where('quotation.id_sales', $sales)
+            ->where('quotation.status', '0')
+            ->where('level', '1')->where('is_primary', '1')
+            ->whereMonth('po_date', $month)
+            ->whereYear('po_date', $year)
+            ->get(['no_quote', 'client.company', 'nett', 'title', 'po_date', 'status', 'quotation.note', 'quotation.id']);
+
+        $totalNett = Quotation::whereMonth('po_date', $month)->whereYear('po_date', $year)->where('status', '0')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $formattedTotalNett = number_format($totalNett, 0, ',', '.');
+        return response()->json([
+            'data' => $data,
+            'total_nett' => $formattedTotalNett
+        ]);
+    });
     Route::get('/db/overview/po/{sales}/{date}', function ($sales, $date) {
         $dateRep = "01-" . $date;
         $dateCarbon = Carbon::createFromFormat('d-m-Y', $dateRep);
@@ -2252,7 +2278,7 @@ Route::group(["middleware" => "auth"], function () {
         $data = PIC::where('id_client', $id)->get();
         return response()->json(['data' => $data]);
     });
-    Route::get('/db/pending/po', function () {
+    Route::get('/db/pending/po/non-project', function () {
         $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
             ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
@@ -2261,7 +2287,10 @@ Route::group(["middleware" => "auth"], function () {
             ->whereNot('pending_po.status', 2)
             ->select(
                 'pending_po.id',
+                'pending_po.delivery',
                 'u.name',
+                'q.po_date',
+                'q.title',
                 'c.company',
                 'i.no_po',
                 'pending_po.status',
@@ -2364,6 +2393,60 @@ Route::group(["middleware" => "auth"], function () {
             ];
         }
         return response()->json(['data' => $result]);
+    });
+    Route::get('/db/machine/prokemas', function () {
+
+        $today = Carbon::now();
+        $month = Carbon::now()->month;
+
+        $machines = Machine::leftJoin('monitoring as m', function ($join) use ($today) {
+            $join->on('machine.id', '=', 'm.id_machine')
+                ->whereDate('m.date', '=', $today);
+        })
+            ->leftJoin('users as us', 'us.id', '=', 'm.id_pic') // pakai leftJoin biar nggak hilang
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->whereIn('machine.id', [495, 496])
+            ->addSelect(
+                'machine.id',
+                'us.name',
+                DB::raw("DATE_FORMAT(m.created_at, '%H') as created_at"),
+                'sp.brand',
+                'u.sku',
+                'sp.pn',
+                'u.unit',
+                'machine.serial',
+                DB::raw($month . ' as month')
+            )
+            ->get();
+
+        return response()->json(['data' => $machines]);
+    });
+    Route::get('/db/issue/prokemas', function () {
+
+        $today = Carbon::now();
+        $month = Carbon::now()->month;
+
+        $issue = Monitoring::join('machine as mc', 'mc.id', '=', 'monitoring.id_machine')
+            ->leftJoin('users as us', 'us.id', '=', 'monitoring.id_pic')
+            ->join('serial_product as sp', 'sp.id', '=', 'mc.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->whereIn('mc.id', [495, 496])
+            ->whereNotNull('monitoring.issue')
+            ->where('monitoring.issue_level', 0)
+            ->whereDate('monitoring.date', $today)
+            ->select(
+                'monitoring.*',
+                'us.name',
+                'sp.brand',
+                'u.sku',
+                'sp.pn',
+                'u.unit',
+                'mc.serial'
+            )
+            ->get();
+
+        return response()->json(['data' => $issue]);
     });
 
 });

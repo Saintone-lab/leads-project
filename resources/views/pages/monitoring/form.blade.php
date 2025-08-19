@@ -281,7 +281,7 @@
                         class="btn btn-lg btn-outline-secondary">
                         Back
                     </a>
-                    <button :disabled="focused" type="submit" class="btn btn-lg btn-primary">
+                    <button :disabled="focused" type="submit" class="btn btn-lg btn-primary" {{$machine->monitoring()->whereDate('created_at', Carbon\Carbon::today())->exists() ? 'disabled' : ''}}>
                         Save
                     </button>
                 </div>
@@ -295,14 +295,14 @@
                     <p>Daily {{ $machine->unit->brand }} {{ $machine->unit->unit->sku }} Sudah di input!</p>
                 @endif
                 <div class="tombol d-flex gap-2 justify-content-center">
-                    <a class="btn btn-primary waves-effect" href="{{ route('create.weekly-monitoring', $machine->id) }}">
+                    <a class="btn btn-primary waves-effect" href="{{ auth::user()->level == 1 ? route('create.weekly-monitoring', $machine->id) : '#' }}" >
                         Input Weekly
                     </a>
-                    <a href="{{ route('create.monthly-monitoring', $machine->id) }}"
+                    <a href="{{ auth::user()->level == 1 ? route('create.monthly-monitoring', $machine->id) : '#'}}"
                         class="btn btn-warning waves-effect">Monthly Monitoring</a>
                     @if (@$monitoring->main_desc == null)
                         <button type="button" class="btn btn-secondary d-grid waves-effect" data-bs-toggle="modal"
-                            data-bs-target="#addMainLog">Input Maintenance Log</button>
+                            data-bs-target="#addMainLog" {{auth::user()->level == 2 ? 'disabled' : ''}}>Input Maintenance Log</button>
                     @endif
                 </div>
             </div>

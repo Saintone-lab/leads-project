@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DetailPendingPO;
 use App\Models\DetailProduct;
 use App\Models\DetailQuotation;
+use App\Models\Invoice;
 use App\Models\PendingPO;
 use App\Models\Quotation;
 use App\Models\SerialProduct;
@@ -68,7 +69,11 @@ class PendingController extends Controller
      */
     public function show($id)
     {
-        //
+        $pending = PendingPO::find($id);
+        $quotation = Quotation::find($pending->id_quotation);
+        $detQuotation = DetailQuotation::where('id_quotation', $pending->id_quotation)->get();
+        $invoice = Invoice::where('id_quotation', $quotation->id)->first();
+        return view('pages.pending.detail', compact('pending', 'quotation', 'invoice', 'detQuotation'));
     }
 
     /**
@@ -158,6 +163,18 @@ class PendingController extends Controller
     public function destroy($id)
     {
         //
+    }
+    public function productEdit(Request $request, $id){
+        $pending = PendingPO::find($id);
+        $quote = Quotation::find($pending->id_quotation);
+        $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
+        $dPending = DetailPendingPO::where('id_pending', $id)->get();
+        foreach ($request->status as $key => $value) {
+            $dQuote[$key]->status -> $value->status;
+            $dQuote[$key]->note -> $value->note;
+            $dQuote[$key]->save();
+        }
+        return redirect('/pending-po')->with('message', 'Product Pending PO telah diedit');
     }
     public function indexDone()
     {

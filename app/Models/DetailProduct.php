@@ -19,6 +19,7 @@ DetailProduct extends Model
         'hpp',
         'stock',
         'warehouse_stock',
+        'pending_stock',
     ];
     
     public function unit()

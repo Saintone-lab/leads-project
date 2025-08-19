@@ -347,7 +347,7 @@
                         @php
                             $no = 0;
                         @endphp
-                        @if ($quote->type == 'Sparepart')
+                        {{-- @if ($quote->type == 'Sparepart') --}}
                             @php
                                 $no = 0;
                             @endphp
@@ -378,7 +378,7 @@
                                     @endforeach
                                 </td>
                             </tr>
-                        @else
+                        {{-- @else
                             @php
                                 $abjad = 64;
                                 $totalPph = 0;
@@ -412,15 +412,15 @@
                                         </td>
                                         <td class="text-nowrap align-top py-1" style="border-bottom:none !important;">
                                             <p class="mb-0">{{ $product->product }}</p>
-                                            {{-- @if ($product->detail != '-')
+                                            @if ($product->detail != '-')
                                                     <pre class="mb-0"
                                                         style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail }}</pre>
-                                                @endif --}}
+                                                @endif
                                         </td>
                                     </tr>
                                 @endforeach
                             @endforeach
-                        @endif
+                        @endif --}}
                         <tr>
                             <td colspan="3">
                                 <div class="row mb-3">

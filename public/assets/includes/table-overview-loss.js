@@ -1,42 +1,45 @@
 $(function () {
-    var dt_table_pending_po = $(".datatable-pending-po");
-    var Url = "db/pending/po";
+    var dt_table_overview_loss = $(".datatable-overview-loss");
+    var Url = "/db/overview/loss/";
+    var path = window.location.pathname;
+    var segments = path.split("/");
 
-    if (dt_table_pending_po.length) {
-        $('[data-toggle="tooltip"]').tooltip();
-        var dt_pending = dt_table_pending_po.DataTable({
+    var sales = segments[segments.length - 2]; // Mendapatkan segment kedua dari belakang
+    var dateRep = segments[segments.length - 1]; // Mendapatkan segment terakhir
+
+    if (dt_table_overview_loss.length) {
+        var dt_po = dt_table_overview_loss.DataTable({
             ajax: {
                 type: "GET",
-                url: Url,
+                url: Url + sales + "/" + dateRep,
                 headers: {
                     "Content-Type": "application/json",
                 },
+                dataSrc: function (response) {
+                    // Mengambil total_nett dari response dan mengubah loss-head-label
+                    var totalNett = response.total_nett || 0;
+                    $("div.loss-head-label").html(
+                        '<h5 class="card-title mb-0">Table Loss - Total Loss: Rp ' +
+                            totalNett +
+                            "</h5>"
+                    );
 
-                // success: function (hasil, Url) {
-                //     console.log("Url:", Url);
-                //     console.log(hasil);
-                // },
-                // error: function (error) {
-                //     console.log("Url:", Url);
-                //     console.error("Error:", error);
-                //     console.log("error disini");
-                // },
+                    // Return data untuk datatable
+                    return response.data;
+                },
+                error: function (error) {
+                    console.error("Error:", error);
+                },
             },
             columns: [
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "name" },
+                { data: "no_quote" },
                 { data: "company" },
-                {
-                    data: "no_po",
-                    render: function (data, type, row) {
-                        return data ? data : "belum ada invoice";
-                    },
-                },
-                { data: "status" },
-                { data: "status_p" },
-                { data: "id" },
+                { data: "title" },
+                { data: "po_date" },
+                { data: "nett" },
             ],
             columnDefs: [
                 {
@@ -72,33 +75,17 @@ $(function () {
                 },
                 {
                     responsivePriority: 1,
-                    targets: 4,
+                    targets: 3,
                 },
                 {
-                    targets: -1,
+                    targets: 3,
                     render: function (data, type, full, row) {
                         if (type === "display") {
-                            var id = full["id"];
-                            detailRoute = route("pending-po.edit", id);
+                            var $dataId = full["id"];
+                            var detailRoute = route("quotation.show", $dataId);
                             return (
-                                '<a class="btn btn-primary" href="' +
+                                '<a class="text-dark" href="' +
                                 detailRoute +
-                                '">' +
-                                "Product" +
-                                "</a>"
-                            );
-                        }
-                        return data;
-                    },
-                },
-                {
-                    targets: 4,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var id = full["id"];
-                            return (
-                                '<a class="text-black cursor-pointer" data-bs-toggle="modal" data-bs-target="#detailPending-' +
-                                id +
                                 '">' +
                                 data +
                                 "</a>"
@@ -108,89 +95,17 @@ $(function () {
                     },
                 },
                 {
-                    targets: 6,
-                    render: function (data, type, full, meta) {
-                        var $status_number = full["status"];
-                        var $status = {
-                            null: {
-                                title: "Quotation PO",
-                                class: "bg-label-info",
-                            },
-                            0: {
-                                title: "Quotation PO",
-                                class: "bg-label-info",
-                            },
-                            1: {
-                                title: "Cek OG",
-                                class: " bg-label-warning",
-                            },
-                            2: {
-                                title: "Done",
-                                class: " bg-label-success",
-                            },
-                        };
-                        if (typeof $status[$status_number] === "undefined") {
-                            return data;
-                        }
-                        return (
-                            '<span class="badge rounded-pill ' +
-                            $status[$status_number].class +
-                            '">' +
-                            $status[$status_number].title +
-                            "</span>"
-                        );
-                    },
-                },
-                {
                     targets: 7,
-                    render: function (data, type, full, meta) {
-                        var $status_number = full["status_p"];
-                        var $titleTool = full["note_p"];
-                        var $status = {
-                            null: {
-                                title: "Belum Ada Invoice",
-                                class: "bg-label-danger",
-                                colorTip: "tooltip-danger",
-                                titleTip: $titleTool,
-                            },
-                            0: {
-                                title: "Not Confirmed Yet",
-                                class: "bg-label-warning",
-                                colorTip: "tooltip-warning",
-                                titleTip: $titleTool,
-                            },
-                            1: {
-                                title: "Confirmed Payment",
-                                class: " bg-label-success",
-                                colorTip: "tooltip-success",
-                                titleTip: $titleTool,
-                            },
-                        };
-                        if (typeof $status[$status_number] === "undefined") {
-                            return data;
-                        }
-                        return (
-                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
-                            $status[$status_number].colorTip +
-                            '" title="' +
-                            $status[$status_number].titleTip +
-                            '" class="badge rounded-pill ' +
-                            $status[$status_number].class +
-                            '">' +
-                            $status[$status_number].title +
-                            "</span>"
-                        );
-                    },
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
             ],
             drawCallback: function (settings) {
-                console.log("drawCallback");
                 $('[data-toggle="tooltip"]').tooltip();
             },
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            displayLength: 10,
-            lengthMenu: [10, 25, 50, 75, 100],
+            dom: '<"card-header flex-column flex-md-row"<"loss-head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            displayLength: 50,
+            lengthMenu: [50, 75, 100],
             buttons: [
                 {
                     extend: "collection",
@@ -403,20 +318,13 @@ $(function () {
                         },
                     ],
                 },
-                // {
-                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New pending</span>',
-                //     className: "btn btn-primary btn-new",
-                //     action: function (e, dt, node, config) {
-                //         window.location = route("create.pending");
-                //     },
-                // },
             ],
             responsive: {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal({
                         header: function (row) {
                             var data = row.data();
-                            return "Details of " + data["full_name"];
+                            return "Details of " + data["company"];
                         },
                     }),
                     type: "column",
@@ -446,9 +354,5 @@ $(function () {
                 },
             },
         });
-        $("div.hl-1").html('<h5 class="card-title mb-0">Table Pending PO</h5>');
     }
-    dt_table_pending_po.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
 });

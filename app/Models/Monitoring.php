@@ -11,7 +11,8 @@ class Monitoring extends Model
     protected $table = "monitoring";
     protected $date = [
         'created_at',
-        'updated_at'
+        'updated_at',
+        'date'
     ];
     protected $fillable = [
         'runing',

@@ -90,6 +90,7 @@
                             <th>Desc</th>
                             <th>Stock BDG</th>
                             <th>Stock BKS</th>
+                            <th>Stock Pending</th>
                             <th>Price</th>
                         </tr>
                     </thead>
@@ -109,8 +110,8 @@
                             <th>Dimension</th>
                             {{-- <th>G/O</th> --}}
                             <th>Stock BDG</th>
-                            <th>Pending PO</th>
                             <th>Stock BKS</th>
+                            <th>stock Pending</th>
                         </tr>
                     </thead>
                 </table>

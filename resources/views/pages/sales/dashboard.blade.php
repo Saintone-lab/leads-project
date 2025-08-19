@@ -1334,7 +1334,7 @@
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-2 d-flex align-items-center p-0">
-                                                                        <h4 class="admin-target-total-po fs-5-po m-0">
+                                                                        <h4 class="admin-target-total-po fs-5 m-0">
                                                                             0 %</h4>
                                                                     </div>
                                                                     <div class="col-8">
@@ -1409,7 +1409,7 @@
                                                                                         $targetSales[$item][0]->leads) *
                                                                                     100;
                                                                             @endphp
-                                                                            <h4 class="filtered-percent-leads m-0">
+                                                                            <h4 class="filtered-percent-leads fs-5 m-0">
                                                                                 {{ round($targetLeads) }} %</h4>
                                                                         </div>
                                                                         <div class="col-8">
@@ -1444,7 +1444,7 @@
                                                                                         $targetSales[$item][0]->dc) *
                                                                                     100;
                                                                             @endphp
-                                                                            <h4 class="filtered-percent-dc m-0">
+                                                                            <h4 class="filtered-percent-dc fs-5 m-0">
                                                                                 {{ round($targetDC) }} %</h4>
                                                                         </div>
                                                                         <div class="col-8">
@@ -1479,7 +1479,7 @@
                                                                                 ($filteredCRM / $targetCrm[$user->id]) *
                                                                                 100;
                                                                         @endphp
-                                                                        <h4 class="filtered-percent-crm m-0">
+                                                                        <h4 class="filtered-percent-crm fs-5 m-0">
                                                                             {{ round($targetCRM) }} %</h4>
                                                                     </div>
                                                                     <div class="col-8">
@@ -1516,7 +1516,7 @@
                                                                                     $targetSales[$item][0]->quote) *
                                                                                 100;
                                                                         @endphp
-                                                                        <h4 class="filtered-percent-quote m-0">
+                                                                        <h4 class="filtered-percent-quote fs-5 m-0">
                                                                             {{ round($targetQuote) }} %</h4>
                                                                     </div>
                                                                     <div class="col-8">
@@ -1551,7 +1551,8 @@
                                                                                         100
                                                                                     : 0;
                                                                         @endphp
-                                                                        <h4 class="filtered-percent-prospect-sales m-0">
+                                                                        <h4
+                                                                            class="filtered-percent-prospect-sales fs-5 m-0">
                                                                             {{ round($targetProspect) }} %</h4>
                                                                     </div>
                                                                     <div class="col-8">
@@ -1741,7 +1742,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="filtered-percent-prospect m-0">
+                                                                    <h4 class="filtered-percent-prospect fs-5 m-0">
                                                                         0 %</h4>
                                                                 </div>
                                                                 <div class="col-8">
@@ -1750,8 +1751,7 @@
                                                                             <span class="filtered-prospect">
                                                                                 {{ $filteredProspect }}
                                                                             </span>
-                                                                            <span
-                                                                                class="text-muted fs-tiny fw-normal">/
+                                                                            <span class="text-muted fs-tiny fw-normal">/
                                                                                 100</span>
                                                                         </h5>
                                                                         <small class="text-muted">Prospect</small>
@@ -1769,7 +1769,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="filtered-percent-provided m-0">
+                                                                    <h4 class="filtered-percent-provided fs-5 m-0">
                                                                         0 %</h4>
                                                                 </div>
                                                                 <div class="col-8">
@@ -1796,7 +1796,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="filtered-percent-quote-prospect m-0">
+                                                                    <h4 class="filtered-percent-quote-prospect fs-5 m-0">
                                                                         0 %</h4>
                                                                 </div>
                                                                 <div class="col-8">
@@ -1823,7 +1823,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="filtered-percent-not-provided m-0">
+                                                                    <h4 class="filtered-percent-not-provided fs-5 m-0">
                                                                         0 %</h4>
                                                                 </div>
                                                                 <div class="col-8">
@@ -1849,7 +1849,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="filtered-percent-po-prospect m-0">
+                                                                    <h4 class="filtered-percent-po-prospect fs-5 m-0">
                                                                         0 %</h4>
                                                                 </div>
                                                                 <div class="col-8">
@@ -1877,7 +1877,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="total-prospect-quotation-percent m-0">
+                                                                    <h4 class="total-prospect-quotation-percent fs-5 m-0">
                                                                         0 %</h4>
                                                                 </div>
                                                                 <div class="col-8">
@@ -1901,7 +1901,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="total-prospect-po-percent m-0">
+                                                                    <h4 class="total-prospect-po-percent fs-5 m-0">
                                                                         0 %</h4>
                                                                 </div>
                                                                 <div class="col-8">
@@ -1925,7 +1925,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="total-prospect-po-percent m-0">
+                                                                    <h4 class="total-prospect-po-percent fs-5 m-0">
                                                                         0 %</h4>
                                                                 </div>
                                                                 <div class="col-8">
@@ -2399,26 +2399,72 @@
     @elseif(Auth::user()->role == 'Client')
         <div class="row">
             <div class="col-12">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5> Machine </h5>
-                        <div class="card-datatable table-responsive pt-0">
-                            <table class="datatable-client-compressor table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th></th>
-                                        <th>ID</th>
-                                        <th>Brand</th>
-                                        <th>Unit</th>
-                                        <th>Tag</th>
-                                        <th>Location</th>
-                                    </tr>
-                                </thead>
-                            </table>
+                @if (auth::user()->level == '1')
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5> Machine </h5>
+                            <div class="card-datatable table-responsive pt-0">
+                                <table class="datatable-client-compressor table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th>ID</th>
+                                            <th>Brand</th>
+                                            <th>Unit</th>
+                                            <th>Tag</th>
+                                            <th>Location</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @else
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="card-datatable table-responsive pt-0">
+                                <table class="datatable-machine-monitoring table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>ID</th>
+                                            <th>Status</th>
+                                            <th>Brand</th>
+                                            <th>Type</th>
+                                            <th>Unit</th>
+                                            <th>SN</th>
+                                            <th>PIC</th>
+                                            <th>Time</th>
+                                            <th>Detail</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="card-datatable table-responsive pt-0">
+                                <table class="datatable-issue-monitoring table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>ID</th>
+                                            <th>Date</th>
+                                            <th>Brand</th>
+                                            <th>Type</th>
+                                            <th>SN</th>
+                                            <th>Description</th>
+                                            <th>PIC</th>
+                                            <th>Accept</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     @endif
@@ -2437,7 +2483,6 @@
 
     {{-- sales --}}
     @if (Auth::user()->role == 'Sales' || Auth::user()->role == 'Support')
-        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
         <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-calendar.css" />
         <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/swiper/swiper.css" />
         <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/fullcalendar/fullcalendar.css" />
@@ -2452,6 +2497,7 @@
         <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/apex-charts/apex-charts.css" />
     @endif
 
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/quill/editor.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
 
@@ -2464,10 +2510,10 @@
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
     {{-- sales --}}
     {{-- sales --}}
     @if (Auth::user()->role == 'Sales' || Auth::user()->role == 'Support')
-        <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/fullcalendar/fullcalendar.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
@@ -2507,6 +2553,8 @@
     <script src="{{ asset('assets') }}/includes/table-notulen.js"></script>
 
     <script src="{{ asset('assets') }}/includes/table-client-compressor.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-monitoring-machine-dashboard.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-monitoring-issue-dashboard.js"></script>
     {{-- @if (Auth::user()->role == 'Admin') --}}
     <script>
         function formatNumber(n) {
@@ -3303,6 +3351,62 @@
                     },
                     error: function(xhr) {
                         console.error('Terjadi error:', xhr.responseText);
+                    }
+                });
+            });
+
+            $(document).on('click', '.accept-issue', function() {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, Accept it!",
+                    customClass: {
+                        confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                        cancelButton: "btn btn-label-secondary waves-effect",
+                    },
+                    buttonsStyling: false,
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            'url': '{{ url('monitoring-client') }}/accept-issue/' + id,
+                            'type': 'POST',
+                            'data': {
+                                '_token': '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                if (response == 1) {
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "Accepted!",
+                                        text: "Your file has been Accepted.",
+                                        customClass: {
+                                            confirmButton: "btn btn-success waves-effect",
+                                        },
+                                    })
+                                    window.setTimeout(function() {
+                                        window.location.href = '/';
+                                    }, 2000);
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: 'Data Failed to Accept!'
+                                    });
+                                }
+                            }
+                        });
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            title: "Cancelled",
+                            text: "You Cancel Accept :)",
+                            icon: "error",
+                            customClass: {
+                                confirmButton: "btn btn-success waves-effect",
+                            },
+                        });
                     }
                 });
             });

@@ -824,6 +824,26 @@
                     </div>
                 </div>
             </div>
+            <div class="col-12 mb-3">
+                <div class="card" id="quote">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-overview-loss table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Description</th>
+                                    <th>Date PO</th>
+                                    <th>Total Price</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
             {{-- @if ($user->id == '16')
                 <div class="col-12 mb-3">
                     <div class="card" id="quote">
@@ -955,6 +975,7 @@
     <script src="{{ asset('assets') }}/includes/table-overview-crm.js"></script>
     <script src="{{ asset('assets') }}/includes/table-overview-quotation.js"></script>
     <script src="{{ asset('assets') }}/includes/table-overview-po.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-overview-loss.js"></script>
     <script src="{{ asset('assets') }}/includes/table-overview-po-prospect.js"></script>
 @endpush
 

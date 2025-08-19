@@ -304,8 +304,8 @@ class OverviewController extends Controller
         $totalLossSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $totalDCSemester = Activities::whereBetween('date', [$first, $lastDay])->rightJoin('client', 'client.id', '=', 'activities.id_client')->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->where('client.id_sales', $sales)->count();
         $totalCRMSemester = Activities::whereBetween('date', [$first, $lastDay])->rightJoin('client', 'client.id', '=', 'activities.id_client')->where('status', 'Responded')->where('name', 'CRM')->where('client.id_sales', $sales)->distinct('client.id')->count();
-        $totalLeadsSemester = Client::whereBetween('created_date', [$first, $lastDay])->count();
-        // dd($averageCRM);
+        $totalLeadsSemester = Client::whereBetween('created_date', [$first, $lastDay])->where('id_sales', $sales)->count();
+        // dd($first);
 
         //  Prospect Semster
         $quoteSemesterProspect = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_support', $sales)->where('level', '1')->where('is_primary', '1')->count();

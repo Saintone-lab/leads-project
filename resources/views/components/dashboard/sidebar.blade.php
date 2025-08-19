@@ -323,7 +323,7 @@
                 request()->is('stock/*') ||
                 request()->is('sale-report') ||
                 request()->is('sale-report/*') ||
-                request()->is('sales-report/yearly/*') 
+                request()->is('sales-report/yearly/*')
                     ? 'open'
                     : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -370,9 +370,9 @@
                             <div data-i18n="Reports">Reports</div>
                         </a>
                     </li>
-                    <li
-                        class="menu-item {{ request()->is('sales-report/yearly/*') ? 'active' : '' }}">
-                        <a href="{{ route('reports.yearly', \Carbon\Carbon::now()->format('Y')) }}" class="menu-link">
+                    <li class="menu-item {{ request()->is('sales-report/yearly/*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.yearly', \Carbon\Carbon::now()->format('Y')) }}"
+                            class="menu-link">
                             <div data-i18n="Reports In / Out">Reports In / Out</div>
                         </a>
                     </li>
@@ -1220,31 +1220,59 @@
                 </ul>
             </li>
         @elseif(auth::user()?->role == 'Client')
-            <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
-                <a href="{{ url('/') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
-                    <div data-i18n="Dashboards">Dashboards</div>
-                </a>
-            </li>
+            @if (auth::user()?->level == 1)
+                <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
+                    <a href="{{ url('/') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
+                        <div data-i18n="Dashboards">Dashboards</div>
+                    </a>
+                </li>
 
-            <li class="menu-header fw-light mt-4">
-                <span class="menu-header-text">Service</span>
-            </li>
+                <li class="menu-header fw-light mt-4">
+                    <span class="menu-header-text">Service</span>
+                </li>
 
-            <li
-                class="menu-item {{ request()->is('service-manager') || request()->is('service-manager/*') ? 'active' : '' }}">
-                <a href="{{ route('under-maintenance') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
-                    <div data-i18n="Monitoring">Monitoring</div>
-                </a>
-            </li>
-            <li
-                class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
-                <a href="{{ route('under-maintenance') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
-                    <div data-i18n="Service Report">Service Report</div>
-                </a>
-            </li>
+                <li
+                    class="menu-item {{ request()->is('service-manager') || request()->is('service-manager/*') ? 'active' : '' }}">
+                    <a href="{{ route('under-maintenance') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
+                        <div data-i18n="Monitoring">Monitoring</div>
+                    </a>
+                </li>
+                <li
+                    class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
+                    <a href="{{ route('under-maintenance') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
+                        <div data-i18n="Service Report">Service Report</div>
+                    </a>
+                </li>
+            @else
+                <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
+                    <a href="{{ url('/') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
+                        <div data-i18n="Dashboards">Dashboards</div>
+                    </a>
+                </li>
+
+                <li class="menu-header fw-light mt-4">
+                    <span class="menu-header-text">Service</span>
+                </li>
+
+                <li
+                    class="menu-item {{ request()->is('/service-manager-daily/*/*') || request()->is('service-manager-daily/*') ? 'active' : '' }}">
+                    <a href="{{ route('under-maintenance') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
+                        <div data-i18n="Reports">Reports</div>
+                    </a>
+                </li>
+                <li
+                    class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
+                    <a href="{{ route('under-maintenance') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
+                        <div data-i18n="Preventive">Preventive</div>
+                    </a>
+                </li>
+            @endif
         @endif
 
     </ul>

@@ -25,7 +25,7 @@ if (Auth::check()) {
         s.pn,
         s.price,
         p.id AS id_p, 
-        p.stock AS all_stock, 
+        (p.stock + p.warehouse_stock) AS all_stock,
         -- CONCAT(p.commodity, IFNULL(CONCAT(' || ', s.pn), '')) AS product, 
         IFNULL(
             GROUP_CONCAT(CONCAT(dp.replacement, '( Rp ', FORMAT(dp.modal, 2), ')' ) SEPARATOR ' || '), 

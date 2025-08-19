@@ -787,6 +787,18 @@ class MonitoringClientController extends Controller
     {
         return view('pages.monitoring.client.arsip');
     }
+    public function acceptIssue($id)
+    {
+        $issue = Monitoring::find($id);
+        $issue->issue_level = '1';
+        $issueSave = $issue->save();
+        // dd($id, $issue);
+        if ($issueSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 
     protected function convertToRoman($month)
     {

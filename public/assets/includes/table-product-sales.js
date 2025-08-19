@@ -22,11 +22,12 @@ $(function () {
                 { data: "descrip" },
                 { data: "stock" },
                 { data: "warehouse_stock" },
+                { data: "pending_stock" },
                 { data: "price" },
             ],
             columnDefs: [
                 {
-                    targets: 9,
+                    targets: 10,
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
                 {
@@ -96,7 +97,7 @@ $(function () {
                 //     },
                 // },
                 {
-                    targets: [3, 4, 5, 8],
+                    targets: [3, 4, 5, 10],
                     render: function (data, type, row) {
                         if (data === null || data === undefined) {
                             return "-";

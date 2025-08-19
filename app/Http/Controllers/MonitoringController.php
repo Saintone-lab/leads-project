@@ -266,9 +266,15 @@ class MonitoringController extends Controller
             $statMonitoring->date = Carbon::today();
             $statMonitoringSave = $statMonitoring->save();
         }
+        $month = Carbon::now()->month;
         // dd($monitoring);
         if ($monitorSave) {
-            return redirect('/monitoring/daily/' . $id)->with('message', 'Data telah di buat');
+            if (auth::user()->level == 1) {
+                return redirect('/monitoring/daily/' . $id)->with('message', 'Data telah di buat');
+            } else {
+                return redirect('/service-manager-daily/'. $id .'/' . $month)->with('message', 'Data telah di buat');
+            }
+            
         } else {
 
         }
