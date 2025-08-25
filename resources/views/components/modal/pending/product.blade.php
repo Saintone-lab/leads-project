@@ -49,31 +49,31 @@
                                                             <select class="form-select" tabindex="0" id="statusChange"
                                                                 name="status[]">
                                                                 <option value="1"
-                                                                    {{ $pending->status == '1' ? 'selected' : '' }}>
+                                                                    {{ $item->status == '1' ? 'selected' : '' }}>
                                                                     On Check
                                                                 </option>
                                                                 <option value="2"
-                                                                    {{ $pending->status == '2' ? 'selected' : '' }}>
+                                                                    {{ $item->status == '2' ? 'selected' : '' }}>
                                                                     Ready Stock
                                                                 </option>
                                                                 <option value="3"
-                                                                    {{ $pending->status == '3' ? 'selected' : '' }}>
+                                                                    {{ $item->status == '3' ? 'selected' : '' }}>
                                                                     Kurang
                                                                 </option>
                                                                 <option value="4"
-                                                                    {{ $pending->status == '4' ? 'selected' : '' }}>
+                                                                    {{ $item->status == '4' ? 'selected' : '' }}>
                                                                     Pre-Order
                                                                 </option>
                                                                 <option value="5"
-                                                                    {{ $pending->status == '5' ? 'selected' : '' }}>
+                                                                    {{ $item->status == '5' ? 'selected' : '' }}>
                                                                     Delivery Process
                                                                 </option>
                                                                 <option value="6"
-                                                                    {{ $pending->status == '6' ? 'selected' : '' }}>
+                                                                    {{ $item->status == '6' ? 'selected' : '' }}>
                                                                     Done
                                                                 </option>
                                                                 <option value="7"
-                                                                    {{ $pending->status == '7' ? 'selected' : '' }}>
+                                                                    {{ $item->status == '7' ? 'selected' : '' }}>
                                                                     Cancel
                                                                 </option>
                                                             </select>
@@ -82,7 +82,7 @@
                                                     </td>
                                                     <td>
                                                         <div class="form-floating form-floating-outline">
-                                                            <textarea class="form-control" id="exampleFormControlTextarea1" name="note[]" placeholder="Comments here...">{{@$item->note_p}}</textarea>
+                                                            <textarea class="form-control" id="exampleFormControlTextarea1" name="note[]" placeholder="Comments here...">{{@$item->note}}</textarea>
                                                             <label for="exampleFormControlTextarea1">Note</label>
                                                         </div>
                                                     </td>

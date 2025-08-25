@@ -702,11 +702,20 @@ class QuotationController extends Controller
                 $product->save();
             }
 
-            $pending = new PendingPO;
-            $pending->status = 0;
-            $pending->id_quotation = $quotation->primary_id;
-            $pending->date = Carbon::now();
-            $pending->save();
+            if ($quotation->type == 'Sparepart') {
+                $pending = new PendingPO;
+                $pending->status = 0;
+                $pending->id_quotation = $quotation->primary_id;
+                $pending->date = Carbon::now();
+                $pending->save();
+
+                $status = new ChangeStatus();
+                $status->id_pending = $pending->id;
+                $status->note = 'Pending Created';
+                $status->status = 0;
+                $status->date = Carbon::now();
+                $status->save();
+            }
         }
         $changeStats = new ChangeStatus;
         $changeStats->id_quotation = $quotation->primary_id;
@@ -924,9 +933,9 @@ class QuotationController extends Controller
         $stats->status = '100';
         $stats->note = $request->note;
         $stats->save();
-
         foreach ($detQuote as $item) {
-            $product = Product::join('serial_product as sp', 'sp.id', '=', 'product.id')->where('sp.id', $item->id_equivalent)->select('product.*')->first();
+            $product = Product::join('serial_product as sp', 'sp.id_product', '=', 'product.id')->where('sp.id', $item->id_equivalent)->select('product.*')->first();
+            // dd($item->id_equivalent);
             $product->stock -= $item->qty;
             $product->pending_stock += $item->qty;
             $product->save();
@@ -939,6 +948,13 @@ class QuotationController extends Controller
             $pending->delivery = $request->ekspidisi;
             $pending->date = Carbon::now();
             $pending->save();
+
+            $status = new ChangeStatus();
+            $status->id_pending = $pending->id;
+            $status->note = 'Pending Created';
+            $status->status = 0;
+            $status->date = Carbon::now();
+            $status->save();
         }
 
         if ($quoteSave) {

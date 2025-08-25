@@ -681,12 +681,6 @@
                     <div data-i18n="Correction Factor Calc">Correction Factor Calc</div>
                 </a>
             </li>
-            <li class="menu-item">
-                <a href="{{ url('pending-po') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-cart-arrow-down"></i>
-                    <div data-i18n="Pending PO">Pending PO</div>
-                </a>
-            </li>
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Prospect</span>
@@ -714,6 +708,29 @@
                     <li class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">
                         <a href="{{ route('quotation.prospect') }}" class="menu-link">
                             <div data-i18n="Quotation">Quotation</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Pending</span>
+            </li>
+            <li
+                class="menu-item {{ request()->is('pending-po') || request()->is('pending-po/*') || request()->is('pending-po-done') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-text-box-multiple"></i>
+                    <div data-i18n="Pending PO">Pending PO</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('pending-po') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.index') }}" class="menu-link">
+                            <div data-i18n="Progress">Progress</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('pending-po-done') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.done') }}" class="menu-link">
+                            <div data-i18n="Done">Done</div>
                         </a>
                     </li>
                 </ul>
@@ -998,6 +1015,28 @@
                     <i class="menu-icon tf-icons mdi mdi-book-open-outline"></i>
                     <div data-i18n="Invoice">Invoice</div>
                 </a>
+            </li>
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Pending</span>
+            </li>
+            <li
+                class="menu-item {{ request()->is('pending-po') || request()->is('pending-po/*') || request()->is('pending-po-done') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-text-box-multiple"></i>
+                    <div data-i18n="Pending PO">Pending PO</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('pending-po') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.index') }}" class="menu-link">
+                            <div data-i18n="Progress">Progress</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('pending-po-done') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.done') }}" class="menu-link">
+                            <div data-i18n="Done">Done</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
 
             <li class="menu-header fw-light mt-4">

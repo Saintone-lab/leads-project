@@ -1,6 +1,6 @@
 $(function () {
-    var dt_table_pending_po_non_project_admin = $(".datatable-pending-po-non-project-admin");
-    var Url = "db/pending/po/non-project/admin";
+    var dt_table_pending_po_non_project_admin = $(".datatable-pending-po-non-project");
+    var Url = "db/pending/po/non-project";
 
     if (dt_table_pending_po_non_project_admin.length) {
         $('[data-toggle="tooltip"]').tooltip();

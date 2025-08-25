@@ -21,7 +21,7 @@ class ProductInController extends Controller
         // $product = ProductIn::all();
         // dd($product);
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.warehouse.product-in.index',compact('noSaleProspect'));
+        return view('pages.warehouse.product-in.index', compact('noSaleProspect'));
     }
 
     /**
@@ -79,6 +79,7 @@ class ProductInController extends Controller
                 $dProductIn->id_detail_product = $request->replacement[$item];
                 $dProductIn->qty = $request->qty[$item];
                 $dProductIn->modal = $request->price[$item];
+                $dProductIn->disc = $request->disc[$item];
                 $dProductIn->amount = $request->amount[$item];
                 $dProductIn->warehouse = $request->warehouse[$item];
                 $productD = DetailProduct::where('id', $request->replacement[$item])->first();
@@ -146,11 +147,12 @@ class ProductInController extends Controller
     {
         $product = ProductIn::find($id);
         $dProductIn = DetailProductIn::where('id_product_in', $id)->get();
-        // dd($dProductIn);
+        dd($request->all());
         $total = 0;
         foreach ($dProductIn as $item) {
             $item->detailProduct->modal = $request->modal[$item->id];
             $item->modal = $request->modal[$item->id];
+            $item->disc = $request->disc[$item->id];
             $item->amount = $request->modal[$item->id] * $item->qty;
             $detailSave = $item->save();
             $item->detailProduct->save();
@@ -263,7 +265,8 @@ class ProductInController extends Controller
             return redirect('/product-in')->with('message', 'data telah di tambahkan');
         }
     }
-    public function invoicing(Request $request, $id){
+    public function invoicing(Request $request, $id)
+    {
         $productIn = ProductIn::find($id);
         $dProductIn = DetailProductIn::where('id_product_in', $id)->get();
         // dd($dProductIn);
@@ -297,6 +300,7 @@ class ProductInController extends Controller
             foreach ($dProductIn as $item => $value) {
                 $value->modal = $request->price[$item];
                 $value->amount = $request->amount[$item];
+                $value->disc = $request->disc[$item];
                 $dProductSave = $value->save();
             }
         }

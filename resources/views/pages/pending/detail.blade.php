@@ -6,16 +6,15 @@
             Detail Of {{ $invoice->no_po ?? $quotation->pic->client->company }}
         </h5>
         <div class="tombol">
-            <a type="button" data-bs-toggle="modal" data-bs-target="#createActionVisit">
-                <button type="button" class="btn btn-info">
-                    Update Kurir
-                </button>
-            </a>
-            <a type="button" data-bs-toggle="modal" data-bs-target="#statusEdit">
-                <button type="button" class="btn btn-primary">
-                    Update Status Barang
-                </button>
-            </a>
+            <button type="button" data-bs-toggle="modal" data-bs-target="#deliveryEdit"
+                class="btn btn-info"{{ auth::user()->role != 'Sales' ? '' : 'disabled' }}>
+                Update Kurir
+            </button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#statusEdit"
+                {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                Update Status Barang
+            </button>
+            <a href="{{ route('pending-po.index') }}" type="button" class="btn btn-secondary"> Back </a>
         </div>
     </div>
     <div class="row mb-3">
@@ -26,7 +25,7 @@
                         <div class="col-4">Sales</div>
                         <div class="col-8">: {{ $quotation->sales->name }}</div>
                         <div class="col-4">Flag</div>
-                        <div class="col-8">: {{ $quotation->pic->client->flag }}</div>
+                        <div class="col-8">: {{ $quotation->pic->client->info }}</div>
                         <div class="col-4">Client</div>
                         <div class="col-8">: {{ $quotation->pic->client->company }}</div>
                         <div class="col-4">PIC</div>
@@ -67,7 +66,9 @@
                         <div class="col-4">No Invoice</div>
                         <div class="col-8">: {{ $invoice->no_invoice ?? 'Belum ada invoice' }}</div>
                         <div class="col-4">Payment Info</div>
-                        <div class="col-8">: UNPAID</div>
+                        <div class="col-8">:
+                            {{ $invoice ? ($invoice->status_p == 1 ? 'Payment Confirmed' : 'Unpaid') : 'Belum ada invoice' }}
+                        </div>
                         <div class="col-4">PO Date</div>
                         <div class="col-8">: {{ \Carbon\Carbon::parse($quotation->po_date)->format('d-m-Y') }}</div>
                     </div>
@@ -75,12 +76,17 @@
             </div>
         </div>
     </div>
-    <div style="display: flex; justify-content: flex-end;">
-        <a type="button" data-bs-toggle="modal" data-bs-target="#productEdit">
+    <div class="mb-3" style="display: flex; justify-content: flex-end;">
+        <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal" data-bs-target="#productEdit"
+            {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+            Update Status Barang
+        </button>
+        {{-- <a type="button" data-bs-toggle="modal" data-bs-target="#productEdit"
+            {{ auth::user()->role != 'Sales' ? '' : 'disable' }}>
             <button type="button" class="btn btn-facebook float-end">
-                Update Status Barang
+                
             </button>
-        </a>
+        </a> --}}
     </div>
     <div class="card mb-4">
         <div class="table-responsive text-nowrap h-100">
@@ -138,8 +144,8 @@
                             <td>{{ $item->detail_product }}</td>
                             <td>{{ $item->equivalent->product->go }}</td>
                             <td>{{ $item->qty }} {{ $item->info_qty }}</td>
-                            <td>Kurang</td>
-                            <td></td>
+                            <td>{{ $status }}</td>
+                            <td> {{ $item->note }}</td>
                         </tr>
                         @php
                             $no++;
@@ -150,100 +156,101 @@
         </div>
     </div>
 
-    {{-- @if ($status->count() >= 1) --}}
-    {{-- <div class="card">
-        <div class="card-header">
-            <div class="d-flex justify-content-between">
-                <h5 class="mb-0">Activity Timeline</h5>
+    @if ($activity->count() >= 1)
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between">
+                    <h5 class="mb-0">Activity Timeline</h5>
+                </div>
+            </div>
+            <div class="card-body pt-4" id="viewComment">
+                <ul class="timeline card-timeline mb-0">
+                    @foreach ($activity as $stats)
+                        @php
+                            if ($stats->status == '1') {
+                                $status = 'Pending On Check';
+                                $color = 'info';
+                            } elseif ($stats->status == '2') {
+                                $status = 'Updated in to Ready Stock';
+                                $color = 'whatsapp';
+                            } elseif ($stats->status == '3') {
+                                $status = 'Updated in to Kurang';
+                                $color = 'reddit';
+                            } elseif ($stats->status == '4') {
+                                $status = 'Updated in to Pre-Order';
+                                $color = 'primary';
+                            } elseif ($stats->status == '5') {
+                                $status = 'Updated in to Delivery Process';
+                                $color = 'linkedin';
+                            } elseif ($stats->status == '6') {
+                                $status = 'Pending is Done';
+                                $color = 'success';
+                            } elseif ($stats->status == '7') {
+                                $status = 'Pending is Canceled';
+                                $color = 'danger';
+                            } else {
+                                $status = 'Pending Created';
+                                $color = 'info';
+                            }
+                        @endphp
+                        <li class="timeline-item timeline-item-transparent clearfix">
+                            <span class="timeline-point timeline-point-{{ $color }}"></span>
+                            <div class="timeline-event">
+                                <div class="timeline-header mb-1">
+                                    <h6 class="mb-0">{{ $status }}</h6>
+                                    <small
+                                        class="text-muted">{{ $stats->date->diffInHours(Carbon\Carbon::now()) > 24 ? $stats->date->format('d M y h:i:s') : $stats->date->diffForHumans() }}
+                                    </small>
+                                </div>
+                                <p class="mb-3">
+                                    {{ $stats->note }}
+                                </p>
+                                @foreach ($stats->comment as $item)
+                                    <div class="d-flex justify-content-between align-items-center px-2 mb-2{{ $item->id_user == Auth::user()->id ? ' rounded bg-label-primary float-end' : '' }}"
+                                        style="width : 80%;">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <img src="{{ url('') . '/' . $item->user->image }}" alt="ini photo"
+                                                style="width: 50px;" class="mx-2 rounded-pill">
+                                            <p class="mb-0">
+                                                <span class="fw-medium">{{ $item->user->name }}</span>:
+                                                {{ $item->comment }}
+                                            </p>
+                                        </div>
+                                        <small
+                                            class="text-muted">{{ $item->date->diffInHours(Carbon\Carbon::now()) > 24 ? $item->date->format('d M y h:i:s') : $item->date->diffForHumans() }}</small>
+                                    </div>
+                                @endforeach
+                                @php
+                                    $lastStat = App\Models\ChangeStatus::where('id_pending', $pending->id)
+                                        ->orderByDesc('id')
+                                        ->first();
+                                @endphp
+                            </div>
+                        </li>
+                        @if ($stats->id == $lastStat->id)
+                            <form action="{{ route('pending-po.addComment', $pending->id) }}" method="post"
+                                enctype="multipart/form-data">
+                                @csrf
+                                <div class="form-floating mt-3">
+                                    <input type="text" class="form-control" id="floatingInputFilled"
+                                        placeholder="Comment" name="comment" aria-describedby="floatingInputFilledHelp">
+                                    <label for="floatingInputFilled">Comment</label>
+                                    <span class="form-floating-focused"></span>
+                                </div>
+                                <button type="submit"
+                                    class="btn btn-primary waves-effect waves-light float-end">Comment</button>
+                            </form>
+                        @endif
+                    @endforeach
+                </ul>
             </div>
         </div>
-        <div class="card-body pt-4" id="viewComment">
-            <ul class="timeline card-timeline mb-0">
-                @foreach ($status as $stats)
-                    @php
-                        if ($stats->status == '20') {
-                            $status = 'Send Quotation';
-                            $color = 'secondary';
-                        } elseif ($stats->status == '30') {
-                            $status = 'Inquiry Accepted';
-                            $color = 'dark';
-                        } elseif ($stats->status == '40') {
-                            $status = 'Progress Follow Up';
-                            $color = 'info';
-                        } elseif ($stats->status == '60') {
-                            $status = 'Negotiation / Revisi';
-                            $color = 'primary';
-                        } elseif ($stats->status == '80') {
-                            $status = 'Hot Prospect';
-                            $color = 'warning';
-                        } elseif ($stats->status == '100') {
-                            $status = 'Done PO';
-                            $color = 'success';
-                        } elseif ($stats->status == '0') {
-                            $status = 'Loss';
-                            $color = 'danger';
-                        } else {
-                            $status = 'Quotation Created';
-                            $color = 'secondary';
-                        }
-                    @endphp
-                    <li class="timeline-item timeline-item-transparent clearfix">
-                        <span class="timeline-point timeline-point-{{ $color }}"></span>
-                        <div class="timeline-event">
-                            <div class="timeline-header mb-1">
-                                <h6 class="mb-0">{{ $status }}</h6>
-                                <small
-                                    class="text-muted">{{ $stats->date->diffInHours(Carbon\Carbon::now()) > 24 ? $stats->date->format('d M y h:i:s') : $stats->date->diffForHumans() }}
-                                </small>
-                            </div>
-                            <p class="mb-3">
-                                {{ $stats->note }}
-                            </p>
-                            @foreach ($stats->comment as $item)
-                                <div class="d-flex justify-content-between align-items-center px-2 mb-2{{ $item->id_user == Auth::user()->id ? ' rounded bg-label-primary float-end' : '' }}"
-                                    style="width : 80%;">
-                                    <div class="d-flex align-items-center mb-1">
-                                        <img src="{{ url('') . '/' . $item->user->image }}" alt="ini photo"
-                                            style="width: 50px;" class="mx-2 rounded-pill">
-                                        <p class="mb-0">
-                                            <span class="fw-medium">{{ $item->user->name }}</span>:
-                                            {{ $item->comment }}
-                                        </p>
-                                    </div>
-                                    <small
-                                        class="text-muted">{{ $item->date->diffInHours(Carbon\Carbon::now()) > 24 ? $item->date->format('d M y h:i:s') : $item->date->diffForHumans() }}</small>
-                                </div>
-                            @endforeach
-                            @php
-                                $lastStat = App\Models\ChangeStatus::where('id_quotation', $quote->primary_id)
-                                    ->orderByDesc('id')
-                                    ->first();
-                            @endphp
-                        </div>
-                    </li>
-                    @if ($stats->id == $lastStat->id)
-                        <form action="{{ route('add-comment.quotation', $quote->id) }}" method="post"
-                            enctype="multipart/form-data">
-                            @csrf
-                            <div class="form-floating mt-3">
-                                <input type="text" class="form-control" id="floatingInputFilled" placeholder="Comment"
-                                    name="comment" aria-describedby="floatingInputFilledHelp">
-                                <label for="floatingInputFilled">Comment</label>
-                                <span class="form-floating-focused"></span>
-                            </div>
-                            <button type="submit"
-                                class="btn btn-primary waves-effect waves-light float-end">Comment</button>
-                        </form>
-                    @endif
-                @endforeach
-            </ul>
-        </div>
-    </div> --}}
-    {{-- @endif --}}
+    @endif
     {{-- @foreach ($pendingPO as $pending)
         @include('components.modal.pending.detail')
     @endforeach --}}
     @include('components.modal.pending.status')
+    @include('components.modal.pending.kurir')
     @include('components.modal.pending.product')
 @endsection()
 

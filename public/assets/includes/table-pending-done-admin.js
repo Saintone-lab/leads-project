@@ -1,6 +1,6 @@
 $(function () {
-    var dt_table_pending_po_done = $(".datatable-pending-po-done");
-    var Url = "db/pending/po/done";
+    var dt_table_pending_po_done = $(".datatable-pending-po-done-admin");
+    var Url = "db/pending/po/done/admin";
 
     if (dt_table_pending_po_done.length) {
         $('[data-toggle="tooltip"]').tooltip();
@@ -93,34 +93,9 @@ $(function () {
                 {
                     targets: 6,
                     render: function (data, type, full, meta) {
-                        var $status_number = full["status"];
-                        var $status = {
-                            null: {
-                                title: "Quotation PO",
-                                class: "bg-label-info",
-                            },
-                            0: {
-                                title: "Quotation PO",
-                                class: "bg-label-info",
-                            },
-                            1: {
-                                title: "Cek OG",
-                                class: " bg-label-warning",
-                            },
-                            2: {
-                                title: "Done",
-                                class: " bg-label-success",
-                            },
-                        };
-                        if (typeof $status[$status_number] === "undefined") {
-                            return data;
-                        }
                         return (
-                            '<span class="badge rounded-pill ' +
-                            $status[$status_number].class +
-                            '">' +
-                            $status[$status_number].title +
-                            "</span>"
+                            '<span class="badge rounded-pill bg-label-success">' +
+                            "Done </span>"
                         );
                     },
                 },

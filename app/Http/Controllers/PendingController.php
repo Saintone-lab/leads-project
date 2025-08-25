@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChangeStatus;
+use App\Models\Comment;
 use App\Models\DetailPendingPO;
 use App\Models\DetailProduct;
+use App\Models\DetailProductOut;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\PendingPO;
+use App\Models\Product;
+use App\Models\ProductOut;
 use App\Models\Quotation;
 use App\Models\SerialProduct;
+use Auth;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class PendingController extends Controller
@@ -73,7 +80,10 @@ class PendingController extends Controller
         $quotation = Quotation::find($pending->id_quotation);
         $detQuotation = DetailQuotation::where('id_quotation', $pending->id_quotation)->get();
         $invoice = Invoice::where('id_quotation', $quotation->id)->first();
-        return view('pages.pending.detail', compact('pending', 'quotation', 'invoice', 'detQuotation'));
+        $activity = ChangeStatus::where('id_pending', $id)->with('comment')->get();
+        // dd($activity);
+        // dd($status->count());
+        return view('pages.pending.detail', compact('activity', 'pending', 'quotation', 'invoice', 'detQuotation'));
     }
 
     /**
@@ -146,7 +156,7 @@ class PendingController extends Controller
         if ($totalPendingQty == $totalQuoteQty) {
             $pending->status = 2;
             $pending->save();
-        }else {
+        } else {
             $pending->status = 1;
             $pending->save();
         }
@@ -164,17 +174,179 @@ class PendingController extends Controller
     {
         //
     }
-    public function productEdit(Request $request, $id){
+    public function productEdit(Request $request, $id)
+    {
+        // dd($request->all());
         $pending = PendingPO::find($id);
         $quote = Quotation::find($pending->id_quotation);
         $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $dPending = DetailPendingPO::where('id_pending', $id)->get();
         foreach ($request->status as $key => $value) {
-            $dQuote[$key]->status -> $value->status;
-            $dQuote[$key]->note -> $value->note;
+            $dQuote[$key]->status = $value;
+            $dQuote[$key]->note = $request->note[$key];
             $dQuote[$key]->save();
         }
-        return redirect('/pending-po')->with('message', 'Product Pending PO telah diedit');
+        return redirect('/pending-po/' . $id)->with('message', 'Product Pending PO telah diedit');
+    }
+    public function statusEdit(Request $request, $id)
+    {
+        $pending = PendingPO::find($id);
+        $pending->status = $request->status;
+        $pending->save();
+
+        switch ($request->status) {
+            case 1:
+                $note = 'On Check';
+                break;
+            case 2:
+                $note = 'Reday Stock';
+                break;
+            case 3:
+                $note = 'Kurang';
+                break;
+            case 4:
+                $note = 'Pre order';
+                break;
+            case 5:
+                $note = 'Delivery Process';
+                break;
+            case 6:
+                $note = 'Done';
+                break;
+            default:
+                $note = 'Cancel';
+                break;
+        }
+
+        $status = new ChangeStatus();
+        $status->id_pending = $pending->id;
+        $status->status = $request->status;
+        $status->note = $note;
+        $status->date = Carbon::now();
+        $status->save();
+        if ($request->status == '7') {
+            $quote = Quotation::find($pending->id_quotation);
+            $Dquote = DetailQuotation::where('id_quotation', $pending->id_quotation)->get();
+            foreach ($Dquote as $item) {
+                $product = Product::join('serial_product as sp', 'sp.id', '=', 'product.id')->where('sp.id', $item->id_equivalent)->select('product.*')->first();
+                $product->stock += $item->qty;
+                $product->pending_stock -= $item->qty;
+                $product->save();
+            }
+        }
+        if ($request->status == '6') {
+            return redirect('/pending-po/product-out/' . $id)->with('message', 'Status Product Pending PO telah diedit');
+        } else {
+            return redirect('/pending-po/' . $id)->with('message', 'Status Product Pending PO telah diedit');
+        }
+    }
+    public function add_comment(Request $request, $id)
+    {
+        $stats = ChangeStatus::where('id_pending', $id)->orderByDesc('date')->first();
+        $comment = new Comment();
+        $comment->id_status = $stats->id;
+        $comment->id_user = Auth::user()->id;
+        $comment->date = Carbon::now();
+        $comment->comment = $request->comment;
+        $comment->level = '1';
+        // $comment->type = 'quotation';
+        $commentSave = $comment->save();
+        if ($commentSave) {
+            return redirect('/pending-po/' . $id)->with('message', 'Comment Pending PO telah dibuat');
+        }
+    }
+    public function deliveryEdit(Request $request, $id)
+    {
+        $pending = PendingPO::find($id);
+        $pending->delivery = $request->delivery;
+        $pending->save();
+        return redirect('/pending-po/' . $id)->with('message', 'Status Product Pending PO telah diedit');
+    }
+    public function pending_out($id)
+    {
+        $pending = PendingPO::find($id);
+        $quote = Quotation::find($pending->id_quotation);
+        $Dquote = DetailQuotation::where('id_quotation', $pending->id_quotation)->get();
+        $dPending = DetailPendingPO::where('id_pending', $id)->get();
+
+        $fullRep = [];
+        $no = 0;
+        foreach ($Dquote as $item) {
+            $equivalent = SerialProduct::find($item->id_equivalent);
+            $fullRep[$no] = DetailProduct::where('id_product', $equivalent->id_product)->get();
+            $no++;
+        }
+        // dd($fullRep);
+        // dd($dPending);
+        return view('pages.pending.form', compact('Dquote', 'fullRep', 'pending', 'quote', 'dPending', 'id'));
+    }
+
+    public function product_out(Request $request, $id)
+    {
+        $rule = [
+            'invoice' => 'required',
+            'detail_client' => 'required',
+            'vers' => 'required',
+            'date' => 'required',
+            'shipping' => 'required',
+            'note' => 'required',
+        ];
+        $message = [
+            'invoice.required' => 'Field No Invoice Wajib Diisi',
+            'detail_client.required' => 'Field Detail Client Wajib Diisi',
+            'vers.required' => 'Field Offline / Online Wajib Diisi',
+            'date.required' => 'Field Date Wajib Diisi',
+            'shipping.required' => 'Field Shipping Wajib Diisi',
+            'note.required' => 'Field Note Wajib Diisi',
+        ];
+        $this->validate($request, $rule, $message);
+        // dd($request->all());
+        // Masukan Data ke Tabel Product Out
+        $productOut = new ProductOut();
+        $productOut->id_user = Auth::user()->id;
+        $productOut->invoice = $request->invoice;
+        $productOut->po = $request->po;
+        $productOut->no_type = "1";
+        $productOut->detail_client = $request->detail_client;
+        $productOut->vers = $request->vers;
+        $productOut->date = $request->date;
+        $productOut->note = $request->note;
+        $productOut->shipping = $request->shipping;
+        $productOut->total = $request->total;
+        $productOutSave = $productOut->save();
+        if ($productOutSave) {
+            // Masukan Data Ke Tabel Detail Quotataion
+            foreach ($request->equivalent as $item => $value) {
+                $dProductIn = new DetailProductOut();
+                $dProductIn->id_product_out = $productOut->id;
+                $dProductIn->id_detail_product = $request->replacement[$item];
+                $dProductIn->id_serial_product = $request->equivalent[$item];
+                $dProductIn->qty = $request->qty[$item];
+                $dProductIn->price = $request->price[$item];
+                $dProductIn->amount = $request->amount[$item];
+                $dProductIn->warehouse = $request->warehouse[$item];
+                $productD = DetailProduct::where('id', $request->replacement[$item])->first();
+                if ($request->warehouse[$item] == 'BDG') {
+                    $productD->stock -= $request->qty[$item];
+                } else {
+                    $productD->warehouse_stock -= $request->qty[$item];
+                }
+                $productD->save();
+                $product = Product::where('id', $productD->id_product)->first();
+                if ($request->warehouse[$item] == 'BDG') {
+                    $product->pending_stock -= $request->qty[$item];
+                } else {
+                    $product->pending_stock -= $request->qty[$item];
+                    $product->stock += $request->qty[$item];
+                    $product->warehouse_stock -= $request->qty[$item];
+                }
+                $product->save();
+                $dProductSave = $dProductIn->save();
+            }
+        }
+        if ($dProductSave) {
+            return redirect('/pending-po-done')->with('message', 'data telah di tambahkan');
+        }
     }
     public function indexDone()
     {

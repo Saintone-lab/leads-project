@@ -11,9 +11,8 @@
                             <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
                                 <span class="app-brand-logo demo">
                                     <span style="color: var(--bs-primary)">
-                                        <img class="text-md"
-                                                src="{{ asset('/asset') }}/logo/Reftech-Log.png"
-                                            alt="" srcset="" width="60%">
+                                        <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt=""
+                                            srcset="" width="60%">
                                     </span>
                                 </span>
                             </div>
@@ -50,6 +49,7 @@
                                 <th>Item</th>
                                 <th>Qty</th>
                                 <th>Modal</th>
+                                <th>Discount</th>
                                 <th>Amount</th>
                             </tr>
                         </thead>
@@ -75,43 +75,47 @@
                                     @if (Auth::user()->role == 'Logistic')
                                         <td class="align-top">RP {{ str_repeat('*', strlen((string) $products->modal)) }}
                                         </td>
+                                        <td class="align-top">RP {{ str_repeat('*', strlen((string) $products->disc)) }}
+                                        </td>
                                         <td class="align-top">RP {{ str_repeat('*', strlen((string) $products->amount)) }}
                                         </td>
                                     @else
                                         <td class="align-top">RP {{ number_format($products->modal, 0, '', '.') }}</td>
+                                        <td class="align-top">RP {{ number_format($products->disc, 0, '', '.') }}</td>
                                         <td class="align-top">RP {{ number_format($products->amount, 0, '', '.') }}</td>
                                     @endif
                                 </tr>
                             @endforeach
                             <tr style="font-size: 13px">
-                                <td colspan="3" style="border:none;"></td>
-                                <td >Subtotal</td>
+                                <td colspan="4" style="border:none;"></td>
+                                <td>Subtotal</td>
                                 @if (Auth::user()->role == 'Logistic')
                                     <td>: RP {{ str_repeat('*', strlen((string) $product->subtotal)) }}</td>
-                                    @else
+                                @else
                                     <td>: RP {{ number_format($product->subtotal, 0, '', '.') }}</td>
                                 @endif
                             </tr>
                             <tr style="font-size: 13px">
-                                <td colspan="3" style="border:none;"></td>
-                                <td >Tax {{$product->tax == '11' ? '11%' : ''}}</td>
+                                <td colspan="4" style="border:none;"></td>
+                                <td>Tax {{ $product->tax == '11' ? '11%' : '' }}</td>
                                 @if (Auth::user()->role == 'Logistic')
                                     <td>: RP {{ str_repeat('*', strlen((string) $tax)) }}</td>
-                                    @else
+                                @else
                                     <td>: RP {{ number_format($tax, 0, '', '.') }}</td>
                                 @endif
                             </tr>
                             <tr style="font-size: 13px;">
-                                <td colspan="3" style="border:none;"></td>
+                                <td colspan="4" style="border:none;"></td>
                                 <td>Shipping</td>
                                 <td>: RP {{ number_format($product->shipping, 0, '', '.') }}</td>
                             </tr>
                             <tr style="font-size: 13px">
-                                <td colspan="3" style="border:none;"></td>
+                                <td colspan="4" style="border:none;"></td>
                                 <td style="border:none;">Total</td>
                                 @if (Auth::user()->role == 'Logistic')
-                                    <td style="border:none;">: RP {{ str_repeat('*', strlen((string) $product->total)) }}</td>
-                                    @else
+                                    <td style="border:none;">: RP {{ str_repeat('*', strlen((string) $product->total)) }}
+                                    </td>
+                                @else
                                     <td style="border:none;">: RP {{ number_format($product->total, 0, '', '.') }}</td>
                                 @endif
                             </tr>
@@ -126,7 +130,7 @@
             <div class="card">
                 <div class="card-body">
                     <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
-                        href="{{route('productIn.print', $product->id)}}">
+                        href="{{ route('productIn.print', $product->id) }}">
                         Download
                     </a>
                     {{-- <a href="javascript{0}" type="button" class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">

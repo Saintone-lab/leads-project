@@ -43,7 +43,7 @@ class MonitoringController extends Controller
     public function createDaily($id)
     {
         $machine = Machine::find($id);
-        $monitoring = Monitoring::where('id_machine', $id)->orderByDesc('date')->first();
+        $monitoring = Monitoring::where('id_machine', $id)->whereDate('created_at', Carbon::today())->first();
         // dd($monitoring);
         return view('pages.monitoring.form', compact('machine', 'monitoring'));
     }
@@ -272,9 +272,218 @@ class MonitoringController extends Controller
             if (auth::user()->level == 1) {
                 return redirect('/monitoring/daily/' . $id)->with('message', 'Data telah di buat');
             } else {
-                return redirect('/service-manager-daily/'. $id .'/' . $month)->with('message', 'Data telah di buat');
+                return redirect('/service-manager-daily/' . $id . '/' . $month)->with('message', 'Data telah di buat');
             }
-            
+
+        } else {
+
+        }
+    }
+    public function updateDaily(Request $request, $id)
+    {
+        if ($request->condition != "Off") {
+            $rule = [
+                'leak' => 'required',
+            ];
+            $message = [
+                'leak.required' => 'Cek Kebocoran Wajib Dipilih!',
+            ];
+            $this->validate($request, $rule, $message);
+        }
+        $dew = floatval(str_replace(',', '.', $request->dew));
+        // dd($request->all());
+        $machine = Machine::find($id);
+        $monitoring = Monitoring::where('id_machine', $id)->whereDate('created_at', Carbon::today())->first();
+        // dd($machine->unit->unit->unit);$machine->monitoring()->whereDate('created_at', Carbon\Carbon::today())->exists()
+        // $monitoring = new Monitoring();
+        $monitoring->id_machine = $id;
+        $monitoring->id_pic = Auth::user()->id;
+        $monitoring->condition = $request->condition;
+        if ($machine->unit->unit->unit != 'REFRIGERANT AIR DRYER') {
+            if ($request->condition == 'Running') {
+                $monitoring->leak = $request->leak;
+                $monitoring->running = number_format($request->running, 0, ',', '.') . ' Hour';
+                $monitoring->loading = number_format($request->loading, 0, ',', '.') . ' Hour';
+                if (is_numeric($request->pressure) && strpos($request->pressure, ',') === false) {
+                    $monitoring->pressure = $request->pressure . ',0' . ' Bar';
+                } else {
+                    $monitoring->pressure = $request->pressure . ' Bar';
+                }
+                $monitoring->oil_level = $request->oil;
+                $monitoring->temp = $request->temperature . " °C";
+                if ($request->issue == null) {
+                    if ($request->temperature <= 94) {
+                        $monitoring->issue = null;
+                    } else {
+                        $monitoring->issue = 'High Temperature : ' . $request->temperature . " °C";
+                    }
+                } else {
+                    if ($request->issue != null) {
+                        if ($request->temperature <= 94) {
+                            $monitoring->issue = $request->issue;
+                        } else {
+                            $monitoring->issue = $request->issue . ', High Temperature : ' . $request->temperature . " °C";
+                        }
+                    }
+                }
+            } elseif ($request->condition == 'Stand By') {
+                $monitoring->leak = $request->leak;
+                $monitoring->running = number_format($request->running, 0, ',', '.') . ' Hour';
+                $monitoring->loading = number_format($request->loading, 0, ',', '.') . ' Hour';
+                if (is_numeric($request->pressure) && strpos($request->pressure, ',') === false) {
+                    $monitoring->pressure = $request->pressure . ',0' . ' Bar';
+                } else {
+                    $monitoring->pressure = $request->pressure . ' Bar';
+                }
+                $monitoring->oil_level = $request->oil;
+                $monitoring->temp = $request->temperature . " °C";
+                if ($request->issue == null) {
+                    if ($request->temperature <= 94) {
+                        $monitoring->issue = 'Stand By';
+                    } else {
+                        $monitoring->issue = 'Stand By: High Temperature : ' . $request->temperature . " °C";
+                    }
+                } else {
+                    if ($request->issue != null) {
+                        if ($request->temperature <= 94) {
+                            $monitoring->issue = 'Stand By : ' . $request->issue;
+                        } else {
+                            $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature : ' . $request->temperature . " °C";
+                        }
+                    }
+                }
+            } elseif ($request->condition == 'Off') {
+                $monitoring->leak = 'Tidak Ada';
+                $monitoring->running = '-';
+                $monitoring->loading = '-';
+                if (is_numeric($request->pressure) && strpos($request->pressure, ',') === false) {
+                    $monitoring->pressure = '-';
+                } else {
+                    $monitoring->pressure = '-';
+                }
+                $monitoring->oil_level = '-';
+                $monitoring->temp = "-";
+                if ($request->issue == null) {
+                    if ($request->temperature <= 94) {
+                        $monitoring->issue = 'Off';
+                    } else {
+                        $monitoring->issue = 'Off: High Temperature : ' . $request->temperature . " °C";
+                    }
+                } else {
+                    if ($request->temperature <= 94) {
+                        $monitoring->issue = 'Off : ' . $request->issue;
+                    } else {
+                        $monitoring->issue = 'Off : ' . $request->issue . ', High Temperature : ' . $request->temperature . " °C";
+                    }
+                }
+            }
+        } else {
+            if ($request->condition == 'Running') {
+                $monitoring->dew = $request->dew;
+                $monitoring->fan = $request->fan;
+                $monitoring->drain = $request->drain;
+                $monitoring->leak = $request->leak;
+                $monitoring->temp = $request->temperature_in . " °C";
+                $monitoring->temp_out = $request->temperature_out . " °C";
+                if ($request->issue == null) {
+                    if ($dew <= 10) {
+                        $monitoring->issue = null;
+                    } else {
+                        $monitoring->issue = 'High dew';
+                    }
+                } else {
+                    if ($request->issue != null) {
+                        if ($dew <= 10) {
+                            $monitoring->issue = $request->issue;
+                        } else {
+                            $monitoring->issue = $request->issue . ', High dew';
+                        }
+                    }
+                }
+            } elseif ($request->condition == 'Stand By') {
+                $monitoring->dew = $request->dew;
+                $monitoring->fan = $request->fan;
+                $monitoring->drain = $request->drain;
+                $monitoring->leak = $request->leak;
+                $monitoring->temp = $request->temperature_in . " °C";
+                $monitoring->temp_out = $request->temperature_out . " °C";
+                if ($request->issue == null) {
+                    if ($dew <= 10) {
+                        $monitoring->issue = 'Stand By';
+                    } else {
+                        $monitoring->issue = 'Stand By: High dew';
+                    }
+                } else {
+                    if ($dew <= 10) {
+                        $monitoring->issue = 'Stand By : ' . $request->issue;
+                    } else {
+                        $monitoring->issue = 'Stand By : ' . $request->issue . ', High dew';
+                    }
+                }
+            } elseif ($request->condition == 'Off') {
+                $monitoring->dew = '-';
+                $monitoring->fan = '-';
+                $monitoring->drain = '-';
+                $monitoring->leak = 'Tidak Ada';
+                $monitoring->temp = "-";
+                $monitoring->temp_out = "-";
+            }
+        }
+        $monitoring->recommendation = '-';
+        if (Auth::user()->code == 'RMD') {
+            $monitoring->date = $request->date;
+        } else {
+            $monitoring->date = Carbon::today();
+        }
+        if ($request->hasFile('picture')) {
+            $foto = $request->file('picture');
+            $foto_ext = $foto->getClientOriginalExtension();
+            $foto_name = Str::random(8);
+
+            $machine_brand = $machine->unit->brand;
+            $machine_type = $machine->unit->type;
+
+            // Direktori upload
+            $upload_dir = public_path('asset/machines/' . $machine_brand . '-' . $machine_type);
+            $upload_path = 'asset/machines';
+            $imagename = $upload_path . '/' . $machine_brand . '-' . $machine_type . '/' . $foto_name . '.' . $foto_ext;
+
+            // Cek apakah direktori sudah ada
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+
+            // Proses manipulasi dan simpan gambar
+            $img = Image::make($foto->path());
+            $img->fit(500, 500, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $img->save($upload_dir . '/' . $foto_name . '.' . $foto_ext);
+
+            // Simpan path ke database atau variabel monitoring
+            $monitoring['picture'] = $imagename;
+
+        }
+        $monitoring->created_at = Carbon::now()->addHour(7);
+        $monitorSave = $monitoring->save();
+        if ($monitorSave) {
+            $statMonitoring = new StatusMonitoring();
+            $statMonitoring->id_monitoring = $monitoring->id;
+            $statMonitoring->id_pic = Auth::user()->id;
+            $statMonitoring->status = '0';
+            $statMonitoring->desc = 'Monitoring Issues Created';
+            $statMonitoring->date = Carbon::today();
+            $statMonitoringSave = $statMonitoring->save();
+        }
+        $month = Carbon::now()->month;
+        // dd($monitoring);
+        if ($monitorSave) {
+            if (auth::user()->level == 1) {
+                return redirect('/monitoring/daily/' . $id)->with('message', 'Data telah di buat');
+            } else {
+                return redirect('/service-manager-daily/' . $id . '/' . $month)->with('message', 'Data telah di buat');
+            }
+
         } else {
 
         }

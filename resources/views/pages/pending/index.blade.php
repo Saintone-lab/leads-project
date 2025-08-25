@@ -3,7 +3,7 @@
 @section('content')
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-pending-po-non-project-admin table table-bordered">
+            <table class="datatable-pending-po-non-project{{auth::user()->role == 'Admin' ? '-admin' : ''}} table table-bordered">
                 <thead>
                     <tr>
                         <th></th>
@@ -58,6 +58,7 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-pending-non-project.js"></script>
     <script src="{{ asset('assets') }}/includes/table-pending-non-project-admin.js"></script>
     <script src="{{ asset('assets') }}/includes/table-pending.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>

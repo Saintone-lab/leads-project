@@ -4,7 +4,7 @@
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
             <table
-                class="datatable-pending-po-done table table-striped">
+                class="datatable-pending-po-done{{Auth::user()->role == 'Admin' ? '-admin' : ''}} table table-striped">
                 <thead>
                     <tr>
                         <th></th>
@@ -55,6 +55,7 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-pending-done.js"></script>
     <script src="{{ asset('assets') }}/includes/table-pending-done-admin.js"></script>
     <script src="{{ asset('assets') }}/includes/table-pending.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>

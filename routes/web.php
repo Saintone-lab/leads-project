@@ -338,6 +338,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/monitoring-service-create/{monitoring}/{id}', [MonitoringController::class, 'createDailyReports'])->name('create.daily-monitoring-reports');
     Route::post('/monitoring-service-store/{monitoring}/{id}', [MonitoringController::class, 'storeService'])->name('store.daily-monitoring-reports');
     Route::post('/monitoring/daily-store/{id}', [MonitoringController::class, 'storeDaily'])->name('store.daily-monitoring');
+    Route::post('/monitoring/daily-update/{id}', [MonitoringController::class, 'updateDaily'])->name('update.daily-monitoring');
     Route::post('/monitoring/daily-mainlog/{id}', [MonitoringController::class, 'storeMainLog'])->name('store.daily-mainlog');
     Route::post('/monitoring/daily-mainlog-service/{id}', [MonitoringController::class, 'storeMainLogService'])->name('store.daily-mainlog-service');
     Route::delete('/monitoring/daily-mainlog/{id}', [MonitoringController::class, 'deleteMainLog'])->name('delete.daily-mainlog');
@@ -1165,6 +1166,11 @@ Route::group(["middleware" => "auth"], function () {
     // Pending PO
     Route::resource('/pending-po', PendingController::class);
     Route::patch('/pending-po/product/{id}', [PendingController::class, 'productEdit'])->name('pending-po.productEdit');
+    Route::patch('/pending-po/status/{id}', [PendingController::class, 'statusEdit'])->name('pending-po.statusEdit');
+    Route::patch('/pending-po/delivery/{id}', [PendingController::class, 'deliveryEdit'])->name('pending-po.deliveryEdit');
+    Route::post('/pending-po/comment/{id}', [PendingController::class, 'add_comment'])->name('pending-po.addComment');
+    Route::get('/pending-po/product-out/{id}', [PendingController::class, 'pending_out'])->name('pending-po.product_out');
+    Route::post('/pending-po/product-out/{id}', [PendingController::class, 'product_out'])->name('pending-po.product_out');
     Route::get('/pending-po-done', [PendingController::class, 'indexDone'])->name('pending-po.done');
 
     // Dashboard Function
@@ -2278,13 +2284,16 @@ Route::group(["middleware" => "auth"], function () {
         $data = PIC::where('id_client', $id)->get();
         return response()->json(['data' => $data]);
     });
+
     Route::get('/db/pending/po/non-project', function () {
         $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
             ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->whereNot('pending_po.status', 2)
+            ->whereNot('pending_po.status', [6,7])
+            ->where('q.id_sales', Auth::user()->id)
+            ->groupBy('q.id')
             ->select(
                 'pending_po.id',
                 'pending_po.delivery',
@@ -2306,7 +2315,8 @@ Route::group(["middleware" => "auth"], function () {
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->where('pending_po.status', 2)
+            ->where('pending_po.status', 6)
+            ->where('q.id_sales', Auth::user()->id)
             ->select(
                 'pending_po.id',
                 'u.name',
@@ -2319,6 +2329,49 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json(['data' => $data]);
     });
+    Route::get('/db/pending/po/non-project/admin', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->whereNot('pending_po.status', [6,7])
+            ->groupBy('q.id')
+            ->select(
+                'pending_po.id',
+                'pending_po.delivery',
+                'u.name',
+                'q.po_date',
+                'q.title',
+                'c.company',
+                'i.no_po',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pending/po/done/admin', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->where('pending_po.status', 6)
+            ->select(
+                'pending_po.id',
+                'u.name',
+                'c.company',
+                'i.no_po',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+
     Route::get('/db/sale-report/product/{year}', function ($year) {
         $startDate1 = Carbon::createFromDate($year, 1)->startOfMonth()->toDateString();
         $endDate1 = Carbon::createFromDate($year, 6)->endOfMonth()->toDateString();

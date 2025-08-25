@@ -1,4 +1,5 @@
-<form action="{{ route('status.change.quotation', $pending->id) }}" method="patch" enctype="multipart/form-data">
+<form action="{{ route('pending-po.statusEdit', $pending->id) }}" method="post" enctype="multipart/form-data">
+    @method('PATCH')
     @csrf
     <div class="modal-onboarding modal fade animate__animated" id="statusEdit" tabindex="-1"
         style="display: none;" aria-hidden="true">

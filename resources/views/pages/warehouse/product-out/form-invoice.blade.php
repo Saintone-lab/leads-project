@@ -45,8 +45,8 @@
                                 <select class="form-select" id="vers" aria-label="Default select example"
                                     name="vers">
                                     <option disabled>----- Select Offline / Online ------</option>
-                                    <option value="Online">Online</option>
                                     <option value="Offline">Offline</option>
+                                    <option value="Online">Online</option>
                                 </select>
                                 <label for="vers">Offline / Online</label>
                             </div>

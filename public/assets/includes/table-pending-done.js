@@ -1,10 +1,10 @@
 $(function () {
-    var dt_table_pending_po_non_project_admin = $(".datatable-pending-po-non-project-admin");
-    var Url = "db/pending/po/non-project/admin";
+    var dt_table_pending_po_done = $(".datatable-pending-po-done");
+    var Url = "db/pending/po/done";
 
-    if (dt_table_pending_po_non_project_admin.length) {
+    if (dt_table_pending_po_done.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_pending = dt_table_pending_po_non_project_admin.DataTable({
+        var dt_pending = dt_table_pending_po_done.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -24,21 +24,18 @@ $(function () {
             },
             columns: [
                 { data: "" },
-                // { data: "id" },
                 { data: "id" },
-                { data: "po_date" },
+                { data: "id" },
+                { data: "name" },
+                { data: "company" },
                 {
                     data: "no_po",
                     render: function (data, type, row) {
                         return data ? data : "belum ada invoice";
                     },
                 },
-                { data: "company" },
-                { data: "title" },
                 { data: "status" },
                 { data: "status_p" },
-                { data: "delivery" },
-                { data: "id" },
             ],
             columnDefs: [
                 {
@@ -52,106 +49,53 @@ $(function () {
                         return "";
                     },
                 },
-                // {
-                //     // For Checkboxes
-                //     targets: 1,
-                //     orderable: false,
-                //     searchable: false,
-                //     responsivePriority: 3,
-                //     checkboxes: true,
-                //     render: function () {
-                //         return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                //     },
-                //     checkboxes: {
-                //         selectAllRender:
-                //             '<input type="checkbox" class="form-check-input">',
-                //     },
-                // },
                 {
+                    // For Checkboxes
                     targets: 1,
+                    orderable: false,
+                    searchable: false,
+                    responsivePriority: 3,
+                    checkboxes: true,
+                    render: function () {
+                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
+                    },
+                    checkboxes: {
+                        selectAllRender:
+                            '<input type="checkbox" class="form-check-input">',
+                    },
+                },
+                {
+                    targets: 2,
                     searchable: true,
                     visible: false,
                 },
                 {
-                    responsivePriority: 2,
+                    responsivePriority: 1,
                     targets: 4,
                 },
-                {
-                    targets: -1,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var id = full["id"];
-                            detailRoute = route("pending-po.show", id);
-                            return (
-                                '<a href="' +
-                                detailRoute +
-                                '">' +
-                                '<i class="menu-icon text-black tf-icons mdi mdi-file-document-outline"></i>' +
-                                "</a>"
-                            );
-                        }
-                        return data;
-                    },
-                },
-                {
-                    targets: 3,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var id = full["id"];
-                            return (
-                                '<a class="text-black cursor-pointer" data-bs-toggle="modal" data-bs-target="#detailPending-' +
-                                id +
-                                '">' +
-                                data +
-                                "</a>"
-                            );
-                        }
-                        return data;
-                    },
-                },
+                // {
+                //     targets: -1,
+                //     render: function (data, type, full, row) {
+                //         if (type === "display") {
+                //             var id = full["id"];
+                //             detailRoute = route("pending-po.edit", id);
+                //             return (
+                //                 '<a class="btn btn-primary" href="' +
+                //                 detailRoute +
+                //                 '">' +
+                //                 "Product" +
+                //                 "</a>"
+                //             );
+                //         }
+                //         return data;
+                //     },
+                // },
                 {
                     targets: 6,
                     render: function (data, type, full, meta) {
-                        var $status_number = full["status"];
-                        var $status = {
-                            null: {
-                                title: "Quotation PO",
-                                class: "bg-label-info",
-                            },
-                            0: {
-                                title: "Quotation PO",
-                                class: "bg-label-info",
-                            },
-                            1: {
-                                title: "On Check",
-                                class: " bg-label-info",
-                            },
-                            2: {
-                                title: "Ready Stock",
-                                class: " bg-label-whatsapp",
-                            },
-                            3: {
-                                title: "Kurang",
-                                class: " bg-label-reddit",
-                            },
-                            4: {
-                                title: "Pre-Order",
-                                class: " bg-label-primary",
-                            },
-                            5: {
-                                title: "Delivery Process",
-                                class: " bg-label-linkedin",
-                            }, 
-                        };
-                        if (typeof $status[$status_number] === "undefined") {
-                            return data;
-                        }
                         return (
-                            '<span class="badge rounded-pill ' +
-                            $status[$status_number].class +
-                            '">' +
-                            $status[$status_number].title +
-                            "</span>"
+                            '<span class="badge rounded-pill bg-label-success">' +
+                            "Done </span>"
                         );
                     },
                 },
@@ -194,30 +138,6 @@ $(function () {
                             $status[$status_number].title +
                             "</span>"
                         );
-                    },
-                },
-                {
-                    targets: 8,
-                    render: function (data, type, full, meta) {
-                        var delivery = full["delivery"];
-                        switch (delivery) {
-                            case 1:
-                                delivery = "Kurir"
-                                break;
-                            case 2:
-                                delivery = "Teknisi"
-                                break;
-                            case 3:
-                                delivery = "Direct"
-                                break;
-                            case 4:
-                                delivery = "Other"
-                                break;
-                        
-                            default:
-                                break;
-                        }
-                            return delivery;
                     },
                 },
             ],
@@ -486,7 +406,7 @@ $(function () {
         });
         $("div.hl-1").html('<h5 class="card-title mb-0">Table Pending PO</h5>');
     }
-    dt_table_pending_po_non_project_admin.on("draw", function () {
+    dt_table_pending_po_done.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });
