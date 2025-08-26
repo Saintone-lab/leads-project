@@ -274,6 +274,10 @@ class MonitoringClientController extends Controller
     {
         return view('pages.monitoring.client.monitoring');
     }
+    public function service_report()
+    {
+        return view('pages.monitoring.client.service-report');
+    }
 
     public function show($id)
     {

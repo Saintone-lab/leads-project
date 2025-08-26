@@ -79,20 +79,44 @@
         <div class="col-12">
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5> Air Compressor </h5>
                     <div class="card-datatable table-responsive pt-0">
-                        <table class="datatable-recap-compressor table table-striped">
+                        <table class="datatable-recap-dryer table table-striped">
                             <thead>
                                 <tr>
                                     <th></th>
                                     <th></th>
                                     <th>ID</th>
-                                    <th>Unit</th>
-                                    <th>Brand</th>
-                                    <th>Tag</th>
                                     <th>Location</th>
+                                    <th>Tag</th>
+                                    <th>Brand</th>
+                                    <th>Condition</th>
+                                    <th>Temp IN</th>
+                                    <th>Temp Out</th>
+                                    <th>Dew Point</th>
+                                    <th>Drain</th>
+                                    <th>Fan</th>
+                                    <th>Kebocoran</th>
                                     <th>PIC</th>
-                                    <th>Info</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        <div class="col-12">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-recap-dryer-issue table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Location</th>
+                                    <th>Tag</th>
+                                    <th>Brand</th>
+                                    <th style="width: 60%;">Issue</th>
                                 </tr>
                             </thead>
                         </table>
@@ -150,6 +174,7 @@
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-recap-compressor.js"></script>
     <script src="{{ asset('assets') }}/includes/table-recap-dryer.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-recap-dryer-issue.js"></script>
 @endpush
 
 @push('script')

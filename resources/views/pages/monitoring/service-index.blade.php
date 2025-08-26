@@ -125,7 +125,7 @@
     </div> --}}
         </div>
         <div class="row">
-            <div class="col-12 col-md-6">
+            {{-- <div class="col-12 col-md-6">
                 <div class="card mb-3">
                     <div class="card-body">
                         <h5> Issue & Maintenance Log </h5>
@@ -164,8 +164,8 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-12">
+            </div> --}}
+            {{-- <div class="col-12">
                 <div class="card mb-3">
                     <div class="card-body">
                         <h5> Service Reports </h5>
@@ -189,7 +189,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
     @else
         <h3>Rekap Issue & Maintenance Log {{ \Carbon\Carbon::createFromFormat('m', $month)->format('F') }} ,
@@ -315,8 +315,8 @@
     <script src="{{ asset('assets') }}/includes/table-coordinator-compressor.js"></script>
     <script src="{{ asset('assets') }}/includes/table-coordinator-dryer.js"></script>
     <script src="{{ asset('assets') }}/includes/table-recap-month.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-reports-fp.js"></script>
     <script src="{{ asset('assets') }}/includes/table-issue-month.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-reports-fp.js"></script>
 @endpush
 
 @push('script')

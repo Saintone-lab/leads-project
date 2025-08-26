@@ -136,7 +136,7 @@
         </div>
 
 
-        <div class="col">
+        {{-- <div class="col">
             <div class="card">
                 <div class="card-header">
                     <h3>Weekly Juni</h3>
@@ -149,7 +149,6 @@
                                     <div class="avatar-initial bg-label-info rounded">
                                         <div>
                                             <i class="mdi mdi-48px mdi-numeric-1-circle-outline"></i>
-                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
                                         </div>
                                     </div>
                                 </div>
@@ -169,7 +168,6 @@
                                     <div class="avatar-initial bg-label-info rounded">
                                         <div>
                                             <i class="mdi mdi-48px mdi-numeric-2-circle-outline"></i>
-                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
                                         </div>
                                     </div>
                                 </div>
@@ -189,7 +187,6 @@
                                     <div class="avatar-initial bg-label-info rounded">
                                         <div>
                                             <i class="mdi mdi-48px mdi-numeric-3-circle-outline"></i>
-                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
                                         </div>
                                     </div>
                                 </div>
@@ -211,7 +208,6 @@
                                     <div class="avatar-initial bg-label-info rounded">
                                         <div>
                                             <i class="mdi mdi-48px mdi-numeric-4-circle-outline"></i>
-                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
                                         </div>
                                     </div>
                                 </div>
@@ -231,7 +227,7 @@
                                     <div class="avatar-initial bg-label-info rounded">
                                         <div>
                                             <i class="mdi mdi-48px mdi-numeric-5-circle-outline"></i>
-                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
+                                            <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card">
                                         </div>
                                     </div>
                                 </div>
@@ -251,7 +247,6 @@
                                     <div class="avatar-initial bg-label-danger rounded">
                                         <div>
                                             <i class="mdi mdi-48px mdi-file-document-outline"></i>
-                                            {{-- <img src="../../assets/img/icons/payments/credit-card.png" alt="credit-card"> --}}
                                         </div>
                                     </div>
                                 </div>
@@ -270,7 +265,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <div class="col">
             <div class="card">
@@ -397,8 +392,8 @@
                                             class="mb-0 fw-semibold fs-6 fw-medium text-black">
                                             Service Reports
                                         </a>
-                                        <p class="fs-5">{{ $cleaning }}/ <span
-                                                class="text-muted fs-6">240</span></p>
+                                        <p class="fs-5">{{ $cleaning }}/ <span class="text-muted fs-6">240</span>
+                                        </p>
                                     </div>
                                 </div>
                             </li>
@@ -408,7 +403,7 @@
             </div>
         </div>
 
-        {{-- <div class="col">
+        <div class="col">
             <div class="card h-100">
                 <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
                     <h1 class="text-black">{{ $monthly }}/ <span class="text-muted fs-3">{{ $allDryer }}</span>
@@ -416,7 +411,7 @@
                     <h5>Monthly</h5>
                 </div>
             </div>
-        </div> --}}
+        </div>
 
         {{-- <div class="col-12 col-md-3 mb-2">
             <div class="card bg-label-success h-100">
@@ -515,7 +510,8 @@
             </div>
         </div>
     </div>
-    <div class="row">
+
+    {{-- <div class="row">
         <div class="col-12">
             <div class="card mb-3">
                 <div class="card-body">
@@ -532,6 +528,49 @@
                                     <th>Model / Type</th>
                                     <th>Issue</th>
                                     <th>Pic</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> --}}
+    <div class="row">
+
+        <div class="col-12 col-md-6">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5> Issue & Maintenance Log </h5>
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-issue-month table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>month</th>
+                                    <th>action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5> Recap Monitoring </h5>
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-recap-month table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>month</th>
+                                    <th>action</th>
                                 </tr>
                             </thead>
                         </table>
@@ -570,6 +609,8 @@
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-client-daily.js"></script>
     <script src="{{ asset('assets') }}/includes/table-issue-client-monitoring.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-recap-month.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-issue-month.js"></script>
 @endpush
 
 @push('script')

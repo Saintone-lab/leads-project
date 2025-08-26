@@ -90,6 +90,8 @@ Route::get('/monitoring/kosongan', [MonitoringController::class, 'kosongan'])->n
 Route::get('/monitoring-daily-visit/{id}/{month}', [MonitoringController::class, 'visitorDailyMonth'])->name('visitor-change.daily-monitoring');
 Route::get('/monitoring/daily-log/{id}', [MonitoringController::class, 'logDaily'])->name('log.daily-monitoring');
 Route::get('/monitoring/weekly-visit/{id}', [MonitoringController::class, 'visitorWeekly'])->name('visitor.weekly-monitoring');
+Route::get('/service-manager/recap-today', [MonitoringController::class, 'recapClient'])->name('service-manager.recap-monitoring-today');
+Route::get('/service-manager/recap/{date?}', [MonitoringController::class, 'recapM'])->name('service-manager.recap-monitoring');
 Route::get('/db/machine-monitoring-visit/{id}', [MonitoringController::class, 'getMonitoringCompressorThisMonth']);
 Route::get('/db/dryer-monitoring-visit/{id}', [MonitoringController::class, 'getMonitoringDryerThisMonth']);
 
@@ -365,6 +367,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/monitoring-client/fajarPaper-deletePN/{id}', [MonitoringClientController::class, 'deletePN'])->name('monitoring.fajarPaper-deletePN');
     Route::patch('/monitoring-client/fajarPaper/{id}', [MonitoringClientController::class, 'editIssue'])->name(name: 'monitoring.fajarPaper-editIssue');
     Route::get('/monitoring-client/fajarPaper-monitoring', [MonitoringClientController::class, 'monitoring'])->name('monitoring.fajarPaper-monitoring');
+    Route::get('/monitoring-client/fajarPaper-service-report', [MonitoringClientController::class, 'service_report'])->name('monitoring.fajarPaper-service-report');
     Route::get('/monitoring-client/fajarPaper-reports', [MonitoringClientController::class, 'reports'])->name('monitoring.fajarPaper-reports');
     Route::get('/monitoring-client-fajarPaper-reports/{year}/{month}', [MonitoringClientController::class, 'reportsMonthly'])->name('monitoring.fajarPaper-reportsMonthly');
     Route::get('/monitoring-client/fajarPaper-summary-print', [MonitoringClientController::class, 'summaryPrint'])->name('monitoring.fajarPaper-summary-print');
@@ -717,7 +720,6 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/service-manager-weekly-print/{id}/{week}', [MonitoringController::class, 'visitorWeeklyServicePrint'])->name('service-manager-weekly.print');
     Route::get('/service-manager-monthly-print/{id}/{week}', [MonitoringController::class, 'visitorMonthlyServicePrint'])->name('service-manager-monthly.print');
     Route::get('/service-manager-recap-day/{month}/{year}', [MonitoringController::class, 'recapDay'])->name('service-manager.recap');
-    Route::get('/service-manager/recap/{date?}', [MonitoringController::class, 'recapM'])->name('service-manager.recap-monitoring');
     Route::get('/service-manager/allRec/{date?}', [MonitoringController::class, 'getAllMachine'])->name('service-manager.allrecap-monitoring');
     Route::get('/service-manager/issue/{date}', [MonitoringController::class, 'issueMachine'])->name('service-manager.issue');
     Route::get('/db/service-manager/bulan/{id}', function ($id) {
@@ -904,6 +906,28 @@ Route::group(["middleware" => "auth"], function () {
             ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
             ->where('machine.id_client', 1277)
             ->where('u.unit', 'REFRIGERANT AIR DRYER')
+            ->orderBy('machine.location')
+            ->select(
+                'machine.*',
+                DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),
+                'm.*',
+                'us.name'
+            )
+            ->get();
+        return response()->json(['data' => $mesinDryer]);
+    });
+    Route::get('db/recap-dryer-today', function () {
+        $date = Carbon::today();
+        $mesinDryer = Machine::leftJoin('monitoring as m', function ($join) use ($date) {
+            $join->on('machine.id', '=', 'm.id_machine')
+                ->whereDate('m.date', '=', strval($date)); // Menyaring berdasarkan tanggal monitoring
+        })
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
+            ->where('machine.id_client', 1277)
+            ->where('u.unit', 'REFRIGERANT AIR DRYER')
+            ->orderBy('machine.location')
             ->select(
                 'machine.*',
                 DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),
@@ -2291,7 +2315,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->whereNot('pending_po.status', [6,7])
+            ->whereNot('pending_po.status', [6, 7])
             ->where('q.id_sales', Auth::user()->id)
             ->groupBy('q.id')
             ->select(
@@ -2335,7 +2359,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->whereNot('pending_po.status', [6,7])
+            ->whereNot('pending_po.status', [6, 7])
             ->groupBy('q.id')
             ->select(
                 'pending_po.id',

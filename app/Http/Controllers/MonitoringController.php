@@ -2074,7 +2074,84 @@ class MonitoringController extends Controller
             )
             ->get();
         // dd($mesinDryer);
-        return view('pages.monitoring.recap', compact('allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', ));
+        return view('pages.monitoring.recap', compact('allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'date' ));
+    }
+    public function recapClient()
+    {
+        $date = Carbon::today();
+        $allPlant = Machine::where('id_client', 1277)->whereNotBetween('machine.id', [472, 481])->count();
+        $allPlantMonitoring = Machine::where('id_client', 1277)->whereNotBetween('machine.id', [472, 481])
+            ->whereHas('monitoring', function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })->count();
+        $GT = Machine::where('id_client', 1277)->where('location', 'GT 1-2')->whereNotBetween('machine.id', [472, 481])->count();
+        $GTMonitoring = Machine::where('id_client', 1277)->where('location', 'GT 1-2')->whereNotBetween('machine.id', [472, 481])
+            ->whereHas('monitoring', function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })->count();
+        $GT3 = Machine::where('id_client', 1277)->where('location', 'GT3/BOILER')->whereNotBetween('machine.id', [472, 481])->count();
+        $GT3Monitoring = Machine::where('id_client', 1277)->where('location', 'GT3/BOILER')->whereNotBetween('machine.id', [472, 481])
+            ->whereHas('monitoring', function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })->count();
+        $INC = Machine::where('id_client', 1277)->where('location', 'INC')->whereNotBetween('machine.id', [472, 481])->count();
+        $INCMonitoring = Machine::where('id_client', 1277)->where('location', 'INC')->whereNotBetween('machine.id', [472, 481])
+            ->whereHas('monitoring', function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })->count();
+        $PM12 = Machine::where('id_client', 1277)->where('location', 'BM 1-2')->whereNotBetween('machine.id', [472, 481])->count();
+        $PM12Monitoring = Machine::where('id_client', 1277)->where('location', 'BM 1-2')->whereNotBetween('machine.id', [472, 481])
+            ->whereHas('monitoring', function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })->count();
+        $PM35 = Machine::where('id_client', 1277)->whereBetween('location', ['BM 3', 'BM 5'])->whereNotBetween('machine.id', [472, 481])->count();
+        $PM35Monitoring = Machine::where('id_client', 1277)->whereBetween('location', ['BM 3', 'BM 5'])->whereNotBetween('machine.id', [472, 481])
+            ->whereHas('monitoring', function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })->count();
+        $PM78 = Machine::where('id_client', 1277)->whereBetween('location', ['BM 7', 'BM 8'])->whereNotBetween('machine.id', [472, 481])->count();
+        $PM78Monitoring = Machine::where('id_client', 1277)->whereBetween('location', ['BM 7', 'BM 8'])->whereNotBetween('machine.id', [472, 481])
+            ->whereHas('monitoring', function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })->count();
+        // $mesin = Machine::where('id_client', 1277)->rightJoin('monitoring as m', 'm.id_machine', '=' ,'machine.id')->whereDate('m.date', $date)->get();
+        $mesinCompressor = Machine::whereNotBetween('machine.id', [472, 481])
+            ->leftJoin('monitoring as m', function ($join) use ($date) {
+                $join->on('machine.id', '=', 'm.id_machine')
+                    ->whereDate('m.date', '=', $date); // Menyaring berdasarkan tanggal monitoring
+            })
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
+            ->where('machine.id_client', 1277)
+            ->where('u.unit', 'AIR COMPRESSOR SCREW')
+            ->select(
+                'machine.*',
+                DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),
+                'm.*',
+                'u.unit',
+                'us.name'
+            )
+            ->get();
+        $mesinDryer = Machine::whereNotBetween('machine.id', [472, 481])
+            ->leftJoin('monitoring as m', function ($join) use ($date) {
+                $join->on('machine.id', '=', 'm.id_machine')
+                    ->whereDate('m.date', '=', $date); // Menyaring berdasarkan tanggal monitoring
+            })
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
+            ->where('machine.id_client', 1277)
+            ->where('u.unit', 'REFRIGERANT AIR DRYER')
+            ->select(
+                'machine.*',
+                DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),
+                'm.*',
+                'us.name'
+            )
+            ->get();
+        // dd($mesinDryer);
+        return view('pages.monitoring.recap', compact('allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'date' ));
     }
 
     public function issueUpdate(Request $request, $id, $month)

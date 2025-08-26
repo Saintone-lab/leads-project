@@ -193,6 +193,12 @@
                             <div data-i18n="Monitoring">Monitoring</div>
                         </a>
                     </li>
+                    <li
+                        class="menu-item {{ request()->is('monitoring-client/fajarPaper-service-report') ? 'active' : '' }}">
+                        <a href="{{ route('monitoring.fajarPaper-service-report') }}" class="menu-link">
+                            <div data-i18n="Service Report">Service Report</div>
+                        </a>
+                    </li>
                     <li class="menu-item {{ request()->is('monitoring-client/fajarPaper-reports') ? 'active' : '' }}">
                         <a href="{{ route('monitoring.fajarPaper-reports') }}" class="menu-link">
                             <div data-i18n="Report">Report</div>
@@ -635,6 +641,12 @@
                             class="menu-item {{ request()->is('monitoring-client/fajarPaper-monitoring') ? 'active' : '' }}">
                             <a href="{{ route('monitoring.fajarPaper-monitoring') }}" class="menu-link">
                                 <div data-i18n="Monitoring">Monitoring</div>
+                            </a>
+                        </li>
+                        <li
+                            class="menu-item {{ request()->is('monitoring-client/fajarPaper-service-report') ? 'active' : '' }}">
+                            <a href="{{ route('monitoring.fajarPaper-service-report') }}" class="menu-link">
+                                <div data-i18n="Service Report">Service Report</div>
                             </a>
                         </li>
                         <li
@@ -1123,6 +1135,12 @@
                         class="menu-item {{ request()->is('monitoring-client/fajarPaper-monitoring') ? 'active' : '' }}">
                         <a href="{{ route('monitoring.fajarPaper-monitoring') }}" class="menu-link">
                             <div data-i18n="Monitoring">Monitoring</div>
+                        </a>
+                    </li>
+                    <li
+                        class="menu-item {{ request()->is('monitoring-client/fajarPaper-service-report') ? 'active' : '' }}">
+                        <a href="{{ route('monitoring.fajarPaper-service-report') }}" class="menu-link">
+                            <div data-i18n="Service Report">Service Report</div>
                         </a>
                     </li>
                     <li
