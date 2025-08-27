@@ -216,6 +216,22 @@
                     </li>
                 </ul>
             </li>
+            <li
+                class="menu-item {{ request()->is('service-manager-prokemas') || request()->is('service-manager-daily-prokemas/*/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-factory"></i>
+                    <div data-i18n="Prokemas">Prokemas</div>
+                </a>
+                <ul class="menu-sub">
+                    <li
+                        class="menu-item {{ request()->is('service-manager-prokemas') || request()->is('service-manager-daily-prokemas/*/*') ? 'active' : '' }}">
+                        <a href="{{ route('service-manager-prokemas.index') }}" class="menu-link">
+                            <div data-i18n="Monitoring">Monitoring</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Marketting</span>
             </li>
@@ -665,6 +681,22 @@
                             class="menu-item {{ request()->is('monitoring-client/fajarPaper-archive') ? 'active' : '' }}">
                             <a href="{{ route('monitoring-arsip.fajarPaper') }}" class="menu-link">
                                 <div data-i18n="Archived">Archived</div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li
+                    class="menu-item {{ request()->is('service-manager-prokemas') || request()->is('service-manager-daily-prokemas/*/*') ? 'open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons mdi mdi-factory"></i>
+                        <div data-i18n="Prokemas">Prokemas</div>
+                    </a>
+                    <ul class="menu-sub">
+                        <li
+                            class="menu-item {{ request()->is('service-manager-prokemas') || request()->is('service-manager-daily-prokemas/*/*') ? 'active' : '' }}">
+                            <a href="{{ route('service-manager-prokemas.index') }}" class="menu-link">
+                                <div data-i18n="Monitoring">Monitoring</div>
                             </a>
                         </li>
                     </ul>

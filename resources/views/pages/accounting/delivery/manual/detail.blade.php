@@ -121,7 +121,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>No.</th>
-                                    <th>Part Number</th>
+                                    {{-- <th>Part Number</th> --}}
                                     <th style="width: 40%">Description</th>
                                     <th>Qty</th>
                                 </tr>
@@ -142,10 +142,10 @@
                                                     {{ $product->product }}
                                                 </p>
                                             </td>
-                                            <td>
+                                            {{-- <td>
                                                 <pre class="mb-0"
                                                     style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->view == '0' ? $product->desc : '' }}</pre>
-                                            </td>
+                                            </td> --}}
                                             <td class="align-top">{{ $product->qty }} {{ $product->info_qty }} </td>
                                         </tr>
                                         @php
@@ -153,7 +153,7 @@
                                         @endphp
                                     @endforeach
                                     <tr>
-                                        <td colspan="3"></td>
+                                        <td colspan="2"></td>
                                         <td>{{ $qty }} {{ $product->info_qty }} </td>
                                     </tr>
                                 </tbody>

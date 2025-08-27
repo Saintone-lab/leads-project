@@ -710,6 +710,8 @@ Route::group(["middleware" => "auth"], function () {
     });
 
     //service manager
+    Route::get('/service-manager-prokemas', [MonitoringController::class, 'indexServiceProkemas'])->name('service-manager-prokemas.index');
+    Route::get('/service-manager-daily-prokemas/{id}/{month}', [MonitoringController::class, 'visitorDailyServiceProkemas'])->name('service-manager-daily-prokemas.visit');
     Route::get('/service-manager', [MonitoringController::class, 'indexServiceM'])->name('service-manager.index');
     Route::get('/service-manager/{id}', [MonitoringController::class, 'showServiceM'])->name('service-manager.show');
     Route::get('/service-manager-daily/{id}/{month}', [MonitoringController::class, 'visitorDailyService'])->name('service-manager-daily.visit');
@@ -2532,10 +2534,11 @@ Route::group(["middleware" => "auth"], function () {
             ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
             ->join('unit as u', 'u.id', '=', 'sp.id_product')
             ->whereIn('machine.id', [495, 496])
+            ->groupBy('machine.id')
             ->addSelect(
                 'machine.id',
                 'us.name',
-                DB::raw("DATE_FORMAT(m.created_at, '%H') as created_at"),
+                DB::raw("DATE_FORMAT(m.created_at, '%H:%i') as time"),
                 'sp.brand',
                 'u.sku',
                 'sp.pn',

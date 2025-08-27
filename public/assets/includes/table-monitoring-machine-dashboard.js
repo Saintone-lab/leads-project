@@ -89,7 +89,7 @@ $(function () {
                         if (type === "display") {
                             var id = full["id"];
                             var month = full["month"];
-                            var detailRoute = route("service-manager-daily.visit", [id, month]);
+                            var detailRoute = route("service-manager-daily-prokemas.visit", [id, month]);
                             return (
                                 '<a class="text-dark" href="' + detailRoute + '">' + '<i class="mdi mdi-information scaleX-n1-rtl me-1 mdi-24px"></i>' + "</a>"
                             );

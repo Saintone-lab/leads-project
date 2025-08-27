@@ -82,6 +82,12 @@ class MonitoringController extends Controller
             ];
             $this->validate($request, $rule, $message);
         }
+        if ($id == 495 || $id == 496) {
+            $maksimal = 100;
+        } else {
+            $maksimal = 94;
+        }
+
         $dew = floatval(str_replace(',', '.', $request->dew));
         // dd($request->all());
         $machine = Machine::find($id);
@@ -103,14 +109,14 @@ class MonitoringController extends Controller
                 $monitoring->oil_level = $request->oil;
                 $monitoring->temp = $request->temperature . " °C";
                 if ($request->issue == null) {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = null;
                     } else {
                         $monitoring->issue = 'High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
-                        if ($request->temperature <= 94) {
+                        if ($request->temperature <= $maksimal) {
                             $monitoring->issue = $request->issue;
                         } else {
                             $monitoring->issue = $request->issue . ', High Temperature : ' . $request->temperature . " °C";
@@ -129,14 +135,14 @@ class MonitoringController extends Controller
                 $monitoring->oil_level = $request->oil;
                 $monitoring->temp = $request->temperature . " °C";
                 if ($request->issue == null) {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = 'Stand By';
                     } else {
                         $monitoring->issue = 'Stand By: High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
-                        if ($request->temperature <= 94) {
+                        if ($request->temperature <= $maksimal) {
                             $monitoring->issue = 'Stand By : ' . $request->issue;
                         } else {
                             $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature : ' . $request->temperature . " °C";
@@ -155,13 +161,13 @@ class MonitoringController extends Controller
                 $monitoring->oil_level = '-';
                 $monitoring->temp = "-";
                 if ($request->issue == null) {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = 'Off';
                     } else {
                         $monitoring->issue = 'Off: High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = 'Off : ' . $request->issue;
                     } else {
                         $monitoring->issue = 'Off : ' . $request->issue . ', High Temperature : ' . $request->temperature . " °C";
@@ -296,6 +302,11 @@ class MonitoringController extends Controller
         $monitoring = Monitoring::where('id_machine', $id)->whereDate('created_at', Carbon::today())->first();
         // dd($machine->unit->unit->unit);$machine->monitoring()->whereDate('created_at', Carbon\Carbon::today())->exists()
         // $monitoring = new Monitoring();
+        if ($id == 495 || $id == 496) {
+            $maksimal = 100;
+        } else {
+            $maksimal = 94;
+        }
         $monitoring->id_machine = $id;
         $monitoring->id_pic = Auth::user()->id;
         $monitoring->condition = $request->condition;
@@ -312,14 +323,14 @@ class MonitoringController extends Controller
                 $monitoring->oil_level = $request->oil;
                 $monitoring->temp = $request->temperature . " °C";
                 if ($request->issue == null) {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = null;
                     } else {
                         $monitoring->issue = 'High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
-                        if ($request->temperature <= 94) {
+                        if ($request->temperature <= $maksimal) {
                             $monitoring->issue = $request->issue;
                         } else {
                             $monitoring->issue = $request->issue . ', High Temperature : ' . $request->temperature . " °C";
@@ -338,14 +349,14 @@ class MonitoringController extends Controller
                 $monitoring->oil_level = $request->oil;
                 $monitoring->temp = $request->temperature . " °C";
                 if ($request->issue == null) {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = 'Stand By';
                     } else {
                         $monitoring->issue = 'Stand By: High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
                     if ($request->issue != null) {
-                        if ($request->temperature <= 94) {
+                        if ($request->temperature <= $maksimal) {
                             $monitoring->issue = 'Stand By : ' . $request->issue;
                         } else {
                             $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature : ' . $request->temperature . " °C";
@@ -364,13 +375,13 @@ class MonitoringController extends Controller
                 $monitoring->oil_level = '-';
                 $monitoring->temp = "-";
                 if ($request->issue == null) {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = 'Off';
                     } else {
                         $monitoring->issue = 'Off: High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = 'Off : ' . $request->issue;
                     } else {
                         $monitoring->issue = 'Off : ' . $request->issue . ', High Temperature : ' . $request->temperature . " °C";
@@ -1239,6 +1250,22 @@ class MonitoringController extends Controller
     }
 
     // service Manager
+    public function indexServiceProkemas()
+    {
+        // $today = Carbon::now()->toDateString();
+        // $commodity = Product::count();
+        // $dproduct = DetailProduct::count();
+        // $sproduct = SerialProduct::count();
+        // $user = User::find('25');
+        // $monitoring = MonitoringActivities::whereDate('date', $today)->first();
+
+        // $visits = ReqVisit::whereNull('date')->get();
+        // $visited = ReqVisit::whereNotNull('date')->whereNull('visit_date')->get();
+        return view(
+            "pages.monitoring.service-index-prokemas"
+        );
+    }
+
     public function indexServiceM()
     {
         $allPlant = Machine::where('id_client', 1277)->whereNotBetween('id', [472, 481])->count();
@@ -1331,6 +1358,250 @@ class MonitoringController extends Controller
     {
         $machine = Machine::find($id);
         return view('pages.monitoring.service-detail', compact('machine'));
+    }
+    public function visitorDailyServiceProkemas($id, $month)
+    {
+        $machine = Machine::find($id);
+        $months = $month;
+        // dd($months);
+        $client = Client::find($machine->id_client);
+
+        $setday = Carbon::today();
+        $today = $setday->setMonth($month);
+        $year = $today->year;
+
+        $startOfMonth = $today->copy()->startOfMonth();
+        $startOfMonthDate = $today->copy()->startOfMonth();
+        $endOfMonth = $today->copy()->endOfMonth();
+
+        $dates = [];
+        for ($date = $startOfMonthDate; $date->lte($endOfMonth); $date->addDay()) {
+            $dates[] = $date->format('d-m-Y');
+        }
+        // dd($dates);
+
+        // Ambil data monitoring dari database
+        $monitoringData = Monitoring::whereBetween('monitoring.date', [$startOfMonth, $endOfMonth])
+            ->where('id_machine', $id)
+            ->join('users as u', 'u.id', '=', 'monitoring.id_pic')
+            ->join('machine as m', 'm.id', '=', 'monitoring.id_machine')
+            ->leftJoin('serial_product as sp', 'sp.id', '=', 'm.id_unit')
+            ->leftJoin('unit as un', 'un.id', '=', 'sp.id_product')
+            ->get(['monitoring.*', 'u.name', 'm.id as id_machine', 'un.unit'])
+            ->map(function ($item) {
+                $item->date = Carbon::parse($item->date)->format('d-m-Y'); // Format tanggal
+                return $item;
+            });
+        // dd($monitoringData);
+
+        $compressorIndexed = $monitoringData->keyBy('date')->map(function ($item) {
+            return [
+                'id' => $item->id ?? '-',
+                'id_machine' => $item->id_machine ?? '-',
+                'unit' => $item->unit ?? '-',
+                'running' => $item->running ?? '-',
+                'loading' => $item->loading ?? '-',
+                'pressure' => $item->pressure ?? '-',
+                'dew' => $item->dew ?? '-',
+                'drain' => $item->drain ?? '-',
+                'temp' => $item->temp ?? '-',
+                'temp_out' => $item->temp_out ?? '-',
+                'condition' => $item->condition ?? '-',
+                'oil_level' => $item->oil_level ?? '-',
+                'fan' => $item->fan ?? '-',
+                'leak' => $item->leak ?? '-',
+                'pic' => $item->name ?? '-',
+                'issue' => $item->issue ?? '-',
+                'main_desc' => $item->main_desc ?? '-',
+            ];
+        })->toArray();
+        // dd($compressorIndexed);
+
+        // Gabungkan data monitoring dengan daftar tanggal
+        $compressor = [];
+        foreach ($dates as $date) {
+            $compressor[] = [
+                'date' => $date,
+                'id' => $compressorIndexed[$date]['id'] ?? '-',
+                'id_machine' => $compressorIndexed[$date]['id_machine'] ?? '-',
+                'unit' => $compressorIndexed[$date]['unit'] ?? '-',
+                'running' => $compressorIndexed[$date]['running'] ?? '-',
+                'loading' => $compressorIndexed[$date]['loading'] ?? '-',
+                'pressure' => $compressorIndexed[$date]['pressure'] ?? '-',
+                'temp' => $compressorIndexed[$date]['temp'] ?? '-',
+                'temp_out' => $compressorIndexed[$date]['temp_out'] ?? '-',
+                'dew' => $compressorIndexed[$date]['dew'] ?? '-',
+                'drain' => $compressorIndexed[$date]['drain'] ?? '-',
+                'condition' => $compressorIndexed[$date]['condition'] ?? '-',
+                'oil_level' => $compressorIndexed[$date]['oil_level'] ?? '-',
+                'leak' => $compressorIndexed[$date]['leak'] ?? '-',
+                'pic' => $compressorIndexed[$date]['pic'] ?? '-',
+                'fan' => $compressorIndexed[$date]['fan'] ?? '-',
+                'issue' => $compressorIndexed[$date]['issue'] ?? '-',
+                'main_desc' => $compressorIndexed[$date]['main_desc'] ?? '-',
+            ];
+        }
+        // dd($compressor);
+
+        $dryerIndexed = $monitoringData->keyBy('date')->map(function ($item) {
+            return [
+                'id' => $item->id ?? '-',
+                'id_machine' => $item->id_machine ?? '-',
+                'temp' => $item->temp ?? '-',
+                'temp_out' => $item->temp_out ?? '-',
+                'dew' => $item->dew ?? '-',
+                'drain' => $item->drain ?? '-',
+                'condition' => $item->condition ?? '-',
+                'oil_level' => $item->oil_level ?? '-',
+                'leak' => $item->leak ?? '-',
+                'fan' => $item->fan ?? '-',
+                'issue' => $item->issue ?? '-',
+                'main_desc' => $item->main_desc ?? '-',
+                'pic' => $item->name ?? '-',
+            ];
+        })->toArray();
+
+        // Gabungkan data monitoring dengan daftar tanggal
+        $dryer = [];
+        foreach ($dates as $date) {
+            $dryer[] = [
+                'date' => $date,
+                'id' => $dryerIndexed[$date]['id'] ?? '-',
+                'id_machine' => $compressorIndexed[$date]['id_machine'] ?? '-',
+                'temp' => $dryerIndexed[$date]['temp'] ?? '-',
+                'temp_out' => $dryerIndexed[$date]['temp_out'] ?? '-',
+                'dew' => $dryerIndexed[$date]['dew'] ?? '-',
+                'drain' => $dryerIndexed[$date]['drain'] ?? '-',
+                'condition' => $dryerIndexed[$date]['condition'] ?? '-',
+                'leak' => $dryerIndexed[$date]['leak'] ?? '-',
+                'fan' => $dryerIndexed[$date]['fan'] ?? '-',
+                'oil_level' => $dryerIndexed[$date]['oil_level'] ?? '-',
+                'issue' => $dryerIndexed[$date]['issue'] ?? '-',
+                'main_desc' => $dryerIndexed[$date]['main_desc'] ?? '-',
+                'pic' => $dryerIndexed[$date]['pic'] ?? '-',
+            ];
+        }
+        // dd($compressor);
+
+        // Return data
+        $monitoringThisMonth = response()->json($compressor);
+
+        $issue = Monitoring::leftJoin('pn_monitoring as pn', 'pn.id_monitoring', '=', 'monitoring.id')
+            ->join('users as u', 'u.id', '=', 'monitoring.id_pic')
+            ->where('id_machine', $id)
+            ->whereNot('issue', '-')
+            ->whereNot('issue', 'normal')
+            ->whereNot('issue', 'Normal')
+            ->whereNotNull('issue')
+            ->whereMonth('monitoring.date', $month)
+            ->select(
+                'monitoring.*',
+                'u.name',
+                DB::raw("IFNULL(GROUP_CONCAT(pn.pn SEPARATOR ' | '), '-') as pn")
+            )
+            ->groupBy('monitoring.id')
+            ->get();
+
+        // test weekly
+        $weeks = [1, 2, 3, 4, 5];
+        $weeksoy = collect($weeks)->map(function ($week) use ($id, $month, $today) {
+            $data = MonitoringWeekly::join('users as u', 'u.id', '=', 'monitoring_weekly.id_pic')
+                ->where('id_machine', $id)
+                ->where('week', $week)
+                ->whereMonth('monitoring_weekly.date', $month)
+                ->whereYear('monitoring_weekly.date', $today->year)
+                ->select('monitoring_weekly.*', 'u.name')
+                ->first();
+
+            return $data ?? [
+                'id' => '-',
+                'id_pic' => '-',
+                'id_machine' => '-',
+                'condition' => '-',
+                'voltage' => '-',
+                'ampere' => '-',
+                'vibration' => '-',
+                'idle' => '-',
+                'week' => '-',
+                'drain' => '-',
+                'pre' => '-',
+                'cooler' => 0,
+                'coupling' => 2,
+                'area' => 0,
+                'condensor' => 0,
+                'after' => '-',
+                'desc' => '-',
+                'type' => '-',
+                'date' => '-',
+                'name' => '-',
+            ];
+        })->toArray();
+        // dd($weeksoy);
+        // $mainlog = Mainlog::join('users as u', 'u.id', '-', 'main_log.id_teknisi')->where('id_monitoring', $id)->whereMonth('date', $month)->get();
+        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $today->month)->whereNotNull('desc')->select('main_log.*', 'u.name')->orderBy('main_log.date', 'asc')->get();
+        // dd($compressor);
+        $weekly = MonitoringWeekly::where('id_machine', $id)->whereMonth('date', $month)->whereYear('date', $today->year)->get();
+        $reports = Reports::where('id_machine', $id)->whereMonth('date', $month)->whereYear('date', $today->year)->orderBy('date')->get();
+
+        $startDate = Carbon::create($today->year, $month, 1)->startOfWeek(Carbon::SUNDAY);
+        $endDate = Carbon::create($today->year, $month, 1)->endOfMonth();
+        $weeks = [];
+        while ($startDate->lte($endDate)) {
+            $weekNumber = $startDate->format('W'); // Nomor minggu dalam tahun
+            $weeks[$weekNumber] = [
+                // 'minggu' => "$weekNumber",
+                'week' => '-',
+                'condition' => '-',
+                'voltage' => '-',
+                'ampere' => '-',
+                'idle' => '-',
+                'vibration' => '-',
+                'dew' => '-',
+                'drain' => '-',
+                'cooler' => '-',
+                'coupling' => '-',
+                'condensor' => '-',
+                'area' => '-',
+                'pre' => '-',
+                'after' => '-',
+                'desc' => '-',
+                'date' => '-',
+                'name' => '-'
+            ];
+            $startDate->addWeek();
+        }
+
+        // Isi data yang ada ke dalam minggu
+        foreach ($weekly as $item) {
+            $weekNumber = Carbon::parse($item->date)->format('W');
+            $weeks[$weekNumber]['week'] = $item->week;
+            $weeks[$weekNumber]['condition'] = $item->condition;
+            $weeks[$weekNumber]['voltage'] = $item->voltage;
+            $weeks[$weekNumber]['ampere'] = $item->ampere;
+            $weeks[$weekNumber]['idle'] = $item->idle;
+            $weeks[$weekNumber]['vibration'] = $item->vibration;
+            $weeks[$weekNumber]['dew'] = $item->dew;
+            $weeks[$weekNumber]['cooler'] = $item->cooler;
+            $weeks[$weekNumber]['coupling'] = $item->coupling;
+            $weeks[$weekNumber]['area'] = $item->area;
+            $weeks[$weekNumber]['condensor'] = $item->condensor;
+            $weeks[$weekNumber]['drain'] = $item->drain;
+            $weeks[$weekNumber]['pre'] = $item->pre;
+            $weeks[$weekNumber]['after'] = $item->after;
+            $weeks[$weekNumber]['date'] = $item->date;
+            $weeks[$weekNumber]['desc'] = $item->desc;
+            $weeks[$weekNumber]['name'] = $item->pic->name;
+        }
+        // dd($weeks);
+
+        $monthly = MonitoringMonthly::whereMonth('date', $month)->where('id_machine', $id)->first();
+        $quotes = Quotation::join('detail_quotation as d', 'd.id_quotation', '=', 'quotation.id')->where('d.id_equivalent', $id)->whereMonth('estimated_date', $month)->get();
+        // dd($monthly);
+
+        $teknisi = User::get();
+        // dd($teknisi);
+
+        return view('pages.monitoring.service-visitor-prokemas', compact('teknisi', 'quotes', 'monthly', 'machine', 'client', 'compressor', 'dryer', 'months', 'issue', 'mainlog', 'weekly', 'reports', 'weeksoy'));
     }
     public function visitorDailyService($id, $month)
     {
@@ -2173,7 +2444,7 @@ class MonitoringController extends Controller
             )
             ->get();
         // dd($mesinDryer);
-        return view('pages.monitoring.recapWeek', compact('mesinDryer','allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'date'));
+        return view('pages.monitoring.recapWeek', compact('mesinDryer', 'allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'date'));
     }
     public function recapClient()
     {
@@ -2267,6 +2538,11 @@ class MonitoringController extends Controller
 
         // dd($request->all());
         // dd($machine->unit->unit->unit);
+        if ($id == 495 || $id == 496) {
+            $maksimal = 100;
+        } else {
+            $maksimal = 94;
+        }
         $monitoring = Monitoring::find($id);
         $machine = Machine::find($monitoring->id_machine);
         $monitoring->condition = $request->condition;
@@ -2283,13 +2559,13 @@ class MonitoringController extends Controller
                 $monitoring->oil_level = $request->oil;
                 $monitoring->temp = $request->temperature . " °C";
                 if ($request->issue == null) {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = null;
                     } else {
                         $monitoring->issue = 'High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = $request->issue;
                     } else {
                         $monitoring->issue = $request->issue . ', High Temperature : ' . $request->temperature . " °C";
@@ -2307,13 +2583,13 @@ class MonitoringController extends Controller
                 $monitoring->oil_level = $request->oil;
                 $monitoring->temp = $request->temperature . " °C";
                 if ($request->issue == null) {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = 'Stand By';
                     } else {
                         $monitoring->issue = 'Stand By: High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = 'Stand By : ' . $request->issue;
                     } else {
                         $monitoring->issue = 'Stand By : ' . $request->issue . ', High Temperature : ' . $request->temperature . " °C";
@@ -2331,13 +2607,13 @@ class MonitoringController extends Controller
                 $monitoring->oil_level = $request->oil;
                 $monitoring->temp = "-";
                 if ($request->issue == null) {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = 'Off';
                     } else {
                         $monitoring->issue = 'Off: High Temperature : ' . $request->temperature . " °C";
                     }
                 } else {
-                    if ($request->temperature <= 94) {
+                    if ($request->temperature <= $maksimal) {
                         $monitoring->issue = $request->issue;
                     } else {
                         $monitoring->issue = $request->issue . ', High Temperature : ' . $request->temperature . " °C";

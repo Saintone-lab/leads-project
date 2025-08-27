@@ -170,44 +170,35 @@
                             </tr>
                         </thead>
                         <tbody>
-
                             @php
-                                $abjad = 64;
-                                $totalPph = 0;
+                                $no = 0;
+                                $qty = 0;
                             @endphp
-                            @foreach ($subQuote as $subJudul)
+                            @foreach ($dDelivery as $product)
                                 @php
-                                    $no = 0;
-                                    $abjad++;
+                                    $no++;
                                 @endphp
-                                <tr style="font-size: 13px border-bottom:none !important;" class="border-top">
-                                    <td class="align-top"
-                                        style="border-bottom:none !important; background-color: #f0f0f0;">
-                                        <p class="fw-bold mb-0">{{ chr($abjad) }}</p>
+                                <tr style="font-size: 13px">
+                                    <td class="align-top">{{ $no }}</td>
+                                    <td class="text-nowrap align-top">
+                                        <p class="mb-0 fw-semibold" style="font-size: 12px">
+                                            {{ $product->product }}
+                                        </p>
                                     </td>
-                                    <td class="text-nowrap align-top" colspan="3"
-                                        style="border-bottom:none !important; background-color: #f0f0f0;">
-                                        <p class="fw-bold mb-0">{{ $subJudul->subtitle }}</p>
-                                    </td>
+                                    {{-- <td>
+                                        <pre class="mb-0"
+                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->view == '0' ? $product->desc : '' }}</pre>
+                                    </td> --}}
+                                    <td class="align-top">{{ $product->qty }} {{ $product->info_qty }} </td>
                                 </tr>
-                                @foreach ($subJudul->detail as $product)
-                                    <tr
-                                        style="font-size: 13px; border-bottom:none !important; border-top:none !important;">
-                                        <td class="align-top py-1" style="border-bottom:none !important;">
-                                            @php
-                                                $no++;
-                                            @endphp
-                                            <p class="mb-0">{{ $no }}</p>
-                                        </td>
-                                        <td class="text-nowrap align-top py-1" style="border-bottom:none !important;">
-                                            <p class="mb-0">{{ $product->product }}</p>
-                                        </td>
-                                        <td class="align-top py-1" style="border-bottom:none !important;">
-                                            <p class="mb-0">{{ $product->qty }} {{ $product->info_qty }}</p>
-                                        </td>
-                                    </tr>
-                                @endforeach
+                                @php
+                                    $qty += $product->qty;
+                                @endphp
                             @endforeach
+                            <tr>
+                                <td colspan="2"></td>
+                                <td>{{ $qty }} {{ $product->info_qty }} </td>
+                            </tr>
                         </tbody>
                     @endif
                 </table>
@@ -348,36 +339,36 @@
                             $no = 0;
                         @endphp
                         {{-- @if ($quote->type == 'Sparepart') --}}
-                            @php
-                                $no = 0;
-                            @endphp
-                            <tr style="font-size: 13px">
-                                <td class="text-nowrap align-top">
-                                    @foreach ($dDelivery as $product)
-                                        @php
-                                            $no++;
-                                        @endphp
-                                        <p class="mb-0 fw-semibold">
-                                            {{ $no }}
-                                        </p>
-                                    @endforeach
-                                </td>
-                                <td class="text-nowrap align-top">
-                                    @foreach ($dDelivery as $product)
-                                        <p class="mb-0 fw-semibold">
-                                            {{ $product->qty }} {{ $product->info_qty }}
-                                        </p>
-                                    @endforeach
-                                </td>
-                                <td class="text-nowrap align-top">
-                                    @foreach ($dDelivery as $product)
-                                        <p class="mb-0 fw-semibold">
-                                            {{ $product->product }}
-                                            {{ $product->desc ?? '' }}
-                                        </p>
-                                    @endforeach
-                                </td>
-                            </tr>
+                        @php
+                            $no = 0;
+                        @endphp
+                        <tr style="font-size: 13px">
+                            <td class="text-nowrap align-top">
+                                @foreach ($dDelivery as $product)
+                                    @php
+                                        $no++;
+                                    @endphp
+                                    <p class="mb-0 fw-semibold">
+                                        {{ $no }}
+                                    </p>
+                                @endforeach
+                            </td>
+                            <td class="text-nowrap align-top">
+                                @foreach ($dDelivery as $product)
+                                    <p class="mb-0 fw-semibold">
+                                        {{ $product->qty }} {{ $product->info_qty }}
+                                    </p>
+                                @endforeach
+                            </td>
+                            <td class="text-nowrap align-top">
+                                @foreach ($dDelivery as $product)
+                                    <p class="mb-0 fw-semibold">
+                                        {{ $product->product }}
+                                        {{ $product->desc ?? '' }}
+                                    </p>
+                                @endforeach
+                            </td>
+                        </tr>
                         {{-- @else
                             @php
                                 $abjad = 64;
