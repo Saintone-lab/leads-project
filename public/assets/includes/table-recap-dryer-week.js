@@ -1,15 +1,17 @@
 $(function () {
-    var dt_table_recap_dryer = $(".datatable-recap-dryer");
-    var Url = "/db/recap-dryer/";
+    var dt_table_recap_dryer_week = $(".datatable-recap-dryer-week");
+    var Url = "/db/recap-dryer-week/";
     var path = window.location.pathname;
-    var date = path.substring(path.lastIndexOf("/") + 1);
+    var segments = path.split("/");
 
-    if (dt_table_recap_dryer.length) {
+    var week = segments[segments.length - 2]; // Mendapatkan segment kedua dari belakang
+    var date = segments[segments.length - 1]; // Mendapatkan segment terakhir
+    if (dt_table_recap_dryer_week.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_recap_dryer.DataTable({
+        var dt_product = dt_table_recap_dryer_week.DataTable({
             ajax: {
                 type: "GET",
-                url: Url + date,
+                url: Url + week + "/" + date,
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -31,14 +33,15 @@ $(function () {
                 { data: "location" },
                 { data: "tag" },
                 { data: "brand_type" },
-                { data: "condition", defaultContent: "-" },
-                { data: "temp", defaultContent: "-" },
-                { data: "temp_out", defaultContent: "-" },
-                { data: "dew", defaultContent: "-" },
-                { data: "drain", defaultContent: "-" },
-                { data: "fan"},
-                { data: "leak"},
-                { data: "name", defaultContent: "-" },
+                { data: "condition" },
+                { data: "voltage" },
+                { data: "ampere" },
+                { data: "drain" },
+                { data: "pre" },
+                { data: "after" },
+                {
+                    data: "name",
+                },
             ],
             columnDefs: [
                 {
@@ -77,7 +80,7 @@ $(function () {
                     targets: 5,
                 },
                 {
-                    targets: [6, 7, 8, 12, 13],
+                    targets: [6, 7, 8, 12],
                     render: function (data, type, full, meta) {
                         if (!data) {
                             return `<p class="">-</p>`;
@@ -85,27 +88,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 9,
-                    render: function (data, type, full, meta) {
-                        if (!data) {
-                            return `<p class="">-</p>`;
-                        }
-                        if (data >= 12) {
-                            var condition_class = " text-danger";
-                        } else {
-                            var condition_class = " text-black";
-                        }
-                        return (
-                            '<p class="' +
-                            condition_class +
-                            '">' +
-                            data +
-                            "</p>"
-                        );
-                    },
-                },
-                {
-                    targets: [10, 11],
+                    targets: [9, 10, 11],
                     render: function (data, type) {
                         if (type === "export") {
                             if (data === "OK") return "OK (✅)";
@@ -382,10 +365,10 @@ $(function () {
             },
         });
         $("div.head-label-daily").html(
-            '<h5 class="card-title mb-0">Daily Check | ' + date + "</h5>"
+            '<h5 class="card-title mb-0">Weekly Check | ' + date + "</h5>"
         );
     }
-    dt_table_recap_dryer.on("draw", function () {
+    dt_table_recap_dryer_week.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

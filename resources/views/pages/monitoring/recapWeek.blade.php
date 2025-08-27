@@ -1,7 +1,7 @@
 @extends('layouts.sales.app')
 @section('title', 'Monitoring machine')
 @section('content')
-    <div class="row mb-4">
+    {{-- <div class="row mb-4">
         <div class="col-12 col-md-3 mb-2">
             <div class="card bg-label-info h-100">
                 <div class="card-body">
@@ -74,13 +74,13 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
     <div class="row">
         <div class="col-12">
             <div class="card mb-3">
                 <div class="card-body">
                     {{-- <div class="card-datatable table-responsive pt-0">
-                        <table class="datatable-recap-dryer table table-striped">
+                        <table class="datatable-recap-dryer-week table table-striped">
                             <thead>
                                 <tr>
                                     <th></th>
@@ -90,17 +90,17 @@
                                     <th>Tag</th>
                                     <th>Brand</th>
                                     <th>Condition</th>
-                                    <th>Temp IN</th>
-                                    <th>Temp Out</th>
-                                    <th>Dew Point</th>
+                                    <th>Voltage</th>
+                                    <th>Amphere</th>
                                     <th>Drain</th>
-                                    <th>Fan</th>
-                                    <th>Kebocoran</th>
+                                    <th>Pre</th>
+                                    <th>After</th>
                                     <th>PIC</th>
                                 </tr>
                             </thead>
                         </table>
                     </div> --}}
+
                     <div class="table-responsive text-nowrap">
                         <table class="table table-bordered">
                             <thead>
@@ -109,12 +109,11 @@
                                     <th>Tag</th>
                                     <th>Brand</th>
                                     <th>Condition</th>
-                                    <th>Temp IN</th>
-                                    <th>Temp Out</th>
-                                    <th>Dew Point</th>
+                                    <th>Voltage</th>
+                                    <th>Amphere</th>
                                     <th>Drain</th>
-                                    <th>Fan</th>
-                                    <th>Kebocoran</th>
+                                    <th>Pre</th>
+                                    <th>After</th>
                                     {{-- <th>PIC</th> --}}
                                 </tr>
                             </thead>
@@ -125,19 +124,18 @@
                                         <td>{{ $item->tag ?? '-' }}</td>
                                         <td>{{ $item->brand_type ?? '-' }}</td>
                                         <td>{{ $item->condition ?? '-' }}</td>
-                                        <td>{{ $item->temp ?? '-' }}</td>
-                                        <td>{{ $item->temp_out ?? '-' }}</td>
-                                        <td class="{{ @$item->dew >= 12 ? 'text-danger' : '' }}">{{ $item->dew ?? '-' }}
-                                        </td>
-                                        <td>
-                                            {{ $item->fan ?? $item->fan == 'OK' ? '✅' : '❌' }}</td>
-                                        <td>
-                                            {{ $item->fan ?? $item->fan == 'OK' ? '✅' : '❌' }}
-                                        </td>
-                                        {{-- <td>
-                                            {{ $item->leak ?? $item->leak == 'OK' ? '✅' : '❌' }}
+                                        <td>{{ $item->voltage ?? '-' }}</td>
+                                        <td>{{ $item->ampere ?? '-' }}</td>
+                                        {{-- <td class="{{ @$item->dew >= 12 ? 'text-danger' : '' }}">{{ $item->dew ?? '-' }}
                                         </td> --}}
-                                        <td>{{ $item->leak ?? '-' }}</td>
+                                        <td>
+                                            {{ $item->drain ?? $item->drain == 'OK' ? '✅' : '❌' }}</td>
+                                        <td>
+                                            {{ $item->pre ?? $item->pre == 'OK' ? '✅' : '❌' }}
+                                        </td>
+                                        <td>
+                                            {{ $item->after ?? $item->after == 'OK' ? '✅' : '❌' }}
+                                        </td>
                                         {{-- <td>{{ $item->name ?? '-' }}</td> --}}
                                     </tr>
                                 @endforeach
@@ -150,7 +148,7 @@
                 <div class="card mb-3">
                     <div class="card-body">
                         {{-- <div class="card-datatable table-responsive pt-0">
-                            <table class="datatable-recap-dryer-issue table table-striped">
+                            <table class="datatable-recap-dryer-issue-week table table-striped">
                                 <thead>
                                     <tr>
                                         <th></th>
@@ -192,6 +190,8 @@
                     </div>
                 </div>
             </div>
+
+
             {{-- <div class="col-12 col-md-6">
             <div class="card mb-3">
                 <div class="card-body">
@@ -242,8 +242,8 @@
     @push('page-script')
         <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
         <script src="{{ asset('assets') }}/includes/table-recap-compressor.js"></script>
-        <script src="{{ asset('assets') }}/includes/table-recap-dryer.js"></script>
-        <script src="{{ asset('assets') }}/includes/table-recap-dryer-issue.js"></script>
+        <script src="{{ asset('assets') }}/includes/table-recap-dryer-week.js"></script>
+        <script src="{{ asset('assets') }}/includes/table-recap-dryer-issue-week.js"></script>
     @endpush
 
     @push('script')

@@ -578,6 +578,26 @@
                 </div>
             </div>
         </div>
+        <div class="col-12 col-md-6">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5> Recap Weekly </h5>
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-recap-month-week table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>month</th>
+                                    <th>action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     @foreach ($issued as $monitor)
         @include('components.modal.monitoring.client.issue')
@@ -609,6 +629,7 @@
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-client-daily.js"></script>
     <script src="{{ asset('assets') }}/includes/table-issue-client-monitoring.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-recap-month-week.js"></script>
     <script src="{{ asset('assets') }}/includes/table-recap-month.js"></script>
     <script src="{{ asset('assets') }}/includes/table-issue-month.js"></script>
 @endpush

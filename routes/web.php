@@ -92,6 +92,7 @@ Route::get('/monitoring/daily-log/{id}', [MonitoringController::class, 'logDaily
 Route::get('/monitoring/weekly-visit/{id}', [MonitoringController::class, 'visitorWeekly'])->name('visitor.weekly-monitoring');
 Route::get('/service-manager/recap-today', [MonitoringController::class, 'recapClient'])->name('service-manager.recap-monitoring-today');
 Route::get('/service-manager/recap/{date?}', [MonitoringController::class, 'recapM'])->name('service-manager.recap-monitoring');
+Route::get('/recap-week/{week}/{date?}', [MonitoringController::class, 'recapMW'])->name('service-manager.recap-monitoring-week');
 Route::get('/db/machine-monitoring-visit/{id}', [MonitoringController::class, 'getMonitoringCompressorThisMonth']);
 Route::get('/db/dryer-monitoring-visit/{id}', [MonitoringController::class, 'getMonitoringDryerThisMonth']);
 
@@ -720,6 +721,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/service-manager-weekly-print/{id}/{week}', [MonitoringController::class, 'visitorWeeklyServicePrint'])->name('service-manager-weekly.print');
     Route::get('/service-manager-monthly-print/{id}/{week}', [MonitoringController::class, 'visitorMonthlyServicePrint'])->name('service-manager-monthly.print');
     Route::get('/service-manager-recap-day/{month}/{year}', [MonitoringController::class, 'recapDay'])->name('service-manager.recap');
+    Route::get('/service-manager-recap-week/{month}/{year}', [MonitoringController::class, 'recapWeek'])->name('service-manager.recap-week');
     Route::get('/service-manager/allRec/{date?}', [MonitoringController::class, 'getAllMachine'])->name('service-manager.allrecap-monitoring');
     Route::get('/service-manager/issue/{date}', [MonitoringController::class, 'issueMachine'])->name('service-manager.issue');
     Route::get('/db/service-manager/bulan/{id}', function ($id) {
@@ -897,9 +899,38 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $mesinCompressor]);
     });
     Route::get('db/recap-dryer/{date}', function ($date) {
-        $mesinDryer = Machine::leftJoin('monitoring as m', function ($join) use ($date) {
+        $mesinDryer = Machine::leftJoin('monitoring as m', 'machine.id', '=', 'm.id_machine')
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
+            ->where('machine.id_client', 1277)
+            ->where('u.unit', 'REFRIGERANT AIR DRYER')
+            ->whereDate('m.date', $date)
+            ->orderBy('machine.location')
+            ->select(
+                DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),
+                'm.*',
+                'machine.*',
+                'us.name'
+            )
+            ->get();
+        return response()->json(['data' => $mesinDryer]);
+    });
+    Route::get('db/recap-dryer-week/{week}/{date}', function ($week, $date) {
+        $date = Carbon::parse($date);
+
+        $month = $date->month;
+        $year = $date->year;
+        $mesinDryer = Machine::leftJoin('monitoring_weekly as m', function ($join) use ($week, $month, $year) {
             $join->on('machine.id', '=', 'm.id_machine')
-                ->whereDate('m.date', '=', strval($date)); // Menyaring berdasarkan tanggal monitoring
+                ->where('m.week', $week)
+                ->where(function ($q) use ($month, $year) {
+                    $q->whereNull('m.date') // kalau null, mesin tetap muncul
+                        ->orWhere(function ($q2) use ($month, $year) {
+                            $q2->whereMonth('m.date', $month)
+                                ->whereYear('m.date', $year);
+                        });
+                });
         })
             ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
             ->join('unit as u', 'u.id', '=', 'sp.id_product')
@@ -980,6 +1011,23 @@ Route::group(["middleware" => "auth"], function () {
         }
 
         return response()->json(['data' => $days]);
+    });
+    Route::get('/db/weeks/{month}/{year}', function ($month, $year) {
+        if (!checkdate($month, 1, $year)) {
+            return response()->json(['error' => 'Invalid month or year'], 400);
+        }
+        $weeks = [];
+        $date = Carbon::create($year, $month, 1);
+        for ($week = 1; $week <= 5; $week++) {
+            $weeks[] = [
+                'id' => $week,
+                'weeks' => $week,
+                'week_name' => 'Week ' . $week,
+                'date' => $date->format('Y-m-d'),
+                'year' => $date->year,
+            ];
+        }
+        return response()->json(['data' => $weeks]);
     });
     Route::get('/db/service-reports/fp', function () {
         $today = Carbon::today();

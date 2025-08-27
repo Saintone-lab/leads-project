@@ -1,15 +1,18 @@
 $(function () {
-    var dt_table_recap_dryer = $(".datatable-recap-dryer");
-    var Url = "/db/recap-dryer/";
+    var dt_table_recap_dryer_issue_week = $(".datatable-recap-dryer-issue-week");
+    var Url = "/db/recap-dryer-week/";
     var path = window.location.pathname;
-    var date = path.substring(path.lastIndexOf("/") + 1);
+    var segments = path.split("/");
 
-    if (dt_table_recap_dryer.length) {
+    var week = segments[segments.length - 2]; // Mendapatkan segment kedua dari belakang
+    var date = segments[segments.length - 1]; // Mendapatkan segment terakhir
+
+    if (dt_table_recap_dryer_issue_week.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_recap_dryer.DataTable({
+        var dt_product = dt_table_recap_dryer_issue_week.DataTable({
             ajax: {
                 type: "GET",
-                url: Url + date,
+                url: Url + week + '/' + date,
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -31,14 +34,7 @@ $(function () {
                 { data: "location" },
                 { data: "tag" },
                 { data: "brand_type" },
-                { data: "condition", defaultContent: "-" },
-                { data: "temp", defaultContent: "-" },
-                { data: "temp_out", defaultContent: "-" },
-                { data: "dew", defaultContent: "-" },
-                { data: "drain", defaultContent: "-" },
-                { data: "fan"},
-                { data: "leak"},
-                { data: "name", defaultContent: "-" },
+                { data: "issue" },
             ],
             columnDefs: [
                 {
@@ -77,49 +73,16 @@ $(function () {
                     targets: 5,
                 },
                 {
-                    targets: [6, 7, 8, 12, 13],
+                    targets: 6,
                     render: function (data, type, full, meta) {
                         if (!data) {
                             return `<p class="">-</p>`;
                         }
-                    },
-                },
-                {
-                    targets: 9,
-                    render: function (data, type, full, meta) {
-                        if (!data) {
-                            return `<p class="">-</p>`;
-                        }
-                        if (data >= 12) {
-                            var condition_class = " text-danger";
-                        } else {
-                            var condition_class = " text-black";
-                        }
-                        return (
-                            '<p class="' +
-                            condition_class +
-                            '">' +
-                            data +
-                            "</p>"
-                        );
-                    },
-                },
-                {
-                    targets: [10, 11],
-                    render: function (data, type) {
-                        if (type === "export") {
-                            if (data === "OK") return "OK (✅)";
-                            else return "NOT OK (❌)";
-                        }
-                        if (type === "display") {
-                            return data === "OK" ? "✅" : "❌";
-                        }
-                        return data;
                     },
                 },
             ],
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label-daily text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
@@ -133,7 +96,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                columns: [3, 4, 5, 6],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -189,7 +152,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                columns: [3, 4, 5, 6],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -226,7 +189,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                columns: [3, 4, 5, 6],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -263,7 +226,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                columns: [3, 4, 5, 6],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -300,7 +263,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                columns: [3, 4, 5, 6],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -381,11 +344,11 @@ $(function () {
                 },
             },
         });
-        $("div.head-label-daily").html(
-            '<h5 class="card-title mb-0">Daily Check | ' + date + "</h5>"
+        $("div.head-label").html(
+            '<h5 class="card-title mb-0">Issue | '+ date +'</h5>'
         );
     }
-    dt_table_recap_dryer.on("draw", function () {
+    dt_table_recap_dryer_issue_week.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

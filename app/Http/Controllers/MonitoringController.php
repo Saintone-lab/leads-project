@@ -1994,6 +1994,11 @@ class MonitoringController extends Controller
         $tanggal = $month . ' ' . $year;
         return view('pages.monitoring.recap-day', compact('tanggal'));
     }
+    public function recapWeek($month, $year)
+    {
+        $tanggal = $month . ' ' . $year;
+        return view('pages.monitoring.recap-week', compact('tanggal'));
+    }
     public function recapM($date)
     {
         try {
@@ -2038,34 +2043,128 @@ class MonitoringController extends Controller
                 $query->whereDate('date', $date);
             })->count();
         // $mesin = Machine::where('id_client', 1277)->rightJoin('monitoring as m', 'm.id_machine', '=' ,'machine.id')->whereDate('m.date', $date)->get();
-        $mesinCompressor = Machine::whereNotBetween('machine.id', [472, 481])
-            ->leftJoin('monitoring as m', function ($join) use ($date) {
-                $join->on('machine.id', '=', 'm.id_machine')
-                    ->whereDate('m.date', '=', $date); // Menyaring berdasarkan tanggal monitoring
-            })
-            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
-            ->join('unit as u', 'u.id', '=', 'sp.id_product')
-            ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
-            ->where('machine.id_client', 1277)
-            ->where('u.unit', 'AIR COMPRESSOR SCREW')
-            ->select(
-                'machine.*',
-                DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),
-                'm.*',
-                'u.unit',
-                'us.name'
-            )
-            ->get();
-        $mesinDryer = Machine::whereNotBetween('machine.id', [472, 481])
-            ->leftJoin('monitoring as m', function ($join) use ($date) {
-                $join->on('machine.id', '=', 'm.id_machine')
-                    ->whereDate('m.date', '=', $date); // Menyaring berdasarkan tanggal monitoring
-            })
+        $mesinDryer = Machine::leftJoin('monitoring as m', 'machine.id', '=', 'm.id_machine')
             ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
             ->join('unit as u', 'u.id', '=', 'sp.id_product')
             ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
             ->where('machine.id_client', 1277)
             ->where('u.unit', 'REFRIGERANT AIR DRYER')
+            ->whereDate('m.date', $date)
+            ->orderBy('machine.location')
+            ->select(
+                DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),
+                'm.*',
+                'machine.*',
+                'us.name'
+            )
+            ->get();
+        dd($mesinDryer);
+        return view('pages.monitoring.recap', compact('mesinDryer', 'allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'date'));
+    }
+    public function recapMW($week, $date)
+    {
+        try {
+            $date = Carbon::createFromFormat('Y-m-d', $date);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Invalid date format, expected Y-m-d'], 400);
+        }
+        $date = $date ? Carbon::parse($date) : Carbon::today();
+        $month = $date->month;
+        $year = $date->year;
+        $allPlant = Machine::where('id_client', 1277)->whereNotBetween('machine.id', [472, 481])->count();
+        $allPlantMonitoring = Machine::where('id_client', 1277)->whereNotBetween('machine.id', [472, 481])
+            ->withCount([
+                'monitoringW as monitoring_count' => function ($query) use ($week, $month, $year) {
+                    $query->where('week', $week)
+                        ->whereMonth('date', $month)
+                        ->whereYear('date', $year);
+                }
+            ])
+            ->get()
+            ->sum('monitoring_count');
+        $GT = Machine::where('id_client', 1277)->where('location', 'GT 1-2')->whereNotBetween('machine.id', [472, 481])->count();
+        $GTMonitoring = Machine::where('id_client', 1277)->where('location', 'GT 1-2')->whereNotBetween('machine.id', [472, 481])
+            ->withCount([
+                'monitoringW as monitoring_count' => function ($query) use ($week, $month, $year) {
+                    $query->where('week', $week)
+                        ->whereMonth('date', $month)
+                        ->whereYear('date', $year);
+                }
+            ])
+            ->get()
+            ->sum('monitoring_count');
+        $GT3 = Machine::where('id_client', 1277)->where('location', 'GT3/BOILER')->whereNotBetween('machine.id', [472, 481])->count();
+        $GT3Monitoring = Machine::where('id_client', 1277)->where('location', 'GT3/BOILER')->whereNotBetween('machine.id', [472, 481])
+            ->withCount([
+                'monitoringW as monitoring_count' => function ($query) use ($week, $month, $year) {
+                    $query->where('week', $week)
+                        ->whereMonth('date', $month)
+                        ->whereYear('date', $year);
+                }
+            ])
+            ->get()
+            ->sum('monitoring_count');
+        $INC = Machine::where('id_client', 1277)->where('location', 'INC')->whereNotBetween('machine.id', [472, 481])->count();
+        $INCMonitoring = Machine::where('id_client', 1277)->where('location', 'INC')->whereNotBetween('machine.id', [472, 481])
+            ->withCount([
+                'monitoringW as monitoring_count' => function ($query) use ($week, $month, $year) {
+                    $query->where('week', $week)
+                        ->whereMonth('date', $month)
+                        ->whereYear('date', $year);
+                }
+            ])
+            ->get()
+            ->sum('monitoring_count');
+        $PM12 = Machine::where('id_client', 1277)->where('location', 'BM 1-2')->whereNotBetween('machine.id', [472, 481])->count();
+        $PM12Monitoring = Machine::where('id_client', 1277)->where('location', 'BM 1-2')->whereNotBetween('machine.id', [472, 481])
+            ->withCount([
+                'monitoringW as monitoring_count' => function ($query) use ($week, $month, $year) {
+                    $query->where('week', $week)
+                        ->whereMonth('date', $month)
+                        ->whereYear('date', $year);
+                }
+            ])
+            ->get()
+            ->sum('monitoring_count');
+        $PM35 = Machine::where('id_client', 1277)->whereBetween('location', ['BM 3', 'BM 5'])->whereNotBetween('machine.id', [472, 481])->count();
+        $PM35Monitoring = Machine::where('id_client', 1277)->whereBetween('location', ['BM 3', 'BM 5'])->whereNotBetween('machine.id', [472, 481])
+            ->withCount([
+                'monitoringW as monitoring_count' => function ($query) use ($week, $month, $year) {
+                    $query->where('week', $week)
+                        ->whereMonth('date', $month)
+                        ->whereYear('date', $year);
+                }
+            ])
+            ->get()
+            ->sum('monitoring_count');
+        $PM78 = Machine::where('id_client', 1277)->whereBetween('location', ['BM 7', 'BM 8'])->whereNotBetween('machine.id', [472, 481])->count();
+        $PM78Monitoring = Machine::where('id_client', 1277)->whereBetween('location', ['BM 7', 'BM 8'])->whereNotBetween('machine.id', [472, 481])
+            ->withCount([
+                'monitoringW as monitoring_count' => function ($query) use ($week, $month, $year) {
+                    $query->where('week', $week)
+                        ->whereMonth('date', $month)
+                        ->whereYear('date', $year);
+                }
+            ])
+            ->get()
+            ->sum('monitoring_count');
+        $mesinDryer = Machine::leftJoin('monitoring_weekly as m', function ($join) use ($week, $month, $year) {
+            $join->on('machine.id', '=', 'm.id_machine')
+                ->where('m.week', $week)
+                ->where(function ($q) use ($month, $year) {
+                    $q->whereNull('m.date') // kalau null, mesin tetap muncul
+                        ->orWhere(function ($q2) use ($month, $year) {
+                            $q2->whereMonth('m.date', $month)
+                                ->whereYear('m.date', $year);
+                        });
+                });
+        })
+            ->join('serial_product as sp', 'sp.id', '=', 'machine.id_unit')
+            ->join('unit as u', 'u.id', '=', 'sp.id_product')
+            ->leftJoin('users as us', 'us.id', '=', 'm.id_pic')
+            ->where('machine.id_client', 1277)
+            ->where('u.unit', 'REFRIGERANT AIR DRYER')
+            ->orderBy('machine.location')
             ->select(
                 'machine.*',
                 DB::raw("CONCAT(sp.brand, ' ', u.sku) as brand_type"),
@@ -2074,7 +2173,7 @@ class MonitoringController extends Controller
             )
             ->get();
         // dd($mesinDryer);
-        return view('pages.monitoring.recap', compact('allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'date' ));
+        return view('pages.monitoring.recapWeek', compact('mesinDryer','allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'date'));
     }
     public function recapClient()
     {
@@ -2151,7 +2250,7 @@ class MonitoringController extends Controller
             )
             ->get();
         // dd($mesinDryer);
-        return view('pages.monitoring.recap', compact('allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'date' ));
+        return view('pages.monitoring.recap', compact('allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'date'));
     }
 
     public function issueUpdate(Request $request, $id, $month)

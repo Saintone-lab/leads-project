@@ -3,7 +3,7 @@
 @section('content')
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-pending-po-non-project{{auth::user()->role == 'Admin' ? '-admin' : ''}} table table-bordered">
+            <table class="datatable-pending-po-non-project{{auth::user()->role == 'Sales' ? '' : '-admin'}} table table-bordered">
                 <thead>
                     <tr>
                         <th></th>

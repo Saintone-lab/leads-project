@@ -4,7 +4,7 @@
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
             <table
-                class="datatable-pending-po-done{{Auth::user()->role == 'Admin' ? '-admin' : ''}} table table-striped">
+                class="datatable-pending-po-done{{auth::user()->role == 'Sales' ? '' : '-admin'}} table table-striped">
                 <thead>
                     <tr>
                         <th></th>

@@ -2171,13 +2171,16 @@
                             <th></th>
                             <th></th>
                             <th>ID</th>
-                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Brand</th>
                             <th>Part Number</th>
+                            <th>Price</th>
                             <th>Desc</th>
                             <th>Dimension</th>
-                            <th>G/O</th>
+                            {{-- <th>G/O</th> --}}
                             <th>Stock BDG</th>
                             <th>Stock BKS</th>
+                            <th>stock Pending</th>
                         </tr>
                     </thead>
                 </table>
