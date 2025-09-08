@@ -147,7 +147,7 @@ class ProductInController extends Controller
     {
         $product = ProductIn::find($id);
         $dProductIn = DetailProductIn::where('id_product_in', $id)->get();
-        dd($request->all());
+        // dd($request->all());
         $total = 0;
         foreach ($dProductIn as $item) {
             $item->detailProduct->modal = $request->modal[$item->id];

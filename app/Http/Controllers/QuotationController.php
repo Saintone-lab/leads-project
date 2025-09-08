@@ -9,6 +9,7 @@ use App\Models\Comment;
 use App\Models\Contract;
 use App\Models\Delivery;
 use App\Models\DetailDelivery;
+use App\Models\DetailPendingPO;
 use App\Models\DetailQuotation;
 use App\Models\DetailServiceQuotation;
 use App\Models\Invoice;
@@ -665,6 +666,7 @@ class QuotationController extends Controller
 
         $quotation = Quotation::find($id);
         $detQuote = DetailQuotation::where('id_quotation', $id)->get();
+        $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $id)->get();
         $allQuote = Quotation::where('primary_id', $quotation->primary_id)->get();
         // dd($allQuote);
         $pic = Pic::where('id', $quotation->id_pic)->first();
@@ -695,27 +697,43 @@ class QuotationController extends Controller
             $client->role = 'Customers';
             $isuSave = $client->save();
 
-            foreach ($detQuote as $item) {
-                $product = Product::join('serial_product as sp', 'sp.id', '=', 'product.id')->where('sp.id', $item->id_equivalent)->select('product.*')->first();
-                $product->stock -= $item->qty;
-                $product->pending_stock += $item->qty;
-                $product->save();
-            }
+            // foreach ($detQuote as $item) {
+            //     $product = Product::join('serial_product as sp', 'sp.id', '=', 'product.id')->where('sp.id', $item->id_equivalent)->select('product.*')->first();
+            //     $product->stock -= $item->qty;
+            //     $product->pending_stock += $item->qty;
+            //     $product->save();
+            // }
+
+            $pending = new PendingPO;
+            $pending->status = 0;
 
             if ($quotation->type == 'Sparepart') {
-                $pending = new PendingPO;
-                $pending->status = 0;
-                $pending->id_quotation = $quotation->primary_id;
-                $pending->date = Carbon::now();
-                $pending->save();
-
-                $status = new ChangeStatus();
-                $status->id_pending = $pending->id;
-                $status->note = 'Pending Created';
-                $status->status = 0;
-                $status->date = Carbon::now();
-                $status->save();
+                $pending->type = "Non Project";
+            } else {
+                $pending->type = "Project";
             }
+            $pending->id_quotation = $quotation->primary_id;
+            $pending->date = Carbon::now();
+            $pending->save();
+
+            if ($quotation->type != 'Sparepart') {
+                foreach ($subQuote as $subtitle) {
+                    foreach ($subtitle->detail as $detail) {
+                        $dPending = new DetailPendingPO();
+                        $dPending->id_pending = $pending->id;
+                        $dPending->id_detail_service = $detail->id;
+                        $dPending->save();
+                    }
+                }
+            }
+
+            $status = new ChangeStatus();
+            $status->id_pending = $pending->id;
+            $status->note = 'Pending Created';
+            $status->status = 0;
+            $status->date = Carbon::now();
+            $status->save();
+
         }
         $changeStats = new ChangeStatus;
         $changeStats->id_quotation = $quotation->primary_id;
@@ -912,6 +930,8 @@ class QuotationController extends Controller
         // dd($request);
         $quotation = Quotation::find($id);
         $detQuote = DetailQuotation::where('id_quotation', $id)->get();
+        $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $id)->get();
+
         $allQuote = Quotation::where('primary_id', $quotation->primary_id)->get();
         $pic = Pic::where('id', $quotation->id_pic)->first();
         $client = Client::where('id', $pic->id_client)->first();
@@ -933,29 +953,44 @@ class QuotationController extends Controller
         $stats->status = '100';
         $stats->note = $request->note;
         $stats->save();
-        foreach ($detQuote as $item) {
-            $product = Product::join('serial_product as sp', 'sp.id_product', '=', 'product.id')->where('sp.id', $item->id_equivalent)->select('product.*')->first();
-            // dd($item->id_equivalent);
-            $product->stock -= $item->qty;
-            $product->pending_stock += $item->qty;
-            $product->save();
-        }
 
+        // foreach ($detQuote as $item) {
+        //     $product = Product::join('serial_product as sp', 'sp.id_product', '=', 'product.id')->where('sp.id', $item->id_equivalent)->select('product.*')->first();
+        //     // dd($item->id_equivalent);
+        //     $product->stock -= $item->qty;
+        //     $product->pending_stock += $item->qty;
+        //     $product->save();
+        // }
+
+        $pending = new PendingPO;
+        $pending->status = 0;
+        $pending->id_quotation = $quotation->primary_id;
         if ($quotation->type == 'Sparepart') {
-            $pending = new PendingPO;
-            $pending->status = 0;
-            $pending->id_quotation = $quotation->primary_id;
-            $pending->delivery = $request->ekspidisi;
-            $pending->date = Carbon::now();
-            $pending->save();
-
-            $status = new ChangeStatus();
-            $status->id_pending = $pending->id;
-            $status->note = 'Pending Created';
-            $status->status = 0;
-            $status->date = Carbon::now();
-            $status->save();
+            $pending->type = "Non Project";
+        } else {
+            $pending->type = "Project";
         }
+        $pending->delivery = $request->ekspidisi;
+        $pending->date = Carbon::now();
+        $pending->save();
+
+        if ($quotation->type != 'Sparepart') {
+            foreach ($subQuote as $subtitle) {
+                foreach ($subtitle->detail as $detail) {
+                    $dPending = new DetailPendingPO();
+                    $dPending->id_pending = $pending->id;
+                    $dPending->id_detail_service = $detail->id;
+                    $dPending->save();
+                }
+            }
+        }
+
+        $status = new ChangeStatus();
+        $status->id_pending = $pending->id;
+        $status->note = 'Pending Created';
+        $status->status = 0;
+        $status->date = Carbon::now();
+        $status->save();
 
         if ($quoteSave) {
             if ($quotation->type == 'Sparepart') {

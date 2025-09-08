@@ -1847,6 +1847,192 @@ class MonitoringController extends Controller
 
         return view('pages.monitoring.service-visitor', compact('teknisi', 'quotes', 'monthly', 'machine', 'client', 'compressor', 'dryer', 'months', 'issue', 'mainlog', 'weekly', 'reports', 'weeksoy'));
     }
+    public function visitorDailyServicePrintProkemas($id, $month)
+    {
+        $machine = Machine::find($id);
+        $client = Client::find($machine->id_client);
+
+        $setday = Carbon::today();
+        $today = $setday->setMonth($month);
+
+        $startOfMonth = $today->copy()->startOfMonth();
+        $startOfMonthDate = $today->copy()->startOfMonth();
+        $endOfMonth = $today->copy()->endOfMonth();
+
+        $dates = [];
+        for ($date = $startOfMonthDate; $date->lte($endOfMonth); $date->addDay()) {
+            $dates[] = $date->format('d-m-Y');
+        }
+        // dd($dates);
+
+        // Ambil data monitoring dari database
+        $monitoringData = Monitoring::whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->where('id_machine', $id)
+            ->join('users as u', 'u.id', '=', 'monitoring.id_pic')
+            ->get(['monitoring.*', 'u.name'])
+            ->map(function ($item) {
+                $item->date = Carbon::parse($item->date)->format('d-m-Y'); // Format tanggal
+                return $item;
+            });
+        // dd($monitoringData);
+
+        $compressorIndexed = $monitoringData->keyBy('date')->map(function ($item) {
+            return [
+                'id' => $item->id ?? '-',
+                'id_machine' => $item->id_machine ?? '-',
+                'running' => $item->running ?? '-',
+                'loading' => $item->loading ?? '-',
+                'pressure' => $item->pressure ?? '-',
+                'temp' => $item->temp ?? '-',
+                'condition' => $item->condition ?? '-',
+                'oil_level' => $item->oil_level ?? '-',
+                'leak' => $item->leak ?? '-',
+                'pic' => $item->name ?? '-',
+                'desc' => $item->desc ?? '-',
+                'main_desc' => $item->main_desc ?? '-',
+            ];
+        })->toArray();
+        // dd($compressorIndexed);
+
+        // Gabungkan data monitoring dengan daftar tanggal
+        $compressor = [];
+        foreach ($dates as $date) {
+            $compressor[] = [
+                'date' => $date,
+                'id' => $compressorIndexed[$date]['id'] ?? '-',
+                'id_machine' => $compressorIndexed[$date]['id_machine'] ?? '-',
+                'running' => $compressorIndexed[$date]['running'] ?? '-',
+                'loading' => $compressorIndexed[$date]['loading'] ?? '-',
+                'pressure' => $compressorIndexed[$date]['pressure'] ?? '-',
+                'temp' => $compressorIndexed[$date]['temp'] ?? '-',
+                'condition' => $compressorIndexed[$date]['condition'] ?? '-',
+                'oil_level' => $compressorIndexed[$date]['oil_level'] ?? '-',
+                'leak' => $compressorIndexed[$date]['leak'] ?? '-',
+                'pic' => $compressorIndexed[$date]['pic'] ?? '-',
+                'desc' => $compressorIndexed[$date]['desc'] ?? '-',
+                'main_desc' => $compressorIndexed[$date]['main_desc'] ?? '-',
+            ];
+        }
+        // dd($compressor);
+
+        $dryerIndexed = $monitoringData->keyBy('date')->map(function ($item) {
+            return [
+                'id' => $item->id ?? '-',
+                'id_machine' => $item->id_machine ?? '-',
+                'temp' => $item->temp ?? '-',
+                'temp_out' => $item->temp_out ?? '-',
+                'dew' => $item->dew ?? '-',
+                'drain' => $item->drain ?? '-',
+                'condition' => $item->condition ?? '-',
+                'oil_level' => $item->oil_level ?? '-',
+                'leak' => $item->leak ?? '-',
+                'fan' => $item->fan ?? '-',
+                'desc' => $item->desc ?? '-',
+                'main_desc' => $item->main_desc ?? '-',
+                'pic' => $item->name ?? '-',
+            ];
+        })->toArray();
+
+        // Gabungkan data monitoring dengan daftar tanggal
+        $dryer = [];
+        foreach ($dates as $date) {
+            $dryer[] = [
+                'date' => $date,
+                'id' => $dryerIndexed[$date]['id'] ?? '-',
+                'id_machine' => $compressorIndexed[$date]['id_machine'] ?? '-',
+                'temp' => $dryerIndexed[$date]['temp'] ?? '-',
+                'temp_out' => $dryerIndexed[$date]['temp_out'] ?? '-',
+                'dew' => $dryerIndexed[$date]['dew'] ?? '-',
+                'drain' => $dryerIndexed[$date]['drain'] ?? '-',
+                'condition' => $dryerIndexed[$date]['condition'] ?? '-',
+                'leak' => $dryerIndexed[$date]['leak'] ?? '-',
+                'fan' => $dryerIndexed[$date]['fan'] ?? '-',
+                'oil_level' => $dryerIndexed[$date]['oil_level'] ?? '-',
+                'desc' => $dryerIndexed[$date]['desc'] ?? '-',
+                'main_desc' => $dryerIndexed[$date]['main_desc'] ?? '-',
+                'pic' => $dryerIndexed[$date]['pic'] ?? '-',
+            ];
+        }
+
+        // Return data
+        $monitoringThisMonth = response()->json($compressor);
+
+
+        $issue = Monitoring::leftJoin('pn_monitoring as pn', 'pn.id_monitoring', '=', 'monitoring.id')
+            ->join('users as u', 'u.id', '=', 'monitoring.id_pic')
+            ->where('id_machine', $id)
+            ->whereNot('issue', '-')
+            ->whereNot('issue', 'normal')
+            ->whereNot('issue', 'Normal')
+            ->whereNotNull('issue')
+            ->whereMonth('monitoring.date', $month)
+            ->select(
+                'monitoring.*',
+                'u.name',
+                DB::raw("IFNULL(GROUP_CONCAT(pn.pn SEPARATOR ' | '), '-') as pn")
+            )
+            ->groupBy('monitoring.id')
+            ->get();
+        // dd($id);
+        // $mainlog = Monitoring::join('users as u', 'u.id', '=', 'monitoring.id_pic')->where('id_machine', $id)->whereMonth('date', $month)->whereNot('main_desc', '-')->whereNot('main_desc', 'normal')->whereNot('main_desc', 'Normal')->whereNotNull('main_desc')->select('monitoring.*', 'u.name')->get();
+        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $today->month)->whereNotNull('desc')->select('main_log.*', 'u.name')->get();
+
+        $weekly = MonitoringWeekly::where('id_machine', $id)->whereMonth('date', $month)->whereYear('date', $today->year)->get();
+        $reports = Reports::where('id_machine', $id)->whereMonth('date', $month)->whereYear('date', $today->year)->orderBy('date')->get();
+
+        $startDate = Carbon::create($today->year, $month, 1);
+        $endDate = $startDate->copy()->endOfMonth();
+        $weeks = [];
+        while ($startDate->lte($endDate)) {
+            $weekNumber = $startDate->format('W'); // Nomor minggu dalam tahun
+            $weeks[$weekNumber] = [
+                'minggu' => "$weekNumber",
+                'week' => '-',
+                'condition' => '-',
+                'voltage' => '-',
+                'ampere' => '-',
+                'idle' => '-',
+                'vibration' => '-',
+                'cooler' => '-',
+                'coupling' => '-',
+                'condensor' => '-',
+                'area' => '-',
+                'dew' => '-',
+                'drain' => '-',
+                'pre' => '-',
+                'after' => '-',
+                'desc' => '-',
+                'name' => '-'
+            ];
+            $startDate->addWeek();
+        }
+
+        // Isi data yang ada ke dalam minggu
+        foreach ($weekly as $item) {
+            $weekNumber = Carbon::parse($item->date)->format('W');
+            $weeks[$weekNumber]['week'] = $item->week;
+            $weeks[$weekNumber]['condition'] = $item->condition;
+            $weeks[$weekNumber]['voltage'] = $item->voltage;
+            $weeks[$weekNumber]['ampere'] = $item->ampere;
+            $weeks[$weekNumber]['idle'] = $item->idle;
+            $weeks[$weekNumber]['vibration'] = $item->vibration;
+            $weeks[$weekNumber]['dew'] = $item->dew;
+            $weeks[$weekNumber]['drain'] = $item->drain;
+            $weeks[$weekNumber]['cooler'] = $item->cooler;
+            $weeks[$weekNumber]['coupling'] = $item->coupling;
+            $weeks[$weekNumber]['area'] = $item->area;
+            $weeks[$weekNumber]['condensor'] = $item->condensor;
+            $weeks[$weekNumber]['pre'] = $item->pre;
+            $weeks[$weekNumber]['after'] = $item->after;
+            $weeks[$weekNumber]['desc'] = $item->desc;
+            $weeks[$weekNumber]['name'] = $item->pic->name;
+        }
+        // dd($weeks);
+        $monthly = MonitoringMonthly::whereMonth('date', $month)->where('id_machine', $id)->first();
+        $quotes = Quotation::where('id_monitoring', $id)->get();
+
+        return view('pages.monitoring.service-visitor-print-prokemas', compact('quotes', 'monthly', 'machine', 'client', 'compressor', 'dryer', 'issue', 'mainlog', 'weekly', 'reports', 'weeks'));
+    }
     public function visitorDailyServicePrint($id, $month)
     {
         $machine = Machine::find($id);

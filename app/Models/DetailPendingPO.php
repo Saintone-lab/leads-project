@@ -11,15 +11,20 @@ class DetailPendingPO extends Model
     protected $table = "detail_pending_po";
     protected $fillable = [
         'id_pending',
+        'id_detail_service',
         'id_replacement',
-        'desc',
-        'qty',
+        'bdg',
+        'bks',
         'status',
         'note',
     ];
     public function pending()
     {
         return $this->belongsTo('App\Models\PendingPO', 'id_pending', 'id');
+    }
+    public function service()
+    {
+        return $this->belongsTo('App\Models\DetailServiceQuotation', 'id_detail_service', 'id');
     }
     public function replacement()
     {

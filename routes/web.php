@@ -85,7 +85,11 @@ use App\Http\Controllers\UserController;
 //     return view('pages.sales.dashboard');
 // });
 Route::get('/monitoring/button/{id}', [MonitoringController::class, 'button'])->name('button.monitoring');
-Route::get('/monitoring/daily-visit/{id}', [MonitoringController::class, 'visitorDaily'])->name('visitor.daily-monitoring');
+Route::get('/monitoring/daily-visit/{id}', [
+    MonitoringController::class,
+    'visi
+torDaily'
+])->name('visitor.daily-monitoring');
 Route::get('/monitoring/kosongan', [MonitoringController::class, 'kosongan'])->name('kosongan.monitoring');
 Route::get('/monitoring-daily-visit/{id}/{month}', [MonitoringController::class, 'visitorDailyMonth'])->name('visitor-change.daily-monitoring');
 Route::get('/monitoring/daily-log/{id}', [MonitoringController::class, 'logDaily'])->name('log.daily-monitoring');
@@ -221,9 +225,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/overview/{semester}/{sales}', [OverviewController::class, 'overviewAdmin'])->name('overview-sales.semester');
     Route::get('/report/{semester}', [OverviewController::class, 'reportsSemester'])->name('report.semester');
     // Route untuk PO
-    Route::get('/pending-po', function () {
-        return view('pages.sales.po.pending.index');
-    });
+    // Route::get('/pending-po', function () {
+    //     return view('pages.sales.po.pending.index');
+    // });
 
     // Route untuk Pic
     Route::resource('/pic', PicController::class);
@@ -720,6 +724,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/service-manager-weekly/{id}/{week}', [MonitoringController::class, 'visitorWeeklyService'])->name('service-manager-weekly.visit');
     Route::get('/service-manager-monthly/{id}/{month}', [MonitoringController::class, 'visitorMonthlyService'])->name('service-manager-monthly.visit');
     Route::get('/service-manager-daily-print/{id}/{month}', [MonitoringController::class, 'visitorDailyServicePrint'])->name('service-manager-daily.print');
+    Route::get('/service-manager-daily-print-prokemas/{id}/{month}', [MonitoringController::class, 'visitorDailyServicePrintProkemas'])->name('service-manager-daily-prokemas.print');
     Route::get('/service-manager-weekly-print/{id}/{week}', [MonitoringController::class, 'visitorWeeklyServicePrint'])->name('service-manager-weekly.print');
     Route::get('/service-manager-monthly-print/{id}/{week}', [MonitoringController::class, 'visitorMonthlyServicePrint'])->name('service-manager-monthly.print');
     Route::get('/service-manager-recap-day/{month}/{year}', [MonitoringController::class, 'recapDay'])->name('service-manager.recap');
@@ -1240,12 +1245,14 @@ Route::group(["middleware" => "auth"], function () {
     // Pending PO
     Route::resource('/pending-po', PendingController::class);
     Route::patch('/pending-po/product/{id}', [PendingController::class, 'productEdit'])->name('pending-po.productEdit');
+    Route::patch('/pending-po/project/{id}', [PendingController::class, 'projectEdit'])->name('pending-po.projectEdit');
     Route::patch('/pending-po/status/{id}', [PendingController::class, 'statusEdit'])->name('pending-po.statusEdit');
     Route::patch('/pending-po/delivery/{id}', [PendingController::class, 'deliveryEdit'])->name('pending-po.deliveryEdit');
     Route::post('/pending-po/comment/{id}', [PendingController::class, 'add_comment'])->name('pending-po.addComment');
     Route::get('/pending-po/product-out/{id}', [PendingController::class, 'pending_out'])->name('pending-po.product_out');
     Route::post('/pending-po/product-out/{id}', [PendingController::class, 'product_out'])->name('pending-po.product_out');
     Route::get('/pending-po-done', [PendingController::class, 'indexDone'])->name('pending-po.done');
+    Route::get('/pending-po-project', [PendingController::class, 'indexProject'])->name('pending-po.index-project');
 
     // Dashboard Function
     // Ajax Sales Kanan
@@ -2372,10 +2379,12 @@ Route::group(["middleware" => "auth"], function () {
                 'pending_po.id',
                 'pending_po.delivery',
                 'u.name',
-                'q.po_date',
+                DB::raw("DATE_FORMAT(q.po_date, '%d-%m-%y') as po_date"),
                 'q.title',
                 'c.company',
                 'i.no_po',
+                'u.name',
+                'q.id_sales',
                 'pending_po.status',
                 'i.status_p',
                 'i.note_p',
@@ -2410,7 +2419,9 @@ Route::group(["middleware" => "auth"], function () {
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
             ->whereNot('pending_po.status', [6, 7])
+            ->where('pending_po.type', 'Non Project')
             ->groupBy('q.id')
+            ->orderBy('q.po_date', 'desc')
             ->select(
                 'pending_po.id',
                 'pending_po.delivery',
@@ -2419,6 +2430,33 @@ Route::group(["middleware" => "auth"], function () {
                 'q.title',
                 'c.company',
                 'i.no_po',
+                'u.name',
+                'q.id_sales as team',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pending/po/project/admin', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->whereNot('pending_po.status', [6, 7])
+            ->where('pending_po.type', 'Project')
+            ->groupBy('q.id')
+            ->select(
+                'pending_po.id',
+                'pending_po.delivery',
+                'u.name',
+                DB::raw("DATE_FORMAT(q.po_date, '%d-%m-%y') as po_date"),
+                'q.title',
+                'c.company',
+                'i.no_po',
+                'u.name',
                 'pending_po.status',
                 'i.status_p',
                 'i.note_p',

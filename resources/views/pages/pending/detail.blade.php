@@ -6,14 +6,16 @@
             Detail Of {{ $invoice->no_po ?? $quotation->pic->client->company }}
         </h5>
         <div class="tombol">
-            <button type="button" data-bs-toggle="modal" data-bs-target="#deliveryEdit"
-                class="btn btn-info"{{ auth::user()->role != 'Sales' ? '' : 'disabled' }}>
-                Update Kurir
+            <button type="button" class="btn btn-primary dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown"
+                aria-expanded="false" {{ auth::user()->role != 'Sales' ? '' : 'disabled' }}>
+                Update
             </button>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#statusEdit"
-                {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                Update Status Barang
-            </button>
+            <ul class="dropdown-menu" style="">
+                <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
+                        data-bs-target="#deliveryEdit">Kurir</a></li>
+                <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
+                        data-bs-target="#statusEdit">Pending PO</a></li>
+            </ul>
             <a href="{{ route('pending-po.index') }}" type="button" class="btn btn-secondary"> Back </a>
         </div>
     </div>
@@ -76,85 +78,153 @@
             </div>
         </div>
     </div>
-    <div class="mb-3" style="display: flex; justify-content: flex-end;">
-        <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal" data-bs-target="#productEdit"
-            {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-            Update Status Barang
-        </button>
-        {{-- <a type="button" data-bs-toggle="modal" data-bs-target="#productEdit"
-            {{ auth::user()->role != 'Sales' ? '' : 'disable' }}>
-            <button type="button" class="btn btn-facebook float-end">
-                
+    @if ($pending->type == 'Project')
+        <div class="mb-3" style="display: flex; justify-content: flex-end;">
+            <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal" data-bs-target="#replacementEdit"
+                {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                Update Status Barang
             </button>
-        </a> --}}
-    </div>
-    <div class="card mb-4">
-        <div class="table-responsive text-nowrap h-100">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Item</th>
-                        <th>Desc</th>
-                        <th>G/R</th>
-                        <th>Qty</th>
-                        <th>Status</th>
-                        <th>Note</th>
-                    </tr>
-                </thead>
-                <tbody class="table-border-bottom-0">
-                    @php
-                        $no = 1;
-                    @endphp
-                    @foreach ($detQuotation as $item)
-                        @php
-                            switch ($item->status) {
-                                case 1:
-                                    $status = 'On Check';
-                                    break;
-                                case 2:
-                                    $status = 'Ready Stock';
-                                    break;
-                                case 3:
-                                    $status = 'Kurang';
-                                    break;
-                                case 4:
-                                    $status = 'Pre-Order';
-                                    break;
-                                case 5:
-                                    $status = 'Delivery Process';
-                                    break;
-                                case 6:
-                                    $status = 'Done';
-                                    break;
-                                default:
-                                    $status = 'Belum Di Cek';
-                                    break;
-                            }
-                        @endphp
-                        <tr>
-                            <td>{{ $no }}</td>
-                            <td>
-                                @if ($item->id_equivalent == '0')
-                                    -
-                                @else
-                                    {{ $item->equivalent->brand }} {{ $item->equivalent->pn }}
-                                @endif
-                            </td>
-                            <td>{{ $item->detail_product }}</td>
-                            <td>{{ $item->equivalent->product->go }}</td>
-                            <td>{{ $item->qty }} {{ $item->info_qty }}</td>
-                            <td>{{ $status }}</td>
-                            <td> {{ $item->note }}</td>
-                        </tr>
-                        @php
-                            $no++;
-                        @endphp
-                    @endforeach
-                </tbody>
-            </table>
         </div>
-    </div>
+        <div class="card mb-4">
+            <div class="table-responsive text-nowrap h-100">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Item</th>
+                            <th>Desc</th>
+                            <th>Qty</th>
+                            <th>Status</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        @php
+                            $abjad = 64;
+                        @endphp
+                        @foreach ($subQuote as $subJudul)
+                            @php
+                                $no = 0;
+                                $abjad++;
+                            @endphp
+                            <tr style="font-size: 17px border-bottom:none !important;" class="border-top">
+                                <td class="align-top" style="border-bottom:none !important; background-color: #f0f0f0;">
+                                    <p class="fw-bold mb-0">{{ chr($abjad) }}</p>
+                                </td>
+                                <td class="text-nowrap align-top" colspan="5"
+                                    style="border-bottom:none !important; background-color: #f0f0f0;">
+                                    <p class="fw-bold mb-0">{{ $subJudul->subtitle }}</p>
+                                </td>
+                            </tr>
+                            @foreach ($subJudul->detail as $product)
+                                <tr style="font-size: 15px;">
+                                    <td>
+                                        @php
+                                            $no++;
+                                        @endphp
+                                        <p class="mb-1">{{ $no }}</p>
+                                    </td>
+                                    <td>
+                                        <p class="mb-1">{{ $product->product }}</p>
+                                    </td>
+                                    <td>
+                                        @if ($product->detail != '-')
+                                            <pre class="mb-0"
+                                                style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail }}</pre>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <p class="mb-0">{{ $product->qty }} {{ $product->info_qty }}</p>
+                                    </td>
+                                    <td>Proccess 505</td>
+                                    <td>Proccess 505</td>
+                                </tr>
+                            @endforeach
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @else
+        <div class="mb-3" style="display: flex; justify-content: flex-end;">
+            <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal" data-bs-target="#productEdit"
+                {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                Update Status Barang
+            </button>
+        </div>
+        <div class="card mb-4">
+            <div class="table-responsive text-nowrap h-100">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Item</th>
+                            <th>Desc</th>
+                            <th>G/R</th>
+                            <th>Qty</th>
+                            <th>Status</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        @php
+                            $no = 1;
+                        @endphp
+                        @foreach ($detQuotation as $item)
+                            @php
+                                switch ($item->status) {
+                                    case 1:
+                                        $status = 'On Check';
+                                        break;
+                                    case 2:
+                                        $status = 'Ready Stock';
+                                        break;
+                                    case 3:
+                                        $status = 'Kurang';
+                                        break;
+                                    case 4:
+                                        $status = 'Pre-Order';
+                                        break;
+                                    case 5:
+                                        $status = 'Delivery Process';
+                                        break;
+                                    case 6:
+                                        $status = 'Done';
+                                        break;
+                                    default:
+                                        $status = 'Belum Di Cek';
+                                        break;
+                                }
+                            @endphp
+                            <tr>
+                                <td>{{ $no }}</td>
+                                <td>
+                                    @if ($item->id_equivalent == '0')
+                                        -
+                                    @else
+                                        {{ $item->equivalent->brand }} {{ $item->equivalent->pn }}
+                                    @endif
+                                </td>
+                                <td>
+                                    <pre class="mb-0"
+                                        style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $item->detail_product }}</pre>
+                                </td>
+                                <td>{{ $item->equivalent->product->go }}</td>
+                                <td>{{ $item->qty }} {{ $item->info_qty }}</td>
+                                <td>{{ $status }}</td>
+                                <td> {{ $item->note }}</td>
+                            </tr>
+                            @php
+                                $no++;
+                            @endphp
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
 
     @if ($activity->count() >= 1)
         <div class="card">
@@ -252,11 +322,13 @@
     @include('components.modal.pending.status')
     @include('components.modal.pending.kurir')
     @include('components.modal.pending.product')
+    @include('components.modal.pending.project')
 @endsection()
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
     <link rel="stylesheet"
         href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />

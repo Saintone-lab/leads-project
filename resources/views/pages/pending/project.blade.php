@@ -1,12 +1,12 @@
 @extends('layouts.sales.app')
-@section('title', 'Non Project')
+@section('title', 'Pending PO Project')
 @section('no-container') @endsection
 @section('content')
     <div class="container-fluid p-0" style="width: calc(100% - 10px); margin-right:5px;margin-left:5px;">
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
                 <table
-                    class="datatable-pending-po-non-project{{ auth::user()->role == 'Sales' ? '' : '-admin' }} table table-bordered">
+                    class="datatable-pending-po-project{{ auth::user()->role == 'Sales' ? '' : '-admin' }} table table-bordered">
                     <thead>
                         <tr>
                             <th></th>
@@ -14,16 +14,15 @@
                             <th>ID</th>
                             <th>PO Date</th>
                             @if (Auth::user()->role == 'Sales')
-                                <th>PO No.</th>
+                            <th>PO No.</th>
                             @endif
                             <th>Customer</th>
                             <th>Part Desc</th>
                             <th>Status</th>
                             <th>Payment</th>
                             <th>Delivery</th>
-                            @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Logistic' )
-                                <th>Sales</th>
-                                <th>Team</th>
+                            @if (Auth::user()->role == 'Admin')
+                            <th>Sales</th>
                             @endif
                             <th>:</th>
                         </tr>
@@ -32,9 +31,9 @@
             </div>
         </div>
     </div>
-    @foreach ($pendingPO as $pending)
+    {{-- @foreach ($pendingPO as $pending)
         @include('components.modal.pending.detail')
-    @endforeach
+    @endforeach --}}
 @endsection()
 
 @push('after-style')
@@ -66,8 +65,8 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-pending-non-project.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-pending-non-project-admin.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-pending-project.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-pending-project-admin.js"></script>
     <script src="{{ asset('assets') }}/includes/table-pending.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush

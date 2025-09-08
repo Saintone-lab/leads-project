@@ -11,7 +11,7 @@
                     <div class="form-floating form-floating-outline">
                         <div class="select2-primary">
                             <select id="select2Primary" class="select2 form-select" name="mention[]" multiple>
-                                @foreach ($user as $users)
+                                @foreach ($sales as $users)
                                     @if ($users->id != Auth::id())
                                         <option value="{{ $users->id }}">{{ $users->name }}
                                         </option>

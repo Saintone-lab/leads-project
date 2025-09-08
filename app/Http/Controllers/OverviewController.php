@@ -314,7 +314,7 @@ class OverviewController extends Controller
         $totalQuoteSemesterProspect = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_support', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $totalPOSemesterProspect = Quotation::whereBetween('po_date', [$first, $lastDay])->where('id_support', $sales)->where('status', 100)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $totalLossSemesterProspect = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_support', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->sum('nett');
-        // dd($totalPOSemesterProspect);
+        // dd($totalLossSemesterProspect
 
         // data all month
         $getDC = $this->getMonthlyDataDCSales($report->semester, $report->year, $sales);

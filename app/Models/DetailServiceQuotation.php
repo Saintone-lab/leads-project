@@ -28,4 +28,8 @@ class DetailServiceQuotation extends Model
     {
         return $this->belongsTo('App\Models\SubtitleQuotation', 'id_subtitle', 'id');
     }
+    public function pending()
+    {
+        return $this->hasMany('App\Models\DetailPendingPO', 'id_detail_service');
+    }
 }

@@ -1,12 +1,10 @@
 $(function () {
-    var dt_table_pending_po_non_project_admin = $(
-        ".datatable-pending-po-non-project-admin"
-    );
-    var Url = "db/pending/po/non-project/admin";
+    var dt_table_pending_po_project_admin = $(".datatable-pending-po-project-admin");
+    var Url = "db/pending/po/project/admin";
 
-    if (dt_table_pending_po_non_project_admin.length) {
+    if (dt_table_pending_po_project_admin.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_pending = dt_table_pending_po_non_project_admin.DataTable({
+        var dt_pending = dt_table_pending_po_project_admin.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -28,14 +26,7 @@ $(function () {
                 { data: "" },
                 // { data: "id" },
                 { data: "id" },
-                {
-                    data: "po_date",
-                    render: function (data, type, row) {
-                        if (!data) return "-";
-
-                        return moment(data).format("DD-MM-YY");
-                    },
-                },
+                { data: "po_date" },
                 { data: "company" },
                 { data: "title" },
                 { data: "status" },
@@ -43,9 +34,6 @@ $(function () {
                 { data: "delivery" },
                 {
                     data: "name",
-                },
-                {
-                    data: "team",
                 },
                 { data: "id" },
             ],
@@ -134,7 +122,7 @@ $(function () {
                             5: {
                                 title: "Delivery Process",
                                 class: " bg-label-linkedin",
-                            },
+                            }, 
                         };
                         if (typeof $status[$status_number] === "undefined") {
                             return data;
@@ -158,13 +146,13 @@ $(function () {
                                 title: "UNPAID",
                                 class: "bg-label-danger",
                                 colorTip: "tooltip-danger",
-                                titleTip: "-",
+                                titleTip: '-',
                             },
                             0: {
                                 title: "UNPAID",
                                 class: "bg-label-warning",
                                 colorTip: "tooltip-warning",
-                                titleTip: "-",
+                                titleTip: '-',
                             },
                             1: {
                                 title: "PAID",
@@ -195,35 +183,22 @@ $(function () {
                         var delivery = full["delivery"];
                         switch (delivery) {
                             case 1:
-                                delivery = "Kurir";
+                                delivery = "Kurir"
                                 break;
                             case 2:
-                                delivery = "Teknisi";
+                                delivery = "Teknisi"
                                 break;
                             case 3:
-                                delivery = "Direct";
+                                delivery = "Direct"
                                 break;
                             case 4:
-                                delivery = "Other";
+                                delivery = "Other"
                                 break;
-
+                        
                             default:
                                 break;
                         }
-                        return delivery;
-                    },
-                },
-                {
-                    targets: 9,
-                    render: function (data, type, full, row) {
-                        var id = full["team"];
-                        var team;
-                        if (id == 1 || id == 16 || id == 23) {
-                            team = "ONLINE";
-                        } else {
-                            team = "OFFLINE";
-                        }
-                        return team;
+                            return delivery;
                     },
                 },
             ],
@@ -491,7 +466,7 @@ $(function () {
         });
         $("div.hl-1").html('<h5 class="card-title mb-0">Table Pending PO</h5>');
     }
-    dt_table_pending_po_non_project_admin.on("draw", function () {
+    dt_table_pending_po_project_admin.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

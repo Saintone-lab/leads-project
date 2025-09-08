@@ -80,6 +80,7 @@ class StockController extends Controller
         $product->first_stock = $request->first_stock;
         $product->stock = $request->office_recent_stock;
         $product->warehouse_stock = $request->warehouse_recent_stock;
+        $product->pending_stock = $request->pending_recent_stock;
         $product->date = $request->date;
         $productSave = $product->save();
         if ($productSave) {

@@ -59,12 +59,18 @@
                                     name="office_recent_stock" value="{{ old('stock', $product->stock) }}" hidden>
                                 <label for="Recent Stock">Recent Office Stock</label>
                             </div>
-                            <div class="form-floating form-floating-outline">
+                            <div class="form-floating form-floating-outline mb-3">
                                 <input type="number" id="stock" class="form-control recent-warehouse-stock-label"
                                     name="stock" value="{{ old('stock', $product->warehouse_stock) }}" disabled>
                                 <input type="number" id="stock" class="form-control recent-warehouse-stock"
-                                    name="warehouse_recent_stock" value="{{ old('stock', $product->warehouse_stock) }}" hidden>
+                                    name="warehouse_recent_stock" value="{{ old('stock', $product->warehouse_stock) }}"
+                                    hidden>
                                 <label for="Recent Stock">Recent Warehouse Stock</label>
+                            </div>
+                            <div class="form-floating form-floating-outline">
+                                <input type="number" id="pending_stock" class="form-control" name="pending_recent_stock"
+                                    value="{{ old('pending_stock', $product->pending_stock) }}">
+                                <label for="Recent Stock">Recent Pending Stock</label>
                             </div>
                         </div>
                     </div>

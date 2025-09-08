@@ -1,8 +1,6 @@
 $(function () {
-    var dt_table_pending_po_non_project_admin = $(
-        ".datatable-pending-po-non-project-admin"
-    );
-    var Url = "db/pending/po/non-project/admin";
+    var dt_table_pending_po_non_project_admin = $(".datatable-pending-po-non-project");
+    var Url = "db/pending/po/non-project";
 
     if (dt_table_pending_po_non_project_admin.length) {
         $('[data-toggle="tooltip"]').tooltip();
@@ -28,12 +26,11 @@ $(function () {
                 { data: "" },
                 // { data: "id" },
                 { data: "id" },
+                { data: "po_date" },
                 {
-                    data: "po_date",
+                    data: "no_po",
                     render: function (data, type, row) {
-                        if (!data) return "-";
-
-                        return moment(data).format("DD-MM-YY");
+                        return data ? data : "belum ada invoice";
                     },
                 },
                 { data: "company" },
@@ -41,12 +38,6 @@ $(function () {
                 { data: "status" },
                 { data: "status_p" },
                 { data: "delivery" },
-                {
-                    data: "name",
-                },
-                {
-                    data: "team",
-                },
                 { data: "id" },
             ],
             columnDefs: [
@@ -103,16 +94,32 @@ $(function () {
                     },
                 },
                 {
-                    targets: 5,
+                    targets: 3,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var id = full["id"];
+                            return (
+                                '<a class="text-black cursor-pointer" data-bs-toggle="modal" data-bs-target="#detailPending-' +
+                                id +
+                                '">' +
+                                data +
+                                "</a>"
+                            );
+                        }
+                        return data;
+                    },
+                },
+                {
+                    targets: 6,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $status = {
                             null: {
-                                title: "New PO",
+                                title: "Quotation PO",
                                 class: "bg-label-info",
                             },
                             0: {
-                                title: "New PO",
+                                title: "Quotation PO",
                                 class: "bg-label-info",
                             },
                             1: {
@@ -134,7 +141,7 @@ $(function () {
                             5: {
                                 title: "Delivery Process",
                                 class: " bg-label-linkedin",
-                            },
+                            }, 
                         };
                         if (typeof $status[$status_number] === "undefined") {
                             return data;
@@ -149,25 +156,25 @@ $(function () {
                     },
                 },
                 {
-                    targets: 6,
+                    targets: 7,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status_p"];
                         var $titleTool = full["note_p"];
                         var $status = {
                             null: {
-                                title: "UNPAID",
+                                title: "Belum Ada Invoice",
                                 class: "bg-label-danger",
                                 colorTip: "tooltip-danger",
-                                titleTip: "-",
+                                titleTip: $titleTool,
                             },
                             0: {
-                                title: "UNPAID",
+                                title: "Not Confirmed Yet",
                                 class: "bg-label-warning",
                                 colorTip: "tooltip-warning",
-                                titleTip: "-",
+                                titleTip: $titleTool,
                             },
                             1: {
-                                title: "PAID",
+                                title: "Confirmed Payment",
                                 class: " bg-label-success",
                                 colorTip: "tooltip-success",
                                 titleTip: $titleTool,
@@ -190,40 +197,27 @@ $(function () {
                     },
                 },
                 {
-                    targets: 7,
+                    targets: 8,
                     render: function (data, type, full, meta) {
                         var delivery = full["delivery"];
                         switch (delivery) {
                             case 1:
-                                delivery = "Kurir";
+                                delivery = "Kurir"
                                 break;
                             case 2:
-                                delivery = "Teknisi";
+                                delivery = "Teknisi"
                                 break;
                             case 3:
-                                delivery = "Direct";
+                                delivery = "Direct"
                                 break;
                             case 4:
-                                delivery = "Other";
+                                delivery = "Other"
                                 break;
-
+                        
                             default:
                                 break;
                         }
-                        return delivery;
-                    },
-                },
-                {
-                    targets: 9,
-                    render: function (data, type, full, row) {
-                        var id = full["team"];
-                        var team;
-                        if (id == 1 || id == 16 || id == 23) {
-                            team = "ONLINE";
-                        } else {
-                            team = "OFFLINE";
-                        }
-                        return team;
+                            return delivery;
                     },
                 },
             ],
@@ -231,6 +225,7 @@ $(function () {
                 console.log("drawCallback");
                 $('[data-toggle="tooltip"]').tooltip();
             },
+            order: [[2, "desc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 10,
             lengthMenu: [10, 25, 50, 75, 100],

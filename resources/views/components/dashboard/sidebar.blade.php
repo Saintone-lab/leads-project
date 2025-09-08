@@ -472,7 +472,7 @@
                 <span class="menu-header-text">Pending</span>
             </li>
             <li
-                class="menu-item {{ request()->is('pending-po') || request()->is('pending-po/*') || request()->is('pending-po-done') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('pending-po') || request()->is('pending-po/*') || request()->is('pending-po-done') || request()->is('pending-po-project') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-text-box-multiple"></i>
                     <div data-i18n="Pending PO">Pending PO</div>
@@ -481,6 +481,11 @@
                     <li class="menu-item {{ request()->is('pending-po') ? 'active' : '' }}">
                         <a href="{{ route('pending-po.index') }}" class="menu-link">
                             <div data-i18n="Progress">Progress</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('pending-po-project') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.index-project') }}" class="menu-link">
+                            <div data-i18n="Project">Project</div>
                         </a>
                     </li>
                     <li class="menu-item {{ request()->is('pending-po-done') ? 'active' : '' }}">
@@ -761,7 +766,7 @@
                 <span class="menu-header-text">Pending</span>
             </li>
             <li
-                class="menu-item {{ request()->is('pending-po') || request()->is('pending-po/*') || request()->is('pending-po-done') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('pending-po') || request()->is('pending-po/*') || request()->is('pending-po-done') || request()->is('pending-po-project') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-text-box-multiple"></i>
                     <div data-i18n="Pending PO">Pending PO</div>
@@ -770,6 +775,11 @@
                     <li class="menu-item {{ request()->is('pending-po') ? 'active' : '' }}">
                         <a href="{{ route('pending-po.index') }}" class="menu-link">
                             <div data-i18n="Progress">Progress</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('pending-po-project') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.index-project') }}" class="menu-link">
+                            <div data-i18n="Project">Project</div>
                         </a>
                     </li>
                     <li class="menu-item {{ request()->is('pending-po-done') ? 'active' : '' }}">
@@ -1064,7 +1074,7 @@
                 <span class="menu-header-text">Pending</span>
             </li>
             <li
-                class="menu-item {{ request()->is('pending-po') || request()->is('pending-po/*') || request()->is('pending-po-done') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('pending-po') || request()->is('pending-po/*') || request()->is('pending-po-done') || request()->is('pending-po-project') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-text-box-multiple"></i>
                     <div data-i18n="Pending PO">Pending PO</div>
@@ -1073,6 +1083,11 @@
                     <li class="menu-item {{ request()->is('pending-po') ? 'active' : '' }}">
                         <a href="{{ route('pending-po.index') }}" class="menu-link">
                             <div data-i18n="Progress">Progress</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('pending-po-project') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.index-project') }}" class="menu-link">
+                            <div data-i18n="Project">Project</div>
                         </a>
                     </li>
                     <li class="menu-item {{ request()->is('pending-po-done') ? 'active' : '' }}">

@@ -40,7 +40,8 @@
                 opacity: 0.9;
                 z-index: -1;
             }
-            body{
+
+            body {
                 cursor: url('{{ asset('asset/cursor-sandy.ico') }}'), auto;
             }
         </style>
@@ -94,13 +95,18 @@
 
                 <!-- Content wrapper -->
                 <div class="content-wrapper">
-                    <div class="container-xxl flex-grow-1 container-p-y">
 
+                    @if (!View::hasSection('no-container'))
+                        <div class="container-xxl flex-grow-1 container-p-y">
+                            <!--  Content  -->
+                            @yield('content')
+                            <!--  END: Content  -->
+                        </div>
+                    @else
                         <!--  Content  -->
                         @yield('content')
                         <!--  END: Content  -->
-
-                    </div>
+                    @endif
                     <div class="content-backdrop fade"></div>
                 </div>
                 <!-- END : Content Wrapper -->

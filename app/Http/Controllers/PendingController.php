@@ -14,6 +14,7 @@ use App\Models\Product;
 use App\Models\ProductOut;
 use App\Models\Quotation;
 use App\Models\SerialProduct;
+use App\Models\SubtitleQuotation;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -79,11 +80,13 @@ class PendingController extends Controller
         $pending = PendingPO::find($id);
         $quotation = Quotation::find($pending->id_quotation);
         $detQuotation = DetailQuotation::where('id_quotation', $pending->id_quotation)->get();
+        $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $pending->id_quotation)->get();
         $invoice = Invoice::where('id_quotation', $quotation->id)->first();
         $activity = ChangeStatus::where('id_pending', $id)->with('comment')->get();
-        // dd($activity);
+        $serial = SerialProduct::all();
+        // dd($subQuote);
         // dd($status->count());
-        return view('pages.pending.detail', compact('activity', 'pending', 'quotation', 'invoice', 'detQuotation'));
+        return view('pages.pending.detail', compact('serial','activity', 'subQuote','pending', 'quotation', 'invoice', 'detQuotation'));
     }
 
     /**
@@ -182,9 +185,58 @@ class PendingController extends Controller
         $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $dPending = DetailPendingPO::where('id_pending', $id)->get();
         foreach ($request->status as $key => $value) {
+            $product = Product::join('serial_product as sp', 'sp.id_product', '=', 'product.id')->where('sp.id', $dQuote[$key]->id_equivalent)->select('product.*')->first();
+            if ($dQuote[$key]->bdg != 0 || $dQuote[$key]->bks != 0) {
+                $product->stock += $request->bdg[$key];
+                $product->warehouse_stock += $request->bks[$key];
+                $product->pending_stock -= $request->bdg[$key] + $request->bks[$key];
+                $dQuote[$key]->bdg = 0;
+                $dQuote[$key]->bks = 0;
+            }
             $dQuote[$key]->status = $value;
+            $dQuote[$key]->bdg = $request->bdg[$key];
+            $dQuote[$key]->bks = $request->bks[$key];
             $dQuote[$key]->note = $request->note[$key];
             $dQuote[$key]->save();
+            // dd($item->id_equivalent);
+            if ($value == 2) {
+                $product->stock -= $request->bdg[$key];
+                $product->warehouse_stock -= $request->bks[$key];
+                $product->pending_stock += $request->bdg[$key] + $request->bks[$key];
+                $product->save();
+            }
+        }
+        return redirect('/pending-po/' . $id)->with('message', 'Product Pending PO telah diedit');
+    }
+    public function projectEdit(Request $request, $id)
+    {
+        // dd($request->all());
+        $pending = PendingPO::find($id);
+        $quote = Quotation::find($pending->id_quotation);
+        $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
+        $dPending = DetailPendingPO::where('id_pending', $id)->get();
+        foreach ($request->status as $key => $value) {
+            $product = Product::join('serial_product as sp', 'sp.id_product', '=', 'product.id')->where('sp.id', $dPending[$key]->id_equivalent)->select('product.*')->first();
+            if ($dPending[$key]->bdg != 0 || $dPending[$key]->bks != 0) {
+                $product->stock += $request->bdg[$key];
+                $product->warehouse_stock += $request->bks[$key];
+                $product->pending_stock -= $request->bdg[$key] + $request->bks[$key];
+                $dPending[$key]->bdg = 0;
+                $dPending[$key]->bks = 0;
+            }
+            $dPending[$key]->id_replacement = $request->replacement[$key];
+            $dPending[$key]->status = $value;
+            $dPending[$key]->bdg = $request->bdg[$key];
+            $dPending[$key]->bks = $request->bks[$key];
+            $dPending[$key]->note = $request->note[$key];
+            $dPending[$key]->save();
+            // dd($item->id_equivalent);
+            if ($value == 2) {
+                $product->stock -= $request->bdg[$key];
+                $product->warehouse_stock -= $request->bks[$key];
+                $product->pending_stock += $request->bdg[$key] + $request->bks[$key];
+                $product->save();
+            }
         }
         return redirect('/pending-po/' . $id)->with('message', 'Product Pending PO telah diedit');
     }
@@ -367,5 +419,25 @@ class PendingController extends Controller
             ->get();
         // dd($data);
         return view('pages.pending.done');
+    }
+    public function indexProject()
+    {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->select(
+                'pending_po.id',
+                'u.name',
+                'c.company',
+                'i.no_po',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+            )
+            ->get();
+        // dd($data);
+        return view('pages.pending.project');
     }
 }
