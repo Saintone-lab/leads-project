@@ -16,7 +16,7 @@
                             {{ $pending->quote->invoice[0]?->no_invoice ?? $pending->quote->pic->client->company }}</h4>
                         <form>
                             <div class="card">
-                                <div class="table-responsive text-nowrap h-100">
+                                <div class="table text-nowrap h-100" style="height: fit-content">
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
@@ -56,19 +56,20 @@
                                                         <td>
                                                             <div class="form-floating form-floating-outline mb-2">
                                                                 <select class="select2 form-select"
-                                                                    data-allow-clear="true" name="replacement[]"
+                                                                    data-allow-clear="true" name="equivalent[]"
                                                                     data-id="1">
-                                                                    <option> ---- Choose Replacement Here ---- </option>
+                                                                    <option> ---- Choose Equivalent Here ---- </option>
                                                                     @foreach ($serial as $replacement)
                                                                         <option value="{{ $replacement->id }}"
-                                                                            {{ $product->pending[0]->id_replacement == $replacement->id ? 'selected' : '' }}>
+                                                                            {{ $product->pending[0]->id_equivalent == $replacement->id ? 'selected' : '' }}>
                                                                             {{ $replacement->brand }}
-                                                                            {{ $replacement->pn }}
+                                                                            {{ $replacement->pn }} -
+                                                                            {{ $replacement->product?->go == 'Replacement' ? 'R' : 'G' }}
                                                                         </option>
                                                                     @endforeach
                                                                 </select>
-                                                                <label for="replacement"
-                                                                    class="mb-2">Replacement</label>
+                                                                <label for="Equivalent"
+                                                                    class="mb-2">Equivalent</label>
                                                             </div>
                                                         </td>
 

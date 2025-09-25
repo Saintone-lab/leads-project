@@ -140,7 +140,7 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <strong>Prucashing Order</strong>
+                                        <strong>Purchase Order</strong>
                                     </td>
                                     @php
                                         $totalPoFullWeek = 0;

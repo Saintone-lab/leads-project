@@ -8,6 +8,7 @@ use App\Models\DetailPendingPO;
 use App\Models\DetailProduct;
 use App\Models\DetailProductOut;
 use App\Models\DetailQuotation;
+use App\Models\DetailServiceQuotation;
 use App\Models\Invoice;
 use App\Models\PendingPO;
 use App\Models\Product;
@@ -46,6 +47,36 @@ class PendingController extends Controller
         // dd($data);
         $pendingPO = PendingPO::with('detail')->get();
         return view('pages.pending.index', compact('pendingPO'));
+    }
+    public function indexOrder(){
+            $newCount = PendingPO::where('status', operator: 0)
+                ->where('type', 'Non Project')
+                ->count();
+            $listCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])
+                ->where('type', 'Non Project')
+                ->count();
+            $deliveryCount = PendingPO::where('pending_po.status', 5)
+                ->where('type', 'Non Project')
+                ->count();
+        return view('pages.pending.order', compact('newCount','deliveryCount','listCount'));
+    }
+    public function indexList(){
+            $newCount = PendingPO::where('status', operator: 0)
+                ->where('type', 'Non Project')
+                ->count();
+            $listCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])
+                ->where('type', 'Non Project')
+                ->count();
+            $deliveryCount = PendingPO::where('pending_po.status', 5)
+                ->where('type', 'Non Project')
+                ->count();
+        return view('pages.pending.list', compact('newCount','deliveryCount','listCount'));
+    }
+    public function indexDelivery(){
+        return view('pages.pending.delivery');
+    }
+    public function indexCompleted(){
+        return view('pages.pending.completed');
     }
 
     /**
@@ -86,7 +117,7 @@ class PendingController extends Controller
         $serial = SerialProduct::all();
         // dd($subQuote);
         // dd($status->count());
-        return view('pages.pending.detail', compact('serial','activity', 'subQuote','pending', 'quotation', 'invoice', 'detQuotation'));
+        return view('pages.pending.detail', compact('serial', 'activity', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation'));
     }
 
     /**
@@ -179,19 +210,20 @@ class PendingController extends Controller
     }
     public function productEdit(Request $request, $id)
     {
-        // dd($request->all());
         $pending = PendingPO::find($id);
         $quote = Quotation::find($pending->id_quotation);
         $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $dPending = DetailPendingPO::where('id_pending', $id)->get();
         foreach ($request->status as $key => $value) {
             $product = Product::join('serial_product as sp', 'sp.id_product', '=', 'product.id')->where('sp.id', $dQuote[$key]->id_equivalent)->select('product.*')->first();
+            // dd($dQuote[$key]->bdg);
             if ($dQuote[$key]->bdg != 0 || $dQuote[$key]->bks != 0) {
-                $product->stock += $request->bdg[$key];
-                $product->warehouse_stock += $request->bks[$key];
-                $product->pending_stock -= $request->bdg[$key] + $request->bks[$key];
+                $product->stock += $dQuote[$key]->bdg;
+                $product->warehouse_stock += $dQuote[$key]->bks;
+                $product->pending_stock -= $dQuote[$key]->bdg + $dQuote[$key]->bks;
                 $dQuote[$key]->bdg = 0;
                 $dQuote[$key]->bks = 0;
+                $product->save();
             }
             $dQuote[$key]->status = $value;
             $dQuote[$key]->bdg = $request->bdg[$key];
@@ -224,7 +256,7 @@ class PendingController extends Controller
                 $dPending[$key]->bdg = 0;
                 $dPending[$key]->bks = 0;
             }
-            $dPending[$key]->id_replacement = $request->replacement[$key];
+            $dPending[$key]->id_equivalent = $request->equivalent[$key];
             $dPending[$key]->status = $value;
             $dPending[$key]->bdg = $request->bdg[$key];
             $dPending[$key]->bks = $request->bks[$key];
@@ -287,7 +319,11 @@ class PendingController extends Controller
             }
         }
         if ($request->status == '6') {
-            return redirect('/pending-po/product-out/' . $id)->with('message', 'Status Product Pending PO telah diedit');
+            if ($pending->type == 'Project') {
+                return redirect('/pending-po/product-out-project/' . $id)->with('message', 'Status Product Pending PO telah diedit');
+            } else {
+                return redirect('/pending-po/product-out/' . $id)->with('message', 'Status Product Pending PO telah diedit');
+            }
         } else {
             return redirect('/pending-po/' . $id)->with('message', 'Status Product Pending PO telah diedit');
         }
@@ -328,9 +364,25 @@ class PendingController extends Controller
             $fullRep[$no] = DetailProduct::where('id_product', $equivalent->id_product)->get();
             $no++;
         }
-        // dd($fullRep);
-        // dd($dPending);
         return view('pages.pending.form', compact('Dquote', 'fullRep', 'pending', 'quote', 'dPending', 'id'));
+    }
+    public function pending_out_project($id)
+    {
+        $pending = PendingPO::find($id);
+        $quote = Quotation::find($pending->id_quotation);
+        // $Dquote = DetailServiceQuotation::where('id_quotation', $pending->id_quotation)->get();
+        $dPending = DetailPendingPO::where('id_pending', $id)->get();
+
+        $fullRep = [];
+        $fullEquiv = [];
+        $no = 0;
+        foreach ($dPending as $item) {
+            $fullEquiv[$no] = SerialProduct::find($item->id_equivalent);
+            $fullRep[$no] = DetailProduct::where('id_product', $fullEquiv[$no]->id_product)->get();
+            $no++;
+        }
+        // dd($dPending);
+        return view('pages.pending.form-project', compact('fullRep', 'fullEquiv', 'dPending', 'pending', 'quote', 'dPending', 'id'));
     }
 
     public function product_out(Request $request, $id)
@@ -385,13 +437,13 @@ class PendingController extends Controller
                 }
                 $productD->save();
                 $product = Product::where('id', $productD->id_product)->first();
-                if ($request->warehouse[$item] == 'BDG') {
-                    $product->pending_stock -= $request->qty[$item];
-                } else {
-                    $product->pending_stock -= $request->qty[$item];
-                    $product->stock += $request->qty[$item];
-                    $product->warehouse_stock -= $request->qty[$item];
-                }
+                // if ($request->warehouse[$item] == 'BDG') {
+                $product->pending_stock -= $request->qty[$item];
+                // } else {
+                //     $product->pending_stock -= $request->qty[$item];
+                //     $product->stock += $request->qty[$item];
+                //     $product->warehouse_stock -= $request->qty[$item];
+                // }
                 $product->save();
                 $dProductSave = $dProductIn->save();
             }

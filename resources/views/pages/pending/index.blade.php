@@ -32,9 +32,9 @@
             </div>
         </div>
     </div>
-    @foreach ($pendingPO as $pending)
+    {{-- @foreach ($pendingPO as $pending)
         @include('components.modal.pending.detail')
-    @endforeach
+    @endforeach --}}
 @endsection()
 
 @push('after-style')

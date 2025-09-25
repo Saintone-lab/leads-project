@@ -447,9 +447,13 @@ class QuotationController extends Controller
         // dd($comment);
         $remaining = $quote->harga_total - $totalAmount;
         // dd($formattedNumberSP);
+        $countPending = PendingPO::whereYear('created_at', $thisYear)->count();
+        $nextNumber = $countPending + 1;
+
+        $noPending = 'SO-' . $thisYear . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
-        return view("pages.sales.quotation.detail", compact('quote', 'status', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'lastQuote', 'primQuote', 'quotations', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
+        return view("pages.sales.quotation.detail", compact('noPending', 'quote', 'status', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'lastQuote', 'primQuote', 'quotations', 'dquote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
     /**
      * Show the form for editing the specified resource.
@@ -713,6 +717,7 @@ class QuotationController extends Controller
                 $pending->type = "Project";
             }
             $pending->id_quotation = $quotation->primary_id;
+            $pending->no_pending = $request->no_pending;
             $pending->date = Carbon::now();
             $pending->save();
 
@@ -927,7 +932,7 @@ class QuotationController extends Controller
         ];
 
         $this->validate($request, $rule, $message);
-        // dd($request);
+        // dd($request->all());
         $quotation = Quotation::find($id);
         $detQuote = DetailQuotation::where('id_quotation', $id)->get();
         $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $id)->get();
@@ -964,12 +969,15 @@ class QuotationController extends Controller
 
         $pending = new PendingPO;
         $pending->status = 0;
-        $pending->id_quotation = $quotation->primary_id;
+        $pending->id_quotation = $id;
         if ($quotation->type == 'Sparepart') {
             $pending->type = "Non Project";
         } else {
             $pending->type = "Project";
         }
+        $pending->charged = $request->charged;
+        $pending->title = $request->title;
+        $pending->no_pending = $request->no_pending;
         $pending->delivery = $request->ekspidisi;
         $pending->date = Carbon::now();
         $pending->save();
@@ -1206,7 +1214,7 @@ class QuotationController extends Controller
             return redirect('/quotation/' . $id)->with('error', 'Quotation not found.');
         }
 
-        // $paymentCount = Payment::where('id_quotation', $id)->count();
+        $paymentCount = Payment::where('id_quotation', $id)->count();
         $invoice = Invoice::where('id_quotation', $id)->get();
         $payment = new Payment;
 
@@ -1233,32 +1241,74 @@ class QuotationController extends Controller
         //     // Move the file to the upload path
         //     $foto->move(public_path($upload_path), $file_name);
 
+
+        //     $targetInvoice = $invoice->count() - 1;
+        //     if ($invoice->count() == 1) {
+        //         if ($request->type == 'DP') {
+        //             $invoice[$targetInvoice]->type = 'DP';
+        //             $invoice[$targetInvoice]->save();
+        //         }
+        //     } else {
+        //         $invoice[$targetInvoice]->type = 'BP';
+        //         $invoice[$targetInvoice]->save();
+        //     }
+
         //     // Update the payment with the new file path
         //     $payment->id_quotation = $id;
         //     $payment->file = $upload_path . '/' . $file_name;
         //     $payment->amount = $request->amount;
+        //     $payment->type = $request->type;
+        //     $payment->method = $request->method;
+        //     $payment->level = 0;
         //     $payment->percent = $request->percent;
+        //     if ($request->type == 'Tempo') {
+        //         $payment->tempo = $request->tempo;
+        //         $payment->due_date = Carbon::today()->addDays($request->tempo);
+        //     }
         //     $payment->note = $request->note;
         //     $payment->save();
 
-        //     return redirect('/quotation/' . $id)->with('message', 'File has been uploaded.');
+        //     if ($quote->type == 'Sparepart') {
+        //         return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');
+        //     } else {
+        //         return redirect('/quote/service-show/' . $id)->with('message', 'File has Uploaded');
+        //     }
         // } else {
         //     return response()->json(['error' => 'No file uploaded.'], 400);
         // }
+
+        
         $targetInvoice = $invoice->count() - 1;
         if ($invoice->count() == 1) {
-            $invoice[$targetInvoice]->type = 'DP';
-            $invoice[$targetInvoice]->save();
+            if ($request->type == 'DP') {
+                $invoice[$targetInvoice]->type = 'DP';
+                $invoice[$targetInvoice]->save();
+            }
         } else {
             $invoice[$targetInvoice]->type = 'BP';
             $invoice[$targetInvoice]->save();
         }
         $payment->id_quotation = $id;
-        $payment->file = 'photo';
+        // $payment->file = $upload_path . '/' . $file_name;
         $payment->amount = $request->amount;
+        $payment->type = $request->type;
+        $payment->method = $request->method;
+        $payment->level = 0;
         $payment->percent = $request->percent;
+        if ($request->type == 'Tempo') {
+            $payment->tempo = $request->tempo;
+            $payment->due_date = Carbon::today()->addDays($request->tempo);
+        }
         $payment->note = $request->note;
         $payment->save();
+
+        $activity = new ChangeStatus();
+        $activity->id_user = Auth::user()->id;
+        $activity->id_payment = $payment->id;
+        $activity->note = "Payment Created By ";
+        $activity->status = 0;
+        $activity->date = Carbon::now();
+        $activity->save();
 
         if ($quote->type == 'Sparepart') {
             return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');
@@ -1266,6 +1316,58 @@ class QuotationController extends Controller
             return redirect('/quote/service-show/' . $id)->with('message', 'File has Uploaded');
         }
     }
+
+    public function proof_payment(Request $request, $id)
+    {
+        $payment = Payment::find($id);
+        if (!$payment) {
+            return response()->json(['error' => 'Payment not found'], 404);
+        }
+
+        $quote = Quotation::find($payment->id_quotation);
+        if (!$quote) {
+            return response()->json(['error' => 'Quotation not found'], 404);
+        }
+
+        $paymentCount = Payment::where('id_quotation', $payment->id_quotation)->count();
+
+        if ($request->hasFile('file')) {
+            $foto = $request->file('file');
+
+            // Validasi
+            $request->validate([
+                'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            ]);
+
+            // Ekstensi
+            $file_ext = $foto->getClientOriginalExtension();
+
+            // Nama file aman
+            $sanitized_file_name = preg_replace('/[^A-Za-z0-9\-]/', '_', $quote->no_quote);
+
+            // Susun nama file
+            $file_name = $sanitized_file_name . '-' . ($paymentCount + 1) . '.' . $file_ext;
+
+            // Path
+            $upload_path = 'asset/payment';
+            $foto->move(public_path($upload_path), $file_name);
+
+            // Simpan DB
+            $payment->file = $upload_path . '/' . $file_name;
+            $payment->save();
+
+            // ✅ Response sukses
+            return response()->json([
+                'success' => true,
+                'message' => 'Bukti pembayaran berhasil diupload',
+                'file_url' => asset($payment->file),
+                'payment_id' => $payment->id,
+            ], 200);
+        } else {
+            return response()->json(['error' => 'No file uploaded.'], 400);
+        }
+    }
+
     public function download_payment($id)
     {
         $payment = Payment::find($id);
@@ -1302,6 +1404,18 @@ class QuotationController extends Controller
         //     $payment->delete();
         //     return 1;
         if ($paymentDel) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public function confirm_payment($id)
+    {
+        $payment = Payment::find($id);
+        $payment->level = 1;
+        $paymentSave = $payment->save();
+        if ($paymentSave) {
             return 1;
         } else {
             return 0;
@@ -2135,9 +2249,13 @@ class QuotationController extends Controller
         // dd($comment);
         $remaining = $quote->harga_total - $totalAmount;
         // dd($formattedNumberSP);
+        $countPending = PendingPO::whereYear('created_at', $thisYear)->count();
+        $nextNumber = $countPending + 1;
+
+        $noPending = 'SO-' . $thisYear . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
-        return view("pages.sales.quotation.service.detail", compact('totalDisc', 'quote', 'status', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'lastQuote', 'primQuote', 'quotations', 'subQuote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
+        return view("pages.sales.quotation.service.detail", compact('noPending', 'totalDisc', 'quote', 'status', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'lastQuote', 'primQuote', 'quotations', 'subQuote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
     public function destroyService($id)
     {

@@ -8,7 +8,7 @@
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control-lg fw-bold fs-3" id="floatingInputFilled"
                         placeholder="xxx/xx/xx/xxxx xxxx" aria-describedby="floatingInputFilledHelp" name="invoice"
-                        value="{{ $pending->quote->invoice[0]->no_invoice }}">
+                        value="{{ $pending->quote->invoice[0]->no_invoice ?? '' }}">
                     <label for="floatingInputFilled">No Invoice</label>
                     <span class="form-floating-focused"></span>
                 </div>
@@ -17,7 +17,7 @@
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control-lg fw-bold fs-3" id="floatingInputFilled"
                         placeholder="xxx/xx/xx/xxxx xxxx" aria-describedby="floatingInputFilledHelp" name="po"
-                        value="{{ $pending->quote->invoice[0]->no_po }}">
+                        value="{{ $pending->quote->invoice[0]->no_po ?? '' }}">
                     <label for="floatingInputFilled">No Po</label>
                     <span class="form-floating-focused"></span>
                 </div>

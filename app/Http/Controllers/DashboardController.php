@@ -11,9 +11,11 @@ use App\Models\Issues;
 use App\Models\Machine;
 use App\Models\MonitoringActivities;
 use App\Models\Notulen;
+use App\Models\PendingPO;
 use App\Models\Product;
 use App\Models\Prospect;
 use App\Models\Quotation;
+use App\Models\Reports;
 use App\Models\ReqVisit;
 use App\Models\SalesOnline;
 use App\Models\SerialProduct;
@@ -136,11 +138,17 @@ class DashboardController extends Controller
             $POCount = Quotation::where('id_sales', Auth::user()->id)->where('is_primary', '1')->where('status', '100')->where('level', '1')->whereMonth('po_date', Carbon::now())->whereYear('po_date', Carbon::now())->count();
 
             $jumlahCustomer = Client::where('role', 'Customers')->where('id_sales', Auth::user()->id)->count();
+            $reportsCount = Reports::join('machine as m', 'm.id', '=', 'reports.id_machine')
+            ->join('client as c', 'c.id', '=', 'm.id_client')
+            ->join('users as u', 'u.id', '=', 'c.id_sales')
+            ->where('u.id', Auth::user()->id)
+            ->where('reports.viewed', 0)->count();
             // dd($ratingCount);
 
             return view(
                 "pages.sales.dashboard",
                 compact(
+                    'reportsCount',
                     'sales',
                     'akurasi',
                     'delivery',
@@ -221,7 +229,7 @@ class DashboardController extends Controller
             $totalLoss = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
             $totalPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
             $filteredLeads = Client::whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->where('id_sales', $firstSales->id)->count();
-            $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->whereIn('activities.name', ['Daily Call', 'Follow Up'])->distinct('c.id')->count();
+            $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->whereIn('activities.name', ['Daily Call', 'Follow Up'])->count();
             $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->where('name', 'CRM')->distinct('c.id')->count();
             $filteredQuote = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('level', '1')->where('is_primary', '1')->count();
             $filteredProspect = Prospect::whereNotNull('id_quotation')->whereMonth('date', $monthNow)->whereYear('date', $yearNow)->count();
@@ -276,12 +284,24 @@ class DashboardController extends Controller
                 ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
 
             // End Comment Admin
+            $newCount = PendingPO::where('status', operator: 0)
+                ->where('type', 'Non Project')
+                ->count();
+            $listCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])
+                ->where('type', 'Non Project')
+                ->count();
+            $deliveryCount = PendingPO::where('pending_po.status', 5)
+                ->where('type', 'Non Project')
+                ->count();
 
             return view(
                 "pages.sales.dashboard",
                 compact(
                     'requestContract',
                     'requestInvoice',
+                    'newCount',
+                    'listCount',
+                    'deliveryCount',
                     'dataOverview',
                     'noSaleProspect',
                     'notulens',
@@ -326,12 +346,28 @@ class DashboardController extends Controller
             $user = User::find('25');
             $monitoring = MonitoringActivities::whereDate('date', $today)->first();
 
+            $newCount = PendingPO::where('status', operator: 0)
+                ->where('type', 'Non Project')
+                ->count();
+            $listCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])
+                ->where('type', 'Non Project')
+                ->count();
+            $deliveryCount = PendingPO::where('pending_po.status', 5)
+                ->where('type', 'Non Project')
+                ->count();
+            $doneCount = PendingPO::where('pending_po.status', 6)
+                ->where('type', 'Non Project')
+                ->count();
+
             $visits = ReqVisit::whereNull('date')->get();
             $visited = ReqVisit::whereNotNull('date')->whereNull('visit_date')->get();
             return view(
                 "pages.sales.dashboard",
                 compact(
                     'user',
+                    'newCount',
+                    'listCount',
+                    'deliveryCount',
                     'notulens',
                     'commodity',
                     'dproduct',
@@ -890,7 +926,7 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $filteredLeads = Quotation::whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->where('id_sales', $sales)->count();
+        $filteredLeads = Client::whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->where('id_sales', $sales)->count();
         return $filteredLeads;
     }
     public function filteredPercentLeadsAdmin($sales)
@@ -898,7 +934,7 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $filteredLeads = Quotation::whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->where('id_sales', $sales)->count();
+        $filteredLeads = Client::whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->where('id_sales', $sales)->count();
         $target = Target::where('id_sales', $sales)->first('leads');
         $leadsTarget = ($filteredLeads / $target->leads) * 100;
         return round($leadsTarget);
@@ -973,7 +1009,7 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $filteredQuote = Quotation::whereYear('po_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
+        $filteredQuote = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
         return $filteredQuote;
     }
     public function filteredTargetQuoteAdmin($sales)
@@ -986,7 +1022,7 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $filteredQuote = Quotation::whereYear('po_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
+        $filteredQuote = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
         $target = Target::where('id_sales', $sales)->first('quote');
         $quoteTarget = ($filteredQuote / $target->quote) * 100;
         return round($quoteTarget);
@@ -1004,7 +1040,7 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $allProspect = Prospect::whereMonth('date', $monthNow)->whereYear('date', $yearNow)->where('id_sales', $sales)->count();
+        $allProspect = Prospect::whereNotNull('id_quotation')->whereMonth('date', $monthNow)->whereYear('date', $yearNow)->where('id_sales', $sales)->count();
         return $allProspect;
     }
     public function filteredPercentProspectAdmin($sales)
@@ -1830,15 +1866,21 @@ class DashboardController extends Controller
 
         $users = User::with('clients')->where('role', 'Sales')->get();
 
-        // Ambil semua data sekaligus untuk bulan & tahun ini
-        $allDC = Activities::whereIn('name', ['Daily Call', 'Follow Up'])
+        // Ambil semua data sekaligus
+        $allDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')
             ->whereMonth('date', $month)
             ->whereYear('date', $year)
+            ->where('status', 'Responded')
+            ->whereIn('name', ['Daily Call', 'Follow Up'])
+            ->groupBy('c.id')
             ->get();
 
-        $allActivities = Activities::where('name', 'CRM')
+        $allActivities = Activities::join('client as c', 'activities.id_client', '=', 'c.id')
             ->whereMonth('date', $month)
             ->whereYear('date', $year)
+            ->where('status', 'Responded')
+            ->where('name', 'CRM')
+            ->groupBy('c.id')
             ->get();
 
         $allLeads = Client::whereMonth('created_at', $month)
@@ -1853,60 +1895,57 @@ class DashboardController extends Controller
 
         $allPOs = Quotation::whereMonth('po_date', $month)
             ->whereYear('po_date', $year)
+            ->where('status', '100')
             ->where('level', '1')
             ->where('is_primary', '1')
             ->get();
-        // dd($allQuotes);
+
         $data = [];
 
         foreach ($users as $user) {
+            // inisialisasi counter minggu (1–5)
             $leadCounts = collect([1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
             $dcCounts = collect([1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
             $crmCounts = collect([1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
             $quoteCounts = collect([1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
             $poCounts = collect([1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
 
-            // Filter data yang berkaitan dengan user saat ini
+            // Filter data yang sesuai sales
             $clientIds = $user->clients->pluck('id');
-
-            $userActivities = $allActivities->whereIn('id_client', $clientIds);
-            $userDC = $allDC->whereIn('id_client', $clientIds);
-            $userLeads = $allLeads->whereIn('id_sales', [$user->id]);
+            $userDC = $allDC->where('id_sales', $user->id);
+            $userCRM = $allActivities->whereIn('id_client', $clientIds);
+            $userLeads = $allLeads->where('id_sales', $user->id);
             $userQuotes = $allQuotes->where('id_sales', $user->id);
             $userPOs = $allPOs->where('id_sales', $user->id);
 
-            foreach ($userActivities as $activity) {
-                $week = (int) $activity->week;
-                if (isset($crmCounts[$week])) {
-                    $crmCounts->put($week, $crmCounts->get($week) + 1);
-                }
+            // Hitung CRM
+            foreach ($userCRM as $activity) {
+                $week = Carbon::parse($activity->date)->weekOfMonth;
+                $crmCounts->put($week, $crmCounts->get($week) + 1);
             }
+
+            // Hitung DC
             foreach ($userDC as $dc) {
-                $week = (int) $dc->week;
-                if (isset($dcCounts[$week])) {
-                    $dcCounts->put($week, $dcCounts->get($week) + 1);
-                }
+                $week = Carbon::parse($dc->date)->weekOfMonth;
+                $dcCounts->put($week, $dcCounts->get($week) + 1);
             }
 
+            // Hitung Leads
             foreach ($userLeads as $lead) {
-                $week = (int) $lead->week;
-                if (isset($leadCounts[$week])) {
-                    $leadCounts->put($week, $leadCounts->get($week) + 1);
-                }
+                $week = Carbon::parse($lead->created_at)->weekOfMonth;
+                $leadCounts->put($week, $leadCounts->get($week) + 1);
             }
 
+            // Hitung Quotes
             foreach ($userQuotes as $quote) {
-                $week = (int) $quote->week;
-                if (isset($quoteCounts[$week])) {
-                    $quoteCounts->put($week, $quoteCounts->get($week) + 1);
-                }
+                $week = Carbon::parse($quote->estimated_date)->weekOfMonth;
+                $quoteCounts->put($week, $quoteCounts->get($week) + 1);
             }
 
+            // Hitung POs
             foreach ($userPOs as $po) {
-                $week = (int) $po->week;
-                if (isset($poCounts[$week])) {
-                    $poCounts->put($week, $poCounts->get($week) + 1);
-                }
+                $week = Carbon::parse($po->po_date)->weekOfMonth;
+                $poCounts->put($week, $poCounts->get($week) + 1);
             }
 
             $data[] = [

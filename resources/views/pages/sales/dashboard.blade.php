@@ -2172,12 +2172,12 @@
                             <th></th>
                             <th>ID</th>
                             <th>SKU</th>
-                            <th>Brand</th>
                             <th>Part Number</th>
-                            <th>Price</th>
+                            {{-- <th>Brand</th> --}}
+                            {{-- <th>Price</th> --}}
                             <th>Desc</th>
                             <th>Dimension</th>
-                            {{-- <th>G/O</th> --}}
+                            <th>G/O</th>
                             <th>Stock BDG</th>
                             <th>Stock BKS</th>
                             <th>stock Pending</th>
@@ -2547,6 +2547,7 @@
     <script src="{{ asset('assets') }}/includes/table-hot-prospect.js"></script>
 
     <script src="{{ asset('assets') }}/includes/table-product-sales.js"></script>
+    {{-- <script src="{{ asset('assets') }}/includes/table-product.js"></script> --}}
     <script src="{{ asset('assets') }}/includes/table-product-logistic.js"></script>
 
     <script src="{{ asset('assets') }}/includes/table-reports-admin.js"></script>
@@ -2842,13 +2843,14 @@
 
         $('.change-sales').on('click', function(ev) {
             var id = $(this).data('id');
-            // console.log( 'sales ini ber id : ' + id);
+            console.log('sales ini ber id : ' + id);
 
             // Ajax Sales Kiri
             $.ajax({
                 url: '/dashboard/filteredLeads/' + id,
                 type: 'GET',
-                success: function(response) {
+                success: function(response, id) {
+                    // console.log(id);
                     $(`.filtered-leads`).text(response);
                 }
             });

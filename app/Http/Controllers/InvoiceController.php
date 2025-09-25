@@ -44,7 +44,7 @@ class InvoiceController extends Controller
             ->whereNull('invoice.no_invoice')
             ->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.accounting.invoice.index', compact('requestContract','requestInvoice','noSaleProspect'));
+        return view('pages.accounting.invoice.index', compact('requestContract', 'requestInvoice', 'noSaleProspect'));
     }
 
     /**
@@ -113,9 +113,9 @@ class InvoiceController extends Controller
         } else {
             foreach ($subQuote as $subtitle) {
                 foreach ($subtitle->detail as $detail) {
-                    
-                $pph = ($detail->amount * $detail->pph) / 100;
-                $totalPph += $pph;
+
+                    $pph = ($detail->amount * $detail->pph) / 100;
+                    $totalPph += $pph;
                 }
             }
         }
@@ -141,11 +141,12 @@ class InvoiceController extends Controller
         $doEksMan = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->where('code', 'Manual')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $pOut = ProductOut::where('invoice', $invoice->no_invoice)->first();
+        $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
         // dd($doTekMan);
         if ($quote->type == 'Sparepart') {
-            return view('pages.accounting.invoice.detail', compact('requestContract','requestInvoice','hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
+            return view('pages.accounting.invoice.detail', compact('lastPayment', 'requestContract', 'requestInvoice', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
         } else {
-            return view('pages.accounting.invoice.detail', compact('requestContract','requestInvoice','subQuote', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
+            return view('pages.accounting.invoice.detail', compact('lastPayment', 'requestContract', 'requestInvoice', 'subQuote', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
         }
 
     }
@@ -185,6 +186,9 @@ class InvoiceController extends Controller
         $invoice->term = $request->payment;
         $invoice->invoiceTo = $quote->destination;
         $invoiceSave = $invoice->save();
+        $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
+        $lastPayment->due_date = Carbon::now()->addDays($request->due_date);
+        $lastPayment->save();
         if ($invoiceSave) {
             return redirect('/invoice/' . $id)->with('message', 'Invoice has been accepted');
         }
@@ -231,7 +235,7 @@ class InvoiceController extends Controller
             ->whereNull('invoice.no_invoice')
             ->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.accounting.invoice.index-kojisha', compact('requestContract','requestInvoice','noSaleProspect'));
+        return view('pages.accounting.invoice.index-kojisha', compact('requestContract', 'requestInvoice', 'noSaleProspect'));
     }
     public function request()
     {
@@ -250,7 +254,7 @@ class InvoiceController extends Controller
             ->whereNull('invoice.no_invoice')
             ->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.accounting.invoice.index-request', compact('requestContract','requestInvoice','noSaleProspect'));
+        return view('pages.accounting.invoice.index-request', compact('requestContract', 'requestInvoice', 'noSaleProspect'));
     }
     public function before_accept($id)
     {
@@ -312,6 +316,7 @@ class InvoiceController extends Controller
         }
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
+        $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
 
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
@@ -323,9 +328,9 @@ class InvoiceController extends Controller
         $invoice = Invoice::where('id_quotation', $id)->orderBy('created_at', 'desc')->first();
         // dd($price);
         if ($quote->type != 'Sparepart') {
-            return view('pages.accounting.invoice.before-accept', compact('requestContract','requestInvoice','quote', 'subQuote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));
+            return view('pages.accounting.invoice.before-accept', compact('lastPayment', 'requestContract', 'requestInvoice', 'quote', 'subQuote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));
         } else {
-            return view('pages.accounting.invoice.before-accept', compact('requestContract','requestInvoice','quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));
+            return view('pages.accounting.invoice.before-accept', compact('lastPayment', 'requestContract', 'requestInvoice', 'quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));
         }
     }
 
@@ -625,23 +630,38 @@ class InvoiceController extends Controller
             return redirect('/invoice/' . $id)->with('error', 'Terjadi kesalahan saat mengirim data');
         }
     }
-    public function confirm_payment(Request $request, $id){
+    public function due_date(Request $request, $id)
+    {
+        $invoice = Invoice::find($id);
+        $quote = Quotation::find($invoice->id_quotation);
+        $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
+        $lastPayment->overdue = $request->due_date;
+        $lastPayment->due_date = Carbon::now()->addDays($request->due_date);
+        $paymentSave = $lastPayment->save();
+        // dd($lastPayment);
+        if ($paymentSave) {
+            return redirect('/invoice/' . $id)->with('message', 'Data telah terkirim');
+        }
+    }
+    public function confirm_payment(Request $request, $id)
+    {
         $invoice = Invoice::find($id);
         $invoice->status_p = 1;
         $invoice->note_p = $request->note;
         $invoiceSave = $invoice->save();
         if ($invoiceSave) {
             return redirect('/invoice/' . $id)->with('message', 'Data telah terkirim');
-        } 
+        }
     }
-    public function undo_confirm_payment ($id){
+    public function undo_confirm_payment($id)
+    {
         $invoice = Invoice::find($id);
         $invoice->status_p = 0;
         $invoice->note_p = null;
         $invoiceSave = $invoice->save();
         if ($invoiceSave) {
             return 1;
-        } else{
+        } else {
             return 0;
         }
     }

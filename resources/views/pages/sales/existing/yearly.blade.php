@@ -82,7 +82,8 @@
                                                 <tr align="center">
                                                     <td>{{ \Carbon\Carbon::parse($item->po_date)->format('d-m-Y') }}</td>
                                                     <td>{{ $item->no_quote }}</td>
-                                                    <td>Rp {{ number_format($item->nett,0,',', '.') }}</td>
+                                                    {{-- <td>Rp {{ number_format($item->nett,0,',', '.') }}</td> --}}
+                                                    <td>{{$item->nett}}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>

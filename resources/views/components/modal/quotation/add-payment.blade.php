@@ -15,15 +15,57 @@
                         </div>
                         <form>
                             <div class="row">
-                                {{-- <div class="col-12">
+                                {{-- <div class="col-8 mb-3">
                                     <div class="card-body">
-                                        <div class="mb-3">
-                                            <label for="formFile" class="form-label">Upload Payment Confirmation</label>
-                                            <input class="form-control" type="file" id="formFile" name="file"
-                                                accept=".pdf, .jpg, .jpeg, .png">
+                                        <div class="
+                                        b-3">
+                                            <input class="form-control h-100" type="file" id="formFile"
+                                                name="file" accept=".pdf, .jpg, .jpeg, .png">
                                         </div>
                                     </div>
                                 </div> --}}
+                                <div class="col-6 mb-3">
+                                    <div class="form-floating form-floating-outline">
+                                        <select class="form-select" id="selectType" aria-label="Default select example"
+                                            name="method">
+                                            <option disabled>---Method---</option>
+                                            <option value="Transfer">
+                                                Bank Transfer
+                                            </option>
+                                            <option value="Giro">
+                                                Giro
+                                            </option>
+                                            <option value="Cash">
+                                                Cash
+                                            </option>
+                                        </select>
+                                        <label for="exampleFormControlSelect1">Type</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="form-floating form-floating-outline">
+                                        <select class="form-select" id="selectType" aria-label="Default select example"
+                                            name="type">
+                                            <option disabled>---Type---</option>
+                                            <option value="CBD">
+                                                Cash Before Delivery
+                                            </option>
+                                            <option value="COD">
+                                                Cash On Delivery
+                                            </option>
+                                            <option value="DP">
+                                                DP
+                                            </option>
+                                            <option value="BP">
+                                                BP
+                                            </option>
+                                            <option value="Tempo">
+                                                Tempo
+                                            </option>
+                                        </select>
+                                        <label for="exampleFormControlSelect1">Type</label>
+                                    </div>
+                                </div>
                                 <div class="col-12 mb-3">
                                     <div class="form-floating form-floating-outline">
                                         <div class="input-group">
@@ -38,6 +80,13 @@
                                         </div>
                                     </div>
                                 </div>
+                                {{-- <div class="col-4 mb-3">
+                                    <div class="input-group h-100">
+                                        <input type="number" class="form-control" placeholder="Tempo" id="tempo"
+                                            aria-label="tempo" name="tempo" aria-describedby="basic-addon43" disabled>
+                                        <span class="input-group-text" id="basic-addon43">Days</span>
+                                    </div>
+                                </div> --}}
                                 <div class="col-8 mb-3">
                                     <div class="form-floating form-floating-outline">
                                         <textarea class="form-control h-px-100" placeholder="Write your note here...." name="note" id="note"></textarea>
@@ -65,3 +114,15 @@
         </div>
     </div>
 </form>
+@push('script')
+    <script>
+        $('#selectType').on('change', function() {
+            console.log($(this).val());
+            if ($(this).val() === 'Tempo') {
+                $('#tempo').prop('disabled', false); // enable
+            } else {
+                $('#tempo').prop('disabled', true).val(''); // disable + kosongin
+            }
+        });
+    </script>
+@endpush

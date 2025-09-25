@@ -1,5 +1,5 @@
 @extends('layouts.sales.app')
-@section('title', 'Marketing Tools')
+@section('title', 'Detail Sales Order')
 @section('content')
     <div class="d-flex justify-content-between mb-3">
         <h5 class="fw-bold pb-1 mb-3">
@@ -52,9 +52,22 @@
                                     $delivery = 'Error';
                                     break;
                             }
+                            switch ($pending->charged) {
+                                case 1:
+                                    $charged = 'Company';
+                                    break;
+                                case 2:
+                                    $charged = 'Customer';
+                                    break;
+                                default:
+                                    $charged = '';
+                                    break;
+                            }
                         @endphp
                         <div class="col-4">Kurir</div>
-                        <div class="col-8">: {{ $delivery }}</div>
+                        <div class="col-8">
+                            : {{ $delivery }} {{ $pending->charged ? "($charged)" : '' }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -80,8 +93,8 @@
     </div>
     @if ($pending->type == 'Project')
         <div class="mb-3" style="display: flex; justify-content: flex-end;">
-            <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal" data-bs-target="#replacementEdit"
-                {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+            <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal"
+                data-bs-target="#replacementEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
                 Update Status Barang
             </button>
         </div>
@@ -117,6 +130,31 @@
                                 </td>
                             </tr>
                             @foreach ($subJudul->detail as $product)
+                                @php
+                                    switch ($product->pending[0]->status) {
+                                        case 1:
+                                            $status = 'On Check';
+                                            break;
+                                        case 2:
+                                            $status = 'Ready Stock';
+                                            break;
+                                        case 3:
+                                            $status = 'Kurang';
+                                            break;
+                                        case 4:
+                                            $status = 'Pre-Order';
+                                            break;
+                                        case 5:
+                                            $status = 'Delivery Process';
+                                            break;
+                                        case 6:
+                                            $status = 'Done';
+                                            break;
+                                        default:
+                                            $status = 'Belum Di Cek';
+                                            break;
+                                    }
+                                @endphp
                                 <tr style="font-size: 15px;">
                                     <td>
                                         @php
@@ -138,8 +176,8 @@
                                     <td>
                                         <p class="mb-0">{{ $product->qty }} {{ $product->info_qty }}</p>
                                     </td>
-                                    <td>Proccess 505</td>
-                                    <td>Proccess 505</td>
+                                    <td>{{ $status }}</td>
+                                    <td>{{ $product->pending[0]->note }}</td>
                                 </tr>
                             @endforeach
                         @endforeach

@@ -65,7 +65,7 @@
                         <th class="text-center border-white" style="border-color:white !important;" rowspan="2">G/r</th>
                         <th class="text-center border-white" style="border-color:white !important;" colspan="2">Semester 1</th>
                         <th class="text-center border-white" style="border-color:white !important;" colspan="2">Semester 2</th>
-                        <th class="text-center border-white" style="border-color:white !important;" rowspan="2">AllStock</th>
+                        <th class="text-center border-white" style="border-color:white !important;" rowspan="2">Current Stock</th>
                     </tr>
                     <tr class="border-white">
                         <th class="text-center border-white" style="border-color:white !important;">Product In</th>

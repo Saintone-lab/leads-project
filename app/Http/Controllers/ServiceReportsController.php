@@ -27,7 +27,12 @@ class ServiceReportsController extends Controller
     public function index()
     {
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.technician.service-reports.index', compact('noSaleProspect',));
+            $reportsCount = Reports::join('machine as m', 'm.id', '=', 'reports.id_machine')
+            ->join('client as c', 'c.id', '=', 'm.id_client')
+            ->join('users as u', 'u.id', '=', 'c.id_sales')
+            ->where('u.id', Auth::user()->id)
+            ->where('reports.viewed', 0)->count();
+        return view('pages.technician.service-reports.index', compact('reportsCount', 'noSaleProspect', ));
     }
 
     /**
@@ -43,7 +48,7 @@ class ServiceReportsController extends Controller
         $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::join('client as c','c.id','=','pic.id_client')->select('pic.*')->get();
+        $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->select('pic.*')->get();
         return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow', 'clients'));
     }
 
@@ -105,7 +110,7 @@ class ServiceReportsController extends Controller
         $pict = ReportsPict::where('id_reports', $id)->get();
         // dd($pict);
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.technician.service-reports.detail', compact('noSaleProspect','service', 'pict'));
+        return view('pages.technician.service-reports.detail', compact('noSaleProspect', 'service', 'pict'));
     }
 
     /**
@@ -291,9 +296,18 @@ class ServiceReportsController extends Controller
         }
         if ($status) {
             return 1;
-        }else{
+        } else {
             return 0;
         }
+    }
+
+    public function markViewed(Request $request)
+    {
+        $report = Reports::findOrFail($request->id);
+        $report->viewed += 1;
+        $report->save();
+
+        return response()->json(['success' => true]);
     }
 
     protected function convertToRoman($month)

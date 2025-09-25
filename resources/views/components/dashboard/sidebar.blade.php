@@ -173,6 +173,82 @@
             </li>
 
             <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Sales Order</span>
+            </li>
+            <li class="menu-item {{ request()->is('new-order') ? 'active' : '' }}">
+                <a href="{{ route('pending-po.order') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-cart-plus"></i>
+                    <div data-i18n="New Order">New Order</div>
+                    @if (@$newCount >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $newCount }}</div>
+                    @endif
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('sales-order/list') || request()->is('sales-order/list') || request()->is('pending-po/*') || request()->is('pending-po-done') || request()->is('pending-po-project') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-list-box-outline"></i>
+                    <div data-i18n="Sales Order">Sales Order</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('sales-order/list') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.list') }}" class="menu-link">
+                            <div data-i18n="List">List</div>
+                            @if (@$listCount >= 1)
+                                <div class="badge bg-danger rounded-pill ms-auto">{{ $listCount }}</div>
+                            @endif
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('sales-order/delivery') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.delivery') }}" class="menu-link">
+                            <div data-i18n="Delivery & Proccess">Delivery & Proccess</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('pending-po-done') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.completed') }}" class="menu-link">
+                            <div data-i18n="Completed">Completed</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item ">
+                <a href="{{ route('pending-po.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-format-list-group-plus"></i>
+                    <div data-i18n="Purchase Request">Purchase Request</div>
+                </a>
+            </li>
+            <li class="menu-item ">
+                <a href="{{ route('pending-po.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-archive-cancel"></i>
+                    <div data-i18n="Return">Return</div>
+                </a>
+            </li>
+            {{-- <li
+                class="menu-item {{ request()->is('pending-po') || request()->is('pending-po/*') || request()->is('pending-po-done') || request()->is('pending-po-project') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-text-box-multiple"></i>
+                    <div data-i18n="Pending PO">Pending PO</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('pending-po') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.index') }}" class="menu-link">
+                            <div data-i18n="Progress">Progress</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('pending-po-project') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.index-project') }}" class="menu-link">
+                            <div data-i18n="Project">Project</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('pending-po-done') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.done') }}" class="menu-link">
+                            <div data-i18n="Done">Done</div>
+                        </a>
+                    </li>
+                </ul>
+            </li> --}}
+
+            <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Service Contract</span>
             </li>
 
@@ -327,6 +403,30 @@
                     </li>
                 </ul>
             </li>
+            <li
+                class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-index/payment') || request()->is('payment-index/aging') || request()->is('payment-detail/invoice/*') || request()->is('payment-detail/payment/*') || request()->is('payment-detail/aging/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
+                    <div data-i18n="Account Recieveable (AR)">Account Recieveable (AR)</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-detail/invoice/*') ? 'active' : '' }}">
+                        <a href="{{ route('payment_index.invoice') }}" class="menu-link">
+                            <div data-i18n="Sales Invoice">Sales Invoice</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('payment-index/payment') || request()->is('payment-detail/payment/*') ? 'active' : '' }}">
+                        <a href="{{ route('payment_index.payment') }}" class="menu-link">
+                            <div data-i18n="Paynment Recieve">Paynment Recieve</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('payment-index/aging') || request()->is('payment-detail/aging/*') ? 'active' : '' }}">
+                        <a href="{{ route('payment_index.aging') }}" class="menu-link">
+                            <div data-i18n="Aging Report">Aging Report</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">E-Stock</span>
@@ -468,33 +568,6 @@
                 </a>
             </li> --}}
 
-            <li class="menu-header fw-light mt-4">
-                <span class="menu-header-text">Pending</span>
-            </li>
-            <li
-                class="menu-item {{ request()->is('pending-po') || request()->is('pending-po/*') || request()->is('pending-po-done') || request()->is('pending-po-project') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon tf-icons mdi mdi-text-box-multiple"></i>
-                    <div data-i18n="Pending PO">Pending PO</div>
-                </a>
-                <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('pending-po') ? 'active' : '' }}">
-                        <a href="{{ route('pending-po.index') }}" class="menu-link">
-                            <div data-i18n="Progress">Progress</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('pending-po-project') ? 'active' : '' }}">
-                        <a href="{{ route('pending-po.index-project') }}" class="menu-link">
-                            <div data-i18n="Project">Project</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('pending-po-done') ? 'active' : '' }}">
-                        <a href="{{ route('pending-po.done') }}" class="menu-link">
-                            <div data-i18n="Done">Done</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
             <li class="menu-item {{ request()->is('cor-factor/calculator') ? 'active' : '' }}">
                 <a href="{{ route('calculator.correction') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
@@ -605,6 +678,89 @@
                     </li>
                 </ul>
             </li>
+            <li
+                class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') || request()->is('prospect-quotation') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
+                    <div data-i18n="Prospect">Prospect</div>
+                    @if (@$leveledProspect >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
+                    @endif
+                </a>
+                <ul class="menu-sub">
+                    <li
+                        class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') ? 'active' : '' }}">
+                        <a href="{{ route('prospect.index') }}" class="menu-link">
+                            <div data-i18n="Prospect">Prospect</div>
+                            @if (@$leveledProspect >= 1)
+                                <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
+                            @endif
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">
+                        <a href="{{ route('quotation.prospect') }}" class="menu-link">
+                            <div data-i18n="Quotation">Quotation</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li
+                class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
+                <a href="{{ route('service-reports.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
+                    <div data-i18n="Service Report">Service Report</div>
+                    @if (@$reportsCount >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $reportsCount }}</div>
+                    @endif
+                </a>
+            </li>
+            <li
+                class="menu-item">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-chart-box-plus-outline"></i>
+                    <div data-i18n="Forecast">Forecast</div>
+                </a>
+            </li>
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Sales Order</span>
+            </li>
+            <li class="menu-item {{ request()->is('new-order') ? 'active' : '' }}">
+                <a href="{{ route('pending-po.order') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-cart-plus"></i>
+                    <div data-i18n="New Order">New Order</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('sales-order/list') || request()->is('sales-order/list') || request()->is('pending-po/*') || request()->is('pending-po-done') || request()->is('pending-po-project') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-list-box-outline"></i>
+                    <div data-i18n="Sales Order">Sales Order</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('sales-order/list') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.list') }}" class="menu-link">
+                            <div data-i18n="List">List</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('sales-order/delivery') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.delivery') }}" class="menu-link">
+                            <div data-i18n="Delivery & Proccess">Delivery & Proccess</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('pending-po-done') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.completed') }}" class="menu-link">
+                            <div data-i18n="Completed">Completed</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item ">
+                <a href="{{ route('pending-po.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-archive-cancel"></i>
+                    <div data-i18n="Return">Return</div>
+                </a>
+            </li>
 
             {{-- <li class="menu-item {{ request()->is('visits/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -626,13 +782,13 @@
             </li> --}}
 
 
-            <li
+            {{-- <li
                 class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
                 <a href="{{ route('service-reports.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
                     <div data-i18n="Service Report">Service Report</div>
                 </a>
-            </li>
+            </li> --}}
             @if (auth::user()->id == 3 || auth::user()->id == 4)
                 <li
                     class="menu-item {{ request()->is('service-manager') || request()->is('service-manager/*') ? 'active' : '' }}">
@@ -731,38 +887,8 @@
                 </a>
             </li>
 
-            <li class="menu-header fw-light mt-4">
-                <span class="menu-header-text">Prospect</span>
-            </li>
 
-            <li
-                class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') || request()->is('prospect-quotation') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon tf-icons mdi mdi-account-details-outline"></i>
-                    <div data-i18n="Prospect">Prospect</div>
-                    @if (@$leveledProspect >= 1)
-                        <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
-                    @endif
-                </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') ? 'active' : '' }}">
-                        <a href="{{ route('prospect.index') }}" class="menu-link">
-                            <div data-i18n="Prospect">Prospect</div>
-                            @if (@$leveledProspect >= 1)
-                                <div class="badge bg-danger rounded-pill ms-auto">{{ $leveledProspect }}</div>
-                            @endif
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">
-                        <a href="{{ route('quotation.prospect') }}" class="menu-link">
-                            <div data-i18n="Quotation">Quotation</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="menu-header fw-light mt-4">
+            {{-- <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Pending</span>
             </li>
             <li
@@ -788,7 +914,7 @@
                         </a>
                     </li>
                 </ul>
-            </li>
+            </li> --}}
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Notulen</span>
@@ -1056,6 +1182,59 @@
             <li class="menu-item {{ request()->is('return') || request()->is('return/*') ? 'active' : '' }}">
                 <a href="{{ route('return.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package-variant-closed-check"></i>
+                    <div data-i18n="Return">Return</div>
+                </a>
+            </li>
+
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Sales Order</span>
+            </li>
+            <li class="menu-item {{ request()->is('new-order') ? 'active' : '' }}">
+                <a href="{{ route('pending-po.order') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-cart-plus"></i>
+                    <div data-i18n="New Order">New Order</div>
+                    @if (@$newCount >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $newCount }}</div>
+                    @endif
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('sales-order/list') || request()->is('sales-order/list') || request()->is('pending-po/*') || request()->is('pending-po-done') || request()->is('pending-po-project') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-list-box-outline"></i>
+                    <div data-i18n="Sales Order">Sales Order</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('sales-order/list') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.list') }}" class="menu-link">
+                            <div data-i18n="List">List</div>
+                            @if (@$listCount >= 1)
+                                <div class="badge bg-danger rounded-pill ms-auto">{{ $listCount }}</div>
+                            @endif
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('sales-order/delivery') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.delivery') }}" class="menu-link">
+                            <div data-i18n="Delivery & Proccess">Delivery & Proccess</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('pending-po-done') ? 'active' : '' }}">
+                        <a href="{{ route('pending-po.completed') }}" class="menu-link">
+                            <div data-i18n="Completed">Completed</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item ">
+                <a href="{{ route('pending-po.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-format-list-group-plus"></i>
+                    <div data-i18n="Purchase Request">Purchase Request</div>
+                </a>
+            </li>
+            <li class="menu-item ">
+                <a href="{{ route('pending-po.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-archive-cancel"></i>
                     <div data-i18n="Return">Return</div>
                 </a>
             </li>

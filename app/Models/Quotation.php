@@ -81,6 +81,10 @@ class Quotation extends Model
     {
         return $this->hasMany('App\Models\Invoice', 'id_quotation');
     }
+    public function payment()
+    {
+        return $this->hasMany('App\Models\Payment', 'id_quotation');
+    }
     public function status()
     {
         return $this->hasMany('App\Models\ChangeStatus', 'id_quotation');

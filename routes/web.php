@@ -18,6 +18,7 @@ use App\Http\Controllers\MonitoringClientController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotulenController;
 use App\Http\Controllers\OverviewController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PendingController;
 use App\Http\Controllers\PicController;
 use App\Http\Controllers\ProductController;
@@ -49,6 +50,7 @@ use App\Models\Mainlog;
 use App\Models\Monitoring;
 use App\Models\MonitoringWeekly;
 use App\Models\Notulen;
+use App\Models\Payment;
 use App\Models\PendingPO;
 use App\Models\Pic;
 use App\Models\Product;
@@ -85,11 +87,7 @@ use App\Http\Controllers\UserController;
 //     return view('pages.sales.dashboard');
 // });
 Route::get('/monitoring/button/{id}', [MonitoringController::class, 'button'])->name('button.monitoring');
-Route::get('/monitoring/daily-visit/{id}', [
-    MonitoringController::class,
-    'visi
-torDaily'
-])->name('visitor.daily-monitoring');
+Route::get('/monitoring/daily-visit/{id}', [MonitoringController::class, 'visitorDaily'])->name('visitor.daily-monitoring');
 Route::get('/monitoring/kosongan', [MonitoringController::class, 'kosongan'])->name('kosongan.monitoring');
 Route::get('/monitoring-daily-visit/{id}/{month}', [MonitoringController::class, 'visitorDailyMonth'])->name('visitor-change.daily-monitoring');
 Route::get('/monitoring/daily-log/{id}', [MonitoringController::class, 'logDaily'])->name('log.daily-monitoring');
@@ -157,9 +155,11 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/quotation/{id}/insert_fee', [QuotationController::class, 'insert_fee'])->name('insert_fee.quotation');
     Route::post('/quotation/{id}/delete_fee', [QuotationController::class, 'delete_fee'])->name('delete_fee.quotation');
     Route::post('/quotation/{id}/add_payment', [QuotationController::class, 'add_payment'])->name('add_payment.quotation');
+    Route::post('/quotation/{id}/proof_payment', [QuotationController::class, 'proof_payment'])->name('proof_payment.quotation');
     Route::post('/quotation/{id}/change_primary', [QuotationController::class, 'change_primary'])->name('change_primary.quotation');
     Route::get('/quotation/{id}/download_payment', [QuotationController::class, 'download_payment'])->name('download-payment.quotation');
     Route::delete('/quotation/{id}/delete_payment', [QuotationController::class, 'delete_payment'])->name('delete-payment.quotation');
+    Route::post('/quotation/{id}/confirm_payment', [QuotationController::class, 'confirm_payment'])->name('confirm-payment.quotation');
     Route::get('/quotation/revision/{id}', [QuotationController::class, 'edit_revisi'])->name('revisi.quotation');
     Route::get('/quotation/revision-overhaul/{id}', [QuotationController::class, 'revisionService'])->name('revisi-overhaul.quotation');
     Route::get('/quotation/print/{id}', [QuotationController::class, 'print_quote'])->name('print.quotation');
@@ -213,6 +213,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/service-reports/image/{id}', [ServiceReportsController::class, 'inputImage'])->name('service-reports.image');
     Route::delete('/service-reports/del-sign/{id}', [ServiceReportsController::class, 'delete_hand_sign'])->name('service-reports.del-sign');
     Route::delete('/service-reports/del-image/{id}', [ServiceReportsController::class, 'deleteImage'])->name('service-reports.del-image');
+    Route::post('/service-reports-viewed', [ServiceReportsController::class, 'markViewed']);
 
     // Route untuk audit
     Route::resource('/audit-tools', AuditController::class);
@@ -1060,6 +1061,34 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $data]);
     });
 
+    Route::get('/db/service-reports/sales', function () {
+        $today = Carbon::today();
+        $year = $today->year;
+        $data = Reports::join('machine as m', 'm.id', '=', 'reports.id_machine')
+            ->join('client as c', 'c.id', '=', 'm.id_client')
+            ->join('users as u', 'u.id', '=', 'c.id_sales')
+            ->join('users as t', 't.id', '=', 'reports.id_technician')
+            ->join('serial_product as s', 's.id', '=', 'm.id_unit')
+            ->join('unit as un', 'un.id', '=', 's.id_product')
+            ->where('u.id', Auth::user()->id)
+            ->whereYear('reports.date', $year)
+            ->select(
+                'reports.id',
+                'reports.no_service',
+                'reports.jobdesc',
+                'reports.date',
+                'reports.viewed',
+                'c.company',
+                't.name',
+                'm.tag',
+                'm.location',
+                DB::raw("CONCAT(s.brand, ' ', un.sku) as brand_type"),
+                DB::raw("CONCAT('(', COALESCE(m.serial, '-'), ') - ', COALESCE(m.tag, '-')) AS serial_tag")
+            )
+            ->get();
+
+        return response()->json(['data' => $data]);
+    });
     // Route untuk Selling Contract dan Confirm Order
     Route::resource('/contract', ContractController::class);
     Route::post('/contract/selling-contract/{id}', [ContractController::class, 'create_selling_contract'])->name('selling.contract');
@@ -1112,7 +1141,19 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/invoice/label_print/{id}', [InvoiceController::class, 'label_print'])->name('invoice.label_print');
     Route::post('/invoice/change_desc/{id}', [InvoiceController::class, 'change_desc'])->name('invoice.change_desc');
     Route::post('/invoice/confirm_payment/{id}', [InvoiceController::class, 'confirm_payment'])->name('invoice.confirm_payment');
+    Route::post('/invoice/due_date/{id}', [InvoiceController::class, 'due_date'])->name('invoice.due_date');
     Route::post('/invoice/undo_confirm_payment/{id}', [InvoiceController::class, 'undo_confirm_payment'])->name('invoice.undo_confirm_payment');
+
+    // Payment
+    Route::get('/payment-index/invoice', [PaymentController::class, 'index_invoice'])->name('payment_index.invoice');
+    Route::get('/payment-detail/invoice/{id}', [PaymentController::class, 'detail_invoice'])->name('payment_detail.invoice');
+    Route::get('/payment-index/payment', [PaymentController::class, 'index_payment'])->name('payment_index.payment');
+    Route::get('/payment-detail/payment/{id}', [PaymentController::class, 'detail_payment'])->name('payment_detail.payment');
+    Route::get('/payment-index/aging', [PaymentController::class, 'index_aging'])->name('payment_index.aging');
+    Route::get('/payment-detail/aging/{id}', [PaymentController::class, 'detail_aging'])->name('payment_detail.aging');
+    Route::post('/confirm-payment/payment/{id}', [PaymentController::class, 'confirm_payment'])->name('confirm_payment.payment');
+    Route::get('/view-payment/payment/{id}', [PaymentController::class, 'view_payment'])->name('view_payment.payment');
+
 
     Route::resource('/delivery', DeliveryController::class);
     Route::get('/delivery/print/{id}', [DeliveryController::class, 'print_delivery'])->name('print.delivery');
@@ -1250,9 +1291,15 @@ Route::group(["middleware" => "auth"], function () {
     Route::patch('/pending-po/delivery/{id}', [PendingController::class, 'deliveryEdit'])->name('pending-po.deliveryEdit');
     Route::post('/pending-po/comment/{id}', [PendingController::class, 'add_comment'])->name('pending-po.addComment');
     Route::get('/pending-po/product-out/{id}', [PendingController::class, 'pending_out'])->name('pending-po.product_out');
+    Route::get('/pending-po/product-out-project/{id}', [PendingController::class, 'pending_out_project'])->name('pending-po.product_out_project');
     Route::post('/pending-po/product-out/{id}', [PendingController::class, 'product_out'])->name('pending-po.product_out');
     Route::get('/pending-po-done', [PendingController::class, 'indexDone'])->name('pending-po.done');
     Route::get('/pending-po-project', [PendingController::class, 'indexProject'])->name('pending-po.index-project');
+
+    Route::get('/new-order', [PendingController::class, 'indexOrder'])->name('pending-po.order');
+    Route::get('/sales-order/list', [PendingController::class, 'indexList'])->name('pending-po.list');
+    Route::get('/sales-order/delivery', [PendingController::class, 'indexDelivery'])->name('pending-po.delivery');
+    Route::get('/sales-order/completed', [PendingController::class, 'indexCompleted'])->name('pending-po.completed');
 
     // Dashboard Function
     // Ajax Sales Kanan
@@ -1566,6 +1613,120 @@ Route::group(["middleware" => "auth"], function () {
             ->orderByDesc('invoice.no_invoice')
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
         return response()->json(['data' => $invoice]);
+    });
+    Route::get('/db/sales/invoice/ar', function () {
+        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->leftJoin(
+                DB::raw('(SELECT id_quotation, 
+                                SUM(amount) as total_payment, 
+                                MAX(tempo) as tempo, 
+                                MAX(due_date) as due_date
+                         FROM payment 
+                         WHERE type = "Tempo"
+                         GROUP BY id_quotation) as pay'),
+                'quotation.id',
+                '=',
+                'pay.id_quotation'
+            )
+            ->where('status', '100')
+            ->where('invoice.flag', 'Reftech')
+            ->where('quotation.tax', '11')
+            ->whereNotNull('quotation.po_file')
+            ->whereNotNull('invoice.no_invoice')
+            ->orderByDesc('invoice.no_invoice')
+            ->get([
+                'invoice.*',
+                'client.company',
+                'users.name',
+                'quotation.harga_total',
+                'quotation.po_date',
+                DB::raw('IFNULL(pay.total_payment, 0) as total_payment'),
+                DB::raw('pay.tempo as tempo'),
+                DB::raw('pay.due_date as due_date')
+            ]);
+        return response()->json(['data' => $invoice]);
+    });
+    Route::get('/db/payment/receipt/ar', function () {
+        $payment = Payment::with([
+            'quotation.payment',
+            'quotation.invoice' => function ($i) {
+                $i->orderBy('id');
+            },
+            'quotation.pic.client'
+        ])
+            ->where('payment.level', 0)
+            ->get();
+
+        $payment = $payment->map(function ($pay) {
+            $totalPayment = $pay->quotation?->payment->sum('amount') ?? 0;
+
+            if ($pay->type === 'BP') {
+                $invoice = $pay->quotation?->invoice->where('type', 'BP')->first();
+            } else {
+                $invoice = $pay->quotation?->invoice->first();
+            }
+
+            $title = (($pay->quotation?->harga_total ?? 0) - $totalPayment === 0)
+                ? 'Full paid'
+                : 'Partial';
+
+            return [
+                'id' => $pay->id,
+                'no_receipt' => '#RCPT-' . $pay->id,
+                'date' => $pay->created_at?->format('d-m-Y'),
+                'no_invoice' => $invoice?->no_invoice ?? '-',
+                'company' => $pay->quotation?->pic?->client?->company ?? '-',
+                'amount' => $pay->amount,
+                'total_payment' => $totalPayment,
+                'sisa' => ($pay->quotation?->harga_total ?? 0) - $totalPayment,
+                'method' => $pay->method,
+                'type' => $pay->type,
+                'title' => $title,
+            ];
+        });
+
+        return response()->json(['data' => $payment]);
+    });
+    Route::get('/db/aging/report/ar', function () {
+        $payment = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->where('payment.type', 'Tempo')
+            ->whereNot('payment.level', 1)
+            ->orderByDesc('i.date')
+            ->groupBy('payment.id')
+            ->select(
+                'payment.id',
+                DB::raw("DATE_FORMAT(payment.due_date, '%d-%m-%Y') as due_date"),
+                'i.no_invoice',
+                DB::raw("DATE_FORMAT(i.date, '%d-%m-%Y') as date"),
+                'i.no_po',
+                'c.company',
+                'q.harga_total',
+                'q.tax'
+            )
+            ->get()
+            ->map(function ($row) {
+                $due = Carbon::parse($row->due_date);
+                $today = Carbon::today();
+                $diff = $today->diffInDays($due, false);
+
+                if ($diff > 0) {
+                    $row->due_status = $diff . " days left";
+                } elseif ($diff == 0) {
+                    $row->due_status = "Today";
+                } else {
+                    $row->due_status = abs($diff) . " days overdue";
+                }
+
+                return $row;
+            });
+
+        return response()->json(['data' => $payment]);
     });
     Route::get('/db/po', function () {
         require_once base_path('app/api/po/connection.php');
@@ -2379,6 +2540,7 @@ Route::group(["middleware" => "auth"], function () {
                 'pending_po.id',
                 'pending_po.delivery',
                 'u.name',
+                DB::raw("q.po_date as po_date_raw"),
                 DB::raw("DATE_FORMAT(q.po_date, '%d-%m-%y') as po_date"),
                 'q.title',
                 'c.company',
@@ -2419,7 +2581,6 @@ Route::group(["middleware" => "auth"], function () {
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
             ->whereNot('pending_po.status', [6, 7])
-            ->where('pending_po.type', 'Non Project')
             ->groupBy('q.id')
             ->orderBy('q.po_date', 'desc')
             ->select(
@@ -2452,6 +2613,7 @@ Route::group(["middleware" => "auth"], function () {
                 'pending_po.id',
                 'pending_po.delivery',
                 'u.name',
+                DB::raw("q.po_date as po_date_raw"),
                 DB::raw("DATE_FORMAT(q.po_date, '%d-%m-%y') as po_date"),
                 'q.title',
                 'c.company',
@@ -2479,6 +2641,322 @@ Route::group(["middleware" => "auth"], function () {
                 'pending_po.status',
                 'i.status_p',
                 'i.note_p',
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pending/new-order/admin', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->leftJoin(DB::raw("(SELECT p1.* 
+                                        FROM payment p1 
+                                        INNER JOIN (
+                                            SELECT id_quotation, MAX(id) as max_id 
+                                            FROM payment 
+                                            GROUP BY id_quotation
+                                        ) p2 ON p1.id = p2.max_id
+                                        ) as pay"), 'q.id', '=', 'pay.id_quotation')
+            ->where('pending_po.status', 0)
+            ->groupBy('q.id')
+            ->orderBy('q.po_date', 'desc')
+            ->select(
+                'pending_po.id',
+                'pending_po.delivery',
+                'pending_po.no_pending',
+                'pending_po.type',
+                'pending_po.title',
+                'u.name',
+                DB::raw("q.po_date as po_date_raw"),
+                DB::raw("DATE_FORMAT(q.po_date, '%d-%m-%Y') as po_date"),
+                'c.company',
+                'c.area',
+                'i.no_po',
+                'u.name',
+                'q.id_sales as team',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+                'pay.type as paytype',
+                'pay.level'
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pending/sales-list/admin', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->leftJoin(DB::raw("(SELECT p1.* 
+                                        FROM payment p1 
+                                        INNER JOIN (
+                                            SELECT id_quotation, MAX(id) as max_id 
+                                            FROM payment 
+                                            GROUP BY id_quotation
+                                        ) p2 ON p1.id = p2.max_id
+                                        ) as pay"), 'q.id', '=', 'pay.id_quotation')
+            ->whereIn('pending_po.status', [1, 2, 3, 4])
+            ->groupBy('q.id')
+            ->orderBy('q.po_date', 'desc')
+            ->select(
+                'pending_po.id',
+                'pending_po.delivery',
+                'pending_po.no_pending',
+                'pending_po.type',
+                'pending_po.title',
+                'u.name',
+                DB::raw("q.po_date as po_date_raw"),
+                DB::raw("DATE_FORMAT(q.po_date, '%d-%m-%Y') as po_date"),
+                'c.company',
+                'c.area',
+                'i.no_po',
+                'u.name',
+                'q.id_sales as team',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+                'pay.type as paytype',
+                'pay.level'
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pending/sales-delivery/admin', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->leftJoin(DB::raw("(SELECT p1.* 
+                                        FROM payment p1 
+                                        INNER JOIN (
+                                            SELECT id_quotation, MAX(id) as max_id 
+                                            FROM payment 
+                                            GROUP BY id_quotation
+                                        ) p2 ON p1.id = p2.max_id
+                                        ) as pay"), 'q.id', '=', 'pay.id_quotation')
+            ->where('pending_po.status', 5)
+            ->groupBy('q.id')
+            ->orderBy('q.po_date', 'desc')
+            ->select(
+                'pending_po.id',
+                'pending_po.delivery',
+                'pending_po.no_pending',
+                'pending_po.type',
+                'pending_po.title',
+                'u.name',
+                'q.po_date',
+                'c.company',
+                'i.no_po',
+                'u.name',
+                'q.id_sales as team',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+                'pay.type as paytype',
+                'pay.level'
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pending/sales-done/admin', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->leftJoin(DB::raw("(SELECT p1.* 
+                                        FROM payment p1 
+                                        INNER JOIN (
+                                            SELECT id_quotation, MAX(id) as max_id 
+                                            FROM payment 
+                                            GROUP BY id_quotation
+                                        ) p2 ON p1.id = p2.max_id
+                                        ) as pay"), 'q.id', '=', 'pay.id_quotation')
+            ->where('pending_po.status', 6)
+            ->groupBy('q.id')
+            ->orderBy('q.po_date', 'desc')
+            ->select(
+                'pending_po.id',
+                'pending_po.delivery',
+                'pending_po.no_pending',
+                'pending_po.type',
+                'pending_po.title',
+                'u.name',
+                'q.po_date',
+                'c.company',
+                'i.no_po',
+                'u.name',
+                'q.id_sales as team',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+                'pay.type as paytype',
+                'pay.level'
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pending/new-order', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->leftJoin(DB::raw("(SELECT p1.* 
+                                        FROM payment p1 
+                                        INNER JOIN (
+                                            SELECT id_quotation, MAX(id) as max_id 
+                                            FROM payment 
+                                            GROUP BY id_quotation
+                                        ) p2 ON p1.id = p2.max_id
+                                        ) as pay"), 'q.id', '=', 'pay.id_quotation')
+            ->where('pending_po.status', 0)
+            ->where('q.id_sales', Auth::user()->id)
+            ->groupBy('q.id')
+            ->orderBy('q.po_date', 'desc')
+            ->select(
+                'pending_po.id',
+                'pending_po.delivery',
+                'pending_po.no_pending',
+                'pending_po.type',
+                'pending_po.title',
+                'u.name',
+                DB::raw("q.po_date as po_date_raw"),
+                DB::raw("DATE_FORMAT(q.po_date, '%d-%m-%Y') as po_date"),
+                'c.company',
+                'c.area',
+                'i.no_po',
+                'u.name',
+                'q.id_sales as team',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+                'pay.type as paytype',
+                'pay.level'
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pending/sales-list', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->leftJoin(DB::raw("(SELECT p1.* 
+                                        FROM payment p1 
+                                        INNER JOIN (
+                                            SELECT id_quotation, MAX(id) as max_id 
+                                            FROM payment 
+                                            GROUP BY id_quotation
+                                        ) p2 ON p1.id = p2.max_id
+                                        ) as pay"), 'q.id', '=', 'pay.id_quotation')
+            ->whereIn('pending_po.status', [1, 2, 3, 4])
+            ->where('q.id_sales', Auth::user()->id)
+            ->groupBy('q.id')
+            ->orderBy('q.po_date', 'desc')
+            ->select(
+                'pending_po.id',
+                'pending_po.delivery',
+                'pending_po.no_pending',
+                'pending_po.type',
+                'pending_po.title',
+                'u.name',
+                DB::raw("q.po_date as po_date_raw"),
+                DB::raw("DATE_FORMAT(q.po_date, '%d-%m-%Y') as po_date"),
+                'c.company',
+                'c.area',
+                'i.no_po',
+                'u.name',
+                'q.id_sales as team',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+                'pay.type as paytype',
+                'pay.level'
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pending/sales-delivery', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->leftJoin(DB::raw("(SELECT p1.* 
+                                        FROM payment p1 
+                                        INNER JOIN (
+                                            SELECT id_quotation, MAX(id) as max_id 
+                                            FROM payment 
+                                            GROUP BY id_quotation
+                                        ) p2 ON p1.id = p2.max_id
+                                        ) as pay"), 'q.id', '=', 'pay.id_quotation')
+            ->where('pending_po.status', 5)
+            ->where('q.id_sales', Auth::user()->id)
+            ->groupBy('q.id')
+            ->orderBy('q.po_date', 'desc')
+            ->select(
+                'pending_po.id',
+                'pending_po.delivery',
+                'pending_po.no_pending',
+                'pending_po.type',
+                'pending_po.title',
+                'u.name',
+                'q.po_date',
+                'c.company',
+                'i.no_po',
+                'u.name',
+                'q.id_sales as team',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+                'pay.type as paytype',
+                'pay.level'
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pending/sales-done', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->leftJoin(DB::raw("(SELECT p1.* 
+                                        FROM payment p1 
+                                        INNER JOIN (
+                                            SELECT id_quotation, MAX(id) as max_id 
+                                            FROM payment 
+                                            GROUP BY id_quotation
+                                        ) p2 ON p1.id = p2.max_id
+                                        ) as pay"), 'q.id', '=', 'pay.id_quotation')
+            ->where('pending_po.status', 6)
+            ->where('q.id_sales', Auth::user()->id)
+            ->groupBy('q.id')
+            ->orderBy('q.po_date', 'desc')
+            ->select(
+                'pending_po.id',
+                'pending_po.delivery',
+                'pending_po.no_pending',
+                'pending_po.type',
+                'pending_po.title',
+                'u.name',
+                'q.po_date',
+                'c.company',
+                'i.no_po',
+                'u.name',
+                'q.id_sales as team',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+                'pay.type as paytype',
+                'pay.level'
             )
             ->get();
         return response()->json(['data' => $data]);

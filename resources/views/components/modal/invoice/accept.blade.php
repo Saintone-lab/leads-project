@@ -42,7 +42,7 @@
 
                                     @endphp
                                     <div class="form-floating form-floating-outline">
-                                        <input class="form-control form-control-sm" type="text"
+                                        <input class="form-control" type="text"
                                             value="{{ $quote->tax != 0 ? $nextCode . '/SJ-P/' . $code . '/' . $monthCode . '/' . $year : $nextCode . '/SJ-NP/' . $code . '/' . $monthCode . '/' . $year }}"
                                             placeholder="Put No Invoice Here ...." id="invoice" name="invoice">
                                         <label for="invoice">No Invoice</label>
@@ -63,12 +63,14 @@
                                 </div>
                                 <div class="col-12 mb-3">
                                     <div class="form-floating form-floating-outline">
-                                        <input class="form-control form-control-sm" type="text"
+                                        <input class="form-control" type="text"
                                             placeholder="Put Terms & Payments Here ...." id="payment" name="payment"
                                             value="">
                                         <label for="payment">Terms & Payments</label>
                                     </div>
                                 </div>
+                                {{-- @if ($lastPayment->type == 'Tempo')
+                                @endif --}}
                                 {{-- @if (!is_null($lastInvoiceP->no_invoice) || !is_null($lastInvoiceNP->no_invoice))
                                     <div class="col-12 mb-3">
                                         <p class="text-muted fw-medium text-start">Last Invoice :

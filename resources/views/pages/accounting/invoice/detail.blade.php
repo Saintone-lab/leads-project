@@ -58,7 +58,8 @@
                             </div>
                         </div>
                     @else
-                        <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column {{$quote->tax == 0 ? 'float-end' : ''}}">
+                        <div
+                            class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column {{ $quote->tax == 0 ? 'float-end' : '' }}">
                             @if ($quote->tax != '0')
                                 <div class="mb-xl-0 pb-1">
                                     <div class="d-flex svg-illustration align-items-center gap-2 mb-2">
@@ -713,7 +714,7 @@
                                             </td>
                                             <td class="text-nowrap align-top py-1" style="border-bottom:none !important;">
                                                 <p class="mb-0">{{ $product->product }}</p>
-                                                {{-- @if ($product->detail != '-')
+                                                {{-- @if (@$product->detail != '-')
                                                     <pre class="mb-0"
                                                         style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail }}</pre>
                                                 @endif --}}
@@ -1296,6 +1297,15 @@
                                 Change Date
                             </button>
                         </a>
+
+                        @if ($lastPayment->type == 'Tempo' && $lastPayment->due_date == null)
+                            <a type="button" data-bs-toggle="modal" data-bs-target="#dueDate"
+                                class="d-grid w-100 waves-effect mb-3">
+                                <button type="button" class="btn btn-linkedin">
+                                    Isi Due Date
+                                </button>
+                            </a>
+                        @endif
                         <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-invoice mb-3"
                             data-id="{{ $quote->id }}">Delete</a>
                         <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">
@@ -1490,6 +1500,7 @@
         @include('components.modal.invoice.pph')
         @include('components.modal.invoice.confirm')
         @include('components.modal.invoice.expense')
+        @include('components.modal.invoice.due-date')
         @include('components.modal.invoice.detail-expense')
         @include('components.modal.accounting.delivery.create-teknisi')
         @include('components.modal.accounting.delivery.create-ekspedisi')
@@ -1978,6 +1989,65 @@
                     }
                 });
             });
+            $(document).on('click', '.confirm-payments', function() {
+                var id = $(this).data('id');
+                var quote = $(this).data('quote');
+                var invoice = $(this).data('invoice');
+                Swal.fire({
+                    title: "Are you sure Confirm this payment?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, Confirm it!",
+                    customClass: {
+                        confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                        cancelButton: "btn btn-label-secondary waves-effect",
+                    },
+                    buttonsStyling: false,
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            'url': '{{ url('quotation') }}/' + id + '/confirm_payment',
+                            'type': 'POST',
+                            'data': {
+                                '_method': 'POST',
+                                '_token': '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                if (response == 1) {
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "Confirmed!",
+                                        text: "Your file has been confirmed.",
+                                        customClass: {
+                                            confirmButton: "btn btn-success waves-effect",
+                                        },
+                                    })
+                                    window.setTimeout(function() {
+                                        window.location.href = '/invoice/' + invoice;
+                                    }, 2000);
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: 'Data Failed to confirm!'
+                                    });
+                                }
+                            }
+                        });
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            title: "Cancelled",
+                            text: "Your imaginary file is safe :)",
+                            icon: "error",
+                            customClass: {
+                                confirmButton: "btn btn-success waves-effect",
+                            },
+                        });
+                    }
+                });
+            });
+
             $(document).on('click', '.undo-payment', function() {
                 var id = $(this).data('id');
                 Swal.fire({

@@ -63,14 +63,15 @@
                                 <div class="col-6 mb-3">
                                     <div class="form-floating form-floating-outline">
                                         <input class="form-control" type="text" id="type" name="type"
-                                            value="{{ $quote->type == 'Sparepart' && $quote->quote_for == 'Sparepart' ? 'Non Project' : 'Project' }}" disabled>
+                                            value="{{ $quote->type == 'Sparepart' && $quote->quote_for == 'Sparepart' ? 'Non Project' : 'Project' }}"
+                                            disabled>
                                         <label for="po_date">Date PO</label>
                                     </div>
                                 </div>
                                 <div class="col-6 mb-3">
                                     <div class="form-floating form-floating-outline">
-                                        <select class="form-select" id="selectEkspedisi" aria-label="Default select example"
-                                            name="ekspidisi" disabled>
+                                        <select class="form-select" id="selectEkspedisi"
+                                            aria-label="Default select example" name="ekspidisi" disabled>
                                             <option disabled>----- Choose Ekspidisi -----</option>
                                             <option value="1">JNT / JNE / Cargo</option>
                                             <option value="2">Send By Technian</option>
@@ -78,6 +79,39 @@
                                             <option value="4">Others</option>
                                         </select>
                                         <label for="selectEkspidisi">Ekspidisi</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 charged" style="display:none;">
+                                    <div class="card shadow-none bg-transparent border border-label-secondary mb-3">
+                                        <div class="card-body">
+                                            <p class="fw-semibold text-start d-block mb-0">Charged to</p>
+                                            <div class="form-check form-check-inline mt-3">
+                                                <input class="form-check-input" type="radio" name="charged"
+                                                    id="inlineRadio1" value="1">
+                                                <label class="form-check-label" for="inlineRadio1">Company</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="charged"
+                                                    id="inlineRadio2" value="2">
+                                                <label class="form-check-label" for="inlineRadio2">Customer</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12  mb-3">
+                                    <div class="form-floating form-floating-outline">
+                                        <input type="text" class="form-control form-control-lg" id="noPending"
+                                            placeholder="xxx/xx/xx/xxxx" aria-describedby="floatingInputFilledHelp"
+                                            name="no_pending" value="{{ $noPending }}" disabled>
+                                        <label for="NoPending">No Pending</label>
+                                    </div>
+                                </div>
+                                <div class="col-12  mb-3">
+                                    <div class="form-floating form-floating-outline">
+                                        <input type="text" class="form-control form-control-lg" id="title"
+                                            placeholder="Put your title here"
+                                            aria-describedby="floatingInputFilledHelp" name="title" dsiabled>
+                                        <label for="title">Title</label>
                                     </div>
                                 </div>
                                 <div class="col-12">
@@ -109,15 +143,23 @@
                 if ($('#statusChange').val() === '100') {
                     $('#selectWeek').prop('disabled', false);
                     $('#selectEkspedisi').prop('disabled', false);
+                    $('#noPending').prop('disabled', false);
+                    $('#title').prop('disabled', false);
                 } else {
                     $('#selectWeek').prop('disabled', true).val('');
                     $('#selectEkspedisi').prop('disabled', true).val('');
+                    $('#noPending').prop('disabled', true);
+                    $('#title').prop('disabled', true);
                 }
             }
 
             toggleWeekField();
 
             $('#statusChange').on('change', toggleWeekField);
+        });
+
+        $('#selectEkspedisi').change(function() {
+            $('.charged').toggle($(this).val() == '1');
         });
     </script>
 @endpush

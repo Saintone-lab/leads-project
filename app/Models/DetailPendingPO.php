@@ -12,7 +12,7 @@ class DetailPendingPO extends Model
     protected $fillable = [
         'id_pending',
         'id_detail_service',
-        'id_replacement',
+        'id_equivalent',
         'bdg',
         'bks',
         'status',
@@ -26,9 +26,9 @@ class DetailPendingPO extends Model
     {
         return $this->belongsTo('App\Models\DetailServiceQuotation', 'id_detail_service', 'id');
     }
-    public function replacement()
+    public function equivalent()
     {
-        return $this->belongsTo('App\Models\DetailProduct', 'id_replacement', 'id');
+        return $this->belongsTo('App\Models\SerialProduct', 'id_equivalent', 'id');
     }
     public function expense()
     {
