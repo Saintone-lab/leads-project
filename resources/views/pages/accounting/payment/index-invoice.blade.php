@@ -1,54 +1,59 @@
 @extends('layouts.sales.app')
 @section('title', 'Sales Invoice AR')
+@section('no-container') @endsection
 @section('content')
-    <h4 class="fw-bold py-3 mb-4"> <span class="text-muted">Account Recieveable /</span> Sales Invoice</h4>
-    <div class="row mb-3">
-        <div class="col-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5>Invoice</h5>
-                    <p>Total Invoice</p>
-                    <h3>Rp {{ number_format(@$fullInvoice, 0, ',', '.') }}</h3>
+    <div class="container-fluid p-0" style="width: calc(100% - 10px); margin-right:5px;margin-left:5px;">
+        <h4 class="fw-bold py-3 mb-4"> <span class="text-muted">Account Recieveable /</span> Sales Invoice</h4>
+        <div class="row mb-3">
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Invoice</h5>
+                        <p>Total Invoice</p>
+                        <h3>Rp {{ number_format(@$fullInvoice, 0, ',', '.') }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>PAID</h5>
+                        <p>Total Paid</p>
+                        <h3>Rp {{ number_format(@$fullPayment, 0, ',', '.') }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>UNPAID</h5>
+                        <p>Total Outstanding</p>
+                        <h3>Rp {{ number_format(@$sisa, 0, ',', '.') }}</h3>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5>PAID</h5>
-                    <p>Total Paid</p>
-                    <h3>Rp {{ number_format(@$fullPayment, 0, ',', '.') }}</h3>
-                </div>
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-sales-invoice-ar table table-striped">
+                    <thead>
+                        <tr>
+                            {{-- <th></th> --}}
+                            {{-- <th>ID</th> --}}
+                            <th>Invoice No.</th>
+                            <th>No PO.</th>
+                            <th>Company</th>
+                            <th>Date</th>
+                            <th>Total Invoice</th>
+                            <th>Advance Payment</th>
+                            <th>Outstanding</th>
+                            <th>Status</th>
+                            <th>Sales</th>
+                            <th>Flag</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
-        </div>
-        <div class="col-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5>UNPAID</h5>
-                    <p>Total Outstanding</p>
-                    <h3>Rp {{ number_format(@$sisa, 0, ',', '.') }}</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-sales-invoice-ar table table-striped">
-                <thead>
-                    <tr>
-                        {{-- <th></th> --}}
-                        {{-- <th>ID</th> --}}
-                        <th>Invoice No.</th>
-                        <th>No PO.</th>
-                        <th>Company</th>
-                        <th>Total Invoice</th>
-                        <th>Advance Payment</th>
-                        <th>Outstanding</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-            </table>
         </div>
     </div>
 @endsection()

@@ -16,10 +16,22 @@
                         <form>
                             <div class="row">
                                 <div class="col-12 mb-3">
+                                    <label for="basic-addon43">Due Date</label>
                                     <div class="form-floating form-floating-outline">
                                         <div class="input-group input-group-lg">
                                             <input type="number" class="form-control" name="due_date"
                                                 placeholder="Due Date" aria-label="Due Date"
+                                                aria-describedby="basic-addon43">
+                                            <span class="input-group-text" id="basic-addon43">Days</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="basic-addon43">Extends Date</label>
+                                    <div class="form-floating form-floating-outline">
+                                        <div class="input-group input-group-lg">
+                                            <input type="number" class="form-control" name="extends"
+                                                placeholder="Extends Date" aria-label="Due Date"
                                                 aria-describedby="basic-addon43">
                                             <span class="input-group-text" id="basic-addon43">Days</span>
                                         </div>

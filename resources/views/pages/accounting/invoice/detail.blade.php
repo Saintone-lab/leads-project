@@ -55,6 +55,27 @@
                                     <span
                                         class="text-black">{{ Carbon\Carbon::parse($invoice->date)->format('d-m-Y') }}</span>
                                 </div>
+                                @php
+                                    if (@$lastPayment->level == 0) {
+                                        if (@$lastPayment->file == null) {
+                                            $warna = 'bg-label-danger text-danger';
+                                            $text = 'Waiting Payment';
+                                        } else {
+                                            $warna = 'bg-label-warning text-warning';
+                                            $text = 'Awaiting Verification';
+                                        }
+                                    } elseif (@$lastPayment->level == 1) {
+                                        $warna = 'bg-label-success text-success';
+                                        $text = 'Verified';
+                                    } else {
+                                        $warna = 'bg-label-dark text-dark';
+                                        $text = 'belum di Payment';
+                                    }
+
+                                @endphp
+                                <h6 class="mt-1 badge {{ $warna }} rounded">
+                                    {{ $text }}
+                                </h6>
                             </div>
                         </div>
                     @else
@@ -104,6 +125,27 @@
                                     <span
                                         class="text-muted">{{ Carbon\Carbon::parse($invoice->date)->format('d-m-Y') }}</span>
                                 </div>
+                                @php
+                                    if (@$lastPayment->level == 0) {
+                                        if (@$lastPayment->file == null) {
+                                            $warna = 'text-danger';
+                                            $text = 'Waiting Payment';
+                                        } else {
+                                            $warna = 'text-warning';
+                                            $text = 'Awaiting Verification';
+                                        }
+                                    } elseif (@$lastPayment->level == 1) {
+                                        $warna = 'text-success';
+                                        $text = 'Verified';
+                                    } else {
+                                        $warna = 'text-dark';
+                                        $text = 'belum di Payment';
+                                    }
+
+                                @endphp
+                                <h6 class="mt-1 {{ $warna }}">
+                                    {{ $text }}
+                                </h6>
                             </div>
                         </div>
                     @endif
@@ -1298,7 +1340,7 @@
                             </button>
                         </a>
 
-                        @if ($lastPayment->type == 'Tempo' && $lastPayment->due_date == null)
+                        @if (@$lastPayment->type == 'Tempo' && @$lastPayment->due_date == null)
                             <a type="button" data-bs-toggle="modal" data-bs-target="#dueDate"
                                 class="d-grid w-100 waves-effect mb-3">
                                 <button type="button" class="btn btn-linkedin">

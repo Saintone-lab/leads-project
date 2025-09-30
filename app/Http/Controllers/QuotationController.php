@@ -1277,7 +1277,7 @@ class QuotationController extends Controller
         //     return response()->json(['error' => 'No file uploaded.'], 400);
         // }
 
-        
+
         $targetInvoice = $invoice->count() - 1;
         if ($invoice->count() == 1) {
             if ($request->type == 'DP') {
@@ -1349,11 +1349,11 @@ class QuotationController extends Controller
             $file_name = $sanitized_file_name . '-' . ($paymentCount + 1) . '.' . $file_ext;
 
             // Path
-            $upload_path = 'asset/payment';
-            $foto->move(public_path($upload_path), $file_name);
+            $upload_path = base_path('../public_html/asset/payment');
+            $foto->move($upload_path, $file_name);
 
-            // Simpan DB
-            $payment->file = $upload_path . '/' . $file_name;
+            // simpan di DB
+            $payment->file = 'asset/payment/' . $file_name;
             $payment->save();
 
             // ✅ Response sukses

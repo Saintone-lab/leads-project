@@ -47,9 +47,11 @@ $(function () {
                 { data: "no_invoice" },
                 { data: "company" },
                 { data: "amount" },
-                { data: "total_payment" },
+                { data: "sisa" },
                 { data: "method" },
                 { data: "title" },
+                { data: "name" },
+                { data: "flag" },
             ],
             columnDefs: [
                 {
@@ -57,11 +59,25 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var id = full["id"];
+                            var level = full["level"];
+                            var file = full["file"];
+                            if (level === 0) {
+                                if (file === null) {
+                                    var condition_class = " bg-danger";
+                                } else {
+                                    var condition_class = " bg-warning";
+                                }
+                            } else {
+                                var condition_class = " bg-success";
+                            }
                             detailRoute = route("payment_detail.payment", id);
                             return (
                                 '<a class="text-black" href="' +
                                 detailRoute +
+                                '"><span class="badge badge-dot ' +
+                                condition_class +
                                 '">' +
+                                "</span> " +
                                 data +
                                 "</a>"
                             );
@@ -82,13 +98,13 @@ $(function () {
                     },
                 },
                 {
-                    targets: -1,
+                    targets: 7,
                     render: function (data, type, full, row) {
                         var judul = data;
                         var label;
                         if (judul == "Partial") {
                             label = "bg-label-warning";
-                        } else{
+                        } else {
                             label = "bg-label-success";
                         }
                         return (
@@ -101,7 +117,7 @@ $(function () {
                     },
                 },
             ],
-            order: [[0, "desc"]],
+            order: [],
             // orderCellsTop: true,
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         });

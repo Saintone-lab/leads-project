@@ -1,63 +1,66 @@
 @extends('layouts.sales.app')
 @section('title', 'Sales Invoice AR')
+@section('no-container') @endsection
 @section('content')
-    <h4 class="fw-bold py-3 mb-4"> <span class="text-muted">Account Recieveable /</span> Payment Receipt</h4>
-    <div class="row mb-3">
-        <div class="col-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5>INVOICE</h5>
-                    <p>Total Penerimaan</p>
-                    <h3>Rp {{ number_format(@$receipt, 0, ',', '.') }}</h3>
+    <div class="container-fluid p-0" style="width: calc(100% - 10px); margin-right:5px;margin-left:5px;">
+        <h4 class="fw-bold py-3 mb-4"> <span class="text-muted">Account Recieveable /</span> Payment Receipt</h4>
+        <div class="row mb-3">
+            <div class="col-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>INVOICE</h5>
+                        <p>Total Penerimaan</p>
+                        <h3>Rp {{ number_format(@$receipt, 0, ',', '.') }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>PAID</h5>
+                        <p>Sudah DiBayar</p>
+                        <h3>Rp {{ number_format(@$confirm, 0, ',', '.') }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>UNPAID</h5>
+                        <p>Belum DiBayar</p>
+                        <h3>Rp {{ number_format(@$unconfirm, 0, ',', '.') }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>DUE DATE</h5>
+                        <p>Jatuh Tempo</p>
+                        <h3>Rp {{ number_format(@$overdue, 0, ',', '.') }}</h3>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5>PAID</h5>
-                    <p>Sudah DiBayar</p>
-                    <h3>Rp {{ number_format(@$confirm, 0, ',', '.') }}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5>UNPAID</h5>
-                    <p>Belum DiBayar</p>
-                    <h3>Rp {{ number_format(@$unconfirm, 0, ',', '.') }}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5>DUE DATE</h5>
-                    <p>Jatuh Tempo</p>
-                    <h3>Rp {{ number_format(@$overdue, 0, ',', '.') }}</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-aging-report-ar table table-striped">
-                <thead>
-                    <tr>
-                        {{-- <th></th>
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-aging-report-ar table table-striped">
+                    <thead>
+                        <tr>
+                            {{-- <th></th>
                         <th>ID</th> --}}
-                        <th>Invoice</th>
-                        <th>Date</th>
-                        <th>No. PO</th>
-                        <th>Customer</th>
-                        <th>Total</th>
-                        <th>Due Date</th>
-                        <th>VAT</th>
-                        <th>overdue</th>
-                    </tr>
-                </thead>
-            </table>
+                            <th>Invoice</th>
+                            <th>Date</th>
+                            <th>No. PO</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Due Date</th>
+                            <th>VAT</th>
+                            <th>overdue</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 @endsection()

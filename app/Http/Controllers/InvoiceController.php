@@ -186,9 +186,9 @@ class InvoiceController extends Controller
         $invoice->term = $request->payment;
         $invoice->invoiceTo = $quote->destination;
         $invoiceSave = $invoice->save();
-        $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
-        $lastPayment->due_date = Carbon::now()->addDays($request->due_date);
-        $lastPayment->save();
+        // $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
+        // $lastPayment->due_date = Carbon::now()->addDays($request->due_date);
+        // $lastPayment->save();
         if ($invoiceSave) {
             return redirect('/invoice/' . $id)->with('message', 'Invoice has been accepted');
         }
@@ -636,7 +636,7 @@ class InvoiceController extends Controller
         $quote = Quotation::find($invoice->id_quotation);
         $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
         $lastPayment->overdue = $request->due_date;
-        $lastPayment->due_date = Carbon::now()->addDays($request->due_date);
+        $lastPayment->due_date = Carbon::now()->addDays($request->due_date + ($request->extends ?? 0));
         $paymentSave = $lastPayment->save();
         // dd($lastPayment);
         if ($paymentSave) {

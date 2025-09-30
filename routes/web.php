@@ -1615,38 +1615,51 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $invoice]);
     });
     Route::get('/db/sales/invoice/ar', function () {
+        // subquery: payment terakhir per quotation (p1.*)
+        $lastPaymentSub = DB::table('payment as p1')
+            ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment GROUP BY id_quotation) as p2'), 'p1.id', '=', DB::raw('p2.max_id'));
+
+        // subquery: total payment per quotation
+        $sumPaymentSub = DB::table('payment')
+            ->select('id_quotation', DB::raw('SUM(amount) as total_payment'))
+            ->groupBy('id_quotation');
+
         $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
             ->join('pic', 'pic.id', '=', 'quotation.id_pic')
             ->join('client', 'client.id', '=', 'pic.id_client')
             ->join('users', 'users.id', '=', 'quotation.id_sales')
-            ->leftJoin(
-                DB::raw('(SELECT id_quotation, 
-                                SUM(amount) as total_payment, 
-                                MAX(tempo) as tempo, 
-                                MAX(due_date) as due_date
-                         FROM payment 
-                         WHERE type = "Tempo"
-                         GROUP BY id_quotation) as pay'),
-                'quotation.id',
-                '=',
-                'pay.id_quotation'
-            )
-            ->where('status', '100')
-            ->where('invoice.flag', 'Reftech')
-            ->where('quotation.tax', '11')
+            // join last payment (1 row)
+            ->leftJoinSub($lastPaymentSub, 'pay', function ($join) {
+                $join->on('quotation.id', '=', 'pay.id_quotation');
+            })
+            // join sum payments
+            ->leftJoinSub($sumPaymentSub, 'pay_sum', function ($join) {
+                $join->on('quotation.id', '=', 'pay_sum.id_quotation');
+            })
+            ->where('quotation.status', '100')
+            // ->where('invoice.flag', 'Reftech')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
-            ->orderByDesc('invoice.no_invoice')
-            ->get([
+            // ->orderByDesc('invoice.no_invoice')
+            ->orderByDesc('pay.type')
+            ->select([
                 'invoice.*',
                 'client.company',
-                'users.name',
+                'client.info as bendera',
+                'users.name as name',
+                DB::raw("DATE_FORMAT(invoice.date, '%d-%m-%Y') as tanggal"),
                 'quotation.harga_total',
                 'quotation.po_date',
-                DB::raw('IFNULL(pay.total_payment, 0) as total_payment'),
-                DB::raw('pay.tempo as tempo'),
-                DB::raw('pay.due_date as due_date')
-            ]);
+                // dari last payment (pay)
+                DB::raw('IFNULL(pay.amount, 0) as last_payment_amount'),
+                DB::raw('pay.type as last_payment_type'),
+                DB::raw('pay.due_date as last_due_date'),
+                // dari sum
+                DB::raw('IFNULL(pay_sum.total_payment, 0) as total_payment')
+            ])
+            ->get();
+
         return response()->json(['data' => $invoice]);
     });
     Route::get('/db/payment/receipt/ar', function () {
@@ -1657,7 +1670,15 @@ Route::group(["middleware" => "auth"], function () {
             },
             'quotation.pic.client'
         ])
-            ->where('payment.level', 0)
+            ->orderByRaw("
+                CASE 
+                    WHEN level = 0 AND file IS NOT NULL THEN 1
+                    WHEN level = 0 AND file IS NULL THEN 2
+                    WHEN level = 1 THEN 3
+                    ELSE 4
+                END
+            ")
+            ->whereYear('payment.created_at', Carbon::now()->year)
             ->get();
 
         $payment = $payment->map(function ($pay) {
@@ -1677,13 +1698,17 @@ Route::group(["middleware" => "auth"], function () {
                 'id' => $pay->id,
                 'no_receipt' => '#RCPT-' . $pay->id,
                 'date' => $pay->created_at?->format('d-m-Y'),
-                'no_invoice' => $invoice?->no_invoice ?? '-',
+                'no_invoice' => substr($invoice?->no_invoice, 0, 3) ?? '-',
                 'company' => $pay->quotation?->pic?->client?->company ?? '-',
+                'flag' => $pay->quotation?->pic?->client?->info ?? '-',
+                'name' => $pay->quotation?->sales?->name ?? '-',
                 'amount' => $pay->amount,
+                'level' => $pay->level,
                 'total_payment' => $totalPayment,
                 'sisa' => ($pay->quotation?->harga_total ?? 0) - $totalPayment,
                 'method' => $pay->method,
                 'type' => $pay->type,
+                'file' => $pay->file,
                 'title' => $title,
             ];
         });

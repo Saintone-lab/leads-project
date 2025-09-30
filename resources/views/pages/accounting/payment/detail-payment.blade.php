@@ -17,7 +17,10 @@
                         <div class="col-6 mb-3">
                             <div class="card">
                                 <div class="card-body">
-                                    : {{ $invoice->no_invoice }}
+                                    : <a href="{{ route('invoice.show', $invoice->id) }}"
+                                        class="text-black" target="_blank">
+                                        {{ $invoice->no_invoice }}
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -70,8 +73,23 @@
                         <h6>Payment Receipt No.</h6>
                         <h3>#RCPT-{{ $payment->id }}</h3>
                         <p>{{ Carbon\Carbon::parse($payment->created_at)->format('d-m-Y') }}</p>
-                        <h4 class="{{ $payment->level == 1 ? 'text-success' : 'text-warning' }}">
-                            {{ $payment->level == 1 ? 'Verified' : 'Awaiting Verification' }}</h4>
+                        @php
+                            if ($payment->level == 0) {
+                                if ($payment->file == null) {
+                                    $warna = 'text-danger';
+                                    $text = 'Waiting Payment';
+                                } else {
+                                    $warna = 'text-warning';
+                                    $text = 'Awaiting Verification';
+                                }
+                            } else {
+                                $warna = 'text-success';
+                                $text = 'Verified';
+                            }
+
+                        @endphp
+                        <h4 class=" {{ $warna }}">
+                            {{ $text }}</h4>
                     </div>
                 </div>
             </div>
@@ -158,7 +176,7 @@
                                                 </small>
                                             </div>
                                             <p class="mb-3">
-                                                {{ $stats->note }} {{$stats->user->name}}
+                                                {{ $stats->note }} {{ $stats->user->name }}
                                             </p>
                                             {{-- @foreach ($stats->comment as $item)
                                                 <div class="d-flex justify-content-between align-items-center px-2 mb-2{{ $item->id_user == Auth::user()->id ? ' rounded bg-label-primary float-end' : '' }}"

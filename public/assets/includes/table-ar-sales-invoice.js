@@ -47,12 +47,14 @@ $(function () {
                 // { data: "id" },
                 { data: "no_invoice" },
                 { data: "no_po" },
+                { data: "tanggal" },
                 { data: "company" },
                 { data: "harga_total" },
                 { data: "total_payment" },
                 { data: "total_payment" },
-                { data: "due_date" },
-                { data: "total_payment" },
+                { data: "last_payment_type" },
+                { data: "name" },
+                { data: "bendera" },
             ],
             columnDefs: [
                 // {
@@ -76,7 +78,7 @@ $(function () {
                     targets: 0,
                 },
                 {
-                    targets: 1,
+                    targets: 0,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var id = full["id"];
@@ -105,7 +107,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 5,
+                    targets: 6,
                     render: function (data, type, full, row) {
                         var hartot = full["harga_total"];
                         var paytot = full["total_payment"];
@@ -121,28 +123,22 @@ $(function () {
                     },
                 },
                 {
-                    targets: 6,
+                    targets: 7,
                     render: function (data, type, full, row) {
-                        if (data != null) {
-                            return data;
-                        } else {
-                            return "Tidak Ada Tempo";
-                        }
-                    },
-                },
-                {
-                    targets: -1,
-                    render: function (data, type, full, row) {
+                        var type = full["last_payment_type"];
                         var hartot = full["harga_total"];
                         var paytot = full["total_payment"];
                         var title, label;
-                        if (hartot == paytot) {
-                            title = "Paid";
+                        if (type == "CBD" || type == "COD") {
+                            title = "Full Paid";
                             label = "bg-label-success";
-                        } else if (hartot > paytot) {
+                        } else if (type == "DP" || type == "BP") {
                             title = "Partial";
                             label = "bg-label-warning";
-                        } else if (paytot == 0) {
+                        } else if (type == "Tempo") {
+                            title = "Credit";
+                            label = "bg-label-primary";
+                        }else{
                             title = "Unpaid";
                             label = "bg-label-danger";
                         }

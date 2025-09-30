@@ -51,8 +51,9 @@
                                         </div>
                                         <div class="col">
                                             <p class="text-muted mb-0">Due Date</p>
-                                            <h5>{{ $invoice->no_invoice }}</h5>
+                                            <h5>{{ $payment[0]->type == "tempo" ? $payment[0]->due_date : '-' }}</h5>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -66,7 +67,7 @@
                                         </div>
                                         <div class="col">
                                             <p class="text-muted mb-0">Terms</p>
-                                            <h5>{{ $invoice->no_invoice }}</h5>
+                                            <h5>{{ $invoice->term }}</h5>
                                         </div>
                                     </div>
                                 </div>
@@ -226,6 +227,7 @@
                             <th>Payment Method</th>
                             <th>Amount</th>
                             <th>Note</th>
+                            <th>status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -240,6 +242,29 @@
                                 <td class="align-top"> Bank Transfer </td>
                                 <td class="align-top">RP {{ number_format($item->amount, 0, '', '.') }}
                                 <td class="align-top">{{ $item->note }}</td>
+                                </td>
+                                @php
+                                    if ($item->level == 0) {
+                                        if ($item->file == null) {
+                                            $warna = 'bg-label-danger text-danger';
+                                            $text = 'Waiting Payment';
+                                        } else {
+                                            $warna = 'bg-label-warning text-warning';
+                                            $text = 'Awaiting Verification';
+                                        }
+                                    } elseif ($item->level == 1) {
+                                        $warna = 'bg-label-success text-success';
+                                        $text = 'Verified';
+                                    } else {
+                                        $warna = 'bg-label-dark text-dark';
+                                        $text = 'belum di Payment';
+                                    }
+
+                                @endphp
+                                <td>
+                                    <h6 class="mt-1 badge {{ $warna }} rounded">
+                                        {{ $text }}
+                                    </h6>
                                 </td>
                             </tr>
                         @empty
