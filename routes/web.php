@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivitiesController;
 use App\Http\Controllers\ApiTableController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AuditController;
+use App\Http\Controllers\ChangeWarehouseController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\CustomersController;
@@ -37,6 +38,7 @@ use App\Http\Controllers\UnitController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WatermarkController;
 use App\Models\Activities;
+use App\Models\ChangeWarehouse;
 use App\Models\Client;
 use App\Models\Comment;
 use App\Models\Contract;
@@ -1301,6 +1303,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/sales-order/delivery', [PendingController::class, 'indexDelivery'])->name('pending-po.delivery');
     Route::get('/sales-order/completed', [PendingController::class, 'indexCompleted'])->name('pending-po.completed');
 
+    // Change Warehouse
+    Route::resource('/change-warehouse', ChangeWarehouseController::class);
+    Route::post('/change-warehouse/accept/{id}', [ChangeWarehouseController::class, 'accept'])->name('change-warehouse.accept');
+
     // Dashboard Function
     // Ajax Sales Kanan
     Route::get('/dashboard/totalQuotation/{sales}', [DashboardController::class, 'totalQuotationAdmin'])->name('totalQuotation.dashboard');
@@ -1614,35 +1620,92 @@ Route::group(["middleware" => "auth"], function () {
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
         return response()->json(['data' => $invoice]);
     });
-    Route::get('/db/sales/invoice/ar', function () {
-        // subquery: payment terakhir per quotation (p1.*)
-        $lastPaymentSub = DB::table('payment as p1')
-            ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.due_date', 'p1.method', 'p1.created_at')
-            ->join(DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment GROUP BY id_quotation) as p2'), 'p1.id', '=', DB::raw('p2.max_id'));
 
-        // subquery: total payment per quotation
-        $sumPaymentSub = DB::table('payment')
-            ->select('id_quotation', DB::raw('SUM(amount) as total_payment'))
+    Route::get('/db/sales/invoice/ar', function () {
+        // last payment (umum)
+        $lastPaymentSub = DB::table('payment as p1')
+            ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.overdue', 'p1.method', 'p1.created_at')
+            ->join(
+                DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment GROUP BY id_quotation) as p2'),
+                'p1.id',
+                '=',
+                'p2.max_id'
+            );
+
+        // last DP
+        $lastDP = DB::table('payment as p1')
+            ->select('p1.id_quotation', 'p1.id', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(
+                DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment WHERE type="DP" GROUP BY id_quotation) as p2'),
+                'p1.id',
+                '=',
+                'p2.max_id'
+            );
+
+        // last BP
+        $lastBP = DB::table('payment as p1')
+            ->select('p1.id_quotation', 'p1.id', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(
+                DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment WHERE type="BP" GROUP BY id_quotation) as p2'),
+                'p1.id',
+                '=',
+                'p2.max_id'
+            );
+
+        // last Other (selain DP/BP)
+        $lastOther = DB::table('payment as p1')
+            ->select('p1.id_quotation', 'p1.id', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(
+                DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment WHERE type NOT IN ("DP","BP") GROUP BY id_quotation) as p2'),
+                'p1.id',
+                '=',
+                'p2.max_id'
+            );
+
+        // sum DP / BP level 1
+        $sumDP = DB::table('payment')
+            ->select('id_quotation', DB::raw('SUM(amount) as total_dp'))
+            ->where('type', 'DP')->where('level', 1)->groupBy('id_quotation');
+        $sumBP = DB::table('payment')
+            ->select('id_quotation', DB::raw('SUM(amount) as total_bp'))
+            ->where('type', 'BP')->where('level', 1)->groupBy('id_quotation');
+
+        // sum all payments level 1
+        $sumPaymentLvl1 = DB::table('payment')
+            ->select('id_quotation', DB::raw('SUM(amount) as total_payment_level1'))
+            ->where('level', 1)
+            ->groupBy('id_quotation');
+
+        // count payments per quotation
+        $paymentCountSub = DB::table('payment')
+            ->select('id_quotation', DB::raw('COUNT(*) as payment_count'))
             ->groupBy('id_quotation');
 
         $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
             ->join('pic', 'pic.id', '=', 'quotation.id_pic')
             ->join('client', 'client.id', '=', 'pic.id_client')
             ->join('users', 'users.id', '=', 'quotation.id_sales')
-            // join last payment (1 row)
-            ->leftJoinSub($lastPaymentSub, 'pay', function ($join) {
-                $join->on('quotation.id', '=', 'pay.id_quotation');
-            })
-            // join sum payments
-            ->leftJoinSub($sumPaymentSub, 'pay_sum', function ($join) {
-                $join->on('quotation.id', '=', 'pay_sum.id_quotation');
-            })
+
+            // join last payment umum (dipertahankan)
+            ->leftJoinSub($lastPaymentSub, 'pay', fn($join) => $join->on('quotation.id', '=', 'pay.id_quotation'))
+
+            // join last DP/BP/Other (hanya info, tidak dicampur ke outstanding)
+            ->leftJoinSub($lastDP, 'dp_last', fn($join) => $join->on('quotation.id', '=', 'dp_last.id_quotation'))
+            ->leftJoinSub($lastBP, 'bp_last', fn($join) => $join->on('quotation.id', '=', 'bp_last.id_quotation'))
+            ->leftJoinSub($lastOther, 'other_last', fn($join) => $join->on('quotation.id', '=', 'other_last.id_quotation'))
+
+            // join sums DP/BP dan sum level1
+            ->leftJoinSub($sumDP, 'dp_sum', fn($join) => $join->on('quotation.id', '=', 'dp_sum.id_quotation'))
+            ->leftJoinSub($sumBP, 'bp_sum', fn($join) => $join->on('quotation.id', '=', 'bp_sum.id_quotation'))
+            ->leftJoinSub($sumPaymentLvl1, 'pay_sum_lvl1', fn($join) => $join->on('quotation.id', '=', 'pay_sum_lvl1.id_quotation'))
+
+            // join payment count
+            ->leftJoinSub($paymentCountSub, 'pay_count', fn($join) => $join->on('quotation.id', '=', 'pay_count.id_quotation'))
+
             ->where('quotation.status', '100')
-            // ->where('invoice.flag', 'Reftech')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
-            // ->orderByDesc('invoice.no_invoice')
-            ->orderByDesc('pay.type')
+            ->orderByDesc('invoice.date')
             ->select([
                 'invoice.*',
                 'client.company',
@@ -1651,17 +1714,83 @@ Route::group(["middleware" => "auth"], function () {
                 DB::raw("DATE_FORMAT(invoice.date, '%d-%m-%Y') as tanggal"),
                 'quotation.harga_total',
                 'quotation.po_date',
-                // dari last payment (pay)
-                DB::raw('IFNULL(pay.amount, 0) as last_payment_amount'),
+
+                // last payment default (tetap dipertahankan)
+                DB::raw('IFNULL(pay.amount,0) as last_payment_amount'),
                 DB::raw('pay.type as last_payment_type'),
+                DB::raw('pay.level as last_payment_level'),
                 DB::raw('pay.due_date as last_due_date'),
-                // dari sum
-                DB::raw('IFNULL(pay_sum.total_payment, 0) as total_payment')
+                DB::raw('pay.overdue as last_overdue'),
+
+                // last DP
+                DB::raw('IFNULL(dp_last.amount,0) as dp_amount'),
+                DB::raw('dp_last.level as dp_level'),
+
+                // last BP
+                DB::raw('IFNULL(bp_last.amount,0) as bp_amount'),
+                DB::raw('bp_last.level as bp_level'),
+
+                // last Other
+                DB::raw('IFNULL(other_last.amount,0) as other_amount'),
+                DB::raw('other_last.type as other_type'),
+                DB::raw('other_last.level as other_level'),
+
+                // sums
+                DB::raw('IFNULL(dp_sum.total_dp,0) as total_dp'),
+                DB::raw('IFNULL(bp_sum.total_bp,0) as total_bp'),
+                DB::raw('IFNULL(pay_sum_lvl1.total_payment_level1,0) as total_payment_level1'),
+
+                // payment count (1 atau lebih)
+                DB::raw('IFNULL(pay_count.payment_count,0) as payment_count'),
+
+                // outstanding logic: pertama cek payment_count
+                DB::raw("
+                            CASE
+                -- kalau hanya 1 payment
+                WHEN IFNULL(pay_count.payment_count,0) = 1
+                    THEN (
+                        CASE
+                            -- kalau method DP
+                            WHEN pay.method = 'DP' THEN 
+                                CASE 
+                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total
+                                    ELSE quotation.harga_total - IFNULL(pay.amount,0)
+                                END
+
+                            -- kalau bukan DP
+                            ELSE (
+                                CASE 
+                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total 
+                                    ELSE 0 
+                                END
+                            )
+                        END
+                    )
+
+                -- kalau lebih dari 1 payment
+                WHEN IFNULL(pay_count.payment_count,0) > 1
+                    THEN (
+                        CASE
+                            WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                                THEN quotation.harga_total
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                                THEN quotation.harga_total - IFNULL(dp_sum.total_dp,0)
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0 
+                                THEN 0
+                            ELSE quotation.harga_total
+                        END
+                    )
+
+                ELSE quotation.harga_total
+            END as outstanding
+            ")
             ])
             ->get();
-
         return response()->json(['data' => $invoice]);
     });
+
+
+
     Route::get('/db/payment/receipt/ar', function () {
         $payment = Payment::with([
             'quotation.payment',
@@ -1670,15 +1799,16 @@ Route::group(["middleware" => "auth"], function () {
             },
             'quotation.pic.client'
         ])
-            ->orderByRaw("
-                CASE 
-                    WHEN level = 0 AND file IS NOT NULL THEN 1
-                    WHEN level = 0 AND file IS NULL THEN 2
-                    WHEN level = 1 THEN 3
-                    ELSE 4
-                END
-            ")
             ->whereYear('payment.created_at', Carbon::now()->year)
+            ->orderByRaw("
+        CASE 
+            WHEN level = 0 AND file IS NOT NULL THEN 1
+            WHEN level = 0 AND file IS NULL THEN 2
+            WHEN level = 1 THEN 3
+            ELSE 4
+        END
+    ")
+            ->orderBy('payment.created_at', 'desc')
             ->get();
 
         $payment = $payment->map(function ($pay) {
@@ -1726,6 +1856,7 @@ Route::group(["middleware" => "auth"], function () {
             ->groupBy('payment.id')
             ->select(
                 'payment.id',
+                'payment.overdue',
                 DB::raw("DATE_FORMAT(payment.due_date, '%d-%m-%Y') as due_date"),
                 'i.no_invoice',
                 DB::raw("DATE_FORMAT(i.date, '%d-%m-%Y') as date"),
@@ -1837,7 +1968,60 @@ Route::group(["middleware" => "auth"], function () {
         $products = DB::table('product_in as p')
             ->select('p.*', DB::raw('SUM(d.qty) as total_qty'))
             ->leftJoin('detail_product_in as d', 'd.id_product_in', '=', 'p.id')
+            // ->where('p.info', 'Lokal')
             ->whereNull('p.invoice')
+            ->groupBy('p.id')
+            ->get();
+        return response()->json(['data' => $products]);
+    });
+    Route::get('/db/product/in/logistik/lokal', function () {
+        $products = DB::table('product_in as p')
+            ->select('p.*', DB::raw('SUM(d.qty) as total_qty'))
+            ->leftJoin('detail_product_in as d', 'd.id_product_in', '=', 'p.id')
+            ->where('p.info', 'Lokal')
+            ->whereNull('p.invoice')
+            ->groupBy('p.id')
+            ->get();
+        return response()->json(['data' => $products]);
+    });
+    Route::get('/db/product/in/logistik/import', function () {
+        $products = DB::table('product_in as p')
+            ->select('p.*', DB::raw('SUM(d.qty) as total_qty'))
+            ->leftJoin('detail_product_in as d', 'd.id_product_in', '=', 'p.id')
+            ->where('p.info', 'Import')
+            ->whereNull('p.invoice')
+            ->groupBy('p.id')
+            ->get();
+        return response()->json(['data' => $products]);
+    });
+    Route::get('/db/product/in/lokal', function () {
+        $products = DB::table('product_in as p')
+            ->select(
+                'p.*',
+                DB::raw("CONCAT(pr.commodity, ' - ', dp.replacement) AS product"),
+                DB::raw("CONCAT(d.qty, ' ', pr.unit) AS qty")
+            )
+            ->leftJoin('detail_product_in as d', 'd.id_product_in', '=', 'p.id')
+            ->leftJoin('detail_product as dp', 'd.id_detail_product', '=', 'dp.id')
+            ->leftJoin('product as pr', 'dp.id_product', '=', 'pr.id')
+            ->where('p.info', 'Lokal')
+            ->whereNotNull('p.invoice')
+            ->groupBy('p.id')
+            ->get();
+        return response()->json(['data' => $products]);
+    });
+    Route::get('/db/product/in/import', function () {
+        $products = DB::table('product_in as p')
+            ->select(
+                'p.*',
+                DB::raw("CONCAT(pr.commodity, ' - ', dp.replacement) AS product"),
+                DB::raw("CONCAT(d.qty, ' ', pr.unit) AS qty")
+            )
+            ->leftJoin('detail_product_in as d', 'd.id_product_in', '=', 'p.id')
+            ->leftJoin('detail_product as dp', 'd.id_detail_product', '=', 'dp.id')
+            ->leftJoin('product as pr', 'dp.id_product', '=', 'pr.id')
+            ->where('p.info', 'Import')
+            ->whereNotNull('p.invoice')
             ->groupBy('p.id')
             ->get();
         return response()->json(['data' => $products]);
@@ -2047,7 +2231,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('users as s', 's.id', '=', 'quotation.id_sales')
             ->where('quotation.id_support', $sales)
             ->where('quotation.status', '100')
-            ->where('level', '1')->where('is_primary', '1')
+            ->where('quotation.level', '1')->where('is_primary', '1')
             ->whereMonth('po_date', $month)
             ->whereYear('po_date', $year)
             ->get(['s.name', 'no_quote', 'client.company', 'nett', 'title', 'po_date', 'status', 'quotation.note', 'quotation.id']);
@@ -2446,8 +2630,8 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/machine/client/{id}', function ($id) {
         $data = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
-            ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
-            ->join('unit as u', 's.id_product', '=', 'u.id')
+            ->leftJoin('serial_product as s', 's.id', '=', 'machine.id_unit')
+            ->leftJoin('unit as u', 's.id_product', '=', 'u.id')
             ->where('c.id', $id)
             ->groupBy('machine.id', 'u.id')
             ->select(
@@ -2611,9 +2795,10 @@ Route::group(["middleware" => "auth"], function () {
             ->select(
                 'pending_po.id',
                 'pending_po.delivery',
+                'pending_po.title',
+                'pending_po.no_pending',
                 'u.name',
                 'q.po_date',
-                'q.title',
                 'c.company',
                 'i.no_po',
                 'u.name',
@@ -3116,6 +3301,44 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
 
         return response()->json(['data' => $issue]);
+    });
+    Route::get('/db/change-warehouse/recieve', function () {
+        $to = Auth::user()->id == 16 ? 'BKS' : 'BDG';
+
+        $warehouse = ChangeWarehouse::join('users as s', 'change_warehouse.id_sender', '=', 's.id')
+            ->leftJoin('users as r', 'change_warehouse.id_reciever', '=', 'r.id')
+            ->when(Auth::user()->role != 'Admin', function ($query) use ($to) {
+                $query->where('change_warehouse.to', $to);
+            })
+            ->where('change_warehouse.status', '!=', 2)
+            ->orderBy('change_warehouse.status')
+            ->orderBy('change_warehouse.date', 'desc')
+            ->select(
+                'change_warehouse.*',
+                'r.name as receiver',
+                's.name as sender',
+                DB::raw("DATE_FORMAT(change_warehouse.date, '%d-%m-%Y') as date_dmy")
+            )
+            ->get();
+
+        return response()->json(['data' => $warehouse]);
+    });
+    Route::get('/db/change-warehouse/done', function () {
+        $warehouse = ChangeWarehouse::join('users as s', 'change_warehouse.id_sender', '=', 's.id')
+            ->join('users as r', 'change_warehouse.id_reciever', '=', 'r.id')
+            ->where('change_warehouse.status', '=', 2)
+            ->orderBy('change_warehouse.status')
+            ->orderBy('change_warehouse.date', 'desc')
+            ->select(
+                'change_warehouse.*',
+                'r.name as receiver',
+                's.name as sender',
+                DB::raw("DATE_FORMAT(change_warehouse.date, '%d-%m-%Y') as date_dmy"),
+                DB::raw("DATE_FORMAT(change_warehouse.date_recieve, '%d-%m-%Y') as date_recieve_dmy")
+            )
+            ->get();
+
+        return response()->json(['data' => $warehouse]);
     });
 
 });

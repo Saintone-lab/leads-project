@@ -62,6 +62,7 @@ class ProductInController extends Controller
         $productIn->no_do = NULL;
         $productIn->invoice = $request->invoice;
         $productIn->supplier = $request->suplier;
+        $productIn->info = $request->info;
         $productIn->date = $request->date;
         $productIn->date_invoice = $request->date_invoice;
         $productIn->subtotal = $request->subtotal;
@@ -152,7 +153,7 @@ class ProductInController extends Controller
         foreach ($dProductIn as $item) {
             $item->detailProduct->modal = $request->modal[$item->id];
             $item->modal = $request->modal[$item->id];
-            $item->disc = $request->disc[$item->id];
+            // $item->disc = $request->disc[$item->id];
             $item->amount = $request->modal[$item->id] * $item->qty;
             $detailSave = $item->save();
             $item->detailProduct->save();
@@ -223,6 +224,7 @@ class ProductInController extends Controller
         $productIn->no_do = $request->no_do;
         $productIn->invoice = null;
         $productIn->supplier = null;
+        $productIn->info = $request->info;
         $productIn->date = $request->date;
         $productIn->date_invoice = null;
         $productIn->subtotal = null;

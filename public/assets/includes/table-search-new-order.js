@@ -42,6 +42,7 @@ $(function () {
                 // },
             },
             columns: [
+                { data: "no_pending" },
                 { data: "po_date" },
                 {
                     data: "no_po",
@@ -73,7 +74,7 @@ $(function () {
                 //     },
                 // },
                 {
-                    targets: 4,
+                    targets: 5,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $status = {
@@ -119,11 +120,14 @@ $(function () {
                     },
                 },
                 {
-                    targets: 5,
+                    targets: 6,
                     render: function (data, type, full, meta) {
                         var bayar = full["paytype"];
                         var info, warna;
-                        if (data == 0) {
+                        if (data == null || bayar == null) {
+                            info = "UNPAID";
+                            warna = "bg-label-danger";
+                        } else if (data == 0) {
                             info = "UNPAID";
                             warna = "bg-label-danger";
                         } else {
@@ -137,7 +141,7 @@ $(function () {
                                 info = "Kredit";
                                 warna = "bg-label-success";
                             } else {
-                                info = "full Paid";
+                                info = "Full Paid";
                                 warna = "bg-label-success";
                             }
                         }
@@ -151,7 +155,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 6,
+                    targets: 7,
                     render: function (data, type, full, meta) {
                         var delivery = full["delivery"];
                         switch (delivery) {
@@ -176,7 +180,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 1,
+                    targets: 2,
                     render: function (data, type, row) {
                         if (type === "sort" || type === "type") {
                             return row.po_date_raw; // pakai versi raw untuk sorting
@@ -185,7 +189,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 2,
+                    targets: 0,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var id = full["id"];
@@ -202,7 +206,7 @@ $(function () {
                     },
                 },
             ],
-            order: [[1, "desc"]],
+            order: [[2, "desc"]],
             // orderCellsTop: true,
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         });

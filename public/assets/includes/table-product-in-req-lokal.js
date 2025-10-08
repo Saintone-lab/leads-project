@@ -1,10 +1,10 @@
 $(function () {
-    var dt_table_product = $(".datatable-product-in-req");
-    var Url = "db/product/in/logistik";
+    var dt_table_product_lokal = $(".datatable-product-in-req-lokal");
+    var Url = "db/product/in/logistik/lokal";
 
-    if (dt_table_product.length) {
+    if (dt_table_product_lokal.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product.DataTable({
+        var dt_product = dt_table_product_lokal.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -28,6 +28,12 @@ $(function () {
                 { data: "id" },
                 { data: "no_do" },
                 { data: "date" },
+                {
+                    data: "tax",
+                    render: function (data, type, row) {
+                        return data == 0 ? "VAT" : "Non VAT";
+                    },
+                },
                 { data: "total_qty" },
                 { data: "" },
             ],
@@ -91,7 +97,7 @@ $(function () {
                 },
             ],
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label-delay text-center">><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            dom: '<"card-header flex-column flex-md-row"<"head-label-delay-lokal text-center">><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
             drawCallback: function (settings) {
@@ -132,11 +138,11 @@ $(function () {
                 },
             },
         });
-        $("div.head-label-delay").html(
-            '<h5 class="card-title mb-0">Table Product In Delay</h5>'
+        $("div.head-label-delay-lokal").html(
+            '<h5 class="card-title mb-0">Table Product In Delay Lokal</h5>'
         );
     }
-    dt_table_product.on("draw", function () {
+    dt_table_product_lokal.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

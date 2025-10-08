@@ -475,6 +475,8 @@
                 request()->is('product-out/*') ||
                 request()->is('stock') ||
                 request()->is('stock/*') ||
+                request()->is('change-warehouse') ||
+                request()->is('change-warehouse/*') ||
                 request()->is('sale-report') ||
                 request()->is('sale-report/*') ||
                 request()->is('sales-report/yearly/*')
@@ -528,6 +530,12 @@
                         <a href="{{ route('reports.yearly', \Carbon\Carbon::now()->format('Y')) }}"
                             class="menu-link">
                             <div data-i18n="Reports In / Out">Reports In / Out</div>
+                        </a>
+                    </li>
+                    <li
+                        class="menu-item {{ request()->is('change-warehouse') || request()->is('change-warehouse/*') ? 'active' : '' }}">
+                        <a href="{{ route('change-warehouse.index') }}" class="menu-link">
+                            <div data-i18n="Change Warehouse">Change Warehouse</div>
                         </a>
                     </li>
                 </ul>
@@ -945,6 +953,22 @@
                     </li>
                 </ul>
             </li> --}}
+            @if (Auth::user()->id == 23)
+                <li
+                    class="menu-item {{ request()->is('change-warehouse') || request()->is('change-warehouse/*') ? 'active' : '' }}">
+                    <a href="{{ route('change-warehouse.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-warehouse"></i>
+                        <div data-i18n="Change Warehouse">Change Warehouse</div>
+                    </a>
+                </li>
+            @endif
+            <li
+                class="menu-item {{ request()->is('change-warehouse') || request()->is('change-warehouse/*') ? 'active' : '' }}">
+                <a href="{{ route('change-warehouse.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-warehouse"></i>
+                    <div data-i18n="Change Warehouse">Change Warehouse</div>
+                </a>
+            </li>
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Marketing Tools</span>
@@ -1199,6 +1223,13 @@
                 <a href="{{ route('stock.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package-variant-closed-check"></i>
                     <div data-i18n="Stock">Stock</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('change-warehouse') || request()->is('change-warehouse/*') ? 'active' : '' }}">
+                <a href="{{ route('change-warehouse.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-warehouse"></i>
+                    <div data-i18n="Change Warehouse">Change Warehouse</div>
                 </a>
             </li>
             <li class="menu-item {{ request()->is('return') || request()->is('return/*') ? 'active' : '' }}">

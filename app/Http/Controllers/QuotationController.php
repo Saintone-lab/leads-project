@@ -1131,25 +1131,31 @@ class QuotationController extends Controller
             // Move the file to the upload path
             $foto->move(public_path($upload_path), $file_name);
 
+            // dd(Auth::user()->id);
+
             // Update the quote with the new file path
             $quote->po_file = $upload_path . '/' . $file_name;
             $quote->upload_date = Carbon::today();
             $quote->save();
             // create invoice quote
-            if (Auth::user()->id != '23') {
-                $invoice = new Invoice;
-                $invoice->id_quotation = $id;
-                $invoice->no_po = $request->po;
-                $invoice->flag = $quote->pic->client->info;
+            $invoice = new Invoice;
+            $invoice->id_quotation = $id;
+            $invoice->no_po = $request->po;
+            $invoice->flag = $quote->pic->client->info;
+            if (Auth::user()->id == 16 || Auth::user()->id == 23) {
+                $invoice->no_invoice = $quote->no_quote;
+                $invoice->term = 'Cash Before Delivery';
+                $invoice->invoiceTo = $quote->destination;
+            } else {
                 $invoice->no_invoice = NULL;
-                $invoice->type = 'CT';
-                $invoice->date = Carbon::today();
                 $invoice->term = NULL;
                 $invoice->invoiceTo = NULL;
-                $invoice->sign = NULL;
-                $invoice->pph = 0;
-                $invoice->save();
             }
+            $invoice->type = 'CT';
+            $invoice->date = Carbon::today();
+            $invoice->sign = NULL;
+            $invoice->pph = 0;
+            $invoice->save();
             if ($quote->type == 'Sparepart') {
                 return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');
             } else {
@@ -1180,6 +1186,7 @@ class QuotationController extends Controller
     {
         try {
             $quote = Quotation::find($id);
+            $pending = PendingPO::where('id_quotation', $id)->get();
 
             if (!$quote) {
                 return response()->json(['error' => 'Quotation not found.'], 404);
@@ -1196,6 +1203,10 @@ class QuotationController extends Controller
                 $quote->po_file = null;
                 $quote->upload_date = null;
                 $quote->save(); // Simpan perubahan
+
+                foreach ($pending as $item) {
+                    $item->delete();
+                }
 
                 return response()->json(1, 200); // Sukses
             } else {
@@ -1293,11 +1304,14 @@ class QuotationController extends Controller
         $payment->amount = $request->amount;
         $payment->type = $request->type;
         $payment->method = $request->method;
-        $payment->level = 0;
+        if ($request->method == 'Escrow') {
+            $payment->level = 1;
+        } else {
+            $payment->level = 0;
+        }
         $payment->percent = $request->percent;
         if ($request->type == 'Tempo') {
             $payment->tempo = $request->tempo;
-            $payment->due_date = Carbon::today()->addDays($request->tempo);
         }
         $payment->note = $request->note;
         $payment->save();

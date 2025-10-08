@@ -38,6 +38,9 @@
                                             <option value="Cash">
                                                 Cash
                                             </option>
+                                            <option value="Escrow">
+                                                Escrow
+                                            </option>
                                         </select>
                                         <label for="exampleFormControlSelect1">Type</label>
                                     </div>

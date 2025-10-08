@@ -276,10 +276,36 @@ class InvoiceController extends Controller
         $year = $dateNow->year;
         $month = $dateNow->month;
         $monthCode = $this->convertToRoman($month);
-        $lastInvoicePRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->where('invoice.flag', 'Reftech')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.no_invoice', 'desc')->first(['invoice.*', 'quotation.tax']);
-        $lastInvoiceNPRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->where('invoice.flag', 'Reftech')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.no_invoice', 'desc')->first(['invoice.*', 'quotation.tax']);
-        $lastInvoicePKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->where('invoice.flag', 'Kojisha')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.no_invoice', 'desc')->first(['invoice.*', 'quotation.tax']);
-        $lastInvoiceNPKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->where('invoice.flag', 'Kojisha')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.no_invoice', 'desc')->first(['invoice.*', 'quotation.tax']);
+        $lastInvoicePRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+        ->where('quotation.tax', '11')
+        ->where('invoice.flag', 'Reftech')
+        ->whereNotNull('no_invoice')
+        ->whereYear('invoice.created_at', $year)
+        ->orderBy('invoice.no_invoice', 'desc')
+        ->first(['invoice.*', 'quotation.tax']);
+        $lastInvoiceNPRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+        ->where('quotation.tax', '0')
+        ->where('invoice.flag', 'Reftech')
+        ->whereNotNull('no_invoice')
+        ->whereYear('invoice.created_at', $year)
+        ->orderBy('invoice.no_invoice', 'desc')
+        ->first(['invoice.*', 'quotation.tax']);
+        $lastInvoicePKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+        ->where('quotation.tax', '11')
+        ->where('invoice.flag', 'Kojisha')
+        ->whereNotNull('no_invoice')
+        ->whereNotIn('quotation.id_sales', [16,23])
+        ->whereYear('invoice.created_at', $year)
+        ->orderBy('invoice.no_invoice', 'desc')
+        ->first(['invoice.*', 'quotation.tax']);
+        $lastInvoiceNPKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+        ->where('quotation.tax', '0')
+        ->where('invoice.flag', 'Kojisha')
+        ->whereNotNull('no_invoice')
+        ->whereNotIn('quotation.id_sales', [16,23])
+        ->whereYear('invoice.created_at', $year)
+        ->orderBy('invoice.no_invoice', 'desc')
+        ->first(['invoice.*', 'quotation.tax']);
         // dd($lastInvoicePKoj);
         function generateNextInvoiceNumber($lastInvoice, $defaultCode)
         {

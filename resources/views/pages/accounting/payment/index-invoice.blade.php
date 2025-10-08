@@ -42,8 +42,8 @@
                             {{-- <th>ID</th> --}}
                             <th>Invoice No.</th>
                             <th>No PO.</th>
-                            <th>Company</th>
                             <th>Date</th>
+                            <th>Company</th>
                             <th>Total Invoice</th>
                             <th>Advance Payment</th>
                             <th>Outstanding</th>

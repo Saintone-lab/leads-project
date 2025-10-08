@@ -50,8 +50,8 @@ $(function () {
                 { data: "tanggal" },
                 { data: "company" },
                 { data: "harga_total" },
-                { data: "total_payment" },
-                { data: "total_payment" },
+                { data: "total_payment_level1" },
+                { data: "outstanding" },
                 { data: "last_payment_type" },
                 { data: "name" },
                 { data: "bendera" },
@@ -95,7 +95,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: [4, 5],
+                    targets: [4, 5, 6],
                     render: function (data, type, row) {
                         if (type === "display" || type === "filter") {
                             return (
@@ -107,38 +107,22 @@ $(function () {
                     },
                 },
                 {
-                    targets: 6,
-                    render: function (data, type, full, row) {
-                        var hartot = full["harga_total"];
-                        var paytot = full["total_payment"];
-                        var sisa = hartot - paytot;
-
-                        if (type === "display" || type === "filter") {
-                            return (
-                                "Rp " +
-                                new Intl.NumberFormat("id-ID").format(sisa)
-                            );
-                        }
-                        return sisa;
-                    },
-                },
-                {
                     targets: 7,
                     render: function (data, type, full, row) {
                         var type = full["last_payment_type"];
-                        var hartot = full["harga_total"];
+                        var overdue = full["last_overdue"] ?? "No";
                         var paytot = full["total_payment"];
                         var title, label;
-                        if (type == "CBD" || type == "COD") {
+                        if (type == "CBD" || type == "COD" || type == "BP") {
                             title = "Full Paid";
                             label = "bg-label-success";
-                        } else if (type == "DP" || type == "BP") {
+                        } else if (type == "DP") {
                             title = "Partial";
                             label = "bg-label-warning";
                         } else if (type == "Tempo") {
-                            title = "Credit";
+                            title = "Credit " + overdue + " Days";
                             label = "bg-label-primary";
-                        }else{
+                        } else {
                             title = "Unpaid";
                             label = "bg-label-danger";
                         }
@@ -152,7 +136,7 @@ $(function () {
                     },
                 },
             ],
-            order: [[0, "desc"]],
+            order: [],
             // orderCellsTop: true,
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         });

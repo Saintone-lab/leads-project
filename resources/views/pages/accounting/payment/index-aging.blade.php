@@ -51,6 +51,7 @@
                         <th>ID</th> --}}
                             <th>Invoice</th>
                             <th>Date</th>
+                            <th>Overdue</th>
                             <th>No. PO</th>
                             <th>Customer</th>
                             <th>Total</th>

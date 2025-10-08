@@ -1,43 +1,44 @@
 @extends('layouts.sales.app')
-@section('title', 'New Order')
-@section('no-container') @endsection
+@section('title', 'Index Changing')
 @section('content')
-    <div class="container-fluid p-0" style="width: calc(100% - 10px); margin-right:5px;margin-left:5px;">
-        <div class="card mb-3">
-            <div class="card-datatable pt-0">
-                <table
-                    class="datatable-new-order-search{{ auth::user()->role == 'Sales' ? '' : '-admin' }} table table-bordered">
-                    <thead>
-                        @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Logistic')
-                            <tr>
-                                <th>No SO</th>
-                                <th>Date</th>
-                                <th>Category</th>
-                                <th>Customer</th>
-                                <th>Description</th>
-                                <th>Status</th>
-                                <th>Payment</th>
-                                <th>area</th>
-                                <th>Delivery</th>
-                                <th>Sales</th>
-                                <th>Team</th>
-                            </tr>
-                        @endif
-                        @if (Auth::user()->role == 'Sales')
-                            <tr>
-                                <th>No SO</th>
-                                <th>Date</th>
-                                <th>PO No.</th>
-                                <th>Customer</th>
-                                <th>Part Desc</th>
-                                <th>Status</th>
-                                <th>Payment</th>
-                                <th>Delivery</th>
-                            </tr>
-                        @endif
-                    </thead>
-                </table>
-            </div>
+    <div class="card mb-3">
+        <div class="card-datatable table-responsive pt-0">
+            <table
+                class="datatable-change-warehouse-recieve table table-bordered">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Date</th>
+                        <th>From</th>
+                        <th>Title</th>
+                        <th>To</th>
+                        <th>Sender</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-datatable table-responsive pt-0">
+            <table
+                class="datatable-change-warehouse-done table table-bordered">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Date</th>
+                        <th>Date R</th>
+                        <th>Title</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Sender</th>
+                        <th>Reciever</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
     </div>
     {{-- @foreach ($pendingPO as $pending)
@@ -73,11 +74,9 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
-    {{-- <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script> --}}
-    <script src="{{ asset('assets') }}/js/tables-datatables-advanced.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-search-new-order.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-search-new-order-admin.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-pending.js"></script>
+    <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-change-warehouse-done.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-change-warehouse-recieve.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush
 

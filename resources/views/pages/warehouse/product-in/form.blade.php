@@ -42,6 +42,15 @@
                             </div>
                         </div>
                         <div class="col-6 col-lg-2">
+                            <div class="form-floating form-floating-outline mb-4">
+                                <select class="form-select invoice-item-info" id="info-dropdown" name="info"
+                                    aria-label="Default select example">
+                                    <option selected disabled>----- Choose supplier info Here -----</option>
+                                    <option value="Lokal">Lokal</option>
+                                    <option value="Import">Import</option>
+                                </select>
+                                <label for="info-dropdown">Supplier Info</label>
+                            </div>
                         </div>
                         <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline mb-4">

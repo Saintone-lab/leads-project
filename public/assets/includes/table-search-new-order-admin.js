@@ -158,7 +158,11 @@ $(function () {
                     render: function (data, type, full, meta) {
                         var bayar = full["paytype"];
                         var info, warna;
-                        if (data == 0) {
+
+                        if (data == null || bayar == null) {
+                            info = "UNPAID";
+                            warna = "bg-label-danger";
+                        } else if (data == 0) {
                             info = "UNPAID";
                             warna = "bg-label-danger";
                         } else {
@@ -172,7 +176,7 @@ $(function () {
                                 info = "Kredit";
                                 warna = "bg-label-success";
                             } else {
-                                info = "full Paid";
+                                info = "Full Paid";
                                 warna = "bg-label-success";
                             }
                         }

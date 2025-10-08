@@ -38,4 +38,8 @@ DetailProduct extends Model
     {
         return $this->hasMany('App\Models\Sparepart', 'id_equivalent');
     }
+    public function detailChangeWarehouse()
+    {
+        return $this->hasMany('App\Models\DetailChangeWarehouse', 'id_replacement');
+    }
 }

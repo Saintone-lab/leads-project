@@ -1,10 +1,10 @@
 $(function () {
-    var dt_table_product_no_tax = $(".datatable-product-in-no-tax");
-    var Url = "db/productInNoTax";
+    var dt_table_product_import = $(".datatable-product-in-import");
+    var Url = "/db/product/in/import";
 
-    if (dt_table_product_no_tax.length) {
+    if (dt_table_product_import.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product_no_tax.DataTable({
+        var dt_product = dt_table_product_import.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -31,6 +31,12 @@ $(function () {
                 { data: "product" },
                 { data: "qty" },
                 { data: "total" },
+                {
+                    data: "tax",
+                    render: function (data, type, row) {
+                        return data == 0 ? "VAT" : "Non VAT";
+                    },
+                },
                 { data: "date" },
                 { data: "" },
             ],
@@ -116,7 +122,7 @@ $(function () {
                 },
             ],
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label-no-tax text-center">><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            dom: '<"card-header flex-column flex-md-row"<"head-label-import text-center">><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
             buttons: [
@@ -377,11 +383,11 @@ $(function () {
                 },
             },
         });
-        $("div.head-label-no-tax").html(
-            '<h5 class="card-title mb-0">Table Product No Tax</h5>'
+        $("div.head-label-import").html(
+            '<h5 class="card-title mb-0">Table Product Import</h5>'
         );
     }
-    dt_table_product_no_tax.on("draw", function () {
+    dt_table_product_import.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

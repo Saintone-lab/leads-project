@@ -44,6 +44,12 @@ $(function () {
             columns: [
                 { data: "no_invoice" },
                 { data: "date" },
+                {
+                    data: "overdue",
+                    render: function (data, type, row) {
+                        return (data ?? "No") + " Days";
+                    },
+                },
                 { data: "no_po" },
                 { data: "company" },
                 { data: "harga_total" },
@@ -70,7 +76,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 4,
+                    targets: 5,
                     render: function (data, type, row) {
                         if (type === "display" || type === "filter") {
                             return (
@@ -82,19 +88,19 @@ $(function () {
                     },
                 },
                 {
-                    targets: 6,
+                    targets: 7,
                     render: function (data, type, row) {
                         var vat;
                         if (data == 11) {
                             vat = "VAT";
-                        }else{
+                        } else {
                             vat = "Non VAT";
                         }
                         return vat;
                     },
-                }
+                },
             ],
-            order: [[1, "desc"]],
+            order: [],
             // orderCellsTop: true,
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         });

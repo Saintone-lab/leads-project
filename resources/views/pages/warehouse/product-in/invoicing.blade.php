@@ -35,6 +35,17 @@
                             </div>
                         </div>
                         <div class="col-6 col-lg-2">
+                            <div class="form-floating form-floating-outline mb-4">
+                                <select class="form-select invoice-item-info" id="info-dropdown" name="info"
+                                    aria-label="Default select example">
+                                    <option selected disabled>----- Choose supplier info Here -----</option>
+                                    <option value="Lokal" {{ @$productIn->info == 'Lokal' ? 'Selected' : '' }}>Lokal
+                                    </option>
+                                    <option value="Import" {{ @$productIn->info == 'Import' ? 'Selected' : '' }}>Import
+                                    </option>
+                                </select>
+                                <label for="info-dropdown">Supplier Info</label>
+                            </div>
                         </div>
                         <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline mb-4">
@@ -106,8 +117,9 @@
                                                     placeholder="Put Price Here" data-type="currency"
                                                     pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
                                                     @blur="focused = false" value="{{ old('price[]') }}">
-                                                <input class="form-control invoice-item-price" type="number" name="price[]"
-                                                    id="price-{{ $no }}" value="{{ old('price[]') }}" hidden>
+                                                <input class="form-control invoice-item-price" type="number"
+                                                    name="price[]" id="price-{{ $no }}"
+                                                    value="{{ old('price[]') }}" hidden>
                                             </div>
                                         </div>
                                         <div class="col-md-2 col-12 mb-md-0 mb-3">

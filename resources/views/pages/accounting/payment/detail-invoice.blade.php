@@ -19,7 +19,10 @@
                                         </div>
                                         <div class="col">
                                             <p class="text-muted mb-0"> No Invoice</p>
-                                            <h5>{{ $invoice->no_invoice }}</h5>
+                                            <a href="{{ route('invoice.show', $invoice->id) }}" class="text-black fs-5 fw-medium"
+                                                target="_blank">
+                                                {{ $invoice->no_invoice }}
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -51,7 +54,7 @@
                                         </div>
                                         <div class="col">
                                             <p class="text-muted mb-0">Due Date</p>
-                                            <h5>{{ $payment[0]->type == "tempo" ? $payment[0]->due_date : '-' }}</h5>
+                                            <h5>{{ $payment[0]->type == 'tempo' ? $payment[0]->due_date : '-' }}</h5>
                                         </div>
 
                                     </div>
@@ -113,11 +116,10 @@
                         <div class="col-6">
                             <p class="text-end fw-bolder">Rp {{ number_format($quote->subtotal, 0, ',', '.') }}</p>
                         </div>
+                        @php
+                            $vat = ($quote->subtotal / 100) * $quote->tax;
+                        @endphp
                         @if ($quote->tax > 0)
-                            @php
-                                $vat = ($quote->subtotal / 100) * $quote->tax;
-
-                            @endphp
                             <div class="col-6">
                                 <p>VAT 11%</p>
                             </div>
@@ -192,15 +194,17 @@
                                     {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                             </td>
                         </tr>
-                        <tr class="table-light">
-                            <td colspan="4" class="text-end">
-                                <p class="mb-0">VAT %11 :</p>
-                            </td>
-                            <td colspan="2">
-                                <p class="fw-semibold mb-0 text-end">
-                                    {{ $vat == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
-                            </td>
-                        </tr>
+                        @if ($quote->tax > 0)
+                            <tr class="table-light">
+                                <td colspan="4" class="text-end">
+                                    <p class="mb-0">VAT %11 :</p>
+                                </td>
+                                <td colspan="2">
+                                    <p class="fw-semibold mb-0 text-end">
+                                        {{ $vat == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
+                                </td>
+                            </tr>
+                        @endif
                         <tr class="table-light">
                             <td colspan="4" class="text-end">
                                 <p class="mb-0">Grand Total:</p>

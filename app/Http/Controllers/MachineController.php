@@ -56,6 +56,7 @@ class MachineController extends Controller
             'serial.required' => 'Field serial Wajib Diisi',
         ];
         $this->validate($request, $rule, $message);
+        // dd($request->all());
         $machine = new Machine;
         $machine->id_client = $request->id_client;
         $machine->id_unit = $request->unit;
@@ -64,7 +65,7 @@ class MachineController extends Controller
         $machine->tag = $request->tag;
         $machine->location = $request->location;
         $machineSave = $machine->save();
-        // dd($machine);
+        dd($machine);
         if ($machineSave) {
             return redirect('/existing/' . $request->id_client)->with('message', 'data telah ditambahkan');
         }
