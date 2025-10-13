@@ -160,9 +160,10 @@ class ProductInController extends Controller
             $total += $item->amount;
         }
         if ($detailSave) {
+            $taxed = $total * $product->tax;
             $product->subtotal = $total;
             $product->total_no_tax = $total + $product->shipping;
-            $product->total = $total + ($total * $product->tax) + $product->shipping;
+            $product->total = $total + $taxed + $product->shipping;
             $productSave = $product->save();
         }
         if ($productSave) {

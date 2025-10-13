@@ -31,6 +31,7 @@ $(function () {
                 { data: "from" },
                 { data: "to" },
                 { data: "sender" },
+                { data: "kurir" },
                 { data: "receiver" },
                 { data: "status" },
             ],

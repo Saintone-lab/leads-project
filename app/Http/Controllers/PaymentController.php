@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\ChangeStatus;
 use App\Models\DetailQuotation;
+use App\Models\Expanse;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Quotation;
+use App\Models\Resi;
 use Auth;
 use Carbon\Carbon;
 use DB;
@@ -35,7 +37,7 @@ class PaymentController extends Controller
             ->where('quotation.tax', '11')
             ->sum(DB::raw('IFNULL(pay.total_payment, 0)'));
         $sisa = $fullInvoice - $fullPayment;
-        
+
         $lastPaymentSub = DB::table('payment as p1')
             ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.due_date', 'p1.method', 'p1.created_at')
             ->join(DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment GROUP BY id_quotation) as p2'), 'p1.id', '=', DB::raw('p2.max_id'));
@@ -44,12 +46,73 @@ class PaymentController extends Controller
         // dd(DB::select('SELECT id_quotation, SUM(amount) as total_payment FROM payment GROUP BY id_quotation'));
         return view('pages.accounting.payment.index-invoice', compact('fullInvoice', 'fullPayment', 'sisa'));
     }
+    public function index_invoice_ahmad()
+    {
+        $fullInvoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->where('status', '100')
+            ->where('invoice.flag', 'Reftech')
+            ->where('quotation.tax', '11')
+            ->sum('harga_total');
+        $fullPayment = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->leftJoin(
+                DB::raw('(SELECT id_quotation, SUM(amount) as total_payment 
+                  FROM payment 
+                  GROUP BY id_quotation) as pay'),
+                'quotation.id',
+                '=',
+                'pay.id_quotation'
+            )
+            ->where('status', '100')
+            ->where('invoice.flag', 'Reftech')
+            ->where('quotation.tax', '11')
+            ->sum(DB::raw('IFNULL(pay.total_payment, 0)'));
+        $sisa = $fullInvoice - $fullPayment;
+
+        $lastPaymentSub = DB::table('payment as p1')
+            ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment GROUP BY id_quotation) as p2'), 'p1.id', '=', DB::raw('p2.max_id'));
+        // dd($lastPaymentSub);
+        // dd(DB::select('SELECT p1.* FROM payment p1 INNER JOIN (SELECT id_quotation, MAX(id) as max_id FROM payment GROUP BY id_quotation) p2 ON p1.id = p2.max_id'));
+        // dd(DB::select('SELECT id_quotation, SUM(amount) as total_payment FROM payment GROUP BY id_quotation'));
+        return view('pages.accounting.payment.ahmad.index-invoice', compact('fullInvoice', 'fullPayment', 'sisa'));
+    }
+    public function index_invoice_rayi()
+    {
+        $fullInvoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->where('status', '100')
+            ->where('invoice.flag', 'Reftech')
+            ->where('quotation.tax', '11')
+            ->sum('harga_total');
+        $fullPayment = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->leftJoin(
+                DB::raw('(SELECT id_quotation, SUM(amount) as total_payment 
+                  FROM payment 
+                  GROUP BY id_quotation) as pay'),
+                'quotation.id',
+                '=',
+                'pay.id_quotation'
+            )
+            ->where('status', '100')
+            ->where('invoice.flag', 'Reftech')
+            ->where('quotation.tax', '11')
+            ->sum(DB::raw('IFNULL(pay.total_payment, 0)'));
+        $sisa = $fullInvoice - $fullPayment;
+
+        $lastPaymentSub = DB::table('payment as p1')
+            ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment GROUP BY id_quotation) as p2'), 'p1.id', '=', DB::raw('p2.max_id'));
+        // dd($lastPaymentSub);
+        // dd(DB::select('SELECT p1.* FROM payment p1 INNER JOIN (SELECT id_quotation, MAX(id) as max_id FROM payment GROUP BY id_quotation) p2 ON p1.id = p2.max_id'));
+        // dd(DB::select('SELECT id_quotation, SUM(amount) as total_payment FROM payment GROUP BY id_quotation'));
+        return view('pages.accounting.payment.rayi.index-invoice', compact('fullInvoice', 'fullPayment', 'sisa'));
+    }
     public function detail_invoice($id)
     {
         $invoice = Invoice::find($id);
         $quote = Quotation::find($invoice->id_quotation);
         $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payment = Payment::where('id_quotation', $quote->id)->get();
+        dd($payment);
         return view('pages.accounting.payment.detail-invoice', compact('invoice', 'quote', 'dQuote', 'payment'));
     }
     public function index_payment()
@@ -75,39 +138,40 @@ class PaymentController extends Controller
     public function index_aging()
     {
         $invoice = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
-        ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
-        ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client','=','c.id')
-        ->where('payment.type', 'Tempo')
-        ->groupBy('payment.id')->sum('q.harga_total');
+            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
+            ->where('payment.type', 'Tempo')
+            ->groupBy('payment.id')->sum('q.harga_total');
         $confirm = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
-        ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
-        ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client','=','c.id')
-        ->where('payment.type', 'Tempo')
-        ->where('payment.level', 1)
-        ->groupBy('payment.id')->sum('payment.amount');
+            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
+            ->where('payment.type', 'Tempo')
+            ->where('payment.level', 1)
+            ->groupBy('payment.id')->sum('payment.amount');
         $unconfirm = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
-        ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
-        ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client','=','c.id')
-        ->where('payment.type', 'Tempo')
-        ->where('payment.level', 0)
-        ->groupBy('payment.id')->sum('payment.amount');
+            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
+            ->where('payment.type', 'Tempo')
+            ->where('payment.level', 0)
+            ->groupBy('payment.id')->sum('payment.amount');
         $overdue = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
-        ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
-        ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client','=','c.id')
-        ->where('payment.type', 'Tempo')
-        ->where('payment.level', 0)
-        ->whereDate('payment.due_date', Carbon::today())
-        ->groupBy('payment.id')->sum('q.harga_total');
-        return view('pages.accounting.payment.index-aging', compact('invoice', 'confirm', 'unconfirm','overdue'));
+            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
+            ->where('payment.type', 'Tempo')
+            ->where('payment.level', 0)
+            ->whereDate('payment.due_date', Carbon::today())
+            ->groupBy('payment.id')->sum('q.harga_total');
+        return view('pages.accounting.payment.index-aging', compact('invoice', 'confirm', 'unconfirm', 'overdue'));
     }
-    public function detail_aging($id){
-        $payment =Payment::find($id);
+    public function detail_aging($id)
+    {
+        $payment = Payment::find($id);
         $quote = Quotation::find($payment->id_quotation);
-        $invoice = Invoice::where('id_quotation', $quote->id)->first(); 
+        $invoice = Invoice::where('id_quotation', $quote->id)->first();
         $today = Carbon::today();
         $diffDue = $today->diffInDays($payment->due_date, false);
         // dd($diffDue);
-        return view('pages.accounting.payment.detail-aging', compact('diffDue','invoice', 'payment', 'quote'));
+        return view('pages.accounting.payment.detail-aging', compact('diffDue', 'invoice', 'payment', 'quote'));
 
     }
     public function confirm_payment($id)
@@ -121,6 +185,25 @@ class PaymentController extends Controller
         $activity->id_payment = $payment->id;
         $activity->note = "Payment Verif By ";
         $activity->status = 2;
+        $activity->date = Carbon::now();
+        $activity->save();
+        if ($paymentSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    public function unconfirm_payment($id)
+    {
+        $payment = Payment::find($id);
+        $payment->level = 0;
+        $paymentSave = $payment->save();
+
+        $activity = new ChangeStatus();
+        $activity->id_user = Auth::user()->id;
+        $activity->id_payment = $payment->id;
+        $activity->note = "Unconfirmed By ";
+        $activity->status = 3;
         $activity->date = Carbon::now();
         $activity->save();
         if ($paymentSave) {

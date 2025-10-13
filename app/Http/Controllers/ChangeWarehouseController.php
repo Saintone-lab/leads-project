@@ -127,8 +127,8 @@ class ChangeWarehouseController extends Controller
     public function accept(Request $request, $id)
     {
         $change = ChangeWarehouse::find($id);
-        $change->id_reciever = 2;
-        $change->date_recieve = Auth::user()->id;
+        $change->id_reciever = Auth::user()->id;
+        $change->date_recieve = Carbon::today();
         $change->note_recieve = $request->note;
         $change->status = 2;
         $changeSave = $change->save();

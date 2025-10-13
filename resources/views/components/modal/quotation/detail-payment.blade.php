@@ -30,7 +30,7 @@
                                                 Image</a>
                                         @else
                                             <input class="form-control" type="file" id="upload-photo" name="file"
-                                                accept=".jpg,.jpeg,.png" data-id="{{$payment->id}}">
+                                                accept=".jpg,.jpeg,.png" data-id="{{ $payment->id }}">
                                         @endif
                                     </td>
                                     <td>
@@ -53,12 +53,19 @@
                                                 class="btn btn-sm btn-label-danger delete-payments waves-effect">
                                                 <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
                                             </a>
+                                            @if ($payment->file != null)
+                                                <button type="button" class="btn btn-sm btn-label-primary copy-link"
+                                                    data-link="{{ route('payment_detail.payment', $payment->id) }}">
+                                                    Copy Link
+                                                </button>
+                                            @endif
                                         </td>
                                     @elseif(Auth::user()->role == 'Admin')
                                         <td>
                                             @if ($payment->level == 0)
                                                 <a href="#" data-id="{{ $payment->id }}"
-                                                    data-invoice="{{ @$invoice->id }}" data-quote="{{ $quote->id }}"
+                                                    data-invoice="{{ @$invoice->id }}"
+                                                    data-quote="{{ $quote->id }}"
                                                     class="btn btn-sm btn-label-success confirm-payments waves-effect">
                                                     <i
                                                         class="menu-icon tf-icons mdi mdi-14px mdi-check-outline m-0"></i>
@@ -124,6 +131,39 @@
                 error: function(xhr) {
                     alert("Terjadi kesalahan: " + xhr.responseText);
                 }
+            });
+        });
+    </script>
+@endpush
+@push('script')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.copy-link').forEach(button => {
+                button.addEventListener('click', function() {
+                    const link = this.getAttribute('data-link');
+
+                    navigator.clipboard.writeText(link)
+                        .then(() => {
+                            // Bootstrap alert kecil dan auto hilang
+                            const alert = document.createElement('div');
+                            alert.className =
+                                'alert alert-success alert-dismissible fade show position-fixed top-0 end-0 m-3';
+                            alert.role = 'alert';
+                            alert.innerHTML = `
+                        Link berhasil disalin ke clipboard!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                            document.body.appendChild(alert);
+
+                            setTimeout(() => {
+                                alert.classList.remove('show');
+                                alert.remove();
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            alert('Gagal menyalin link: ' + err);
+                        });
+                });
             });
         });
     </script>

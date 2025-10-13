@@ -459,6 +459,33 @@
                     </li>
                 </ul>
             </li>
+            <li
+                class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-index/invoice-ahmad') || request()->is('payment-index/invoice-rayi') || request()->is('payment-detail/invoice/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
+                    <div data-i18n="Sales Invoice">Sales Invoice</div>
+                </a>
+                <ul class="menu-sub">
+                    <li
+                        class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-detail/invoice/*') ? 'active' : '' }}">
+                        <a href="{{ route('payment_index.invoice') }}" class="menu-link">
+                            <div data-i18n="General">General</div>
+                        </a>
+                    </li>
+                    <li
+                        class="menu-item {{ request()->is('payment-index/invoice-ahmad') || request()->is('payment-detail/invoice/*') ? 'active' : '' }}">
+                        <a href="{{ route('payment_index.invoice_ahmad') }}" class="menu-link">
+                            <div data-i18n="Ahmad">Ahmad</div>
+                        </a>
+                    </li>
+                    <li
+                        class="menu-item {{ request()->is('payment-index/invoice-rayi') || request()->is('payment-detail/invoice/*') ? 'active' : '' }}">
+                        <a href="{{ route('payment_index.invoice_rayi') }}" class="menu-link">
+                            <div data-i18n="Rayi">Rayi</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">E-Stock</span>
@@ -962,13 +989,6 @@
                     </a>
                 </li>
             @endif
-            <li
-                class="menu-item {{ request()->is('change-warehouse') || request()->is('change-warehouse/*') ? 'active' : '' }}">
-                <a href="{{ route('change-warehouse.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-warehouse"></i>
-                    <div data-i18n="Change Warehouse">Change Warehouse</div>
-                </a>
-            </li>
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Marketing Tools</span>

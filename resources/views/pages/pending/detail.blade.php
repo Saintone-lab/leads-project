@@ -15,12 +15,14 @@
                         data-bs-target="#deliveryEdit">Kurir</a></li>
                 <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
                         data-bs-target="#statusEdit">Pending PO</a></li>
+                <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
+                        data-bs-target="#resiEdit">Upload Resi</a></li>
             </ul>
             <a href="{{ route('pending-po.index') }}" type="button" class="btn btn-secondary"> Back </a>
         </div>
     </div>
     <div class="row mb-3">
-        <div class="col-6">
+        <div class="col-4">
             <div class="card h-100">
                 <div class="card-body">
                     <div class="row">
@@ -72,7 +74,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-6">
+        <div class="col-4">
             <div class="card h-100">
                 <div class="card-body">
                     <div class="row">
@@ -88,6 +90,87 @@
                         <div class="col-8">: {{ \Carbon\Carbon::parse($quotation->po_date)->format('d-m-Y') }}</div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="row">
+                <div class="col-4 mb-2">
+                    <div class="card bg-label-secondary">
+                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                            <h5 class="m-0">Date</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-8">
+                    <div class="card">
+                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                            <h6 class="m-0">{{ $resi->date ?? '-' }}</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 mb-2">
+                    <div class="card bg-label-secondary">
+                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                            <h5 class="m-0">Cargo</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-8">
+                    <div class="card">
+                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                            <h6 class="m-0">{{ $resi->kurir ?? '-' }}</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 mb-2">
+                    <div class="card bg-label-secondary">
+                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                            <h5 class="m-0">No Resi</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-8">
+                    <div class="card">
+                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                            <h6 class="m-0">{{ $resi->no_track ?? '-' }}</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 mb-2">
+                    <div class="card bg-label-secondary">
+                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                            <h5 class="m-0">Cost</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-8">
+                    <div class="card">
+                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                            <h6 class="m-0">Rp {{ number_format($resi->cost ?? 0, 0, '.', ',') }}</h6>
+                        </div>
+                    </div>
+                </div>
+                @if (@$resi->image != null)
+                    <div class="col-8">
+                        <a href="{{ url($resi->image) }}" class="btn btn-sm btn-primary d-grid w-100 waves-effect"
+                            target="_blank" {{ $resi->image == null ? 'Disabled' : '' }}>
+                            Image
+                        </a>
+                    </div>
+                    <div class="col-4">
+                        <a href="#" data-id="{{ $resi->id }}" data-pending="{{ $pending->id }}"
+                            class="btn btn-label-danger delete-resi waves-effect w-100"
+                            {{ $resi->image == null ? 'Disabled' : '' }}>
+                            <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                        </a>
+                    </div>
+                @else
+                    <div class="col-12">
+                        <button class="btn btn-primary waves-effect w-100" disabled>
+                            Belum Ada Resi
+                        </button>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -187,8 +270,8 @@
         </div>
     @else
         <div class="mb-3" style="display: flex; justify-content: flex-end;">
-            <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal" data-bs-target="#productEdit"
-                {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+            <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal"
+                data-bs-target="#productEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
                 Update Status Barang
             </button>
         </div>
@@ -361,6 +444,7 @@
     @include('components.modal.pending.kurir')
     @include('components.modal.pending.product')
     @include('components.modal.pending.project')
+    @include('components.modal.pending.resi')
 @endsection()
 
 @push('after-style')
@@ -446,6 +530,63 @@
                                     icon: 'error',
                                     title: 'Oops...',
                                     text: 'Data Failed to Cleared!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.delete-resi', function() {
+            var id = $(this).data('id');
+            var pending = $(this).data('pending');
+            Swal.fire({
+                title: "Are you sure to Delete it??",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Deleted it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('pending-po') }}/delete-resi/' + id,
+                        'type': 'DELETE',
+                        'data': {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "This Notulen has been Deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/pending-po/' + pending;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Deleted!'
                                 });
                             }
                         }

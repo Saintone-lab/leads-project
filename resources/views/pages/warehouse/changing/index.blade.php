@@ -1,10 +1,15 @@
 @extends('layouts.sales.app')
 @section('title', 'Index Changing')
 @section('content')
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table
-                class="datatable-change-warehouse-recieve table table-bordered">
+            <table class="datatable-change-warehouse-recieve table table-bordered">
                 <thead>
                     <tr>
                         <th></th>
@@ -14,6 +19,7 @@
                         <th>Title</th>
                         <th>To</th>
                         <th>Sender</th>
+                        <th>kurir</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -22,8 +28,7 @@
     </div>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table
-                class="datatable-change-warehouse-done table table-bordered">
+            <table class="datatable-change-warehouse-done table table-bordered">
                 <thead>
                     <tr>
                         <th></th>
@@ -34,6 +39,7 @@
                         <th>From</th>
                         <th>To</th>
                         <th>Sender</th>
+                        <th>kurir</th>
                         <th>Reciever</th>
                         <th>Status</th>
                     </tr>
@@ -49,7 +55,8 @@
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />

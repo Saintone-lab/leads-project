@@ -32,4 +32,8 @@ class Invoice extends Model
     {
         return $this->hasMany('App\Model\Expense', 'id_invoice');
     }
+    public function resi()
+    {
+        return $this->belongsTo('App\Models\Resi', 'id_invoice', 'id');
+    }
 }

@@ -17,8 +17,8 @@
                         <div class="col-6 mb-3">
                             <div class="card">
                                 <div class="card-body">
-                                    : <a href="{{ route('invoice.show', $invoice->id) }}"
-                                        class="text-black" target="_blank">
+                                    : <a href="{{ route('invoice.show', $invoice->id) }}" class="text-black"
+                                        target="_blank">
                                         {{ $invoice->no_invoice }}
                                     </a>
                                 </div>
@@ -69,6 +69,29 @@
                     </div>
                 </div>
                 <div class="col-6 mb-3">
+                    @if ($quote->pic->client->info == 'Reftech')
+                        <div class="mb-xl-0 pb-1">
+                            <div class="svg-illustration align-items-center gap-2 mb-4">
+                                <span class="app-brand-logo demo">
+                                    <span style="color: var(--bs-primary)">
+                                        <img src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt="Logo" width="60%"
+                                            class="d-block ms-auto">
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    @else
+                        <div class="mb-xl-0 pb-1">
+                            <div class="svg-illustration align-items-center gap-2 mb-4">
+                                <span class="app-brand-logo demo">
+                                    <span style="color: var(--bs-primary)">
+                                        <img src="{{ asset('/asset') }}/logo/Kojisha-Log.png" alt="Logo" width="60%"
+                                            class="d-block ms-auto">
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    @endif
                     <div class="info text-end pt-5 px-3">
                         <h6>Payment Receipt No.</h6>
                         <h3>#RCPT-{{ $payment->id }}</h3>
@@ -128,7 +151,8 @@
                                     <a href="#" class="btn btn-secondary d-grid waves-effect confirm-payment"
                                         data-id="{{ $payment->id }}">Confirm</a>
                                 @else
-                                    Confirmed.
+                                    <a href="#" class="btn btn-label-danger d-grid waves-effect unconfirm-payment"
+                                        data-id="{{ $payment->id }}">UnConfirm</a>
                                 @endif
                             </td>
                         </tr>
@@ -161,6 +185,9 @@
                                         } elseif ($stats->status == '2') {
                                             $status = 'Payment Verified';
                                             $color = 'success';
+                                        } elseif ($stats->status == '3') {
+                                            $status = 'Payment UnVerified';
+                                            $color = 'danger';
                                         } else {
                                             $status = 'Payment Created';
                                             $color = 'info';
@@ -278,6 +305,63 @@
                                     icon: "success",
                                     title: "Confirmed!",
                                     text: "Your file has been Confirmed.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/payment-detail/payment/' +
+                                        id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Convert!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your Convert is cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.unconfirm-payment', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure to UnConfirm this?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, UnConfirm it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('unconfirm-payment') }}/payment/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "UnConfirmed!",
+                                    text: "Your file has been UnConfirmed.",
                                     customClass: {
                                         confirmButton: "btn btn-success waves-effect",
                                     },

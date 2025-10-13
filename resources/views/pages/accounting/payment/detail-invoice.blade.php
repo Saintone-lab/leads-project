@@ -54,7 +54,7 @@
                                         </div>
                                         <div class="col">
                                             <p class="text-muted mb-0">Due Date</p>
-                                            <h5>{{ $payment[0]->type == 'tempo' ? $payment[0]->due_date : '-' }}</h5>
+                                            <h5>{{ $payment[0]->type == 'Tempo' ? $payment[0]->due_date : '-' }}</h5>
                                         </div>
 
                                     </div>

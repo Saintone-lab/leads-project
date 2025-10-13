@@ -9,6 +9,7 @@ use App\Models\DetailProduct;
 use App\Models\DetailProductOut;
 use App\Models\DetailQuotation;
 use App\Models\DetailServiceQuotation;
+use App\Models\Expanse;
 use App\Models\Invoice;
 use App\Models\PendingPO;
 use App\Models\Product;
@@ -48,34 +49,38 @@ class PendingController extends Controller
         $pendingPO = PendingPO::with('detail')->get();
         return view('pages.pending.index', compact('pendingPO'));
     }
-    public function indexOrder(){
-            $newCount = PendingPO::where('status', operator: 0)
-                ->where('type', 'Non Project')
-                ->count();
-            $listCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])
-                ->where('type', 'Non Project')
-                ->count();
-            $deliveryCount = PendingPO::where('pending_po.status', 5)
-                ->where('type', 'Non Project')
-                ->count();
-        return view('pages.pending.order', compact('newCount','deliveryCount','listCount'));
+    public function indexOrder()
+    {
+        $newCount = PendingPO::where('status', operator: 0)
+            ->where('type', 'Non Project')
+            ->count();
+        $listCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])
+            ->where('type', 'Non Project')
+            ->count();
+        $deliveryCount = PendingPO::where('pending_po.status', 5)
+            ->where('type', 'Non Project')
+            ->count();
+        return view('pages.pending.order', compact('newCount', 'deliveryCount', 'listCount'));
     }
-    public function indexList(){
-            $newCount = PendingPO::where('status', operator: 0)
-                ->where('type', 'Non Project')
-                ->count();
-            $listCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])
-                ->where('type', 'Non Project')
-                ->count();
-            $deliveryCount = PendingPO::where('pending_po.status', 5)
-                ->where('type', 'Non Project')
-                ->count();
-        return view('pages.pending.list', compact('newCount','deliveryCount','listCount'));
+    public function indexList()
+    {
+        $newCount = PendingPO::where('status', operator: 0)
+            ->where('type', 'Non Project')
+            ->count();
+        $listCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])
+            ->where('type', 'Non Project')
+            ->count();
+        $deliveryCount = PendingPO::where('pending_po.status', 5)
+            ->where('type', 'Non Project')
+            ->count();
+        return view('pages.pending.list', compact('newCount', 'deliveryCount', 'listCount'));
     }
-    public function indexDelivery(){
+    public function indexDelivery()
+    {
         return view('pages.pending.delivery');
     }
-    public function indexCompleted(){
+    public function indexCompleted()
+    {
         return view('pages.pending.completed');
     }
 
@@ -115,9 +120,10 @@ class PendingController extends Controller
         $invoice = Invoice::where('id_quotation', $quotation->id)->first();
         $activity = ChangeStatus::where('id_pending', $id)->with('comment')->get();
         $serial = SerialProduct::all();
-        // dd($subQuote);
+        $resi = Expanse::where('id_pending', $id)->where('type', 'Resi')->first();
+        // dd($resi);
         // dd($status->count());
-        return view('pages.pending.detail', compact('serial', 'activity', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation'));
+        return view('pages.pending.detail', compact('serial', 'activity', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation', 'resi'));
     }
 
     /**
@@ -491,5 +497,59 @@ class PendingController extends Controller
             ->get();
         // dd($data);
         return view('pages.pending.project');
+    }
+
+    public function upload_resi(Request $request, $id)
+    {
+        // dd($request->all());
+        $invoice = Invoice::find($id);
+        $resi = new Expanse();
+        if ($request->hasFile('file')) {
+            $foto = $request->file('file');
+
+            // Validasi
+            $request->validate([
+                'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            ]);
+
+            // Ekstensi
+            $file_ext = $foto->getClientOriginalExtension();
+
+            // Nama file aman
+            // $sanitized_file_name = preg_replace('/[^A-Za-z0-9\-]/', '_', $quote->no_quote);
+
+            // Susun nama file
+            $file_name = $request->no_track . '.' . $file_ext;
+
+            // Path
+            $upload_path = base_path('../public_html/asset/resi');
+            $foto->move($upload_path, $file_name);
+
+            // simpan di DB
+            $resi->image = 'asset/resi/' . $file_name;
+            $resi->id_pending = $id;
+            $resi->kurir = $request->kurir;
+            $resi->no_track = $request->no_track;
+            $resi->charged = $request->charged;
+            $resi->cost = $request->cost;
+            $resi->type = "Resi";
+            $resi->date = $request->date;
+            $resiSave = $resi->save();
+            if ($resiSave) {
+                return redirect('/pending-po/' . $id)->with('message', 'data telah di tambahkan');
+            }
+        } else {
+            return response()->json(['error' => 'No file uploaded.'], 400);
+        }
+    }
+    public function delete_resi($id)
+    {
+        $resi = Expanse::find($id);
+        $delResi = $resi->delete();
+        if ($delResi) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }
