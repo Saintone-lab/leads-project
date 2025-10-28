@@ -19,8 +19,8 @@
                                         </div>
                                         <div class="col">
                                             <p class="text-muted mb-0"> No Invoice</p>
-                                            <a href="{{ route('invoice.show', $invoice->id) }}" class="text-black fs-5 fw-medium"
-                                                target="_blank">
+                                            <a href="{{ route('invoice.show', $invoice->id) }}"
+                                                class="text-black fs-5 fw-medium" target="_blank">
                                                 {{ $invoice->no_invoice }}
                                             </a>
                                         </div>
@@ -54,7 +54,7 @@
                                         </div>
                                         <div class="col">
                                             <p class="text-muted mb-0">Due Date</p>
-                                            <h5>{{ $payment[0]->type == 'Tempo' ? $payment[0]->due_date : '-' }}</h5>
+                                            <h5>{{ @$payment[0]->type == 'Tempo' ? @$payment[0]->due_date : '-' }}</h5>
                                         </div>
 
                                     </div>

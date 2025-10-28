@@ -1,14 +1,16 @@
 $(function () {
-    var dt_table_sales_invoice_ar = $(".datatable-sales-invoice-ar");
-    var Url = "/db/sales/invoice/ar";
+    var dt_table_sales_invoice_kojisha = $(".datatable-sales-invoice-kojisha");
+    var Url = "/db/sales/invoice/kojisha";
 
-    if (dt_table_sales_invoice_ar.length) {
+    if (dt_table_sales_invoice_kojisha.length) {
         $('[data-toggle="tooltip"]').tooltip();
         // Setup - add a text input to each footer cell
-        $(".datatable-sales-invoice-ar thead tr")
+        $(".datatable-sales-invoice-kojisha thead tr")
             .clone(true)
-            .appendTo(".datatable-sales-invoice-ar thead");
-        $(".datatable-sales-invoice-ar thead tr:eq(1) th").each(function (i) {
+            .appendTo(".datatable-sales-invoice-kojisha thead");
+        $(".datatable-sales-invoice-kojisha thead tr:eq(1) th").each(function (
+            i
+        ) {
             var title = $(this).text();
             $(this).html(
                 '<input type="text" class="form-control" placeholder="Search ' +
@@ -23,7 +25,7 @@ $(function () {
             });
         });
 
-        var dt_filter = dt_table_sales_invoice_ar.DataTable({
+        var dt_filter = dt_table_sales_invoice_kojisha.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -53,6 +55,7 @@ $(function () {
                 { data: "total_payment_level1" },
                 { data: "outstanding" },
                 { data: "last_payment_type" },
+                { data: "name" },
             ],
             columnDefs: [
                 // {
@@ -106,6 +109,17 @@ $(function () {
                     },
                 },
                 {
+                    targets: 8,
+                    render: function (data, type, row) {
+                        if (type === "display" || type === "filter") {
+                            return (
+                                '<div class="text-center">'+ data +'</div>'
+                            );
+                        }
+                        return data;
+                    },
+                },
+                {
                     targets: 7,
                     render: function (data, type, full, row) {
                         var type = full["last_payment_type"];
@@ -140,7 +154,7 @@ $(function () {
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         });
     }
-    dt_table_sales_invoice_ar.on("draw", function () {
+    dt_table_sales_invoice_kojisha.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

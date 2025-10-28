@@ -1424,13 +1424,14 @@ class QuotationController extends Controller
         }
     }
 
-    public function confirm_payment($id)
+    public function confirm_payment(Request $request, $id)
     {
         $payment = Payment::find($id);
+        $payment->date_confirm = $request->date;
         $payment->level = 1;
         $paymentSave = $payment->save();
         if ($paymentSave) {
-            return 1;
+            return redirect('/payment-detail/payment/'. $id)->with('success','Data telah ditambahkan');
         } else {
             return 0;
         }
@@ -2668,9 +2669,13 @@ class QuotationController extends Controller
         // dd($comment);
         $remaining = $quote->harga_total - $totalAmount;
         // dd($formattedNumberSP);
+        $countPending = PendingPO::whereYear('created_at', $thisYear)->count();
+        $nextNumber = $countPending + 1;
+        
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
-        return view("pages.sales.quotation.overhaul.detail", compact('totalDisc', 'quote', 'status', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'lastQuote', 'primQuote', 'quotations', 'subQuote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
+        $noPending = 'SO-' . $thisYear . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        return view("pages.sales.quotation.overhaul.detail", compact('noPending','totalDisc', 'quote', 'status', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'lastQuote', 'primQuote', 'quotations', 'subQuote', 'admin', 'noQuote', 'thisYear', 'tax', 'formattedNumberSP', 'formattedNumberSNP', 'formattedNumberCP', 'formattedNumberCNP', 'invoice', 'payments', 'remaining', 'afterDisc'));
     }
     public function printOverhaul($id)
     {

@@ -148,8 +148,11 @@
                             </td>
                             <td class="align-top">
                                 @if ($payment->level == 0)
-                                    <a href="#" class="btn btn-secondary d-grid waves-effect confirm-payment"
-                                        data-id="{{ $payment->id }}">Confirm</a>
+                                    <a type="button" data-bs-toggle="modal" data-bs-target="#confirmPayment">
+                                        <button type="button" class="btn btn-secondary d-grid waves-effect">
+                                            Confirm
+                                        </button>   
+                                    </a>
                                 @else
                                     <a href="#" class="btn btn-label-danger d-grid waves-effect unconfirm-payment"
                                         data-id="{{ $payment->id }}">UnConfirm</a>
@@ -246,6 +249,7 @@
         </div>
     </div>
 @endsection()
+@include('components.modal.payment.confirm')
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />

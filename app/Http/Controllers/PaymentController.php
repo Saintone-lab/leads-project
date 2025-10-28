@@ -8,6 +8,7 @@ use App\Models\Expanse;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Quotation;
+use App\Models\Reminder;
 use App\Models\Resi;
 use Auth;
 use Carbon\Carbon;
@@ -112,7 +113,7 @@ class PaymentController extends Controller
         $quote = Quotation::find($invoice->id_quotation);
         $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payment = Payment::where('id_quotation', $quote->id)->get();
-        dd($payment);
+        // dd($payment);
         return view('pages.accounting.payment.detail-invoice', compact('invoice', 'quote', 'dQuote', 'payment'));
     }
     public function index_payment()
@@ -138,30 +139,54 @@ class PaymentController extends Controller
     public function index_aging()
     {
         $invoice = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
-            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
             ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
             ->where('payment.type', 'Tempo')
-            ->groupBy('payment.id')->sum('q.harga_total');
+            ->where('payment.level', 0)
+            ->whereNotNULL('payment.due_date')
+            ->groupBy('payment.id')
+            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales') // ambil kolom penting
+            ->get();
         $confirm = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
             ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
             ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
             ->where('payment.type', 'Tempo')
             ->where('payment.level', 1)
             ->groupBy('payment.id')->sum('payment.amount');
         $unconfirm = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
             ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
             ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
             ->where('payment.type', 'Tempo')
             ->where('payment.level', 0)
-            ->groupBy('payment.id')->sum('payment.amount');
+            ->groupBy('payment.id')
+            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales') // ambil kolom penting
+            ->get();
         $overdue = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
-            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
-            ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
             ->where('payment.type', 'Tempo')
             ->where('payment.level', 0)
-            ->whereDate('payment.due_date', Carbon::today())
-            ->groupBy('payment.id')->sum('q.harga_total');
-        return view('pages.accounting.payment.index-aging', compact('invoice', 'confirm', 'unconfirm', 'overdue'));
+            ->whereNotNULL('payment.due_date')
+            ->whereDate('payment.due_date', '<=', Carbon::today())
+            ->groupBy('payment.id')
+            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales') // ambil kolom penting
+            ->get();
+        $ondue = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->where('payment.type', 'Tempo')
+            ->where('payment.level', 0)
+            ->whereNotNULL('payment.due_date')
+            ->whereDate('payment.due_date', '>', Carbon::today())
+            ->groupBy('payment.id')
+            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales') // ambil kolom penting
+            ->get();
+        $nodueCount = Payment::where('type', 'Tempo')->whereNull('due_date')->count();
+        return view('pages.accounting.payment.index-aging', compact('invoice', 'confirm','nodueCount', 'unconfirm', 'overdue', 'ondue'));
     }
     public function detail_aging($id)
     {
@@ -170,8 +195,9 @@ class PaymentController extends Controller
         $invoice = Invoice::where('id_quotation', $quote->id)->first();
         $today = Carbon::today();
         $diffDue = $today->diffInDays($payment->due_date, false);
+        $reminder = Reminder::where('id_payment', $id)->get();
         // dd($diffDue);
-        return view('pages.accounting.payment.detail-aging', compact('diffDue', 'invoice', 'payment', 'quote'));
+        return view('pages.accounting.payment.detail-aging', compact('reminder', 'diffDue', 'invoice', 'payment', 'quote'));
 
     }
     public function confirm_payment($id)
@@ -235,5 +261,20 @@ class PaymentController extends Controller
 
         // redirect ke file aslinya
         return redirect(url($payment->file));
+    }
+    public function reminder_payment(Request $request, $id)
+    {
+        $reminder = new Reminder;
+        $remCount = Reminder::where('id_payment', $id)->get()->count();
+        $reminder->id_user = Auth::user()->id;
+        $reminder->id_payment = $id;
+        $reminder->reminder = $request->reminder;
+        $reminder->date_fu = $request->date_fu;
+        $reminder->date = Carbon::now();
+        $reminder->status = $remCount + 1;
+        $reminderSave = $reminder->save();
+        if ($reminderSave) {
+            return redirect('/payment-detail/aging/' . $id)->with("success", "data telah di buat");
+        }
     }
 }

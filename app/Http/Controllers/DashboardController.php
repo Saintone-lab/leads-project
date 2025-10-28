@@ -7,14 +7,17 @@ use App\Models\Client;
 use App\Models\Comment;
 use App\Models\Contract;
 use App\Models\DetailProduct;
+use App\Models\Invoice;
 use App\Models\Issues;
 use App\Models\Machine;
 use App\Models\MonitoringActivities;
 use App\Models\Notulen;
+use App\Models\Payment;
 use App\Models\PendingPO;
 use App\Models\Product;
 use App\Models\Prospect;
 use App\Models\Quotation;
+use App\Models\Reminder;
 use App\Models\Reports;
 use App\Models\ReqVisit;
 use App\Models\SalesOnline;
@@ -139,10 +142,10 @@ class DashboardController extends Controller
 
             $jumlahCustomer = Client::where('role', 'Customers')->where('id_sales', Auth::user()->id)->count();
             $reportsCount = Reports::join('machine as m', 'm.id', '=', 'reports.id_machine')
-            ->join('client as c', 'c.id', '=', 'm.id_client')
-            ->join('users as u', 'u.id', '=', 'c.id_sales')
-            ->where('u.id', Auth::user()->id)
-            ->where('reports.viewed', 0)->count();
+                ->join('client as c', 'c.id', '=', 'm.id_client')
+                ->join('users as u', 'u.id', '=', 'c.id_sales')
+                ->where('u.id', Auth::user()->id)
+                ->where('reports.viewed', 0)->count();
             // dd($ratingCount);
 
             return view(
@@ -336,6 +339,294 @@ class DashboardController extends Controller
                     'unreadCommentAdmin',
                     'targett',
                     'targetAllSales',
+                )
+            );
+        } elseif (Auth::user()->role == 'Accounting') {
+            $firstComments = Comment::where('id_user', Auth::id())
+                ->groupBy('id_status')
+                ->get();
+            $statusIds = $firstComments->pluck('id_status')->toArray();
+            $dates = $firstComments->pluck('created_at', 'id_status');
+            $commentsQuery = Comment::join('change_status as c', 'c.id', '=', 'comment.id_status')
+                ->join('quotation as q', 'q.id', '=', 'c.id_quotation')
+                ->join('users as u', 'u.id', '=', 'comment.id_user')
+                ->whereIn('comment.id_status', $statusIds)
+                ->where(function ($query) use ($dates) {
+                    foreach ($dates as $statusId => $createdAt) {
+                        $query->orWhere(function ($subQuery) use ($statusId, $createdAt) {
+                            $subQuery->where('comment.id_status', $statusId)
+                                ->whereRaw('TIMESTAMPDIFF(SECOND, ?, comment.created_at) > 0', [$createdAt]);
+                        });
+                    }
+                })
+                ->where('comment.id_user', '!=', Auth::id());
+            $commentAdmin = $commentsQuery->orderBy('comment.id_status')
+                ->orderByDesc('comment.created_at')
+                ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+            // Filter untuk komentar dengan level '1'
+            $unreadCommentAdmin = $commentsQuery->where('comment.level', '1')
+                ->orderBy('comment.id_status')
+                ->orderByDesc('comment.created_at')
+                ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+
+            $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+                ->join('pic as p', 'p.id', '=', 'q.id_pic')
+                ->join('client as c', 'c.id', '=', 'p.id_client')
+                ->join('users as u', 'u.id', '=', 'q.id_sales')
+                ->where('contract.level', '0')
+                ->count();
+            $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+                ->join('client', 'client.id', '=', 'pic.id_client')
+                ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+                ->join('users', 'users.id', '=', 'quotation.id_sales')
+                ->where('status', '100')
+                ->whereNotNull('quotation.po_file')
+                ->whereNull('invoice.no_invoice')
+                ->count();
+            $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
+            $newCount = PendingPO::where('status', operator: 0)
+                ->where('type', 'Non Project')
+                ->count();
+            $listCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])
+                ->where('type', 'Non Project')
+                ->count();
+            $deliveryCount = PendingPO::where('pending_po.status', 5)
+                ->where('type', 'Non Project')
+                ->count();
+
+            $start1 = Carbon::createFromDate(null, 1, 1);  // 1 Januari tahun ini
+            $end1 = Carbon::createFromDate(null, 6, 30); // 30 Juni tahun ini
+            $start2 = Carbon::createFromDate(null, 7, 1);  // 1 Juli tahun ini
+            $end2 = Carbon::createFromDate(null, 12, 31); // 31 Desember tahun ini
+
+            $allInvoice1 = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
+                ->join('pic as p', 'q.id_pic', '=', 'p.id')
+                ->join('client as c', 'p.id_client', '=', 'c.id')
+                ->whereBetween('invoice.date', [$start1, $end1])
+                ->where('q.status', '100')
+                ->where('q.level', '1')
+                ->where('q.is_primary', '1')
+                ->groupBy('q.id')
+                ->select('q.harga_total', 'c.info')
+                ->get();
+
+            $allInvoice2 = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
+                ->join('pic as p', 'q.id_pic', '=', 'p.id')
+                ->join('client as c', 'p.id_client', '=', 'c.id')
+                ->whereBetween('invoice.date', [$start2, $end2])
+                ->where('q.status', '100')
+                ->where('q.level', '1')
+                ->where('q.is_primary', '1')
+                ->groupBy('invoice.id')
+                ->select('q.harga_total', 'c.info')
+                ->get();
+
+            $paidInvoice1 = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
+                ->join('payment as pay', 'pay.id_quotation', '=', 'q.id')
+                ->join('pic as p', 'q.id_pic', '=', 'p.id')
+                ->join('client as c', 'p.id_client', '=', 'c.id')
+                ->whereBetween('invoice.date', [$start1, $end1])
+                ->where('pay.level', '1')
+                ->groupBy('pay.id')
+                ->select('pay.id', 'pay.amount', 'c.info')
+                ->get();
+            // dd($paidInvoice1);
+            $paidInvoice2 = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
+                ->join('payment as pay', 'pay.id_quotation', '=', 'q.id')
+                ->join('pic as p', 'q.id_pic', '=', 'p.id')
+                ->join('client as c', 'p.id_client', '=', 'c.id')
+                ->whereBetween('invoice.date', [$start2, $end2])
+                ->where('pay.level', '1')
+                ->groupBy('pay.id')
+                ->select('pay.amount', 'c.info')
+                ->get();
+
+            // $unpaidInvoice = Invoice::
+            $unpaidInvoice1 = Quotation::with(['invoice', 'payment', 'pic.client'])
+                ->whereHas('invoice', function ($q) use ($start1, $end1) {
+                    $q->whereBetween('date', [$start1, $end1]);
+                })
+                ->where('status', '100')
+                ->where('level', '1')
+                ->orderBy('quotation.id')
+                ->get()
+                ->map(function ($q) {
+                    $info = $q->pic->client->info ?? '-';
+                    $harga_total = $q->harga_total;
+                    $id = $q->id;
+                    $payments = $q->payment;
+
+                    $unpaid_amount = 0;
+
+                    // 0 PAYMENT
+                    if ($payments->isEmpty()) {
+                        $unpaid_amount = $harga_total;
+                    }
+
+                    // 1 PAYMENT
+                    elseif ($payments->count() === 1) {
+                        $p = $payments->first();
+                        $unpaid_amount = $p->level == 0 ? $harga_total : 0;
+                    }
+
+                    // 2 PAYMENT (DP + BP/Tempo)
+                    else {
+                        $dp = $payments->where('type', 'DP')->first();
+                        $second = $payments->where('type', '!=', 'DP')->first();
+
+                        if ($dp && $dp->level == 0) {
+                            $unpaid_amount = $harga_total;
+                        } elseif ($dp && $dp->level == 1 && (!$second || $second->level == 0)) {
+                            $unpaid_amount = $harga_total - $dp->amount;
+                        } else {
+                            $unpaid_amount = 0;
+                        }
+                    }
+
+                    return (object) [
+                        'id' => $id,
+                        'unpaid_amount' => $unpaid_amount,
+                        'harga_total' => $harga_total,
+                        'info' => $info,
+                    ];
+                });
+
+            // dd($unpaidInvoice1);
+            $unpaidInvoice2 = Quotation::with(['invoice', 'payment', 'pic.client'])
+                ->whereHas('invoice', function ($q) use ($start2, $end2) {
+                    $q->whereBetween('date', [$start2, $end2]);
+                })
+                ->where('status', '100')
+                ->where('level', '1')
+                ->get()
+                ->map(function ($q) {
+                    $q->info = $q->pic->client->info ?? '-';
+                    $payments = $q->payment;
+
+                    // ✅ 0 PAYMENT
+                    if ($payments->isEmpty()) {
+                        $q->unpaid_amount = $q->harga_total;
+                        return $q;
+                    }
+
+                    // ✅ 1 PAYMENT
+                    if ($payments->count() === 1) {
+                        $p = $payments->first();
+                        $q->unpaid_amount = $p->level == 0 ? $q->harga_total : 0;
+                        return $q;
+                    }
+
+                    // ✅ 2 PAYMENT (umumnya DP + BP/Tempo)
+                    if ($payments->count() >= 2) {
+                        $dp = $payments->where('type', 'DP')->first();
+                        $second = $payments->where('type', '!=', 'DP')->first();
+
+                        // kalau DP belum cair
+                        if ($dp && $dp->level == 0) {
+                            $q->unpaid_amount = $q->harga_total;
+                        }
+                        // kalau DP cair, tapi payment kedua belum (atau belum ada)
+                        elseif ($dp && $dp->level == 1 && (!$second || $second->level == 0)) {
+                            $q->unpaid_amount = $q->harga_total - $dp->amount;
+                        }
+                        // kalau DP dan payment kedua sudah cair semua
+                        else {
+                            $q->unpaid_amount = 0;
+                        }
+                    }
+
+                    return $q;
+                });
+
+            $unpaidGeneral1 = $unpaidInvoice1->sum('unpaid_amount');
+            $unpaidKojisha1 = $unpaidInvoice1->where('info', 'Kojisha')->sum('unpaid_amount');
+            $unpaidReftech1 = $unpaidInvoice1->where('info', 'Reftech')->sum('unpaid_amount');
+            $unpaidGeneral2 = $unpaidInvoice2->sum('unpaid_amount');
+            $unpaidReftech2 = $unpaidInvoice2->where('info', 'Reftech')->sum('unpaid_amount');
+            $unpaidKojisha2 = $unpaidInvoice2->where('info', 'Kojisha')->sum('unpaid_amount');
+
+            $outstandingInvoice1 = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
+                ->join('payment as pay', 'pay.id_quotation', '=', 'q.id')
+                ->join('pic as p', 'q.id_pic', '=', 'p.id')
+                ->join('client as c', 'p.id_client', '=', 'c.id')
+                ->whereBetween('invoice.date', [$start1, $end1])
+                ->where('pay.type', "Tempo")
+                ->where('pay.level', 0)
+                ->groupBy('pay.id')
+                ->select('pay.amount', 'c.info')
+                ->get();
+            $outstandingInvoice2 = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
+                ->join('payment as pay', 'pay.id_quotation', '=', 'q.id')
+                ->join('pic as p', 'q.id_pic', '=', 'p.id')
+                ->join('client as c', 'p.id_client', '=', 'c.id')
+                ->whereBetween('invoice.date', [$start2, $end2])
+                ->where('pay.type', "Tempo")
+                ->where('pay.level', 0)
+                ->groupBy('pay.id')
+                ->select('pay.amount', 'c.info')
+                ->get();
+
+            $overdueInvoice1 = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
+                ->join('payment as pay', 'pay.id_quotation', '=', 'q.id')
+                ->join('pic as p', 'q.id_pic', '=', 'p.id')
+                ->join('client as c', 'p.id_client', '=', 'c.id')
+                ->whereBetween('invoice.date', [$start1, $end1])
+                ->where('pay.type', "Tempo")
+                ->where('pay.level', 0)
+                ->whereDate('pay.due_date', '<=', Carbon::today())
+                ->groupBy('pay.id')
+                ->get();
+            $overdueInvoice2 = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
+                ->join('payment as pay', 'pay.id_quotation', '=', 'q.id')
+                ->join('pic as p', 'q.id_pic', '=', 'p.id')
+                ->join('client as c', 'p.id_client', '=', 'c.id')
+                ->whereBetween('invoice.date', [$start2, $end2])
+                ->where('pay.type', "Tempo")
+                ->where('pay.level', 0)
+                ->whereDate('pay.due_date', '<=', Carbon::today())
+                ->groupBy('pay.id')
+                ->get();
+
+            $reminder = Reminder::join('payment as p', 'p.id', '=', 'reminder.id_payment')
+                ->join('quotation as q', 'q.id', '=', 'p.id_quotation')
+                ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+                ->join('pic as pic', 'q.id_pic', '=', 'pic.id')
+                ->join('client as c', 'pic.id_client', '=', 'c.id')
+                ->select('reminder.*', 'i.no_invoice', 'p.amount', 'c.company')
+                ->limit(5)->get();
+
+                $nodueCount = Payment::where('type', 'Tempo')->whereNull('due_date')->count();
+
+            return view(
+                "pages.sales.dashboard",
+                compact(
+                    'requestContract',
+                    'requestInvoice',
+                    'newCount',
+                    'listCount',
+                    'notulens',
+                    'deliveryCount',
+                    'nodueCount',
+                    'noSaleProspect',
+                    'commentAdmin',
+                    'unreadCommentAdmin',
+                    'allInvoice1',
+                    'allInvoice2',
+                    'paidInvoice1',
+                    'paidInvoice2',
+                    'unpaidGeneral1',
+                    'unpaidReftech1',
+                    'unpaidKojisha1',
+                    'unpaidGeneral2',
+                    'unpaidReftech2',
+                    'unpaidKojisha2',
+                    'outstandingInvoice1',
+                    'outstandingInvoice2',
+                    'overdueInvoice1',
+                    'overdueInvoice2',
+                    'reminder',
                 )
             );
         } else {

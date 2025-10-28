@@ -11,7 +11,8 @@
                             Invoice Number
                         </div>
                         <div class="col-6 mb-3">
-                            : {{ $invoice->no_invoice }}
+                            : <a class="text-black"
+                                href="{{ route('invoice.show', $invoice->id) }}">{{ $invoice->no_invoice }}</a>
                         </div>
                         <div class="col-6 mb-3">
                             Invoice Date
@@ -148,15 +149,51 @@
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    <h4>Reminder Timeline</h4>
+                    <div class="d-flex justify-content-between mb-2">
+                        <h4>Reminder Timeline</h4>
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#addReminder">
+                            <button type="button" class="btn btn-primary">
+                                + Reminder
+                            </button>
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
-                    {{-- {{$quote->note}} --}}
+
+                    @forelse ($reminder as $item)
+                        <ul class="timeline card-timeline mb-0">
+                            <li class="timeline-item timeline-item-transparent clearfix">
+                                <span class="timeline-point timeline-point-primary"></span>
+                                <div class="timeline-event">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <img src="{{ url('') . '/' . $item->user->image }}" alt="ini photo"
+                                            style="width: 50px;" class="mx-2 rounded-pill">
+                                        <p class="mb-0">
+                                            <span class="fw-medium">{{ $item->user->name }}
+                                        </p>
+                                    </div>
+                                    <div class="timeline-header mb-1">
+                                        <h6 class="mb-0">Proggress Follow Up Ke-{{ $item->status }}</h6>
+                                        <small
+                                            class="text-muted">{{ $item->created_at->diffInHours(Carbon\Carbon::now()) > 24 ? $item->created_at->format('d M y h:i:s') : $item->created_at->diffForHumans() }}
+                                        </small>
+                                    </div>
+                                    <p class="mb-3">
+                                        {{ $item->reminder }}
+                                    </p>
+                                </div>
+                            </li>
+                        </ul>
+                    @empty
+                        <hr>
+                        <h6 class="text-center my-2">Belum Ada Reminder Pada Payment Ini.</h6>
+                    @endforelse
                 </div>
             </div>
         </div>
     </div>
 @endsection()
+@include('components.modal.payment.add-reminder')
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />

@@ -23,7 +23,7 @@
     <div class="menu-inner-shadow"></div>
 
     <ul class="menu-inner py-1">
-        @if (auth::user()?->role == 'Admin')
+        @if (auth::user()?->role == 'Admin' || auth::user()?->role == 'Accounting')
             <!-- Dashboards -->
             <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
                 <a href="{{ url('/') }}" class="menu-link">
@@ -437,6 +437,9 @@
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
                     <div data-i18n="Receiveable (AR)">Receiveable (AR)</div>
+                    @if (@$nodueCount >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $nodueCount }}</div>
+                    @endif
                 </a>
                 <ul class="menu-sub">
                     <li
@@ -455,11 +458,14 @@
                         class="menu-item {{ request()->is('payment-index/aging') || request()->is('payment-detail/aging/*') ? 'active' : '' }}">
                         <a href="{{ route('payment_index.aging') }}" class="menu-link">
                             <div data-i18n="Aging Report">Aging Report</div>
+                            @if (@$nodueCount >= 1)
+                                <div class="badge bg-danger rounded-pill ms-auto">{{ $nodueCount }}</div>
+                            @endif
                         </a>
                     </li>
                 </ul>
             </li>
-            <li
+            {{-- <li
                 class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-index/invoice-ahmad') || request()->is('payment-index/invoice-rayi') || request()->is('payment-detail/invoice/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
@@ -485,7 +491,7 @@
                         </a>
                     </li>
                 </ul>
-            </li>
+            </li> --}}
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">E-Stock</span>
@@ -1405,6 +1411,13 @@
             </li>
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Monitoring</span>
+            </li>
+            <li
+                class="menu-item {{ request()->is('service-reports-servicem') ? 'active' : '' }}">
+                <a href="{{ route('service-reports.manager') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
+                    <div data-i18n="Reports">Reports</div>
+                </a>
             </li>
             <li
                 class="menu-item {{ request()->is('service-manager') || request()->is('service-manager/*') ? 'active' : '' }}">

@@ -35,7 +35,7 @@
         </div>
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-payment-receipt-ar table table-striped">
+                <table class="datatable-payment-receipt-ar table table-bordered">
                     <thead>
                         <tr>
                             {{-- <th></th>
@@ -47,6 +47,7 @@
                             <th>Amount Paid</th>
                             <th>Ballance</th>
                             <th>Payment</th>
+                            <th>Confirm</th>
                             <th>Status</th>
                             <th>Sales</th>
                             <th>flag</th>

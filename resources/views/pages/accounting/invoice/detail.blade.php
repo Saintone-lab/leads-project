@@ -1369,7 +1369,7 @@
                                 </button>
                             </a>
                         @endif
-                        @if (Auth::user()->role == 'Admin')
+                        @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
                             <a type="button" data-bs-toggle="modal" data-bs-target="#addExpense"
                                 class="d-grid w-100 waves-effect mb-3">
                                 <button type="button" class="btn btn-linkedin">
@@ -1405,7 +1405,7 @@
                         <h5>Remaining : Rp {{ number_format($remaining, 0, '.', ',') }}</h5>
                     </div>
                 </div>
-                @if (Auth::user()->role == 'Admin')
+                @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
                     <div class="card mb-3">
                         <div class="card-body">
                             @if ($invoice->status_p == 0)

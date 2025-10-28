@@ -373,9 +373,20 @@ class InvoiceController extends Controller
             // dd($subQuote);
         }
         $totalPph = 0;
-        foreach ($dquote as $product) {
-            $pph = ($product->amount * $product->pph) / 100;
-            $totalPph += $pph;
+        
+        if ($quote->type == 'Sparepart') {
+            foreach ($dquote as $product) {
+                $pph = ($product->amount * $product->pph) / 100;
+                $totalPph += $pph;
+            }
+        } else {
+            foreach ($subQuote as $subtitle) {
+                foreach ($subtitle->detail as $detail) {
+
+                    $pph = ($detail->amount * $detail->pph) / 100;
+                    $totalPph += $pph;
+                }
+            }
         }
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
@@ -660,11 +671,11 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::find($id);
         $quote = Quotation::find($invoice->id_quotation);
+        // dd($request->all());
         $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
         $lastPayment->overdue = $request->due_date;
-        $lastPayment->due_date = Carbon::now()->addDays($request->due_date + ($request->extends ?? 0));
+        $lastPayment->due_date = Carbon::parse($request->date)->addDays($request->due_date);
         $paymentSave = $lastPayment->save();
-        // dd($lastPayment);
         if ($paymentSave) {
             return redirect('/invoice/' . $id)->with('message', 'Data telah terkirim');
         }

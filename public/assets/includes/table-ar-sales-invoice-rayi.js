@@ -45,16 +45,24 @@ $(function () {
                 // { data: "" },
                 // { data: "id" },
                 // { data: "id" },
-                { data: "no_invoice" },
-                { data: "no_po" },
+                { data: "short_invoice" },
                 { data: "tanggal" },
+                { data: "short_po" },
                 { data: "company" },
                 { data: "harga_total" },
                 { data: "total_payment_level1" },
                 { data: "outstanding" },
                 { data: "last_payment_type" },
+                {
+                    data: "tax",
+                    render: function (data, type, row) {
+                        return data == 0 ? "Non VAT" : "VAT";
+                    },
+                },
                 { data: "name" },
-                { data: "bendera" },
+                {
+                    data: "bendera"
+                },
             ],
             columnDefs: [
                 // {
@@ -99,8 +107,20 @@ $(function () {
                     render: function (data, type, row) {
                         if (type === "display" || type === "filter") {
                             return (
-                                "Rp " +
-                                new Intl.NumberFormat("id-ID").format(data)
+                                '<div class="text-end">Rp ' +
+                                new Intl.NumberFormat("id-ID").format(data) +
+                                "</div>"
+                            );
+                        }
+                        return data;
+                    },
+                },
+                {
+                    targets: 9,
+                    render: function (data, type, row) {
+                        if (type === "display" || type === "filter") {
+                            return (
+                                '<div class="text-center">'+ data +'</div>'
                             );
                         }
                         return data;
@@ -124,6 +144,26 @@ $(function () {
                             label = "bg-label-primary";
                         } else {
                             title = "Unpaid";
+                            label = "bg-label-danger";
+                        }
+                        return (
+                            '<div class="text-center"><span class="badge rounded-pill ' +
+                            label +
+                            '">' +
+                            title +
+                            "</span></div>"
+                        );
+                    },
+                },
+                {
+                    targets: -1,
+                    render: function (data, type, full, row) {
+                        var title, label;
+                        if (data == "Reftech") {
+                            title = "RJO";
+                            label = "bg-label-primary";
+                        } else {
+                            title = "KII";
                             label = "bg-label-danger";
                         }
                         return (

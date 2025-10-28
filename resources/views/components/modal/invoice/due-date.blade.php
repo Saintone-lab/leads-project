@@ -16,6 +16,13 @@
                         <form>
                             <div class="row">
                                 <div class="col-12 mb-3">
+                                    <div class="form-floating form-floating-outline">
+                                        <input class="form-control" type="date" id="html5-date-input" name="date"
+                                            value="{{ \Carbon\Carbon::today()->format('Y-m-d') }}">
+                                        <label for="html5-date-input">Date</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-3">
                                     <label for="basic-addon43">Due Date</label>
                                     <div class="form-floating form-floating-outline">
                                         <div class="input-group input-group-lg">
@@ -26,7 +33,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-12 mb-3">
+                                {{-- <div class="col-12 mb-3">
                                     <label for="basic-addon43">Extends Date</label>
                                     <div class="form-floating form-floating-outline">
                                         <div class="input-group input-group-lg">
@@ -36,7 +43,7 @@
                                             <span class="input-group-text" id="basic-addon43">Days</span>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </form>
                     </div>

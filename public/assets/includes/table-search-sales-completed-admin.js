@@ -60,15 +60,15 @@ $(function () {
                 },
             ],
             columnDefs: [
-                {
-                    targets: 1,
-                    render: function (data, type, row) {
-                        if (type === "sort" || type === "type") {
-                            return row.po_date_raw; // pakai versi raw untuk sorting
-                        }
-                        return data; // tampilan tetap yang dd-mm-yyyy
-                    },
-                },
+                // {
+                //     targets: 1,
+                //     render: function (data, type, row) {
+                //         if (type === "sort" || type === "type") {
+                //             return row.po_date_raw; // pakai versi raw untuk sorting
+                //         }
+                //         return data; // tampilan tetap yang dd-mm-yyyy
+                //     },
+                // },
                 // {
                 //     targets: 1,
                 //     render: function (data, type, full, row) {
@@ -118,6 +118,10 @@ $(function () {
                             5: {
                                 title: "Delivery Process",
                                 class: " bg-label-linkedin",
+                            },
+                            6: {
+                                title: "Completed",
+                                class: " bg-label-success",
                             },
                         };
                         if (typeof $status[$status_number] === "undefined") {
@@ -202,7 +206,7 @@ $(function () {
                     },
                 },
             ],
-            order: [[1, "desc"]],
+            order: [],
             // deliveryCellsTop: true,
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         });

@@ -8,7 +8,9 @@ $(function () {
         $(".datatable-sales-invoice-ahmad thead tr")
             .clone(true)
             .appendTo(".datatable-sales-invoice-ahmad thead");
-        $(".datatable-sales-invoice-ahmad thead tr:eq(1) th").each(function (i) {
+        $(".datatable-sales-invoice-ahmad thead tr:eq(1) th").each(function (
+            i
+        ) {
             var title = $(this).text();
             $(this).html(
                 '<input type="text" class="form-control" placeholder="Search ' +
@@ -45,16 +47,21 @@ $(function () {
                 // { data: "" },
                 // { data: "id" },
                 // { data: "id" },
-                { data: "no_invoice" },
-                { data: "no_po" },
+                { data: "short_invoice" },
                 { data: "tanggal" },
+                { data: "short_po" },
                 { data: "company" },
                 { data: "harga_total" },
                 { data: "total_payment_level1" },
                 { data: "outstanding" },
                 { data: "last_payment_type" },
+                {
+                    data: "tax",
+                    render: function (data, type, row) {
+                        return data == 0 ? "Non VAT" : "VAT";
+                    },
+                },
                 { data: "name" },
-                { data: "bendera" },
             ],
             columnDefs: [
                 // {
@@ -99,8 +106,20 @@ $(function () {
                     render: function (data, type, row) {
                         if (type === "display" || type === "filter") {
                             return (
-                                "Rp " +
-                                new Intl.NumberFormat("id-ID").format(data)
+                                '<div class="text-end">Rp ' +
+                                new Intl.NumberFormat("id-ID").format(data) +
+                                "</div>"
+                            );
+                        }
+                        return data;
+                    },
+                },
+                {
+                    targets: 9,
+                    render: function (data, type, row) {
+                        if (type === "display" || type === "filter") {
+                            return (
+                                '<div class="text-center">'+ data +'</div>'
                             );
                         }
                         return data;
@@ -127,11 +146,11 @@ $(function () {
                             label = "bg-label-danger";
                         }
                         return (
-                            '<span class="badge rounded-pill ' +
+                            '<div class="text-center"><span class="badge rounded-pill ' +
                             label +
                             '">' +
                             title +
-                            "</span>"
+                            "</span></div>"
                         );
                     },
                 },

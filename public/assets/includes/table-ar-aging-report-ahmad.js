@@ -1,19 +1,25 @@
 $(function () {
-    var dt_table_payment_receipt_ar = $(".datatable-payment-receipt-ar");
-    var Url = "/db/payment/receipt/ar";
+    var dt_table_aging_report_ahmad = $(".datatable-aging-report-ahmad");
+    var Url = "/db/aging/report/ahmad";
 
-    if (dt_table_payment_receipt_ar.length) {
-        $('[data-toggle="tooltip"]').tooltip();
+    if (dt_table_aging_report_ahmad.length) {
+        const initTooltips = () => {
+            const tooltipTriggerList = document.querySelectorAll(
+                '[data-bs-toggle="tooltip"]'
+            );
+            const tooltipList = [...tooltipTriggerList].map(
+                (el) => new bootstrap.Tooltip(el)
+            );
+        };
+        initTooltips();
         // Setup - add a text input to each footer cell
-        $(".datatable-payment-receipt-ar thead tr")
+        $(".datatable-aging-report-ahmad thead tr")
             .clone(true)
-            .appendTo(".datatable-payment-receipt-ar thead");
-        $(".datatable-payment-receipt-ar thead tr:eq(1) th").each(function (i) {
+            .appendTo(".datatable-aging-report-ahmad thead");
+        $(".datatable-aging-report-ahmad thead tr:eq(1) th").each(function (i) {
             var title = $(this).text();
             $(this).html(
-                '<input type="text" class="form-control" placeholder="Search ' +
-                    title +
-                    '" />'
+                '<input type="text" class="form-control" placeholder="Search" />'
             );
 
             $("input", this).on("keyup change", function () {
@@ -23,7 +29,7 @@ $(function () {
             });
         });
 
-        var dt_filter = dt_table_payment_receipt_ar.DataTable({
+        var dt_filter = dt_table_aging_report_ahmad.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -42,17 +48,15 @@ $(function () {
                 // },
             },
             columns: [
-                { data: "no_receipt" },
+                { data: "short_invoice" },
                 { data: "date" },
-                { data: "no_invoice" },
+                { data: "short_po" },
                 { data: "company" },
                 { data: "amount" },
-                { data: "sisa" },
-                { data: "method" },
-                { data: "date_confirm" },
-                { data: "title" },  
+                { data: "due_date" },
+                { data: "due_status" },
+                { data: "tax" },
                 { data: "name" },
-                { data: "flag" },
             ],
             columnDefs: [
                 {
@@ -60,25 +64,21 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var id = full["id"];
-                            var level = full["level"];
-                            var file = full["file"];
-                            if (level === 0) {
-                                if (file === null) {
-                                    var condition_class = " bg-danger";
-                                } else {
-                                    var condition_class = " bg-warning";
-                                }
-                            } else {
+                            var diff = full["diff"];
+                            if (diff >= 10) {
                                 var condition_class = " bg-success";
+                            } else if (diff >= 0) {
+                                var condition_class = " bg-warning";
+                            } else {
+                                var condition_class = " bg-danger";
                             }
-                            detailRoute = route("payment_detail.payment", id);
+                            detailRoute = route("payment_detail.aging", id);
                             return (
                                 '<a class="text-black" href="' +
                                 detailRoute +
                                 '"><span class="badge badge-dot ' +
                                 condition_class +
-                                '">' +
-                                "</span> " +
+                                '"></span> ' +
                                 data +
                                 "</a>"
                             );
@@ -87,7 +87,12 @@ $(function () {
                     },
                 },
                 {
-                    targets: [4, 5],
+                    targets: [1, 2, 5, 6, 6, 7, 8],
+                    className: "text-center",
+                },
+                {
+                    targets: 4,
+                    className: "text-end",
                     render: function (data, type, row) {
                         if (type === "display" || type === "filter") {
                             return (
@@ -99,31 +104,28 @@ $(function () {
                     },
                 },
                 {
-                    targets: 8,
-                    render: function (data, type, full, row) {
-                        var judul = data;
-                        var label;
-                        if (judul == "Partial") {
-                            label = "bg-label-warning";
+                    targets: 7,
+                    render: function (data, type, row) {
+                        var vat;
+                        if (data == 11) {
+                            vat = "VAT";
                         } else {
-                            label = "bg-label-success";
+                            vat = "Non VAT";
                         }
-                        return (
-                            '<span class="badge rounded-pill ' +
-                            label +
-                            '">' +
-                            data +
-                            "</span>"
-                        );
+                        return vat;
                     },
                 },
             ],
+            drawCallback: function (settings) {
+                console.log("drawCallback");
+                initTooltips();
+            },
             order: [],
             // orderCellsTop: true,
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         });
     }
-    dt_table_payment_receipt_ar.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
+    dt_table_aging_report_ahmad.on("draw", function () {
+        initTooltips();
     });
 });

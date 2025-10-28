@@ -183,7 +183,7 @@ class LeadsController extends Controller
         ];
 
         $this->validate($request, $rule, $message);
-        // dd($request);
+        // dd(Auth::id());
         //masukan data ke table leads(client)
         $leads = new Client;
         $leads->id_sales = Auth::id();
@@ -204,6 +204,14 @@ class LeadsController extends Controller
             $leads->npwp = NULL;
         }
         $leads->mobile = $request->mobile;
+        if (in_array(Auth::id(), [1, 16, 23])) {
+            $leads->info = $request->info;
+        }else{
+            $leads->info = "Reftech";
+        }
+        // if (Auth::id() == 2 || Auth::id() == 16 || Auth::id() == 23) {
+        //     $leads->info = $request->info;
+        // }
         $leads->address = $request->address;
         $leads->subAddress = $request->subAddress;
         $leads->week = $request->week;
@@ -310,7 +318,7 @@ class LeadsController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.sales.clients.leads.detail', compact('existing','unit','machines','noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'leads', 'callhis', 'quote', 'sales', 'charge', 'issue', 'visit'));
+        return view('pages.sales.clients.leads.detail', compact('existing', 'unit', 'machines', 'noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'leads', 'callhis', 'quote', 'sales', 'charge', 'issue', 'visit'));
     }
 
     /**

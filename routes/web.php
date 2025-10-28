@@ -216,6 +216,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/service-reports/del-sign/{id}', [ServiceReportsController::class, 'delete_hand_sign'])->name('service-reports.del-sign');
     Route::delete('/service-reports/del-image/{id}', [ServiceReportsController::class, 'deleteImage'])->name('service-reports.del-image');
     Route::post('/service-reports-viewed', [ServiceReportsController::class, 'markViewed']);
+    Route::get('/service-reports-servicem', [ServiceReportsController::class, 'serviceMer'])->name('service-reports.manager');
 
     // Route untuk audit
     Route::resource('/audit-tools', AuditController::class);
@@ -1157,8 +1158,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/payment-detail/aging/{id}', [PaymentController::class, 'detail_aging'])->name('payment_detail.aging');
     Route::post('/confirm-payment/payment/{id}', [PaymentController::class, 'confirm_payment'])->name('confirm_payment.payment');
     Route::post('/unconfirm-payment/payment/{id}', [PaymentController::class, 'unconfirm_payment'])->name('unconfirm_payment.payment');
+    Route::post('/reminder-payment/payment/{id}', [PaymentController::class, 'reminder_payment'])->name('reminder_payment.payment');
     Route::get('/view-payment/payment/{id}', [PaymentController::class, 'view_payment'])->name('view_payment.payment');
-
 
     Route::resource('/delivery', DeliveryController::class);
     Route::get('/delivery/print/{id}', [DeliveryController::class, 'print_delivery'])->name('print.delivery');
@@ -1713,12 +1714,357 @@ Route::group(["middleware" => "auth"], function () {
             ->orderByDesc('invoice.date')
             ->select([
                 'invoice.*',
+                DB::raw("SUBSTRING(invoice.no_invoice, 1, 12) as short_invoice"),
+                DB::raw("SUBSTRING(invoice.no_po, 1, 10) as short_po"),
                 'client.company',
                 'client.info as bendera',
                 'users.name as name',
                 DB::raw("DATE_FORMAT(invoice.date, '%d-%m-%Y') as tanggal"),
                 'quotation.harga_total',
                 'quotation.po_date',
+                'quotation.tax',
+
+                // last payment default (tetap dipertahankan)
+                DB::raw('IFNULL(pay.amount,0) as last_payment_amount'),
+                DB::raw('pay.type as last_payment_type'),
+                DB::raw('pay.level as last_payment_level'),
+                DB::raw('pay.due_date as last_due_date'),
+                DB::raw('pay.overdue as last_overdue'),
+
+                // last DP
+                DB::raw('IFNULL(dp_last.amount,0) as dp_amount'),
+                DB::raw('dp_last.level as dp_level'),
+
+                // last BP
+                DB::raw('IFNULL(bp_last.amount,0) as bp_amount'),
+                DB::raw('bp_last.level as bp_level'),
+
+                // last Other
+                DB::raw('IFNULL(other_last.amount,0) as other_amount'),
+                DB::raw('other_last.type as other_type'),
+                DB::raw('other_last.level as other_level'),
+
+                // sums
+                DB::raw('IFNULL(dp_sum.total_dp,0) as total_dp'),
+                DB::raw('IFNULL(bp_sum.total_bp,0) as total_bp'),
+                DB::raw('IFNULL(pay_sum_lvl1.total_payment_level1,0) as total_payment_level1'),
+
+                // payment count (1 atau lebih)
+                DB::raw('IFNULL(pay_count.payment_count,0) as payment_count'),
+
+                // outstanding logic: pertama cek payment_count
+                DB::raw("
+                            CASE
+                -- kalau hanya 1 payment
+                WHEN IFNULL(pay_count.payment_count,0) = 1
+                    THEN (
+                        CASE
+                            -- kalau method DP
+                            WHEN pay.method = 'DP' THEN 
+                                CASE 
+                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total
+                                    ELSE quotation.harga_total - IFNULL(pay.amount,0)
+                                END
+
+                            -- kalau bukan DP
+                            ELSE (
+                                CASE 
+                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total 
+                                    ELSE 0 
+                                END
+                            )
+                        END
+                    )
+
+                -- kalau lebih dari 1 payment
+                WHEN IFNULL(pay_count.payment_count,0) > 1
+                    THEN (
+                        CASE
+                            WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                                THEN quotation.harga_total
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                                THEN quotation.harga_total - IFNULL(dp_sum.total_dp,0)
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0 
+                                THEN 0
+                            ELSE quotation.harga_total
+                        END
+                    )
+
+                ELSE quotation.harga_total
+            END as outstanding
+            ")
+            ])
+            ->get();
+        return response()->json(['data' => $invoice]);
+    });
+    Route::get('/db/sales/invoice/reftech', function () {
+        // last payment (umum)
+        $lastPaymentSub = DB::table('payment as p1')
+            ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.overdue', 'p1.method', 'p1.created_at')
+            ->join(
+                DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment GROUP BY id_quotation) as p2'),
+                'p1.id',
+                '=',
+                'p2.max_id'
+            );
+
+        // last DP
+        $lastDP = DB::table('payment as p1')
+            ->select('p1.id_quotation', 'p1.id', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(
+                DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment WHERE type="DP" GROUP BY id_quotation) as p2'),
+                'p1.id',
+                '=',
+                'p2.max_id'
+            );
+
+        // last BP
+        $lastBP = DB::table('payment as p1')
+            ->select('p1.id_quotation', 'p1.id', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(
+                DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment WHERE type="BP" GROUP BY id_quotation) as p2'),
+                'p1.id',
+                '=',
+                'p2.max_id'
+            );
+
+        // last Other (selain DP/BP)
+        $lastOther = DB::table('payment as p1')
+            ->select('p1.id_quotation', 'p1.id', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(
+                DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment WHERE type NOT IN ("DP","BP") GROUP BY id_quotation) as p2'),
+                'p1.id',
+                '=',
+                'p2.max_id'
+            );
+
+        // sum DP / BP level 1
+        $sumDP = DB::table('payment')
+            ->select('id_quotation', DB::raw('SUM(amount) as total_dp'))
+            ->where('type', 'DP')->where('level', 1)->groupBy('id_quotation');
+        $sumBP = DB::table('payment')
+            ->select('id_quotation', DB::raw('SUM(amount) as total_bp'))
+            ->where('type', 'BP')->where('level', 1)->groupBy('id_quotation');
+
+        // sum all payments level 1
+        $sumPaymentLvl1 = DB::table('payment')
+            ->select('id_quotation', DB::raw('SUM(amount) as total_payment_level1'))
+            ->where('level', 1)
+            ->groupBy('id_quotation');
+
+        // count payments per quotation
+        $paymentCountSub = DB::table('payment')
+            ->select('id_quotation', DB::raw('COUNT(*) as payment_count'))
+            ->groupBy('id_quotation');
+
+        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+
+            // join last payment umum (dipertahankan)
+            ->leftJoinSub($lastPaymentSub, 'pay', fn($join) => $join->on('quotation.id', '=', 'pay.id_quotation'))
+
+            // join last DP/BP/Other (hanya info, tidak dicampur ke outstanding)
+            ->leftJoinSub($lastDP, 'dp_last', fn($join) => $join->on('quotation.id', '=', 'dp_last.id_quotation'))
+            ->leftJoinSub($lastBP, 'bp_last', fn($join) => $join->on('quotation.id', '=', 'bp_last.id_quotation'))
+            ->leftJoinSub($lastOther, 'other_last', fn($join) => $join->on('quotation.id', '=', 'other_last.id_quotation'))
+
+            // join sums DP/BP dan sum level1
+            ->leftJoinSub($sumDP, 'dp_sum', fn($join) => $join->on('quotation.id', '=', 'dp_sum.id_quotation'))
+            ->leftJoinSub($sumBP, 'bp_sum', fn($join) => $join->on('quotation.id', '=', 'bp_sum.id_quotation'))
+            ->leftJoinSub($sumPaymentLvl1, 'pay_sum_lvl1', fn($join) => $join->on('quotation.id', '=', 'pay_sum_lvl1.id_quotation'))
+
+            // join payment count
+            ->leftJoinSub($paymentCountSub, 'pay_count', fn($join) => $join->on('quotation.id', '=', 'pay_count.id_quotation'))
+
+            ->where('client.info', 'Reftech')
+            ->where('quotation.status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->whereNotNull('invoice.no_invoice')
+            ->orderByDesc('invoice.date')
+            ->select([
+                'invoice.*',
+                DB::raw("SUBSTRING(invoice.no_invoice, 1, 12) as short_invoice"),
+                DB::raw("SUBSTRING(invoice.no_po, 1, 10) as short_po"),
+                'client.company',
+                'client.info as bendera',
+                'users.name as name',
+                DB::raw("DATE_FORMAT(invoice.date, '%d-%m-%Y') as tanggal"),
+                'quotation.harga_total',
+                'quotation.po_date',
+                'quotation.tax',
+
+                // last payment default (tetap dipertahankan)
+                DB::raw('IFNULL(pay.amount,0) as last_payment_amount'),
+                DB::raw('pay.type as last_payment_type'),
+                DB::raw('pay.level as last_payment_level'),
+                DB::raw('pay.due_date as last_due_date'),
+                DB::raw('pay.overdue as last_overdue'),
+
+                // last DP
+                DB::raw('IFNULL(dp_last.amount,0) as dp_amount'),
+                DB::raw('dp_last.level as dp_level'),
+
+                // last BP
+                DB::raw('IFNULL(bp_last.amount,0) as bp_amount'),
+                DB::raw('bp_last.level as bp_level'),
+
+                // last Other
+                DB::raw('IFNULL(other_last.amount,0) as other_amount'),
+                DB::raw('other_last.type as other_type'),
+                DB::raw('other_last.level as other_level'),
+
+                // sums
+                DB::raw('IFNULL(dp_sum.total_dp,0) as total_dp'),
+                DB::raw('IFNULL(bp_sum.total_bp,0) as total_bp'),
+                DB::raw('IFNULL(pay_sum_lvl1.total_payment_level1,0) as total_payment_level1'),
+
+                // payment count (1 atau lebih)
+                DB::raw('IFNULL(pay_count.payment_count,0) as payment_count'),
+
+                // outstanding logic: pertama cek payment_count
+                DB::raw("
+                            CASE
+                -- kalau hanya 1 payment
+                WHEN IFNULL(pay_count.payment_count,0) = 1
+                    THEN (
+                        CASE
+                            -- kalau method DP
+                            WHEN pay.method = 'DP' THEN 
+                                CASE 
+                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total
+                                    ELSE quotation.harga_total - IFNULL(pay.amount,0)
+                                END
+
+                            -- kalau bukan DP
+                            ELSE (
+                                CASE 
+                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total 
+                                    ELSE 0 
+                                END
+                            )
+                        END
+                    )
+
+                -- kalau lebih dari 1 payment
+                WHEN IFNULL(pay_count.payment_count,0) > 1
+                    THEN (
+                        CASE
+                            WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                                THEN quotation.harga_total
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                                THEN quotation.harga_total - IFNULL(dp_sum.total_dp,0)
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0 
+                                THEN 0
+                            ELSE quotation.harga_total
+                        END
+                    )
+
+                ELSE quotation.harga_total
+            END as outstanding
+            ")
+            ])
+            ->get();
+        return response()->json(['data' => $invoice]);
+    });
+    Route::get('/db/sales/invoice/kojisha', function () {
+        // last payment (umum)
+        $lastPaymentSub = DB::table('payment as p1')
+            ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.overdue', 'p1.method', 'p1.created_at')
+            ->join(
+                DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment GROUP BY id_quotation) as p2'),
+                'p1.id',
+                '=',
+                'p2.max_id'
+            );
+
+        // last DP
+        $lastDP = DB::table('payment as p1')
+            ->select('p1.id_quotation', 'p1.id', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(
+                DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment WHERE type="DP" GROUP BY id_quotation) as p2'),
+                'p1.id',
+                '=',
+                'p2.max_id'
+            );
+
+        // last BP
+        $lastBP = DB::table('payment as p1')
+            ->select('p1.id_quotation', 'p1.id', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(
+                DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment WHERE type="BP" GROUP BY id_quotation) as p2'),
+                'p1.id',
+                '=',
+                'p2.max_id'
+            );
+
+        // last Other (selain DP/BP)
+        $lastOther = DB::table('payment as p1')
+            ->select('p1.id_quotation', 'p1.id', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(
+                DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment WHERE type NOT IN ("DP","BP") GROUP BY id_quotation) as p2'),
+                'p1.id',
+                '=',
+                'p2.max_id'
+            );
+
+        // sum DP / BP level 1
+        $sumDP = DB::table('payment')
+            ->select('id_quotation', DB::raw('SUM(amount) as total_dp'))
+            ->where('type', 'DP')->where('level', 1)->groupBy('id_quotation');
+        $sumBP = DB::table('payment')
+            ->select('id_quotation', DB::raw('SUM(amount) as total_bp'))
+            ->where('type', 'BP')->where('level', 1)->groupBy('id_quotation');
+
+        // sum all payments level 1
+        $sumPaymentLvl1 = DB::table('payment')
+            ->select('id_quotation', DB::raw('SUM(amount) as total_payment_level1'))
+            ->where('level', 1)
+            ->groupBy('id_quotation');
+
+        // count payments per quotation
+        $paymentCountSub = DB::table('payment')
+            ->select('id_quotation', DB::raw('COUNT(*) as payment_count'))
+            ->groupBy('id_quotation');
+
+        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+
+            // join last payment umum (dipertahankan)
+            ->leftJoinSub($lastPaymentSub, 'pay', fn($join) => $join->on('quotation.id', '=', 'pay.id_quotation'))
+
+            // join last DP/BP/Other (hanya info, tidak dicampur ke outstanding)
+            ->leftJoinSub($lastDP, 'dp_last', fn($join) => $join->on('quotation.id', '=', 'dp_last.id_quotation'))
+            ->leftJoinSub($lastBP, 'bp_last', fn($join) => $join->on('quotation.id', '=', 'bp_last.id_quotation'))
+            ->leftJoinSub($lastOther, 'other_last', fn($join) => $join->on('quotation.id', '=', 'other_last.id_quotation'))
+
+            // join sums DP/BP dan sum level1
+            ->leftJoinSub($sumDP, 'dp_sum', fn($join) => $join->on('quotation.id', '=', 'dp_sum.id_quotation'))
+            ->leftJoinSub($sumBP, 'bp_sum', fn($join) => $join->on('quotation.id', '=', 'bp_sum.id_quotation'))
+            ->leftJoinSub($sumPaymentLvl1, 'pay_sum_lvl1', fn($join) => $join->on('quotation.id', '=', 'pay_sum_lvl1.id_quotation'))
+
+            // join payment count
+            ->leftJoinSub($paymentCountSub, 'pay_count', fn($join) => $join->on('quotation.id', '=', 'pay_count.id_quotation'))
+
+            ->where('client.info', 'Kojisha')
+            ->where('quotation.status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->whereNotNull('invoice.no_invoice')
+            ->orderByDesc('invoice.date')
+            ->select([
+                'invoice.*',
+                DB::raw("SUBSTRING(invoice.no_invoice, 1, 12) as short_invoice"),
+                DB::raw("SUBSTRING(invoice.no_po, 1, 10) as short_po"),
+                'client.company',
+                'client.info as bendera',
+                'users.name as name',
+                DB::raw("DATE_FORMAT(invoice.date, '%d-%m-%Y') as tanggal"),
+                'quotation.harga_total',
+                'quotation.po_date',
+                'quotation.tax',
 
                 // last payment default (tetap dipertahankan)
                 DB::raw('IFNULL(pay.amount,0) as last_payment_amount'),
@@ -1882,12 +2228,15 @@ Route::group(["middleware" => "auth"], function () {
             ->orderByDesc('invoice.date')
             ->select([
                 'invoice.*',
+                DB::raw("SUBSTRING(invoice.no_invoice, 1, 12) as short_invoice"),
+                DB::raw("SUBSTRING(invoice.no_po, 1, 10) as short_po"),
                 'client.company',
                 'client.info as bendera',
                 'users.name as name',
                 DB::raw("DATE_FORMAT(invoice.date, '%d-%m-%Y') as tanggal"),
                 'quotation.harga_total',
                 'quotation.po_date',
+                'quotation.tax',
 
                 // last payment default (tetap dipertahankan)
                 DB::raw('IFNULL(pay.amount,0) as last_payment_amount'),
@@ -2050,12 +2399,15 @@ Route::group(["middleware" => "auth"], function () {
             ->orderByDesc('invoice.date')
             ->select([
                 'invoice.*',
+                DB::raw("SUBSTRING(invoice.no_invoice, 1, 12) as short_invoice"),
+                DB::raw("SUBSTRING(invoice.no_po, 1, 10) as short_po"),
                 'client.company',
                 'client.info as bendera',
                 'users.name as name',
                 DB::raw("DATE_FORMAT(invoice.date, '%d-%m-%Y') as tanggal"),
                 'quotation.harga_total',
                 'quotation.po_date',
+                'quotation.tax',
 
                 // last payment default (tetap dipertahankan)
                 DB::raw('IFNULL(pay.amount,0) as last_payment_amount'),
@@ -2178,6 +2530,7 @@ Route::group(["middleware" => "auth"], function () {
                 'total_payment' => $totalPayment,
                 'sisa' => ($pay->quotation?->harga_total ?? 0) - $totalPayment,
                 'method' => $pay->method,
+                'date_confirm' => $pay->date_confirm,
                 'type' => $pay->type,
                 'file' => $pay->file,
                 'title' => $title,
@@ -2188,29 +2541,286 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/aging/report/ar', function () {
         $payment = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
             ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
+            // join subquery reminder terakhir
+            ->leftJoin(DB::raw('(
+        SELECT r1.*
+        FROM reminder r1
+        INNER JOIN (
+            SELECT id_payment, MAX(created_at) AS last_reminder
+            FROM reminder
+            GROUP BY id_payment
+        ) r2 ON r1.id_payment = r2.id_payment AND r1.created_at = r2.last_reminder
+    ) as r'), 'r.id_payment', '=', 'payment.id')
             ->where('payment.type', 'Tempo')
             ->whereNot('payment.level', 1)
-            ->orderByDesc('i.date')
+            ->orderByRaw('payment.due_date IS NULL, payment.due_date ASC')
             ->groupBy('payment.id')
             ->select(
                 'payment.id',
+                'payment.amount',
                 'payment.overdue',
                 DB::raw("DATE_FORMAT(payment.due_date, '%d-%m-%Y') as due_date"),
                 'i.no_invoice',
+                DB::raw("SUBSTRING(i.no_invoice, 1, 12) as short_invoice"),
+                DB::raw("SUBSTRING(i.no_po, 1, 10) as short_po"),
+                'u.name',
                 DB::raw("DATE_FORMAT(i.date, '%d-%m-%Y') as date"),
                 'i.no_po',
                 'c.company',
+                'c.info',
                 'q.harga_total',
-                'q.tax'
+                'q.tax',
+                // ambil kolom dari reminder terakhir
+                // 'r.date as reminder_date',
+                DB::raw("DATE_FORMAT(r.date, '%d-%m-%Y') as reminder_date"),
+                'r.status as reminder_status',
+                'r.reminder as reminder_note'
             )
             ->get()
             ->map(function ($row) {
                 $due = Carbon::parse($row->due_date);
                 $today = Carbon::today();
                 $diff = $today->diffInDays($due, false);
+                $row->diff = $diff;
+                if ($diff > 0) {
+                    $row->due_status = $diff . " days left";
+                } elseif ($diff == 0) {
+                    $row->due_status = "Today";
+                } else {
+                    $row->due_status = abs($diff) . " days overdue";
+                }
+                return $row;
+            });
+
+
+        return response()->json(['data' => $payment]);
+    });
+    Route::get('/db/aging/report/reftech', function () {
+        $payment = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->leftJoin(DB::raw('(
+        SELECT r1.*
+        FROM reminder r1
+        INNER JOIN (
+            SELECT id_payment, MAX(created_at) AS last_reminder
+            FROM reminder
+            GROUP BY id_payment
+        ) r2 ON r1.id_payment = r2.id_payment AND r1.created_at = r2.last_reminder
+    ) as r'), 'r.id_payment', '=', 'payment.id')
+            ->where('c.info', 'Reftech')
+            ->where('payment.type', 'Tempo')
+            ->whereNot('payment.level', 1)
+            ->orderByRaw('payment.due_date IS NULL, payment.due_date ASC')
+            ->groupBy('payment.id')
+            ->select(
+                'payment.id',
+                'payment.amount',
+                'payment.overdue',
+                DB::raw("DATE_FORMAT(payment.due_date, '%d-%m-%Y') as due_date"),
+                'i.no_invoice',
+                DB::raw("SUBSTRING(i.no_invoice, 1, 12) as short_invoice"),
+                DB::raw("SUBSTRING(i.no_po, 1, 10) as short_po"),
+                'u.name',
+                DB::raw("DATE_FORMAT(i.date, '%d-%m-%Y') as date"),
+                'i.no_po',
+                'c.company',
+                'c.info',
+                'q.harga_total',
+                'q.tax',
+                DB::raw("DATE_FORMAT(r.date, '%d-%m-%Y') as reminder_date"),
+                'r.status as reminder_status',
+                'r.reminder as reminder_note'
+            )
+            ->get()
+            ->map(function ($row) {
+                $due = Carbon::parse($row->due_date);
+                $today = Carbon::today();
+                $diff = $today->diffInDays($due, false);
+                $row->diff = $diff;
+
+                if ($diff > 0) {
+                    $row->due_status = $diff . " days left";
+                } elseif ($diff == 0) {
+                    $row->due_status = "Today";
+                } else {
+                    $row->due_status = abs($diff) . " days overdue";
+                }
+
+                return $row;
+            });
+
+        return response()->json(['data' => $payment]);
+    });
+    Route::get('/db/aging/report/kojisha', function () {
+        $payment = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->leftJoin(DB::raw('(
+        SELECT r1.*
+        FROM reminder r1
+        INNER JOIN (
+            SELECT id_payment, MAX(created_at) AS last_reminder
+            FROM reminder
+            GROUP BY id_payment
+        ) r2 ON r1.id_payment = r2.id_payment AND r1.created_at = r2.last_reminder
+    ) as r'), 'r.id_payment', '=', 'payment.id')
+            ->where('c.info', 'Kojisha')
+            ->where('payment.type', 'Tempo')
+            ->whereNot('payment.level', 1)
+            ->orderByRaw('payment.due_date IS NULL, payment.due_date ASC')
+            ->groupBy('payment.id')
+            ->select(
+                'payment.id',
+                'payment.amount',
+                'payment.overdue',
+                DB::raw("DATE_FORMAT(payment.due_date, '%d-%m-%Y') as due_date"),
+                'i.no_invoice',
+                DB::raw("SUBSTRING(i.no_invoice, 1, 12) as short_invoice"),
+                DB::raw("SUBSTRING(i.no_po, 1, 10) as short_po"),
+                'u.name',
+                DB::raw("DATE_FORMAT(i.date, '%d-%m-%Y') as date"),
+                'i.no_po',
+                'c.company',
+                'c.info',
+                'q.harga_total',
+                'q.tax',
+                DB::raw("DATE_FORMAT(r.date, '%d-%m-%Y') as reminder_date"),
+                'r.status as reminder_status',
+                'r.reminder as reminder_note'
+            )
+            ->get()
+            ->map(function ($row) {
+                $due = Carbon::parse($row->due_date);
+                $today = Carbon::today();
+                $diff = $today->diffInDays($due, false);
+                $row->diff = $diff;
+
+                if ($diff > 0) {
+                    $row->due_status = $diff . " days left";
+                } elseif ($diff == 0) {
+                    $row->due_status = "Today";
+                } else {
+                    $row->due_status = abs($diff) . " days overdue";
+                }
+
+                return $row;
+            });
+
+        return response()->json(['data' => $payment]);
+    });
+    Route::get('/db/aging/report/ahmad', function () {
+        $payment = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->leftJoin(DB::raw('(
+        SELECT r1.*
+        FROM reminder r1
+        INNER JOIN (
+            SELECT id_payment, MAX(created_at) AS last_reminder
+            FROM reminder
+            GROUP BY id_payment
+        ) r2 ON r1.id_payment = r2.id_payment AND r1.created_at = r2.last_reminder
+    ) as r'), 'r.id_payment', '=', 'payment.id')
+            ->whereIn('u.id', [2, 3, 4, 32])
+            ->where('payment.type', 'Tempo')
+            ->whereNot('payment.level', 1)
+            ->orderByRaw('payment.due_date IS NULL, payment.due_date ASC')
+            ->groupBy('payment.id')
+            ->select(
+                'payment.id',
+                'payment.amount',
+                'payment.overdue',
+                DB::raw("DATE_FORMAT(payment.due_date, '%d-%m-%Y') as due_date"),
+                'i.no_invoice',
+                DB::raw("SUBSTRING(i.no_invoice, 1, 12) as short_invoice"),
+                DB::raw("SUBSTRING(i.no_po, 1, 10) as short_po"),
+                'u.name',
+                DB::raw("DATE_FORMAT(i.date, '%d-%m-%Y') as date"),
+                'i.no_po',
+                'c.company',
+                'c.info',
+                'q.harga_total',
+                'q.tax',
+                DB::raw("DATE_FORMAT(r.date, '%d-%m-%Y') as reminder_date"),
+                'r.status as reminder_status',
+                'r.reminder as reminder_note'
+            )
+            ->get()
+            ->map(function ($row) {
+                $due = Carbon::parse($row->due_date);
+                $today = Carbon::today();
+                $diff = $today->diffInDays($due, false);
+                $row->diff = $diff;
+
+                if ($diff > 0) {
+                    $row->due_status = $diff . " days left";
+                } elseif ($diff == 0) {
+                    $row->due_status = "Today";
+                } else {
+                    $row->due_status = abs($diff) . " days overdue";
+                }
+
+                return $row;
+            });
+
+        return response()->json(['data' => $payment]);
+    });
+    Route::get('/db/aging/report/rayi', function () {
+        $payment = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->leftJoin(DB::raw('(
+        SELECT r1.*
+        FROM reminder r1
+        INNER JOIN (
+            SELECT id_payment, MAX(created_at) AS last_reminder
+            FROM reminder
+            GROUP BY id_payment
+        ) r2 ON r1.id_payment = r2.id_payment AND r1.created_at = r2.last_reminder
+    ) as r'), 'r.id_payment', '=', 'payment.id')
+            ->whereIn('u.id', [1, 16, 23])
+            ->where('payment.type', 'Tempo')
+            ->whereNot('payment.level', 1)
+            ->orderByRaw('payment.due_date IS NULL, payment.due_date ASC')
+            ->groupBy('payment.id')
+            ->select(
+                'payment.id',
+                'payment.amount',
+                'payment.overdue',
+                DB::raw("DATE_FORMAT(payment.due_date, '%d-%m-%Y') as due_date"),
+                'i.no_invoice',
+                DB::raw("SUBSTRING(i.no_invoice, 1, 12) as short_invoice"),
+                DB::raw("SUBSTRING(i.no_po, 1, 10) as short_po"),
+                'u.name',
+                DB::raw("DATE_FORMAT(i.date, '%d-%m-%Y') as date"),
+                'i.no_po',
+                'c.company',
+                'c.info',
+                'q.harga_total',
+                'q.tax',
+                DB::raw("DATE_FORMAT(r.date, '%d-%m-%Y') as reminder_date"),
+                'r.status as reminder_status',
+                'r.reminder as reminder_note'
+            )
+            ->get()
+            ->map(function ($row) {
+                $due = Carbon::parse($row->due_date);
+                $today = Carbon::today();
+                $diff = $today->diffInDays($due, false);
+                $row->diff = $diff;
 
                 if ($diff > 0) {
                     $row->due_status = $diff . " days left";
@@ -3314,7 +3924,7 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json(['data' => $data]);
     });
-    Route::get('/db/pending/sales-done/admin', function () {
+    Route::get('/db/pending/sales-completed/admin', function () {
         $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
             ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
@@ -3473,7 +4083,7 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json(['data' => $data]);
     });
-    Route::get('/db/pending/sales-done', function () {
+    Route::get('/db/pending/sales-completed', function () {
         $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
             ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
