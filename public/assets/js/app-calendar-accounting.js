@@ -26,25 +26,21 @@ document.addEventListener("DOMContentLoaded", function () {
             addEventSidebar = document.getElementById("addEventSidebar"),
             appOverlay = document.querySelector(".app-overlay"),
             calendarsColor = {
-                Business: "primary",
-                Holiday: "warning",
+                Business: "danger",
+                Holiday: "primary",
+                Personal: "secondary",
             },
             offcanvasTitle = document.querySelector(".offcanvas-title"),
             btnToggleSidebar = document.querySelector(".btn-toggle-sidebar"),
             btnSubmit = document.querySelector('button[type="submit"]'),
             btnDeleteEvent = document.querySelector(".btn-delete-event"),
             btnCancel = document.querySelector(".btn-cancel"),
-            eventClient = document.querySelector("#eventClient"),
             eventComp = document.querySelector("#eventComp"),
             eventStartDate = document.querySelector("#eventStartDate"),
             eventEndDate = document.querySelector("#eventEndDate"),
             eventNoteBefore = document.querySelector("#eventNoteBefore"),
-            selectIssue = document.querySelector("#selectIssue"),
-            selectAction = document.querySelector("#selectAction"),
-            selectStatus = document.querySelector("#selectStatus"),
             eventLabel = $("#eventLabel"), // ! Using jquery vars due to select2 jQuery dependency
             eventGuests = $("#eventGuests"), // ! Using jquery vars due to select2 jQuery dependency
-            eventLocation = document.querySelector("#eventLocation"),
             eventNote = document.querySelector("#eventNote"),
             allDaySwitch = document.querySelector(".allDay-switch"),
             selectAll = document.querySelector(".select-all"),
@@ -165,58 +161,44 @@ document.addEventListener("DOMContentLoaded", function () {
             bsAddEventSidebar.show();
             // For update event set offcanvas title text: Update Event
             if (offcanvasTitle) {
-                offcanvasTitle.innerHTML = "Update Event";
+                offcanvasTitle.innerHTML =
+                    "Follow Up Reminder <br>" + eventToUpdate.extendedProps .invoice + "<br>" + eventToUpdate.extendedProps  .company + "<br>" + eventToUpdate.extendedProps   .amount;
             }
             btnSubmit.innerHTML = "Update";
             btnSubmit.classList.add("btn-update-event");
             btnSubmit.classList.remove("btn-add-event");
-            for (let option of eventClient.options) {
-                if (option.value === eventToUpdate.id) {
-                    option.selected = true;
+
+            eventNoteBefore.innerHTML =
+                `Note Before: ` + eventToUpdate.extendedProps.note;
+            // let startDate = new Date();
+            let endValue =
+                eventToUpdate.end ||
+                eventToUpdate.extendedProps?.end ||
+                eventToUpdate.start;
+            if (endValue) {
+                let endDate = new Date(endValue);
+                if (!isNaN(endDate)) {
+                    endDate.setDate(endDate.getDate() + 8);
+                    let formattedEndDate = endDate.toISOString().split("T")[0];
+                    end.setDate(formattedEndDate, true, "Y-m-d");
+                    console.log("End date +7:", formattedEndDate);
                 } else {
-                    option.selected = false;
-                }
-            }
-            if (selectIssue) {
-                for (let optionI of selectIssue.options) {
-                    // console.log('value : ', optionI.value ,', id : ',eventToUpdate.extendedProps.idI);
-                    if (
-                        optionI.value ===
-                        String(eventToUpdate.extendedProps.idI)
-                    ) {
-                        optionI.selected = true;
-                    } else {
-                        optionI.selected = false;
-                    }
+                    console.warn("❌ Invalid date format:", endValue);
                 }
             } else {
-                console.error("Element #selectIssue not found");
+                console.warn("❌ No end date found for event:", eventToUpdate);
             }
+            // endDate.setDate(endDate.getDate() + 7);
 
-            let startDate = new Date();
+            // let formattedEndDate = endDate.toISOString().split("T")[0];
 
-            let endDate = new Date(startDate);
-            endDate.setDate(endDate.getDate() + 7);
-
-            let formattedEndDate = endDate.toISOString().split("T")[0];
-
-            let formattedStartDate = startDate.toISOString().split("T")[0];
-
-            eventComp.value = eventToUpdate.title;
-            start.setDate(formattedStartDate, true, "Y-m-d");
-
-            end.setDate(formattedEndDate, true, "Y-m-d");
-
-            eventComp.value = eventToUpdate.title;
+            // let formattedStartDate = startDate.toISOString().split("T")[0];
+            // start.setDate(formattedStartDate, true, "Y-m-d");
 
             eventLabel
                 .val(eventToUpdate.extendedProps.calendar)
                 .trigger("change");
 
-            eventNoteBefore.textContent =
-                eventToUpdate.note !== null
-                    ? `Note Before: ` + eventToUpdate.extendedProps.note
-                    : "";
             // eventToUpdate.extendedProps.location !== undefined
             //     ? (eventLocation.value = eventToUpdate.extendedProps.location)
             //     : null;
@@ -285,13 +267,14 @@ document.addEventListener("DOMContentLoaded", function () {
         function fetchEvents(info, successCallback) {
             // Fetch Events from API endpoint reference
             $.ajax({
-                url: "/db/next-follow/callendar",
+                url: "/db/accounting/callendar",
                 type: "GET",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 success: function (result) {
                     console.log(result.data);
+                    
 
                     // Get requested calendars as Array
                     var calendars = selectedCalendars();
@@ -346,7 +329,7 @@ document.addEventListener("DOMContentLoaded", function () {
             dateClick: function (info) {
                 let date = moment(info.date).format("YYYY-MM-DD");
                 resetValues();
-                bsAddEventSidebar.show();
+                // bsAddEventSidebar.show();
 
                 // For new event set offcanvas title text: Add Event
                 if (offcanvasTitle) {
@@ -455,7 +438,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .getAttribute("content");
             $.ajax({
                 type: "POST",
-                url: "/activities/update_calendar",
+                url: "/reminder-calendar/payment",
                 data: {
                     ...eventStore,
                     _token: csrfToken,
@@ -552,13 +535,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     let newEvent = {
                         id: calendar.getEvents().length + 1,
                         title: eventTitle.value,
-                        start: eventStartDate.value,
+                        // start: eventStartDate.value,
                         end: eventEndDate.value,
-                        startStr: eventStartDate.value,
+                        // startStr: eventStartDate.value,
                         endStr: eventEndDate.value,
                         display: "block",
                         extendedProps: {
-                            location: eventLocation.value,
+                            // location: eventLocation.value,
                             guests: eventGuests.val(),
                             calendar: eventLabel.val(),
                             description: eventDescription.value,
@@ -580,7 +563,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     let eventData = {
                         id: eventToUpdate.id,
                         title: eventComp.value,
-                        start: eventStartDate.value,
+                        start: eventEndDate.value,
                         end: eventEndDate.value,
                         url: "",
                         extendedProps: {
@@ -589,11 +572,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         display: "block",
                     };
                     let eventStore = {
-                        client_id: eventToUpdate.id,
-                        issues: selectIssue.value,
-                        status: selectStatus.value,
-                        action: selectAction.value,
-                        date: eventStartDate.value,
+                        id_payment: eventToUpdate.id,
+                        // date: eventEndDate.value,
                         follow_up: eventEndDate.value,
                         note: eventNote.value,
                     };
@@ -615,11 +595,9 @@ document.addEventListener("DOMContentLoaded", function () {
         // ------------------------------------------------
         function resetValues() {
             eventEndDate.value = "";
-            eventStartDate.value = "";
-            selectIssue.value = "";
-            // selectAction.value = "";
+            // eventStartDate.value = "";
             eventNote.value = "";
-            eventGuests.val("").trigger("change");
+            // eventGuests.val("").trigger("change");
         }
 
         // When modal hides reset input values
@@ -628,17 +606,17 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // Hide left sidebar if the right sidebar is open
-        btnToggleSidebar.addEventListener("click", (e) => {
-            if (offcanvasTitle) {
-                offcanvasTitle.innerHTML = "Add Event";
-            }
-            btnSubmit.innerHTML = "Add";
-            btnSubmit.classList.remove("btn-update-event");
-            btnSubmit.classList.add("btn-add-event");
-            btnDeleteEvent.classList.add("d-none");
-            appCalendarSidebar.classList.remove("show");
-            appOverlay.classList.remove("show");
-        });
+        // btnToggleSidebar.addEventListener("click", (e) => {
+        //     if (offcanvasTitle) {
+        //         offcanvasTitle.innerHTML = "Add Event";
+        //     }
+        //     btnSubmit.innerHTML = "Add";
+        //     btnSubmit.classList.remove("btn-update-event");
+        //     btnSubmit.classList.add("btn-add-event");
+        //     btnDeleteEvent.classList.add("d-none");
+        //     appCalendarSidebar.classList.remove("show");
+        //     appOverlay.classList.remove("show");
+        // });
 
         // Calender filter functionality
         // ------------------------------------------------
@@ -648,10 +626,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     document
                         .querySelectorAll(".input-filter")
                         .forEach((c) => (c.checked = 1));
+                        console.log('checked');
                 } else {
                     document
                         .querySelectorAll(".input-filter")
                         .forEach((c) => (c.checked = 0));
+                        console.log('unchecked');
                 }
                 calendar.refetchEvents();
             });

@@ -26,8 +26,8 @@ document.addEventListener("DOMContentLoaded", function () {
             addEventSidebar = document.getElementById("addEventSidebar"),
             appOverlay = document.querySelector(".app-overlay"),
             calendarsColor = {
-                Business: "primary",
-                Holiday: "warning",
+                Reftech: "primary",
+                Kojisha: "danger",
             },
             offcanvasTitle = document.querySelector(".offcanvas-title"),
             btnToggleSidebar = document.querySelector(".btn-toggle-sidebar"),
@@ -39,9 +39,6 @@ document.addEventListener("DOMContentLoaded", function () {
             eventStartDate = document.querySelector("#eventStartDate"),
             eventEndDate = document.querySelector("#eventEndDate"),
             eventNoteBefore = document.querySelector("#eventNoteBefore"),
-            selectIssue = document.querySelector("#selectIssue"),
-            selectAction = document.querySelector("#selectAction"),
-            selectStatus = document.querySelector("#selectStatus"),
             eventLabel = $("#eventLabel"), // ! Using jquery vars due to select2 jQuery dependency
             eventGuests = $("#eventGuests"), // ! Using jquery vars due to select2 jQuery dependency
             eventLocation = document.querySelector("#eventLocation"),
@@ -177,21 +174,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     option.selected = false;
                 }
             }
-            if (selectIssue) {
-                for (let optionI of selectIssue.options) {
-                    // console.log('value : ', optionI.value ,', id : ',eventToUpdate.extendedProps.idI);
-                    if (
-                        optionI.value ===
-                        String(eventToUpdate.extendedProps.idI)
-                    ) {
-                        optionI.selected = true;
-                    } else {
-                        optionI.selected = false;
-                    }
-                }
-            } else {
-                console.error("Element #selectIssue not found");
-            }
 
             let startDate = new Date();
 
@@ -217,25 +199,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 eventToUpdate.note !== null
                     ? `Note Before: ` + eventToUpdate.extendedProps.note
                     : "";
-            // eventToUpdate.extendedProps.location !== undefined
-            //     ? (eventLocation.value = eventToUpdate.extendedProps.location)
-            //     : null;
-            // eventToUpdate.extendedProps.guests !== undefined
-            //     ? eventGuests
-            //           .val(eventToUpdate.extendedProps.guests)
-            //           .trigger("change")
-            //     : null;
-            // eventToUpdate.extendedProps.description !== undefined
-            //     ? (eventDescription.value =
-            //           eventToUpdate.extendedProps.description)
-            //     : null;
-
-            // // Call removeEvent function
-            // btnDeleteEvent.addEventListener('click', e => {
-            //   removeEvent(parseInt(eventToUpdate.id));
-            //   // eventToUpdate.remove();
-            //   bsAddEventSidebar.hide();
-            // });
         }
 
         // Modify sidebar toggler
@@ -285,7 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
         function fetchEvents(info, successCallback) {
             // Fetch Events from API endpoint reference
             $.ajax({
-                url: "/db/next-follow/callendar",
+                url: "/db/accounting/callendar",
                 type: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -590,7 +553,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     };
                     let eventStore = {
                         client_id: eventToUpdate.id,
-                        issues: selectIssue.value,
+                        // issues: selectIssue.value,
                         status: selectStatus.value,
                         action: selectAction.value,
                         date: eventStartDate.value,
@@ -615,9 +578,6 @@ document.addEventListener("DOMContentLoaded", function () {
         // ------------------------------------------------
         function resetValues() {
             eventEndDate.value = "";
-            eventStartDate.value = "";
-            selectIssue.value = "";
-            // selectAction.value = "";
             eventNote.value = "";
             eventGuests.val("").trigger("change");
         }

@@ -1159,6 +1159,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/confirm-payment/payment/{id}', [PaymentController::class, 'confirm_payment'])->name('confirm_payment.payment');
     Route::post('/unconfirm-payment/payment/{id}', [PaymentController::class, 'unconfirm_payment'])->name('unconfirm_payment.payment');
     Route::post('/reminder-payment/payment/{id}', [PaymentController::class, 'reminder_payment'])->name('reminder_payment.payment');
+    Route::post('/reminder-calendar/payment/', [PaymentController::class, 'reminder_calendar'])->name('reminder_calendar.payment');
     Route::get('/view-payment/payment/{id}', [PaymentController::class, 'view_payment'])->name('view_payment.payment');
 
     Route::resource('/delivery', DeliveryController::class);
@@ -1407,6 +1408,77 @@ Route::group(["middleware" => "auth"], function () {
                     'title' => $activity->company,
                     'start' => $activity->start,
                     'end' => $activity->end,
+                    'note' => $activity->note,
+                    'allDay' => true,
+                    'extendedProps' => [
+                        'calendar' => $calendar,
+                        'idI' => $activity->idI
+                    ]
+                ];
+            });
+
+        return response()->json(['data' => $nextFollow]);
+    });
+    Route::get('/db/accounting/callendar', function () {
+        $subquery = DB::table(DB::raw('(
+                    SELECT p.*, 
+                        ROW_NUMBER() OVER (PARTITION BY p.id_quotation ORDER BY p.id ASC) AS payment_order
+                    FROM payment p
+                ) as pay'))
+            ->leftJoin(DB::raw('(
+                    SELECT i.*, 
+                        ROW_NUMBER() OVER (PARTITION BY i.id_quotation ORDER BY i.id ASC) AS invoice_order
+                    FROM invoice i
+                ) as inv'), function ($join) {
+                $join->on('pay.id_quotation', '=', 'inv.id_quotation')
+                    ->on('pay.payment_order', '=', 'inv.invoice_order');
+            })
+            ->join('quotation as q', 'q.id', '=', 'pay.id_quotation')
+            ->join('pic', 'pic.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'pic.id_client')
+            ->leftJoin('reminder as r', 'r.id', '=', DB::raw('(SELECT id FROM reminder WHERE reminder.id_payment = pay.id ORDER BY id DESC LIMIT 1)'))
+            ->select([
+                'pay.id',
+                'r.id as idI',
+                'pay.amount',
+                'pay.due_date',
+                'c.company',
+                'r.date_fu as start',
+                'r.date_fu as end',
+                'c.info as name',
+                'r.reminder as note',
+                'inv.no_invoice'
+            ])
+            ->whereNotNull('pay.due_date')
+            ->orderByDesc('r.date_fu')
+            ->orderByDesc('pay.due_date')
+            ->limit(1000);
+        $nextFollow = DB::table(DB::raw("({$subquery->toSql()}) as ordered_activities"))
+            ->mergeBindings($subquery) // Untuk menggabungkan binding dari subquery
+            ->groupBy('ordered_activities.no_invoice')
+            ->get()
+            ->map(function ($activity) {
+                // Modifikasi nilai 'calendar' berdasarkan nilai 'name'
+                if ($activity->note == NUll) {
+                    $calendar = 'Business';
+                } else {
+                    $calendar = match ($activity->name) {
+                        'Reftech' => 'Holiday',
+                        'Kojisha' => 'Personal',
+                        default => $activity->name,
+                    };
+                }
+
+                return [
+                    'id' => $activity->id,
+                    'url' => '',
+                    'invoice' => $activity->no_invoice,
+                    'company' => $activity->company,
+                    'amount' => 'Rp. ' . number_format($activity->amount, 0, ',', '.'),
+                    'title' => substr($activity->no_invoice, 0, 3) . ' - ' . $activity->company,
+                    'start' => $activity->start ?? $activity->due_date,
+                    'end' => $activity->end ?? $activity->due_date,
+                    'name' => $activity->name,
                     'note' => $activity->note,
                     'allDay' => true,
                     'extendedProps' => [
@@ -2481,6 +2553,27 @@ Route::group(["middleware" => "auth"], function () {
             ])
             ->get();
         return response()->json(['data' => $invoice]);
+    });
+    Route::get('/db/sales/invoice/escrow', function () {
+        $invoice = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
+            ->join('pic', 'pic.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'pic.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->join('payment as p', 'p.id_quotation', '=', 'q.id')
+            ->whereIn('u.id', ['16','23'])
+            ->where('p.type', 'Escrow')
+            ->select([
+                'invoice.*',
+                DB::raw("SUBSTRING(invoice.no_invoice, 1, 12) as short_invoice"),
+                DB::raw("SUBSTRING(invoice.no_po, 1, 10) as short_po"),
+                'c.company',
+                'c.info as bendera',
+                'u.name as name',
+                DB::raw("DATE_FORMAT(invoice.date, '%d-%m-%Y') as tanggal"),
+                'q.harga_total',
+                'q.po_date',
+                'q.tax',
+            ]);
     });
 
 

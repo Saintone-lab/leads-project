@@ -186,7 +186,7 @@ class PaymentController extends Controller
             ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales') // ambil kolom penting
             ->get();
         $nodueCount = Payment::where('type', 'Tempo')->whereNull('due_date')->count();
-        return view('pages.accounting.payment.index-aging', compact('invoice', 'confirm','nodueCount', 'unconfirm', 'overdue', 'ondue'));
+        return view('pages.accounting.payment.index-aging', compact('invoice', 'confirm', 'nodueCount', 'unconfirm', 'overdue', 'ondue'));
     }
     public function detail_aging($id)
     {
@@ -275,6 +275,21 @@ class PaymentController extends Controller
         $reminderSave = $reminder->save();
         if ($reminderSave) {
             return redirect('/payment-detail/aging/' . $id)->with("success", "data telah di buat");
+        }
+    }
+    public function reminder_calendar(Request $request)
+    {
+        $reminder = new Reminder;
+        $remCount = Reminder::where('id_payment', $request->input('id_payment'))->get()->count();
+        $reminder->id_payment = $request->input('id_payment');
+        $reminder->id_user = Auth::user()->id;
+        $reminder->reminder = $request->input('note');
+        $reminder->date_fu = $request->input('follow_up');
+        $reminder->date = Carbon::now();
+        $reminder->status = $remCount + 1;
+        $reminderSave = $reminder->save();
+        if ($reminderSave) {
+            return response()->json(['success' => true, 'message' => 'Perubahan berhasil disimpan']);
         }
     }
 }
