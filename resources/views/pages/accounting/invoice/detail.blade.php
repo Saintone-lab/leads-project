@@ -342,10 +342,8 @@
                                                         {{ number_format($dpp, 0, '', '.') }}</p>
                                                 </td>
                                             </tr>
-                                        @else
                                         @endif
-                                    @endif
-                                    @if ($quote->tax != 0 || $totalPph > 0)
+                                    @else
                                         @if ($quote->tax != 0)
                                             <tr class="fw-medium" style="font-size: 13px">
                                                 <td colspan="3" id="price" class="text-end pl-4 py-0"
@@ -363,6 +361,8 @@
                                                 </td>
                                             </tr>
                                         @endif
+                                    @endif
+                                    @if ($quote->tax != 0 || $totalPph > 0)
                                         <tr class="fw-medium py-0" style="font-size: 13px">
                                             <td colspan="3" class="text-end py-0"
                                                 style="padding-right: 10px !important;">
@@ -845,10 +845,8 @@
                                                         {{ number_format($dpp, 0, '', '.') }}</p>
                                                 </td>
                                             </tr>
-                                        @else
                                         @endif
-                                    @endif
-                                    @if ($quote->tax != 0 || $totalPph > 0)
+                                    @else
                                         @if ($quote->tax != 0)
                                             <tr class="fw-medium" style="font-size: 13px">
                                                 <td colspan="2" id="price" class="text-end pl-4 py-0"
@@ -866,6 +864,8 @@
                                                 </td>
                                             </tr>
                                         @endif
+                                    @endif
+                                    @if ($quote->tax != 0 || $totalPph > 0)
                                         <tr class="fw-medium py-0" style="font-size: 13px">
                                             <td colspan="2" class="text-end py-0"
                                                 style="padding-right: 10px !important;">

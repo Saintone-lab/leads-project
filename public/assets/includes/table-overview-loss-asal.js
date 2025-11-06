@@ -8,7 +8,7 @@ $(function () {
     var dateRep = segments[segments.length - 1]; // Mendapatkan segment terakhir
 
     if (dt_table_overview_loss.length) {
-        var dt_loss = dt_table_overview_loss.DataTable({
+        var dt_po = dt_table_overview_loss.DataTable({
             ajax: {
                 type: "GET",
                 url: Url + sales + "/" + dateRep,
@@ -16,7 +16,7 @@ $(function () {
                     "Content-Type": "application/json",
                 },
                 dataSrc: function (response) {
-                    // Mengambil total_nett dari response dan mengubah po-head-label
+                    // Mengambil total_nett dari response dan mengubah loss-head-label
                     var totalNett = response.total_nett || 0;
                     $("div.loss-head-label").html(
                         '<h5 class="card-title mb-0">Table Loss - Total Loss: Rp ' +
@@ -38,7 +38,7 @@ $(function () {
                 { data: "no_quote" },
                 { data: "company" },
                 { data: "title" },
-                { data: "estimated_date" },
+                { data: "po_date" },
                 { data: "nett" },
             ],
             columnDefs: [

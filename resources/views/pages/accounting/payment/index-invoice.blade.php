@@ -71,6 +71,13 @@
                         Rayi
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
+                        data-bs-target="#navs-pills-top-escrow" aria-controls="navs-pills-top-escrow" aria-selected="false"
+                        tabindex="-1">
+                        Escrow
+                    </button>
+                </li>
             </ul>
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="navs-pills-top-general" role="tabpanel">
@@ -180,6 +187,25 @@
                         </table>
                     </div>
                 </div>
+                <div class="tab-pane fade" id="navs-pills-top-escrow" role="tabpanel">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-sales-invoice-escrow table table-bordered">
+                            <thead>
+                                <tr>
+                                    {{-- <th></th> --}}
+                                    {{-- <th>ID</th> --}}
+                                    <th>Invoice No.</th>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Nominal</th>
+                                    <th>Fee</th>
+                                    <th>Sales</th>
+                                    <th>Flag</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
         {{-- Bataasss --}}
@@ -215,6 +241,7 @@
     <script src="{{ asset('assets') }}/includes/table-ar-sales-invoice-kojisha.js"></script>
     <script src="{{ asset('assets') }}/includes/table-ar-sales-invoice-ahmad.js"></script>
     <script src="{{ asset('assets') }}/includes/table-ar-sales-invoice-rayi.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-ar-sales-invoice-escrow.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
 @endpush
 

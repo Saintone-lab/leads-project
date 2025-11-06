@@ -9,17 +9,23 @@ class Expense extends Model
 {
     use HasFactory;
 
-    protected $table = "expense_invoice";
+    protected $table = "expense";
+    protected $date = [
+        'date',
+        'created_at',
+        'updated_at'
+    ];
     protected $fillable = [
-        'id_invoice',
+        'no_expense',
+        'divisi',
         'desc',
-        'qty',
-        'price',
+        'category',
+        'method',
+        'account',
         'total',
     ];
-    
-    public function quote()
+    public function detail()
     {
-        return $this->belongsTo('App\Models\Invoice', 'id_invoice', 'id');
+        return $this->hasMany('App\Models\DetailExpense', 'id_expsense');
     }
 }

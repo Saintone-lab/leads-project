@@ -2560,8 +2560,8 @@ Route::group(["middleware" => "auth"], function () {
             ->join('client as c', 'c.id', '=', 'pic.id_client')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
             ->join('payment as p', 'p.id_quotation', '=', 'q.id')
-            ->whereIn('u.id', ['16','23'])
-            ->where('p.type', 'Escrow')
+            ->whereIn('u.id', ['16', '23'])
+            ->where('p.method', 'Escrow')
             ->select([
                 'invoice.*',
                 DB::raw("SUBSTRING(invoice.no_invoice, 1, 12) as short_invoice"),
@@ -2573,7 +2573,8 @@ Route::group(["middleware" => "auth"], function () {
                 'q.harga_total',
                 'q.po_date',
                 'q.tax',
-            ]);
+            ])->get();
+        return response()->json(['data' => $invoice]);
     });
 
 
@@ -3231,11 +3232,11 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.id_sales', $sales)
             ->where('quotation.status', '0')
             ->where('level', '1')->where('is_primary', '1')
-            ->whereMonth('po_date', $month)
-            ->whereYear('po_date', $year)
-            ->get(['no_quote', 'client.company', 'nett', 'title', 'po_date', 'status', 'quotation.note', 'quotation.id']);
+            ->whereMonth('estimated_date', $month)
+            ->whereYear('estimated_date', $year)
+            ->get(['no_quote', 'client.company', 'nett', 'title', 'estimated_date', 'status', 'quotation.note', 'quotation.id']);
 
-        $totalNett = Quotation::whereMonth('po_date', $month)->whereYear('po_date', $year)->where('status', '0')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $totalNett = Quotation::whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->where('status', '0')->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $formattedTotalNett = number_format($totalNett, 0, ',', '.');
         return response()->json([
             'data' => $data,
