@@ -1,16 +1,16 @@
 $(function () {
-    var dt_table_sales_completed_search = $(
-        ".datatable-sales-completed-search"
+    var dt_table_sales_completed_search_project = $(
+        ".datatable-sales-completed-search-project"
     );
-    var Url = "/db/pending/sales-completed";
+    var Url = "/db/pending/sales-completed-project";
 
-    if (dt_table_sales_completed_search.length) {
+    if (dt_table_sales_completed_search_project.length) {
         $('[data-toggle="tooltip"]').tooltip();
         // Setup - add a text input to each footer cell
-        $(".datatable-sales-completed-search thead tr")
+        $(".datatable-sales-completed-search-project thead tr")
             .clone(true)
-            .appendTo(".datatable-sales-completed-search thead");
-        $(".datatable-sales-completed-search thead tr:eq(1) th").each(function (
+            .appendTo(".datatable-sales-completed-search-project thead");
+        $(".datatable-sales-completed-search-project thead tr:eq(1) th").each(function (
             i
         ) {
             var title = $(this).text();
@@ -27,7 +27,7 @@ $(function () {
             });
         });
 
-        var dt_filter = dt_table_sales_completed_search.DataTable({
+        var dt_filter = dt_table_sales_completed_search_project.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -204,7 +204,7 @@ $(function () {
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         });
     }
-    dt_table_sales_completed_search.on("draw", function () {
+    dt_table_sales_completed_search_project.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

@@ -16,9 +16,11 @@ use App\Models\Product;
 use App\Models\ProductOut;
 use App\Models\Quotation;
 use App\Models\SerialProduct;
+use App\Models\ServiceOrder;
 use App\Models\SubtitleQuotation;
 use Auth;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
 
 class PendingController extends Controller
@@ -253,15 +255,16 @@ class PendingController extends Controller
         $quote = Quotation::find($pending->id_quotation);
         $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $dPending = DetailPendingPO::where('id_pending', $id)->get();
+        // dd($dPending);
         foreach ($request->status as $key => $value) {
-            $product = Product::join('serial_product as sp', 'sp.id_product', '=', 'product.id')->where('sp.id', $dPending[$key]->id_equivalent)->select('product.*')->first();
-            if ($dPending[$key]->bdg != 0 || $dPending[$key]->bks != 0) {
-                $product->stock += $request->bdg[$key];
-                $product->warehouse_stock += $request->bks[$key];
-                $product->pending_stock -= $request->bdg[$key] + $request->bks[$key];
-                $dPending[$key]->bdg = 0;
-                $dPending[$key]->bks = 0;
-            }
+            $product = Product::join('serial_product as sp', 'sp.id_product', '=', 'product.id')->where('sp.id', $request->equivalent[$key])->select('product.*')->first();
+            // if ($dPending[$key]->bdg != 0 || $dPending[$key]->bks != 0) {
+            $product->stock += $dPending[$key]->bdg;
+            $product->warehouse_stock += $dPending[$key]->bks;
+            $product->pending_stock -= $dPending[$key]->bdg + $dPending[$key]->bks;
+            $dPending[$key]->bdg = 0;
+            $dPending[$key]->bks = 0;
+            // }
             $dPending[$key]->id_equivalent = $request->equivalent[$key];
             $dPending[$key]->status = $value;
             $dPending[$key]->bdg = $request->bdg[$key];
@@ -273,8 +276,8 @@ class PendingController extends Controller
                 $product->stock -= $request->bdg[$key];
                 $product->warehouse_stock -= $request->bks[$key];
                 $product->pending_stock += $request->bdg[$key] + $request->bks[$key];
-                $product->save();
             }
+            $product->save();
         }
         return redirect('/pending-po/' . $id)->with('message', 'Product Pending PO telah diedit');
     }
@@ -458,6 +461,61 @@ class PendingController extends Controller
             return redirect('/pending-po-done')->with('message', 'data telah di tambahkan');
         }
     }
+    public function indexSOrder()
+    {
+        $newCount = PendingPO::where('status', operator: 0)
+            ->count();
+        $listCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])
+            ->count();
+        $readyCount = PendingPO::where('pending_po.status', 2)
+            ->where('pending_po.type', 'Non Project')
+            ->count();
+        $jadwalCount = PendingPO::join('service_order as s', 's.id_sales_order', '=', 'pending_po.id')
+            ->where('pending_po.status', 2)
+            ->where('pending_po.type', 'Project')
+            ->whereNull('s.date_schedule')
+            ->distinct('pending_po.id')
+            ->count('pending_po.id');
+        // dd($jadwalCount);
+        $deliveryCount = PendingPO::where('pending_po.status', 5)
+            ->count();
+        $noInvoiceCountP = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->join('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->whereNotNull('i.no_invoice')
+            ->where('pending_po.type', 'Project')
+            ->where('pending_po.status', 6)
+            ->count();
+        $noInvoiceCountNP = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->join('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->whereNotNull('i.no_invoice')
+            ->where('pending_po.type', 'Non Project')
+            ->where('pending_po.status', 6)
+            ->count();
+
+        $schedules = ServiceOrder::join(DB::raw("(
+        SELECT id_sales_order, MAX(id) as max_id
+        FROM service_order
+        GROUP BY id_sales_order
+    ) so_max"), 'service_order.id', '=', 'so_max.max_id')
+            ->join('pending_po as p', 'p.id', '=', 'service_order.id_sales_order')
+            ->where('p.status', 2)
+            ->select('service_order.*', 'p.no_pending', 'p.title')
+            ->get();
+        $orders = PendingPO::where('status', 2)->where('type', 'Project')->get();
+        // dd($schedules);
+        // $schedules = ServiceOrder::join('PendingPO as p', 'p.id', '=', 'service_order.id_sales_order')->where('p.status, 2')->get();
+        return view('pages.sorder.index', compact(
+            'schedules',
+            'orders',
+            'newCount',
+            'listCount',
+            'readyCount',
+            'jadwalCount',
+            'deliveryCount',
+            'noInvoiceCountP',
+            'noInvoiceCountNP',
+        ));
+    }
     public function indexDone()
     {
         $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
@@ -550,6 +608,51 @@ class PendingController extends Controller
             return 1;
         } else {
             return 0;
+        }
+    }
+    public function schedule(Request $request, $id)
+    {
+        // dd($request->all());
+        $schedule = new ServiceOrder();
+        $schedule->id_sales_order = $id;
+        $schedule->BA = '0';
+        $schedule->SJ = '0';
+        $schedule->note_schedule = $request->note;
+        $schedule->date_schedule = $request->date_schedule;
+        $schedulesave = $schedule->save();
+        if ($schedulesave) {
+            return redirect('/sales-order')->with('message', 'data telah di tambahkan');
+        }
+    }
+    public function reschedule(Request $request, $id)
+    {
+        $schedule = ServiceOrder::find($id);
+        $reschedule = new ServiceOrder();
+        $reschedule->id_sales_order = $schedule->id_sales_order;
+        $reschedule->BA = $schedule->BA;
+        $reschedule->SJ = $schedule->SJ;
+        $reschedule->note_schedule = $request->note;
+        $reschedule->date_schedule = $request->date_schedule;
+        $reschedulesave = $reschedule->save();
+        if ($reschedulesave) {
+            return redirect('/sales-order')->with('message', 'data telah di tambahkan');
+        }
+    }
+    public function dokumentasi(Request $request, $id)
+    {
+        // dd($request->all());
+        $schedule = ServiceOrder::find($id);
+        $schedule->SJ = $request->has('SJ') ? '1' : '0';
+        $schedule->BA = $request->has('BA') ? '1' : '0';
+        $schedule->note_doc = $request->note;
+        $schedulesave = $schedule->save();
+        if ($schedule->SJ == '1' && $schedule->BA == '1') {
+            $order = PendingPO::find($schedule->id_sales_order);
+            $order->status = '6';
+            $order->save();
+        }
+        if ($schedulesave) {
+            return redirect('/sales-order')->with('message', 'data telah di tambahkan');
         }
     }
 }

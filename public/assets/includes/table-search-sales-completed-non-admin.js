@@ -1,33 +1,33 @@
 $(function () {
-    var dt_table_new_order_search_admin = $(
-        ".datatable-new-order-search-admin"
+    var dt_table_sales_completed_search_admin_non = $(
+        ".datatable-sales-completed-search-admin-non"
     );
-    var Url = "db/pending/new-order/admin";
+    var Url = "/db/pending/sales-completed-non/admin";
 
-    if (dt_table_new_order_search_admin.length) {
+    if (dt_table_sales_completed_search_admin_non.length) {
         $('[data-toggle="tooltip"]').tooltip();
         // Setup - add a text input to each footer cell
-        $(".datatable-new-order-search-admin thead tr")
+        $(".datatable-sales-completed-search-admin-non thead tr")
             .clone(true)
-            .appendTo(".datatable-new-order-search-admin thead");
-        $(".datatable-new-order-search-admin thead tr:eq(1) th").each(function (
-            i
-        ) {
-            var title = $(this).text();
-            $(this).html(
-                '<input type="text" class="form-control" placeholder="Search ' +
-                    title +
-                    '" />'
-            );
+            .appendTo(".datatable-sales-completed-search-admin-non thead");
+        $(".datatable-sales-completed-search-admin-non thead tr:eq(1) th").each(
+            function (i) {
+                var title = $(this).text();
+                $(this).html(
+                    '<input type="text" class="form-control" placeholder="Search ' +
+                        title +
+                        '" />'
+                );
 
-            $("input", this).on("keyup change", function () {
-                if (dt_filter.column(i).search() !== this.value) {
-                    dt_filter.column(i).search(this.value).draw();
-                }
-            });
-        });
+                $("input", this).on("keyup change", function () {
+                    if (dt_filter.column(i).search() !== this.value) {
+                        dt_filter.column(i).search(this.value).draw();
+                    }
+                });
+            }
+        );
 
-        var dt_filter = dt_table_new_order_search_admin.DataTable({
+        var dt_filter = dt_table_sales_completed_search_admin_non.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -46,15 +46,18 @@ $(function () {
                 // },
             },
             columns: [
-                { data: "no_pending" },
                 { data: "no_po" },
+                {
+                    data: "short_invoice",
+                    render: function (data, type, row) {
+                        return data ? data : "Belum ada invoice";
+                    },
+                },
                 { data: "po_date" },
-                { data: "type" },
                 { data: "company" },
                 { data: "title" },
                 { data: "status" },
                 { data: "level" },
-                { data: "area" },
                 { data: "delivery" },
                 {
                     data: "name",
@@ -64,52 +67,34 @@ $(function () {
                 },
             ],
             columnDefs: [
+                // {
+                //     targets: 1,
+                //     render: function (data, type, row) {
+                //         if (type === "sort" || type === "type") {
+                //             return row.po_date_raw; // pakai versi raw untuk sorting
+                //         }
+                //         return data; // tampilan tetap yang dd-mm-yyyy
+                //     },
+                // },
+                // {
+                //     targets: 1,
+                //     render: function (data, type, full, row) {
+                //         if (type === "display") {
+                //             var id = full["id"];
+                //             detailRoute = route("pending-po.show", id);
+                //             return (
+                //                 '<a class="text-black" href="' +
+                //                 detailRoute +
+                //                 '">' +
+                //                 data +
+                //                 "</a>"
+                //             );
+                //         }
+                //         return data;
+                //     },
+                // },
                 {
-                    targets: 0,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var id = full["id"];
-                            detailRoute = route("pending-po.show", id);
-                            return (
-                                '<a class="text-black" href="' +
-                                detailRoute +
-                                '">' +
-                                data +
-                                "</a>"
-                            );
-                        }
-                        return data;
-                    },
-                },
-                {
-                    targets: 2,
-                    render: function (data, type, row) {
-                        if (type === "sort" || type === "type") {
-                            return row.po_date_raw; // pakai versi raw untuk sorting
-                        }
-                        return data; // tampilan tetap yang dd-mm-yyyy
-                    },
-                },
-                {
-                    targets: 3,
-                    render: function (data, type, full, meta) {
-                        var warna;
-                        if (data === "Project") {
-                            warna = "bg-label-primary";
-                        } else {
-                            warna = "bg-label-success";
-                        }
-                        return (
-                            '<span class="badge rounded-pill ' +
-                            warna +
-                            '">' +
-                            data +
-                            "</span>"
-                        );
-                    },
-                },
-                {
-                    targets: 6,
+                    targets: 5,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $status = {
@@ -141,6 +126,10 @@ $(function () {
                                 title: "Delivery Process",
                                 class: " bg-label-linkedin",
                             },
+                            6: {
+                                title: "Completed",
+                                class: " bg-label-success",
+                            },
                         };
                         if (typeof $status[$status_number] === "undefined") {
                             return data;
@@ -155,15 +144,11 @@ $(function () {
                     },
                 },
                 {
-                    targets: 7,
+                    targets: 6,
                     render: function (data, type, full, meta) {
                         var bayar = full["paytype"];
                         var info, warna;
-
-                        if (data == null || bayar == null) {
-                            info = "UNPAID";
-                            warna = "bg-label-danger";
-                        } else if (data == 0) {
+                        if (data == 0) {
                             info = "UNPAID";
                             warna = "bg-label-danger";
                         } else {
@@ -177,7 +162,7 @@ $(function () {
                                 info = "Kredit";
                                 warna = "bg-label-success";
                             } else {
-                                info = "Full Paid";
+                                info = "full Paid";
                                 warna = "bg-label-success";
                             }
                         }
@@ -191,7 +176,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 9,
+                    targets: 7,
                     render: function (data, type, full, meta) {
                         var delivery = full["delivery"];
                         switch (delivery) {
@@ -215,7 +200,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 11,
+                    targets: 9,
                     render: function (data, type, full, row) {
                         var id = full["team"];
                         var team;
@@ -228,12 +213,12 @@ $(function () {
                     },
                 },
             ],
-            order: [[1, "desc"]],
+            order: [],
             // deliveryCellsTop: true,
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         });
     }
-    dt_table_new_order_search_admin.on("draw", function () {
+    dt_table_sales_completed_search_admin_non.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

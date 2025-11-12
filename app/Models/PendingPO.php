@@ -22,6 +22,10 @@ class PendingPO extends Model
     {
         return $this->hasMany('App\Models\DetailPendingPO', 'id_pending');
     }
+    public function service()
+    {
+        return $this->hasMany('App\Models\ServiceOrder', 'id_sales_order');
+    }
     public function expanse()
     {
         return $this->belongsTo('App\Models\Expanse', 'id_pending', 'id');

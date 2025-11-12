@@ -7,6 +7,7 @@ use App\Models\Contract;
 use App\Models\Delivery;
 use App\Models\DetailQuotation;
 use App\Models\Expense;
+use App\Models\ExpenseInvoice;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\ProductOut;
@@ -102,8 +103,8 @@ class InvoiceController extends Controller
         $return = ReturnQ::where('id_quotation', $invoice->id_quotation)->first();
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
-        $expense = Expense::where('id_invoice', $id)->get();
-        $totalExpense = Expense::where('id_invoice', $id)->sum('total');
+        $expense = ExpenseInvoice::where('id_invoice', $id)->get();
+        $totalExpense = ExpenseInvoice::where('id_invoice', $id)->sum('total');
 
         $totalPph = 0;
         if ($quote->type == 'Sparepart') {
@@ -491,7 +492,7 @@ class InvoiceController extends Controller
     public function inputExpense(Request $request, $id)
     {
         // dd($request->all());
-        $expense = new Expense();
+        $expense = new ExpenseInvoice();
         $expense->id_invoice = $id;
         $expense->desc = $request->desc;
         $expense->qty = $request->qty;
@@ -505,7 +506,7 @@ class InvoiceController extends Controller
 
     public function deleteExpense($id)
     {
-        $expense = Expense::find($id);
+        $expense = ExpenseInvoice::find($id);
         $expenseDel = $expense->delete();
         if ($expenseDel) {
             return 1;

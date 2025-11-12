@@ -1,16 +1,16 @@
 $(function () {
-    var dt_table_new_order_search_admin = $(
-        ".datatable-new-order-search-admin"
+    var dt_table_sales_completed_search_non = $(
+        ".datatable-sales-completed-search-non"
     );
-    var Url = "db/pending/new-order/admin";
+    var Url = "/db/pending/sales-completed-non";
 
-    if (dt_table_new_order_search_admin.length) {
+    if (dt_table_sales_completed_search_non.length) {
         $('[data-toggle="tooltip"]').tooltip();
         // Setup - add a text input to each footer cell
-        $(".datatable-new-order-search-admin thead tr")
+        $(".datatable-sales-completed-search-non thead tr")
             .clone(true)
-            .appendTo(".datatable-new-order-search-admin thead");
-        $(".datatable-new-order-search-admin thead tr:eq(1) th").each(function (
+            .appendTo(".datatable-sales-completed-search-non thead");
+        $(".datatable-sales-completed-search-non thead tr:eq(1) th").each(function (
             i
         ) {
             var title = $(this).text();
@@ -27,7 +27,7 @@ $(function () {
             });
         });
 
-        var dt_filter = dt_table_new_order_search_admin.DataTable({
+        var dt_filter = dt_table_sales_completed_search_non.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -46,70 +46,38 @@ $(function () {
                 // },
             },
             columns: [
-                { data: "no_pending" },
-                { data: "no_po" },
                 { data: "po_date" },
-                { data: "type" },
+                {
+                    data: "no_po",
+                    render: function (data, type, row) {
+                        return data ? data : "belum ada invoice";
+                    },
+                },
                 { data: "company" },
                 { data: "title" },
                 { data: "status" },
                 { data: "level" },
-                { data: "area" },
                 { data: "delivery" },
-                {
-                    data: "name",
-                },
-                {
-                    data: "team",
-                },
             ],
             columnDefs: [
+                // {
+                //     targets: 1,
+                //     render: function (data, type, full, row) {
+                //         if (type === "display") {
+                //             var id = full["id"];
+                //             return (
+                //                 '<a class="text-black cursor-pointer" data-bs-toggle="modal" data-bs-target="#detailPending-' +
+                //                 id +
+                //                 '">' +
+                //                 data +
+                //                 "</a>"
+                //             );
+                //         }
+                //         return data;
+                //     },
+                // },
                 {
-                    targets: 0,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var id = full["id"];
-                            detailRoute = route("pending-po.show", id);
-                            return (
-                                '<a class="text-black" href="' +
-                                detailRoute +
-                                '">' +
-                                data +
-                                "</a>"
-                            );
-                        }
-                        return data;
-                    },
-                },
-                {
-                    targets: 2,
-                    render: function (data, type, row) {
-                        if (type === "sort" || type === "type") {
-                            return row.po_date_raw; // pakai versi raw untuk sorting
-                        }
-                        return data; // tampilan tetap yang dd-mm-yyyy
-                    },
-                },
-                {
-                    targets: 3,
-                    render: function (data, type, full, meta) {
-                        var warna;
-                        if (data === "Project") {
-                            warna = "bg-label-primary";
-                        } else {
-                            warna = "bg-label-success";
-                        }
-                        return (
-                            '<span class="badge rounded-pill ' +
-                            warna +
-                            '">' +
-                            data +
-                            "</span>"
-                        );
-                    },
-                },
-                {
-                    targets: 6,
+                    targets: 4,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $status = {
@@ -134,12 +102,16 @@ $(function () {
                                 class: " bg-label-reddit",
                             },
                             4: {
-                                title: "Pre-delivery",
+                                title: "Pre-Order",
                                 class: " bg-label-primary",
                             },
                             5: {
                                 title: "Delivery Process",
                                 class: " bg-label-linkedin",
+                            },
+                            6: {
+                                title: "Completed",
+                                class: "bg-label-success",
                             },
                         };
                         if (typeof $status[$status_number] === "undefined") {
@@ -155,15 +127,11 @@ $(function () {
                     },
                 },
                 {
-                    targets: 7,
+                    targets: 5,
                     render: function (data, type, full, meta) {
                         var bayar = full["paytype"];
                         var info, warna;
-
-                        if (data == null || bayar == null) {
-                            info = "UNPAID";
-                            warna = "bg-label-danger";
-                        } else if (data == 0) {
+                        if (data == 0) {
                             info = "UNPAID";
                             warna = "bg-label-danger";
                         } else {
@@ -177,7 +145,7 @@ $(function () {
                                 info = "Kredit";
                                 warna = "bg-label-success";
                             } else {
-                                info = "Full Paid";
+                                info = "full Paid";
                                 warna = "bg-label-success";
                             }
                         }
@@ -191,7 +159,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 9,
+                    targets: 6,
                     render: function (data, type, full, meta) {
                         var delivery = full["delivery"];
                         switch (delivery) {
@@ -215,25 +183,28 @@ $(function () {
                     },
                 },
                 {
-                    targets: 11,
+                    targets: 2,
                     render: function (data, type, full, row) {
-                        var id = full["team"];
-                        var team;
-                        if (id == 1 || id == 16 || id == 23) {
-                            team = "ONLINE";
-                        } else {
-                            team = "OFFLINE";
+                        if (type === "display") {
+                            var id = full["id"];
+                            detailRoute = route("pending-po.show", id);
+                            return (
+                                '<a class="text-black" href="' +
+                                detailRoute +
+                                '">' +
+                                data +
+                                "</a>"
+                            );
                         }
-                        return team;
+                        return data;
                     },
                 },
             ],
-            order: [[1, "desc"]],
-            // deliveryCellsTop: true,
+            order: [],
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         });
     }
-    dt_table_new_order_search_admin.on("draw", function () {
+    dt_table_sales_completed_search_non.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

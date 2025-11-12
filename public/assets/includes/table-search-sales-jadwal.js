@@ -1,18 +1,14 @@
 $(function () {
-    var dt_table_new_order_search_admin = $(
-        ".datatable-new-order-search-admin"
-    );
-    var Url = "db/pending/new-order/admin";
+    var dt_table_sales_jadwal_search = $(".datatable-sales-list-jadwal");
+    var Url = "/db/pending/sales-jadwal";
 
-    if (dt_table_new_order_search_admin.length) {
+    if (dt_table_sales_jadwal_search.length) {
         $('[data-toggle="tooltip"]').tooltip();
         // Setup - add a text input to each footer cell
-        $(".datatable-new-order-search-admin thead tr")
+        $(".datatable-sales-list-jadwal thead tr")
             .clone(true)
-            .appendTo(".datatable-new-order-search-admin thead");
-        $(".datatable-new-order-search-admin thead tr:eq(1) th").each(function (
-            i
-        ) {
+            .appendTo(".datatable-sales-list-jadwal thead");
+        $(".datatable-sales-list-jadwal thead tr:eq(1) th").each(function (i) {
             var title = $(this).text();
             $(this).html(
                 '<input type="text" class="form-control" placeholder="Search ' +
@@ -27,7 +23,7 @@ $(function () {
             });
         });
 
-        var dt_filter = dt_table_new_order_search_admin.DataTable({
+        var dt_filter = dt_table_sales_jadwal_search.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -49,11 +45,15 @@ $(function () {
                 { data: "no_pending" },
                 { data: "no_po" },
                 { data: "po_date" },
-                { data: "type" },
+                {
+                    data: "date_schedule",
+                    render: function (data, type, row) {
+                        return data ? data : "Belum di schedule";
+                    },
+                },
                 { data: "company" },
                 { data: "title" },
                 { data: "status" },
-                { data: "level" },
                 { data: "area" },
                 { data: "delivery" },
                 {
@@ -61,6 +61,9 @@ $(function () {
                 },
                 {
                     data: "team",
+                },
+                {
+                    data: "id_order",
                 },
             ],
             columnDefs: [
@@ -88,24 +91,6 @@ $(function () {
                             return row.po_date_raw; // pakai versi raw untuk sorting
                         }
                         return data; // tampilan tetap yang dd-mm-yyyy
-                    },
-                },
-                {
-                    targets: 3,
-                    render: function (data, type, full, meta) {
-                        var warna;
-                        if (data === "Project") {
-                            warna = "bg-label-primary";
-                        } else {
-                            warna = "bg-label-success";
-                        }
-                        return (
-                            '<span class="badge rounded-pill ' +
-                            warna +
-                            '">' +
-                            data +
-                            "</span>"
-                        );
                     },
                 },
                 {
@@ -155,43 +140,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 7,
-                    render: function (data, type, full, meta) {
-                        var bayar = full["paytype"];
-                        var info, warna;
-
-                        if (data == null || bayar == null) {
-                            info = "UNPAID";
-                            warna = "bg-label-danger";
-                        } else if (data == 0) {
-                            info = "UNPAID";
-                            warna = "bg-label-danger";
-                        } else {
-                            if (bayar == "DP") {
-                                info = "Half Paid";
-                                warna = "bg-label-warning";
-                            } else if (bayar == "BP") {
-                                info = "PAID";
-                                warna = "bg-label-success";
-                            } else if (bayar == "Tempo") {
-                                info = "Kredit";
-                                warna = "bg-label-success";
-                            } else {
-                                info = "Full Paid";
-                                warna = "bg-label-success";
-                            }
-                        }
-                        return (
-                            '<span class="badge rounded-pill ' +
-                            warna +
-                            '">' +
-                            info +
-                            "</span>"
-                        );
-                    },
-                },
-                {
-                    targets: 9,
+                    targets: 8,
                     render: function (data, type, full, meta) {
                         var delivery = full["delivery"];
                         switch (delivery) {
@@ -215,7 +164,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 11,
+                    targets: 10,
                     render: function (data, type, full, row) {
                         var id = full["team"];
                         var team;
@@ -227,13 +176,44 @@ $(function () {
                         return team;
                     },
                 },
+                {
+                    targets: 11,
+                    render: function (data, type, full, row) {
+                        var schedule = full["date_schedule"];
+                        var id = full["id"];
+                        var id_schedule = full["id_order"];
+                        if (schedule == null) {
+                            return (
+                                '<a type="button" data-bs-toggle="modal" data-bs-target="#scheduling-'+ id +'">' +
+                                '<button type="button" class="btn btn-sm btn-primary">Schedule</button>' +
+                                "</a>"
+                            );
+                        } else {
+                            return (
+                                '<button type="button" class="btn btn-primary dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' +
+                                "Action" +
+                                "</button>" +
+                                '<ul class="dropdown-menu" style="">' +
+                                '<li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"' +
+                                'data-bs-target="#reschedule-' +
+                                id_schedule +
+                                '">Reschedule</a></li>' +
+                                '<li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"' +
+                                'data-bs-target="#dokumentasi-' +
+                                id_schedule +
+                                '">Dokumentasi</a></li>' +
+                                "</ul>"
+                            );
+                        }
+                    },
+                },
             ],
-            order: [[1, "desc"]],
-            // deliveryCellsTop: true,
+            // order: [[1, "desc"]],
+            // orderCellsTop: true,
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         });
     }
-    dt_table_new_order_search_admin.on("draw", function () {
+    dt_table_sales_jadwal_search.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

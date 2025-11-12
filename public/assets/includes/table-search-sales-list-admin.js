@@ -47,6 +47,7 @@ $(function () {
             },
             columns: [
                 { data: "no_pending" },
+                { data: "no_po" },
                 { data: "po_date" },
                 { data: "type" },
                 { data: "company" },
@@ -81,7 +82,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 1,
+                    targets: 2,
                     render: function (data, type, row) {
                         if (type === "sort" || type === "type") {
                             return row.po_date_raw; // pakai versi raw untuk sorting
@@ -90,7 +91,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 2,
+                    targets: 3,
                     render: function (data, type, full, meta) {
                         var warna;
                         if (data === "Project") {
@@ -108,7 +109,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 5,
+                    targets: 6,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $status = {
@@ -154,7 +155,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 6,
+                    targets: 7,
                     render: function (data, type, full, meta) {
                         var bayar = full["paytype"];
                         var info, warna;
@@ -186,7 +187,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 8,
+                    targets: 9,
                     render: function (data, type, full, meta) {
                         var delivery = full["delivery"];
                         switch (delivery) {
@@ -210,7 +211,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 10,
+                    targets: 11,
                     render: function (data, type, full, row) {
                         var id = full["team"];
                         var team;

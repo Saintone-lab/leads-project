@@ -230,7 +230,16 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Sales Order</span>
             </li>
-            <li class="menu-item {{ request()->is('new-order') ? 'active' : '' }}">
+            <li class="menu-item {{ request()->is('sales-order') || request()->is('pending-po/*') ? 'active' : '' }}">
+                <a href="{{ route('pending-po.sales-order') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-list-box-outline"></i>
+                    <div data-i18n="Sales Order">Sales Order</div>
+                    {{-- @if (@$newCount >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $newCount }}</div>
+                    @endif --}}
+                </a>
+            </li>
+            {{-- <li class="menu-item {{ request()->is('new-order') ? 'active' : '' }}">
                 <a href="{{ route('pending-po.order') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-cart-plus"></i>
                     <div data-i18n="New Order">New Order</div>
@@ -265,7 +274,7 @@
                         </a>
                     </li>
                 </ul>
-            </li>
+            </li> --}}
             <li class="menu-item ">
                 <a href="{{ route('pending-po.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-format-list-group-plus"></i>
@@ -802,7 +811,17 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Sales Order</span>
             </li>
-            <li class="menu-item {{ request()->is('new-order') ? 'active' : '' }}">
+            <li
+                class="menu-item {{ request()->is('sales-order') || request()->is('pending-po/*') ? 'active' : '' }}">
+                <a href="{{ route('pending-po.sales-order') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-list-box-outline"></i>
+                    <div data-i18n="Sales Order">Sales Order</div>
+                    {{-- @if (@$newCount >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $newCount }}</div>
+                    @endif --}}
+                </a>
+            </li>
+            {{-- <li class="menu-item {{ request()->is('new-order') ? 'active' : '' }}">
                 <a href="{{ route('pending-po.order') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-cart-plus"></i>
                     <div data-i18n="New Order">New Order</div>
@@ -831,7 +850,7 @@
                         </a>
                     </li>
                 </ul>
-            </li>
+            </li> --}}
             <li class="menu-item ">
                 <a href="{{ route('pending-po.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-archive-cancel"></i>
@@ -1269,7 +1288,17 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Sales Order</span>
             </li>
-            <li class="menu-item {{ request()->is('new-order') ? 'active' : '' }}">
+            <li
+                class="menu-item {{ request()->is('sales-order') || request()->is('pending-po/*') ? 'active' : '' }}">
+                <a href="{{ route('pending-po.sales-order') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-list-box-outline"></i>
+                    <div data-i18n="Sales Order">Sales Order</div>
+                    {{-- @if (@$newCount >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $newCount }}</div>
+                    @endif --}}
+                </a>
+            </li>
+            {{-- <li class="menu-item {{ request()->is('new-order') ? 'active' : '' }}">
                 <a href="{{ route('pending-po.order') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-cart-plus"></i>
                     <div data-i18n="New Order">New Order</div>
@@ -1304,7 +1333,7 @@
                         </a>
                     </li>
                 </ul>
-            </li>
+            </li> --}}
             <li class="menu-item ">
                 <a href="{{ route('pending-po.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-format-list-group-plus"></i>
@@ -1412,8 +1441,7 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Monitoring</span>
             </li>
-            <li
-                class="menu-item {{ request()->is('service-reports-servicem') ? 'active' : '' }}">
+            <li class="menu-item {{ request()->is('service-reports-servicem') ? 'active' : '' }}">
                 <a href="{{ route('service-reports.manager') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-file-chart-outline"></i>
                     <div data-i18n="Reports">Reports</div>
@@ -1473,6 +1501,20 @@
                         </a>
                     </li>
                 </ul>
+            </li>
+
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Sales Order</span>
+            </li>
+            <li
+                class="menu-item {{ request()->is('sales-order') || request()->is('pending-po/*') ? 'active' : '' }}">
+                <a href="{{ route('pending-po.sales-order') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-list-box-outline"></i>
+                    <div data-i18n="Sales Order">Sales Order</div>
+                    {{-- @if (@$newCount >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $newCount }}</div>
+                    @endif --}}
+                </a>
             </li>
             {{-- <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Notulen</span>
