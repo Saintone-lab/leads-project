@@ -405,7 +405,7 @@
                         </div>
                     </div>
                 @elseif ($prospect->level == 9)
-                    <div class="card">
+                    <div class="card mb-3">
                         <div class="card-body">
                             <a href="#" class="btn btn-primary d-grid w-100 waves-effect with-quote mb-4"
                                 data-id="{{ $prospect->id }}">
@@ -431,6 +431,22 @@
                                 <button type="submit"
                                     class="btn btn-primary waves-effect waves-light float-end">Choose</button>
                             </form>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <a href="#" class="btn btn-danger d-grid w-100 waves-effect without-quote mb-3"                             
+                                data-id="{{ $prospect->id }}">
+                                No Quote
+                            </a>
+                            <a href="#" class="btn btn-warning d-grid w-100 waves-effect no-respond mb-3"
+                                data-id="{{ $prospect->id }}">
+                                No Respond
+                            </a>
+                            <a href="#" class="btn btn-pinterest d-grid w-100 waves-effect no-provide mb-3"
+                                data-id="{{ $prospect->id }}">
+                                No Provide
+                            </a>
                         </div>
                     </div>
                 @endif
@@ -719,6 +735,63 @@
                 if (result.value) {
                     $.ajax({
                         'url': '{{ url('prospect') }}/' + 'no_respond/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Converted!",
+                                    text: "Your file has been converted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href =
+                                        '/prospect/';
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed Without Quotation!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "You cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.no-provide', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure No Provide this Prospect?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, No Provide!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('prospect') }}/' + 'no_provide/' + id,
                         'type': 'POST',
                         'data': {
                             '_method': 'POST',

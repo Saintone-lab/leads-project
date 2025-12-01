@@ -409,7 +409,7 @@
                                             <td class="pr-4 py-0"
                                                 style="background-color: {{ $bgColor }}; padding-right:20px;">
                                                 <p class="m-0 text-end fw-bold">
-                                                    {{ 'RP ' . number_format($quote->harga_total - $totalPph, 0, '', '.') }}
+                                                    {{ 'RP ' . number_format($quote->harga_total - $totalPph - $quote->shipping, 0, '', '.') }}
                                                 </p>
                                             </td>
                                         </tr>
@@ -912,7 +912,7 @@
                                             <td class="pr-4 py-0"
                                                 style="background-color: {{ $bgColor }}; padding-right:20px;">
                                                 <p class="m-0 text-end fw-bold">
-                                                    {{ 'RP ' . number_format($quote->harga_total - $totalPph, 0, '', '.') }}
+                                                    {{ 'RP ' . number_format($quote->harga_total - $totalPph - $quote->shipping, 0, '', '.') }}
                                                 </p>
                                             </td>
                                         </tr>

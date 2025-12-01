@@ -372,9 +372,9 @@
                 </ul>
             </li>
 
-            <li class="menu-header fw-light mt-4">
+            {{-- <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Marketting</span>
-            </li>
+            </li> --}}
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Accounting</span>
@@ -474,6 +474,30 @@
                     </li>
                 </ul>
             </li>
+            <li
+                class="menu-item {{ request()->is('payable-account') || request()->is('payable') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
+                    <div data-i18n="Payable (AP)">Payable (AP)</div>
+                    {{-- @if (@$nodueCount >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $nodueCount }}</div>
+                    @endif --}}
+                </a>
+                <ul class="menu-sub">
+                    <li
+                        class="menu-item {{ request()->is('payable-account') ? 'active' : '' }}">
+                        <a href="{{ route('payable-account.index') }}" class="menu-link">
+                            <div data-i18n="Account Database">Account Database</div>
+                        </a>
+                    </li>
+                    <li
+                        class="menu-item {{ request()->is('payable') ? 'active' : '' }}">
+                        <a href="{{ route('payable.index') }}" class="menu-link">
+                            <div data-i18n="Expense">Expense</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
             {{-- <li
                 class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-index/invoice-ahmad') || request()->is('payment-index/invoice-rayi') || request()->is('payment-detail/invoice/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -504,6 +528,12 @@
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">E-Stock</span>
+            </li>
+            <li class="menu-item {{ request()->is('supplier') ? 'active' : '' }}">
+                <a href="{{ route('supplier.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-account-cash-outline"></i>
+                    <div data-i18n="Supplier">Supplier</div>
+                </a>
             </li>
             <li
                 class="menu-item {{ request()->is('master/product') ||

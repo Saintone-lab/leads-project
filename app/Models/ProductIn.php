@@ -26,6 +26,10 @@ class ProductIn extends Model
         'tax',
         'price',
     ];
+    public function supp()
+    {
+        return $this->belongsTo('App\Models\Supplier', 'id_supplier', 'id');
+    }
     public function detail()
     {
         return $this->hasMany('App\Models\DetailProductIn', 'id_product_in');

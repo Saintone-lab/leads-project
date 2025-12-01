@@ -36,7 +36,7 @@
                             <p class="mb-1">Note</p>
                         </div>
                         <div class="col-8">
-                            <p class="mb-1">: {{ $product->supplier }}</p>
+                            <p class="mb-1">: {{ $product->supplier ?? $product->supp->supplier }}</p>
                             <p class="mb-1">: {{ $product->note }}</p>
                         </div>
                     </div>
@@ -127,6 +127,14 @@
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+            @if ($product->accept == '0')
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <a href="#" class="btn btn-success d-grid w-100 waves-effect accept-product"
+                            data-id="{{ $product->id }}">Accept</a>
+                    </div>
+                </div>
+            @endif
             <div class="card">
                 <div class="card-body">
                     <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
@@ -232,6 +240,62 @@
                                     icon: 'error',
                                     title: 'Oops...',
                                     text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.accept-product', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Accept it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('product-in') }}/accept/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Accepted!",
+                                    text: "Your file has been Accepted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/product-in/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Accept!'
                                 });
                             }
                         }

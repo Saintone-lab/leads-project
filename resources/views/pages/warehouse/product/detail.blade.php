@@ -297,6 +297,7 @@
                                     <th>equivalent</th>
                                     <th>Qty</th>
                                     <th>price</th>
+                                    <th>Status</th>
                                     <th>Date</th>
                                 </tr>
                             </thead>

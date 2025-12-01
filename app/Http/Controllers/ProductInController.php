@@ -7,6 +7,8 @@ use App\Models\DetailProductIn;
 use App\Models\Product;
 use App\Models\ProductIn;
 use App\Models\Prospect;
+use App\Models\Supplier;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ProductInController extends Controller
@@ -31,8 +33,9 @@ class ProductInController extends Controller
      */
     public function create()
     {
+        $suppliers = Supplier::all();
         $detProduct = DetailProduct::join('product', 'detail_product.id_product', '=', 'product.id')->get('detail_product.*');
-        return view('pages.warehouse.product-in.form', compact('detProduct'));
+        return view('pages.warehouse.product-in.form', compact('detProduct','suppliers'));
     }
 
     /**
@@ -45,31 +48,31 @@ class ProductInController extends Controller
     {
         $rule = [
             'invoice' => 'required',
-            'suplier' => 'required',
             'date' => 'required',
             'note' => 'required',
         ];
         $message = [
             'invoice.required' => 'Field No Invoice Wajib Diisi',
-            'suplier.required' => 'Field Suplier Wajib Diisi',
             'date.required' => 'Field Date Wajib Diisi',
             'note.required' => 'Field Note Wajib Diisi',
         ];
         $this->validate($request, $rule, $message);
         // dd($request->all());
+        $supplier = Supplier::find($request->supplier);
         // Masukan Data ke Tabel Quotataion
         $productIn = new ProductIn();
         $productIn->no_do = NULL;
         $productIn->invoice = $request->invoice;
-        $productIn->supplier = $request->suplier;
-        $productIn->info = $request->info;
+        $productIn->id_supplier = $request->supplier;
+        // $productIn->supplier = $request->suplier;
+        $productIn->info = $supplier->info;
         $productIn->date = $request->date;
         $productIn->date_invoice = $request->date_invoice;
         $productIn->subtotal = $request->subtotal;
         $productIn->total_no_tax = $request->total_no_tax;
         $productIn->tax = $request->tax;
         $productIn->note = $request->note;
-        $productIn->shipping = $request->shipping;
+        $productIn->shipping = $request->shipping;  
         $productIn->total = $request->total;
         $productInSave = $productIn->save();
         if ($productInSave) {
@@ -224,6 +227,7 @@ class ProductInController extends Controller
         $productIn = new ProductIn();
         $productIn->no_do = $request->no_do;
         $productIn->invoice = null;
+        $productIn->id_supplier = null;
         $productIn->supplier = null;
         $productIn->info = $request->info;
         $productIn->date = $request->date;
@@ -289,7 +293,8 @@ class ProductInController extends Controller
         // dd($request->all());
         // Masukan Data ke Tabel Quotataion
         $productIn->invoice = $request->invoice;
-        $productIn->supplier = $request->suplier;
+        $productIn->id_supplier = $request->suplier;
+        // $productIn->supplier = $request->suplier;
         $productIn->date_invoice = $request->date_invoice;
         $productIn->subtotal = $request->subtotal;
         $productIn->total_no_tax = $request->total_no_tax;
@@ -320,4 +325,64 @@ class ProductInController extends Controller
         return view('pages.warehouse.product-in.detail-print', compact('product', 'detail', 'tax'));
     }
 
+    public function indexSupplier()
+    {
+        return view('pages.warehouse.supplier.index');
+    }
+    public function detailSupplier($id)
+    {
+        $supplier = Supplier::find($id);
+        return view('pages.warehouse.supplier.detail' ,compact('supplier'));
+    }
+
+    public function storeSupplier(Request $request)
+    {
+        $supplier = new Supplier();
+        $supplier->supplier = $request->supplier;
+        $supplier->phone = $request->phone;
+        $supplier->email = $request->email;
+        $supplier->area = $request->area;
+        $supplier->address = $request->address;
+        $supplier->npwp = $request->npwp;
+        $supplier->info = $request->info;
+        $supplierSave = $supplier->save();
+        if ($supplierSave) {
+            return redirect()->back()->with('success', 'Supplier berhasil ditambahkan!');
+        }
+    }
+    public function deleteSupplier ($id){
+        $supplier = Supplier::find($id);
+        $supplierDel = $supplier->delete();
+        if ($supplierDel) {
+            return 1;
+        } else {
+            return 0;
+        } 
+    }
+    public function updateSupplier(Request $request, $id)
+    {
+        $supplier = Supplier::find($id);
+        $supplier->supplier = $request->supplier;
+        $supplier->phone = $request->phone;
+        $supplier->email = $request->email;
+        $supplier->area = $request->area;
+        $supplier->address = $request->address;
+        $supplier->npwp = $request->npwp;
+        $supplier->info = $request->info;
+        $supplierSave = $supplier->save();
+        if ($supplierSave) {
+            return redirect()->back()->with('success', 'Supplier berhasil ditambahkan!');
+        }
+    }
+    public function acceptIn($id){
+        $product = ProductIn::find($id);
+        $product->accept = '1';
+        $productSave = $product->save();
+        if ($productSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+        
+    }
 }

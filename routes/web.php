@@ -19,6 +19,7 @@ use App\Http\Controllers\MonitoringClientController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotulenController;
 use App\Http\Controllers\OverviewController;
+use App\Http\Controllers\PayableController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PendingController;
 use App\Http\Controllers\PicController;
@@ -37,6 +38,7 @@ use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WatermarkController;
+use App\Models\Account;
 use App\Models\Activities;
 use App\Models\ChangeWarehouse;
 use App\Models\Client;
@@ -52,6 +54,7 @@ use App\Models\Mainlog;
 use App\Models\Monitoring;
 use App\Models\MonitoringWeekly;
 use App\Models\Notulen;
+use App\Models\Payable;
 use App\Models\Payment;
 use App\Models\PendingPO;
 use App\Models\Pic;
@@ -65,6 +68,7 @@ use App\Models\SalesReports;
 use App\Models\SerialProduct;
 use App\Models\Service;
 use App\Models\StatusMonitoring;
+use App\Models\Supplier;
 use App\Models\User;
 use Carbon\Carbon;
 use FontLib\Table\Type\post;
@@ -272,6 +276,7 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::post('/product-in/logistik', [ProductInController::class, 'logistic_store'])->name('product-in.logistic-store');
     Route::post('/product-in/invoicing/{id}', [ProductInController::class, 'invoicing'])->name('product-in.invoicing');
+    Route::post('/product-in/accept/{id}', [ProductInController::class, 'acceptIn'])->name('product-in.accept');
     Route::get('/product-out/replacement/{id}', function ($id) {
         $product = DetailProduct::findOrFail($id);
         return response()->json($product);
@@ -280,6 +285,11 @@ Route::group(["middleware" => "auth"], function () {
         $product = SerialProduct::where('id_product', $id)->get();
         return response()->json($product);
     });
+    Route::get('/supplier', [ProductInController::class, 'indexSupplier'])->name('supplier.index');
+    Route::get('/supplier/{id}', [ProductInController::class, 'detailSupplier'])->name('supplier.detail');
+    Route::post('/supplier', [ProductInController::class, 'storeSupplier'])->name('supplier.store');
+    Route::patch('/supplier/{id}', [ProductInController::class, 'updateSupplier'])->name('supplier.update');
+    Route::delete('/supplier/{id}', [ProductInController::class, 'deleteSupplier'])->name('supplier.delete');
 
     // Route untuk Product Out
     Route::resource('/product-out', ProductOutController::class);
@@ -1272,6 +1282,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/prospect/with_quotation/{id}', [ProspectController::class, 'with_quotation'])->name('with_quotation.prospect');
     Route::post('/prospect/onProcessFU/{id}', [ProspectController::class, 'onProcessFU'])->name('onProcessFU.prospect');
     Route::post('/prospect/no_respond/{id}', [ProspectController::class, 'no_respond'])->name('no_respond.prospect');
+    Route::post('/prospect/no_provide/{id}', [ProspectController::class, 'no_provide'])->name('no_provide.prospect');
     Route::get('/prospect/create_quotation/{id}', [ProspectController::class, 'create_quotation'])->name('create_quotation.prospect');
     Route::post('/prospect/store_quotation/{id}', [ProspectController::class, 'store_quotation'])->name('store_quotation.prospect');
     Route::post('/prospect/choose_quotation/{id}', [ProspectController::class, 'choose_quotation'])->name('choose_quotation.prospect');
@@ -1317,6 +1328,17 @@ Route::group(["middleware" => "auth"], function () {
     // Change Warehouse
     Route::resource('/change-warehouse', ChangeWarehouseController::class);
     Route::post('/change-warehouse/accept/{id}', [ChangeWarehouseController::class, 'accept'])->name('change-warehouse.accept');
+
+    // account
+    Route::get('/payable-account', [PayableController::class, 'indexAccount'])->name('payable-account.index');
+    Route::post('/payable-account', [PayableController::class, 'storeAccount'])->name('payable-account.store');
+    Route::delete('/payable-account/{id}', [PayableController::class, 'deleteAccount'])->name('payable-account.delete');
+    Route::get('/payable', [PayableController::class, 'indexPayable'])->name('payable.index');
+    Route::get('/payable/create', [PayableController::class, 'createPayable'])->name('payable.create');
+    Route::delete('/payable/{id}', [PayableController::class, 'deletePayable'])->name('payable.delete');
+    Route::get('/payable/{id}', [PayableController::class, 'showPayable'])->name('payable.show');
+    Route::get('/payable-print/{id}', [PayableController::class, 'showPayablePrint'])->name('payable.print');
+    Route::post('/payable/store', [PayableController::class, 'storePayable'])->name('payable.store');
 
     // Dashboard Function
     // Ajax Sales Kanan
@@ -3000,7 +3022,11 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $serialProduct]);
     });
     Route::get('/db/product/quotation/{id}', function ($id) {
-        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('quotation.level', '1')->where('quotation.is_primary', '1')->get('quotation.*');
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->where('pic.id_client', $id)
+            ->where('quotation.level', '1')
+            ->where('quotation.is_primary', '1')
+            ->get('quotation.*');
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/product/in/detail/{id}', function ($id) {
@@ -3048,8 +3074,10 @@ Route::group(["middleware" => "auth"], function () {
             ->select(
                 'p.*',
                 DB::raw("CONCAT(pr.commodity, ' - ', dp.replacement) AS product"),
-                DB::raw("CONCAT(d.qty, ' ', pr.unit) AS qty")
+                DB::raw("CONCAT(d.qty, ' ', pr.unit) AS qty"),
+                DB::raw("s.supplier AS supplier_name")
             )
+            ->leftJoin('supplier as s', 'p.id_supplier', '=', 's.id')
             ->leftJoin('detail_product_in as d', 'd.id_product_in', '=', 'p.id')
             ->leftJoin('detail_product as dp', 'd.id_detail_product', '=', 'dp.id')
             ->leftJoin('product as pr', 'dp.id_product', '=', 'pr.id')
@@ -3064,8 +3092,10 @@ Route::group(["middleware" => "auth"], function () {
             ->select(
                 'p.*',
                 DB::raw("CONCAT(pr.commodity, ' - ', dp.replacement) AS product"),
-                DB::raw("CONCAT(d.qty, ' ', pr.unit) AS qty")
+                DB::raw("CONCAT(d.qty, ' ', pr.unit) AS qty"),
+                DB::raw("s.supplier AS supplier_name")
             )
+            ->leftJoin('supplier as s', 'p.id_supplier', '=', 's.id')
             ->leftJoin('detail_product_in as d', 'd.id_product_in', '=', 'p.id')
             ->leftJoin('detail_product as dp', 'd.id_detail_product', '=', 'dp.id')
             ->leftJoin('product as pr', 'dp.id_product', '=', 'pr.id')
@@ -3087,10 +3117,12 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/product/quotation/detail/{id}', function ($id) {
         $products = DB::table('quotation as q')
-            ->select('q.id', 'q.no_quote', 'q.estimated_date', 'sp.pn', 'dq.price', DB::raw('CONCAT(COALESCE(dq.qty, 0), " ", COALESCE(dq.info_qty, "")) AS qty'))
+            ->select('q.id', 'q.no_quote', 'q.estimated_date', 'q.status', 'sp.pn', 'dq.price', DB::raw('CONCAT(COALESCE(dq.qty, 0), " ", COALESCE(dq.info_qty, "")) AS qty'))
             ->leftJoin('detail_quotation as dq', 'q.id', '=', 'dq.id_quotation')
             ->leftJoin('serial_product as sp', 'sp.id', '=', 'dq.id_equivalent')
             ->where('sp.id_product', $id)
+            ->where('q.level', '1')
+            ->where('q.is_primary', '1')
             ->get();
         return response()->json(['data' => $products]);
     });
@@ -3352,6 +3384,20 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json(['data' => $data]);
     });
+    Route::get('/db/productIn-supplier/{id}', function ($id) {
+        $data = ProductIn::leftJoin('detail_product_in AS d', 'd.id_product_in', '=', 'product_in.id')
+            ->leftJoin('detail_product AS dp', 'd.id_detail_product', '=', 'dp.id')
+            ->leftJoin('product AS pr', 'dp.id_product', '=', 'pr.id')
+            ->where('product_in.id_supplier', $id)
+            ->whereNotNull('product_in.invoice')
+            ->select(
+                'product_in.*',
+                DB::raw("CONCAT(pr.commodity, ' - ', dp.replacement) AS product"),
+                DB::raw("CONCAT(d.qty, ' ', pr.unit) AS qty")
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
     Route::get('/db/productIn', function () {
         require_once base_path('app/api/product/in/connection.php');
     });
@@ -3360,6 +3406,10 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/productInNoTax', function () {
         require_once base_path('app/api/product/in/connectionNoTax.php');
+    });
+    Route::get('/db/supplier', function () {
+        $supplier = Supplier::all();
+        return response()->json(['data' => $supplier]);
     });
     Route::get('/db/productOut', function () {
         require_once base_path('app/api/product/out/connection.php');
@@ -4563,6 +4613,15 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
 
         return response()->json(['data' => $warehouse]);
+    });
+
+    Route::get('/db/account/data', function () {
+        $account = Account::all();
+        return response()->json(['data' => $account]);
+    });
+    Route::get('/db/payable/data', function () {
+        $payable = Payable::all();
+        return response()->json(['data' => $payable]);
     });
 
 });

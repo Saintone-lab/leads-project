@@ -1447,6 +1447,7 @@ class QuotationController extends Controller
         $invoices = Invoice::where('id_quotation', $id)->get();
         $deliveries = Delivery::whereIn('id_invoice', $invoices->pluck('id'))->get();
         $detDeliveries = DetailDelivery::whereIn('id_delivery', $deliveries->pluck('id'))->get();
+        $pendings = PendingPO::where('id_quotation', $id)->get();
 
         // Edit Quotation
         $quote->status = '80';
@@ -1474,6 +1475,11 @@ class QuotationController extends Controller
         // Hapus Invoice
         foreach ($invoices as $invoice) {
             $invoice->delete();
+        }
+        
+        // Hapus Pending
+        foreach ($pendings as $pending) {
+            $pending->delete();
         }
 
         if ($status) {

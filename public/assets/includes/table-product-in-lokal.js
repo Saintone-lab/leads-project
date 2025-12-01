@@ -27,7 +27,12 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "invoice" },
-                { data: "supplier" },
+                {
+                    data: "supplier",
+                    render: function (data, type, row) {
+                        return data ? data : row.supplier_name;
+                    },
+                },
                 { data: "product" },
                 { data: "qty" },
                 { data: "total" },
@@ -77,15 +82,25 @@ $(function () {
                     targets: 3,
                 },
                 {
-                    targets : 3,
-                    render: function(data, type, full, meta){
-                        var $tip = full['tip'];
-                        var $invoice = full['invoice'];
+                    targets: 3,
+                    render: function (data, type, full, meta) {
+                        var accept = full["accept"];
+                        var $tip = full["tip"];
+                        var $invoice = full["invoice"];
+
+                        if (accept == "0") {
+                            var condition_class = " bg-warning";
+                        } else {
+                            var condition_class = " bg-success";
+                        }
                         return (
                             '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary"' +
                             ' title=" ' +
                             $tip +
                             '">' +
+                            '<span class="badge badge-dot ' +
+                            condition_class +
+                            '"></span> ' +
                             $invoice +
                             "</span>"
                         );

@@ -1,10 +1,10 @@
 $(function () {
-    var dt_table_product_import = $(".datatable-product-in-import");
-    var Url = "/db/product/in/import";
+    var dt_table_supplier = $(".datatable-supplier");
+    var Url = "/db/supplier";
 
-    if (dt_table_product_import.length) {
+    if (dt_table_supplier.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_product = dt_table_product_import.DataTable({
+        var dt_supplier = dt_table_supplier.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -25,25 +25,28 @@ $(function () {
             columns: [
                 { data: "" },
                 { data: "id" },
-                { data: "id" },
-                { data: "invoice" },
                 {
                     data: "supplier",
-                    render: function (data, type, row) {
-                        return data ? data : row.supplier_name;
-                    },
                 },
-                { data: "product" },
-                { data: "qty" },
-                { data: "total" },
                 {
-                    data: "tax",
+                    data: "phone",
                     render: function (data, type, row) {
-                        return data == 0 ? "VAT" : "Non VAT";
+                        return data ? data : '-';
                     },
                 },
-                { data: "date" },
-                { data: "" },
+                {
+                    data: "email",
+                    render: function (data, type, row) {
+                        return data ? data : '-';
+                    },
+                },
+                {
+                    data: "area",
+                    render: function (data, type, row) {
+                        return data ? data : '-';
+                    },
+                },
+                { data: "info" },
             ],
             columnDefs: [
                 {
@@ -58,88 +61,36 @@ $(function () {
                     },
                 },
                 {
-                    // For Checkboxes
                     targets: 1,
-                    orderable: false,
-                    searchable: false,
-                    responsivePriority: 3,
-                    checkboxes: true,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender:
-                            '<input type="checkbox" class="form-check-input">',
-                    },
-                },
-                {
-                    targets: 2,
                     searchable: true,
                     visible: false,
                 },
                 {
                     responsivePriority: 1,
-                    targets: 3,
+                    targets: 2,
                 },
                 {
-                    targets: 3,
-                    render: function (data, type, full, meta) {
-                        var accept = full["accept"];
-                        var $tip = full["tip"];
-                        var $invoice = full["invoice"];
-
-                        if (accept == "0") {
-                            var condition_class = " bg-warning";
-                        } else {
-                            var condition_class = " bg-success";
+                    targets: 2,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var id = full["id"];
+                            var detailRoute = route("supplier.detail", id);
+                            return (
+                                '<a class="text-dark" href="' +
+                                detailRoute +
+                                '">' +
+                                data +
+                                "</a>"
+                            );
                         }
-                        return (
-                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary"' +
-                            ' title=" ' +
-                            $tip +
-                            '">' +
-                            '<span class="badge badge-dot ' +
-                            condition_class +
-                            '"></span> ' +
-                            $invoice +
-                            "</span>"
-                        );
-                    },
-                },
-                {
-                    targets: 7,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp "),
-                },
-                {
-                    // Actions
-                    targets: -1,
-                    title: "Actions",
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, full, meta) {
-                        var $dataId = full["id"];
-                        var $detailQUrl = route("product-in.show", $dataId);
-                        var $revQUrl = route("product-in.edit", $dataId);
-                        return (
-                            '<div class="d-inline-block">' +
-                            '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +
-                            '<ul class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<li><a href="' +
-                            $detailQUrl +
-                            '" class="dropdown-item">Details</a></li>' +
-                            // '<li><a href="' +
-                            // $revQUrl +
-                            // '" class="dropdown-item">Edit</a></li>' +
-                            "</ul>" +
-                            "</div>"
-                        );
+                        return data;
                     },
                 },
             ],
             order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label-import text-center">><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            displayLength: 7,
-            lengthMenu: [7, 10, 25, 50, 75, 100],
+            dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            displayLength: 15,
+            lengthMenu: [15, 25, 50, 75, 100],
             buttons: [
                 {
                     extend: "collection",
@@ -353,10 +304,11 @@ $(function () {
                     ],
                 },
                 {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Invoice Product</span>',
-                    className: "btn btn-primary btn-new",
-                    action: function (e, dt, node, config) {
-                        window.location = route("product-in.create");
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Supplier</span>',
+                    className: "btn btn-primary",
+                    attr: {
+                        "data-bs-target": "#createSupplier",
+                        "data-bs-toggle": "modal",
                     },
                 },
             ],
@@ -398,11 +350,11 @@ $(function () {
                 },
             },
         });
-        $("div.head-label-import").html(
-            '<h5 class="card-title mb-0">Table Product Import</h5>'
+        $("div.head-label").html(
+            '<h5 class="card-title mb-0">Table Supplier</h5>'
         );
     }
-    dt_table_product_import.on("draw", function () {
+    dt_table_supplier.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

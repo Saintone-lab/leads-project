@@ -33,21 +33,32 @@
                 <div class="form-invoice-repeater source-item">
                     <div class="row">
                         <div class="col-12 col-lg-6">
-                            <div class="form-floating form-floating-outline mb-4">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <select id="supplier-dropdown" class="select2 form-select invoice-item-supplier"
+                                    data-allow-clear="true" name="supplier" data-id="1">
+                                    <option selected>Pilih Supplier...</option>
+                                    @foreach ($suppliers as $supp)
+                                        <option value="{{ $supp->id }}" data-info="{{ $supp->info }}">
+                                            {{ $supp->supplier }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="supplier-dropdown">Supplier</label>
+                            </div>
+                            {{-- bekas --}}
+                            {{-- <div class="form-floating form-floating-outline mb-4">
                                 <input class="form-control" type="text" placeholder="Put Supplier Quotation Here ...."
                                     id="supplier-input" name="suplier"
                                     value="{{ old('supplier', @$productIn->supplier ?? '') }}"
                                     {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
                                 <label for="supplier-input">Suplier</label>
-                            </div>
+                            </div> --}}
                         </div>
                         <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline mb-4">
                                 <select class="form-select invoice-item-info" id="info-dropdown" name="info"
-                                    aria-label="Default select example">
-                                    <option selected disabled>----- Choose supplier info Here -----</option>
-                                    <option value="Lokal">Lokal</option>
-                                    <option value="Import">Import</option>
+                                    aria-label="Default select example" disabled>
+                                    <option selected disabled>Pilih supplier dulu...</option>
                                 </select>
                                 <label for="info-dropdown">Supplier Info</label>
                             </div>
@@ -73,6 +84,12 @@
                                     {{-- {{ @$productIn->date ? '' : 'disabled' }} --}} {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
                                 <label for="Date">Date Invoice</label>
                             </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal"
+                                data-bs-target="#createSupplier">
+                                + Supplier
+                            </button>
                         </div>
                     </div>
                     <div class="mb-3" data-repeater-list="group-a">
@@ -284,6 +301,7 @@
             </div>
         </div>
     </form>
+    @include('components.modal.warehouse.supplier.form')
 @endsection
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
@@ -335,6 +353,13 @@
                 var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
                 // console.log(id);
                 $(`#shipping`).val(nomorInt);
+            });
+            $('#supplier-dropdown').on('change', function() {
+                let info = $(this).find(':selected').data('info');
+
+                $('#info-dropdown').empty().append(`
+                    <option value="${info}" selected>${info}</option>
+                `);
             });
 
             $(".invoice-item-price-label").on('keyup', function() {

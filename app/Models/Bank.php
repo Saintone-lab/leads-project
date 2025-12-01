@@ -5,18 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Account extends Model
+class Bank extends Model
 {
     use HasFactory;
-    protected $table = "account";
+    protected $table = "bank";
     protected $date = [
-        'date',
         'created_at',
         'updated_at'
     ];
     protected $fillable = [
-        'code',
-        'name',
-        'categori',
+        'no_voucher',
+        'no_cheque',
+        'memo',
+        'payee',
+        'amount',
     ];
+    public function payable()
+    {
+        return $this->hasMany('App\Models\Payable', 'id_bank');
+    }
 }

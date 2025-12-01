@@ -8,9 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Supplier extends Model
 {
     use HasFactory;
-    protected $table = "supplier    ";
+    protected $table = "supplier";
     protected $date = [
-        'date',
         'created_at',
         'updated_at'
     ];
@@ -18,9 +17,13 @@ class Supplier extends Model
         'supplier',
         'email',
         'phone',
-        'web',
         'address',
+        'area',
         'npwp',
         'info',
     ];
+    public function productIn()
+    {
+        return $this->hasMany('App\Models\ProductIn', 'id_supplier');
+    }
 }

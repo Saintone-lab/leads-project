@@ -13,11 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('account', function (Blueprint $table) {
+        Schema::create('payable', function (Blueprint $table) {
             $table->id();
-            $table->string('code');
-            $table->string('name');
-            $table->string('category');
+            $table->foreignId('id_bank');
+            $table->string('no_voucher');
+            $table->string('no_cheque');
+            $table->string('payee');
+            $table->longText('memo');
+            $table->integer('amount');
+            $table->date('date');
             $table->timestamps();
         });
     }
@@ -29,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('account');
+        Schema::dropIfExists('payable');
     }
 };

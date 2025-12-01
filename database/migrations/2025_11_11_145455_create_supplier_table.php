@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('supplier');
             $table->string('email');
             $table->string('phone');
-            $table->string('web');
+            $table->string('area');
             $table->longText('address');
             $table->string('npwp');
             $table->string('info');

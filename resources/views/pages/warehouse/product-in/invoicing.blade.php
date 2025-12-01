@@ -27,22 +27,32 @@
                 <div class="form-invoice-repeater source-item">
                     <div class="row">
                         <div class="col-12 col-lg-6">
-                            <div class="form-floating form-floating-outline mb-4">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <select id="supplier-dropdown" class="select2 form-select invoice-item-supplier"
+                                    data-allow-clear="true" name="supplier" data-id="1">
+                                    <option selected>Pilih Supplier...</option>
+                                    @foreach ($suppliers as $supp)
+                                        <option value="{{ $supp->id }}" data-info="{{ $supp->info }}">
+                                            {{ $supp->supplier }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="supplier-dropdown">Supplier</label>
+                            </div>
+                            {{-- bekas --}}
+                            {{-- <div class="form-floating form-floating-outline mb-4">
                                 <input class="form-control" type="text" placeholder="Put Supplier Quotation Here ...."
                                     id="supplier-input" name="suplier"
-                                    value="{{ old('supplier', @$productIn->supplier ?? '') }}">
+                                    value="{{ old('supplier', @$productIn->supplier ?? '') }}"
+                                    {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
                                 <label for="supplier-input">Suplier</label>
-                            </div>
+                            </div> --}}
                         </div>
                         <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline mb-4">
                                 <select class="form-select invoice-item-info" id="info-dropdown" name="info"
-                                    aria-label="Default select example">
-                                    <option selected disabled>----- Choose supplier info Here -----</option>
-                                    <option value="Lokal" {{ @$productIn->info == 'Lokal' ? 'Selected' : '' }}>Lokal
-                                    </option>
-                                    <option value="Import" {{ @$productIn->info == 'Import' ? 'Selected' : '' }}>Import
-                                    </option>
+                                    aria-label="Default select example" disabled>
+                                    <option selected disabled>Pilih supplier dulu...</option>
                                 </select>
                                 <label for="info-dropdown">Supplier Info</label>
                             </div>
@@ -52,18 +62,28 @@
                                 <input class="form-control" type="date" id="Date" name="date"
                                     {{-- {{ @$productIn->date ? '' : '_label' }}  naikin nanti --}}
                                     value="{{ old('date', @$productIn->date ?? now()->format('Y-m-d')) }}"
-                                    {{-- {{ @$productIn->date ? '' : 'disabled' }} --}} disabled>
+                                    {{-- {{ @$productIn->date ? '' : 'disabled' }} --}}>
+                                @if (empty($productIn->date))
+                                    <input type="date" name="estimated_date" id=""
+                                        value="{{ now()->format('Y-m-d') }}" hidden>
+                                @endif
                                 <label for="Date">Date Product In</label>
                             </div>
                         </div>
                         <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline mb-4">
-                                <input class="form-control" type="date" id="Date" name="date_invoice"
+                                <input class="form-control" type="date" id="Date" name="date"
                                     {{-- {{ @$productIn->date ? '' : '_label' }}  naikin nanti --}}
-                                    value="{{ old('date', @$productIn->date_invoice ?? now()->format('Y-m-d')) }}"
-                                    {{-- {{ @$productIn->date ? '' : 'disabled' }} --}}>
+                                    value="{{ old('date', @$productIn->date ?? now()->format('Y-m-d')) }}"
+                                    {{-- {{ @$productIn->date ? '' : 'disabled' }} --}} {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
                                 <label for="Date">Date Invoice</label>
                             </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal"
+                                data-bs-target="#createSupplier">
+                                + Supplier
+                            </button>
                         </div>
                     </div>
                     <div class="mb-3" data-repeater-list="group-a">
@@ -293,6 +313,15 @@
             function formatNumber(n) {
                 return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
             }
+
+            $('#supplier-dropdown').on('change', function() {
+                let info = $(this).find(':selected').data('info');
+
+                $('#info-dropdown').empty().append(`
+                    <option value="${info}" selected>${info}</option>
+                `);
+            });
+
 
             function initializeSelect2Replacement() {
                 $(`#replacement-dropdown-${rep}`).select2({
