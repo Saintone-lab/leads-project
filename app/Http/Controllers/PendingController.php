@@ -14,6 +14,7 @@ use App\Models\Invoice;
 use App\Models\PendingPO;
 use App\Models\Product;
 use App\Models\ProductOut;
+use App\Models\PurchaseRequest;
 use App\Models\Quotation;
 use App\Models\SerialProduct;
 use App\Models\ServiceOrder;
@@ -123,9 +124,17 @@ class PendingController extends Controller
         $activity = ChangeStatus::where('id_pending', $id)->with('comment')->get();
         $serial = SerialProduct::all();
         $resi = Expanse::where('id_pending', $id)->where('type', 'Resi')->first();
+        $product = ProductOut::find($pending->id_product_out);
+        $detail = DetailProductOut::where('id_product_out', $pending->id_product_out)->get();
+        $allproductOut = ProductOut::leftJoin('pending_po', 'product_out.id', '=', 'pending_po.id_product_out')
+            ->whereNull('pending_po.id_product_out')
+            ->groupBy('product_out.id')
+            ->select('product_out.*')
+            ->get();
+        $purchase = PurchaseRequest::where('id_pending', $id)->get();
         // dd($resi);
         // dd($status->count());
-        return view('pages.pending.detail', compact('serial', 'activity', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation', 'resi'));
+        return view('pages.pending.detail', compact('purchase','serial', 'activity', 'allproductOut', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation', 'resi'));
     }
 
     /**
@@ -215,6 +224,15 @@ class PendingController extends Controller
     public function destroy($id)
     {
         //
+    }
+    public function connect_out(Request $request, $id)
+    {
+        $pending = PendingPO::find($id);
+        $pending->id_product_out = $request->product;
+        $pendingSave = $pending->save();
+        if ($pendingSave) {
+            return redirect('/pending-po/' . $id)->with('message', 'Product Out telah disambungkan');
+        }
     }
     public function productEdit(Request $request, $id)
     {
@@ -414,6 +432,7 @@ class PendingController extends Controller
         ];
         $this->validate($request, $rule, $message);
         // dd($request->all());
+        $pending = PendingPO::find($id);
         // Masukan Data ke Tabel Product Out
         $productOut = new ProductOut();
         $productOut->id_user = Auth::user()->id;
@@ -427,6 +446,8 @@ class PendingController extends Controller
         $productOut->shipping = $request->shipping;
         $productOut->total = $request->total;
         $productOutSave = $productOut->save();
+        $pending->id_product_out = $productOut->id;
+        $pending->save();
         if ($productOutSave) {
             // Masukan Data Ke Tabel Detail Quotataion
             foreach ($request->equivalent as $item => $value) {

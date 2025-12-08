@@ -32,4 +32,8 @@ class ProductOut extends Model
     {
         return $this->belongsTo('App\Models\User', 'id_user', 'id');
     }
+    public function pending()
+    {
+        return $this->hasMany('App\Models\PendingPO', 'id_product_out');
+    }
 }

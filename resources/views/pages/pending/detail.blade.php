@@ -6,18 +6,25 @@
             Detail Of {{ $invoice->no_po ?? $quotation->pic->client->company }}
         </h5>
         <div class="tombol">
-            <button type="button" class="btn btn-primary dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown"
-                aria-expanded="false" {{ auth::user()->role != 'Sales' ? '' : 'disabled' }}>
-                Update
-            </button>
-            <ul class="dropdown-menu" style="">
-                <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
-                        data-bs-target="#deliveryEdit">Kurir</a></li>
-                <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
-                        data-bs-target="#statusEdit">Pending PO</a></li>
-                <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
-                        data-bs-target="#resiEdit">Upload Resi</a></li>
-            </ul>
+            @if ($pending->status != '6')
+                <button type="button" class="btn btn-primary dropdown-toggle waves-effect waves-light"
+                    data-bs-toggle="dropdown" aria-expanded="false" {{ auth::user()->role != 'Sales' ? '' : 'disabled' }}>
+                    Update
+                </button>
+                <ul class="dropdown-menu" style="">
+                    <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
+                            data-bs-target="#deliveryEdit">Kurir</a></li>
+                    <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
+                            data-bs-target="#statusEdit">Pending PO</a></li>
+                    <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
+                            data-bs-target="#resiEdit">Upload Resi</a></li>
+                </ul>
+            @else
+                <button type="button" class="btn btn-reddit" data-bs-toggle="modal" data-bs-target="#inputProductOut"
+                    {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                    Connect Product Out
+                </button>
+            @endif
             <a href="{{ route('pending-po.index') }}" type="button" class="btn btn-secondary"> Back </a>
         </div>
     </div>
@@ -79,9 +86,29 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-4">No Quotation</div>
-                        <div class="col-8">: {{ $quotation->no_quote }}</div>
+                        @php
+                            if ($quotation->type == 'Sparepart') {
+                                $link = 'quotation.show';
+                            } elseif ($quotation->type == 'Overhaul') {
+                                $link = 'show-overhaul.quotation';
+                            } else {
+                                $link = 'show-service.quotation';
+                            }
+
+                        @endphp
+                        <div class="col-8">: <a class="text-dark cursor-pointer"
+                                href="{{ route($link, $quotation->id) }}">{{ $quotation->no_quote }}</a>
+                        </div>
                         <div class="col-4">No Invoice</div>
-                        <div class="col-8">: {{ $invoice->no_invoice ?? 'Belum ada invoice' }}</div>
+                        <div class="col-8">: 
+                            @if ($invoice->no_invoice)
+                                <a class="text-dark cursor-pointer" href="{{ route('invoice.show', $invoice->id) }}">
+                                    {{ $invoice->no_invoice }}
+                                </a>
+                            @else
+                                Belum ada invoice
+                            @endif
+                        </div>
                         <div class="col-4">Payment Info</div>
                         <div class="col-8">:
                             {{ $invoice ? ($invoice->status_p == 1 ? 'Payment Confirmed' : 'Unpaid') : 'Belum ada invoice' }}
@@ -174,13 +201,20 @@
             </div>
         </div>
     </div>
+
     @if ($pending->type == 'Project')
-        <div class="mb-3" style="display: flex; justify-content: flex-end;">
-            <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal"
-                data-bs-target="#replacementEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                Update Status Barang
-            </button>
-        </div>
+        @if ($pending->status != '6')
+            <div class="mb-3" style="display: flex; justify-content: flex-end;">
+                {{-- <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal"
+                    data-bs-target="#replacementEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                    Update Status Barang
+                </button> --}}
+                <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal"
+                    data-bs-target="#replacementEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                    Update Status Barang
+                </button>
+            </div>
+        @endif
         <div class="card mb-4">
             <div class="table-responsive text-nowrap h-100">
                 <table class="table table-bordered">
@@ -259,8 +293,8 @@
                                     <td>
                                         <p class="mb-0">{{ $product->qty }} {{ $product->info_qty }}</p>
                                     </td>
-                                    <td>{{ $status }}</td>
-                                    <td>{{ $product->pending[0]->note }}</td>
+                                    <td>{{ $pending->status == '6' ? 'Done' : $status }}</td>
+                                    <td>{{ $pending->status == '6' ? 'Done' : $product->pending[0]->note }}</td>
                                 </tr>
                             @endforeach
                         @endforeach
@@ -269,12 +303,18 @@
             </div>
         </div>
     @else
-        <div class="mb-3" style="display: flex; justify-content: flex-end;">
-            <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal"
-                data-bs-target="#productEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                Update Status Barang
-            </button>
-        </div>
+        @if ($pending->status != '6')
+            <div class="mb-3" style="display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-google-plus float-end mx-2" data-bs-toggle="modal"
+                    data-bs-target="#purchaseReq" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                    Purchase Request
+                </button>
+                <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal"
+                    data-bs-target="#productEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                    Update Status Barang
+                </button>
+            </div>
+        @endif
         <div class="card mb-4">
             <div class="table-responsive text-nowrap h-100">
                 <table class="table table-striped">
@@ -334,13 +374,89 @@
                                 </td>
                                 <td>{{ $item->equivalent->product->go }}</td>
                                 <td>{{ $item->qty }} {{ $item->info_qty }}</td>
-                                <td>{{ $status }}</td>
-                                <td> {{ $item->note }}</td>
+                                <td>{{ $pending->status == '6' ? 'Done' : $status }}</td>
+                                <td> {{ $pending->status == '6' ? 'Done' : $item->note }}</td>
                             </tr>
                             @php
                                 $no++;
                             @endphp
                         @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="fw-medium card-title mb-3">
+                    Purchase Request
+                </h4>
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Note</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        @php
+                            $no = 1;
+                        @endphp
+                        @forelse ($purchase as $pr)
+                            @php
+                                // switch ($item->status) {
+                                //     case 1:
+                                //         $status = 'On Check';
+                                //         break;
+                                //     case 2:
+                                //         $status = 'Ready Stock';
+                                //         break;
+                                //     case 3:
+                                //         $status = 'Kurang';
+                                //         break;
+                                //     case 4:
+                                //         $status = 'Pre-Order';
+                                //         break;
+                                //     case 5:
+                                //         $status = 'Delivery Process';
+                                //         break;
+                                //     case 6:
+                                //         $status = 'Done';
+                                //         break;
+                                //     default:
+                                //         $status = 'Belum Di Cek';
+                                //         break;
+                                // }
+                            @endphp
+                            <tr>
+                                <td>{{ $no }}</td>
+                                <td>
+                                    @if ($pr->id_equivalent == '0')
+                                        -
+                                    @else
+                                        {{ $pr->equivalent->brand }} {{ $pr->equivalent->pn }}
+                                    @endif
+                                </td>
+                                {{-- <td>
+                                    <pre class="mb-0"
+                                        style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $item->detail_product }}</pre>
+                                </td> --}}
+                                <td>{{ $pr->qty }} {{ $pr->equivalent->product->unit }}</td>
+                                {{-- <td>{{ $pr->qty }}</td> --}}
+                                <td>{{ $pr->note }}</td>
+                                <td>ACC</td>
+                            </tr>
+                            @php
+                                $no++;
+                            @endphp
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center">Tidak Ada Purchase Request</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -418,7 +534,7 @@
                                 @endphp
                             </div>
                         </li>
-                        @if ($stats->id == $lastStat->id)
+                        @if ($stats->id == $lastStat->id && $pending->status != '6')
                             <form action="{{ route('pending-po.addComment', $pending->id) }}" method="post"
                                 enctype="multipart/form-data">
                                 @csrf
@@ -437,14 +553,123 @@
             </div>
         </div>
     @endif
+
+    @if ($pending->status == '6' && $pending->id_product_out != null)
+        <div class="card invoice-preview-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
+                    <div class="mb-xl-0 pb-1">
+                        <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
+                            <span class="app-brand-logo demo">
+                                <span style="color: var(--bs-primary)">
+                                    <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt=""
+                                        srcset="" width="60%">
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <h3 class="fw-bold">Barang Keluar ({{ $product->vers }})</h3>
+                        <div>
+                            <span
+                                class="fw-bolder">#{{ $product->no_type == '1' ? $product->invoice : $product->po }}</span>
+                        </div>
+                        <div class="mt-1">
+                            <span class="text-muted">{{ Carbon\Carbon::parse($product->date)->format('d-m-Y') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-0">
+            <div class="card-body mb-3">
+                <div class="row">
+                    <div class="col-4 col-lg-2 fw-medium">
+                        <p class="mb-1">Customers </p>
+                    </div>
+                    <div class="col-8 col-lg-10">
+                        <pre class="mb-1"
+                            style="font-size: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $product->detail_client }}</pre>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-0">
+            <div class="card-body mb-3">
+                <div class="row">
+                    <div class="col-4 col-lg-2 fw-medium">
+                        <p class="mb-1">Note</p>
+                    </div>
+                    <div class="col-8 col-lg-6">
+                        <pre
+                            style="font-size: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: auto; white-space: pre-wrap;">: {{ $product->note }}</pre>
+                    </div>
+                    <div class="col-4 col-lg-2 fw-medium">
+                        <p class="mb-1">User</p>
+                    </div>
+                    <div class="col-8 col-lg-2">
+                        <p class="mb-1">: {{ $product->user->name }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table m-0 mb-4">
+                    <thead class="table-light border-top">
+                        <tr>
+                            <th>No.</th>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $no = 0;
+                        @endphp
+                        @foreach ($detail as $products)
+                            @php
+                                $no++;
+                            @endphp
+                            <tr style="font-size: 13px">
+                                <td class="align-top">{{ $no }}</td>
+                                <td class="text-nowrap align-top">
+                                    <p class="mb-0 fw-semibold" style="font-size: 12px">
+                                        {{ $products->detailProduct->replacement }}
+                                    </p>
+                                    <pre class="mb-0"
+                                        style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $products->detailProduct->product->description }}</pre>
+                                </td>
+                                <td class="align-top">{{ $products->qty }}
+                                    {{ $products->detailProduct->product->unit }}
+                                </td>
+                                <td class="align-top">RP {{ number_format($products->price, 0, '', '.') }}</td>
+                                <td class="align-top">RP {{ number_format($products->amount, 0, '', '.') }}</td>
+                            </tr>
+                        @endforeach
+                        <tr style="font-size: 13px;">
+                            <td colspan="3" style="border:none;"></td>
+                            <td>Shipping</td>
+                            <td>: RP {{ number_format($product->shipping, 0, '', '.') }}</td>
+                        </tr>
+                        <tr style="font-size: 13px">
+                            <td colspan="3" style="border:none;"></td>
+                            <td style="border:none;">Total</td>
+                            <td style="border:none;">: RP {{ number_format($product->total, 0, '', '.') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
     {{-- @foreach ($pendingPO as $pending)
         @include('components.modal.pending.detail')
     @endforeach --}}
     @include('components.modal.pending.status')
     @include('components.modal.pending.kurir')
     @include('components.modal.pending.product')
+    @include('components.modal.pending.product-out')
     @include('components.modal.pending.project')
     @include('components.modal.pending.resi')
+    @include('components.modal.pending.request')
 @endsection()
 
 @push('after-style')

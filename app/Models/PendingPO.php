@@ -18,6 +18,10 @@ class PendingPO extends Model
     {
         return $this->belongsTo('App\Models\Quotation', 'id_quotation', 'id');
     }
+    public function product_out()
+    {
+        return $this->belongsTo('App\Models\ProductOut', 'id_product_out', 'id');
+    }
     public function detail()
     {
         return $this->hasMany('App\Models\DetailPendingPO', 'id_pending');
@@ -25,6 +29,10 @@ class PendingPO extends Model
     public function service()
     {
         return $this->hasMany('App\Models\ServiceOrder', 'id_sales_order');
+    }
+    public function pr()
+    {
+        return $this->hasMany('App\Models\PurchaseRequest', 'id_pending');
     }
     public function expanse()
     {

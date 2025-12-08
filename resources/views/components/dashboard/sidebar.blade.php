@@ -275,13 +275,13 @@
                     </li>
                 </ul>
             </li> --}}
-            <li class="menu-item ">
-                <a href="{{ route('pending-po.index') }}" class="menu-link">
+            <li class="menu-item {{ request()->is('purchase-request') || request()->is('purchase-request/*') ? 'active' : '' }}">
+                <a href="{{ route('purchase-request.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-format-list-group-plus"></i>
                     <div data-i18n="Purchase Request">Purchase Request</div>
                 </a>
             </li>
-            <li class="menu-item ">
+            <li class="menu-item">
                 <a href="{{ route('pending-po.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-archive-cancel"></i>
                     <div data-i18n="Return">Return</div>

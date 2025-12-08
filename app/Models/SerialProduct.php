@@ -49,6 +49,10 @@ class SerialProduct extends Model
     {
         return $this->hasMany('App\Models\DetailPending', 'id_equivalent');
     }
+    public function pr()
+    {
+        return $this->hasMany('App\Models\PurchaseRequest', 'id_equivalent');
+    }
     public function machine()
     {
         return $this->hasMany('App\Models\Machine', 'id_unit');

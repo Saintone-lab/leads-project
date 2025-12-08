@@ -35,7 +35,7 @@ class ProductInController extends Controller
     {
         $suppliers = Supplier::all();
         $detProduct = DetailProduct::join('product', 'detail_product.id_product', '=', 'product.id')->get('detail_product.*');
-        return view('pages.warehouse.product-in.form', compact('detProduct','suppliers'));
+        return view('pages.warehouse.product-in.form', compact('detProduct', 'suppliers'));
     }
 
     /**
@@ -72,7 +72,7 @@ class ProductInController extends Controller
         $productIn->total_no_tax = $request->total_no_tax;
         $productIn->tax = $request->tax;
         $productIn->note = $request->note;
-        $productIn->shipping = $request->shipping;  
+        $productIn->shipping = $request->shipping;
         $productIn->total = $request->total;
         $productInSave = $productIn->save();
         if ($productInSave) {
@@ -136,8 +136,9 @@ class ProductInController extends Controller
     {
         $productIn = ProductIn::find($id);
         $dProductIn = DetailProductIn::where('id_product_in', $id)->get();
+        $suppliers = Supplier::all();
         // dd($dProductIn);
-        return view('pages.warehouse.product-in.invoicing', compact('productIn', 'dProductIn'));
+        return view('pages.warehouse.product-in.invoicing', compact('suppliers','productIn', 'dProductIn'));
     }
 
     /**
@@ -223,13 +224,16 @@ class ProductInController extends Controller
         ];
         $this->validate($request, $rule, $message);
         // dd($request->all());
+        $supplier = Supplier::find($request->supplier);
         // Masukan Data ke Tabel Quotataion
         $productIn = new ProductIn();
         $productIn->no_do = $request->no_do;
         $productIn->invoice = null;
-        $productIn->id_supplier = null;
+        // $productIn->id_supplier = null;
+        $productIn->id_supplier = $request->supplier;
         $productIn->supplier = null;
-        $productIn->info = $request->info;
+        $productIn->info = $supplier->info;
+        // $productIn->info = $request->info;
         $productIn->date = $request->date;
         $productIn->date_invoice = null;
         $productIn->subtotal = null;
@@ -279,14 +283,14 @@ class ProductInController extends Controller
         // dd($dProductIn);
         $rule = [
             'invoice' => 'required',
-            'suplier' => 'required',
-            'date_invoice' => 'required',
+            // 'suplier' => 'required',
+            // 'date_invoice' => 'required',
             'note' => 'required',
         ];
         $message = [
             'invoice.required' => 'Field No Invoice Wajib Diisi',
-            'suplier.required' => 'Field Suplier Wajib Diisi',
-            'date_invoice.required' => 'Field Date Wajib Diisi',
+            // 'suplier.required' => 'Field Suplier Wajib Diisi',
+            // 'date_invoice.required' => 'Field Date Wajib Diisi',
             'note.required' => 'Field Note Wajib Diisi',
         ];
         $this->validate($request, $rule, $message);
@@ -332,7 +336,7 @@ class ProductInController extends Controller
     public function detailSupplier($id)
     {
         $supplier = Supplier::find($id);
-        return view('pages.warehouse.supplier.detail' ,compact('supplier'));
+        return view('pages.warehouse.supplier.detail', compact('supplier'));
     }
 
     public function storeSupplier(Request $request)
@@ -350,14 +354,15 @@ class ProductInController extends Controller
             return redirect()->back()->with('success', 'Supplier berhasil ditambahkan!');
         }
     }
-    public function deleteSupplier ($id){
+    public function deleteSupplier($id)
+    {
         $supplier = Supplier::find($id);
         $supplierDel = $supplier->delete();
         if ($supplierDel) {
             return 1;
         } else {
             return 0;
-        } 
+        }
     }
     public function updateSupplier(Request $request, $id)
     {
@@ -374,7 +379,8 @@ class ProductInController extends Controller
             return redirect()->back()->with('success', 'Supplier berhasil ditambahkan!');
         }
     }
-    public function acceptIn($id){
+    public function acceptIn($id)
+    {
         $product = ProductIn::find($id);
         $product->accept = '1';
         $productSave = $product->save();
@@ -383,6 +389,6 @@ class ProductInController extends Controller
         } else {
             return 0;
         }
-        
+
     }
 }

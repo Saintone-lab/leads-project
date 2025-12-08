@@ -27,6 +27,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductInController;
 use App\Http\Controllers\ProductOutController;
 use App\Http\Controllers\ProspectController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ReqVisitController;
 use App\Http\Controllers\ReturnController;
@@ -61,6 +62,7 @@ use App\Models\Pic;
 use App\Models\Product;
 use App\Models\ProductIn;
 use App\Models\Prospect;
+use App\Models\PurchaseRequest;
 use App\Models\Quotation;
 use App\Models\Reports;
 use App\Models\ReturnQ;
@@ -1303,6 +1305,7 @@ Route::group(["middleware" => "auth"], function () {
 
     // Pending PO
     Route::resource('/pending-po', PendingController::class);
+    Route::patch('/pending-po/connect/{id}', [PendingController::class, 'connect_out'])->name('pending-po.connect_out');
     Route::patch('/pending-po/product/{id}', [PendingController::class, 'productEdit'])->name('pending-po.productEdit');
     Route::patch('/pending-po/project/{id}', [PendingController::class, 'projectEdit'])->name('pending-po.projectEdit');
     Route::patch('/pending-po/status/{id}', [PendingController::class, 'statusEdit'])->name('pending-po.statusEdit');
@@ -1339,6 +1342,15 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/payable/{id}', [PayableController::class, 'showPayable'])->name('payable.show');
     Route::get('/payable-print/{id}', [PayableController::class, 'showPayablePrint'])->name('payable.print');
     Route::post('/payable/store', [PayableController::class, 'storePayable'])->name('payable.store');
+
+    // purchase request
+    Route::get('/purchase-request', [PurchaseController::class, 'index'])->name('purchase-request.index');
+    Route::post('/purchase-request/{id}', [PurchaseController::class, 'store'])->name('purchase-request.store');
+    Route::get('/purchase-request/{id}', [PurchaseController::class, 'show'])->name('purchase-request.show');
+    Route::patch('/purchase-request/acc/{id}', [PurchaseController::class, 'acc'])->name('purchase-request.acc');
+    Route::patch('/purchase-request/delivery/{id}', [PurchaseController::class, 'delivery'])->name('purchase-request.delivery');
+    Route::get('/purchase-request/done-all/{id}', [PurchaseController::class, 'done_all'])->name('purchase-request.done-all');
+    Route::get('/purchase-request/store-done-all/{id}', [PurchaseController::class, 'store_done_all'])->name('purchase-request.store-done-all');
 
     // Dashboard Function
     // Ajax Sales Kanan
@@ -4622,6 +4634,90 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/payable/data', function () {
         $payable = Payable::all();
         return response()->json(['data' => $payable]);
+    });
+    Route::get('/db/purchase-request/new', function () {
+        $purchase = PurchaseRequest::join('pending_po as p', 'purchase_request.id_pending', '=', 'p.id')
+            ->join('serial_product as s', 'purchase_request.id_equivalent', '=', 's.id')
+            ->join('product as pr', 'pr.id', '=', 's.id_product')
+            ->join('quotation as q', 'p.id_quotation', '=', 'q.id')
+            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('pic as pi', 'pi.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->where('purchase_request.status', '0')
+            ->select(
+                'p.id',
+                'purchase_request.date',
+                'p.no_pending',
+                'i.no_po',
+                'c.company',
+                'purchase_request.note',
+                DB::raw("CONCAT(purchase_request.qty, ' ', pr.unit) as qty_full"),
+                DB::raw("CONCAT(s.brand, ' ', s.pn, ' (', SUBSTRING(pr.go, 1, 1) , ')') as item")
+            )->get();
+        return response()->json(['data' => $purchase]);
+    });
+    Route::get('/db/purchase-request/acc', function () {
+        $purchase = PurchaseRequest::join('pending_po as p', 'purchase_request.id_pending', '=', 'p.id')
+            ->join('serial_product as s', 'purchase_request.id_equivalent', '=', 's.id')
+            ->join('product as pr', 'pr.id', '=', 's.id_product')
+            ->join('quotation as q', 'p.id_quotation', '=', 'q.id')
+            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('pic as pi', 'pi.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->where('purchase_request.status', '1')
+            ->select(
+                'p.id',
+                'purchase_request.date',
+                'p.no_pending',
+                'i.no_po',
+                'c.company',
+                'purchase_request.note',
+                DB::raw("CONCAT(purchase_request.qty, ' ', pr.unit) as qty_full"),
+                DB::raw("CONCAT(s.brand, ' ', s.pn, ' (', SUBSTRING(pr.go, 1, 1) , ')') as item")
+            )->get();
+        return response()->json(['data' => $purchase]);
+    });
+    Route::get('/db/purchase-request/delivery', function () {
+        $purchase = PurchaseRequest::join('pending_po as p', 'purchase_request.id_pending', '=', 'p.id')
+            ->join('serial_product as s', 'purchase_request.id_equivalent', '=', 's.id')
+            ->join('product as pr', 'pr.id', '=', 's.id_product')
+            ->join('quotation as q', 'p.id_quotation', '=', 'q.id')
+            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('pic as pi', 'pi.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->where('purchase_request.status', '2')
+            ->select(
+                'p.id',
+                'purchase_request.date',
+                'p.no_pending',
+                'i.no_po',
+                'c.company',
+                'purchase_request.note',
+                DB::raw("CONCAT(purchase_request.qty, ' ', pr.unit) as qty_full"),
+                DB::raw("CONCAT(s.brand, ' ', s.pn, ' (', SUBSTRING(pr.go, 1, 1) , ')') as item")
+            )->get();
+        return response()->json(['data' => $purchase]);
+    });
+    Route::get('/db/purchase-request/done', function () {
+        $purchase = PurchaseRequest::join('pending_po as p', 'purchase_request.id_pending', '=', 'p.id')
+            ->join('serial_product as s', 'purchase_request.id_equivalent', '=', 's.id')
+            ->join('product as pr', 'pr.id', '=', 's.id_product')
+            ->join('quotation as q', 'p.id_quotation', '=', 'q.id')
+            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->join('pic as pi', 'pi.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->where('purchase_request.status', '3')
+            ->select(
+                'p.id',
+                'purchase_request.date',
+                'p.no_pending',
+                'i.no_po',
+                'c.company',
+                'purchase_request.note',
+                DB::raw("CONCAT(purchase_request.qty, ' ', pr.unit) as qty_full"),
+                DB::raw("CONCAT(s.brand, ' ', s.pn, ' (', SUBSTRING(pr.go, 1, 1) , ')') as item")
+            )->get();
+        return response()->json(['data' => $purchase]);
     });
 
 });

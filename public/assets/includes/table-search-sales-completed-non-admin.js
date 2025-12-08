@@ -94,6 +94,23 @@ $(function () {
                 //     },
                 // },
                 {
+                    targets: 0,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var id = full["id"];
+                            detailRoute = route("pending-po.show", id);
+                            return (
+                                '<a class="text-black" href="' +
+                                detailRoute +
+                                '">' +
+                                data +
+                                "</a>"
+                            );
+                        }
+                        return data;
+                    },
+                },
+                {
                     targets: 5,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];

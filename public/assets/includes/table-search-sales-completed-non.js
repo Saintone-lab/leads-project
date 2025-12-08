@@ -10,22 +10,22 @@ $(function () {
         $(".datatable-sales-completed-search-non thead tr")
             .clone(true)
             .appendTo(".datatable-sales-completed-search-non thead");
-        $(".datatable-sales-completed-search-non thead tr:eq(1) th").each(function (
-            i
-        ) {
-            var title = $(this).text();
-            $(this).html(
-                '<input type="text" class="form-control" placeholder="Search ' +
-                    title +
-                    '" />'
-            );
+        $(".datatable-sales-completed-search-non thead tr:eq(1) th").each(
+            function (i) {
+                var title = $(this).text();
+                $(this).html(
+                    '<input type="text" class="form-control" placeholder="Search ' +
+                        title +
+                        '" />'
+                );
 
-            $("input", this).on("keyup change", function () {
-                if (dt_filter.column(i).search() !== this.value) {
-                    dt_filter.column(i).search(this.value).draw();
-                }
-            });
-        });
+                $("input", this).on("keyup change", function () {
+                    if (dt_filter.column(i).search() !== this.value) {
+                        dt_filter.column(i).search(this.value).draw();
+                    }
+                });
+            }
+        );
 
         var dt_filter = dt_table_sales_completed_search_non.DataTable({
             ajax: {
@@ -76,6 +76,23 @@ $(function () {
                 //         return data;
                 //     },
                 // },
+                {
+                    targets: 0,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var id = full["id"];
+                            detailRoute = route("pending-po.show", id);
+                            return (
+                                '<a class="text-black" href="' +
+                                detailRoute +
+                                '">' +
+                                data +
+                                "</a>"
+                            );
+                        }
+                        return data;
+                    },
+                },
                 {
                     targets: 4,
                     render: function (data, type, full, meta) {
