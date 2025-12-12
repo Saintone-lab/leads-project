@@ -14,15 +14,15 @@ class DetailExpense extends Model
         'updated_at'
     ];
     protected $fillable = [
-        'desc',
-        'sub_cat',
-        'qty',
-        'price',
         'amount',
+        'memo',
     ];
-    
     public function expense()
     {
-        return $this->belongsTo('App\Models\Expense', 'id_Expense', 'id');
+        return $this->belongsTo('App\Model\Expense', 'id_expense', 'id');
+    }
+    public function account()
+    {
+        return $this->belongsTo('App\Models\Account', 'id_account', 'id');
     }
 }

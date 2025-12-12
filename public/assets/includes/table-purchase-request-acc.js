@@ -8,7 +8,9 @@ $(function () {
         $(".datatable-purchase-request-acc thead tr")
             .clone(true)
             .appendTo(".datatable-purchase-request-acc thead");
-        $(".datatable-purchase-request-acc thead tr:eq(1) th").each(function (i) {
+        $(".datatable-purchase-request-acc thead tr:eq(1) th").each(function (
+            i
+        ) {
             var title = $(this).text();
             $(this).html(
                 '<input type="text" class="form-control" placeholder="Search ' +
@@ -72,18 +74,23 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var detailRoute = route("purchase-request.show", $dataId);
+                            var detailRoute = route(
+                                "purchase-request.show",
+                                $dataId
+                            );
+                            var text = data ? data : "Belum ada invoice";
+
                             return (
                                 '<a class="text-dark" href="' +
                                 detailRoute +
                                 '">' +
-                                data +
+                                text +
                                 "</a>"
                             );
                         }
                         return data;
                     },
-                }
+                },
             ],
             order: [[2, "desc"]],
             // orderCellsTop: true,

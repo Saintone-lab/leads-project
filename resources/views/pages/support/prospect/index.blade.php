@@ -98,6 +98,7 @@
                             <th>ID</th>
                             <th>Company</th>
                             <th>Pic</th>
+                            <th>category</th>
                             <th>Kebutuhan</th>
                             <th>Date </th>
                             <th>Value </th>

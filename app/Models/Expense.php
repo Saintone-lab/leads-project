@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Expense extends Model
 {
     use HasFactory;
-
     protected $table = "expense";
     protected $date = [
         'date',
@@ -16,16 +15,18 @@ class Expense extends Model
         'updated_at'
     ];
     protected $fillable = [
-        'no_expense',
-        'divisi',
-        'desc',
-        'category',
-        'method',
-        'account',
-        'total',
+        'no_voucher',
+        'no_cheque',
+        'memo',
+        'payee',
+        'amount',
     ];
+    public function bank()
+    {
+        return $this->belongsTo('App\Models\Bank', 'id_bank', 'id');
+    }
     public function detail()
     {
-        return $this->hasMany('App\Models\DetailExpense', 'id_expsense');
+        return $this->hasMany('App\Models\DetailExpense', 'id_expense');
     }
 }

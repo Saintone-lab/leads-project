@@ -100,8 +100,8 @@
                                 href="{{ route($link, $quotation->id) }}">{{ $quotation->no_quote }}</a>
                         </div>
                         <div class="col-4">No Invoice</div>
-                        <div class="col-8">: 
-                            @if ($invoice->no_invoice)
+                        <div class="col-8">:
+                            @if (@$invoice->no_invoice)
                                 <a class="text-dark cursor-pointer" href="{{ route('invoice.show', $invoice->id) }}">
                                     {{ $invoice->no_invoice }}
                                 </a>
@@ -209,10 +209,16 @@
                     data-bs-target="#replacementEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
                     Update Status Barang
                 </button> --}}
-                <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal"
-                    data-bs-target="#replacementEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                    Update Status Barang
-                </button>
+                <div class="" style="display: flex; justify-content: flex-end;">
+                    <button type="button" class="btn btn-google-plus float-end mx-2" data-bs-toggle="modal"
+                        data-bs-target="#purchaseReqPrj" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                        Purchase Request
+                    </button>
+                    <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal"
+                        data-bs-target="#replacementEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                        Update Status Barang
+                    </button>
+                </div>
             </div>
         @endif
         <div class="card mb-4">
@@ -298,6 +304,97 @@
                                 </tr>
                             @endforeach
                         @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="fw-medium card-title mb-3">
+                    Purchase Request
+                </h4>
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Note</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        @php
+                            $no = 1;
+                        @endphp
+                        @forelse ($purchase as $pr)
+                            @php
+                                switch ($pr->status) {
+                                    case 1:
+                                        $color_pr = 'text-primary';
+                                        $status_pr = 'Sudah di ACC';
+                                        break;
+                                    case 2:
+                                        $color_pr = 'text-warning';
+                                        $status_pr = 'Dalam Pengiriman';
+                                        break;
+                                    case 3:
+                                        $color_pr = 'text-success';
+                                        $status_pr = 'Done';
+                                        break;
+                                    default:
+                                        $color_pr = 'text-secondary';
+                                        $status_pr = 'Belum Di ACC';
+                                        break;
+                                }
+                            @endphp
+                            <tr>
+                                <td>{{ $no }}</td>
+                                <td>
+                                    @if ($pr->id_equivalent == '0')
+                                        -
+                                    @else
+                                        {{ $pr->equivalent->brand }} {{ $pr->equivalent->pn }}
+                                    @endif
+                                </td>
+                                {{-- <td>
+                                    <pre class="mb-0"
+                                        style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $item->detail_product }}</pre>
+                                </td> --}}
+                                <td>{{ $pr->qty }} {{ $pr->equivalent->product->unit }}</td>
+                                {{-- <td>{{ $pr->qty }}</td> --}}
+                                <td>{{ $pr->note }}</td>
+                                <td class="{{ $color_pr }}">{{ $status_pr }}</td>
+                                <td>
+                                    <a href="#" data-id="{{ $pr->id }}" data-pending="{{ $pending->id }}"
+                                        class="btn btn-sm btn-label-danger delete-request m-2">
+                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                    </a>
+                                    {{-- <a type="button" href="#" data-bs-toggle="modal"
+                                        data-bs-target="#editMachine-534" data-id="534"
+                                        class="btn btn-sm btn-label-primary">
+                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i>
+                                    </a>
+                                    <a href="http://127.0.0.1:8000/monitoring/daily-create/534"
+                                        class="btn btn-sm btn-label-warning m-2">
+                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-import m-0"></i>
+                                    </a>
+                                    <a href="http://127.0.0.1:8000/monitoring/daily-visit/534"
+                                        class="btn btn-sm btn-label-success m-2">
+                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-eye-outline m-0"></i>
+                                    </a> --}}
+                                </td>
+                            </tr>
+                            @php
+                                $no++;
+                            @endphp
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center">Tidak Ada Purchase Request</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -399,6 +496,7 @@
                             <th>Qty</th>
                             <th>Note</th>
                             <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
@@ -407,29 +505,20 @@
                         @endphp
                         @forelse ($purchase as $pr)
                             @php
-                                // switch ($item->status) {
-                                //     case 1:
-                                //         $status = 'On Check';
-                                //         break;
-                                //     case 2:
-                                //         $status = 'Ready Stock';
-                                //         break;
-                                //     case 3:
-                                //         $status = 'Kurang';
-                                //         break;
-                                //     case 4:
-                                //         $status = 'Pre-Order';
-                                //         break;
-                                //     case 5:
-                                //         $status = 'Delivery Process';
-                                //         break;
-                                //     case 6:
-                                //         $status = 'Done';
-                                //         break;
-                                //     default:
-                                //         $status = 'Belum Di Cek';
-                                //         break;
-                                // }
+                                switch ($pr->status) {
+                                    case 1:
+                                        $status_pr = 'Sudah di ACC';
+                                        break;
+                                    case 2:
+                                        $status_pr = 'Dalam Pengiriman';
+                                        break;
+                                    case 3:
+                                        $status_pr = 'Done';
+                                        break;
+                                    default:
+                                        $status_pr = 'Belum Di ACC';
+                                        break;
+                                }
                             @endphp
                             <tr>
                                 <td>{{ $no }}</td>
@@ -447,14 +536,33 @@
                                 <td>{{ $pr->qty }} {{ $pr->equivalent->product->unit }}</td>
                                 {{-- <td>{{ $pr->qty }}</td> --}}
                                 <td>{{ $pr->note }}</td>
-                                <td>ACC</td>
+                                <td>{{ $status_pr }}</td>
+                                <td>
+                                    <a href="#" data-id="{{ $pr->id }}" data-pending="{{ $pending->id }}"
+                                        class="btn btn-sm btn-label-danger delete-request m-2">
+                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                    </a>
+                                    {{-- <a type="button" href="#" data-bs-toggle="modal"
+                                        data-bs-target="#editMachine-534" data-id="534"
+                                        class="btn btn-sm btn-label-primary">
+                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i>
+                                    </a>
+                                    <a href="http://127.0.0.1:8000/monitoring/daily-create/534"
+                                        class="btn btn-sm btn-label-warning m-2">
+                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-import m-0"></i>
+                                    </a>
+                                    <a href="http://127.0.0.1:8000/monitoring/daily-visit/534"
+                                        class="btn btn-sm btn-label-success m-2">
+                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-eye-outline m-0"></i>
+                                    </a> --}}
+                                </td>
                             </tr>
                             @php
                                 $no++;
                             @endphp
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center">Tidak Ada Purchase Request</td>
+                                <td colspan="6" class="text-center">Tidak Ada Purchase Request</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -669,7 +777,11 @@
     @include('components.modal.pending.product-out')
     @include('components.modal.pending.project')
     @include('components.modal.pending.resi')
-    @include('components.modal.pending.request')
+    @if ($pending->type == 'Project')
+        @include('components.modal.pending.request-project')
+    @else
+        @include('components.modal.pending.request')
+    @endif
 @endsection()
 
 @push('after-style')
@@ -713,6 +825,9 @@
         // Initialize Bootstrap tooltips using jQuery
         $(document).ready(function() {
             $('[data-bs-toggle="tooltip"]').tooltip();
+            $('.select-project').select2({
+                dropdownParent: $('#purchaseReqPrj')
+            });
         });
 
         $(document).on('click', '.button-clear', function() {
@@ -789,6 +904,64 @@
                 if (result.value) {
                     $.ajax({
                         'url': '{{ url('pending-po') }}/delete-resi/' + id,
+                        'type': 'DELETE',
+                        'data': {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "This Notulen has been Deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/pending-po/' + pending;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Deleted!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+
+        $(document).on('click', '.delete-request', function() {
+            var id = $(this).data('id');
+            var pending = $(this).data('pending');
+            Swal.fire({
+                title: "Are you sure to Delete it??",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Deleted it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('purchase-request') }}/delete/' + id,
                         'type': 'DELETE',
                         'data': {
                             '_method': 'DELETE',

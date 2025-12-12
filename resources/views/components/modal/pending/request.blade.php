@@ -56,7 +56,7 @@
                                                             <input type="number" class="form-control"
                                                                 id="exampleFormControlinput1" name="qty[]"
                                                                 placeholder="Stock..."
-                                                                value="{{ @$item->bdg }}" max="{{ $item->qty }}" min="0"></input>
+                                                                value="{{ @$item->bdg }}" min="0"></input>
                                                             <label for="exampleFormControlinput1">Qty</label>
                                                         </div>
                                                     </td>

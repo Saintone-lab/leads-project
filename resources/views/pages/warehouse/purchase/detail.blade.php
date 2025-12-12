@@ -78,7 +78,7 @@
                                 </div>
                                 <div class="col-4">No Invoice</div>
                                 <div class="col-8">:
-                                    @if ($invoice->no_invoice)
+                                    @if (@$invoice->no_invoice)
                                         <a class="text-dark cursor-pointer"
                                             href="{{ route('invoice.show', $invoice->id) }}">
                                             {{ $invoice->no_invoice }}
@@ -107,10 +107,21 @@
 
             <div class="card mb-4">
                 <div class="card-body">
-                    <h4 class="fw-medium card-title mb-3">
-                        Purchase Request
-                    </h4>
-
+                    <div class="d-flex justify-content-between mb-3">
+                        <h4 class="fw-medium card-title mb-3">
+                            Purchase Request
+                        </h4>
+                        <div class="tombol">
+                            @if ($purchase->where('status', 0)->count() > 0)
+                                <a href="#" class="btn btn-info d-grid w-100 waves-effect acc-all-purchase"
+                                    data-id="{{ $pending->id }}">ACC All</a>
+                            @elseif($purchase->where('status', 1)->count() > 0)
+                                <a href="#" class="btn btn-twitter d-grid w-100 waves-effect delivery-all-purchase"
+                                    data-id="{{ $pending->id }}">On
+                                    Delivery All</a>
+                            @endif
+                        </div>
+                    </div>
                     <table class="table table-striped">
                         <thead>
                             <tr>
@@ -118,7 +129,9 @@
                                 <th>Item</th>
                                 <th>Qty</th>
                                 <th>Note</th>
-                                <th>Action</th>
+                                @if (Auth::user()->role != 'Logistic')
+                                    <th>Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -166,16 +179,21 @@
                                 </td> --}}
                                     <td>{{ $pr->qty }} {{ $pr->equivalent->product->unit }}</td>
                                     <td>{{ $pr->note }}</td>
-                                    <td>
-                                        @if ($pr->status == 0)
-                                            <a href="#" class="btn btn-info d-grid w-100 waves-effect acc-purchase"
-                                                data-id="{{ $pr->id }}" data-pending="{{ $pending->id }}">ACC</a>
-                                        @elseif($pr->status == 1)
-                                            <a href="#"
-                                                class="btn btn-twitter d-grid w-100 waves-effect delivery-purchase"
-                                                data-id="{{ $pr->id }}" data-pending="{{ $pending->id }}">On Delivery</a>
-                                        @endif
-                                    </td>
+                                    @if (Auth::user()->role != 'Logistic')
+                                        <td>
+                                            @if ($pr->status == 0)
+                                                <a href="#"
+                                                    class="btn btn-info d-grid w-100 waves-effect acc-purchase"
+                                                    data-id="{{ $pr->id }}"
+                                                    data-pending="{{ $pending->id }}">ACC</a>
+                                            @elseif($pr->status == 1)
+                                                <a href="#"
+                                                    class="btn btn-twitter d-grid w-100 waves-effect delivery-purchase"
+                                                    data-id="{{ $pr->id }}" data-pending="{{ $pending->id }}">On
+                                                    Delivery</a>
+                                            @endif
+                                        </td>
+                                    @endif
                                 </tr>
                                 @php
                                     $no++;
@@ -204,8 +222,10 @@
                         tabindex="{{ $stat == 1 ? '0' : '-1' }}" aria-disabled="{{ $stat == 1 ? 'false' : 'true' }}">
                         Cetak Product In
                     </a>
-                    <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-invoice mb-3"
-                        data-id="{{ $quotation->id }}">Delete</a>
+                    @if (Auth::user()->role != 'Logistic')
+                        <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-invoice mb-3"
+                            data-id="{{ $quotation->id }}">Delete</a>
+                    @endif
                     <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">
                         Back
                     </button>
@@ -268,7 +288,65 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/purchase-request/' + pending;
+                                    window.location.href = '/purchase-request/' +
+                                        pending;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Acc!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.acc-all-purchase', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to acc this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Acc it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url(path: 'purchase-request') }}/acc-all/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'PATCH',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Acc succed!",
+                                    text: "Your file has been acc.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/purchase-request/' +
+                                        id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -325,7 +403,8 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/purchase-request/' + pending;
+                                    window.location.href = '/purchase-request/' +
+                                        pending;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -348,6 +427,62 @@
                 }
             });
         });
-        
+        $(document).on('click', '.delivery-all-purchase', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to delivery this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Delivery it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url(path: 'purchase-request') }}/delivery-all/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'PATCH',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Delivery succed!",
+                                    text: "Your file has been delivery.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/purchase-request/' +
+                                        id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Delivery!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
     </script>
 @endpush

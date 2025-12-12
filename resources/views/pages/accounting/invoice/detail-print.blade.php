@@ -1319,18 +1319,19 @@
                     </table>
                 @endif
             </div>
-            @if (@$harga)
-                <p class="fw-medium mt-2 p-2"
-                    style="background-color: rgb(248, 248, 248); width:100%; font-size:14px;">
-                    Say
+
+            @if ($invoice->type == 'CT')
+                <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
                     amount: #
-                    {{ strtoupper($price) }} RUPIAH</p>
-            @else
-                <p class="fw-medium mt-2 p-2"
-                    style="background-color: rgb(248, 248, 248); width:100%; font-size:14px;">
-                    Say
+                    {{ $fullPrice }} Rupiah</p>
+            @elseif ($invoice->type == 'DP')
+                <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
                     amount: #
-                    {{ strtoupper($fullPrice) }} RUPIAH</p>
+                    {{ $priceDp }} Rupiah</p>
+            @elseif ($invoice->type == 'BP')
+                <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
+                    amount: #
+                    {{ $priceBp }} Rupiah</p>
             @endif
             <div class="row">
                 <div class="col-7">
@@ -1376,7 +1377,7 @@
                 <div class="col"></div>
                 @if ($quote->pic->client->info == 'Reftech')
                     <div class="col-4 mt-4 text-center">
-                        <p class="{{$quote->tax != 0 ? 'mb-0' : 'mb-3'}}">Bandung,
+                        <p class="{{ $quote->tax != 0 ? 'mb-0' : 'mb-3' }}">Bandung,
                             {{ Carbon\Carbon::parse($invoice->date)->locale('ID')->translatedFormat('d F Y') }}</p>
                         @if ($quote->tax != 0)
                             <p class="fs-normal fw-bolder">PT. Reftech Jaya Optima</p>

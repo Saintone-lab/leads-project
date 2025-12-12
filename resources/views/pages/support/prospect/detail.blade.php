@@ -142,6 +142,13 @@
                                     <h5>Prospect</h5>
                                     <div class="row">
                                         <div class="col-3">
+                                            Category
+                                        </div>
+                                        <div class="col-9">
+                                            <pre class="mb-0"
+                                                style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $prospect->category }}</pre>
+                                        </div>
+                                        <div class="col-3">
                                             Prospect
                                         </div>
                                         <div class="col-9">

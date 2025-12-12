@@ -27,6 +27,7 @@ $(function () {
                 { data: "id" },
                 { data: "company" },
                 { data: "name_pic" },
+                { data: "category" },
                 { data: "kebutuhan" },
                 { data: "date" },
                 { data: "nett" },
@@ -99,7 +100,7 @@ $(function () {
                 // },
                 {
                     // Label Status Name
-                    targets: 8,
+                    targets: 9,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $status = {
@@ -149,7 +150,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 7,
+                    targets: 8,
                     render: function (data, type, full, meta) {
                         if (data === null || data === undefined) {
                             return "-";
@@ -176,7 +177,7 @@ $(function () {
                 //     },
                 // },
                 {
-                    targets: 9,
+                    targets: 10,
                     render: function (data, type, full, meta) {
                         var $provide_number = full["provide"];
                         var $provide = {
@@ -207,7 +208,7 @@ $(function () {
                 },
                 {
                     // Label Status Name
-                    targets: 10,
+                    targets: 11,
                     render: function (data, type, full, meta) {
                         var name = full["sales"];
                         const domain = window.location.origin;

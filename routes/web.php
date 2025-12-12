@@ -19,7 +19,7 @@ use App\Http\Controllers\MonitoringClientController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotulenController;
 use App\Http\Controllers\OverviewController;
-use App\Http\Controllers\PayableController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PendingController;
 use App\Http\Controllers\PicController;
@@ -55,7 +55,7 @@ use App\Models\Mainlog;
 use App\Models\Monitoring;
 use App\Models\MonitoringWeekly;
 use App\Models\Notulen;
-use App\Models\Payable;
+use App\Models\Expense;
 use App\Models\Payment;
 use App\Models\PendingPO;
 use App\Models\Pic;
@@ -1333,24 +1333,31 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/change-warehouse/accept/{id}', [ChangeWarehouseController::class, 'accept'])->name('change-warehouse.accept');
 
     // account
-    Route::get('/payable-account', [PayableController::class, 'indexAccount'])->name('payable-account.index');
-    Route::post('/payable-account', [PayableController::class, 'storeAccount'])->name('payable-account.store');
-    Route::delete('/payable-account/{id}', [PayableController::class, 'deleteAccount'])->name('payable-account.delete');
-    Route::get('/payable', [PayableController::class, 'indexPayable'])->name('payable.index');
-    Route::get('/payable/create', [PayableController::class, 'createPayable'])->name('payable.create');
-    Route::delete('/payable/{id}', [PayableController::class, 'deletePayable'])->name('payable.delete');
-    Route::get('/payable/{id}', [PayableController::class, 'showPayable'])->name('payable.show');
-    Route::get('/payable-print/{id}', [PayableController::class, 'showPayablePrint'])->name('payable.print');
-    Route::post('/payable/store', [PayableController::class, 'storePayable'])->name('payable.store');
+    Route::get('/expense-account', [ExpenseController::class, 'indexAccount'])->name('expense-account.index');
+    Route::post('/expense-account', [ExpenseController::class, 'storeAccount'])->name('expense-account.store');
+    Route::delete('/expense-account/{id}', [ExpenseController::class, 'deleteAccount'])->name('expense-account.delete');
+    Route::get('/expense', [ExpenseController::class, 'indexexpense'])->name('expense.index');
+    Route::get('/expense-umum', [ExpenseController::class, 'indexexpenseUmum'])->name('expense-umum.index');
+    Route::get('/expense/create', [ExpenseController::class, 'createexpense'])->name('expense.create');
+    Route::get('/expense-umum/create', [ExpenseController::class, 'createexpenseUmum'])->name('expense-umum.create');
+    Route::delete('/expense/{id}', [ExpenseController::class, 'deleteexpense'])->name('expense.delete');
+    Route::get('/expense/{id}', [ExpenseController::class, 'showexpense'])->name('expense.show');
+    Route::get('/expense-print/{id}', [ExpenseController::class, 'showexpensePrint'])->name('expense.print');
+    Route::post('/expense/store', [ExpenseController::class, 'storeexpense'])->name('expense.store');
 
     // purchase request
     Route::get('/purchase-request', [PurchaseController::class, 'index'])->name('purchase-request.index');
     Route::post('/purchase-request/{id}', [PurchaseController::class, 'store'])->name('purchase-request.store');
+    Route::post('/purchase-request-project/{id}', [PurchaseController::class, 'store_project'])->name('purchase-request.store-project');
     Route::get('/purchase-request/{id}', [PurchaseController::class, 'show'])->name('purchase-request.show');
+    Route::delete('/purchase-request/delete/{id}', [PurchaseController::class, 'delete'])->name('purchase-request.delete');
     Route::patch('/purchase-request/acc/{id}', [PurchaseController::class, 'acc'])->name('purchase-request.acc');
+    Route::patch('/purchase-request/acc-all/{id}', [PurchaseController::class, 'acc_all'])->name('purchase-request.acc-all');
     Route::patch('/purchase-request/delivery/{id}', [PurchaseController::class, 'delivery'])->name('purchase-request.delivery');
+    Route::patch('/purchase-request/delivery-all/{id}', [PurchaseController::class, 'delivery_all'])->name('purchase-request.delivery-all');
     Route::get('/purchase-request/done-all/{id}', [PurchaseController::class, 'done_all'])->name('purchase-request.done-all');
-    Route::get('/purchase-request/store-done-all/{id}', [PurchaseController::class, 'store_done_all'])->name('purchase-request.store-done-all');
+    Route::post('/purchase-request/store-done-all/{id}', [PurchaseController::class, 'store_done_all'])->name('purchase-request.store-done-all');
+    Route::post('/purchase-request/store-done-all-logistic/{id}', [PurchaseController::class, 'store_done_all_logistic'])->name('purchase-request.store-done-all-logistic');
 
     // Dashboard Function
     // Ajax Sales Kanan
@@ -3641,7 +3648,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('client', 'client.id', '=', 'pic.id_client')
             ->leftJoin('users', 'users.id', '=', 'prospect.id_sales')
             ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
-            ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.provide', 'prospect.date', 'client.company', 'users.name', 'users.image', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
+            ->get(['prospect.id', 'prospect.category', 'prospect.kebutuhan', 'prospect.provide', 'prospect.date', 'client.company', 'users.name', 'users.image', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);
     });
     Route::get('/db/prospect/sales', function () {
@@ -3680,7 +3687,7 @@ Route::group(["middleware" => "auth"], function () {
                 $query->where('prospect.level', '1')
                     ->orWhereNull('prospect.level');
             })
-            ->get(['prospect.id', 'prospect.kebutuhan', 'prospect.provide', 'prospect.date', 'client.company', 'supp.name as support', 'sale.name as sales', 'pic.name_pic', 'sale.image', 'quotation.status', 'quotation.nett']);
+            ->get(['prospect.id', 'prospect.category', 'prospect.kebutuhan', 'prospect.provide', 'prospect.date', 'client.company', 'supp.name as support', 'sale.name as sales', 'pic.name_pic', 'sale.image', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);
     });
 
@@ -4631,16 +4638,20 @@ Route::group(["middleware" => "auth"], function () {
         $account = Account::all();
         return response()->json(['data' => $account]);
     });
-    Route::get('/db/payable/data', function () {
-        $payable = Payable::all();
-        return response()->json(['data' => $payable]);
+    Route::get('/db/expense/data', function () {
+        $expense =Expense::whereNotNULL('id_bank')->get();
+        return response()->json(['data' => $expense]);
+    });
+    Route::get('/db/expense/umum/data', function () {
+        $expense =Expense::whereNULL('id_bank')->get();
+        return response()->json(['data' => $expense]);
     });
     Route::get('/db/purchase-request/new', function () {
         $purchase = PurchaseRequest::join('pending_po as p', 'purchase_request.id_pending', '=', 'p.id')
             ->join('serial_product as s', 'purchase_request.id_equivalent', '=', 's.id')
             ->join('product as pr', 'pr.id', '=', 's.id_product')
             ->join('quotation as q', 'p.id_quotation', '=', 'q.id')
-            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'i.id_quotation', '=', 'q.id')
             ->join('pic as pi', 'pi.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'pi.id_client')
             ->where('purchase_request.status', '0')

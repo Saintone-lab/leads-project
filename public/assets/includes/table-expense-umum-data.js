@@ -1,14 +1,14 @@
 $(function () {
-    var dt_table_payable_data = $(".datatable-payable-data");
-    var Url = "db/payable/data";
+    var dt_table_expense_umum_data = $(".datatable-expense-umum-data");
+    var Url = "db/expense/umum/data";
 
-    if (dt_table_payable_data.length) {
+    if (dt_table_expense_umum_data.length) {
         $('[data-toggle="tooltip"]').tooltip();
         // Setup - add a text input to each footer cell
-        $(".datatable-payable-data thead tr")
+        $(".datatable-expense-umum-data thead tr")
             .clone(true)
-            .appendTo(".datatable-payable-data thead");
-        $(".datatable-payable-data thead tr:eq(1) th").each(function (i) {
+            .appendTo(".datatable-expense-umum-data thead");
+        $(".datatable-expense-umum-data thead tr:eq(1) th").each(function (i) {
             var title = $(this).text();
             $(this).html(
                 '<input type="text" class="form-control" placeholder="Search ' +
@@ -23,7 +23,7 @@ $(function () {
             });
         });
 
-        var dt_filter = dt_table_payable_data.DataTable({
+        var dt_filter = dt_table_expense_umum_data.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
@@ -44,7 +44,7 @@ $(function () {
             columns: [
                 { data: "date" },
                 { data: "memo" },
-                { data: "no_voucher" },
+                { data: "no_invoice" },
                 { data: "no_cheque" },
                 { data: "amount" },
             ],
@@ -70,7 +70,7 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var detailRoute = route("payable.show", $dataId);
+                            var detailRoute = route("expense.show", $dataId);
                             return (
                                 '<a class="text-dark" href="' +
                                 detailRoute +
@@ -95,23 +95,23 @@ $(function () {
                 '<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             buttons: [
                 {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Payable</span>',
+                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Expense</span>',
                     className: "btn btn-primary btn-new",
                     action: function (e, dt, node, config) {
-                        window.location = route("payable.create");
+                        window.location = route("expense-umum.create");
                     },
                 },
                 // {
-                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Payable</span>',
+                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New expense</span>',
                 //     className: "btn btn-primary",
                 //     attr: {
-                //         href: "{{ route('payable.create') }}",
+                //         href: "{{ route('expense.create') }}",
                 //     },
                 // },
             ],
         });
     }
-    dt_table_payable_data.on("draw", function () {
+    dt_table_expense_umum_data.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

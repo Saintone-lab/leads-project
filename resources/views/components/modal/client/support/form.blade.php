@@ -84,7 +84,8 @@
                                                 {{ old('source', @$leads->source) == 'IG' ? 'selected' : '' }}>Instagram
                                             </option>
                                             <option value="WhatsApp"
-                                                {{ old('source', @$leads->source) == 'WhatsApp' ? 'selected' : '' }}>WhatsApp
+                                                {{ old('source', @$leads->source) == 'WhatsApp' ? 'selected' : '' }}>
+                                                WhatsApp
                                             </option>
                                             <option value="LinkedIn"
                                                 {{ old('source', @$leads->source) == 'LinkedIn' ? 'selected' : '' }}>
@@ -95,10 +96,12 @@
                                                 Website
                                             </option>
                                             <option value="Indotrading"
-                                                {{ old('source', @$leads->source) == 'Indotrading' ? 'selected' : '' }}>Indotrading
+                                                {{ old('source', @$leads->source) == 'Indotrading' ? 'selected' : '' }}>
+                                                Indotrading
                                             </option>
                                             <option value="Tokopedia"
-                                                {{ old('source', @$leads->source) == 'Tokopedia' ? 'selected' : '' }}>Tokopedia
+                                                {{ old('source', @$leads->source) == 'Tokopedia' ? 'selected' : '' }}>
+                                                Tokopedia
                                             </option>
                                             <option value="OLX"
                                                 {{ old('source', @$leads->source) == 'OLX' ? 'selected' : '' }}>OLX
@@ -106,6 +109,18 @@
                                             <option value="Google"
                                                 {{ old('source', @$leads->source) == 'Google' ? 'selected' : '' }}>
                                                 Google
+                                            </option>
+                                            <option value="Google Ads"
+                                                {{ old('source', @$leads->source) == 'Google Ads' ? 'selected' : '' }}>
+                                                Google Ads
+                                            </option>
+                                            <option value="Meta Ads"
+                                                {{ old('source', @$leads->source) == 'Meta Ads' ? 'selected' : '' }}>
+                                                Meta Ads
+                                            </option>
+                                            <option value="Facebook"
+                                                {{ old('source', @$leads->source) == 'Facebook' ? 'selected' : '' }}>
+                                                Facebook
                                             </option>
                                             <option value="Other"
                                                 {{ old('source', @$leads->source) == 'Other' ? 'selected' : '' }}>Other
@@ -177,6 +192,49 @@
                                             name="phonePic" placeholder="08xxxxxxxxxx"
                                             value="{{ old('phonePic', @$leads->pic->phone_pic ?? '') }}">
                                         <label for="phonePicAnimation">Phone PIC</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col mb-2">
+                                    <div class="form-floating form-floating-outline">
+                                        <select class="form-select" id="category"
+                                            aria-label="Default select example" name="category">
+                                            <option disabled>----- Choose Category -----</option>
+                                            <option value="Service Compressor"
+                                                {{ old('category', @$leads->category) == 'Service Compressor' ? 'selected' : '' }}>
+                                                Service Compressor
+                                            </option>
+                                            <option value="Rental Compressor"
+                                                {{ old('category', @$leads->category) == 'Rental Compressor' ? 'selected' : '' }}>
+                                                Rental Compressor
+                                            </option>
+                                            <option value="Sparepart Compressor"
+                                                {{ old('category', @$leads->category) == 'Sparepart Compressor' ? 'selected' : '' }}>
+                                                Sparepart Compressor
+                                            </option>
+                                            <option value="Instalasi Piping"
+                                                {{ old('category', @$leads->category) == 'Instalasi Piping' ? 'selected' : '' }}>
+                                                Instalasi Piping
+                                            </option>
+                                            <option value="Air Audit"
+                                                {{ old('category', @$leads->category) == 'Air Audit' ? 'selected' : '' }}>
+                                                Air Audit
+                                            </option>
+                                            <option value="Fire System"
+                                                {{ old('category', @$leads->category) == 'Fire System' ? 'selected' : '' }}>
+                                                Fire System
+                                            </option>
+                                            <option value="HVAC System"
+                                                {{ old('category', @$leads->category) == 'HVAC System' ? 'selected' : '' }}>
+                                                HVAC System
+                                            </option>
+                                            <option value="Unit Baru/Second"
+                                                {{ old('category', @$leads->category) == 'Unit Baru/Second' ? 'selected' : '' }}>
+                                                Unit Baru/Second
+                                            </option>
+                                        </select>
+                                        <label for="category">Category</label>
                                     </div>
                                 </div>
                             </div>

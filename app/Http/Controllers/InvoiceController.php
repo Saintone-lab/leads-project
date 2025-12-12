@@ -403,17 +403,19 @@ class InvoiceController extends Controller
         }
 
         $remaining = $quote->harga_total - $totalAmount;
-        $harga = Payment::where('id_quotation', $quote->id)->orderBy('created_at', 'DESC')->first();
-        $price = $this->terbilang(@$harga->amount - $totalPph);
+        $harga = Payment::where('id_quotation', $quote->id)->get();
+        $price = $this->terbilang(@$harga[0]->amount - $totalPph);
         $fullPrice = $this->terbilang($quote->harga_total - $totalPph);
+        $priceDp = $this->terbilang($quote->harga_total * @$harga[0]->percent / 100 - $totalPph);
+        $priceBp = $this->terbilang($quote->harga_total * @$harga[1]->percent / 100 - $totalPph);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         // $pph = $quote->subtotal * $invoice->pph / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
         // dd($termncon);
         if ($quote->type == 'Sparepart') {
-            return view("pages.accounting.invoice.detail-print", compact('harga', 'quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
+            return view("pages.accounting.invoice.detail-print", compact('harga', 'quote', 'priceDp', 'priceBp', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
         } else {
-            return view("pages.accounting.invoice.detail-print", compact('subQuote', 'harga', 'quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
+            return view("pages.accounting.invoice.detail-print", compact('subQuote', 'harga', 'priceDp', 'priceBp', 'quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
         }
 
     }

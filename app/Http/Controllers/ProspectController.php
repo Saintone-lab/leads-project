@@ -216,6 +216,7 @@ class ProspectController extends Controller
         $prospect->id_quotation = NULL;
         $prospect->id_pic = $pic->id;
         $prospect->id_support = Auth::id();
+        $prospect->category = $request->category;
         $prospect->kebutuhan = $request->prospect;
         $prospect->date = Carbon::now();
         $prospect->level = NULL;

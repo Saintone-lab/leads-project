@@ -131,10 +131,11 @@ class PendingController extends Controller
             ->groupBy('product_out.id')
             ->select('product_out.*')
             ->get();
+        // $allEquiv = SerialProduct::all();
         $purchase = PurchaseRequest::where('id_pending', $id)->get();
         // dd($resi);
         // dd($status->count());
-        return view('pages.pending.detail', compact('purchase','serial', 'activity', 'allproductOut', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation', 'resi'));
+        return view('pages.pending.detail', compact('purchase', 'serial', 'activity', 'allproductOut', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation', 'resi'));
     }
 
     /**

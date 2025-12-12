@@ -53,10 +53,10 @@
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>No SO</th>
                                     <th>No PO</th>
-                                    <th>Customer</th>
+                                    <th>No SO</th>
                                     <th>Item</th>
+                                    <th>Customer</th>
                                     <th>Qty</th>
                                     <th>Note</th>
                                 </tr>
@@ -70,10 +70,10 @@
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>No SO</th>
                                     <th>No PO</th>
-                                    <th>Customer</th>
+                                    <th>No SO</th>
                                     <th>Item</th>
+                                    <th>Customer</th>
                                     <th>Qty</th>
                                     <th>Note</th>
                                 </tr>
@@ -87,10 +87,10 @@
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>No SO</th>
                                     <th>No PO</th>
-                                    <th>Customer</th>
+                                    <th>No SO</th>
                                     <th>Item</th>
+                                    <th>Customer</th>
                                     <th>Qty</th>
                                     <th>Note</th>
                                 </tr>
@@ -104,10 +104,10 @@
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>No SO</th>
                                     <th>No PO</th>
-                                    <th>Customer</th>
+                                    <th>No SO</th>
                                     <th>Item</th>
+                                    <th>Customer</th>
                                     <th>Qty</th>
                                     <th>Note</th>
                                 </tr>

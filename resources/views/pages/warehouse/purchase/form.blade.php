@@ -1,7 +1,7 @@
 @extends('layouts.sales.app')
 @section('title', 'Product In Request')
 @section('content')
-    <form action="{{ route('purchase-request.store-done-all', $pending->id) }}"
+    <form action="{{ route(Auth::user()->role == 'Logistic' ? 'purchase-request.store-done-all-logistic' : 'purchase-request.store-done-all', $pending->id) }}"
         method="post" enctype="multipart/form-data">
         @csrf
         @if (Auth::user()->role == 'Admin')

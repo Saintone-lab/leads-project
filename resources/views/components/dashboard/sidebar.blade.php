@@ -275,7 +275,8 @@
                     </li>
                 </ul>
             </li> --}}
-            <li class="menu-item {{ request()->is('purchase-request') || request()->is('purchase-request/*') ? 'active' : '' }}">
+            <li
+                class="menu-item {{ request()->is('purchase-request') || request()->is('purchase-request/*') ? 'active' : '' }}">
                 <a href="{{ route('purchase-request.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-format-list-group-plus"></i>
                     <div data-i18n="Purchase Request">Purchase Request</div>
@@ -474,8 +475,7 @@
                     </li>
                 </ul>
             </li>
-            <li
-                class="menu-item {{ request()->is('payable-account') || request()->is('payable') ? 'open' : '' }}">
+            <li class="menu-item {{ request()->is('payable-account') || request()->is('payable') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
                     <div data-i18n="Payable (AP)">Payable (AP)</div>
@@ -485,15 +485,47 @@
                 </a>
                 <ul class="menu-sub">
                     <li
-                        class="menu-item {{ request()->is('payable-account') ? 'active' : '' }}">
-                        <a href="{{ route('payable-account.index') }}" class="menu-link">
-                            <div data-i18n="Account Database">Account Database</div>
+                        class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-detail/invoice/*') ? 'active' : '' }}">
+                        <a href="{{ route('payment_index.invoice') }}" class="menu-link">
+                            <div data-i18n="Sales Invoice">Sales Invoice</div>
                         </a>
                     </li>
                     <li
-                        class="menu-item {{ request()->is('payable') ? 'active' : '' }}">
-                        <a href="{{ route('payable.index') }}" class="menu-link">
+                        class="menu-item {{ request()->is('payment-index/payment') || request()->is('payment-detail/payment/*') ? 'active' : '' }}">
+                        <a href="{{ route('payment_index.payment') }}" class="menu-link">
+                            <div data-i18n="Payment Receipt">Payment Receipt</div>
+                        </a>
+                    </li>
+                    <li
+                        class="menu-item {{ request()->is('payment-index/aging') || request()->is('payment-detail/aging/*') ? 'active' : '' }}">
+                        <a href="{{ route('payment_index.aging') }}" class="menu-link">
+                            <div data-i18n="Aging Report">Aging Report</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item {{ request()->is('expense-account') || request()->is('expense') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-cash-multiple"></i>
+                    <div data-i18n="Expense">Expense</div>
+                    {{-- @if (@$nodueCount >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $nodueCount }}</div>
+                    @endif --}}
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('expense-account') ? 'active' : '' }}">
+                        <a href="{{ route('expense-account.index') }}" class="menu-link">
+                            <div data-i18n="Account Database">Account Database</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('expense') ? 'active' : '' }}">
+                        <a href="{{ route('expense.index') }}" class="menu-link">
                             <div data-i18n="Expense">Expense</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('expense-umum') ? 'active' : '' }}">
+                        <a href="{{ route('expense-umum.index') }}" class="menu-link">
+                            <div data-i18n="Jurnal Umum">Jurnal Umum</div>
                         </a>
                     </li>
                 </ul>
@@ -851,6 +883,15 @@
                     @endif --}}
                 </a>
             </li>
+            @if (Auth::user()->id == 3)
+                <li
+                    class="menu-item {{ request()->is('purchase-request') || request()->is('purchase-request/*') ? 'active' : '' }}">
+                    <a href="{{ route('purchase-request.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-format-list-group-plus"></i>
+                        <div data-i18n="Purchase Request">Purchase Request</div>
+                    </a>
+                </li>
+            @endif
             {{-- <li class="menu-item {{ request()->is('new-order') ? 'active' : '' }}">
                 <a href="{{ route('pending-po.order') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-cart-plus"></i>
@@ -1364,8 +1405,9 @@
                     </li>
                 </ul>
             </li> --}}
-            <li class="menu-item ">
-                <a href="{{ route('pending-po.index') }}" class="menu-link">
+            <li
+                class="menu-item {{ request()->is('purchase-request') || request()->is('purchase-request/*') ? 'active' : '' }}">
+                <a href="{{ route('purchase-request.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-format-list-group-plus"></i>
                     <div data-i18n="Purchase Request">Purchase Request</div>
                 </a>
