@@ -15,15 +15,6 @@ return new class extends Migration
     {
         Schema::create('return', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_quotation')->nullable();
-            $table->foreignId('id_product_in')->nullable();
-            $table->foreignId('id_replacement');
-            // $table->foreignId('id_equivalent');
-            $table->string('qty');
-            $table->longText('note');
-            // $table->integer('type');
-            $table->date('date');
-            $table->integer('status');
             $table->timestamps();
         });
     }

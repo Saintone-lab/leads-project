@@ -34,4 +34,8 @@ class ProductIn extends Model
     {
         return $this->hasMany('App\Models\DetailProductIn', 'id_product_in');
     }
+    public function return()
+    {
+        return $this->hasMany('App\Models\Retur', 'id_product_in');
+    }
 }

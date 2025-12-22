@@ -42,4 +42,12 @@ DetailProduct extends Model
     {
         return $this->hasMany('App\Models\DetailChangeWarehouse', 'id_replacement');
     }
+    public function return()
+    {
+        return $this->hasMany('App\Models\Retur', 'id_replacement');
+    }
+    public function opname()
+    {
+        return $this->hasMany('App\Models\DetailStockOpname', 'id_replacement');
+    }
 }

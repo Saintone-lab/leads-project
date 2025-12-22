@@ -35,7 +35,8 @@
                         <div class="col-12 col-lg-6">
                             <div class="form-floating form-floating-outline mb-2">
                                 <select id="supplier-dropdown" class="select2 form-select invoice-item-supplier"
-                                    data-allow-clear="true" name="supplier" data-id="1">
+                                    data-allow-clear="true" name="supplier" data-id="1"
+                                    {{ Auth::user()->role == 'Logistic' ? 'disabled' : '' }}>
                                     <option selected>Pilih Supplier...</option>
                                     @foreach ($suppliers as $supp)
                                         <option value="{{ $supp->id }}" data-info="{{ $supp->info }}">
@@ -44,24 +45,35 @@
                                     @endforeach
                                 </select>
                                 <label for="supplier-dropdown">Supplier</label>
-                            </div>
-                            {{-- bekas --}}
-                            {{-- <div class="form-floating form-floating-outline mb-4">
+                                {{-- bekas --}}
+                                {{-- <div class="form-floating form-floating-outline mb-4">
                                 <input class="form-control" type="text" placeholder="Put Supplier Quotation Here ...."
                                     id="supplier-input" name="suplier"
                                     value="{{ old('supplier', @$productIn->supplier ?? '') }}"
                                     {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
                                 <label for="supplier-input">Suplier</label>
                             </div> --}}
+                            </div>
                         </div>
                         <div class="col-6 col-lg-2">
-                            <div class="form-floating form-floating-outline mb-4">
-                                <select class="form-select invoice-item-info" id="info-dropdown" name="info"
-                                    aria-label="Default select example" disabled>
-                                    <option selected disabled>Pilih supplier dulu...</option>
-                                </select>
-                                <label for="info-dropdown">Supplier Info</label>
-                            </div>
+                            @if (Auth::user()->role == 'Logistic')
+                                <div class="form-floating form-floating-outline mb-4">
+                                    <select class="form-select invoice-item-info" id="info-dropdown" name="info"
+                                        aria-label="Default select example">
+                                        <option value="Lokal">Lokal</option>
+                                        <option value="Import">Import</option>
+                                    </select>
+                                    <label for="info-dropdown">Supplier Info</label>
+                                </div>
+                            @else
+                                <div class="form-floating form-floating-outline mb-4">
+                                    <select class="form-select invoice-item-info" id="info-dropdown" name="info"
+                                        aria-label="Default select example" disabled>
+                                        <option selected disabled>Pilih supplier dulu...</option>
+                                    </select>
+                                    <label for="info-dropdown">Supplier Info</label>
+                                </div>
+                            @endif
                         </div>
                         <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline mb-4">
@@ -87,7 +99,7 @@
                         </div>
                         <div class="col-lg-2">
                             <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal"
-                                data-bs-target="#createSupplier">
+                                data-bs-target="#createSupplier" {{ Auth::user()->role == 'Logistic' ? 'disabled' : '' }}>
                                 + Supplier
                             </button>
                         </div>

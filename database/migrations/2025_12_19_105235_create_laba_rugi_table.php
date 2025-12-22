@@ -13,17 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('return', function (Blueprint $table) {
+        Schema::create('laba_rugi', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_quotation')->nullable();
-            $table->foreignId('id_product_in')->nullable();
-            $table->foreignId('id_replacement');
-            // $table->foreignId('id_equivalent');
-            $table->string('qty');
-            $table->longText('note');
-            // $table->integer('type');
+            $table->string('desc');
+            $table->string('type');
             $table->date('date');
-            $table->integer('status');
+            $table->integer('amount');
             $table->timestamps();
         });
     }
@@ -35,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('return');
+        Schema::dropIfExists('laba_rugi');
     }
 };

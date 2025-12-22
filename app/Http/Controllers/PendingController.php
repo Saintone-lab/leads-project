@@ -16,6 +16,7 @@ use App\Models\Product;
 use App\Models\ProductOut;
 use App\Models\PurchaseRequest;
 use App\Models\Quotation;
+use App\Models\Retur;
 use App\Models\SerialProduct;
 use App\Models\ServiceOrder;
 use App\Models\SubtitleQuotation;
@@ -125,17 +126,19 @@ class PendingController extends Controller
         $serial = SerialProduct::all();
         $resi = Expanse::where('id_pending', $id)->where('type', 'Resi')->first();
         $product = ProductOut::find($pending->id_product_out);
-        $detail = DetailProductOut::where('id_product_out', $pending->id_product_out)->get();
+        $detProduct = DetailProductOut::where('id_product_out', $pending->id_product_out)->get();
+        $return = Retur::where('id_pending', $id)->get();
         $allproductOut = ProductOut::leftJoin('pending_po', 'product_out.id', '=', 'pending_po.id_product_out')
             ->whereNull('pending_po.id_product_out')
             ->groupBy('product_out.id')
             ->select('product_out.*')
             ->get();
         // $allEquiv = SerialProduct::all();
+        // $detProduct = DetailProductOut::where('id_product_out', $allproductOut[0]->id)->get();
         $purchase = PurchaseRequest::where('id_pending', $id)->get();
-        // dd($resi);
+        // dd($detail);
         // dd($status->count());
-        return view('pages.pending.detail', compact('purchase', 'serial', 'activity', 'allproductOut', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation', 'resi'));
+        return view('pages.pending.detail', compact('purchase', 'serial', 'return', 'detProduct', 'activity', 'allproductOut', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation', 'resi', 'product'));
     }
 
     /**
@@ -229,6 +232,7 @@ class PendingController extends Controller
     public function connect_out(Request $request, $id)
     {
         $pending = PendingPO::find($id);
+        // $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $pending->id_product_out = $request->product;
         $pendingSave = $pending->save();
         if ($pendingSave) {
@@ -675,6 +679,46 @@ class PendingController extends Controller
         }
         if ($schedulesave) {
             return redirect('/sales-order')->with('message', 'data telah di tambahkan');
+        }
+    }
+    public function returProduct(Request $request, $id)
+    {
+        $pending = PendingPO::find($id);
+        // dd($pending);
+        $pending->status = '8';
+        $pending->save();
+        $productOut = ProductOut::find($pending->id_product_out);
+        $detProduct = DetailProductOut::where('id_product_out', $productOut->id)->get();
+        foreach ($request->qty as $key => $value) {
+            if ($value != 0) {
+                $return = new Retur();
+                $return->id_pending = $id;
+                $return->id_replacement = $detProduct[$key]->id_detail_product;
+                $return->qty = $value;
+                $return->note = $request->note[$key] ?? '-';
+                $return->status = 0;
+                $return->date = Carbon::today();
+                $returnSave = $return->save();
+            }
+        }
+        if ($returnSave) {
+            return redirect()->back()->with('success', 'Data Return Telah Ditambahkan');
+        }
+    }
+    public function clearReturn($id)
+    {
+        $pending= PendingPO::find($id);
+        $pending->status = '6';
+        $pending->save();
+        $return = Retur::where('id_pending',$id)->get();
+        foreach ($return as $retur) {
+        $retur->status = 1;
+        $returSave = $retur->save();
+        }
+        if ($returSave) {
+            return 1;
+        } else {
+            return 0;
         }
     }
 }

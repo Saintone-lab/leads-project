@@ -123,6 +123,57 @@
                     </table>
                 </div>
             </div>
+
+
+            <div class="table-responsive">
+                <table class="table m-0">
+                    <thead class="">
+                        <tr>
+                            <th>Item</th>
+                            <th>Desc</th>
+                            <th>Qty</th>
+                            <th>Note</th>
+                            <th style="width: 20%">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $no = 0;
+                        @endphp
+                        @forelse ($return as $retur)
+                            @php
+                                $no++;
+                            @endphp
+                            <tr style="font-size: 13px">
+                                <td class="align-top">{{ $no }}</td>
+                                <td class="text-nowrap align-top">
+                                    <p class="mb-0 fw-semibold" style="font-size: 12px">
+                                        {{ $retur->replacement->replacement }}
+                                    </p>
+                                    <pre class="mb-0"
+                                        style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $retur->replacement->product->description }}</pre>
+                                </td>
+                                <td class="align-top">{{ $retur->qty }}
+                                    {{ $retur->replacement->product->unit }}
+                                </td>
+                                <td class="align-top">{{ $retur->note }}</td>
+                                <td class="align-top">
+                                    @if ($retur->status == 0)
+                                        <a href="#" class="btn btn-primary d-grid w-100 waves-effect clear-return"
+                                            data-id="{{ $retur->id }}">Clear Return</a>
+                                    @else
+                                        <p class="text-success">Sudah Clear</p>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center">Tidak ada return di invoice ini</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
@@ -290,6 +341,62 @@
                                 })
                                 window.setTimeout(function() {
                                     window.location.href = '/product-in/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Accept!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.clear-return', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Accept it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('product-in') }}/clear-return/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Accepted!",
+                                    text: "Your file has been Accepted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                setTimeout(function() {
+                                    window.location.reload();
                                 }, 2000);
                             } else {
                                 Swal.fire({

@@ -7,6 +7,7 @@ use App\Models\DetailProductIn;
 use App\Models\Product;
 use App\Models\ProductIn;
 use App\Models\Prospect;
+use App\Models\Retur;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -123,7 +124,8 @@ class ProductInController extends Controller
         $tax = $product->subtotal * $product->tax / 100;
         $detail = DetailProductIn::where('id_product_in', $id)->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.warehouse.product-in.detail', compact('product', 'detail', 'noSaleProspect', 'tax'));
+        $return = Retur::where('id_product_in', $id)->get();
+        return view('pages.warehouse.product-in.detail', compact('product', 'detail', 'noSaleProspect', 'tax','return'));
     }
 
     /**
@@ -232,8 +234,8 @@ class ProductInController extends Controller
         // $productIn->id_supplier = null;
         $productIn->id_supplier = $request->supplier;
         $productIn->supplier = null;
-        $productIn->info = $supplier->info;
-        // $productIn->info = $request->info;
+        // $productIn->info = $supplier->info;
+        $productIn->info = $request->info;
         $productIn->date = $request->date;
         $productIn->date_invoice = null;
         $productIn->subtotal = null;
@@ -280,7 +282,7 @@ class ProductInController extends Controller
     {
         $productIn = ProductIn::find($id);
         $dProductIn = DetailProductIn::where('id_product_in', $id)->get();
-        // dd($dProductIn);
+        dd($request->all());
         $rule = [
             'invoice' => 'required',
             // 'suplier' => 'required',
@@ -297,7 +299,7 @@ class ProductInController extends Controller
         // dd($request->all());
         // Masukan Data ke Tabel Quotataion
         $productIn->invoice = $request->invoice;
-        $productIn->id_supplier = $request->suplier;
+        $productIn->id_supplier = $request->supplier;
         // $productIn->supplier = $request->suplier;
         $productIn->date_invoice = $request->date_invoice;
         $productIn->subtotal = $request->subtotal;
@@ -389,6 +391,35 @@ class ProductInController extends Controller
         } else {
             return 0;
         }
-
+    }
+    public function return(Request $request, $id){
+        $detProduct = DetailProductIn::where('id_product_in', $id)->get();
+        foreach ($request->qty as $key => $value) {
+            if ($value != 0) {
+                // dd($key);
+                $return = new Retur();
+                $return->id_product_in = $id;
+                $return->id_replacement = $detProduct[$key]->id_detail_product;
+                $return->qty = $value;
+                $return->note = $request->note[$key] ?? '-';
+                $return->status = 0;
+                $return->date = Carbon::today();
+                $returnSave = $return->save();
+            }
+        }
+        if ($returnSave) {
+            return redirect()->back()->with('success','Data Return Telah Ditambahkan');
+        }
+    }
+    public function clearReturn($id)
+    {
+        $return = Retur::find($id);
+        $return->status = 1;
+        $returnSave = $return->save();
+        if ($returnSave) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }

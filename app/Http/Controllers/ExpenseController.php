@@ -6,6 +6,9 @@ use App\Models\Account;
 use App\Models\Bank;
 use App\Models\DetailExpense;
 use App\Models\Expense;
+use App\Models\LabaRugi;
+use App\Models\Quotation;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class Expensecontroller extends Controller
@@ -91,7 +94,7 @@ class Expensecontroller extends Controller
             } else {
                 return redirect('expense-umum')->with('success', 'Data berhasil disimpan');
             }
-            
+
         }
     }
     public function showExpense($id)
@@ -128,6 +131,126 @@ class Expensecontroller extends Controller
         } else {
             return 0;
         }
+    }
+
+    public function indexIncome()
+    {
+
+        $currentYear = date('Y');
+
+        $years = [];
+        for ($i = $currentYear - 5; $i <= $currentYear + 5; $i++) {
+            $years[] = $i;
+        }
+        $start = Carbon::now()->subYear()->startOfYear();
+        $end = Carbon::now()->endOfYear();
+
+        $months = collect();
+        $cursor = $start->copy();
+
+        while ($cursor <= $end) {
+            $months->push([
+                'month' => $cursor->month,      // 1–12
+                'year' => $cursor->year,
+                'label' => $cursor->translatedFormat('F Y'), // Januari 2024
+            ]);
+
+            $cursor->addMonth();
+        }
+        // dd($months);
+        return view('pages.finance.income.index', compact('years', 'months'));
+    }
+    public function storeIncome(Request $request)
+    {
+        $income = new LabaRugi;
+        $income->desc = $request->desc;
+        $income->type = $request->type;
+        $income->amount = $request->price;
+        $income->date = Carbon::today();
+        $incomeSave = $income->save();
+        if ($incomeSave) {
+            return redirect()->back()->with('success', 'berhasil ditambahkan!');
+        }
+    }
+    public function printBulan($month, $year)
+    {
+        $startDate = Carbon::create($year, $month, 1)->startOfMonth()->toDateString();
+        $endDate = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
+        $start = Carbon::create($year, $month, 1)->startOfMonth();
+        $end = Carbon::today();
+        $quotation = Quotation::whereBetween('po_date', [$startDate, $endDate])->where('status', '100')->where('level', '1')->where('is_primary', '1')->get();
+        $poSum = $quotation->sum('nett');
+        $modalSum = Quotation::join('detail_quotation', 'quotation.id', '=', 'detail_quotation.id_quotation')
+            ->join('serial_product', 'detail_quotation.id_equivalent', '=', 'serial_product.id')
+            ->whereBetween('quotation.po_date', [$startDate, $endDate])
+            ->where('quotation.status', '100')
+            ->where('quotation.level', '1')
+            ->where('quotation.is_primary', '1')
+            ->sum('serial_product.price');
+        $allExpense = detailExpense::join('expense as e', 'e.id', '=', 'detail_expense.id_expense')->whereBetween('e.date', [$startDate, $endDate])->groupBy('detail_expense.id')->get();
+        $expenseSum = $allExpense->sum('amount');
+        $allIncome = LabaRugi::whereBetween('date', [$startDate, $endDate])->where('type', 'Pendapatan Lain')->get();
+        $incomeSum = $allIncome->sum('amount');
+        $allCharge = LabaRugi::whereBetween('date', [$startDate, $endDate])->where('type', 'Beban Lain')->get();
+        $chargeSum = $allCharge->sum('amount');
+        $startStringYear = $start->translatedFormat('j M');
+        $startString = $start->translatedFormat('j M Y');
+        $endString = $end->translatedFormat('j M Y');
+        return view('pages.finance.income.print',compact(
+            'startDate',
+            'endDate',
+            'startString',
+            'startStringYear',
+            'endString',
+            'poSum',
+            'modalSum',
+            'allExpense',
+            'allCharge',
+            'allIncome',
+            'expenseSum',
+            'incomeSum',
+            'chargeSum'
+        ));
+    }
+    public function printTahun($year)
+    {
+        $startDate = Carbon::create($year, 1, 1)->startOfMonth()->toDateString();
+        $endDate = Carbon::create($year, 12, 1)->endOfMonth()->toDateString();
+        $start = Carbon::create($year, 1, 1)->startOfMonth();
+        $end = Carbon::today();
+        $quotation = Quotation::whereBetween('po_date', [$startDate, $endDate])->where('status', '100')->where('level', '1')->where('is_primary', '1')->get();
+        $poSum = $quotation->sum('nett');
+        $modalSum = Quotation::join('detail_quotation', 'quotation.id', '=', 'detail_quotation.id_quotation')
+            ->join('serial_product', 'detail_quotation.id_equivalent', '=', 'serial_product.id')
+            ->whereBetween('quotation.po_date', [$startDate, $endDate])
+            ->where('quotation.status', '100')
+            ->where('quotation.level', '1')
+            ->where('quotation.is_primary', '1')
+            ->sum('serial_product.price');
+        $allExpense = detailExpense::join('expense as e', 'e.id', '=', 'detail_expense.id_expense')->whereBetween('e.date', [$startDate, $endDate])->groupBy('detail_expense.id')->get();
+        $expenseSum = $allExpense->sum('amount');
+        $allIncome = LabaRugi::whereBetween('date', [$startDate, $endDate])->where('type', 'Pendapatan Lain')->get();
+        $incomeSum = $allIncome->sum('amount');
+        $allCharge = LabaRugi::whereBetween('date', [$startDate, $endDate])->where('type', 'Beban Lain')->get();
+        $chargeSum = $allCharge->sum('amount');
+        $startStringYear = $start->translatedFormat('j M');
+        $startString = $start->translatedFormat('j M Y');
+        $endString = $end->translatedFormat('j M Y');
+        return view('pages.finance.income.print',compact(
+            'startDate',
+            'endDate',
+            'startString',
+            'startStringYear',
+            'endString',
+            'poSum',
+            'modalSum',
+            'allExpense',
+            'allCharge',
+            'allIncome',
+            'expenseSum',
+            'incomeSum',
+            'chargeSum'
+        ));
     }
 
     private function terbilang($number)

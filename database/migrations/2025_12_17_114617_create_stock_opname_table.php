@@ -13,17 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('return', function (Blueprint $table) {
+        Schema::create('stock_opname', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_quotation')->nullable();
-            $table->foreignId('id_product_in')->nullable();
-            $table->foreignId('id_replacement');
-            // $table->foreignId('id_equivalent');
-            $table->string('qty');
-            $table->longText('note');
-            // $table->integer('type');
+            $table->foreignId('id_user');
+            $table->longText('note')->nullable();
             $table->date('date');
-            $table->integer('status');
+            $table->integer('periode');
+            $table->integer('year');
             $table->timestamps();
         });
     }
@@ -35,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('return');
+        Schema::dropIfExists('stock_opname');
     }
 };

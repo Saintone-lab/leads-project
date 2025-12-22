@@ -7,9 +7,10 @@
         <div class="nav-align-top mb-4">
             <ul class="nav nav-pills mb-3" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link {{ auth::user()->role == 'Logistic' || auth::user()->role == 'Sales' ? 'active' : '' }} waves-effect waves-light" role="tab"
-                        data-bs-toggle="tab" data-bs-target="#navs-pills-top-new" aria-controls="navs-pills-top-new"
-                        aria-selected="true">
+                    <button type="button"
+                        class="nav-link {{ auth::user()->role == 'Logistic' || auth::user()->role == 'Sales' ? 'active' : '' }} waves-effect waves-light"
+                        role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-top-new"
+                        aria-controls="navs-pills-top-new" aria-selected="true">
                         New order
                         @if (@$newCount >= 1)
                             <div class="badge bg-danger rounded-pill ms-auto">{{ $newCount }}</div>
@@ -36,9 +37,10 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link {{ auth::user()->role == 'ServiceM' ? 'active' : '' }} waves-effect waves-light" role="tab" data-bs-toggle="tab"
-                        data-bs-target="#navs-pills-top-penjadwalan" aria-controls="navs-pills-top-penjadwalan"
-                        aria-selected="false" tabindex="-1">
+                    <button type="button"
+                        class="nav-link {{ auth::user()->role == 'ServiceM' ? 'active' : '' }} waves-effect waves-light"
+                        role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-top-penjadwalan"
+                        aria-controls="navs-pills-top-penjadwalan" aria-selected="false" tabindex="-1">
                         Penjadwalan Service
                         @if (@$jadwalCount >= 1)
                             <div class="badge bg-danger rounded-pill ms-auto">{{ $jadwalCount }}</div>
@@ -56,9 +58,20 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link {{ auth::user()->role == 'Admin' ? 'active' : '' }} waves-effect waves-light" role="tab" data-bs-toggle="tab"
-                        data-bs-target="#navs-pills-top-donenp" aria-controls="navs-pills-top-donenp" aria-selected="false"
+                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
+                        data-bs-target="#navs-pills-top-retur" aria-controls="navs-pills-top-retur" aria-selected="false"
                         tabindex="-1">
+                        Return
+                        {{-- @if (@$noInvoiceCountNP >= 1)
+                            <div class="badge bg-danger rounded-pill ms-auto">{{ $noInvoiceCountNP }}</div>
+                        @endif --}}
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button type="button"
+                        class="nav-link {{ auth::user()->role == 'Admin' ? 'active' : '' }} waves-effect waves-light"
+                        role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-top-donenp"
+                        aria-controls="navs-pills-top-donenp" aria-selected="false" tabindex="-1">
                         Done Non Project
                         @if (@$noInvoiceCountNP >= 1)
                             <div class="badge bg-danger rounded-pill ms-auto">{{ $noInvoiceCountNP }}</div>
@@ -77,7 +90,8 @@
                 </li>
             </ul>
             <div class="tab-content">
-                <div class="tab-pane fade show {{ auth::user()->role == 'Logistic' || auth::user()->role == 'Sales' ? 'active show' : '' }}" id="navs-pills-top-new" role="tabpanel">
+                <div class="tab-pane fade show {{ auth::user()->role == 'Logistic' || auth::user()->role == 'Sales' ? 'active show' : '' }}"
+                    id="navs-pills-top-new" role="tabpanel">
                     <div class="card-datatable pt-0">
                         <table
                             class="datatable-new-order-search{{ auth::user()->role == 'Sales' ? '' : '-admin' }} table table-bordered">
@@ -172,7 +186,8 @@
                         </table>
                     </div>
                 </div>
-                <div class="tab-pane fade {{ auth::user()->role == 'ServiceM' ? 'active show' : '' }}" id="navs-pills-top-penjadwalan" role="tabpanel">
+                <div class="tab-pane fade {{ auth::user()->role == 'ServiceM' ? 'active show' : '' }}"
+                    id="navs-pills-top-penjadwalan" role="tabpanel">
                     <div class="card-datatable pt-0">
                         <table class="datatable-sales-list-jadwal table table-bordered">
                             <thead>
@@ -218,7 +233,29 @@
                         </table>
                     </div>
                 </div>
-                <div class="tab-pane fade {{ auth::user()->role == 'Admin' ? 'active show' : '' }}" id="navs-pills-top-donenp" role="tabpanel">
+                <div class="tab-pane fade"
+                    id="navs-pills-top-retur" role="tabpanel">
+                    <div class="card-datatable pt-0">
+                        <table class="datatable-sales-completed-retur table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>No PO</th>
+                                    <th>No Invoice</th>
+                                    <th>PO Date</th>
+                                    <th>Customer</th>
+                                    <th>Part Desc</th>
+                                    <th>Status</th>
+                                    <th>Payment</th>
+                                    <th>Delivery</th>
+                                    <th>Sales</th>
+                                    <th>Team</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade {{ auth::user()->role == 'Admin' ? 'active show' : '' }}"
+                    id="navs-pills-top-donenp" role="tabpanel">
                     <div class="card-datatable pt-0">
                         <table
                             class="datatable-sales-completed-search{{ auth::user()->role == 'Sales' ? '' : '-admin' }}-non table table-bordered">
@@ -289,7 +326,8 @@
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
     <link rel="stylesheet"
         href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
@@ -322,6 +360,7 @@
     <script src="{{ asset('assets') }}/includes/table-search-sales-list-admin.js"></script>
 
     <script src="{{ asset('assets') }}/includes/table-search-sales-ready.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-search-sales-retur.js"></script>
     <script src="{{ asset('assets') }}/includes/table-search-sales-jadwal.js"></script>
 
     <script src="{{ asset('assets') }}/includes/table-search-sales-delivery.js"></script>

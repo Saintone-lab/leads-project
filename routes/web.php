@@ -18,8 +18,10 @@ use App\Http\Controllers\MachineController;
 use App\Http\Controllers\MonitoringClientController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotulenController;
+use App\Http\Controllers\OpnameController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\PayableController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PendingController;
 use App\Http\Controllers\PicController;
@@ -46,8 +48,10 @@ use App\Models\Client;
 use App\Models\Comment;
 use App\Models\Contract;
 use App\Models\DetailProduct;
+use App\Models\DetailStockOpname;
 use App\Models\Invoice;
 use App\Models\Issues;
+use App\Models\LabaRugi;
 use App\Models\Library;
 use App\Models\Machine;
 use App\Models\MachineTemplate;
@@ -70,6 +74,7 @@ use App\Models\SalesReports;
 use App\Models\SerialProduct;
 use App\Models\Service;
 use App\Models\StatusMonitoring;
+use App\Models\StockOpname;
 use App\Models\Supplier;
 use App\Models\User;
 use Carbon\Carbon;
@@ -279,6 +284,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/product-in/logistik', [ProductInController::class, 'logistic_store'])->name('product-in.logistic-store');
     Route::post('/product-in/invoicing/{id}', [ProductInController::class, 'invoicing'])->name('product-in.invoicing');
     Route::post('/product-in/accept/{id}', [ProductInController::class, 'acceptIn'])->name('product-in.accept');
+    Route::post('/product-in/return/{id}', [ProductInController::class, 'return'])->name('product-in.return');
+    Route::post('/product-in/clear-return/{id}', [ProductInController::class, 'clearReturn'])->name('product-in.clear-return');
     Route::get('/product-out/replacement/{id}', function ($id) {
         $product = DetailProduct::findOrFail($id);
         return response()->json($product);
@@ -1310,6 +1317,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::patch('/pending-po/project/{id}', [PendingController::class, 'projectEdit'])->name('pending-po.projectEdit');
     Route::patch('/pending-po/status/{id}', [PendingController::class, 'statusEdit'])->name('pending-po.statusEdit');
     Route::patch('/pending-po/delivery/{id}', [PendingController::class, 'deliveryEdit'])->name('pending-po.deliveryEdit');
+    Route::post('/pending-po/retur/{id}', [PendingController::class, 'returProduct'])->name('pending-po.returProduct');
+    Route::post('/pending-po/clear-return/{id}', [PendingController::class, 'clearReturn'])->name('pending-po.clearReturn');
     Route::post('/pending-po/resi/{id}', [PendingController::class, 'upload_resi'])->name('pending-po.resiEdit');
     Route::delete('/pending-po/delete-resi/{id}', [PendingController::class, 'delete_resi'])->name('pending-po.resiDelete');
     Route::post('/pending-po/comment/{id}', [PendingController::class, 'add_comment'])->name('pending-po.addComment');
@@ -1344,6 +1353,11 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/expense/{id}', [ExpenseController::class, 'showexpense'])->name('expense.show');
     Route::get('/expense-print/{id}', [ExpenseController::class, 'showexpensePrint'])->name('expense.print');
     Route::post('/expense/store', [ExpenseController::class, 'storeexpense'])->name('expense.store');
+
+    Route::get('/income', [ExpenseController::class, 'indexIncome'])->name('expense-income.index');
+    Route::post('/income', [ExpenseController::class, 'storeIncome'])->name('expense-income.store');
+    Route::get('/income-print/{mounth}/{year}', [ExpenseController::class, 'printBulan'])->name('expense-income.print-bulan');
+    Route::get('/income-print/{year}', [ExpenseController::class, 'printTahun'])->name('expense-income.print-tahun');
 
     // purchase request
     Route::get('/purchase-request', [PurchaseController::class, 'index'])->name('purchase-request.index');
@@ -1417,6 +1431,23 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/notifactivity/notifAdmin/{date}', [DashboardController::class, 'dateNotifAdmin'])->name('date-admin.notif');
     Route::get('/notifactivity/activity/{date}', [DashboardController::class, 'dateActivity'])->name('date.activity');
     Route::post('/activities/update_calendar', [ActivitiesController::class, 'update_calendar'])->name('date.update_calendar');
+
+    // Payable 
+    Route::get('/payable/invoice', [PayableController::class, 'index_invoice'])->name('payable.index_invoice');
+    Route::get('/payable/invoice/{id}', [PayableController::class, 'show_invoice'])->name('payable.show_invoice');
+    Route::get('/payable/aging', [PayableController::class, 'index_aging'])->name('payable.index_aging');
+    Route::get('/payable/aging/{id}', [PayableController::class, 'show_aging'])->name('payable.show_aging');
+    Route::get('/payable/receipt', [PayableController::class, 'index_receipt'])->name('payable.index_receipt');
+    Route::get('/payable/receipt/{id}', [PayableController::class, 'show_receipt'])->name('payable.show_receipt');
+
+    // Stock Opname
+    Route::get('/stock-opname', [OpnameController::class, 'index'])->name('opname.index');
+    Route::post('/stock-opname', [OpnameController::class, 'store'])->name('opname.store');
+    Route::get('/stock-opname/{id}', [OpnameController::class, 'show'])->name('opname.show');
+    Route::get('/stock-opname-print/{id}', [OpnameController::class, 'show_print'])->name('opname.show_print');
+    Route::post('/stock-opname/{id}', [OpnameController::class, 'store_product'])->name('opname.store_product');
+    Route::get('/stock/replacement/{id}', [OpnameController::class, 'stock_replacement'])->name('payable.stock_replacement');
+
     // Database Connection
     Route::get('/db/next-follow/callendar', function () {
         $subquery = DB::table('activities')
@@ -3973,6 +4004,25 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json(['data' => $data]);
     });
+    Route::get('/db/pending/po/done/admin', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->where('pending_po.status', 8)
+            ->select(
+                'pending_po.id',
+                'u.name',
+                'c.company',
+                'i.no_po',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
     Route::get('/db/pending/new-order/admin', function () {
         $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
             ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
@@ -4161,6 +4211,45 @@ Route::group(["middleware" => "auth"], function () {
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
             ->where('pending_po.status', 5)
+            ->groupBy('q.id')
+            ->orderBy('q.po_date', 'desc')
+            ->select(
+                'pending_po.id',
+                'pending_po.delivery',
+                'pending_po.no_pending',
+                'pending_po.type',
+                'pending_po.title',
+                'u.name',
+                'q.po_date',
+                'c.company',
+                'i.no_po',
+                'u.name',
+                'q.id_sales as team',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+                'pay.type as paytype',
+                'pay.level'
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/pending/sales-retur', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->leftJoin(DB::raw("(SELECT p1.* 
+                                        FROM payment p1 
+                                        INNER JOIN (
+                                            SELECT id_quotation, MAX(id) as max_id 
+                                            FROM payment 
+                                            GROUP BY id_quotation
+                                        ) p2 ON p1.id = p2.max_id
+                                        ) as pay"), 'q.id', '=', 'pay.id_quotation')
+            ->where('pending_po.status', 8)
+            ->where('pending_po.type', 'Non Project')
             ->groupBy('q.id')
             ->orderBy('q.po_date', 'desc')
             ->select(
@@ -4639,11 +4728,11 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $account]);
     });
     Route::get('/db/expense/data', function () {
-        $expense =Expense::whereNotNULL('id_bank')->get();
+        $expense = Expense::whereNotNULL('id_bank')->get();
         return response()->json(['data' => $expense]);
     });
     Route::get('/db/expense/umum/data', function () {
-        $expense =Expense::whereNULL('id_bank')->get();
+        $expense = Expense::whereNULL('id_bank')->get();
         return response()->json(['data' => $expense]);
     });
     Route::get('/db/purchase-request/new', function () {
@@ -4730,6 +4819,140 @@ Route::group(["middleware" => "auth"], function () {
             )->get();
         return response()->json(['data' => $purchase]);
     });
+    Route::get('/db/payable/invoice', function () {
+        $payable = ProductIn::leftJoin('supplier as s', 'product_in.id_supplier', '=', 's.id')
+            ->leftJoin('detail_product_in as d', 'product_in.id', '=', 'd.id_product_in')
+            ->select(
+                'product_in.id',
+                'product_in.invoice',
+                'product_in.accept',
+                'product_in.total',
+                'product_in.supplier as d_supplier',
+                's.supplier',
+                DB::raw('SUM(d.qty) as total_qty'),
+                DB::raw("DATE_FORMAT(product_in.date, '%d-%m-%Y') as tanggal")
+            )
+            ->groupBy(
+                'product_in.id',
+                'product_in.invoice'
+            )
+            ->orderByDesc('product_in.date')
+            ->get();
 
+        return response()->json(['data' => $payable]);
+    });
+    Route::get('/db/payable/aging', function () {
+        $payable = ProductIn::leftJoin('supplier as s', 'product_in.id_supplier', '=', 's.id')
+            ->leftJoin('detail_product_in as d', 'product_in.id', '=', 'd.id_product_in')
+            ->select(
+                'product_in.id',
+                'product_in.invoice',
+                'product_in.accept',
+                'product_in.total',
+                'product_in.supplier as d_supplier',
+                's.supplier',
+                DB::raw('SUM(d.qty) as total_qty'),
+                DB::raw("DATE_FORMAT(product_in.date, '%d-%m-%Y') as tanggal"),
+                DB::raw("
+                CASE
+                    WHEN DATEDIFF(CURDATE(), product_in.date) > 0
+                    THEN DATEDIFF(CURDATE(), product_in.date)
+                    ELSE 0
+                END as overdue
+            ")
+            )
+            ->groupBy(
+                'product_in.id',
+                'product_in.invoice'
+            )
+            ->orderByDesc('product_in.date')
+            ->where('accept', '0')
+            ->get();
+
+        return response()->json(['data' => $payable]);
+    });
+    Route::get('/db/payable/receipt', function () {
+        $payable = ProductIn::leftJoin('supplier as s', 'product_in.id_supplier', '=', 's.id')
+            ->leftJoin('detail_product_in as d', 'product_in.id', '=', 'd.id_product_in')
+            ->select(
+                'product_in.id',
+                'product_in.invoice',
+                'product_in.accept',
+                'product_in.total',
+                'product_in.info',
+                'product_in.supplier as d_supplier',
+                's.supplier',
+                DB::raw('SUM(d.qty) as total_qty'),
+                DB::raw("DATE_FORMAT(product_in.date, '%d-%m-%Y') as tanggal"),
+                DB::raw("
+                    CONCAT(
+                        '#PAY-',
+                        LPAD(
+                            (
+                                SELECT COUNT(*)
+                                FROM product_in pi2
+                                WHERE YEAR(pi2.date) = YEAR(product_in.date)
+                                AND pi2.id <= product_in.id
+                            ),
+                            3,
+                            '0'
+                        ),
+                        '-',
+                        RIGHT(YEAR(product_in.date), 2)
+                    ) as no_receipt
+                ")
+            )
+            ->groupBy(
+                'product_in.id',
+                'product_in.invoice',
+                'product_in.accept',
+                'product_in.total',
+                'product_in.info',
+                'product_in.supplier',
+                's.supplier',
+                'product_in.date'
+            )
+            ->whereNotNULL('invoice')
+            ->orderByDesc('product_in.date')
+            ->get();
+
+        return response()->json(['data' => $payable]);
+    });
+    Route::get('/db/stock/opname', function () {
+        $data = StockOpname::join('users as u', 'u.id', '=', 'stock_opname.id_user')
+            ->select(
+                'stock_opname.*',
+                'u.name',
+                DB::raw("DATE_FORMAT(stock_opname.date, '%d-%m-%Y') as tanggal"),
+                DB::raw("
+                CONCAT(
+                    'Periode Caturwulan ',
+                    CASE stock_opname.periode
+                        WHEN 1 THEN 'I'
+                        WHEN 2 THEN 'II'
+                        WHEN 3 THEN 'III'
+                        ELSE '-'
+                    END
+                ) as periode_label
+            ")
+            )
+            ->get();
+
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/stock/opname/{id}', function ($id) {
+        $data = DetailStockOpname::leftJoin('detail_product as dp', 'dp.id', '=', 'detail_stock_opname.id_product')
+            ->where('id_stock_opname', $id)
+            ->select('detail_stock_opname.*', 'dp.replacement')
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/income/statment', function () {
+        $data = LabaRugi::select(
+            'laba_rugi.*',
+            DB::raw("DATE_FORMAT(laba_rugi.date, '%d-%m-%Y') as tanggal")
+        )->get();
+        return response()->json(['data' => $data]);
+    });
 });
 Auth::routes();

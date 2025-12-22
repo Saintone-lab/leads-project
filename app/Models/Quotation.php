@@ -89,4 +89,8 @@ class Quotation extends Model
     {
         return $this->hasMany('App\Models\ChangeStatus', 'id_quotation');
     }
+    public function return()
+    {
+        return $this->hasMany('App\Models\Retur', 'id_quotation');
+    }
 }

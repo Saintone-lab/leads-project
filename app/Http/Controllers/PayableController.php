@@ -5,48 +5,80 @@ namespace App\Http\Controllers;
 use App\Models\Account;
 use App\Models\Bank;
 use App\Models\DetailPayable;
+use App\Models\DetailProductIn;
 use App\Models\Payable;
+use App\Models\ProductIn;
+use App\Models\Retur;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class PayableController extends Controller
 {
-    public function indexAccount()
-    {
-        return view('pages.finance.account.index');
-    }
-    public function storeAccount(Request $request)
-    {
-        $account = new Account();
-        $account->code = $request->code;
-        $account->name = $request->name;
-        $account->category = $request->category;
-        $accountSave = $account->save();
-        if ($accountSave) {
-            return redirect('/payable-acount')->with('success', 'data telah dibuat');
-        }
-    }
-    public function deleteAccount($id)
-    {
-        $account = Account::find($id);
-        $delAccount = $account->delete();
-        if ($delAccount) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
 
-    public function indexPayable()
+    public function index_invoice()
     {
-        return view('pages.finance.payable.index');
+        return view('pages.finance.payable.index-invoice');
     }
-
-    public function createpayable()
+    public function show_invoice($id)
     {
-        $bank = Bank::all();
-        $payable = Payable::all();
-        $account = Account::all();
-        return view('pages.finance.payable.form', compact('bank', 'payable', 'account'));
+        $product = ProductIn::find($id);
+        $detProduct = DetailProductIn::where('id_product_in', $id)->get();
+        $return = Retur::where('id_product_in', $id)->get();
+        // dd($return);
+        return view('pages.finance.payable.detail-invoice', compact('product', 'detProduct','return'));
+    }
+    public function index_aging()
+    {
+        return view('pages.finance.payable.index-aging');
+    }
+    public function show_aging($id)
+    {
+        $product = ProductIn::find($id);
+        $detProduct = DetailProductIn::where('id_product_in', $id)->get();
+        $today = Carbon::today();
+        $diffDue = $today->diffInDays($product->date, false);
+        // dd($detProduct);
+        return view('pages.finance.payable.detail-aging', compact('product', 'detProduct', 'diffDue'));
+    }
+    public function index_receipt()
+    {
+        $product = ProductIn::all();
+        $receipt = $product->sum('total');
+        $paid = $product->where('accept', '1')->sum('total');
+        $unpaid = $product->where('accept', '0')->sum('total');
+        return view('pages.finance.payable.index-receipt', compact('receipt', 'paid', 'unpaid'));
+    }
+    public function show_receipt($id)
+    {
+        $product = ProductIn::findOrFail($id);
+
+        $receipt = ProductIn::where('id', $id)
+            ->selectRaw("
+            CONCAT(
+                '#PAY-',
+                LPAD(
+                    (
+                        SELECT COUNT(*)
+                        FROM product_in pi2
+                        WHERE YEAR(pi2.date) = YEAR(product_in.date)
+                          AND pi2.id <= product_in.id
+                    ),
+                    3,
+                    '0'
+                ),
+                '-',
+                RIGHT(YEAR(product_in.date), 2)
+            ) as no_receipt
+        ")
+            ->value('no_receipt'); // ambil string saja
+
+        $detProduct = DetailProductIn::where('id_product_in', $id)->get();
+
+        return view(
+            'pages.finance.payable.detail-receipt',
+            compact('receipt', 'product', 'detProduct')
+        );
+
     }
     public function storePayable(Request $request)
     {

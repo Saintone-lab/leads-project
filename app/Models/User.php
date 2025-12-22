@@ -96,5 +96,8 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\SalesOnline', 'id_sales');
     }
-    
+    public function opname()
+    {
+        return $this->hasMany('App\Models\StockOpname', 'id_user');
+    }
 }

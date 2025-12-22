@@ -6,7 +6,7 @@
             Detail Of {{ $invoice->no_po ?? $quotation->pic->client->company }}
         </h5>
         <div class="tombol">
-            @if ($pending->status != '6')
+            @if ($pending->status != '6' && $pending->status != '8')
                 <button type="button" class="btn btn-primary dropdown-toggle waves-effect waves-light"
                     data-bs-toggle="dropdown" aria-expanded="false" {{ auth::user()->role != 'Sales' ? '' : 'disabled' }}>
                     Update
@@ -19,11 +19,18 @@
                     <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
                             data-bs-target="#resiEdit">Upload Resi</a></li>
                 </ul>
-            @else
-                <button type="button" class="btn btn-reddit" data-bs-toggle="modal" data-bs-target="#inputProductOut"
-                    {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                    Connect Product Out
-                </button>
+            @elseif ($pending->status == '6')
+                @if ($pending->id_product_out == null)
+                    <button type="button" class="btn btn-reddit" data-bs-toggle="modal" data-bs-target="#inputProductOut"
+                        {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                        Connect Product Out
+                    </button>
+                @else
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productReturn"
+                        {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                        Retur Barang
+                    </button>
+                @endif
             @endif
             <a href="{{ route('pending-po.index') }}" type="button" class="btn btn-secondary"> Back </a>
         </div>
@@ -203,7 +210,7 @@
     </div>
 
     @if ($pending->type == 'Project')
-        @if ($pending->status != '6')
+        @if ($pending->status != '6' && $pending->status != '8')
             <div class="mb-3" style="display: flex; justify-content: flex-end;">
                 {{-- <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal"
                     data-bs-target="#replacementEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
@@ -400,7 +407,7 @@
             </div>
         </div>
     @else
-        @if ($pending->status != '6')
+        @if ($pending->status != '6' && $pending->status != '8')
             <div class="mb-3" style="display: flex; justify-content: flex-end;">
                 <button type="button" class="btn btn-google-plus float-end mx-2" data-bs-toggle="modal"
                     data-bs-target="#purchaseReq" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
@@ -569,10 +576,63 @@
                 </table>
             </div>
         </div>
+        <div class="card mb-4">
+            <div class="card-body">
+
+                {{-- Header Action --}}
+                <div class="d-flex justify-content-end mb-3">
+                    <a href="#" class="btn btn-primary waves-effect clear-return" data-id="{{ $pending->id }}">
+                        Clear Return
+                    </a>
+                </div>
+
+                {{-- Table --}}
+                <div class="table-responsive">
+                    <table class="table m-0">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Desc</th>
+                                <th>Qty</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $no = 0; @endphp
+                            @forelse ($return as $retur)
+                                @php $no++; @endphp
+                                <tr style="font-size: 13px">
+                                    <td class="align-top">{{ $no }}</td>
+                                    <td class="text-nowrap align-top">
+                                        <p class="mb-0 fw-semibold" style="font-size: 12px">
+                                            {{ $retur->replacement->replacement }}
+                                        </p>
+                                        <pre class="mb-0" style="font-size: 10px; white-space: pre-wrap;">
+{{ $retur->replacement->product->description }}
+                                </pre>
+                                    </td>
+                                    <td class="align-top">
+                                        {{ $retur->qty }} {{ $retur->replacement->product->unit }}
+                                    </td>
+                                    <td class="align-top">{{ $retur->note }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        Tidak ada return di invoice ini
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
     @endif
 
     @if ($activity->count() >= 1)
-        <div class="card">
+        <div class="card mb-3">
             <div class="card-header">
                 <div class="d-flex justify-content-between">
                     <h5 class="mb-0">Activity Timeline</h5>
@@ -733,7 +793,7 @@
                         @php
                             $no = 0;
                         @endphp
-                        @foreach ($detail as $products)
+                        @foreach ($detProduct as $products)
                             @php
                                 $no++;
                             @endphp
@@ -776,6 +836,7 @@
     @include('components.modal.pending.product')
     @include('components.modal.pending.product-out')
     @include('components.modal.pending.project')
+    @include('components.modal.pending.return')
     @include('components.modal.pending.resi')
     @if ($pending->type == 'Project')
         @include('components.modal.pending.request-project')
@@ -1001,5 +1062,62 @@
                 }
             });
         });
+        $(document).on('click', '.clear-return', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Accept it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('pending-po') }}/clear-return/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Accepted!",
+                                    text: "Your file has been Accepted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Accept!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+    
     </script>
 @endpush
