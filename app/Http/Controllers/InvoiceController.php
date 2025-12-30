@@ -13,7 +13,6 @@ use App\Models\Payment;
 use App\Models\ProductOut;
 use App\Models\Prospect;
 use App\Models\Quotation;
-use App\Models\ReturnQ;
 use App\Models\SubtitleQuotation;
 use Carbon\Carbon;
 use DB;
@@ -100,7 +99,7 @@ class InvoiceController extends Controller
             $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
         }
         // dd($quote->type);
-        $return = ReturnQ::where('id_quotation', $invoice->id_quotation)->first();
+        // $return = ReturnQ::where('id_quotation', $invoice->id_quotation)->first();
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
         $expense = ExpenseInvoice::where('id_invoice', $id)->get();
@@ -146,9 +145,9 @@ class InvoiceController extends Controller
         $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
         // dd($doTekMan);
         if ($quote->type == 'Sparepart') {
-            return view('pages.accounting.invoice.detail', compact('lastPayment', 'requestContract', 'requestInvoice', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
+            return view('pages.accounting.invoice.detail', compact('lastPayment', 'requestContract', 'requestInvoice', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
         } else {
-            return view('pages.accounting.invoice.detail', compact('lastPayment', 'requestContract', 'requestInvoice', 'subQuote', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
+            return view('pages.accounting.invoice.detail', compact('lastPayment', 'requestContract', 'requestInvoice', 'subQuote', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
         }
 
     }

@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExistingController;
+use App\Http\Controllers\FixedController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\MachineController;
@@ -25,9 +26,11 @@ use App\Http\Controllers\PayableController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PendingController;
 use App\Http\Controllers\PicController;
+use App\Http\Controllers\POController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductInController;
 use App\Http\Controllers\ProductOutController;
+use App\Http\Controllers\ProductSetController;
 use App\Http\Controllers\ProspectController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ReportsController;
@@ -49,6 +52,7 @@ use App\Models\Comment;
 use App\Models\Contract;
 use App\Models\DetailProduct;
 use App\Models\DetailStockOpname;
+use App\Models\FixedAsset;
 use App\Models\Invoice;
 use App\Models\Issues;
 use App\Models\LabaRugi;
@@ -65,7 +69,9 @@ use App\Models\PendingPO;
 use App\Models\Pic;
 use App\Models\Product;
 use App\Models\ProductIn;
+use App\Models\ProductSet;
 use App\Models\Prospect;
+use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
 use App\Models\Quotation;
 use App\Models\Reports;
@@ -128,6 +134,7 @@ Route::group(["middleware" => "auth"], function () {
         return view('pages.under-maintenance');
     })->name('under-maintenance');
     // Route User
+    Route::resource('/profile', UserController::class);
     Route::resource('/profile', UserController::class);
 
     // Route Reports
@@ -1359,6 +1366,14 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/income-print/{mounth}/{year}', [ExpenseController::class, 'printBulan'])->name('expense-income.print-bulan');
     Route::get('/income-print/{year}', [ExpenseController::class, 'printTahun'])->name('expense-income.print-tahun');
 
+    Route::get('/balance', [ExpenseController::class, 'indexBalance'])->name('expense-balance.index');
+    Route::get('/balance-print/{mounth}/{year}', [ExpenseController::class, 'printBulanBalance'])->name('expense-balance.print-bulan');
+    Route::get('/balance-print/{year}', [ExpenseController::class, 'printTahunBalance'])->name('expense-balance.print-tahun');
+
+    Route::get('/equity', [ExpenseController::class, 'indexEquity'])->name('expense-equity.index');
+    Route::get('/equity-print/{mounth}/{year}', [ExpenseController::class, 'printBulanEquity'])->name('expense-equity.print-bulan');
+    Route::get('/equity-print/{year}', [ExpenseController::class, 'printTahunEquity'])->name('expense-equity.print-tahun');
+
     // purchase request
     Route::get('/purchase-request', [PurchaseController::class, 'index'])->name('purchase-request.index');
     Route::post('/purchase-request/{id}', [PurchaseController::class, 'store'])->name('purchase-request.store');
@@ -1447,6 +1462,17 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/stock-opname-print/{id}', [OpnameController::class, 'show_print'])->name('opname.show_print');
     Route::post('/stock-opname/{id}', [OpnameController::class, 'store_product'])->name('opname.store_product');
     Route::get('/stock/replacement/{id}', [OpnameController::class, 'stock_replacement'])->name('payable.stock_replacement');
+
+    // Fixed Asset
+    Route::resource('/fixed', FixedController::class);
+
+    // Purchase Order
+    Route::resource('/purchase', POController::class);
+    Route::get('/purchase/print/{id}', [POController::class, 'show_print'])->name('purchase.show_print');
+
+    // Purchase Order
+    Route::resource('/product-set', ProductSetController::class);
+    Route::post('/product-set/item/{id}', [ProductSetController::class, 'store_item'])->name('product-set.store_item');
 
     // Database Connection
     Route::get('/db/next-follow/callendar', function () {
@@ -4952,6 +4978,25 @@ Route::group(["middleware" => "auth"], function () {
             'laba_rugi.*',
             DB::raw("DATE_FORMAT(laba_rugi.date, '%d-%m-%Y') as tanggal")
         )->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/fixed-asset', function () {
+        $data = FixedAsset::select(
+            'fixed_asset.*',
+            DB::raw("DATE_FORMAT(fixed_asset.beli, '%d-%m-%Y') as tanggal_beli"),
+            DB::raw("DATE_FORMAT(fixed_asset.pakai, '%d-%m-%Y') as tanggal_pakai")
+        )->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/purchase-order', function () {
+        $data = PurchaseOrder::select(
+            'purchase_order.*',
+            DB::raw("DATE_FORMAT(purchase_order.date, '%d-%m-%Y') as tanggal")
+        )->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/product/set', function () {
+        $data = ProductSet::join('product as p', 'p.id', '=','product_set.id_product')->groupBy('product_set.id')->select('product_set.*', 'p.description', 'p.commodity', 'p.stock', 'p.unit')->get();
         return response()->json(['data' => $data]);
     });
 });

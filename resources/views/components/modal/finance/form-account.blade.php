@@ -1,4 +1,4 @@
-<form action="{{ route('payable-account.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('expense-account.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
     <div class="modal-onboarding modal fade animate__animated" id="createAccount" tabindex="-1"
         style="display: none;" aria-hidden="true">

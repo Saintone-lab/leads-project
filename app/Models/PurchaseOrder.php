@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class PurchaseOrder extends Model
+{
+    use HasFactory;
+    protected $table = "purchase_order";
+    protected $date = [
+        'date',
+        'created_at',
+        'updated_at'
+    ];
+    protected $fillable = [
+        'no_po',
+        'attn',
+        'mobile',
+        'company',
+        'email',
+        'address',
+        'phone',
+        'payment',
+        'delivery',
+        'note',
+        'subtotal',
+        'vat',
+        'total',
+    ];
+    public function detail()
+    {
+        return $this->hasMany('App\Models\DetailPurchaseOrder', 'id_purhcase_order');
+    }
+}

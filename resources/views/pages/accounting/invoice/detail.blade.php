@@ -1318,7 +1318,7 @@
                                 Change Description Product
                             </button>
                         </a>
-                        @if (!isset($return) && Auth::user()->role == 'Sales')
+                        {{-- @if (!isset($return) && Auth::user()->role == 'Sales')
                             <a class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect"
                                 href="{{ route('return.edit', $invoice->id) }}">
                                 Request Return Invoice
@@ -1332,7 +1332,7 @@
                                 href="{{ route('return.show', $return->id) }}">
                                 Return Invoice
                             </a>
-                        @endif
+                        @endif --}}
                         <a type="button" data-bs-toggle="modal" data-bs-target="#changeDate"
                             class="d-grid w-100 waves-effect mb-3">
                             <button type="button" class="btn btn-secondary">

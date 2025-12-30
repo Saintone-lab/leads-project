@@ -504,6 +504,17 @@
                     </li>
                 </ul>
             </li>
+            <li class="menu-item {{ request()->is('purchase') || request()->is('purchase/*') ? 'active' : '' }}">
+                <a href="{{ route('purchase.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-format-list-group"></i>
+                    <div data-i18n="Purchase Order">Purchase Order</div>
+                </a>
+            </li>
+            
+            <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">Finance</span>
+            </li>
+
             <li class="menu-item {{ request()->is('expense-account') || request()->is('expense') || request()->is('expense-umum') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-cash-multiple"></i>
@@ -530,7 +541,7 @@
                     </li>
                 </ul>
             </li>
-            <li class="menu-item {{ request()->is('income') || request()->is('expense') || request()->is('expense-umum') ? 'open' : '' }}">
+            <li class="menu-item {{ request()->is('income') || request()->is('income/*') || request()->is('income/*/*') || request()->is('balance') || request()->is('balance/*') || request()->is('balance/*/*') || request()->is('equity') || request()->is('equity/*') || request()->is('equity/*/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-book-open-outline"></i>
                     <div data-i18n="Statement">Statement</div>
@@ -544,7 +555,17 @@
                             <div data-i18n="Income Statement">Income Statement</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('expense') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->is('balance') ? 'active' : '' }}">
+                        <a href="{{ route('expense-balance.index') }}" class="menu-link">
+                            <div data-i18n="Balance Statement">Balance Statement</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('equity') ? 'active' : '' }}">
+                        <a href="{{ route('expense-equity.index') }}" class="menu-link">
+                            <div data-i18n="Equity Statement">Equity Statement</div>
+                        </a>
+                    </li>
+                    {{-- <li class="menu-item {{ request()->is('expense') ? 'active' : '' }}">
                         <a href="{{ route('expense.index') }}" class="menu-link">
                             <div data-i18n="Expense">Expense</div>
                         </a>
@@ -553,9 +574,16 @@
                         <a href="{{ route('expense-umum.index') }}" class="menu-link">
                             <div data-i18n="Jurnal Umum">Jurnal Umum</div>
                         </a>
-                    </li>
+                    </li> --}}
                 </ul>
             </li>
+            <li class="menu-item {{ request()->is('fixed') ? 'active' : '' }}">
+                <a href="{{ route('fixed.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-domain"></i>
+                    <div data-i18n="Fixed Asset">Fixed Asset</div>
+                </a>
+            </li>
+
             {{-- <li
                 class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-index/invoice-ahmad') || request()->is('payment-index/invoice-rayi') || request()->is('payment-detail/invoice/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -669,6 +697,12 @@
                         </a>
                     </li>
                 </ul>
+            </li>
+            <li class="menu-item {{ request()->is('product-set') ? 'active' : '' }}">
+                <a href="{{ route('product-set.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-format-list-group"></i>
+                    <div data-i18n="Product Set">Product Set</div>
+                </a>
             </li>
             <li class="menu-item {{ request()->is('stock-opname') ? 'active' : '' }}">
                 <a href="{{ route('opname.index') }}" class="menu-link">
@@ -1371,6 +1405,18 @@
                 <a href="{{ route('stock.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package-variant-closed-check"></i>
                     <div data-i18n="Stock">Stock</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('product-set') ? 'active' : '' }}">
+                <a href="{{ route('product-set.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-format-list-group"></i>
+                    <div data-i18n="Product Set">Product Set</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('stock-opname') ? 'active' : '' }}">
+                <a href="{{ route('opname.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-dropbox"></i>
+                    <div data-i18n="Stock Opname">Stock Opname</div>
                 </a>
             </li>
             <li

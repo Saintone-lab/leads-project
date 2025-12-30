@@ -50,4 +50,8 @@ DetailProduct extends Model
     {
         return $this->hasMany('App\Models\DetailStockOpname', 'id_replacement');
     }
+    public function item()
+    {
+        return $this->hasMany('App\Models\ItemProductSet', 'id_replacement');
+    }
 }

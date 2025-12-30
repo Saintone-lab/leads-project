@@ -312,7 +312,7 @@ class ProductController extends Controller
         $productSave = $product->save();
 
         if ($productSave) {
-            return redirect('/product/' . $id)->with('message', 'data telah ditambahkan');
+            return redirect()->back()->with('message', 'data telah ditambahkan');
         }
     }
 
