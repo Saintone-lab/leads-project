@@ -80,7 +80,7 @@
                                         <th>Oil Lvl</th>
                                         <th>Kebocoran</th>
                                         <th>PIC</th>
-                                    </thead>
+                                    </thead>    
                                     <tbody>
                                         @foreach ($compressor as $item)
                                             <tr>

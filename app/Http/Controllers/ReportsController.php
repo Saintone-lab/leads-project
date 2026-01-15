@@ -24,6 +24,7 @@ class ReportsController extends Controller
         $dataPo = $this->getWeekDataPo();
         $dataLeads = $this->getWeekDataLeads();
         $target = Target::where('id_sales', Auth::user()->id)->first();
+        $targetCrm = Client::where('role', 'Customers')->where('id_sales', Auth::user()->id)->count();
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
@@ -108,7 +109,7 @@ class ReportsController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view("pages.sales.report.index", compact("noSaleProspect", 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', "quotation", "dataDc", "dataQuote", "dataPo", "dataLeads", "target", "dataCRM", "dataVisit", "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLeads", "amountSales", "amountQuote", "amountProspect"));
+        return view("pages.sales.report.index", compact("targetCrm", "noSaleProspect", 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', "quotation", "dataDc", "dataQuote", "dataPo", "dataLeads", "target", "dataCRM", "dataVisit", "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLeads", "amountSales", "amountQuote", "amountProspect"));
     }
 
     protected function getWeekDataDC()

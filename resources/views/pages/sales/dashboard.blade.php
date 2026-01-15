@@ -522,14 +522,9 @@
                             <div class="card-info mt-4 pt-1">
                                 <h4 class="mb-2">
                                     {{ $quotation->count() }}
-                                    <small class="text-muted fs-tiny">/
+                                    {{-- <small class="text-muted fs-tiny">/
                                         {{ $target->quote }}
-                                        {{-- @if ($jumlahData > 4)
-                                        {{ round($target->quote + $target->quote / 4) }}
-                                    @elseif($jumlahData == 4)
-                                        {{ round($target->quote) }}
-                                    @endif --}}
-                                    </small>
+                                    </small> --}}
                                 </h4>
                                 <div class="badge bg-label-secondary rounded-pill">Quotation</div>
                             </div>
@@ -1510,14 +1505,14 @@
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-2 d-flex align-items-center">
-                                                                        @php
+                                                                        {{-- @php
                                                                             $targetQuote =
                                                                                 ($filteredQuote /
                                                                                     $targetSales[$item][0]->quote) *
                                                                                 100;
                                                                         @endphp
                                                                         <h4 class="filtered-percent-quote fs-5 m-0">
-                                                                            {{ round($targetQuote) }} %</h4>
+                                                                            {{ round($targetQuote) }} %</h4> --}}
                                                                     </div>
                                                                     <div class="col-8">
 
@@ -1526,8 +1521,8 @@
                                                                                 <span class="filtered-quote">
                                                                                     {{ $filteredQuote }}
                                                                                 </span>
-                                                                                <span
-                                                                                    class="filtered-target-quote text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->quote }}</span>
+                                                                                {{-- <span
+                                                                                    class="filtered-target-quote text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->quote }}</span> --}}
                                                                             </h5>
                                                                             <small class="text-muted">Quotation</small>
                                                                         </div>
@@ -1543,7 +1538,7 @@
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-2 d-flex align-items-center">
-                                                                        @php
+                                                                        {{-- @php
                                                                             $targetProspect =
                                                                                 $allProspect > 0
                                                                                     ? ($filteredProspect /
@@ -1553,7 +1548,7 @@
                                                                         @endphp
                                                                         <h4
                                                                             class="filtered-percent-prospect-sales fs-5 m-0">
-                                                                            {{ round($targetProspect) }} %</h4>
+                                                                            {{ round($targetProspect) }} %</h4> --}}
                                                                     </div>
                                                                     <div class="col-8">
 
@@ -1562,8 +1557,8 @@
                                                                                 <span class="filtered-prospect-sales">
                                                                                     {{ $filteredProspect }}
                                                                                 </span>
-                                                                                <span
-                                                                                    class="filtered-all-prospect text-muted fs-tiny fw-normal">/{{ $allProspect }}</span>
+                                                                                {{-- <span
+                                                                                    class="filtered-all-prospect text-muted fs-tiny fw-normal">/{{ $allProspect }}</span> --}}
                                                                             </h5>
                                                                             <small class="text-muted">Prospect</small>
                                                                         </div>

@@ -1,27 +1,18 @@
     @extends('layouts.sales.app')
-    @section('title', 'Create Quotation')
+    @section('title', 'Edit Quotation')
     @section('content')
         @php
             $id = 0;
             $dataDetail = 0;
         @endphp
         <form id="formAuthentication" class="mb-3 fv-plugins-bootstrap5 fv-plugins-framework"
-            action="{{ @$quotation ? route('quotation.update', $quotation->id) : route('quotation.store') }}" method="post"
-            enctype="multipart/form-data">
+            action="{{ route('update-sparepart.quotation', $quotation->id) }}" method="post" enctype="multipart/form-data">
             @csrf
-            @if (@$quotation)
-                @method('patch')
-            @endif
+            @method('patch')
             <div class="form-floating mb-3">
-                @if (Auth::user()->code == 'YH')
-                    <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
-                        aria-describedby="floatingInputFilledHelp" name="no_quote"
-                        value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote : $formattedNumberQ . '-P-BDG-RJO-' . Auth::user()->code . '-' . $formattedMonthNow . '-' . \Carbon\Carbon::now()->year) }}">
-                @else
-                    <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
-                        aria-describedby="floatingInputFilledHelp" name="no_quote"
-                        value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote : $formattedNumberQ . '-P/BDG/RJO-' . Auth::user()->code . '/' . $formattedMonthNow . '/' . \Carbon\Carbon::now()->year) }}">
-                @endif
+                <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
+                    aria-describedby="floatingInputFilledHelp" name="no_quote"
+                    value="{{ old('no_quote', @$quotation->no_quote ? $quotation->no_quote : $formattedNumberQ . '-P/BDG/RJO-' . Auth::user()->code . '/' . $formattedMonthNow . '/' . \Carbon\Carbon::now()->year) }}">
                 <label for="floatingInputFilled">Number Quotation</label>
                 <span class="form-floating-focused"></span>
             </div>
@@ -152,11 +143,16 @@
                                     <select class="form-select" id="selectWeek" aria-label="Default select example"
                                         name="week">
                                         <option disabled>----- Choose Week -----</option>
-                                        <option value="1" {{ @$quote->week == '1' ? 'selected' : '' }}>Week 1</option>
-                                        <option value="2" {{ @$quote->week == '2' ? 'selected' : '' }}>Week 2</option>
-                                        <option value="3" {{ @$quote->week == '3' ? 'selected' : '' }}>Week 3</option>
-                                        <option value="4" {{ @$quote->week == '4' ? 'selected' : '' }}>Week 4</option>
-                                        <option value="5" {{ @$quote->week == '5' ? 'selected' : '' }}>Week 5</option>
+                                        <option value="1" {{ @$quote->week == '1' ? 'selected' : '' }}>Week 1
+                                        </option>
+                                        <option value="2" {{ @$quote->week == '2' ? 'selected' : '' }}>Week 2
+                                        </option>
+                                        <option value="3" {{ @$quote->week == '3' ? 'selected' : '' }}>Week 3
+                                        </option>
+                                        <option value="4" {{ @$quote->week == '4' ? 'selected' : '' }}>Week 4
+                                        </option>
+                                        <option value="5" {{ @$quote->week == '5' ? 'selected' : '' }}>Week 5
+                                        </option>
                                     </select>
                                     <label for="selectWeek">Week</label>
                                 </div>
@@ -171,161 +167,28 @@
                                 </div>
                             </div>
                         </div>
-                        @if (@$dquotation)
-                            <div class="mb-3" data-repeater-list="group-a">
-                                @foreach ($dquotation as $quote)
-                                    @php
-                                        $id++;
-                                        $dataDetail++;
-                                    @endphp
-                                    <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
-                                        <div class="d-flex border rounded position-relative pe-0">
-                                            <div class="row w-100 p-3">
-                                                <div class="col-md-6 col-12 mb-md-0 mb-3">
-                                                    <label for="product" class="mb-2">Product</label>
-                                                    <div class="form-floating form-floating-outline mb-2">
-                                                        <select id="product-{{ $id }}"
-                                                            class="select2 form-select invoice-item-product"
-                                                            data-allow-clear="true" name="product[]"
-                                                            data-id="{{ $id }}">
-                                                            <option value="">---- Choose Part Number Here ----
-                                                            </option>
-                                                            @foreach ($product as $products)
-                                                                <option value="{{ $products->id }}"
-                                                                    data-replacement="{{ $products->id }}"
-                                                                    {{ $quote->id_equivalent == "{$products->id}" ? 'selected' : '' }}>
-                                                                    {{ $products->brand }} {{ $products->pn }}
-                                                                    ({{ $products->detail_desc }})
-                                                                    ||
-                                                                    {{ $products->go }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                        <label for="product-{{ $id }}">Product Part
-                                                            Number</label>
-                                                    </div>
-                                                    <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-{{ $id }}"
-                                                        placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]">{{ old('detail_product[]', $quote->detail_product) }}</textarea>
-                                                </div>
-                                                <div class="col-md-3 col-12 mb-md-0 mb-3">
-                                                    <p class="mb-2 repeater-title">Price</p>
-                                                    <div class="input-group" data-price="1">
-                                                        <span class="input-group-text">Rp. </span>
-                                                        <input type="text"
-                                                            class="form-control invoice-item-price-label"
-                                                            id="priceLabel-{{ $id }}"
-                                                            data-id="{{ $id }}" min="0"
-                                                            placeholder="Put Price Here" data-type="currency"
-                                                            pattern="^[0-9]\d{0,2}(\.\d{3})*$"
-                                                            value="{{ old('price[]', @$quote->price ? number_format(@$quote->price, 0, '', '.') : '') }}">
-                                                        <input class="form-control invoice-item-price" type="number"
-                                                            name="price[]" id="price-{{ $id }}"
-                                                            value="{{ old('price[]', @$quote->price ?? '') }}" hidden>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between mb-3">
-                                                        <p>Stock : <span class="info-stock-label"
-                                                                id="info-stock-1"></span>
-                                                        </p>
-                                                        <p>Weight : <span class="info-weight-label"
-                                                                id="info-weight-1"></span>
-                                                            g
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-1 col-12 mb-md-0 mb-3">
-                                                    <p class="mb-2 repeater-title">Qty</p>
-                                                    <input type="number" class="form-control invoice-item-qty mb-3"
-                                                        placeholder="Min 1" name="qty[]" id="qty-{{ $dataDetail }}"
-                                                        data-id="{{ $dataDetail }}" min="1"
-                                                        value="{{ old('qty[]', $quote->qty) }}">
-                                                    <div class="form-floating form-floating-outline mb-4">
-                                                        <select class="form-select invoice-item-info" id="info-qty-1"
-                                                            data-id="1" aria-label="Default select example"
-                                                            name="info_qty[]">
-                                                            <option>---Info---</option>
-                                                            <option value="Pcs"
-                                                                {{ $quote->info_qty == 'Pcs' ? 'selected' : '' }}>Pcs
-                                                            </option>
-                                                            <option value="Set"
-                                                                {{ $quote->info_qty == 'Set' ? 'selected' : '' }}>Set
-                                                            </option>
-                                                            <option value="Pail"
-                                                                {{ $quote->info_qty == 'Pail' ? 'selected' : '' }}>Pail
-                                                            </option>
-                                                            <option value="Unit"
-                                                                {{ $quote->info_qty == 'Unit' ? 'selected' : '' }}>Unit
-                                                            </option>
-                                                            <option value="Lot"
-                                                                {{ $quote->info_qty == 'Lot' ? 'selected' : '' }}>Lot
-                                                            </option>
-                                                            <option value="Meter"
-                                                                {{ $quote->info_qty == 'Meter' ? 'selected' : '' }}>Meter
-                                                            </option>
-                                                            <option value="Can"
-                                                                {{ $quote->info_qty == 'Can' ? 'selected' : '' }}>Can
-                                                            </option>
-                                                            <option value="Hari"
-                                                                {{ $quote->info_qty == 'Hari' ? 'selected' : '' }}>Hari
-                                                            </option>
-                                                            <option value="Bulan"
-                                                                {{ $quote->info_qty == 'Bulan' ? 'selected' : '' }}>Bulan
-                                                            </option>
-                                                            <option value="Kg"
-                                                                {{ $quote->info_qty == 'Kg' ? 'selected' : '' }}>Kg
-                                                            </option>
-                                                            <option value="Tube"
-                                                                {{ $quote->info_qty == 'Tube' ? 'selected' : '' }}>Tube
-                                                            </option>
-                                                            <option value="Titik"
-                                                                {{ $quote->info_qty == 'Titik' ? 'selected' : '' }}>Titik
-                                                            </option>
-                                                        </select>
-                                                        <label for="exampleFormControlSelect1">Info</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-1 col-12 mb-md-0 mb-3">
-                                                    <p class="mb-2 repeater-title">Discount</p>
-                                                    <input type="number" class="form-control invoice-item-disc"
-                                                        placeholder="%" name="disc[]" id="disc-{{ $dataDetail }}"
-                                                        data-id="{{ $dataDetail }}" min="0"
-                                                        value="{{ old('disc[]', $quote->disc ?? '0') }}">
-                                                </div>
-                                                <div class="col-md-1 col-12 pe-0">
-                                                    <p class="mb-2 repeater-title">Amount</p>
-                                                    <p class="mb-0 amount-label" id="amount-label-{{ $id }}"
-                                                        data-id="{{ $id }}">
-                                                        {{ old('amount[]', 'RP ' . number_format($quote->amount, 0, '', '.')) }}
-                                                    </p>
-                                                    <input type="number" class="form-control invoice-item-amount"
-                                                        name="amount[]" id="amount-{{ $id }}" data-id="1"
-                                                        value="{{ old('amount[]', $quote->amount) }}" hidden>
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="d-flex flex-column align-items-center justify-content-between border-start p-2">
-                                                <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
-                                                    data-repeater-delete=""></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="mb-2" data-repeater-list="group-a">
+                        <div class="mb-3" data-repeater-list="group-a">
+                            @foreach ($dquotation as $quote)
+                                @php
+                                    $id++;
+                                    $dataDetail++;
+                                @endphp
                                 <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
                                     <div class="d-flex border rounded position-relative pe-0">
                                         <div class="row w-100 p-3">
-                                            <div class="col-md-6 col-12 mb-md-0">
+                                            <div class="col-md-6 col-12 mb-md-0 mb-3">
                                                 <label for="product" class="mb-2">Product</label>
                                                 <div class="form-floating form-floating-outline mb-2">
                                                     <select id="product-{{ $id }}"
                                                         class="select2 form-select invoice-item-product"
-                                                        data-allow-clear="true" name="product[]" data-id="1">
-                                                        <option> ---- Choose Part Number Here ---- </option>
+                                                        data-allow-clear="true" name="product[]"
+                                                        data-id="{{ $id }}">
+                                                        <option value="">---- Choose Part Number Here ----
+                                                        </option>
                                                         @foreach ($product as $products)
                                                             <option value="{{ $products->id }}"
                                                                 data-replacement="{{ $products->id }}"
-                                                                data-commodity="{{ $products->comId }}">
+                                                                {{ $quote->id_equivalent == "{$products->id}" ? 'selected' : '' }}>
                                                                 {{ $products->brand }} {{ $products->pn }}
                                                                 ({{ $products->detail_desc }})
                                                                 ||
@@ -333,23 +196,25 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                    <label for="product-{{ $id }}">Product Part Number</label>
+                                                    <label for="product-{{ $id }}">Product Part
+                                                        Number</label>
                                                 </div>
-                                                <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-1"
-                                                    placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]"></textarea>
+                                                <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-{{ $id }}"
+                                                    placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]">{{ old('detail_product[]', $quote->detail_product) }}</textarea>
                                             </div>
                                             <div class="col-md-3 col-12 mb-md-0 mb-3">
                                                 <p class="mb-2 repeater-title">Price</p>
-                                                <div class="input-group mb-3" data-price="1">
+                                                <div class="input-group" data-price="1">
                                                     <span class="input-group-text">Rp. </span>
                                                     <input type="text" class="form-control invoice-item-price-label"
-                                                        id="priceLabel-1" data-id="1" name="harga"
-                                                        placeholder="Put Price Here" data-type="currency" min="0"
-                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                                        @blur="focused = false" value="{{ old('price[]') }}">
+                                                        id="priceLabel-{{ $id }}"
+                                                        data-id="{{ $id }}" min="0"
+                                                        placeholder="Put Price Here" data-type="currency"
+                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$"
+                                                        value="{{ old('price[]', @$quote->price ? number_format(@$quote->price, 0, '', '.') : '') }}">
                                                     <input class="form-control invoice-item-price" type="number"
-                                                        name="price[]" id="price-1" value="{{ old('price[]') }}"
-                                                        hidden>
+                                                        name="price[]" id="price-{{ $id }}"
+                                                        value="{{ old('price[]', @$quote->price ?? '') }}" hidden>
                                                 </div>
                                                 <div class="d-flex justify-content-between mb-3">
                                                     <p>Stock : <span class="info-stock-label" id="info-stock-1"></span>
@@ -361,26 +226,54 @@
                                             </div>
                                             <div class="col-md-1 col-12 mb-md-0 mb-3">
                                                 <p class="mb-2 repeater-title">Qty</p>
-                                                <input type="number" class="form-control mb-4 invoice-item-qty"
-                                                    placeholder="Min 1" name="qty[]" id="qty-1" data-id="1"
-                                                    min="1" value="{{ old('qty[]') }}">
+                                                <input type="number" class="form-control invoice-item-qty mb-3"
+                                                    placeholder="Min 1" name="qty[]" id="qty-{{ $dataDetail }}"
+                                                    data-id="{{ $dataDetail }}" min="1"
+                                                    value="{{ old('qty[]', $quote->qty) }}">
                                                 <div class="form-floating form-floating-outline mb-4">
                                                     <select class="form-select invoice-item-info" id="info-qty-1"
                                                         data-id="1" aria-label="Default select example"
                                                         name="info_qty[]">
-                                                        <option disabled>---Info---</option>
-                                                        <option value="Pcs">Pcs</option>
-                                                        <option value="Set">Set</option>
-                                                        <option value="Pail">Pail</option>
-                                                        <option value="Unit">Unit</option>
-                                                        <option value="Lot">Lot</option>
-                                                        <option value="Meter">Meter</option>
-                                                        <option value="Can">Can</option>
-                                                        <option value="Hari">Hari</option>
-                                                        <option value="Bulan">Bulan</option>
-                                                        <option value="Kg">Kg</option>
-                                                        <option value="Tube">Tube</option>
-                                                        <option value="Titik">Titik</option>
+                                                        <option>---Info---</option>
+                                                        <option value="Pcs"
+                                                            {{ $quote->info_qty == 'Pcs' ? 'selected' : '' }}>Pcs
+                                                        </option>
+                                                        <option value="Set"
+                                                            {{ $quote->info_qty == 'Set' ? 'selected' : '' }}>Set
+                                                        </option>
+                                                        <option value="Pail"
+                                                            {{ $quote->info_qty == 'Pail' ? 'selected' : '' }}>Pail
+                                                        </option>
+                                                        <option value="Unit"
+                                                            {{ $quote->info_qty == 'Unit' ? 'selected' : '' }}>Unit
+                                                        </option>
+                                                        <option value="Lot"
+                                                            {{ $quote->info_qty == 'Lot' ? 'selected' : '' }}>Lot
+                                                        </option>
+                                                        <option value="Meter"
+                                                            {{ $quote->info_qty == 'Meter' ? 'selected' : '' }}>Meter
+                                                        </option>
+                                                        <option value="Can"
+                                                            {{ $quote->info_qty == 'Can' ? 'selected' : '' }}>Can
+                                                        </option>
+                                                        <option value="Hari"
+                                                            {{ $quote->info_qty == 'Hari' ? 'selected' : '' }}>Hari
+                                                        </option>
+                                                        <option value="Bulan"
+                                                            {{ $quote->info_qty == 'Bulan' ? 'selected' : '' }}>Bulan
+                                                        </option>
+                                                        <option value="Kg"
+                                                            {{ $quote->info_qty == 'Kg' ? 'selected' : '' }}>Kg
+                                                        </option>
+                                                        <option value="Tube"
+                                                            {{ $quote->info_qty == 'Tube' ? 'selected' : '' }}>Tube
+                                                        </option>
+                                                        <option value="Titik"
+                                                            {{ $quote->info_qty == 'Titik' ? 'selected' : '' }}>Titik
+                                                        </option>
+                                                        <option value="Batang"
+                                                            {{ $quote->info_qty == 'Batang' ? 'selected' : '' }}>Batang
+                                                        </option>
                                                     </select>
                                                     <label for="exampleFormControlSelect1">Info</label>
                                                 </div>
@@ -388,27 +281,31 @@
                                             <div class="col-md-1 col-12 mb-md-0 mb-3">
                                                 <p class="mb-2 repeater-title">Discount</p>
                                                 <input type="number" class="form-control invoice-item-disc"
-                                                    placeholder="%" name="disc[]" id="disc-1" data-id="1"
-                                                    min="0" value="{{ old('disc[]', '0') }}">
+                                                    placeholder="%" name="disc[]" id="disc-{{ $dataDetail }}"
+                                                    data-id="{{ $dataDetail }}" min="0"
+                                                    value="{{ old('disc[]', $quote->disc ?? '0') }}">
                                             </div>
                                             <div class="col-md-1 col-12 pe-0">
                                                 <p class="mb-2 repeater-title">Amount</p>
-                                                <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
-                                                    {{ old(strval('amount[]')) }}</p>
+                                                <p class="mb-0 amount-label" id="amount-label-{{ $id }}"
+                                                    data-id="{{ $id }}">
+                                                    {{ old('amount[]', 'RP ' . number_format($quote->amount, 0, '', '.')) }}
+                                                </p>
                                                 <input type="number" class="form-control invoice-item-amount"
-                                                    name="amount[]" id="amount-1" data-id="1"
-                                                    value="{{ old('amount[]') }}" hidden>
+                                                    name="amount[]" id="amount-{{ $id }}" data-id="1"
+                                                    value="{{ old('amount[]', $quote->amount) }}" hidden>
                                             </div>
                                         </div>
                                         <div
                                             class="d-flex flex-column align-items-center justify-content-between border-start p-2">
                                             <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
-                                                data-repeater-delete=""></i>
+                                                data-id="{{ $id }}" data-repeater-delete=""></i>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        @endif
+                            @endforeach
+                        </div>
+
                         <div class="row">
                             <div class="col-12 mb-2">
                                 <button type="button" class="btn btn-sm btn-primary waves-effect waves-light btn-add"
@@ -470,18 +367,18 @@
                                                 for="collapsible-pincode">Sub
                                                 Total :</label>
                                             <div class="col-sm-8">
-                                                @if (@$dquotation)
+                                                {{-- @if (@$dquotation)
                                                     <input type="number" id="subtotal" class="form-control"
                                                         name="subtotal"
                                                         value="{{ old('subtotal', @$quotation->subtotal ?? '') }}">
-                                                @else
+                                                @else --}}
                                                     <p class="mb-0 subtotal-label" id="subtotal-label" data-id="1">
                                                         {{ old('subtotal', @$quotation->subtotal ? 'RP ' . number_format(@$quotation->subtotal, 0, '', '.') : '') }}
                                                     </p>
                                                     <input type="number" id="subtotal" class="form-control"
                                                         name="subtotal"
                                                         value="{{ old('subtotal', @$quotation->subtotal ?? '') }}" hidden>
-                                                @endif
+                                                {{-- @endif --}}
                                             </div>
                                         </div>
                                     </div>
@@ -579,11 +476,11 @@
                                                 for="collapsible-pincode">Total
                                                 :</label>
                                             <div class="col-sm-8">
-                                                @if (@$dquotation)
+                                                {{-- @if (@$dquotation)
                                                     <input type="number" id="hargaTotal" class="form-control"
                                                         name="harga_total"
                                                         value="{{ old('harga_total', @$quotation->harga_total ?? '') }}">
-                                                @else
+                                                @else --}}
                                                     <p class="mb-0 harga-total-label" id="hargaTotalLabel"
                                                         data-id="1">
                                                         {{ old('harga_total', @$quotation->harga_total ? 'RP ' . number_format(@$quotation->harga_total, 0, '', '.') : '') }}
@@ -592,7 +489,7 @@
                                                         name="harga_total"
                                                         value="{{ old('harga_total', @$quotation->harga_total ?? '') }}"
                                                         hidden>
-                                                @endif
+                                                {{-- @endif --}}
                                             </div>
                                         </div>
                                     </div>
@@ -967,12 +864,14 @@
                         row = 0,
                         amount = 0,
                         hasil = 0,
-                        valHarga = $(`#price-${id}`).val(),
+                        valHarga = isNaN(parseInt($(`#price-${id}`).val())) ? 0 : parseInt($(`#price-${id}`)
+                            .val()),
                         harga = Number(valHarga),
-                        disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val());
+                        disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val()),
+                        qty = isNaN(parseInt($(`#qty-${id}`).val())) ? 0 : parseInt($(`#qty-${id}`).val());
                     // menghitung hasil
                     console.log(harga);
-                    hasil = harga * $(`#qty-${id}`).val();
+                    hasil = harga * qty;
                     // menghitung amount
                     amount = (hasil - (hasil * disc / 100));
                     // memasukan data amount dan subtotal
@@ -1004,6 +903,55 @@
                             $('#hargaTotal').val(hTotal);
                             $('#totalNoTax').val(noTax);
                         });
+                $('.btn-del').on('click', function() {
+                    var id = $(this).data('id');
+                    // prepare data
+                    var sTotal = 0,
+                        row = 0,
+                        amount = 0,
+                        hasil = 0,
+                        valHarga = isNaN(parseInt($(`#price-${id}`).val())) ? 0 : parseInt($(`#price-${id}`)
+                            .val()),
+                        harga = Number(valHarga),
+                        disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val()),
+                        qty = isNaN(parseInt($(`#qty-${id}`).val())) ? 0 : parseInt($(`#qty-${id}`).val());
+                    // menghitung hasil
+                    console.log(harga);
+                    hasil = harga * qty;
+                    // menghitung amount
+                    amount = (hasil - (hasil * disc / 100));
+                    // memasukan data amount dan subtotal
+                    $(`#amount-${id}`).val(amount);
+                    $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+                    $('.amount-label:visible').each(() => {
+                        row++;
+                        if (row === id) {
+                            valamount = 0;
+                        } else {
+                            valamount = parseInt($(`#amount-${row}`).val());
+                        }
+                        sTotal += valamount;
+                    });
+                    console.log("ini id:" + id);
+
+                    $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                    $('#subtotal').val(sTotal);
+
+                    var noTax = 0;
+                    var hTotal = 0;
+                    var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
+                    var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
+                    var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon').val());
+                    var dTotal = sTotal - discount;
+                    var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
+                    hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
+                    noTax = parseInt(dTotal + shipping);
+                    console.log(hTotal);
+                    $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
+                    $('#hargaTotal').val(hTotal);
+                    $('#totalNoTax').val(noTax);
+                });
+
                 // Logic Subtotal dan Amount Setelah Tambah Product
                 $('.btn-add').on('click', () => {
 
@@ -1126,8 +1074,10 @@
                             var amount = 0,
                                 hasil = 0,
                                 disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(
-                                    `#disc-${id}`).val());
-                            hasil = $(`#price-${id}`).val() * $(`#qty-${id}`).val();
+                                    `#disc-${id}`).val()),
+                                qty = isNaN(parseInt($(`#qty-${id}`).val())) ? 0 : parseInt($(`#qty-${id}`)
+                                    .val());
+                            hasil = $(`#price-${id}`).val() * qty;
                             amount = (hasil - (hasil * disc / 100));
                             $(`#amount-${id}`).val(amount);
                             $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
@@ -1162,6 +1112,62 @@
                                 $('#hargaTotal').val(hTotal);
                                 $('#totalNoTax').val(noTax);
                             });
+
+                    $('.btn-del').on('click', function() {
+                        var id = $(this).data('id');
+                        // prepare data
+                        var sTotal = 0,
+                            row = 0,
+                            amount = 0,
+                            hasil = 0,
+                            valHarga = isNaN(parseInt($(`#price-${id}`).val())) ? 0 : parseInt($(
+                                    `#price-${id}`)
+                                .val()),
+                            harga = Number(valHarga),
+                            disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(
+                                `#disc-${id}`).val()),
+                            qty = isNaN(parseInt($(`#qty-${id}`).val())) ? 0 : parseInt($(`#qty-${id}`)
+                                .val());
+                        // menghitung hasil
+                        console.log(harga);
+                        hasil = harga * qty;
+                        // menghitung amount
+                        amount = (hasil - (hasil * disc / 100));
+                        // memasukan data amount dan subtotal
+                        $(`#amount-${id}`).val(amount);
+                        $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+                        $('.amount-label:visible').each(() => {
+                            row++;
+                            if (row === id) {
+                                valamount = 0;
+                            } else {
+                                valamount = parseInt($(`#amount-${row}`).val());
+                            }
+                            sTotal += valamount;
+                        });
+                        console.log("ini id:" + id);
+
+                        $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                        $('#subtotal').val(sTotal);
+
+                        var noTax = 0;
+                        var hTotal = 0;
+                        var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal')
+                            .val());
+                        var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($(
+                            '#shipping').val());
+                        var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon')
+                            .val());
+                        var dTotal = sTotal - discount;
+                        var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
+                        hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
+                        noTax = parseInt(dTotal + shipping);
+                        console.log(hTotal);
+                        $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
+                        $('#hargaTotal').val(hTotal);
+                        $('#totalNoTax').val(noTax);
+                    });
+
                     initializeSelect2Product();
                 });
 

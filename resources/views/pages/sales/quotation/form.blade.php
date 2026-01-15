@@ -152,11 +152,16 @@
                                     <select class="form-select" id="selectWeek" aria-label="Default select example"
                                         name="week">
                                         <option disabled>----- Choose Week -----</option>
-                                        <option value="1" {{ @$quote->week == '1' ? 'selected' : '' }}>Week 1</option>
-                                        <option value="2" {{ @$quote->week == '2' ? 'selected' : '' }}>Week 2</option>
-                                        <option value="3" {{ @$quote->week == '3' ? 'selected' : '' }}>Week 3</option>
-                                        <option value="4" {{ @$quote->week == '4' ? 'selected' : '' }}>Week 4</option>
-                                        <option value="5" {{ @$quote->week == '5' ? 'selected' : '' }}>Week 5</option>
+                                        <option value="1" {{ @$quote->week == '1' ? 'selected' : '' }}>Week 1
+                                        </option>
+                                        <option value="2" {{ @$quote->week == '2' ? 'selected' : '' }}>Week 2
+                                        </option>
+                                        <option value="3" {{ @$quote->week == '3' ? 'selected' : '' }}>Week 3
+                                        </option>
+                                        <option value="4" {{ @$quote->week == '4' ? 'selected' : '' }}>Week 4
+                                        </option>
+                                        <option value="5" {{ @$quote->week == '5' ? 'selected' : '' }}>Week 5
+                                        </option>
                                     </select>
                                     <label for="selectWeek">Week</label>
                                 </div>
@@ -279,6 +284,9 @@
                                                             <option value="Titik"
                                                                 {{ $quote->info_qty == 'Titik' ? 'selected' : '' }}>Titik
                                                             </option>
+                                                            <option value="Batang"
+                                                                {{ $quote->info_qty == 'Batang' ? 'selected' : '' }}>Batang
+                                                            </option>
                                                         </select>
                                                         <label for="exampleFormControlSelect1">Info</label>
                                                     </div>
@@ -304,7 +312,7 @@
                                             <div
                                                 class="d-flex flex-column align-items-center justify-content-between border-start p-2">
                                                 <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
-                                                    data-repeater-delete=""></i>
+                                                    data-id="{{ $id }}" data-repeater-delete=""></i>
                                             </div>
                                         </div>
                                     </div>
@@ -381,6 +389,7 @@
                                                         <option value="Kg">Kg</option>
                                                         <option value="Tube">Tube</option>
                                                         <option value="Titik">Titik</option>
+                                                        <option value="Batang">Batang</option>
                                                     </select>
                                                     <label for="exampleFormControlSelect1">Info</label>
                                                 </div>
@@ -403,7 +412,7 @@
                                         <div
                                             class="d-flex flex-column align-items-center justify-content-between border-start p-2">
                                             <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
-                                                data-repeater-delete=""></i>
+                                                data-id="1" data-repeater-delete=""></i>
                                         </div>
                                     </div>
                                 </div>
@@ -967,12 +976,14 @@
                         row = 0,
                         amount = 0,
                         hasil = 0,
-                        valHarga = $(`#price-${id}`).val(),
+                        valHarga = isNaN(parseInt($(`#price-${id}`).val())) ? 0 : parseInt($(`#price-${id}`)
+                            .val()),
                         harga = Number(valHarga),
-                        disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val());
+                        disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val()),
+                        qty = isNaN(parseInt($(`#qty-${id}`).val())) ? 0 : parseInt($(`#qty-${id}`).val());
                     // menghitung hasil
                     console.log(harga);
-                    hasil = harga * $(`#qty-${id}`).val();
+                    hasil = harga * qty;
                     // menghitung amount
                     amount = (hasil - (hasil * disc / 100));
                     // memasukan data amount dan subtotal
@@ -1004,6 +1015,55 @@
                             $('#hargaTotal').val(hTotal);
                             $('#totalNoTax').val(noTax);
                         });
+                $('.btn-del').on('click', function() {
+                    var id = $(this).data('id');
+                    // prepare data
+                    var sTotal = 0,
+                        row = 0,
+                        amount = 0,
+                        hasil = 0,
+                        valHarga = isNaN(parseInt($(`#price-${id}`).val())) ? 0 : parseInt($(`#price-${id}`)
+                            .val()),
+                        harga = Number(valHarga),
+                        disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val()),
+                        qty = isNaN(parseInt($(`#qty-${id}`).val())) ? 0 : parseInt($(`#qty-${id}`).val());
+                    // menghitung hasil
+                    console.log(harga);
+                    hasil = harga * qty;
+                    // menghitung amount
+                    amount = (hasil - (hasil * disc / 100));
+                    // memasukan data amount dan subtotal
+                    $(`#amount-${id}`).val(amount);
+                    $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+                    $('.amount-label:visible').each(() => {
+                        row++;
+                        if (row === id) {
+                            valamount = 0;
+                        } else {
+                            valamount = parseInt($(`#amount-${row}`).val());
+                        }
+                        sTotal += valamount;
+                    });
+                    console.log("ini id:" + id);
+
+                    $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                    $('#subtotal').val(sTotal);
+
+                    var noTax = 0;
+                    var hTotal = 0;
+                    var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
+                    var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
+                    var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon').val());
+                    var dTotal = sTotal - discount;
+                    var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
+                    hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
+                    noTax = parseInt(dTotal + shipping);
+                    console.log(hTotal);
+                    $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
+                    $('#hargaTotal').val(hTotal);
+                    $('#totalNoTax').val(noTax);
+                });
+
                 // Logic Subtotal dan Amount Setelah Tambah Product
                 $('.btn-add').on('click', () => {
 
@@ -1126,8 +1186,10 @@
                             var amount = 0,
                                 hasil = 0,
                                 disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(
-                                    `#disc-${id}`).val());
-                            hasil = $(`#price-${id}`).val() * $(`#qty-${id}`).val();
+                                    `#disc-${id}`).val()),
+                                qty = isNaN(parseInt($(`#qty-${id}`).val())) ? 0 : parseInt($(`#qty-${id}`)
+                                    .val());
+                            hasil = $(`#price-${id}`).val() * qty;
                             amount = (hasil - (hasil * disc / 100));
                             $(`#amount-${id}`).val(amount);
                             $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
@@ -1162,6 +1224,62 @@
                                 $('#hargaTotal').val(hTotal);
                                 $('#totalNoTax').val(noTax);
                             });
+
+                    $('.btn-del').on('click', function() {
+                        var id = $(this).data('id');
+                        // prepare data
+                        var sTotal = 0,
+                            row = 0,
+                            amount = 0,
+                            hasil = 0,
+                            valHarga = isNaN(parseInt($(`#price-${id}`).val())) ? 0 : parseInt($(
+                                    `#price-${id}`)
+                                .val()),
+                            harga = Number(valHarga),
+                            disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(
+                                `#disc-${id}`).val()),
+                            qty = isNaN(parseInt($(`#qty-${id}`).val())) ? 0 : parseInt($(`#qty-${id}`)
+                                .val());
+                        // menghitung hasil
+                        console.log(harga);
+                        hasil = harga * qty;
+                        // menghitung amount
+                        amount = (hasil - (hasil * disc / 100));
+                        // memasukan data amount dan subtotal
+                        $(`#amount-${id}`).val(amount);
+                        $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+                        $('.amount-label:visible').each(() => {
+                            row++;
+                            if (row === id) {
+                                valamount = 0;
+                            } else {
+                                valamount = parseInt($(`#amount-${row}`).val());
+                            }
+                            sTotal += valamount;
+                        });
+                        console.log("ini id:" + id);
+
+                        $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                        $('#subtotal').val(sTotal);
+
+                        var noTax = 0;
+                        var hTotal = 0;
+                        var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal')
+                            .val());
+                        var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($(
+                            '#shipping').val());
+                        var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon')
+                            .val());
+                        var dTotal = sTotal - discount;
+                        var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
+                        hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
+                        noTax = parseInt(dTotal + shipping);
+                        console.log(hTotal);
+                        $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
+                        $('#hargaTotal').val(hTotal);
+                        $('#totalNoTax').val(noTax);
+                    });
+
                     initializeSelect2Product();
                 });
 

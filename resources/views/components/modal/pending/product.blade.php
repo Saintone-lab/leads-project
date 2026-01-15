@@ -45,14 +45,22 @@
                                                         @endif
                                                     </td> --}}
                                                     @php
-                                                        $title = 'BDG (' . $item->equivalent->product->stock . ') | BKS (' . $item->equivalent->product->warehouse_stock . ')';
+                                                        if (@$item) {
+                                                            $stock = $item->equivalent->product->stock;
+                                                        } else {
+                                                            $stock = 0;
+                                                        }
+                                                        $title =
+                                                            'BDG (' .
+                                                            $stock .
+                                                            ') | BKS (' .
+                                                            $item->equivalent->product->warehouse_stock .
+                                                            ')';
                                                     @endphp
                                                     <td class="text-start">
                                                         <pre class="mb-0"
                                                             style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;"
-                                                            data-bs-toggle="tooltip" 
-                                                            data-bs-placement="top" 
-                                                            title="{{ $title }}">{{$item->equivalent->product->go == "Genuine" ? 'G' : 'R'}} - {{ $item->equivalent->brand }} {{ $item->equivalent->pn }}</pre>
+                                                            data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $title }}">{{ $item->equivalent->product->go == 'Genuine' ? 'G' : 'R' }} - {{ $item->equivalent->brand }} {{ $item->equivalent->pn }}</pre>
                                                     </td>
 
                                                     <td>{{ $item->qty }} {{ $item->info_qty }}</td>

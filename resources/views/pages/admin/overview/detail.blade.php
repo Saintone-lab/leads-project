@@ -76,12 +76,13 @@
                                         </div>
                                     </a>
                                     <div class="card-info">
-                                        <h5 class="mb-0">{{ $quoteSemester }} / <span
+                                        <h5 class="mb-0">{{ $quoteSemester }} 
+                                            {{-- / <span
                                                 class="fw-lighter fs-tiny">{{ $target->quote ? $target->quote * 6 : '0' }}
                                             </span>
                                             <span
                                                 class="bg-label-warning rounded">{{ round(($quoteSemester * 100) / ($target->quote * 6), 2) }}
-                                                %</span>
+                                                %</span> --}}
                                         </h5>
                                         <small class="text-muted">Quotation</small>
                                     </div>

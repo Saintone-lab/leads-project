@@ -282,7 +282,7 @@ class ProductInController extends Controller
     {
         $productIn = ProductIn::find($id);
         $dProductIn = DetailProductIn::where('id_product_in', $id)->get();
-        dd($request->all());
+        // dd($request->all());
         $rule = [
             'invoice' => 'required',
             // 'suplier' => 'required',

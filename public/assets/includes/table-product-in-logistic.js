@@ -92,6 +92,12 @@ $(function () {
                     },
                 },
                 {
+                    targets: 4,
+                    render: function (data, type, row, meta) {
+                        return "*********";
+                    },
+                },
+                {
                     // Actions
                     targets: -1,
                     title: "Actions",

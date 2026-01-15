@@ -521,6 +521,200 @@ class Expensecontroller extends Controller
             'labaTahunTahun',
         ));
     }
+    public function indexCashflow()
+    {
+
+        $currentYear = date('Y');
+
+        $years = [];
+        for ($i = $currentYear - 5; $i <= $currentYear + 5; $i++) {
+            $years[] = $i;
+        }
+        $start = Carbon::now()->subYear()->startOfYear();
+        $end = Carbon::now()->endOfYear();
+
+        $months = collect();
+        $cursor = $start->copy();
+
+        while ($cursor <= $end) {
+            $months->push([
+                'month' => $cursor->month,      // 1–12
+                'year' => $cursor->year,
+                'label' => $cursor->translatedFormat('F Y'), // Januari 2024
+            ]);
+
+            $cursor->addMonth();
+        }
+        // dd($months);
+        return view('pages.finance.cashflow.index', compact('years', 'months'));
+    }
+    public function printBulanCashflow($year, $month)
+    {
+        $startDate = Carbon::create($year, $month, 1)->startOfMonth()->toDateString();
+        $endDate = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
+        $start = Carbon::create($year, $month, 1)->startOfMonth();
+        $end = Carbon::today();
+        $grandTotalPenyusutan = 0;
+
+        $quotation = Quotation::whereBetween('po_date', [$startDate, $endDate])->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $pendapatan = LabaRugi::whereBetween('date', [$start, $end])
+            ->where('type', 'Pendapatan Lain')
+            ->get();
+        $income = $pendapatan->sum('amount');
+        $biaya = LabaRugi::whereBetween('date', [$start, $end])
+            ->where('type', 'Biaya Lain')
+            ->get();
+        $outcome = $biaya->sum('amount');
+        $modal = Quotation::join('detail_quotation', 'quotation.id', '=', 'detail_quotation.id_quotation')
+            ->join('serial_product', 'detail_quotation.id_equivalent', '=', 'serial_product.id')
+            ->whereBetween('quotation.po_date', [$start, $end])
+            ->where('quotation.status', '100')
+            ->where('quotation.level', '1')
+            ->where('quotation.is_primary', '1')
+            ->sum('serial_product.price');
+        $expensePerAccount = DB::table('detail_expense')
+            ->join('expense as e', 'e.id', '=', 'detail_expense.id_expense')
+            ->join('account', 'account.id', '=', 'detail_expense.id_account')
+            ->whereBetween('e.date', [$startDate, $endDate])
+            ->select(
+                'account.name',
+                DB::raw('SUM(detail_expense.amount) as total_amount')
+            )
+            ->groupBy('detail_expense.id_account', 'account.name')
+            ->get();
+        $expenseSum = $expensePerAccount->sum('total_amount');
+        $piutang = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
+            ->whereBetween('po_date', [$startDate, $endDate])
+            ->where('payment.type', 'Tempo')
+            ->where('payment.level', 0)
+            ->whereNotNULL('payment.due_date')
+            ->groupBy('payment.id')
+            ->sum('payment.amount');
+        $pIn = ProductIn::where('tax', '11')->whereBetween('date', [$startDate, $endDate])->sum('total');
+        $ppnMas = $pIn * 11 / 100;
+        $totalFixed = FixedAsset::sum('total');
+        $penyusutan = FixedAsset::all()->groupBy('type')->map(function ($assets, $type) {
+            $total = 0;
+            foreach ($assets as $asset) {
+                $bulan = min(
+                    Carbon::parse($asset->beli)->diffInMonths(now()),
+                    $asset->umur
+                );
+
+                $total += (($asset->total * 0.25) / 12) * $bulan;
+            }
+            return [
+                'type' => $type,
+                'total_penyusutan' => $total
+            ];
+        });
+        $grandTotalPenyusutan = $penyusutan->sum('total_penyusutan');
+        $ppnKel = $quotation * 11 / 100;
+        $prive = DetailExpense::where('id_account', 51)->sum('amount');
+
+        $startStringYear = $start->translatedFormat('j M');
+        $startString = $start->translatedFormat('j M Y');
+        $endString = $end->translatedFormat('j M Y');
+        return view('pages.finance.cashflow.print', compact(
+            'startDate',
+            'endDate',
+            'startString',
+            'startStringYear',
+            'endString',
+            'piutang',
+            'asset',
+            'ppnMas',
+            'ppnKel',
+            'totalFixed',
+            'fixedAsset',
+            'penyusutan',
+            'quotation',
+            'prive',
+            'labaBulanIni',
+            'labaTahunLalu',
+            'labaTahunTahun',
+            'grandTotalPenyusutan',
+            'month'
+        ));
+    }
+    public function printTahunCashflow($year)
+    {
+        $startDate = Carbon::create($year, 1, 1)->startOfMonth()->toDateString();
+        $endDate = Carbon::create($year, 12, 1)->endOfMonth()->toDateString();
+        $start = Carbon::create($year, 1, 1)->startOfMonth();
+        $end = Carbon::today();
+        $grandTotalPenyusutan = 0;
+
+        $piutang = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
+            ->whereBetween('po_date', [$startDate, $endDate])
+            ->where('payment.type', 'Tempo')
+            ->where('payment.level', 0)
+            ->whereNotNULL('payment.due_date')
+            ->groupBy('payment.id')
+            ->sum('payment.amount');
+        $replace = DetailProduct::all();
+        $asset = $replace->sum(function ($replacement) {
+            return $replacement->modal * $replacement->stock;
+        });
+        $pIn = ProductIn::where('tax', '11')->whereBetween('date', [$startDate, $endDate])->sum('total');
+        $ppnMas = $pIn * 11 / 100;
+        $totalFixed = FixedAsset::sum('total');
+        $fixedAsset = FixedAsset::select('type', DB::raw('SUM(total) as total_amount'))
+            ->groupBy('type')
+            ->get();
+        $penyusutan = FixedAsset::all()->groupBy('type')->map(function ($assets, $type) {
+            $total = 0;
+            foreach ($assets as $asset) {
+                $bulan = min(
+                    Carbon::parse($asset->beli)->diffInMonths(now()),
+                    $asset->umur
+                );
+
+                $total += (($asset->total * 0.25) / 12) * $bulan;
+            }
+            return [
+                'type' => $type,
+                'total_penyusutan' => $total
+            ];
+        });
+        $grandTotalPenyusutan = $penyusutan->sum('total_penyusutan');
+        $quotation = Quotation::where('status', '100')->whereBetween('po_date', [$startDate, $endDate])->where('level', '1')->where('is_primary', '1')->sum('nett');
+        // dd($endDate);
+        $ppnKel = $quotation * 11 / 100;
+        $prive = DetailExpense::where('id_account', 51)->sum('amount');
+
+        $labaTahunIni = $this->hitungLabaTahunan($year);
+        $labaTahunLalu = $this->hitungLabaTahunan($year - 1);
+        $labaTahunTahun = $this->hitungLabaTahunSebelumnya($year, month: 12);
+
+        $startStringYear = $start->translatedFormat('j M');
+        $startString = $start->translatedFormat('j M Y');
+        $endString = $end->translatedFormat('j M Y');
+        return view('pages.finance.cashflow.print', compact(
+            'startDate',
+            'endDate',
+            'startString',
+            'startStringYear',
+            'endString',
+            'piutang',
+            'asset',
+            'ppnMas',
+            'ppnKel',
+            'totalFixed',
+            'fixedAsset',
+            'penyusutan',
+            'quotation',
+            'prive',
+            'labaTahunIni',
+            'labaTahunLalu',
+            'labaTahunTahun',
+            'grandTotalPenyusutan'
+        ));
+    }
 
     private function hitungLabaTahunan($year)
     {

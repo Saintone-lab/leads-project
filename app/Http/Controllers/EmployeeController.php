@@ -192,7 +192,7 @@ class EmployeeController extends Controller
         $users->code = $request->code;
         $users->active = $request->active;
         $users->email = $request->email;
-        // $users->password = Hash::make($request->password);
+        $users->password = $request->password ? Hash::make($request->password) : $users->password;
         // $users->phone = '+62' . $request->phone;
         if ($request->hasFile('image')) {
             if ($users->image != 'asset/profile/profile.jpg') {

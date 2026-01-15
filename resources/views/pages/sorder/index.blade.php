@@ -274,7 +274,7 @@
                                     <th>Status</th>
                                     <th>Payment</th>
                                     <th>Delivery</th>
-                                    @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Logistic')
+                                    @if (Auth::user()->role != 'Sales')
                                         <th>Sales</th>
                                         <th>Team</th>
                                     @endif
@@ -302,7 +302,7 @@
                                     <th>Status</th>
                                     <th>Payment</th>
                                     <th>Delivery</th>
-                                    @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Logistic')
+                                    @if (Auth::user()->role != 'Sales')
                                         <th>Sales</th>
                                         <th>Team</th>
                                     @endif

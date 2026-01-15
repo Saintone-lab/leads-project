@@ -55,7 +55,7 @@
                                     </a>
                                     <div class="card-info">
                                         <h5 class="mb-0">{{ $totalCRM }}<span
-                                                class="text-muted fs-tiny fw-normal">/{{ $target->crm }}</span>
+                                                class="text-muted fs-tiny fw-normal">/{{ $targetCrm }}</span>
                                         </h5>
                                         <small class="text-muted">CRM</small>
                                     </div>

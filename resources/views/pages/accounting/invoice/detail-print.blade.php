@@ -321,6 +321,7 @@
                                     $bgColor = 'rgb(255, 232, 210)';
                                 }
                             @endphp
+
                             @if ($invoice->type == 'CT')
                                 @if ($quote->diskon != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
@@ -361,28 +362,8 @@
                                                     {{ number_format($dpp, 0, '', '.') }}</p>
                                             </td>
                                         </tr>
-                                    @else
-                                        @if ($quote->tax != 0)
-                                            <tr class="fw-medium" style="font-size: 13px">
-                                                <td colspan="3" id="price" class="text-end pl-4 py-0"
-                                                    style="padding-right: 10px !important;">
-                                                    <p class="m-0">
-                                                        DPP Atas PPN
-                                                    </p>
-                                                </td>
-                                                <td id="price" class="pr-4 py-0"
-                                                    style="padding-left: 0 !important;">
-                                                    @php
-                                                        $dpp = ($quote->subtotal * 11) / 12;
-                                                    @endphp
-                                                    <p class="text-end m-0">RP
-                                                        {{ number_format($dpp, 0, '', '.') }}</p>
-                                                </td>
-                                            </tr>
-                                        @endif
                                     @endif
-                                @endif
-                                @if ($quote->tax != 0 || $totalPph > 0)
+                                @else
                                     @if ($quote->tax != 0)
                                         <tr class="fw-medium" style="font-size: 13px">
                                             <td colspan="3" id="price" class="text-end pl-4 py-0"
@@ -400,6 +381,8 @@
                                             </td>
                                         </tr>
                                     @endif
+                                @endif
+                                @if ($quote->tax != 0 || $totalPph > 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="3" class="text-end py-0"
                                             style="padding-right: 10px !important;">
@@ -938,28 +921,8 @@
                                                     {{ number_format($dpp, 0, '', '.') }}</p>
                                             </td>
                                         </tr>
-                                    @else
-                                        @if ($quote->tax != 0)
-                                            <tr class="fw-medium" style="font-size: 13px">
-                                                <td colspan="2" id="price" class="text-end pl-4 py-0"
-                                                    style="padding-right: 10px !important;">
-                                                    <p class="m-0">
-                                                        DPP Atas PPN
-                                                    </p>
-                                                </td>
-                                                <td id="price" class="pr-4 py-0"
-                                                    style="padding-left: 0 !important;">
-                                                    @php
-                                                        $dpp = ($quote->subtotal * 11) / 12;
-                                                    @endphp
-                                                    <p class="text-end m-0">RP
-                                                        {{ number_format($dpp, 0, '', '.') }}</p>
-                                                </td>
-                                            </tr>
-                                        @endif
                                     @endif
-                                @endif
-                                @if ($quote->tax != 0 || $totalPph > 0)
+                                @else
                                     @if ($quote->tax != 0)
                                         <tr class="fw-medium" style="font-size: 13px">
                                             <td colspan="2" id="price" class="text-end pl-4 py-0"
@@ -977,6 +940,8 @@
                                             </td>
                                         </tr>
                                     @endif
+                                @endif
+                                @if ($quote->tax != 0 || $totalPph > 0)
                                     <tr class="fw-medium py-0" style="font-size: 13px">
                                         <td colspan="2" class="text-end py-0"
                                             style="padding-right: 10px !important;">

@@ -62,7 +62,7 @@
                         <div class="form-floating form-floating-outline">
                             <input class="form-control" type="text" placeholder="Put Title Quotation Here ...."
                                 id="title" name="title"
-                                value="{{ old('title', @$quotation->title ?? 'Overhaul ' . $machine->brand . ' ' . $machine->sku) }}">
+                                value="{{ old('title', @$quotation->title ??  $machine->brand . ' ' . $machine->sku) }}">
                             <label for="title">Title Quotation</label>
                         </div>
                     </div>

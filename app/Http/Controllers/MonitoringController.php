@@ -1617,6 +1617,7 @@ class MonitoringController extends Controller
         $startOfMonth = $today->copy()->startOfMonth();
         $startOfMonthDate = $today->copy()->startOfMonth();
         $endOfMonth = $today->copy()->endOfMonth();
+        // dd($today);
 
         $dates = [];
         for ($date = $startOfMonthDate; $date->lte($endOfMonth); $date->addDay()) {
@@ -1738,6 +1739,7 @@ class MonitoringController extends Controller
             ->whereNot('issue', 'Normal')
             ->whereNotNull('issue')
             ->whereMonth('monitoring.date', $month)
+            ->whereYear('monitoring.date', $today->year)
             ->select(
                 'monitoring.*',
                 'u.name',
@@ -1782,7 +1784,7 @@ class MonitoringController extends Controller
         })->toArray();
         // dd($weeksoy);
         // $mainlog = Mainlog::join('users as u', 'u.id', '-', 'main_log.id_teknisi')->where('id_monitoring', $id)->whereMonth('date', $month)->get();
-        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $today->month)->whereNotNull('desc')->select('main_log.*', 'u.name')->orderBy('main_log.date', 'asc')->get();
+        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $today->month)->whereYear('date', $today->year)->whereNotNull('desc')->select('main_log.*', 'u.name')->orderBy('main_log.date', 'asc')->get();
         // dd($compressor);
         $weekly = MonitoringWeekly::where('id_machine', $id)->whereMonth('date', $month)->whereYear('date', $today->year)->get();
         $reports = Reports::where('id_machine', $id)->whereMonth('date', $month)->whereYear('date', $today->year)->orderBy('date')->get();

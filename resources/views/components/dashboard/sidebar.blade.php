@@ -376,196 +376,204 @@
             {{-- <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Marketting</span>
             </li> --}}
+            @if (auth::user()->id != 38)
+                <li class="menu-header fw-light mt-4">
+                    <span class="menu-header-text">Accounting</span>
+                </li>
+                <li
+                    class="menu-item {{ request()->is('contract') || request()->is('selling/contract') || request()->is('order/contract') ? 'open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
+                        <div data-i18n="SC/CO">SC/CO</div>
+                        @if (@$requestContract >= 1)
+                            <div class="badge bg-danger rounded-pill ms-auto">{{ $requestContract }}</div>
+                        @endif
+                    </a>
+                    <ul class="menu-sub">
+                        <li class="menu-item {{ request()->is('contract') ? 'active' : '' }}">
+                            <a href="{{ route('contract.index') }}" class="menu-link">
+                                <div data-i18n="Request">Request</div>
+                                @if (@$requestInvoice >= 1)
+                                    <div class="badge bg-danger rounded-pill ms-auto">{{ $requestContract }}</div>
+                                @endif
+                            </a>
+                        </li>
+                        <li class="menu-item {{ request()->is('selling/contract') ? 'active' : '' }}">
+                            <a href="{{ route('index.selling') }}" class="menu-link">
+                                <div data-i18n="Selling Contract">Selling Contract</div>
+                            </a>
+                        </li>
+                        <li class="menu-item {{ request()->is('order/contract') ? 'active' : '' }}">
+                            <a href="{{ route('index.order') }}" class="menu-link">
+                                <div data-i18n="Confirm Order">Confirm Order</div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li
+                    class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') || request()->is('request/invoice') || request()->is('request/invoice/*') || request()->is('index/invoice/kojisha') ? 'open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons mdi mdi-file-document-check-outline"></i>
+                        <div data-i18n="Invoice">Invoice</div>
+                        @if (@$requestInvoice >= 1)
+                            <div class="badge bg-danger rounded-pill ms-auto">{{ $requestInvoice }}</div>
+                        @endif
+                    </a>
+                    <ul class="menu-sub">
+                        <li
+                            class="menu-item {{ request()->is('request/invoice') || request()->is('request/invoice/*') ? 'active' : '' }}">
+                            <a href="{{ route('invoice.request') }}" class="menu-link">
+                                <div data-i18n="Request">Request</div>
+                                @if (@$requestInvoice >= 1)
+                                    <div class="badge bg-danger rounded-pill ms-auto">{{ $requestInvoice }}</div>
+                                @endif
+                            </a>
+                        </li>
+                        <li
+                            class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') ? 'active' : '' }}">
+                            <a href="{{ route('invoice.index') }}" class="menu-link">
+                                <div data-i18n="Invoice Reftech">Invoice Reftech</div>
+                            </a>
+                        </li>
+                        <li class="menu-item {{ request()->is('index/invoice/kojisha') ? 'active' : '' }}">
+                            <a href="{{ route('invoice.index_kojisha') }}" class="menu-link">
+                                <div data-i18n="Invoice Kojisha">Invoice Kojisha</div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li
+                    class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-index/payment') || request()->is('payment-index/aging') || request()->is('payment-detail/invoice/*') || request()->is('payment-detail/payment/*') || request()->is('payment-detail/aging/*') ? 'open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
+                        <div data-i18n="Receiveable (AR)">Receiveable (AR)</div>
+                        @if (@$nodueCount >= 1)
+                            <div class="badge bg-danger rounded-pill ms-auto">{{ $nodueCount }}</div>
+                        @endif
+                    </a>
+                    <ul class="menu-sub">
+                        <li
+                            class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-detail/invoice/*') ? 'active' : '' }}">
+                            <a href="{{ route('payment_index.invoice') }}" class="menu-link">
+                                <div data-i18n="Sales Invoice">Sales Invoice</div>
+                            </a>
+                        </li>
+                        <li
+                            class="menu-item {{ request()->is('payment-index/payment') || request()->is('payment-detail/payment/*') ? 'active' : '' }}">
+                            <a href="{{ route('payment_index.payment') }}" class="menu-link">
+                                <div data-i18n="Payment Receipt">Payment Receipt</div>
+                            </a>
+                        </li>
+                        <li
+                            class="menu-item {{ request()->is('payment-index/aging') || request()->is('payment-detail/aging/*') ? 'active' : '' }}">
+                            <a href="{{ route('payment_index.aging') }}" class="menu-link">
+                                <div data-i18n="Aging Report">Aging Report</div>
+                                @if (@$nodueCount >= 1)
+                                    <div class="badge bg-danger rounded-pill ms-auto">{{ $nodueCount }}</div>
+                                @endif
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li
+                    class="menu-item {{ request()->is('payable/invoice') || request()->is('payable/invoice/*') || request()->is('payable/aging') || request()->is('payable/aging/*') || request()->is('expense-account') || request()->is('expense') || request()->is('payable/receipt') || request()->is('payable/receipt/*') ? 'open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
+                        <div data-i18n="Payable (AP)">Payable (AP)</div>
+                        {{-- @if (@$nodueCount >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $nodueCount }}</div>
+                    @endif --}}
+                    </a>
+                    <ul class="menu-sub">
+                        <li
+                            class="menu-item {{ request()->is('payable/invoice') || request()->is('payable/invoice/*') ? 'active' : '' }}">
+                            <a href="{{ route('payable.index_invoice') }}" class="menu-link">
+                                <div data-i18n="Purchase Invoice">Purchase Invoice</div>
+                            </a>
+                        </li>
+                        <li
+                            class="menu-item {{ request()->is('payable/receipt') || request()->is('payable/receipt/*') ? 'active' : '' }}">
+                            <a href="{{ route('payable.index_receipt') }}" class="menu-link">
+                                <div data-i18n="Purchase Payment">Purchase Payment</div>
+                            </a>
+                        </li>
+                        <li
+                            class="menu-item {{ request()->is('payable/aging') || request()->is('payable/aging/*') ? 'active' : '' }}">
+                            <a href="{{ route('payable.index_aging') }}" class="menu-link">
+                                <div data-i18n="Aging Report">Aging Report</div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="menu-item {{ request()->is('purchase') || request()->is('purchase/*') ? 'active' : '' }}">
+                    <a href="{{ route('purchase.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-format-list-group"></i>
+                        <div data-i18n="Purchase Order">Purchase Order</div>
+                    </a>
+                </li>
 
-            <li class="menu-header fw-light mt-4">
-                <span class="menu-header-text">Accounting</span>
-            </li>
-            <li
-                class="menu-item {{ request()->is('contract') || request()->is('selling/contract') || request()->is('order/contract') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
-                    <div data-i18n="SC/CO">SC/CO</div>
-                    @if (@$requestContract >= 1)
-                        <div class="badge bg-danger rounded-pill ms-auto">{{ $requestContract }}</div>
-                    @endif
-                </a>
-                <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('contract') ? 'active' : '' }}">
-                        <a href="{{ route('contract.index') }}" class="menu-link">
-                            <div data-i18n="Request">Request</div>
-                            @if (@$requestInvoice >= 1)
-                                <div class="badge bg-danger rounded-pill ms-auto">{{ $requestContract }}</div>
-                            @endif
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('selling/contract') ? 'active' : '' }}">
-                        <a href="{{ route('index.selling') }}" class="menu-link">
-                            <div data-i18n="Selling Contract">Selling Contract</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('order/contract') ? 'active' : '' }}">
-                        <a href="{{ route('index.order') }}" class="menu-link">
-                            <div data-i18n="Confirm Order">Confirm Order</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li
-                class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') || request()->is('request/invoice') || request()->is('request/invoice/*') || request()->is('index/invoice/kojisha') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon tf-icons mdi mdi-file-document-check-outline"></i>
-                    <div data-i18n="Invoice">Invoice</div>
-                    @if (@$requestInvoice >= 1)
-                        <div class="badge bg-danger rounded-pill ms-auto">{{ $requestInvoice }}</div>
-                    @endif
-                </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('request/invoice') || request()->is('request/invoice/*') ? 'active' : '' }}">
-                        <a href="{{ route('invoice.request') }}" class="menu-link">
-                            <div data-i18n="Request">Request</div>
-                            @if (@$requestInvoice >= 1)
-                                <div class="badge bg-danger rounded-pill ms-auto">{{ $requestInvoice }}</div>
-                            @endif
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') ? 'active' : '' }}">
-                        <a href="{{ route('invoice.index') }}" class="menu-link">
-                            <div data-i18n="Invoice Reftech">Invoice Reftech</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('index/invoice/kojisha') ? 'active' : '' }}">
-                        <a href="{{ route('invoice.index_kojisha') }}" class="menu-link">
-                            <div data-i18n="Invoice Kojisha">Invoice Kojisha</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li
-                class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-index/payment') || request()->is('payment-index/aging') || request()->is('payment-detail/invoice/*') || request()->is('payment-detail/payment/*') || request()->is('payment-detail/aging/*') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
-                    <div data-i18n="Receiveable (AR)">Receiveable (AR)</div>
-                    @if (@$nodueCount >= 1)
-                        <div class="badge bg-danger rounded-pill ms-auto">{{ $nodueCount }}</div>
-                    @endif
-                </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-detail/invoice/*') ? 'active' : '' }}">
-                        <a href="{{ route('payment_index.invoice') }}" class="menu-link">
-                            <div data-i18n="Sales Invoice">Sales Invoice</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('payment-index/payment') || request()->is('payment-detail/payment/*') ? 'active' : '' }}">
-                        <a href="{{ route('payment_index.payment') }}" class="menu-link">
-                            <div data-i18n="Payment Receipt">Payment Receipt</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('payment-index/aging') || request()->is('payment-detail/aging/*') ? 'active' : '' }}">
-                        <a href="{{ route('payment_index.aging') }}" class="menu-link">
-                            <div data-i18n="Aging Report">Aging Report</div>
-                            @if (@$nodueCount >= 1)
-                                <div class="badge bg-danger rounded-pill ms-auto">{{ $nodueCount }}</div>
-                            @endif
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li class="menu-item {{ request()->is('payable/invoice') || request()->is('payable/invoice/*') || request()->is('payable/aging') || request()->is('payable/aging/*') || request()->is('expense-account') || request()->is('expense') || request()->is('payable/receipt') || request()->is('payable/receipt/*') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
-                    <div data-i18n="Payable (AP)">Payable (AP)</div>
-                    {{-- @if (@$nodueCount >= 1)
-                        <div class="badge bg-danger rounded-pill ms-auto">{{ $nodueCount }}</div>
-                    @endif --}}
-                </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('payable/invoice') || request()->is('payable/invoice/*') ? 'active' : '' }}">
-                        <a href="{{ route('payable.index_invoice') }}" class="menu-link">
-                            <div data-i18n="Purchase Invoice">Purchase Invoice</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('payable/receipt') || request()->is('payable/receipt/*') ? 'active' : '' }}">
-                        <a href="{{ route('payable.index_receipt') }}" class="menu-link">
-                            <div data-i18n="Purchase Payment">Purchase Payment</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('payable/aging') || request()->is('payable/aging/*') ? 'active' : '' }}">
-                        <a href="{{ route('payable.index_aging') }}" class="menu-link">
-                            <div data-i18n="Aging Report">Aging Report</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li class="menu-item {{ request()->is('purchase') || request()->is('purchase/*') ? 'active' : '' }}">
-                <a href="{{ route('purchase.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-format-list-group"></i>
-                    <div data-i18n="Purchase Order">Purchase Order</div>
-                </a>
-            </li>
-            
-            <li class="menu-header fw-light mt-4">
-                <span class="menu-header-text">Finance</span>
-            </li>
+                <li class="menu-header fw-light mt-4">
+                    <span class="menu-header-text">Finance</span>
+                </li>
 
-            <li class="menu-item {{ request()->is('expense-account') || request()->is('expense') || request()->is('expense-umum') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon tf-icons mdi mdi-cash-multiple"></i>
-                    <div data-i18n="Expense">Expense</div>
-                    {{-- @if (@$nodueCount >= 1)
+                <li
+                    class="menu-item {{ request()->is('expense-account') || request()->is('expense') || request()->is('expense-umum') ? 'open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons mdi mdi-cash-multiple"></i>
+                        <div data-i18n="Expense">Expense</div>
+                        {{-- @if (@$nodueCount >= 1)
                         <div class="badge bg-danger rounded-pill ms-auto">{{ $nodueCount }}</div>
                     @endif --}}
-                </a>
-                <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('expense-account') ? 'active' : '' }}">
-                        <a href="{{ route('expense-account.index') }}" class="menu-link">
-                            <div data-i18n="Account Database">Account Database</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('expense') ? 'active' : '' }}">
-                        <a href="{{ route('expense.index') }}" class="menu-link">
-                            <div data-i18n="Expense">Expense</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('expense-umum') ? 'active' : '' }}">
-                        <a href="{{ route('expense-umum.index') }}" class="menu-link">
-                            <div data-i18n="Jurnal Umum">Jurnal Umum</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li class="menu-item {{ request()->is('income') || request()->is('income/*') || request()->is('income/*/*') || request()->is('balance') || request()->is('balance/*') || request()->is('balance/*/*') || request()->is('equity') || request()->is('equity/*') || request()->is('equity/*/*') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon tf-icons mdi mdi-book-open-outline"></i>
-                    <div data-i18n="Statement">Statement</div>
-                    {{-- @if (@$nodueCount >= 1)
+                    </a>
+                    <ul class="menu-sub">
+                        <li class="menu-item {{ request()->is('expense-account') ? 'active' : '' }}">
+                            <a href="{{ route('expense-account.index') }}" class="menu-link">
+                                <div data-i18n="Account Database">Account Database</div>
+                            </a>
+                        </li>
+                        <li class="menu-item {{ request()->is('expense') ? 'active' : '' }}">
+                            <a href="{{ route('expense.index') }}" class="menu-link">
+                                <div data-i18n="Expense">Expense</div>
+                            </a>
+                        </li>
+                        <li class="menu-item {{ request()->is('expense-umum') ? 'active' : '' }}">
+                            <a href="{{ route('expense-umum.index') }}" class="menu-link">
+                                <div data-i18n="Jurnal Umum">Jurnal Umum</div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li
+                    class="menu-item {{ request()->is('income') || request()->is('income/*') || request()->is('income/*/*') || request()->is('balance') || request()->is('balance/*') || request()->is('balance/*/*') || request()->is('equity') || request()->is('equity/*') || request()->is('equity/*/*') ||  request()->is('cashflow') || request()->is('cashflow/*') || request()->is('cashflow/*/*') ? 'open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons mdi mdi-book-open-outline"></i>
+                        <div data-i18n="Statement">Statement</div>
+                        {{-- @if (@$nodueCount >= 1)
                         <div class="badge bg-danger rounded-pill ms-auto">{{ $nodueCount }}</div>
                     @endif --}}
-                </a>
-                <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('income') ? 'active' : '' }}">
-                        <a href="{{ route('expense-income.index') }}" class="menu-link">
-                            <div data-i18n="Income Statement">Income Statement</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('balance') ? 'active' : '' }}">
-                        <a href="{{ route('expense-balance.index') }}" class="menu-link">
-                            <div data-i18n="Balance Statement">Balance Statement</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('equity') ? 'active' : '' }}">
-                        <a href="{{ route('expense-equity.index') }}" class="menu-link">
-                            <div data-i18n="Equity Statement">Equity Statement</div>
-                        </a>
-                    </li>
-                    {{-- <li class="menu-item {{ request()->is('expense') ? 'active' : '' }}">
+                    </a>
+                    <ul class="menu-sub">
+                        <li class="menu-item {{ request()->is('income') ? 'active' : '' }}">
+                            <a href="{{ route('expense-income.index') }}" class="menu-link">
+                                <div data-i18n="Income Statement">Income Statement</div>
+                            </a>
+                        </li>
+                        <li class="menu-item {{ request()->is('balance') ? 'active' : '' }}">
+                            <a href="{{ route('expense-balance.index') }}" class="menu-link">
+                                <div data-i18n="Balance Statement">Balance Statement</div>
+                            </a>
+                        </li>
+                        <li class="menu-item {{ request()->is('equity') ? 'active' : '' }}">
+                            <a href="{{ route('expense-equity.index') }}" class="menu-link">
+                                <div data-i18n="Equity Statement">Equity Statement</div>
+                            </a>
+                        </li>
+                        <li class="menu-item {{ request()->is('cashflow') ? 'active' : '' }}">
+                            <a href="{{ route('expense-cashflow.index') }}" class="menu-link">
+                                <div data-i18n="Cashflow Statement">Cashflow Statement</div>
+                            </a>
+                        </li>
+                        {{-- <li class="menu-item {{ request()->is('expense') ? 'active' : '' }}">
                         <a href="{{ route('expense.index') }}" class="menu-link">
                             <div data-i18n="Expense">Expense</div>
                         </a>
@@ -575,14 +583,15 @@
                             <div data-i18n="Jurnal Umum">Jurnal Umum</div>
                         </a>
                     </li> --}}
-                </ul>
-            </li>
-            <li class="menu-item {{ request()->is('fixed') ? 'active' : '' }}">
-                <a href="{{ route('fixed.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-domain"></i>
-                    <div data-i18n="Fixed Asset">Fixed Asset</div>
-                </a>
-            </li>
+                    </ul>
+                </li>
+                <li class="menu-item {{ request()->is('fixed') ? 'active' : '' }}">
+                    <a href="{{ route('fixed.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-domain"></i>
+                        <div data-i18n="Fixed Asset">Fixed Asset</div>
+                    </a>
+                </li>
+            @endif
 
             {{-- <li
                 class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-index/invoice-ahmad') || request()->is('payment-index/invoice-rayi') || request()->is('payment-detail/invoice/*') ? 'open' : '' }}">

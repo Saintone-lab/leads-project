@@ -54,13 +54,13 @@
                                 <label for="email">E-mail</label>
                             </div>
                         </div>
-                        @if (empty($users))
+                        {{-- @if (empty($users)) --}}
                             <div class="col-md-6 mt-2">
                                 <div class="input-group input-group-merge">
                                     <div class="form-floating form-floating-outline">
                                         <input type="password" id="password"
-                                            class="form-control  @error('password') is-invalid @enderror"
-                                            name="password" required autocomplete="current-password" name="password"
+                                            class="form-control"
+                                            name="password" autocomplete="current-password" name="password"
                                             placeholder="············" aria-describedby="password">
                                         <label for="password">Password</label>
                                     </div>
@@ -69,8 +69,8 @@
                                     </span>
                                 </div>
                             </div>
-                            @endif
-                            {{-- <div class="col-md-6 mt-2"> --}}
+                        {{-- @endif --}}
+                        {{-- <div class="col-md-6 mt-2"> --}}
                         {{-- <div class="input-group input-group-merge">
                             <div class="form-floating form-floating-outline">
                                 <input type="password" id="password"

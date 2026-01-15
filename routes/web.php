@@ -181,6 +181,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/quotation/{id}/delete_payment', [QuotationController::class, 'delete_payment'])->name('delete-payment.quotation');
     Route::post('/quotation/{id}/confirm_payment', [QuotationController::class, 'confirm_payment'])->name('confirm-payment.quotation');
     Route::get('/quotation/revision/{id}', [QuotationController::class, 'edit_revisi'])->name('revisi.quotation');
+    Route::get('/quotation/edit-sparepart/{id}', [QuotationController::class, 'edit_parts'])->name('edit-sparepart.quotation');
+    Route::get('/quotation/edit-service/{id}', [QuotationController::class, 'edit_service'])->name('edit-service.quotation');
+    Route::patch('/quotation/edit-sparepart/{id}', [QuotationController::class, 'update_part'])->name('update-sparepart.quotation');
+    Route::patch('/quotation/edit-service/{id}', [QuotationController::class, 'update_service'])->name('edit-service.quotation');
     Route::get('/quotation/revision-overhaul/{id}', [QuotationController::class, 'revisionService'])->name('revisi-overhaul.quotation');
     Route::get('/quotation/print/{id}', [QuotationController::class, 'print_quote'])->name('print.quotation');
     Route::get('/quotation/pdf/{id}', [QuotationController::class, 'pdf_quote'])->name('pdf.quotation');
@@ -547,6 +551,7 @@ Route::group(["middleware" => "auth"], function () {
             ->whereNot('issue', 'Normal')
             ->whereNotNull('issue')
             ->whereMonth('monitoring.date', $month)
+            ->whereYear('monitoring.date', Carbon::today()->year)
             ->select(
                 DB::raw("DATE_FORMAT(monitoring.date, '%d-%m-%Y') as date"),
                 'monitoring.id',
@@ -1374,6 +1379,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/equity-print/{mounth}/{year}', [ExpenseController::class, 'printBulanEquity'])->name('expense-equity.print-bulan');
     Route::get('/equity-print/{year}', [ExpenseController::class, 'printTahunEquity'])->name('expense-equity.print-tahun');
 
+    Route::get('/cashflow', [ExpenseController::class, 'indexCashflow'])->name('expense-cashflow.index');
+    Route::get('/cashflow-print/{mounth}/{year}', [ExpenseController::class, 'printBulanCashflow'])->name('expense-cashflow.print-bulan');
+    Route::get('/cashflow-print/{year}', [ExpenseController::class, 'printTahunCashflow'])->name('expense-cashflow.print-tahun');
+
     // purchase request
     Route::get('/purchase-request', [PurchaseController::class, 'index'])->name('purchase-request.index');
     Route::post('/purchase-request/{id}', [PurchaseController::class, 'store'])->name('purchase-request.store');
@@ -1729,6 +1738,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')
+            ->whereNotNULL('client.npwp')
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
             ->get(['quotation.*', 'client.company', 'users.name']);
@@ -2688,7 +2698,7 @@ Route::group(["middleware" => "auth"], function () {
             },
             'quotation.pic.client'
         ])
-            ->whereYear('payment.created_at', Carbon::now()->year)
+            // ->whereYear('payment.created_at', Carbon::now()->year)
             ->orderByRaw("
         CASE 
             WHEN level = 0 AND file IS NOT NULL THEN 1
@@ -4863,6 +4873,7 @@ Route::group(["middleware" => "auth"], function () {
                 'product_in.invoice'
             )
             ->orderByDesc('product_in.date')
+            ->whereNotNull('product_in.no_invoice')
             ->get();
 
         return response()->json(['data' => $payable]);

@@ -23,6 +23,7 @@ $(function(){
                 var fromControl = $(this).find(".form-control, .form-select");
                 var stock = $(this).find(".info-stock-label");
                 var weight = $(this).find(".info-weight-label");
+                var del = $(this).find(".btn-del");
                 var formLabel = $(this).find(".form-label");
     
                 fromControl.each(function (i) {
@@ -59,6 +60,7 @@ $(function(){
                     $(amount[i]).val('');
                     $(amountLabel[i]).val('');
                     $(amount[i]).attr("data-id", row);
+                    $(del[i]).attr("data-id", row);
                     $(stock[i]).attr("id", idStock);
                     $(weight[i]).attr("id", idWeight);
                     col++;

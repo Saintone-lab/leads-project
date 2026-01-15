@@ -484,14 +484,14 @@ $(function () {
                     autoClose: true,
                     buttons: [
                         {
-                            text: "Quotation Sparepart",
+                            text: "Quotation Parts",
                             className: "dropdown-item",
                             action: function (e, dt, node, config) {
                                 window.location = route("create.quotation");
                             },
                         },
                         {
-                            text: "Quotation Service",
+                            text: "Quotation General",
                             className: "dropdown-item",
                             action: function (e, dt, node, config) {
                                 window.location = route(
@@ -500,7 +500,7 @@ $(function () {
                             },
                         },
                         {
-                            text: "Quotation Overhaul",
+                            text: "Quotation Service",
                             className: "dropdown-item",
                             attr: {
                                 "data-bs-target": "#chooseMachine",

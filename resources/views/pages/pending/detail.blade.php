@@ -476,7 +476,7 @@
                                     <pre class="mb-0"
                                         style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $item->detail_product }}</pre>
                                 </td>
-                                <td>{{ $item->equivalent->product->go }}</td>
+                                <td>{{ $item->equivalent->product->go ?? '-' }}</td>
                                 <td>{{ $item->qty }} {{ $item->info_qty }}</td>
                                 <td>{{ $pending->status == '6' ? 'Done' : $status }}</td>
                                 <td> {{ $pending->status == '6' ? 'Done' : $item->note }}</td>

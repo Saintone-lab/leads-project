@@ -41,6 +41,7 @@ class InvoiceController extends Controller
             ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')
+            ->whereNotNull('client.npwp')
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
             ->count();
@@ -88,6 +89,7 @@ class InvoiceController extends Controller
             ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')
+            ->whereNotNull('client.npwp')
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
             ->count();
@@ -233,6 +235,7 @@ class InvoiceController extends Controller
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')
             ->whereNotNull('quotation.po_file')
+            ->whereNotNull('client.npwp')
             ->whereNull('invoice.no_invoice')
             ->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
@@ -252,6 +255,7 @@ class InvoiceController extends Controller
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')
             ->whereNotNull('quotation.po_file')
+            ->whereNotNull('client.npwp')
             ->whereNull('invoice.no_invoice')
             ->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
@@ -271,6 +275,7 @@ class InvoiceController extends Controller
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')
             ->whereNotNull('quotation.po_file')
+            ->whereNotNull('client.npwp')
             ->whereNull('invoice.no_invoice')
             ->count();
         $dateNow = Carbon::now();

@@ -207,6 +207,21 @@
                                                     <option value="Hari"
                                                         {{ $quote->info_qty == 'Hari' ? 'selected' : '' }}>Hari
                                                     </option>
+                                                    <option value="Bulan"
+                                                        {{ $quote->info_qty == 'Bulan' ? 'selected' : '' }}>Bulan
+                                                    </option>
+                                                    <option value="Kg"
+                                                        {{ $quote->info_qty == 'Kg' ? 'selected' : '' }}>Kg
+                                                    </option>
+                                                    <option value="Tube"
+                                                        {{ $quote->info_qty == 'Tube' ? 'selected' : '' }}>Tube
+                                                    </option>
+                                                    <option value="Titik"
+                                                        {{ $quote->info_qty == 'Titik' ? 'selected' : '' }}>Titik
+                                                    </option>
+                                                    <option value="Batang"
+                                                        {{ $quote->info_qty == 'Batang' ? 'selected' : '' }}>Batang
+                                                    </option>
                                                 </select>
                                                 <label for="exampleFormControlSelect1">Info</label>
                                             </div>
@@ -232,7 +247,7 @@
                                     <div
                                         class="d-flex flex-column align-items-center justify-content-between border-start p-2">
                                         <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
-                                            data-repeater-delete=""></i>
+                                            data-id="{{ $id }}" data-repeater-delete=""></i>
                                     </div>
                                 </div>
                             </div>
@@ -272,8 +287,8 @@
                                                             @focus="focused = true" @blur="focused = false"
                                                             value="{{ old('price[1][]') }}">
                                                         <input class="form-control invoice-item-price" type="number"
-                                                            name="price[1][]" id="price-1-1" value="{{ old('price[1][]') }}"
-                                                            hidden>
+                                                            name="price[1][]" id="price-1-1"
+                                                            value="{{ old('price[1][]') }}" hidden>
                                                     </div>
                                                     <div class="d-flex justify-content-between mb-3">
                                                         <p>Stock : <span class="info-stock-label"
@@ -288,8 +303,8 @@
                                                 <div class="col-md-1 col-12 mb-md-0 mb-3">
                                                     <p class="mb-2 repeater-title">Qty</p>
                                                     <input type="number" class="form-control mb-4 invoice-item-qty"
-                                                        placeholder="Min 1" name="qty[1][]" id="qty-1-1" data-id="1"
-                                                        min="1" value="{{ old('qty[1][]') }}">
+                                                        placeholder="Min 1" name="qty[1][]" id="qty-1-1"
+                                                        data-id="1" min="1" value="{{ old('qty[1][]') }}">
                                                     <div class="form-floating form-floating-outline">
                                                         <select class="form-select invoice-item-info" id="info-qty-1-1"
                                                             data-id="1" aria-label="Default select example"
@@ -324,7 +339,7 @@
                                             <div
                                                 class="d-flex flex-column align-items-center justify-content-between border-start p-2">
                                                 <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
-                                                    data-repeater-delete=""></i>
+                                                    data-id="1" data-repeater-delete=""></i>
                                             </div>
                                         </div>
                                     </div>
@@ -417,6 +432,11 @@
                                                             <option value="Lot">Lot</option>
                                                             <option value="Meter">Meter</option>
                                                             <option value="Hari">Hari</option>
+                                                            <option value="Bulan">Bulan</option>
+                                                            <option value="Kg">Kg</option>
+                                                            <option value="Tube">Tube</option>
+                                                            <option value="Titik">Titik</option>
+                                                            <option value="Batang">Batang</option>
                                                         </select>
                                                         <label for="exampleFormControlSelect1">Info</label>
                                                     </div>
@@ -439,7 +459,7 @@
                                             <div
                                                 class="d-flex flex-column align-items-center justify-content-between border-start p-2">
                                                 <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
-                                                    data-repeater-delete=""></i>
+                                                    data-id="1" data-repeater-delete=""></i>
                                             </div>
                                         </div>
                                     </div>

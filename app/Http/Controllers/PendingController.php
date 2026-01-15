@@ -232,7 +232,22 @@ class PendingController extends Controller
     public function connect_out(Request $request, $id)
     {
         $pending = PendingPO::find($id);
-        // $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
+        $quote = Quotation::find($pending->id_quotation);
+        $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
+        $dPending = DetailPendingPO::where('id_pending', $id)->get();
+        $cekstock = 0;
+        foreach ($dPending as $detail) {
+            $cekstock += $detail->bdg + $detail->bks;
+        }
+        if ($cekstock == 0) {
+            foreach ($dQuote as $item) {
+                $equivalent = SerialProduct::find($item->id_equivalent);
+                $product = Product::find($equivalent->id_product);
+                $product->pending_stock -= $item->qty;
+                $product->stock += $item->qty;
+                $productSave = $product->save();
+            }
+        }
         $pending->id_product_out = $request->product;
         $pendingSave = $pending->save();
         if ($pendingSave) {
@@ -707,13 +722,13 @@ class PendingController extends Controller
     }
     public function clearReturn($id)
     {
-        $pending= PendingPO::find($id);
+        $pending = PendingPO::find($id);
         $pending->status = '6';
         $pending->save();
-        $return = Retur::where('id_pending',$id)->get();
+        $return = Retur::where('id_pending', $id)->get();
         foreach ($return as $retur) {
-        $retur->status = 1;
-        $returSave = $retur->save();
+            $retur->status = 1;
+            $returSave = $retur->save();
         }
         if ($returSave) {
             return 1;
