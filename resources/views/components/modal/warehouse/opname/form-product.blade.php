@@ -27,7 +27,7 @@
                         <div class="col-12 ">
                             <div class="form-floating form-floating-outline mb-2">
                                 <select class="select2 form-select" data-allow-clear="true" name="replacement"
-                                    id="replacement" >
+                                    id="replacement">
                                     <option> ---- Choose Replacement Here ---- </option>
                                     @foreach ($product as $replacement)
                                         <option value="{{ $replacement->id }}">
@@ -58,6 +58,12 @@
                                 <p class="mb-2 repeater-title">selisih</p>
                                 <input type="number" class="form-control" placeholder="Count Selisih Here..."
                                     name="stock_selisih" id="selisih" min='0' disabled value="">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating form-floating-outline">
+                                <textarea class="form-control" name="note" id="note" placeholder="Text Note Here..."></textarea>
+                                <label for="note">Note</label>
                             </div>
                         </div>
                     </div>

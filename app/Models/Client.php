@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Client extends Model
 {
     use HasFactory;
-    
+
     protected $table = "client";
     protected $dates = [
         'created_date',
@@ -47,20 +47,20 @@ class Client extends Model
     {
         return $this->belongsTo('App\Models\Service', 'id_service', 'id');
     }
-    
+
     // Extend Table
-    
+
     public function activities()
     {
         return $this->hasMany('App\Models\Activities', 'id_client');
     }
-    
+
     public function detail_client()
     {
         return $this->hasMany('App\Models\Detailclient', 'id_client');
     }
-    
-    
+
+
     public function visit()
     {
         return $this->hasMany('App\Models\Visit', 'id_client');
@@ -73,9 +73,9 @@ class Client extends Model
     {
         return $this->hasMany('App\Models\Machine', 'id_client');
     }
-    public function crm_status()
+    public function crmStatus()
     {
-        return $this->hasMany('App\Models\CrmStatus', 'id_client');
+        return $this->hasMany(CrmStatus::class, 'id_client');
     }
-    
+
 }

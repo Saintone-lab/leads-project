@@ -106,6 +106,9 @@
                 var rowId = $(this).data('id');
                 var csrfToken = $('meta[name="csrf-token"]').attr('content');
 
+                console.log('id = ' + rowId);
+                
+
                 $.ajax({
                     type: 'POST',
                     url: '/existing/update-status/' + rowId,

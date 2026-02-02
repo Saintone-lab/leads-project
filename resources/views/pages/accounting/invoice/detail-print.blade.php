@@ -229,7 +229,7 @@
                                     </td>
                                     <td class="align-top">
                                         <p>
-                                            {{ $product->disc }}%
+                                            {{ $product->disc }} %
                                         </p>
                                     </td>
                                     @if ($quote->tax != 0)
@@ -770,10 +770,10 @@
                                     @endphp
                                     <tr
                                         style="font-size: 13px; border-bottom:none !important; border-top:none !important;">
-                                        <td class="align-top py-1" style="border-bottom:none !important;">
+                                        <td class="align-middle py-1" style="border-bottom:none !important;">
                                             <p class="mb-1">{{ $no }}</p>
                                         </td>
-                                        <td class="text-nowrap align-top py-1" style="border-bottom:none !important;">
+                                        <td class="text-nowrap align-middle py-1" style="border-bottom:none !important;">
                                             {{-- <p class="mb-1">{{ $product->product }}</p> --}}
                                             <pre class="mb-0"
                                                 style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->product }}</pre>
@@ -782,25 +782,25 @@
                                                     style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail }}</pre>
                                             @endif --}}
                                         </td>
-                                        <td class="align-top text-end" style="padding-bottom: 0px;">
+                                        <td class="align-middle text-end" style="padding-bottom: 0px;">
                                             <p>
                                                 {{ number_format($product->price, 0, '', '.') }}
                                             </p>
                                         </td>
-                                        <td class="align-top py-1" style="border-bottom:none !important;">
+                                        <td class="align-middle py-1" style="border-bottom:none !important;">
                                             <p class="mb-0">{{ $product->qty }} {{ $product->info_qty }}</p>
                                         </td>
-                                        <td class="align-top py-1" style="border-bottom:none !important;">
-                                            <p class="mb-0">{{ $product->disc }}</p>
+                                        <td class="align-middle py-1" style="border-bottom:none !important;">
+                                            <p class="mb-0">{{ $product->disc }} %</p>
                                         </td>
                                         @if ($quote->tax != 0)
-                                            <td class="align-top text-end" style="padding-bottom: 0px;">
+                                            <td class="align-middle text-end" style="padding-bottom: 0px;">
                                                 <p>
                                                     {{ number_format($dpp, 0, '', '.') }}
                                                 </p>
                                             </td>
                                         @endif
-                                        <td class="align-top py-1 text-end" style="border-bottom:none !important;">
+                                        <td class="align-middle py-1 text-end" style="border-bottom:none !important;">
                                             <p class="mb-0">RP {{ number_format($product->amount, 0, '', '.') }}</p>
                                         </td>
                                     </tr>
@@ -1286,15 +1286,15 @@
             </div>
 
             @if ($invoice->type == 'CT')
-                <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
+                <p class="fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
                     amount: #
                     {{ $fullPrice }} Rupiah</p>
             @elseif ($invoice->type == 'DP')
-                <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
+                <p class="fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
                     amount: #
                     {{ $priceDp }} Rupiah</p>
             @elseif ($invoice->type == 'BP')
-                <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
+                <p class="fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
                     amount: #
                     {{ $priceBp }} Rupiah</p>
             @endif

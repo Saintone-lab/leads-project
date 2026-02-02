@@ -117,8 +117,15 @@
                     Product Info
                 </h5>
                 @if ($product->accept == 0)
-                    <a href="#" class="btn btn-success d-grid w-100 waves-effect accept-product"
-                        data-id="{{ $product->id }}">Confirm Purchase</a>
+                    <div class="functional d-flex justify-content-between">
+                        <a class="mx-2" type="button" data-bs-toggle="modal" data-bs-target="#addPPH">
+                            <button type="button" class="btn btn-primary">
+                                Add PPH
+                            </button>
+                        </a>
+                        <a href="#" class="btn btn-success d-grid waves-effect accept-product"
+                            data-id="{{ $product->id }}">Confirm Purchase</a>
+                    </div>
                 @endif
             </div>
 
@@ -130,6 +137,9 @@
                             <th>Desc</th>
                             <th>Qty</th>
                             <th>Price</th>
+                            @if ($product->pph > 0)
+                                <th>PPH</th>
+                            @endif
                             <th>Amount</th>
                         </tr>
                     </thead>
@@ -154,6 +164,9 @@
                                     {{ $products->detailProduct->product->unit }}
                                 </td>
                                 <td class="align-top">RP {{ number_format($products->modal, 0, '', '.') }}</td>
+                                @if ($product->pph > 0)
+                                    <td class="align-top">RP {{ number_format($product->pph, 0, '', '.') }}</td>
+                                @endif
                                 <td class="align-top">RP {{ number_format($products->amount, 0, '', '.') }}</td>
                             </tr>
                         @endforeach
@@ -171,6 +184,7 @@
             </div>
         </div>
     </div>
+    @include('components.modal.payable.pph')
 @endsection()
 
 @push('after-style')
@@ -203,6 +217,29 @@
 
 @push('script')
     <script>
+        function formatNumber(n) {
+            return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+        }
+
+        $(".invoice-item-pph-label").on('keyup', function() {
+            var input = $(this)
+            var input_val = input.val();
+
+            // original length
+            var original_len = input_val.length;
+
+            // add commas to number
+            // remove all non-digits
+            input_val = formatNumber(input_val);
+            input_val = input_val;
+
+            // send updated string to input
+            input.val(input_val);
+            var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+            console.log(nomorInt);
+            $(`#pph`).val(nomorInt);
+        });
+
         $(document).on('click', '.accept-product', function() {
             var id = $(this).data('id');
             Swal.fire({

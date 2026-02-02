@@ -23,129 +23,245 @@
                 </thead>
                 <tbody class="text-dark">
                     <tr>
-                        <td colspan="2" class="fw-medium">Arus Kas dari Aktivitas Operasi</td>
+                        <td colspan="2">
+                            <span class="lvl-0">
+                                Arus Kas dari Aktivitas Operasi
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td>Kas dari Penjualan</td>
+                        <td>
+                            <span class="lvl-1">
+                                Kas dari Penjualan
+                            </span>
+                        </td>
                         <td>{{ number_format($quotation, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td class="fw-medium">Pendapatan Lain Lain</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Pendapatan Lain Lain
+                            </span>
+                        </td>
                         <td class="fw-medium">{{ number_format($income, 0, ',', '.') }}</td>
                     </tr>
                     @foreach ($pendapatan as $item)
                         <tr>
-                            <td>{{ $item->description }}</td>
+                            <td>
+                                <span class="lvl-3">
+                                    {{ $item->description }}
+                                </span>
+                            </td>
                             <td>{{ number_format($item->amount, 0, ',', '.') }}</td>
                         </tr>
                     @endforeach
                     <tr>
-                        <td>Kas Untuk Pembelian</td>
+                        <td>
+                            <span class="lvl-1">
+                                Kas Untuk Pembelian
+                            </span>
+                        </td>
                         <td>TBA</td>
                     </tr>
                     @foreach ($expensePerAccount as $item)
                         <tr>
-                            <td>{{ $item->name }}</td>
+                            <td>
+                                <span class="lvl-3">
+                                    {{ $item->name }}
+                                </span>
+                            </td>
                             <td class="text-danger">-{{ number_format($item->total_amount, 0, ',', '.') }}</td>
                         </tr>
                     @endforeach
                     <tr>
                         <td>
-                            <h5>Biaya Lain Lain</h5>
+                            <span class="lvl-1">
+                                Biaya Lain Lain
+                            </span>
                         </td>
-                        <td>{{ number_format($item->outcome, 0, ',', '.') }}</td>
+                        <td>TBA</td>
                     </tr>
                     @foreach ($biaya as $item)
                         <tr>
-                            <td>{{ $item->description }}</td>
+                            <td>
+                                <span class="lvl-3">
+                                    {{ $item->description }}
+                                </span>
+                            </td>
                             <td class="text-danger">-{{ number_format($item->amount, 0, ',', '.') }}</td>
                         </tr>
                     @endforeach
                     <tr>
                         <td>
-                            <h5>Laba/Rugi Penghentian Aktiva Tetap</h5>
+                            <span class="lvl-1">
+                                Laba/Rugi Penghentian Aktiva Tetap
+                            </span>
                         </td>
                         <td>TBA</td>
                     </tr>
                     <tr>
-                        <td class="fw-medium">Laba(Rugi) Operasi sebelum berubah di Operasi Aktiva dan Kewajiban</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Laba(Rugi) Operasi sebelum berubah di Operasi Aktiva dan Kewajiban
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">TBA</td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fs-4 fw-bolder">Berkurang(Bertambah) pada Operasi Aktiva</td>
+                        <td colspan="2">
+                            <span class="lvl-1">
+                                Berkurang(Bertambah) pada Operasi Aktiva
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="fw-medium">Persediaan Barang Dagang</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Persediaan Barang Dagang
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">TBA</td>
                     </tr>
                     <tr>
-                        <td>Screw Compressor 132 KW</td>
+                        <td>
+                            <span class="lvl-3">
+                                Screw Compressor 132 KW
+                            </span>
+                        </td>
                         <td>TBA</td>
                     </tr>
                     <tr>
-                        <td>Piutang Lain-lain IDR</td>
+                        <td>
+                            <span class="lvl-3">
+                                Piutang Lain-lain IDR
+                            </span>
+                        </td>
                         <td>{{ number_format($piutang, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>PPN Masukan</td>
+                        <td>
+                            <span class="lvl-3">
+                                PPN Masukan
+                            </span>
+                        </td>
                         <td>{{ number_format($ppnMas, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>Transakasi Aktiva Tetap</td>
+                        <td>
+                            <span class="lvl-3">
+                                Transakasi Aktiva Tetap
+                            </span>
+                        </td>
                         <td class="text-danger">TBA</td>
                     </tr>
                     <tr>
-                        <td class="fw-bolder">Akumulasi Penyusutan</td>
+                        <td class="fw-bolder">
+                            <span class="lvl-2">
+                                Akumulasi Penyusutan
+                            </span>
+                        </td>
                         <td class="text-danger">TBA</td>
                     </tr>
                     <tr>
-                        <td>Akum. Peny. Mesin</td>
+                        <td>
+                            <span class="lvl-2">
+                                Akum. Peny. Mesin
+                            </span>
+                        </td>
                         <td class="text-danger">TBA</td>
                     </tr>
                     <tr>
-                        <td class="fw-bolder">Jumlah Berkurang(Bertambah) pada Operasi Aktiva</td>
+                        <td>
+                            <span class="lvl-1">
+                                Jumlah Berkurang(Bertambah) pada Operasi Aktiva
+                            </span>
+                        </td>
                         <td class="text-danger border-top">TBA</td>
                     </tr>
                     <tr>
-                        <td class="fw-bolder fs-5">Bertambah (berkurang) pada Operasi Kewajiban</td>
+                        <td>
+                            <span class="lvl-1">
+                                Bertambah (berkurang) pada Operasi Kewajiban
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td>PPN Keluaran</td>
+                        <td>
+                            <span class="lvl-2">
+                                PPN Keluaran
+                            </span>
+                        </td>
                         <td class="border-top">-{{ number_format($ppnKel, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td class="fw-bolder">Jumlah Bertambah (berkurang) pada Operasi Kewajiban</td>
+                        <td>
+                            <span class="lvl-1">
+                                Jumlah Bertambah (berkurang) pada Operasi Kewajiban
+                            </span>
+                        </td>
                         <td class="text-danger border-top">-{{ number_format($ppnKel, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td class="fw-bolder">Kas bersih (dipakai)/ dihasilkan oleh Aktivitas Operasi</td>
+                        <td>
+                            <span class="lvl-1">
+                                Kas bersih (dipakai)/ dihasilkan oleh Aktivitas Operasi
+                            </span>
+                        </td>
                         <td class="border-top">TBA</td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-bold fs-4">Arus Kas dari Aktivitas Investasi</td>
+                        <td colspan="2">
+                            <span class="lvl-0">
+                                Arus Kas dari Aktivitas Investasi
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="fw-bolder">Akumulasi Penyusutan</td>
+                        <td>
+                            <span class="lvl-1">
+                                Akumulasi Penyusutan
+                            </span>
+                        </td>
                         <td class="text-danger">TBA</td>
                     </tr>
                     <tr>
-                        <td>Peralatan Kantor</td>
+                        <td>
+                            <span class="lvl-3">
+                                Peralatan Kantor
+                            </span>
+                        </td>
                         <td>TBA</td>
                     </tr>
                     <tr>
-                        <td>Transaksi Aktiva Tetap</td>
+                        <td>
+                            <span class="lvl-3">
+                                Transaksi Aktiva Tetap
+                            </span>
+                        </td>
                         <td class="text-danger">TBA</td>
                     </tr>
                     <tr>
-                        <td>Tools</td>
+                        <td>
+                            <span class="lvl-3">
+                                Tools
+                            </span>
+                        </td>
                         <td class="text-danger">TBA</td>
                     </tr>
                     <tr>
-                        <td>Mesin Compressor</td>
+                        <td>
+                            <span class="lvl-3">
+                                Mesin Compressor
+                            </span>
+                        </td>
                         <td>TBA</td>
                     </tr>
                     <tr>
-                        <td class="fw-medium">Kas bersih yg dihasilkan / (dipakai) oleh Aktivitas Investasi</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Kas bersih yg dihasilkan / (dipakai) oleh Aktivitas Investasi
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">TBA</td>
                     </tr>
                     <tr>

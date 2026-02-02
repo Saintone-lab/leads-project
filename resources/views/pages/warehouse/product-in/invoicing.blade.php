@@ -32,7 +32,8 @@
                                     data-allow-clear="true" name="supplier" data-id="1">
                                     <option selected>Pilih Supplier...</option>
                                     @foreach ($suppliers as $supp)
-                                        <option value="{{ $supp->id }}" data-info="{{ $supp->info }}" {{ $supp->id == $productIn->id_supplier ? 'selected' : '' }}>
+                                        <option value="{{ $supp->id }}" data-info="{{ $supp->info }}"
+                                            {{ $supp->id == $productIn->id_supplier ? 'selected' : '' }}>
                                             {{ $supp->supplier }}
                                         </option>
                                     @endforeach
@@ -102,6 +103,7 @@
                                                     class="select2 form-select invoice-item-replacement"
                                                     data-allow-clear="true" name="replacement[]" data-id="1" disabled>
                                                     <option selected>
+                                                        {{ $product->detailProduct->product->description }}
                                                         {{ $product->detailProduct->product->commodity }}
                                                         ({{ $product->detailProduct->product->detail_desc }})
                                                         ||

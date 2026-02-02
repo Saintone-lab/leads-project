@@ -6,7 +6,7 @@
             Detail Of {{ $invoice->no_po ?? $quotation->pic->client->company }}
         </h5>
         <div class="tombol">
-            @if ($pending->status != '6' && $pending->status != '8')
+            @if ($pending->status != '6' && $pending->status != '8' && $pending->status != '9')
                 <button type="button" class="btn btn-primary dropdown-toggle waves-effect waves-light"
                     data-bs-toggle="dropdown" aria-expanded="false" {{ auth::user()->role != 'Sales' ? '' : 'disabled' }}>
                     Update
@@ -31,6 +31,15 @@
                         Retur Barang
                     </button>
                 @endif
+            @elseif ($pending->status == '9')
+                <button type="button" class="btn btn-primary done-po" data-id="{{ $pending->id }}"
+                    {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                    Done
+                </button>
+                <button type="button" class="btn btn-reddit" data-bs-toggle="modal" data-bs-target="#inputProductOut"
+                    {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                    Connect Product Out
+                </button>
             @endif
             <a href="{{ route('pending-po.index') }}" type="button" class="btn btn-secondary"> Back </a>
         </div>
@@ -663,6 +672,12 @@
                             } elseif ($stats->status == '7') {
                                 $status = 'Pending is Canceled';
                                 $color = 'danger';
+                            } elseif ($stats->status == '8') {
+                                $status = 'Retur Product';
+                                $color = 'warning';
+                            } elseif ($stats->status == '9') {
+                                $status = 'Delayed Done';
+                                $color = 'secondary';
                             } else {
                                 $status = 'Pending Created';
                                 $color = 'info';
@@ -1118,6 +1133,63 @@
                 }
             });
         });
-    
+        $(document).on('click', '.done-po', function() {
+            var id = $(this).data('id');
+            var pending = $(this).data('pending');
+            Swal.fire({
+                title: "Are you sure to Done it??",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Done it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('pending-po') }}/done/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Done!",
+                                    text: "This Notulen has been Done.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/pending-po/product-out-project/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Done!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        
     </script>
 @endpush

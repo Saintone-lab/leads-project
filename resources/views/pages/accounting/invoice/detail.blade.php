@@ -1210,15 +1210,15 @@
                 @endif
 
                 @if ($invoice->type == 'CT')
-                    <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
+                    <p class="fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
                         amount: #
                         {{ $fullPrice }} Rupiah</p>
                 @elseif ($invoice->type == 'DP')
-                    <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
+                    <p class="fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
                         amount: #
                         {{ $priceDp }} Rupiah</p>
                 @elseif ($invoice->type == 'BP')
-                    <p class="fs-5 fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
+                    <p class="fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width:70%;"> Say
                         amount: #
                         {{ $priceBp }} Rupiah</p>
                 @endif

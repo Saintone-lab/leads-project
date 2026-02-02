@@ -69,7 +69,7 @@
                 <span class="menu-header-text">Sales & Marketing</span>
             </li>
             <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('ru') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('ru') || request()->is('existing-bangkrupt') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
                     <div data-i18n="Client">Client</div>
@@ -92,6 +92,11 @@
                     <li class="menu-item {{ request()->is('ru') ? 'active' : '' }}">
                         <a href="{{ route('ru.index') }}" class="menu-link">
                             <div data-i18n="R/U">R/U</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('existing-bangkrupt') ? 'active' : '' }}">
+                        <a href="{{ route('index.bangkrupt') }}" class="menu-link">
+                            <div data-i18n="List Bangkrupt">List Bangkrupt</div>
                         </a>
                     </li>
                 </ul>
@@ -544,7 +549,7 @@
                     </ul>
                 </li>
                 <li
-                    class="menu-item {{ request()->is('income') || request()->is('income/*') || request()->is('income/*/*') || request()->is('balance') || request()->is('balance/*') || request()->is('balance/*/*') || request()->is('equity') || request()->is('equity/*') || request()->is('equity/*/*') ||  request()->is('cashflow') || request()->is('cashflow/*') || request()->is('cashflow/*/*') ? 'open' : '' }}">
+                    class="menu-item {{ request()->is('income') || request()->is('income/*') || request()->is('income/*/*') || request()->is('balance') || request()->is('balance/*') || request()->is('balance/*/*') || request()->is('equity') || request()->is('equity/*') || request()->is('equity/*/*') || request()->is('cashflow') || request()->is('cashflow/*') || request()->is('cashflow/*/*') ? 'open' : '' }}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons mdi mdi-book-open-outline"></i>
                         <div data-i18n="Statement">Statement</div>
@@ -838,7 +843,7 @@
                 <span class="menu-header-text">Client</span>
             </li>
             <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('ru') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('ru') || request()->is('existing-bangkrupt') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
                     <div data-i18n="Client">Client</div>
@@ -861,6 +866,11 @@
                     <li class="menu-item {{ request()->is('ru') ? 'active' : '' }}">
                         <a href="{{ route('ru.index') }}" class="menu-link">
                             <div data-i18n="R/U">R/U</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('existing-bangkrupt') ? 'active' : '' }}">
+                        <a href="{{ route('index.bangkrupt') }}" class="menu-link">
+                            <div data-i18n="List Bangkrupt">List Bangkrupt</div>
                         </a>
                     </li>
                 </ul>
@@ -1250,7 +1260,7 @@
                 <span class="menu-header-text">Client</span>
             </li>
             <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('ru') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('ru') || request()->is('existing-bangkrupt') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
                     <div data-i18n="Client">Client</div>
@@ -1273,6 +1283,11 @@
                     <li class="menu-item {{ request()->is('ru') ? 'active' : '' }}">
                         <a href="{{ route('ru.index') }}" class="menu-link">
                             <div data-i18n="R/U">R/U</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('existing-bangkrupt') ? 'active' : '' }}">
+                        <a href="{{ route('index.bangkrupt') }}" class="menu-link">
+                            <div data-i18n="List Bangkrupt">List Bangkrupt</div>
                         </a>
                     </li>
                 </ul>

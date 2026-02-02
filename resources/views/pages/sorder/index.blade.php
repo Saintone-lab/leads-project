@@ -68,6 +68,19 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
+                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
+                        data-bs-target="#navs-pills-top-delay" aria-controls="navs-pills-top-delay" aria-selected="false"
+                        tabindex="-1">
+                        Delayed Done
+                        {{-- @if (@$noInvoiceCountNP >= 1)
+                            <div class="badge bg-danger rounded-pill ms-auto">{{ $noInvoiceCountNP }}</div>
+                        @endif --}}
+                        @if (@$delayedCount >= 1)
+                            <div class="badge bg-danger rounded-pill ms-auto">{{ $delayedCount }}</div>
+                        @endif
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
                     <button type="button"
                         class="nav-link {{ auth::user()->role == 'Admin' ? 'active' : '' }} waves-effect waves-light"
                         role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-top-donenp"
@@ -233,10 +246,29 @@
                         </table>
                     </div>
                 </div>
-                <div class="tab-pane fade"
-                    id="navs-pills-top-retur" role="tabpanel">
+                <div class="tab-pane fade" id="navs-pills-top-retur" role="tabpanel">
                     <div class="card-datatable pt-0">
                         <table class="datatable-sales-completed-retur table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>No PO</th>
+                                    <th>No Invoice</th>
+                                    <th>PO Date</th>
+                                    <th>Customer</th>
+                                    <th>Part Desc</th>
+                                    <th>Status</th>
+                                    <th>Payment</th>
+                                    <th>Delivery</th>
+                                    <th>Sales</th>
+                                    <th>Team</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="navs-pills-top-delay" role="tabpanel">
+                    <div class="card-datatable pt-0">
+                        <table class="datatable-sales-search-delay table table-bordered">
                             <thead>
                                 <tr>
                                     <th>No PO</th>
@@ -362,6 +394,7 @@
     <script src="{{ asset('assets') }}/includes/table-search-sales-ready.js"></script>
     <script src="{{ asset('assets') }}/includes/table-search-sales-retur.js"></script>
     <script src="{{ asset('assets') }}/includes/table-search-sales-jadwal.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-search-sales-delay.js"></script>
 
     <script src="{{ asset('assets') }}/includes/table-search-sales-delivery.js"></script>
     <script src="{{ asset('assets') }}/includes/table-search-sales-delivery-admin.js"></script>

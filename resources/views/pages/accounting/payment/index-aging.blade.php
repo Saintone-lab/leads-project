@@ -87,7 +87,7 @@
                 <div class="tab-pane fade show active" id="navs-pills-top-general" role="tabpanel">
                     <div class="row mb-3">
                         <div class="col-4">
-                            <div class="card shadow-none bg-transparent border border-primary mb-3">
+                            <div class="card shadow-none bg-transparent border border-primary mb-3" data-bs-toggle="modal" data-bs-target="#detailOutstanding">
                                 <div class="card-body">
                                     <h5 class="card-title">Total Outstanding</h5>
                                     <h2 class="card-text text-primary">Rp.
@@ -115,7 +115,7 @@
                             </div>
                         </div>
                         <div class="col-4">
-                            <div class="card shadow-none bg-transparent border border-danger mb-3">
+                            <div class="card shadow-none bg-transparent border border-danger mb-3" data-bs-toggle="modal" data-bs-target="#detailOverdue">
                                 <div class="card-body">
                                     <h5 class="card-title">Total Overdue</h5>
                                     <h2 class="card-text text-danger">Rp.
@@ -143,7 +143,7 @@
                             </div>
                         </div>
                         <div class="col-4">
-                            <div class="card shadow-none bg-transparent border border-success mb-3">
+                            <div class="card shadow-none bg-transparent border border-success mb-3" data-bs-toggle="modal" data-bs-target="#detailOnDue">
                                 <div class="card-body">
                                     <h5 class="card-title">Total On Due</h5>
                                     <h2 class="card-text text-success">Rp.
@@ -401,6 +401,9 @@
 
         {{-- Batasss --}}
     </div>
+    @include('components.modal.payment.outstanding')
+    @include('components.modal.payment.overdue')
+    @include('components.modal.payment.ondue')
 @endsection()
 
 @push('after-style')

@@ -101,6 +101,78 @@ class CrmController extends Controller
 
         return view("pages.sales.existing.index", compact('leveledProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'noSaleProspect'));
     }
+    public function indexBangkrupt()
+    {
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
+
+        // Comment Buat Admin
+        $firstComments = Comment::where('id_user', Auth::id())
+            ->groupBy('id_status')
+            ->get();
+
+        $statusIds = $firstComments->pluck('id_status')->toArray();
+        $dates = $firstComments->pluck('created_at', 'id_status');
+
+        $commentsQuery = Comment::join('change_status as c', 'c.id', '=', 'comment.id_status')
+            ->join('quotation as q', 'q.id', '=', 'c.id_quotation')
+            ->join('users as u', 'u.id', '=', 'comment.id_user')
+            ->whereIn('comment.id_status', $statusIds)
+            ->where(function ($query) use ($dates) {
+                foreach ($dates as $statusId => $createdAt) {
+                    $query->orWhere(function ($subQuery) use ($statusId, $createdAt) {
+                        $subQuery->where('comment.id_status', $statusId)
+                            ->whereRaw('TIMESTAMPDIFF(SECOND, ?, comment.created_at) > 0', [$createdAt]);
+                    });
+                }
+            })
+            ->where('comment.id_user', '!=', Auth::id());
+
+        // Ambil semua komentar yang relevan
+        $commentAdmin = $commentsQuery->orderBy('comment.id_status')
+            ->orderByDesc('comment.created_at')
+            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+        // Filter untuk komentar dengan level '1'
+        $unreadCommentAdmin = $commentsQuery->where('comment.level', '1')
+            ->orderBy('comment.id_status')
+            ->orderByDesc('comment.created_at')
+            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+        // End Comment Admin
+        $quotationComment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', 'o.id_status', '=', 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.type', 'quotation')  // Pastikan filter type di sini
+            ->where('o.id_user', '!=', Auth::id())
+            ->orderBy('o.date', 'DESC')
+            ->select(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.level', 'o.comment', 'o.date', 'o.type', 'quotation.no_quote', 'u.name', 'u.image']);
+
+        // Query untuk mengambil data dengan type "prospect"
+        $prospectComment = Comment::join('prospect as p', 'comment.id_prospect', '=', 'p.id')
+            ->join('users as u', 'u.id', '=', 'comment.id_user')
+            ->join('pic as pi', 'pi.id', '=', 'p.id_pic')
+            ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->where('p.id_sales', Auth::id())
+            ->where('comment.type', 'prospect')  // Pastikan filter type di sini
+            ->where('comment.id_user', '!=', Auth::id())
+            ->orderBy('comment.date', 'DESC')
+            ->select(['p.id as idP', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'comment.type', 'c.company', 'u.name', 'u.image']);
+
+        // Menggabungkan kedua query menggunakan union
+        $comment = $quotationComment->union($prospectComment)
+            ->orderBy('date', 'DESC')
+            ->take(5)
+            ->get();
+        $unreadComment = $quotationComment->union($prospectComment)
+            ->orderBy('date', 'DESC')
+            ->where('o.level', '1')
+            ->take(5)
+            ->get();
+
+        return view("pages.sales.existing.bangkrupt", compact('leveledProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'noSaleProspect'));
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -391,21 +463,20 @@ class CrmController extends Controller
 
     public function updateStatusAtDropdown(Request $request, $id)
     {
-        if ($request->isMethod('post')) {
-            $crmStat = CrmStatus::where('id_client', $id)->first();
-            if (!$crmStat) {
-                return response()->json(['error' => 'Data tidak ditemukan'], 404);
-            }
-            $crmStat->status = $request->status;
-            $crmStatSave = $crmStat->save();
-            if ($crmStatSave) {
-                return response()->json(['success' => 'Status berhasil diperbarui']);
-            } else {
-                return response()->json(['error' => 'Gagal menyimpan perubahan status'], 500);
-            }
-        } else {
-            return response()->json(['error' => 'Metode request tidak valid'], 405);
+        $crmStat = CrmStatus::where('id_client', $id)->first();
+
+        if (!$crmStat) {
+            $crmStat = new CrmStatus();
+            $crmStat->id_client = $id;
         }
+
+        $crmStat->status = $request->status;
+
+        if ($crmStat->save()) {
+            return response()->json(['success' => 'Status berhasil diperbarui']);
+        }
+
+        return response()->json(['error' => 'Gagal menyimpan perubahan status'], 500);
     }
 
     public function ruIndex()
@@ -489,7 +560,7 @@ class CrmController extends Controller
         $client = Client::find($id);
         $picIds = Pic::where('id_client', $id)->pluck('id'); // hanya ambil ID-nya
         $quotePO = Quotation::whereIn('id_pic', $picIds)
-            ->whereYear('po_date', $yearNow)
+            ->whereYear('po_date', 2025)
             ->where('status', '100')
             ->where('is_primary', '1')
             ->where('level', '1')

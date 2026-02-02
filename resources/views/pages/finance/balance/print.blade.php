@@ -23,172 +23,353 @@
                 </thead>
                 <tbody class="text-dark">
                     <tr>
-                        <td colspan="2" class="fw-medium">Aktiva</td>
+                        <td colspan="2">
+                            <span class="lvl-0">
+                                Aktiva
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium"> Aktiva Lancar</td>
+                        <td colspan="2">
+                            <span class="lvl-1">
+                                Aktiva Lancar
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="fw-medium"> Bank</td>
+                        <td>
+                            <span class="lvl-2">
+                                Bank
+                            </span>
+                        </td>
                         <td class="fw-medium">TBA</td>
                     </tr>
                     <tr>
-                        <td> BCA IDR</td>
+                        <td>
+                            <span class="lvl-3">
+                                BCA IDR
+                            </span>
+                        </td>
                         <td>TBA</td>
                     </tr>
                     <tr>
-                        <td> Capital Cabang Palembang</td>
+                        <td>
+                            <span class="lvl-3">
+                                Capital Cabang Palembang
+                            </span>
+                        </td>
                         <td>TBA</td>
                     </tr>
                     <tr>
-                        <td> Modal Cabang Palembang</td>
+                        <td>
+                            <span class="lvl-3">
+                                Modal Cabang Palembang
+                            </span>
+                        </td>
                         <td>TBA</td>
                     </tr>
                     <tr>
-                        <td class="fw-medium">Jumlah Kas dan Bank</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah Kas dan Bank
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">TBA</td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium">Piutang Dagang</td>
+                        <td colspan="2">
+                            <span class="lvl-1">
+                                Piutang Dagang
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="fw-medium"> Piutang Usaha</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Piutang Usaha
+                            </span>
+                        </td>
                         <td class="fw-medium">{{ number_format($piutang, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td> Piutang Usaha</td>
+                        <td>
+                            <span class="lvl-3">
+                                Piutang Usaha
+                            </span>
+                        </td>
                         <td>{{ number_format($piutang, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td class="fw-medium">Jumlah Piutang Dagang</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah Piutang Dagang
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">{{ number_format($piutang, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium">Persediaan</td>
+                        <td colspan="2">
+                            <span class="lvl-1">
+                                Persediaan
+                            </span>
+
+                        </td>
                     </tr>
                     <tr>
-                        <td class="fw-medium"> Persediaan Barang Dagang</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Persediaan Barang Dagang
+                            </span>
+                        </td>
                         <td class="fw-medium">{{ number_format($asset, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td> Persediaan Barang Dagang</td>
+                        <td>
+                            <span class="lvl-3">
+                                Persediaan Barang Dagang
+                            </span>
+                        </td>
                         <td>{{ number_format($asset, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td class="fw-medium">Jumlah Persediaan</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah Persediaan
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">{{ number_format($asset, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium">Aktiva Lancar Lainnya</td>
+                        <td colspan="2">
+                            <span class="lvl-1">
+                                Aktiva Lancar Lainnya
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="fw-medium"> PPN Masukan</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                PPN Masukan
+                            </span>
+                        </td>
                         <td class="fw-medium">{{ number_format($ppnMas, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td class="fw-medium"> Jumlah Aktiva Lancar Lainnya</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah Aktiva Lancar Lainnya
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">{{ number_format($ppnMas, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td class="fw-medium">Jumlah Aktiva Lancar</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah Aktiva Lancar
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">{{ number_format($totalLancar, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-bold">Aktiva Tetap</td>
+                        <td colspan="2">
+                            <span class="lvl-0">
+                                Aktiva Tetap
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium">Nilai Histori</td>
+                        <td colspan="2">
+                            <span class="lvl-1">
+                                Nilai Histori
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="fw-medium"> Aset Tetap</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Aset Tetap
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">{{ number_format($totalFixed, 0, ',', '.') }}</td>
                     </tr>
                     @foreach ($fixedAsset as $item)
                         <tr>
-                            <td>{{ $item->type }}</td>
+                            <td>
+                                <span class="lvl-3">
+                                    {{ $item->type }}
+                                </span>
+                            </td>
                             <td>{{ number_format($item->total_amount, 0, ',', '.') }}</td>
                         </tr>
                     @endforeach
                     <tr>
-                        <td class="fw-medium">Jumlah Nilai Histori</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah Nilai Histori
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">{{ number_format($totalFixed ?? 0, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium">Akumulasi Penyusutan</td>
+                        <td colspan="2">
+                            <span class="lvl-1">
+                                Akumulasi Penyusutan
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="fw-medium"> Akumulasi Penyusutan</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Akumulasi Penyusutan
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">{{ number_format($grandTotalPenyusutan, 0, ',', '.') }}</td>
                     </tr>
                     @foreach ($penyusutan as $item)
                         <tr>
-                            <td>Akum. Penys. {{ $item['type'] }}</td>
+                            <td>
+                                <span class="lvl-3">
+                                    Akum. Penys. {{ $item['type'] }}
+                                </span>
+                            </td>
                             <td class="text-danger"> - {{ number_format($item['total_penyusutan'], 0, ',', '.') }}</td>
                         </tr>
                     @endforeach
                     <tr>
-                        <td class="fw-medium">Jumlah Akumulasi Penyusutan</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah Akumulasi Penyusutan
+                            </span>
+                        </td>
                         <td class="text-danger border-top">{{ number_format($grandTotalPenyusutan ?? 0, 0, ',', '.') }}
                         </td>
                     </tr>
                     <tr>
-                        <td class="fw-medium">Jumlah Aktiva Tetap</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah Aktiva Tetap
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">{{ number_format($totalTetap ?? 0, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium">OTHER ASSETS</td>
+                        <td colspan="2">
+                            <span class="lvl-1">
+                                OTHER ASSETS
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="fw-medium">Jumlah OTHER ASSETS</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah OTHER ASSETS
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">{{ number_format(0, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td class="fw-medium">Jumlah Aktiva</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah Aktiva
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">{{ number_format($totalAktiva, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium">Kewajiban dan Ekuitas</td>
+                        <td colspan="2">
+                            <span class="lvl-1">
+                                Kewajiban dan Ekuitas
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium">Kewajiban</td>
+                        <td colspan="2">
+                            <span class="lvl-1">
+                                Kewajiban
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium">Kewajiban Lancar</td>
+                        <td colspan="2">
+                            <span class="lvl-1">
+                                Kewajiban Lancar
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium">Hutang Dagang</td>
+                        <td colspan="2">
+                            <span class="lvl-1">
+                                Hutang Dagang
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="fw-medium">Jumlah Hutang Dagang</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah Hutang Dagang
+                            </span>
+                        </td>
                         <td class="fw-medium border-top">{{ number_format(0, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium">Kewajiban Lancar Lain</td>
+                        <td colspan="2" class="fw-medium">
+                            <span class="lvl-1">
+                                Kewajiban Lancar Lain
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td> PPN Keluaran</td>
+                        <td>
+                            <span class="lvl-3">
+                                PPN Keluaran
+                            </span>
+                        </td>
                         <td>{{ number_format($ppnKel, 0, ',', '.') }}</td>
                     </tr>
-                    <td class="fw-medium">Jumlah Kewajiban Lancar Lain</td>
+                    <td class="fw-medium">
+                        <span class="lvl-2">
+                            Jumlah Kewajiban Lancar Lain
+                        </span>
+                    </td>
                     <td class="fw-medium border-top">{{ number_format($ppnKel ?? 0, 0, ',', '.') }}</td>
                     </tr>
                     </tr>
-                    <td class="fw-medium">Jumlah Kewajiban Lancar</td>
+                    <td class="fw-medium">
+                        <span class="lvl-2">
+                            Jumlah Kewajiban Lancar
+                        </span>
+                    </td>
                     <td class="fw-medium border-top">{{ number_format($ppnKel ?? 0, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium">Kewajiban Jangka Panjang</td>
+                        <td colspan="2" class="fw-medium">
+                            <span class="lvl-1">
+                                Kewajiban Jangka Panjang
+                            </span>
+                        </td>
                     </tr>
                     </tr>
-                    <td class="fw-medium">Jumlah Kewajiban Jangka Panjang</td>
+                    <td class="fw-medium">
+                        <span class="lvl-2">
+                            Jumlah Kewajiban Jangka Panjang
+                        </span>
+                    </td>
                     <td class="fw-medium border-top">{{ number_format(0, 0, ',', '.') }}</td>
                     </tr>
                     </tr>
-                    <td class="fw-medium">Jumlah Kewajiban</td>
+                    <td class="fw-medium">
+                        <span class="lvl-2">
+                            Jumlah Kewajiban
+                        </span>
+                    </td>
                     <td class="fw-medium border-top">{{ number_format($ppnKel ?? 0, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fw-medium">Ekuitas</td>
+                        <td colspan="2" class="fw-medium">
+                            <span class="lvl-1">
+                                Ekuitas
+                            </span>
+                        </td>
                     </tr>
                     @php
                         if (@$month) {
@@ -203,41 +384,77 @@
                         $ekujiban = $totalekuitas + $ppnKel;
                     @endphp
                     <tr>
-                        <td class="fw-medium">Ekuitas</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Ekuitas
+                            </span>
+                        </td>
                         <td class="fw-medium">{{ number_format($ekuitas, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>Modal</td>
+                        <td>
+                            <span class="lvl-3">
+                                Modal
+                            </span>
+                        </td>
                         <td>{{ number_format(250000000, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>Laba Ditahan</td>
+                        <td>
+                            <span class="lvl-3">
+                                Laba Ditahan
+                            </span>
+                        </td>
                         <td>{{ number_format($labaTahunLalu, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>Prive</td>
+                        <td>
+                            <span class="lvl-3">
+                                Prive
+                            </span>
+                        </td>
                         <td class="text-danger">- {{ number_format($prive, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>Laba Tahun Sebelumnya</td>
+                        <td>
+                            <span class="lvl-3">
+                                Laba Tahun Sebelumnya
+                            </span>
+                        </td>
                         <td>{{ number_format($sebelumnya, 0, ',', '.') }}</td>
                         {{-- <td>{{ number_format($sebelumnya, 0, ',', '.') }}</td> --}}
                     </tr>
                     <tr>
-                        <td>OPENING BALANCE EQUITY</td>
+                        <td>
+                            <span class="lvl-3">
+                                OPENING BALANCE EQUITY
+                            </span>
+                        </td>
                         <td>{{ number_format(0, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>Laba {{ @$month ? 'Bulan' : 'Tahun' }} Ini</td>
+                        <td>
+                            <span class="lvl-3">
+                                Laba {{ @$month ? 'Bulan' : 'Tahun' }} Ini
+                            </span>
+                        </td>
                         <td>{{ number_format(@$month ? $labaBulanIni : $labaTahunIni, 0, ',', '.') }}</td>
                     </tr>
+                    <tr>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah Ekuitas
+                            </span>
+                        </td>
+                        <td class="fw-medium border-top">{{ number_format($totalekuitas ?? 0, 0, ',', '.') }}</td>
                     </tr>
-                    <td class="fw-medium">Jumlah Ekuitas</td>
-                    <td class="fw-medium border-top">{{ number_format($totalekuitas ?? 0, 0, ',', '.') }}</td>
-                    </tr>
-                    </tr>
-                    <td class="fw-medium">Jumlah Ekuitas Dan Kewajiban</td>
-                    <td class="fw-medium border-top">{{ number_format($ekujiban ?? 0, 0, ',', '.') }}</td>
+                    <tr>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah Ekuitas Dan Kewajiban
+                            </span>
+                        </td>
+                        <td class="fw-medium border-top">{{ number_format($ekujiban ?? 0, 0, ',', '.') }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -248,6 +465,8 @@
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/css/pages/app-invoice-print-income.css" />
     <link rel="stylesheet" href="style.css">
+    <style>
+    </style>
 @endpush
 @push('after-script')
     <script src="{{ asset('assets') }}/js/app-invoice-print.js"></script>

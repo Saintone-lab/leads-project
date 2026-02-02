@@ -127,7 +127,8 @@
                 </div>
                 <div class="col-4 text-end">
                     <p class="mb-1">
-                        {{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}</p>
+                        {{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
+                    </p>
                     <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                     <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                 </div>
@@ -207,16 +208,18 @@
                         <td class="text-end"> Subtotal :</td>
                         <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
                     </tr>
-                    {{-- <tr>
+
+                    <tr>
                         <td colspan="4"></td>
-                        <td class="text-end"> Total Discount :</td>
-                        <td class="text-end"> RP {{ number_format($totalDisc, 0, '', '.') }}</td>
+                        <td class="text-end"> Discount :</td>
+                        <td class="text-end"> RP {{ number_format($quote->diskon, 0, '', '.') }}</td>
                     </tr>
                     <tr>
                         <td colspan="4"></td>
                         <td class="text-end"> Total After Discount :</td>
-                        <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
-                    </tr> --}}
+                        <td class="text-end"> RP {{ number_format($quote->subtotal - $quote->diskon, 0, '', '.') }}
+                        </td>
+                    </tr>
                     <tr>
                         <td colspan="4"></td>
                         <td class="text-end"> Total Tax :</td>

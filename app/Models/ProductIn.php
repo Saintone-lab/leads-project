@@ -24,6 +24,7 @@ class ProductIn extends Model
         'total_no_tax',
         'shipping',
         'tax',
+        'total',
         'price',
     ];
     public function supp()

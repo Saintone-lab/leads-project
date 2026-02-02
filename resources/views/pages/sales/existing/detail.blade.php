@@ -119,7 +119,7 @@
             {{-- @foreach ($charge as $pic) --}}
             <div class="card mb-2">
                 <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-pic-client table table-striped">
+                    <table class="datatable-pic-client{{ Auth::user()->role == "Sales" ? '-sales' : '' }} table table-striped">
                         <thead>
                             <tr>
                                 <th></th>
@@ -792,6 +792,7 @@
     <script src="{{ asset('assets') }}/includes/table-po-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-machine-client.js"></script>
     <script src="{{ asset('assets') }}/includes/table-pic-client.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-pic-client-sales.js"></script>
     <script src="{{ asset('assets') }}/includes/table-service-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-general-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-visit-history.js"></script>

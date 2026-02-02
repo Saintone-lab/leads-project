@@ -25,7 +25,7 @@ class PayableController extends Controller
         $detProduct = DetailProductIn::where('id_product_in', $id)->get();
         $return = Retur::where('id_product_in', $id)->get();
         // dd($return);
-        return view('pages.finance.payable.detail-invoice', compact('product', 'detProduct','return'));
+        return view('pages.finance.payable.detail-invoice', compact('product', 'detProduct', 'return'));
     }
     public function index_aging()
     {
@@ -142,6 +142,16 @@ class PayableController extends Controller
             return 1;
         } else {
             return 0;
+        }
+    }
+    public function addPph(Request $request, $id)
+    {
+        // dd($request->all());
+        $payment = ProductIn::find($id);
+        $payment->pph = $request->pph;
+        $paymentSave = $payment->save();
+        if ($paymentSave) {
+            return redirect('/payable/receipt/'. $id)->with('success', 'PPH berhasil ditambahkan!');
         }
     }
 

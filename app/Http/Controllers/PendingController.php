@@ -248,6 +248,7 @@ class PendingController extends Controller
                 $productSave = $product->save();
             }
         }
+        $pending->status = '6';
         $pending->id_product_out = $request->product;
         $pendingSave = $pending->save();
         if ($pendingSave) {
@@ -517,6 +518,8 @@ class PendingController extends Controller
             ->whereNull('s.date_schedule')
             ->distinct('pending_po.id')
             ->count('pending_po.id');
+        $delayedCount = PendingPO::where('status', operator: 9)
+            ->count();
         // dd($jadwalCount);
         $deliveryCount = PendingPO::where('pending_po.status', 5)
             ->count();
@@ -552,6 +555,7 @@ class PendingController extends Controller
             'listCount',
             'readyCount',
             'jadwalCount',
+            'delayedCount',
             'deliveryCount',
             'noInvoiceCountP',
             'noInvoiceCountNP',
@@ -689,7 +693,7 @@ class PendingController extends Controller
         $schedulesave = $schedule->save();
         if ($schedule->SJ == '1' && $schedule->BA == '1') {
             $order = PendingPO::find($schedule->id_sales_order);
-            $order->status = '6';
+            $order->status = '9';
             $order->save();
         }
         if ($schedulesave) {
@@ -699,6 +703,7 @@ class PendingController extends Controller
     public function returProduct(Request $request, $id)
     {
         $pending = PendingPO::find($id);
+        $quote = Quotation::find($pending->id_quotation);
         // dd($pending);
         $pending->status = '8';
         $pending->save();
@@ -706,6 +711,8 @@ class PendingController extends Controller
         $detProduct = DetailProductOut::where('id_product_out', $productOut->id)->get();
         foreach ($request->qty as $key => $value) {
             if ($value != 0) {
+                $dproduct = DetailProduct::find($detProduct[$key]->id_detail_product);
+                $product = Product::find($dproduct->id_product);
                 $return = new Retur();
                 $return->id_pending = $id;
                 $return->id_replacement = $detProduct[$key]->id_detail_product;
@@ -714,6 +721,11 @@ class PendingController extends Controller
                 $return->status = 0;
                 $return->date = Carbon::today();
                 $returnSave = $return->save();
+                // -- Stock
+                $dproduct->stock -= $value;
+                $product->stock -= $value;
+                $dproduct->save();
+                $product->save();
             }
         }
         if ($returnSave) {
@@ -727,10 +739,28 @@ class PendingController extends Controller
         $pending->save();
         $return = Retur::where('id_pending', $id)->get();
         foreach ($return as $retur) {
+            $dproduct = DetailProduct::find($retur->id_replacement);
+            $product = Product::find($dproduct->id_product);
             $retur->status = 1;
             $returSave = $retur->save();
+            // -- Stock
+            $dproduct->stock -= $retur->qty;
+            $product->stock -= $retur->qty;
+            $dproduct->save();
+            $product->save();
         }
         if ($returSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    public function donePending($id)
+    {
+        $pending = PendingPO::find($id);
+        $pending->status = '6';
+        $pendingSave = $pending->save();
+        if ($pendingSave) {
             return 1;
         } else {
             return 0;

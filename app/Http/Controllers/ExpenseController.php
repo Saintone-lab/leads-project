@@ -592,9 +592,16 @@ class Expensecontroller extends Controller
             ->whereNotNULL('payment.due_date')
             ->groupBy('payment.id')
             ->sum('payment.amount');
+        $replace = DetailProduct::all();
+        $asset = $replace->sum(function ($replacement) {
+            return $replacement->modal * $replacement->stock;
+        });
         $pIn = ProductIn::where('tax', '11')->whereBetween('date', [$startDate, $endDate])->sum('total');
         $ppnMas = $pIn * 11 / 100;
         $totalFixed = FixedAsset::sum('total');
+        $fixedAsset = FixedAsset::select('type', DB::raw('SUM(total) as total_amount'))
+            ->groupBy('type')
+            ->get();
         $penyusutan = FixedAsset::all()->groupBy('type')->map(function ($assets, $type) {
             $total = 0;
             foreach ($assets as $asset) {
@@ -625,16 +632,20 @@ class Expensecontroller extends Controller
             'endString',
             'piutang',
             'asset',
+            'income',
             'ppnMas',
             'ppnKel',
             'totalFixed',
             'fixedAsset',
             'penyusutan',
             'quotation',
+            'pendapatan',
+            'expensePerAccount',
+            'biaya',
             'prive',
-            'labaBulanIni',
-            'labaTahunLalu',
-            'labaTahunTahun',
+            // 'labaBulanIni',
+            // 'labaTahunLalu',
+            // 'labaTahunTahun',
             'grandTotalPenyusutan',
             'month'
         ));
@@ -683,9 +694,24 @@ class Expensecontroller extends Controller
         });
         $grandTotalPenyusutan = $penyusutan->sum('total_penyusutan');
         $quotation = Quotation::where('status', '100')->whereBetween('po_date', [$startDate, $endDate])->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $pendapatan = LabaRugi::whereBetween('date', [$start, $end])
+            ->where('type', 'Pendapatan Lain')
+            ->get();
+        $income = $pendapatan->sum('amount');
         // dd($endDate);
         $ppnKel = $quotation * 11 / 100;
         $prive = DetailExpense::where('id_account', 51)->sum('amount');
+        $expensePerAccount = DB::table('detail_expense')
+            ->join('expense as e', 'e.id', '=', 'detail_expense.id_expense')
+            ->join('account', 'account.id', '=', 'detail_expense.id_account')
+            ->whereBetween('e.date', [$startDate, $endDate])
+            ->select(
+                'account.name',
+                DB::raw('SUM(detail_expense.amount) as total_amount')
+            )
+            ->groupBy('detail_expense.id_account', 'account.name')
+            ->get();
+        $expenseSum = $expensePerAccount->sum('total_amount');
 
         $labaTahunIni = $this->hitungLabaTahunan($year);
         $labaTahunLalu = $this->hitungLabaTahunan($year - 1);
@@ -702,6 +728,9 @@ class Expensecontroller extends Controller
             'endString',
             'piutang',
             'asset',
+            'income',
+            'pendapatan',
+            'expensePerAccount  ',
             'ppnMas',
             'ppnKel',
             'totalFixed',

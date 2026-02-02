@@ -69,6 +69,7 @@ class OpnameController extends Controller
         $opname->stock_sistem = $replacement->stock;
         $opname->stock_gudang = $request->stock_gudang;
         $opname->selisih = $replacement->stock - $request->stock_gudang;
+        $opname->note = $request->note;
         $opnameSave = $opname->save();
         if ($opnameSave) {
             return redirect()->back()->with('success', 'Stock Opname Product berhasil ditambahkan!');

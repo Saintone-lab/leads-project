@@ -32,37 +32,69 @@
                         }
                     @endphp
                     <tr>
-                        <td class="fw-medium">Ekuitas</td>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Ekuitas
+                            </span>
+                        </td>
                         <td class="fw-medium">{{ number_format($ekuitas, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>Modal</td>
+                        <td>
+                            <span class="lvl-3">
+                                Modal
+                            </span>
+                        </td>
                         <td>{{ number_format(250000000, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>Laba Ditahan</td>
+                        <td>
+                            <span class="lvl-3">
+                                Laba Ditahan
+                            </span>
+                        </td>
                         <td>{{ number_format($labaTahunLalu, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>Prive</td>
+                        <td>
+                            <span class="lvl-3">
+                                Prive
+                            </span>
+                        </td>
                         <td class="text-danger">- {{ number_format($prive, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>Laba Tahun Sebelumnya</td>
+                        <td>
+                            <span class="lvl-3">
+                                Laba Tahun Sebelumnya
+                            </span>
+                        </td>
                         <td>{{ number_format($sebelumnya, 0, ',', '.') }}</td>
                         {{-- <td>{{ number_format($sebelumnya, 0, ',', '.') }}</td> --}}
                     </tr>
                     <tr>
-                        <td>OPENING BALANCE EQUITY</td>
+                        <td>
+                            <span class="lvl-3">
+                                OPENING BALANCE EQUITY
+                            </span>
+                        </td>
                         <td>{{ number_format(0, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>Laba {{ @$month ? 'Bulan' : 'Tahun' }} Ini</td>
+                        <td>
+                            <span class="lvl-3">
+                                Laba {{ @$month ? 'Bulan' : 'Tahun' }} Ini
+                            </span>
+                        </td>
                         <td>{{ number_format(@$month ? $labaBulanIni : $labaTahunIni, 0, ',', '.') }}</td>
                     </tr>
-                    </tr>
-                    <td class="fw-medium">Jumlah Ekuitas</td>
-                    <td class="fw-medium border-top">{{ number_format($totalekuitas ?? 0, 0, ',', '.') }}</td>
+                    <tr>
+                        <td class="fw-medium">
+                            <span class="lvl-2">
+                                Jumlah Ekuitas
+                            </span>
+                        </td>
+                        <td class="fw-medium border-top">{{ number_format($totalekuitas ?? 0, 0, ',', '.') }}</td>
                     </tr>
                 </tbody>
             </table>

@@ -2517,7 +2517,7 @@ class MonitoringController extends Controller
                 'us.name'
             )
             ->get();
-        dd($mesinDryer);
+        // dd($mesinDryer);
         return view('pages.monitoring.recap', compact('mesinDryer', 'allPlant', 'allPlantMonitoring', 'GT', 'GTMonitoring', 'GT3', 'GT3Monitoring', 'INC', 'INCMonitoring', 'PM12', 'PM12Monitoring', 'PM35', 'PM35Monitoring', 'PM78', 'PM78Monitoring', 'date'));
     }
     public function recapMW($week, $date)

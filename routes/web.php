@@ -227,6 +227,7 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk existing
     Route::resource('/existing', CrmController::class);
+    Route::get('/existing-bangkrupt', [CrmController::class, 'indexBangkrupt'])->name('index.bangkrupt');
     Route::post('/existing/action/{id}', [CrmController::class, 'storeActionWithCrm'])->name('action.crm');
     Route::post('/existing/update-status/{id}', [CrmController::class, 'updateStatusAtDropdown'])->name('update-status.crm');
     Route::get('/ru', [CrmController::class, 'ruIndex'])->name('ru.index');
@@ -1105,7 +1106,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('serial_product as s', 's.id', '=', 'm.id_unit')
             ->join('unit as un', 'un.id', '=', 's.id_product')
             ->where('u.id', Auth::user()->id)
-            ->whereYear('reports.date', $year)
+            // ->whereYear('reports.date', $year)
             ->select(
                 'reports.id',
                 'reports.no_service',
@@ -1337,6 +1338,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/pending-po/product-out/{id}', [PendingController::class, 'pending_out'])->name('pending-po.product_out');
     Route::get('/pending-po/product-out-project/{id}', [PendingController::class, 'pending_out_project'])->name('pending-po.product_out_project');
     Route::post('/pending-po/product-out/{id}', [PendingController::class, 'product_out'])->name('pending-po.product_out');
+    Route::post('/pending-po/done/{id}', [PendingController::class, 'donePending'])->name('pending-po.donePending');
     Route::get('/pending-po-done', [PendingController::class, 'indexDone'])->name('pending-po.done');
     Route::get('/pending-po-project', [PendingController::class, 'indexProject'])->name('pending-po.index-project');
 
@@ -1463,6 +1465,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/payable/aging/{id}', [PayableController::class, 'show_aging'])->name('payable.show_aging');
     Route::get('/payable/receipt', [PayableController::class, 'index_receipt'])->name('payable.index_receipt');
     Route::get('/payable/receipt/{id}', [PayableController::class, 'show_receipt'])->name('payable.show_receipt');
+    Route::post('/payable/pph/{id}', [PayableController::class, 'addPph'])->name('payable.addPph');
 
     // Stock Opname
     Route::get('/stock-opname', [OpnameController::class, 'index'])->name('opname.index');
@@ -4348,6 +4351,45 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
         return response()->json(['data' => $data]);
     });
+    Route::get('/db/pending/sales-delay', function () {
+        $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->leftJoin(DB::raw("(SELECT p1.* 
+                                        FROM payment p1 
+                                        INNER JOIN (
+                                            SELECT id_quotation, MAX(id) as max_id 
+                                            FROM payment 
+                                            GROUP BY id_quotation
+                                        ) p2 ON p1.id = p2.max_id
+                                        ) as pay"), 'q.id', '=', 'pay.id_quotation')
+            ->where('pending_po.status', 9)
+            // ->where('pending_po.type', 'Non Project')
+            ->groupBy('q.id')
+            ->orderBy('q.po_date', 'desc')
+            ->select(
+                'pending_po.id',
+                'pending_po.delivery',
+                'pending_po.no_pending',
+                'pending_po.type',
+                'pending_po.title',
+                'u.name',
+                'q.po_date',
+                'c.company',
+                'i.no_po',
+                'u.name',
+                'q.id_sales as team',
+                'pending_po.status',
+                'i.status_p',
+                'i.note_p',
+                'pay.type as paytype',
+                'pay.level'
+            )
+            ->get();
+        return response()->json(['data' => $data]);
+    });
     Route::get('/db/pending/sales-completed-project/admin', function () {
         $data = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
             ->leftJoin('invoice as i', 'q.id', '=', 'i.id_quotation')
@@ -4873,7 +4915,7 @@ Route::group(["middleware" => "auth"], function () {
                 'product_in.invoice'
             )
             ->orderByDesc('product_in.date')
-            ->whereNotNull('product_in.no_invoice')
+            ->whereNotNull('product_in.invoice')
             ->get();
 
         return response()->json(['data' => $payable]);
@@ -5007,7 +5049,24 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $data]);
     });
     Route::get('/db/product/set', function () {
-        $data = ProductSet::join('product as p', 'p.id', '=','product_set.id_product')->groupBy('product_set.id')->select('product_set.*', 'p.description', 'p.commodity', 'p.stock', 'p.unit')->get();
+        $data = ProductSet::join('product as p', 'p.id', '=', 'product_set.id_product')->groupBy('product_set.id')->select('product_set.*', 'p.description', 'p.commodity', 'p.stock', 'p.unit')->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/bangkrupt', function () {
+        $data = Client::whereHas('crmStatus', function ($q) {
+            $q->where('status', 1);
+        })
+            ->orWhereDoesntHave('crmStatus')
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/bangkrupt/sales', function () {
+        $data = Client::whereHas('crmStatus', function ($q) {
+            $q->where('status', 1);
+        })
+            ->orWhereDoesntHave('crmStatus')
+            ->where('id_sales', Auth::user()->id)
+            ->get();
         return response()->json(['data' => $data]);
     });
 });

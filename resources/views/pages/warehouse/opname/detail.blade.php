@@ -41,6 +41,7 @@
                                 <th>Stock Web</th>
                                 <th>Stock Gudang</th>
                                 <th>Selisih</th>
+                                <th>Note</th>
                             </tr>
                         </thead>
                     </table>

@@ -153,7 +153,7 @@ class PaymentController extends Controller
             ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
             ->where('payment.type', 'Tempo')
             ->where('payment.level', 1)
-            ->groupBy('payment.id')->sum('payment.amount');
+            ->groupBy('payment.id')->get('payment.amount');
         $unconfirm = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
             ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
