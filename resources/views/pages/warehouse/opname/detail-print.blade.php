@@ -48,6 +48,7 @@
                         <th>Desc</th>
                         <th>Stock Web</th>
                         <th>Stock Gudang</th>
+                        <th>Stock Sebelumnya</th>
                         <th>Selisih</th>
                     </tr>
                 </thead>
@@ -69,6 +70,9 @@
                             </td>
                             <td>
                                 {{ $products->stock_gudang }} {{ $products->unit }}
+                            </td>
+                            <td>
+                                {{ $products->prev_qty }} {{ $products->unit }}
                             </td>
                             <td>
                                 {{ $products->selisih }} {{ $products->unit }}

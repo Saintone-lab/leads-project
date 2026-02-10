@@ -27,6 +27,7 @@ $(function () {
                 { data: "id" },
                 // { data: "new" },
                 { data: "brand" },
+                { data: "unit" },
                 { data: "pn" },
                 { data: "serial" },
                 { data: "power" },

@@ -125,7 +125,7 @@ class ProductInController extends Controller
         $detail = DetailProductIn::where('id_product_in', $id)->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $return = Retur::where('id_product_in', $id)->get();
-        return view('pages.warehouse.product-in.detail', compact('product', 'detail', 'noSaleProspect', 'tax','return'));
+        return view('pages.warehouse.product-in.detail', compact('product', 'detail', 'noSaleProspect', 'tax', 'return'));
     }
 
     /**
@@ -140,7 +140,7 @@ class ProductInController extends Controller
         $dProductIn = DetailProductIn::where('id_product_in', $id)->get();
         $suppliers = Supplier::all();
         // dd($dProductIn);
-        return view('pages.warehouse.product-in.invoicing', compact('suppliers','productIn', 'dProductIn'));
+        return view('pages.warehouse.product-in.invoicing', compact('suppliers', 'productIn', 'dProductIn'));
     }
 
     /**
@@ -347,6 +347,7 @@ class ProductInController extends Controller
         $supplier->supplier = $request->supplier;
         $supplier->phone = $request->phone;
         $supplier->email = $request->email;
+        $supplier->code = $request->code;
         $supplier->area = $request->area;
         $supplier->address = $request->address;
         $supplier->npwp = $request->npwp;
@@ -372,6 +373,7 @@ class ProductInController extends Controller
         $supplier->supplier = $request->supplier;
         $supplier->phone = $request->phone;
         $supplier->email = $request->email;
+        $supplier->code = $request->code;
         $supplier->area = $request->area;
         $supplier->address = $request->address;
         $supplier->npwp = $request->npwp;
@@ -392,7 +394,8 @@ class ProductInController extends Controller
             return 0;
         }
     }
-    public function return(Request $request, $id){
+    public function return(Request $request, $id)
+    {
         $detProduct = DetailProductIn::where('id_product_in', $id)->get();
         foreach ($request->qty as $key => $value) {
             if ($value != 0) {
@@ -408,7 +411,7 @@ class ProductInController extends Controller
             }
         }
         if ($returnSave) {
-            return redirect()->back()->with('success','Data Return Telah Ditambahkan');
+            return redirect()->back()->with('success', 'Data Return Telah Ditambahkan');
         }
     }
     public function clearReturn($id)

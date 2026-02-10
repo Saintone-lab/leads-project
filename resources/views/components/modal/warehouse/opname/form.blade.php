@@ -30,13 +30,16 @@
                                     aria-label="Default select example" name="periode">
                                     <option disabled>----- Info Periode -----</option>
                                     <option value="1">
-                                        Periode Catur Wulan 1
+                                        Periode Quarter 1
                                     </option>
                                     <option value="2">
-                                        Periode Catur Wulan 2
+                                        Periode Quarter 2
                                     </option>
                                     <option value="3">
-                                        Periode Catur Wulan 3
+                                        Periode Quarter 3
+                                    </option>
+                                    <option value="4">
+                                        Periode Quarter 4
                                     </option>
                                 </select>
                                 <label for="exampleFormControlSelect1">Periode</label>

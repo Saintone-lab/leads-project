@@ -292,4 +292,26 @@ class PaymentController extends Controller
             return response()->json(['success' => true, 'message' => 'Perubahan berhasil disimpan']);
         }
     }
+
+    public function addPph(Request $request, $id)
+    {
+        // dd($request->all());
+        $payment = Payment::find($id);
+        $payment->pph = $request->pph;
+        $paymentSave = $payment->save();
+        if ($paymentSave) {
+            return redirect('/payment-detail/payment/' . $id)->with('success', 'PPH berhasil ditambahkan!');
+        }
+    }
+
+    public function editDate(Request $request, $id)
+    {
+        // dd($request->all());
+        $payment = Payment::find($id);
+        $payment->date = $request->date;
+        $paymentSave = $payment->save();
+        if ($paymentSave) {
+            return redirect('/payment-detail/payment/' . $id)->with('success', 'Date Telah Diubah!');
+        }
+    }
 }

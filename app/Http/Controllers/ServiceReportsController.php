@@ -50,6 +50,7 @@ class ServiceReportsController extends Controller
      */
     public function create()
     {
+        $sales = User::where('role', 'Sales')->get();
         $clients = Client::all();
         $dateNow = Carbon::now();
         $numberS = Reports::whereYear('date', $dateNow)->where('id_technician', Auth::user()->id)->count();
@@ -57,7 +58,7 @@ class ServiceReportsController extends Controller
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->select('pic.*')->get();
-        return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow', 'clients'));
+        return view('pages.technician.service-reports.form', compact('sales', 'pic', 'formattedNumberS', 'formattedMonthNow', 'clients'));
     }
 
     /**
@@ -329,7 +330,7 @@ class ServiceReportsController extends Controller
         $newCount = PendingPO::where('status', operator: 0)
             ->where('type', 'Non Project')
             ->count();
-            // dd($newCount);  
+        // dd($newCount);  
         $listCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])
             ->where('type', 'Non Project')
             ->count();
@@ -358,6 +359,15 @@ class ServiceReportsController extends Controller
                 'visited'
             )
         );
+    }
+
+    public function get_client($id)
+    {
+        $client = Client::where('id_status',$id)->get();
+
+        return response()->json([
+            'data' => $client
+        ]);
     }
 
     protected function convertToRoman($month)

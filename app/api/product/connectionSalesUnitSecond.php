@@ -28,6 +28,7 @@ if (Auth::check()) {
         s.new,
         m.serial,
         u.power,
+        u.unit,
         s.bar,
         s.air_cap,
         m.status,

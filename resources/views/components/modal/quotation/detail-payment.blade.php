@@ -64,7 +64,7 @@
                                         <td>
                                             @if ($payment->level == 0)
                                                 <a href="#" data-id="{{ $payment->id }}"
-                                                    data-invoice="{{ @$invoice->id }}"
+                                                    {{-- data-invoice="{{ @$invoice->id }}" --}}
                                                     data-quote="{{ $quote->id }}"
                                                     class="btn btn-sm btn-label-success confirm-payments waves-effect">
                                                     <i

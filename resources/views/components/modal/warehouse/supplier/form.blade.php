@@ -51,6 +51,13 @@
                                 <label for="selectSource">Info</label>
                             </div>
                         </div>
+                        <div class="col mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="code" class="form-control" name="code"
+                                    placeholder="X-XXX" value="{{ old('code', @$supplier->code ?? '') }}">
+                                <label for="code">Code</label>
+                            </div>
+                        </div>
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">

@@ -80,6 +80,7 @@
                             <th></th>
                             <th>ID</th>
                             <th>Brand</th>
+                            <th>Unit</th>
                             <th>Type</th>
                             <th>Sn</th>
                             <th>Power</th>
@@ -102,6 +103,7 @@
                             <th></th>
                             <th>ID</th>
                             <th>Brand</th>
+                            <th>Unit</th>
                             <th>Type</th>
                             <th>Sn</th>
                             <th>Power</th>
@@ -126,6 +128,7 @@
                             <th>ID</th>
                             {{-- <th>Info</th> --}}
                             <th>Brand</th>
+                            <th>Unit</th>
                             <th>Type</th>
                             <th>SN</th>
                             <th>Power</th>
@@ -149,6 +152,7 @@
                             <th>ID</th>
                             {{-- <th>Info</th> --}}
                             <th>Brand</th>
+                            <th>Unit</th>
                             <th>Type</th>
                             <th>SN</th>
                             <th>Power</th>

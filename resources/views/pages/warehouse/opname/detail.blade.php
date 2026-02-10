@@ -41,7 +41,9 @@
                                 <th>Stock Web</th>
                                 <th>Stock Gudang</th>
                                 <th>Selisih</th>
+                                <th>Stock Sebelumnya</th>
                                 <th>Note</th>
+                                <th>Button</th>
                             </tr>
                         </thead>
                     </table>
@@ -65,6 +67,7 @@
         {{-- End : Button Invoice --}}
     </div>
     @include('components.modal.warehouse.opname.form-product')
+    @include('components.modal.warehouse.opname.edit-opname')
 
 @endsection
 @push('after-style')
@@ -102,6 +105,38 @@
         $(document).ready(function() {
 
             // Saat replacement dipilih
+            $(document).on('click', '.editStock', function() {
+                let id = $(this).data('id');
+                console.log(id);
+
+                $('.edit_sistem').val('');
+                $('.edit_gudang').val('');
+                $('.edit_selisih').val('');
+                $('.edit_note').val('');
+
+                // sementara return boleh buat testing
+                // return;
+
+                $.ajax({
+                    url: '/show/replacement/' + id,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(res) {
+                        console.log(res);
+
+                        $('.edit_title').text(res.product);
+                        $('.edit_gudang').val(res.gudang);
+                        $('.edit_sistem').val(res.web);
+                        $('.edit_selisih').val(res.selisih);
+                        $('.edit_note').val(res.note);
+                        hitungSelisih();
+                    },
+                    error: function() {
+                        alert('Gagal mengambil stock');
+                    }
+                });
+            });
+            // Saat replacement dipilih
             $('#replacement').on('change', function() {
                 let replacementId = $(this).val();
 
@@ -119,6 +154,8 @@
                     type: 'GET',
                     dataType: 'json',
                     success: function(res) {
+                        console.log(res);
+                        
                         let stockSistem = res.stock_sistem ?? 0;
 
                         $('#sistem').val(stockSistem);
@@ -134,6 +171,9 @@
             $('#gudang').on('keyup change', function() {
                 hitungSelisih();
             });
+            $('.edit_gudang').on('keyup change', function() {
+                hitungSelisihEdit();
+            });
 
             // Function hitung selisih
             function hitungSelisih() {
@@ -142,6 +182,12 @@
                 let selisih = sistem - gudang;
 
                 $('#selisih').val(selisih);
+            }
+
+            function hitungSelisihEdit() {
+                let sistem = parseInt($('.edit_sistem').val()) || 0;
+                let gudang = parseInt($('.edit_gudang').val()) || 0;
+                $('.edit_selisih').val(sistem - gudang);
             }
 
         });

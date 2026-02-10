@@ -23,6 +23,7 @@ if (Auth::check()) {
         $query = "SELECT 
         m.id,
         u.sku,
+        u.unit,
         s.brand,
         s.pn,
         m.serial,

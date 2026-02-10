@@ -359,9 +359,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/machine/technician/store', [MachineController::class, 'storeTechnician'])->name('store.machine-technician');
     Route::get('/machine/dropdown/{id}', function ($id) {
         $machine = Machine::join('client as c', 'c.id', '=', 'machine.id_client')
+            ->join('pic as p', 'p.id_client', '=', 'c.id')
             ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
             ->join('unit as u', 'u.id', '=', 's.id_product')
-            ->where('c.id', $id)
+            ->where('p.id', $id)
             ->groupBy('machine.id', 'u.id')
             ->select(
                 'machine.*',
@@ -372,6 +373,14 @@ Route::group(["middleware" => "auth"], function () {
             )
             ->get();
         return response()->json($machine);
+    });
+    Route::get('/client/dropdown/{id}', function ($id) {
+        $client = Client::where('id_sales', $id)->get();
+        return response()->json($client);
+    });
+    Route::get('/pic/dropdown/{id}', function ($id) {
+        $pic = Pic::where('id_client', $id)->get();
+        return response()->json($pic);
     });
 
     // Route Monitoring
@@ -1193,6 +1202,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/reminder-payment/payment/{id}', [PaymentController::class, 'reminder_payment'])->name('reminder_payment.payment');
     Route::post('/reminder-calendar/payment/', [PaymentController::class, 'reminder_calendar'])->name('reminder_calendar.payment');
     Route::get('/view-payment/payment/{id}', [PaymentController::class, 'view_payment'])->name('view_payment.payment');
+    Route::post('/payment/addPph/{id}', [PaymentController::class, 'addPph'])->name('payment.addPph');
+    Route::post('/payment/editDate/{id}', [PaymentController::class, 'editDate'])->name('payment.editDate');
 
     Route::resource('/delivery', DeliveryController::class);
     Route::get('/delivery/print/{id}', [DeliveryController::class, 'print_delivery'])->name('print.delivery');
@@ -1473,7 +1484,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/stock-opname/{id}', [OpnameController::class, 'show'])->name('opname.show');
     Route::get('/stock-opname-print/{id}', [OpnameController::class, 'show_print'])->name('opname.show_print');
     Route::post('/stock-opname/{id}', [OpnameController::class, 'store_product'])->name('opname.store_product');
+    Route::post('/stock-opname/update/{id}', [OpnameController::class, 'update_product'])->name('opname.update_product');
     Route::get('/stock/replacement/{id}', [OpnameController::class, 'stock_replacement'])->name('payable.stock_replacement');
+    Route::get('/show/replacement/{id}', [OpnameController::class, 'show_replacement'])->name('payable.show_replacement');
 
     // Fixed Asset
     Route::resource('/fixed', FixedController::class);
@@ -5005,11 +5018,12 @@ Route::group(["middleware" => "auth"], function () {
                 DB::raw("DATE_FORMAT(stock_opname.date, '%d-%m-%Y') as tanggal"),
                 DB::raw("
                 CONCAT(
-                    'Periode Caturwulan ',
+                    'Periode Quarter ',
                     CASE stock_opname.periode
                         WHEN 1 THEN 'I'
                         WHEN 2 THEN 'II'
                         WHEN 3 THEN 'III'
+                        WHEN 4 THEN 'IV'
                         ELSE '-'
                     END
                 ) as periode_label
@@ -5020,11 +5034,37 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $data]);
     });
     Route::get('/db/stock/opname/{id}', function ($id) {
+
+        $prevStockOpnameId = StockOpname::where('id', '<', $id)
+            ->orderBy('id', 'desc')
+            ->value('id');
+
         $data = DetailStockOpname::leftJoin('detail_product as dp', 'dp.id', '=', 'detail_stock_opname.id_product')
-            ->where('id_stock_opname', $id)
-            ->select('detail_stock_opname.*', 'dp.replacement')
+            ->leftJoin('product as p', 'p.id', '=', 'dp.id_product')
+            ->leftJoin('detail_stock_opname as prev', function ($join) use ($prevStockOpnameId) {
+                $join->on('prev.id_product', '=', 'detail_stock_opname.id_product')
+                    ->where('prev.id_stock_opname', '=', $prevStockOpnameId);
+            })
+            ->where('detail_stock_opname.id_stock_opname', $id)
+            ->select(
+                'detail_stock_opname.*',
+                DB::raw("
+                    CONCAT(
+                        dp.replacement,
+                        ' (',
+                        LEFT(COALESCE(p.go, 'N'), 1),
+                        ')'
+                    ) as replacement
+                "),
+                DB::raw('COALESCE(prev.stock_sistem, 0) as prev_qty')
+            )
             ->get();
-        return response()->json(['data' => $data]);
+
+        return response()->json([
+            'current_stock_opname_id' => $id,
+            'previous_stock_opname_id' => $prevStockOpnameId,
+            'data' => $data
+        ]);
     });
     Route::get('/db/income/statment', function () {
         $data = LabaRugi::select(

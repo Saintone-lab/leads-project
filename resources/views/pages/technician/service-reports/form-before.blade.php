@@ -37,8 +37,8 @@
                             <span class="form-floating-focused"></span>
                         </div>
                     </div>
-                    <div class="col-12 col-md-3 mb-3">
-                        {{-- <div class="form-floating form-floating-outline">
+                    <div class="col-12 col-md-6 mb-3">
+                        <div class="form-floating form-floating-outline">
                             <select class="select2 form-select form-select-lg invoice-item-pic" data-allow-clear="true"
                                 name="id_pic" id="selectPic">
                                 <option selected>----- Select Company | Pic || Sales -----</option>
@@ -50,40 +50,10 @@
                                 @endforeach
                             </select>
                             <label for="select2Basic">Client</label>
-                        </div> --}}
-                        <div class="form-floating form-floating-outline">
-                            <select class="select2 form-select form-select-lg invoice-item-sales" data-allow-clear="true"
-                                name="id_sales" id="selectSales">
-                                <option selected>----- Select Company Sales -----</option>
-                                @foreach ($sales as $sale)
-                                    <option data-id="{{ $sale->id }}" value="{{ $sale->id }}"
-                                        {{ @$report->pic->client->sales->id == $sale->id ? 'selected' : '' }}>
-                                        {{ $sale->name }}</option>
-                                @endforeach
-                            </select>
-                            <label for="select2Basic">Sales</label>
                         </div>
                         <input type="text" name="technician" id="" value="{{ Auth::user()->id }}" hidden>
                     </div>
                     <div class="col-12 col-md-3 mb-3">
-                        <div class="form-floating form-floating-outline mb-2">
-                            <select id="client-dropdown" class="select2 form-select invoice-item-client" data-id="1"
-                                data-allow-clear="true" name="client" disabled>
-                                <option> ---- Choose Client Here ---- </option>
-                            </select>
-                            <label for="client-dropdown">Client</label>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-3 mb-3">
-                        <div class="form-floating form-floating-outline mb-2">
-                            <select id="pic-dropdown" class="select2 form-select invoice-item-pic" data-id="1"
-                                data-allow-clear="true" name="id_pic" disabled>
-                                <option> ---- Choose PIC Here ---- </option>
-                            </select>
-                            <label for="pic-dropdown">PIC</label>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md mb-3">
                         <div class="form-floating form-floating-outline">
                             <select class="form-select" id="exampleFormControlSelect1" aria-label="Default select example"
                                 name="type">
@@ -94,13 +64,12 @@
                                 <option value="General" {{ @$report->type == 'General' ? 'Selected' : '' }}>General Check
                                 </option>
                                 <option value="Rental" {{ @$report->type == 'Rental' ? 'Selected' : '' }}>Rental</option>
-                                <option value="Cleaning" {{ @$report->type == 'Cleaning' ? 'Selected' : '' }}>Cleaning
-                                </option>
+                                <option value="Cleaning" {{ @$report->type == 'Cleaning' ? 'Selected' : '' }}>Cleaning</option>
                             </select>
                             <label for="exampleFormControlSelect1">Service Type</label>
                         </div>
                     </div>
-                    <div class="col-12 col-md mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <div class="form-floating form-floating-outline">
                             <input class="form-control" type="date" name="date" id="date"
                                 value="{{ now()->format('Y-m-d') }}">
@@ -202,9 +171,6 @@
         }
         $(document).ready(function() {
             var selectedMachineId = '{{ $report->id_machine ?? '' }}';
-            var selectedSalesId = '{{ $report->pic->client->id_sales ?? '' }}';
-            var selectedClientId = '{{ $report->pic->id_client ?? '' }}';
-            var selectedPICId = '{{ $report->id_pic ?? '' }}';
             initNumericInput();
             $('#formFileMultiple').on('change', function() {
                 var files = this.files;
@@ -254,68 +220,8 @@
                     reader.readAsDataURL(file);
                 }
             });
-            $('#selectSales').on('change', function() {
-                var salesId = $(this).find(':selected').data('id');
-                var Url = '/client/dropdown/' + salesId;
-
-                $.ajax({
-                    url: Url,
-                    type: 'GET',
-                    success: function(response) {
-                        // Clear and populate the machine dropdown
-                        var clientDropdown = $('#client-dropdown');
-                        clientDropdown.empty();
-                        clientDropdown.append(
-                            '<option selected="" disabled> ---- Choose Client Here ---- </option>'
-                        );
-
-                        $.each(response, function(key, value) {
-                            var option = $('<option></option>').attr('value', value.id)
-                                .text(value.company);
-                            if (value.id == selectedSalesId) {
-                                option.attr('selected', 'selected');
-                            }
-                            clientDropdown.append(option);
-                        });
-
-                        // Enable the machine dropdown
-                        clientDropdown.prop('disabled', false);
-                    }
-                });
-            });
-
-            $('#client-dropdown').on('change', function() {
-                var clientId = $(this).find(':selected').val();
-                var Url = '/pic/dropdown/' + clientId;
-
-                $.ajax({
-                    url: Url,
-                    type: 'GET',
-                    success: function(response) {
-                        // Clear and populate the machine dropdown
-                        var picDropdown = $('#pic-dropdown');
-                        picDropdown.empty();
-                        picDropdown.append(
-                            '<option selected="" disabled> ---- Choose PIC Here ---- </option>'
-                        );
-
-                        $.each(response, function(key, value) {
-                            var option = $('<option></option>').attr('value', value.id)
-                                .text(value.name_pic);
-                            if (value.id == selectedClientId) {
-                                option.attr('selected', 'selected');
-                            }
-                            picDropdown.append(option);
-                        });
-
-                        // Enable the machine dropdown
-                        picDropdown.prop('disabled', false);
-                    }
-                });
-            });
-
-            $('#pic-dropdown').on('change', function() {
-                var clientId = $(this).find(':selected').val();
+            $('#selectPic').on('change', function() {
+                var clientId = $(this).find(':selected').data('id');
                 var Url = '/machine/dropdown/' + clientId;
 
                 $.ajax({
@@ -328,8 +234,6 @@
                         machineDropdown.append(
                             '<option selected="" disabled> ---- Choose Machine Here ---- </option>'
                         );
-                        console.log(clientId);
-                        console.log(response);
 
                         $.each(response, function(key, value) {
                             var option = $('<option></option>').attr('value', value.id)
@@ -349,17 +253,8 @@
             });
 
             // Trigger change event if updating to pre-select the machine
-            if (selectedsalesId) {
-                $('#selectSales').trigger('change');
-            }
-            if (selectedClientId) {
-                $('#client-dropdown').trigger('change');
-            }
-            if (selectedPICId) {
-                $('#pic-dropdown').trigger('change');
-            }
             if (selectedMachineId) {
-                $('#machine-dropdown').trigger('change');
+                $('#selectPic').trigger('change');
             }
         });
     </script>

@@ -120,7 +120,7 @@
                     <div class="functional d-flex justify-content-between">
                         <a class="mx-2" type="button" data-bs-toggle="modal" data-bs-target="#addPPH">
                             <button type="button" class="btn btn-primary">
-                                Add PPH
+                                {{ $product->pph > 0 ? 'Edit' : 'Add' }} PPH
                             </button>
                         </a>
                         <a href="#" class="btn btn-success d-grid waves-effect accept-product"
@@ -185,6 +185,7 @@
         </div>
     </div>
     @include('components.modal.payable.pph')
+    {{-- @include('components.modal.payable.date') --}}
 @endsection()
 
 @push('after-style')

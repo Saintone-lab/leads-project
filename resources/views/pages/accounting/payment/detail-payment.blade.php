@@ -95,7 +95,7 @@
                     <div class="info text-end pt-5 px-3">
                         <h6>Payment Receipt No.</h6>
                         <h3>#RCPT-{{ $payment->id }}</h3>
-                        <p>{{ Carbon\Carbon::parse($payment->created_at)->format('d-m-Y') }}</p>
+                        <p>{{ Carbon\Carbon::parse($payment->date)->format('d-m-Y') }}</p>
                         @php
                             if ($payment->level == 0) {
                                 if ($payment->file == null) {
@@ -116,14 +116,33 @@
                     </div>
                 </div>
             </div>
-
+            <div class="text-end">
+                {{-- <div class="functional d-flex justify-content-between"> --}}
+                <a class="mx-2" type="button" data-bs-toggle="modal" data-bs-target="#editDate">
+                    <button type="button" class="btn btn-warning">
+                        Edit Date
+                    </button>
+                </a>
+                <a class="mx-2" type="button" data-bs-toggle="modal" data-bs-target="#addPPH">
+                    <button type="button" class="btn btn-primary">
+                        {{ $payment->pph > 0 ? 'Edit' : 'Add' }} PPH
+                    </button>
+                </a>
+                {{-- </div> --}}
+            </div>
             <div class="table-responsive mb-3">
                 <table class="table m-0">
                     <thead class="">
                         <tr>
                             <th>Date</th>
                             <th>Payment Method</th>
+                            @if ($payment->pph > 0)
+                                <th>PPH</th>
+                            @endif
                             <th>Amount</th>
+                            @if ($payment->pph > 0)
+                                <th>Total</th>
+                            @endif
                             <th>TAG</th>
                             <th>Proof of Transfer</th>
                             <th>Confirm</th>
@@ -135,8 +154,14 @@
                                 {{ \Carbon\Carbon::parse($payment->created_at)->format('d-m-Y') }}
                             </td>
                             <td class="align-top"> {{ $payment->method }} </td>
+                            @if ($payment->pph > 0)
+                                <td class="align-top">RP {{ number_format($payment->pph, 0, '', '.') }}
+                            @endif
                             <td class="align-top">RP {{ number_format($payment->amount, 0, '', '.') }}
                             </td>
+                            @if ($payment->pph > 0)
+                                <td class="align-top">RP {{ number_format($payment->amount - $payment->pph, 0, '', '.') }}
+                            @endif
                             <td class="align-top">
                                 {{ $payment->type }} {{ $payment->percent }}%
                             </td>
@@ -151,7 +176,7 @@
                                     <a type="button" data-bs-toggle="modal" data-bs-target="#confirmPayment">
                                         <button type="button" class="btn btn-secondary d-grid waves-effect">
                                             Confirm
-                                        </button>   
+                                        </button>
                                     </a>
                                 @else
                                     <a href="#" class="btn btn-label-danger d-grid waves-effect unconfirm-payment"
@@ -249,11 +274,14 @@
         </div>
     </div>
 @endsection()
+@include('components.modal.payment.date ')
+@include('components.modal.payment.pph')
 @include('components.modal.payment.confirm')
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
     <link rel="stylesheet"
         href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
@@ -281,6 +309,29 @@
 
 @push('script')
     <script>
+        function formatNumber(n) {
+            return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+        }
+
+        $(".invoice-item-pph-label").on('keyup', function() {
+            var input = $(this)
+            var input_val = input.val();
+
+            // original length
+            var original_len = input_val.length;
+
+            // add commas to number
+            // remove all non-digits
+            input_val = formatNumber(input_val);
+            input_val = input_val;
+
+            // send updated string to input
+            input.val(input_val);
+            var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+            console.log(nomorInt);
+            $(`#pph`).val(nomorInt);
+        });
+
         $(document).on('click', '.confirm-payment', function() {
             var id = $(this).data('id');
             Swal.fire({
