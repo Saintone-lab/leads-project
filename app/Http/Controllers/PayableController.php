@@ -155,6 +155,17 @@ class PayableController extends Controller
         }
     }
 
+    public function editDate(Request $request, $id)
+    {
+        // dd($request->all());
+        $payment = ProductIn::find($id);
+        $payment->date_payment = $request->date;
+        $paymentSave = $payment->save();
+        if ($paymentSave) {
+            return redirect('/payable/receipt/' . $id)->with('success', 'Date Telah Diubah!');
+        }
+    }
+
     private function terbilang($number)
     {
         $number = abs($number);

@@ -487,7 +487,7 @@ class InvoiceController extends Controller
         $invoice = Invoice::find($id);
 
         $invoice->date = $request->date;
-        // $invoice->invoiceTo = $request->destination;
+        $invoice->invoiceTo = $request->destination;
         $invoiceSave = $invoice->save();
 
         if ($invoiceSave) {

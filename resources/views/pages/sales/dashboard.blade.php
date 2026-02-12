@@ -762,7 +762,7 @@
     @elseif (Auth::user()->role == 'Admin')
         <div class="row gy-4 mb-4">
             <div class="col-12 col-lg-4">
-                <div class="card mb-3">
+                <div class="card h-100 mb-3">
                     <div class="card-body text-nowrap">
                         <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
                             Sales Results</strong> 🎉
@@ -789,7 +789,7 @@
                     <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
                         class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
                 </div>
-                <div class="card">
+                {{-- <div class="card">
                     <div class="card-body pb-0 pt-3">
                         <div class="row d-flex align-items-center">
                             <div class="col-5 col-lg-6 col-xl-5" style="position: relative;">
@@ -1008,7 +1008,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
             <div class="col-12 col-lg-8">
                 <div class="card h-100">

@@ -1477,6 +1477,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/payable/receipt', [PayableController::class, 'index_receipt'])->name('payable.index_receipt');
     Route::get('/payable/receipt/{id}', [PayableController::class, 'show_receipt'])->name('payable.show_receipt');
     Route::post('/payable/pph/{id}', [PayableController::class, 'addPph'])->name('payable.addPph');
+    Route::post('/payable/date/{id}', [PayableController::class, 'editDate'])->name('payable.editDate');
 
     // Stock Opname
     Route::get('/stock-opname', [OpnameController::class, 'index'])->name('opname.index');

@@ -1,4 +1,4 @@
-<form action="{{ route('payable.addPph', $product->id) }}" method="post" enctype="multipart/form-data">
+<form action="{{ route('payable.editDate', $product->id) }}" method="post" enctype="multipart/form-data">
     {{-- {{ csrf_token() }} --}}
     @csrf
     <div class="modal modal-lg animate__animated animate__fadeIn" id="editDate" tabindex="-1" style="display: none;"
@@ -23,7 +23,7 @@
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input class="form-control" type="date" id="html5-date-input" name="date">
+                                <input class="form-control" type="date" id="html5-date-input" name="date" value="{{ $product->date_payment }}">
                                 <label for="descAnimation">Change Date</label>
                             </div>
                         </div>

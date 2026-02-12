@@ -149,7 +149,7 @@
                         <th style="width: 1%">No.</th>
                         <th style="width: 50%">Item Description</th>
                         <th>Qty</th>
-                        <th>Price</th>
+                        <th>Price (IDR)</th>
                         <th>Disc</th>
                         <th>Total Price</th>
                     </tr>
@@ -204,25 +204,25 @@
                         @endforeach
                     @endforeach
                     <tr>
-                        <td colspan="4"></td>
-                        <td class="text-end"> Subtotal :</td>
+                        <td colspan="3"></td>
+                        <td colspan="1" class="text-end"> Subtotal :</td>
                         <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
                     </tr>
 
                     <tr>
-                        <td colspan="4"></td>
-                        <td class="text-end"> Discount :</td>
+                        <td colspan="3"></td>
+                        <td colspan="1" class="text-end"> Discount :</td>
                         <td class="text-end"> RP {{ number_format($quote->diskon, 0, '', '.') }}</td>
                     </tr>
                     <tr>
-                        <td colspan="4"></td>
-                        <td class="text-end"> Total After Discount :</td>
+                        <td colspan="3"></td>
+                        <td colspan="1" class="text-end"> Total After Discount :</td>
                         <td class="text-end"> RP {{ number_format($quote->subtotal - $quote->diskon, 0, '', '.') }}
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="4"></td>
-                        <td class="text-end"> Total Tax :</td>
+                        <td colspan="3"></td>
+                        <td colspan="1" class="text-end"> Total Tax :</td>
                         <td class="text-end"> RP {{ number_format($tax, 0, '', '.') }}</td>
                     </tr>
                     <tr class="border-top">

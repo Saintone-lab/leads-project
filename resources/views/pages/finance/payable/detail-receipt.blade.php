@@ -95,7 +95,7 @@
                     <div class="info text-end pt-5 px-3">
                         <h6>Payment Receipt No.</h6>
                         <h3>{{ $receipt }}</h3>
-                        <p>{{ Carbon\Carbon::parse($product->date)->format('d-m-Y') }}</p>
+                        <p>{{ Carbon\Carbon::parse($product->date_payment)->format('d-m-Y') }}</p>
                         @php
                             if ($product->accept == 0) {
                                 $warna = 'text-danger';
@@ -118,6 +118,11 @@
                 </h5>
                 @if ($product->accept == 0)
                     <div class="functional d-flex justify-content-between">
+                        <a class="mx-2" type="button" data-bs-toggle="modal" data-bs-target="#editDate">
+                            <button type="button" class="btn btn-warning">
+                                Edit Date
+                            </button>
+                        </a>
                         <a class="mx-2" type="button" data-bs-toggle="modal" data-bs-target="#addPPH">
                             <button type="button" class="btn btn-primary">
                                 {{ $product->pph > 0 ? 'Edit' : 'Add' }} PPH
@@ -185,7 +190,7 @@
         </div>
     </div>
     @include('components.modal.payable.pph')
-    {{-- @include('components.modal.payable.date') --}}
+    @include('components.modal.payable.date')
 @endsection()
 
 @push('after-style')
