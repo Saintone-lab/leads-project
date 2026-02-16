@@ -100,4 +100,8 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\StockOpname', 'id_user');
     }
+
+    public function prospects() {
+        return $this->hasMany(Prospect::class, 'id_sales');
+    }
 }

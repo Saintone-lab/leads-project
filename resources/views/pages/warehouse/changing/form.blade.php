@@ -44,7 +44,7 @@
                 <div class="form-invoice-repeater source-item">
                     <div class="mb-3" data-repeater-list="group-a">
                         <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
-                            <div class="d-flex border rounded position-relative pe-0">
+                            <div class="border rounded position-relative pe-0">
                                 <div class="row w-100 p-3">
                                     <div class="col-md-8 col-12 mb-md-0 mb-3">
                                         <label for="product" class="mb-2">Product</label>

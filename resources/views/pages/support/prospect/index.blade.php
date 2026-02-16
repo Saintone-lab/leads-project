@@ -87,6 +87,87 @@
                 </div>
             </div>
         </div>
+
+        @if (Auth::user()->role != 'Sales')
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-body px-4 py-4">
+
+                    <!-- Header -->
+                    <div class="mb-4 d-flex justify-content-between align-items-center">
+                        <div class="header-content">
+                            <h5 class="fw-semibold mb-1">Weekly Leads Distribution</h5>
+                            <p class="text-muted">Updated automatically every week</p>
+                        </div>
+                    </div>
+
+
+                    <div class="row g-4">
+
+                        @foreach ($salesLeads as $sales)
+                            @php
+                                $count = $sales->weekly_leads;
+
+                                if ($count <= 5) {
+                                    $color = 'success';
+                                    $bg = 'bg-success-subtle';
+                                } elseif ($count <= 10) {
+                                    $color = 'warning';
+                                    $bg = 'bg-warning-subtle';
+                                } else {
+                                    $color = 'danger';
+                                    $bg = 'bg-danger-subtle';
+                                }
+                            @endphp
+
+                            <div class="col-sm-6 col-lg-3">
+                                <div
+                                    class="d-flex align-items-center justify-content-between p-3 rounded-3 border h-100 transition-hover">
+
+                                    <!-- Left -->
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar me-3" data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="{{ $sales->name }}" style="cursor: default;">
+
+                                            @if ($sales->image)
+                                                <img src="{{ url('') . '/' . $sales->image }}" class="rounded-circle"
+                                                    width="46" height="46" style="object-fit:cover;">
+                                            @else
+                                                <div class="rounded-circle bg-label-primary d-flex align-items-center justify-content-center"
+                                                    style="width:46px;height:46px;">
+                                                    <span class="fw-bold text-primary">
+                                                        {{ strtoupper(substr($sales->name, 0, 1)) }}
+                                                    </span>
+                                                </div>
+                                            @endif
+
+                                        </div>
+
+                                        <div>
+                                            <p class="mb-1 text-dark medium fw-medium">
+                                                {{ $sales->name }}
+                                            </p>
+
+                                            <h4 class="mb-0 fw-bold text-{{ $color }}">
+                                                {{ $count }}
+                                                <span class="fs-6 fw-normal text-muted">Leads</span>
+                                            </h4>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right indicator dot -->
+                                    <div class="rounded-circle {{ $bg }}" style="width:12px;height:12px;"></div>
+
+
+
+                                </div>
+                            </div>
+                        @endforeach
+
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
                 <table

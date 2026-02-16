@@ -48,13 +48,14 @@ class POController extends Controller
         $purchase->mobile = $request->mobile;
         $purchase->delivery = $request->delivery;
         $purchase->date = $request->date;
-        $purchase->email = $supplier->email;
-        $purchase->phone = $supplier->phone;
-        $purchase->address = $supplier->address;
+        $purchase->email = $supplier->email ?? '-';
+        $purchase->phone = $supplier->phone ?? '-';
+        $purchase->address = $supplier->address ?? '-';
         $purchase->payment = $request->payment;
         $purchase->note = $request->note;
         $purchase->subtotal = $request->subtotal;
         $purchase->vat = $request->tax;
+        $purchase->diskon = $request->diskon;
         $purchase->total = $request->harga_total;
         $purchaseSave = $purchase->save();
         if ($purchaseSave) {

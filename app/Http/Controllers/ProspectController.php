@@ -39,6 +39,8 @@ class ProspectController extends Controller
         $prospects = Prospect::where('id_sales', Auth::id())->whereNull('level')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $startOfWeek = Carbon::now()->startOfWeek();
+        $endOfWeek = Carbon::now()->endOfWeek();
 
         // Comment Buat Admin
         $firstComments = Comment::where('id_user', Auth::id())
@@ -104,8 +106,36 @@ class ProspectController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.support.prospect.index', compact('prospects', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'quotation', 'leveledProspect', 'noSaleProspect', 'quotationAdmin', 'forecast', 'prospect', 'po', 'loss', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
 
+        // Hitung jumlah prospek yang dibuat oleh setiap sales dalam minggu ini
+        $salesLeads = User::where('role', 'Sales')
+        ->where('active', '1')
+        ->wherein('id', ['1','4', '2','32'])
+        ->withCount(['prospects as weekly_leads' => function ($query) use ($startOfWeek, $endOfWeek) {
+            $query->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
+        }])
+        ->get();
+
+        return view('pages.support.prospect.index', compact(
+            'prospects',
+            'comment',
+            'unreadComment',
+            'commentAdmin',
+            'unreadCommentAdmin',
+            'quotation',
+            'leveledProspect',
+            'noSaleProspect',
+            'quotationAdmin',
+            'forecast',
+            'prospect',
+            'po',
+            'loss',
+            'forecastAdmin',
+            'prospectAdmin',
+            'poAdmin',
+            'lossAdmin',
+            'salesLeads'   // ← tambahkan ini
+        ));
     }
 
     /**

@@ -25,8 +25,8 @@
             <div class="card">
                 <div class="card-body">
                     <div class="form-invoice-repeater source-item">
-                        <div class="row mb-2">
-                            <div class="col-12 col-lg-6 mb-3">
+                        <div class="row mb-3">
+                            <div class="col-12 col-lg-6">
                                 <div class="form-floating form-floating-outline mb-2">
                                     <select id="supplier-dropdown" class="select2 form-select invoice-item-supplier"
                                         data-allow-clear="true" name="supplier" data-id="1"
@@ -62,6 +62,13 @@
                                         value="{{ old('date', @$quotation->date ?? \Carbon\Carbon::today()->format('Y-m-d')) }}">
                                     <label for="date">Date</label>
                                 </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light"
+                                    data-bs-toggle="modal" data-bs-target="#createSupplier"
+                                    {{ Auth::user()->role == 'Logistic' ? 'disabled' : '' }}>
+                                    + Supplier
+                                </button>
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -217,6 +224,28 @@
                                     <div class="card-body ">
                                         <div class="row">
                                             <label class="col-sm-4 col-form-label text-sm-start"
+                                                for="collapsible-pincode">Discount :</label>
+                                            <div class="col-sm-8">
+                                                <div class="input-group">
+                                                    <span class="input-group-text"
+                                                        style="background: none; border: none;">Rp.
+                                                    </span>
+                                                    <input type="text" id="diskon-label" class="form-control"
+                                                        placeholder="Discount Here....." data-type="currency"
+                                                        style="background: none; border: none;"
+                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$"
+                                                        value="{{ old('diskon', @$quotation->diskon ? number_format(@$quotation->diskon, 0, '', '.') : '0') }}">
+                                                    <input type="number" name="diskon" id="diskon"
+                                                        value="{{ old('diskon', @$quotation->diskon ?? '0') }}" hidden>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
+                                    <div class="card-body ">
+                                        <div class="row">
+                                            <label class="col-sm-4 col-form-label text-sm-start"
                                                 for="collapsible-pincode">Total
                                                 :</label>
                                             <div class="col-sm-8">
@@ -246,6 +275,7 @@
                 </div>
             </div>
         </form>
+        @include('components.modal.warehouse.supplier.form')
     @endsection
     @push('after-style')
         <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
@@ -538,7 +568,9 @@
                                 hasil = 0,
                                 harga = response[0].price,
                                 disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(
-                                    `#disc-${id}`).val());
+                                    `#disc-${id}`).val()),
+                                diskon = isNaN(parseInt($(`#diskon`).val())) ? 0 : parseInt($(
+                                    `#diskon`).val());
                             $(`#qty-${id}`).val(1);
                             // menghitung hasil
                             hasil = harga * $(`#qty-${id}`).val();
@@ -558,8 +590,8 @@
                             var hTotal = 0;
                             var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax')
                                 .val());
-                            hTotal = parseInt(sTotal - disc + (sTotal * tax / 100));
-                            noTax = parseInt(sTotal - disc)
+                            hTotal = parseInt(sTotal - diskon + (sTotal * tax / 100));
+                            noTax = parseInt(sTotal - diskon)
                             $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
                             $('#hargaTotal').val(hTotal);
                             $('#totalNoTax').val(noTax);
@@ -629,7 +661,9 @@
                             var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
                             var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
                             var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon').val());
-                            var dTotal = sTotal - discount;
+                            var dTotal = sTotal - discount,
+                                diskon = isNaN(parseInt($(`#diskon`).val())) ? 0 : parseInt($(
+                                    `#diskon`).val());
                             var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
                             hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
                             noTax = parseInt(dTotal + shipping);
@@ -686,7 +720,10 @@
                                     harga = response[0].price,
                                     disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 :
                                     parseInt($(
-                                        `#disc-${id}`).val());
+                                        `#disc-${id}`).val()),
+                                    diskon = isNaN(parseInt($(`#diskon`).val())) ? 0 :
+                                    parseInt($(
+                                        `#diskon`).val());
                                 $(`#qty-${id}`).val(1);
                                 // menghitung hasil
                                 hasil = harga * $(`#qty-${id}`).val();
@@ -708,8 +745,8 @@
                                 var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($(
                                         '#tax')
                                     .val());
-                                hTotal = parseInt(sTotal - disc + (sTotal * tax / 100));
-                                noTax = parseInt(sTotal - disc)
+                                hTotal = parseInt(sTotal - diskon + (sTotal * tax / 100));
+                                noTax = parseInt(sTotal - diskon)
                                 $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
                                 $('#hargaTotal').val(hTotal);
                                 $('#totalNoTax').val(noTax);
@@ -786,11 +823,13 @@
                                 var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($(
                                     '#shipping').val());
                                 var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon')
-                                    .val());
-                                var dTotal = sTotal - discount;
+                                        .val()),
+                                    diskon = isNaN(parseInt($(`#diskon`).val())) ? 0 : parseInt($(
+                                        `#diskon`).val());
+                                var dTotal = sTotal - disc;
                                 var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                                hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
-                                noTax = parseInt(dTotal + shipping);
+                                hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping - diskon);
+                                noTax = parseInt(dTotal + shipping - diskon);
                                 console.log(hTotal);
                                 $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
                                 $('#hargaTotal').val(hTotal);
