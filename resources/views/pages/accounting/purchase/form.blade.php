@@ -67,7 +67,7 @@
                                 <button type="button" class="btn btn-primary waves-effect waves-light"
                                     data-bs-toggle="modal" data-bs-target="#createSupplier"
                                     {{ Auth::user()->role == 'Logistic' ? 'disabled' : '' }}>
-                                    + Supplier
+                                    + Supplier Baru
                                 </button>
                             </div>
                         </div>
