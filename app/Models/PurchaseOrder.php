@@ -33,4 +33,8 @@ class PurchaseOrder extends Model
     {
         return $this->hasMany('App\Models\DetailPurchaseOrder', 'id_purhcase_order');
     }
+    public function supplier()
+    {
+        return $this->belongsTo('App\Models\Supplier', 'id_supplier', 'id');
+    }
 }

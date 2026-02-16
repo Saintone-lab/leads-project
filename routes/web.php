@@ -1369,6 +1369,7 @@ Route::group(["middleware" => "auth"], function () {
     // account
     Route::get('/expense-account', [ExpenseController::class, 'indexAccount'])->name('expense-account.index');
     Route::post('/expense-account', [ExpenseController::class, 'storeAccount'])->name('expense-account.store');
+    Route::patch('/expense-account/{id}', [ExpenseController::class, 'updateAccount'])->name('expense-account.update');
     Route::delete('/expense-account/{id}', [ExpenseController::class, 'deleteAccount'])->name('expense-account.delete');
     Route::get('/expense', [ExpenseController::class, 'indexexpense'])->name('expense.index');
     Route::get('/expense-umum', [ExpenseController::class, 'indexexpenseUmum'])->name('expense-umum.index');
@@ -1377,6 +1378,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/expense/{id}', [ExpenseController::class, 'deleteexpense'])->name('expense.delete');
     Route::get('/expense/{id}', [ExpenseController::class, 'showexpense'])->name('expense.show');
     Route::get('/expense-print/{id}', [ExpenseController::class, 'showexpensePrint'])->name('expense.print');
+    Route::get('/get/account/{id}', [ExpenseController::class, 'getAccount'])->name('expense.getAccount');
     Route::post('/expense/store', [ExpenseController::class, 'storeexpense'])->name('expense.store');
 
     Route::get('/income', [ExpenseController::class, 'indexIncome'])->name('expense-income.index');
@@ -4816,7 +4818,7 @@ Route::group(["middleware" => "auth"], function () {
     });
 
     Route::get('/db/account/data', function () {
-        $account = Account::all();
+        $account = Account::orderByDesc('id')->get();
         return response()->json(['data' => $account]);
     });
     Route::get('/db/expense/data', function () {

@@ -26,19 +26,19 @@
                 <div class="card-body">
                     <div class="form-invoice-repeater source-item">
                         <div class="row mb-2">
-                            <div class="col-12 col-lg-3 mb-3">
-                                <div class="form-floating form-floating-outline">
-                                    <input class="form-control" type="text" placeholder="text Company Here ...."
-                                        id="company" name="company"
-                                        value="{{ old('company', @$puchase->company ?? '') }}">
-                                    <label for="select2Basic">Nama Perusahaan</label>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-lg-6 mb-3">
                                 <div class="form-floating form-floating-outline mb-2">
-                                    <input class="form-control" type="text" placeholder="Put ATTN Quotation Here ...."
-                                        id="attn" name="attn" value="{{ old('attn', @$puchase->attn ?? '') }}">
-                                    <label for="pic-dropdown">ATTN</label>
+                                    <select id="supplier-dropdown" class="select2 form-select invoice-item-supplier"
+                                        data-allow-clear="true" name="supplier" data-id="1"
+                                        {{ Auth::user()->role == 'Logistic' ? 'disabled' : '' }}>
+                                        <option selected>Pilih Supplier...</option>
+                                        @foreach ($suppliers as $supp)
+                                            <option value="{{ $supp->id }}" data-info="{{ $supp->info }}">
+                                                {{ $supp->supplier }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <label for="supplier-dropdown">Supplier</label>
                                 </div>
                             </div>
                             <div class="col-12 col-lg-2">
@@ -65,29 +65,14 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-12 col-lg-3">
-                                <div class="form-floating form-floating-outline">
-                                    <input class="form-control" type="text" placeholder="text Email Here ...."
-                                        id="email" name="email" value="{{ old('email', @$purchase->email ?? '') }}">
-                                    <label for="select2Basic">Email</label>
+                            <div class="col-12 col-lg-6">
+                                <div class="form-floating form-floating-outline mb-2">
+                                    <input class="form-control" type="text" placeholder="Put ATTN Quotation Here ...."
+                                        id="attn" name="attn" value="{{ old('attn', @$puchase->attn ?? '') }}">
+                                    <label for="pic-dropdown">ATTN</label>
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-3">
-                                <div class="form-floating form-floating-outline">
-                                    <input class="form-control" type="text" placeholder="text Phone Here ...."
-                                        id="phone" name="phone" value="{{ old('phone', @$purchase->phone ?? '') }}">
-                                    <label for="select2Basic">Phone</label>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg-3">
-                                <div class="form-floating form-floating-outline">
-                                    <input class="form-control" type="text" placeholder="text Address Here ...."
-                                        id="address" name="address"
-                                        value="{{ old('address', @$purchase->address ?? '') }}">
-                                    <label for="select2Basic">Address</label>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-lg-6">
                                 <div class="form-floating form-floating-outline">
                                     <input class="form-control" type="text" placeholder="text Payment Here ...."
                                         id="payment" name="payment"

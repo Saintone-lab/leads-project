@@ -20,14 +20,54 @@ class Expensecontroller extends Controller
 {
     public function indexAccount()
     {
-        return view('pages.finance.account.index');
+        $account = Account::where('level', 1)->get();
+        $prim = Account::where('level', 1)->get();
+        return view('pages.finance.account.index', compact('account', 'prim'));
+    }
+    public function getAccount($id)
+    {
+        $account = Account::find($id);
+
+        if (!$account) {
+            return response()->json([
+                'message' => 'Data stock account tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'code' => $account->code ?? '',
+            'name' => $account->name ?? '',
+            'category' => $account->category ?? '',
+            'currency' => $account->currency ?? '',
+            'saldo' => $account->saldo ?? '',
+            'parent' => $account->id_parents ?? '',
+        ]);
     }
     public function storeAccount(Request $request)
     {
         $account = new Account();
+        $account->id_parents = $request->parent ?? 0 ;
         $account->code = $request->code;
         $account->name = $request->name;
         $account->category = $request->category;
+        $account->currency = $request->currency;
+        $account->saldo = $request->saldo;
+        $account->level = @$request->parent ? 2 : 1;
+        $accountSave = $account->save();
+        if ($accountSave) {
+            return redirect('/expense-acount')->with('success', 'data telah dibuat');
+        }
+    }
+    public function updateAccount(Request $request, $id)
+    {
+        $account = Account::find($id);
+        $account->id_parents = $request->parent ?? 0 ;
+        $account->code = $request->code;
+        $account->name = $request->name;
+        $account->category = $request->category;
+        $account->currency = $request->currency;
+        $account->saldo = $request->saldo;
+        $account->level = @$request->parent ? 2 : 1;
         $accountSave = $account->save();
         if ($accountSave) {
             return redirect('/expense-acount')->with('success', 'data telah dibuat');

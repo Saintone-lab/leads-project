@@ -26,4 +26,8 @@ class Supplier extends Model
     {
         return $this->hasMany('App\Models\ProductIn', 'id_supplier');
     }
+    public function purchase()
+    {
+        return $this->hasMany('App\Models\PurchaseOrder', 'id_supplier');
+    }
 }

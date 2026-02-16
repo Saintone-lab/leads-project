@@ -13,7 +13,7 @@ $(function () {
             $(this).html(
                 '<input type="text" class="form-control" placeholder="Search ' +
                     title +
-                    '" />'
+                    '" />',
             );
 
             $("input", this).on("keyup change", function () {
@@ -45,9 +45,20 @@ $(function () {
                 { data: "code" },
                 { data: "name" },
                 { data: "category" },
+                { data: "currency" },
+                { data: "saldo" },
                 { data: "id" },
             ],
             columnDefs: [
+                {
+                    targets: [0, 1, 2, 3, 4],
+                    render: function (data, type, row) {
+                        if (row.level == 1) {
+                            return "<strong>" + data + "</strong>";
+                        }
+                        return data;
+                    },
+                },
                 // {
                 //     targets: 1,
                 //     render: function (data, type, full, row) {
@@ -71,7 +82,8 @@ $(function () {
                         return (
                             '<a href="#" data-id="' +
                             id +
-                            '" class="btn btn-sm btn-label-danger delete-account m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i></a>'
+                            '" class="btn btn-sm btn-label-danger delete-account m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i></a>'+
+                            '<button type="button" class="btn btn-sm btn-warning editAccount" data-id="'+ id +'" data-bs-toggle="modal" data-bs-target="#editAccount"> Edit </button>'
                             // '<a type="button" href="#" data-bs-toggle="modal" data-bs-target="#updatePic-' +
                             // id +
                             // '" data-id="' +
@@ -81,7 +93,7 @@ $(function () {
                     },
                 },
             ],
-            order: [[2, "desc"]],
+            order: [[0, "asc"]],
             // orderCellsTop: true,
             dom:
                 '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f><"dt-action-buttons text-end pt-3 pt-md-0"B>>' +

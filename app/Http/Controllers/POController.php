@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DetailPurchaseOrder;
 use App\Models\PurchaseOrder;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class POController extends Controller
@@ -25,7 +26,8 @@ class POController extends Controller
      */
     public function create()
     {
-        return view('pages.accounting.purchase.form');
+        $suppliers = Supplier::all();
+        return view('pages.accounting.purchase.form', compact('suppliers'));
     }
 
     /**
@@ -37,16 +39,18 @@ class POController extends Controller
     public function store(Request $request)
     {
         // dd($request->all());
+        $supplier = Supplier::find($request->supplier);
         $purchase = new PurchaseOrder();
+        $purchase->id_supplier = $request->supplier;
         $purchase->no_po = $request->no_po;
-        $purchase->company = $request->company;
+        $purchase->company = $supplier->supplier;
         $purchase->attn = $request->attn;
         $purchase->mobile = $request->mobile;
         $purchase->delivery = $request->delivery;
         $purchase->date = $request->date;
-        $purchase->email = $request->email;
-        $purchase->phone = $request->phone;
-        $purchase->address = $request->address;
+        $purchase->email = $supplier->email;
+        $purchase->phone = $supplier->phone;
+        $purchase->address = $supplier->address;
         $purchase->payment = $request->payment;
         $purchase->note = $request->note;
         $purchase->subtotal = $request->subtotal;
