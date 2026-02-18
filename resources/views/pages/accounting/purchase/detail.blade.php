@@ -103,33 +103,65 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-2 fw-medium">
-                            <p class="mb-1">ATTN </p>
-                            <p class="mb-1">Company </p>
-                            <p class="mb-1">Phone </p>
-                            <p class="mb-1">Address</p>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-4 fw-medium">
+                                    <p class="mb-1">ATTN </p>
+                                </div>
+                                <div class="col-8">
+                                    <p class="mb-1">: {{ $purchase->attn }}</p>
+                                </div>
+                                <div class="col-4 fw-medium">
+                                    <p class="mb-1">Company </p>
+                                </div>
+                                <div class="col-8">
+                                    <p class="mb-1">: {{ $purchase->company }}</p>
+                                </div>
+                                <div class="col-4 fw-medium">
+                                    <p class="mb-1">Phone </p>
+                                </div>
+                                <div class="col-8">
+                                    <p class="mb-1">: {{ $purchase->phone }}</p>
+                                </div>
+                                <div class="col-4 fw-medium">
+                                    <p class="mb-1">Address</p>
+                                </div>
+                                <div class="col-8">
+                                    <p class="mb-1">: {{ $purchase->address }}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-4">
-                            <p class="mb-1">: {{ $purchase->attn }}</p>
-                            <p class="mb-1">: {{ $purchase->company }}</p>
-                            <p class="mb-1">: {{ $purchase->phone }}</p>
-                            <p class="mb-1">: {{ $purchase->address }}</p>
-                        </div>
-                        <div class="col-3 fw-medium text-end">
-                            <p class="mb-1">Mobile :</p>
-                            <p class="mb-1">Email :</p>
-                            <p class="mb-1">Payment :</p>
-                            <p class="mb-1">Delivery Time :</p>
-                        </div>
-                        <div class="col-3 text-end">
-                            <p class="mb-1"> {{ $purchase->mobile ?? '-' }}</p>
-                            <p class="mb-1"> {{ $purchase->email ?? '-' }}</p>
-                            <p class="mb-1"> {{ $purchase->payment ?? '-' }}</p>
-                            <p class="mb-1"> {{ $purchase->delivery ?? '-' }}</p>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-6 fw-medium text-end">
+                                    <p class="mb-1">Mobile :</p>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="mb-1"> {{ $purchase->mobile ?? '-' }}</p>
+                                </div>
+                                <div class="col-6 fw-medium text-end">
+                                    <p class="mb-1">Email :</p>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="mb-1"> {{ $purchase->email ?? '-' }}</p>
+                                </div>
+                                <div class="col-6 fw-medium text-end">
+                                    <p class="mb-1">Payment :</p>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="mb-1"> {{ $purchase->payment ?? '-' }}</p>
+                                </div>
+                                <div class="col-6 fw-medium text-end">
+                                    <p class="mb-1">Delivery Time :</p>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="mb-1"> {{ $purchase->delivery ?? '-' }}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive mb-5">
                     <table class="table m-0">
                         <thead class="table-light border-top">
                             <tr>
@@ -161,7 +193,7 @@
                                     </td>
                                 </tr>
                             @endforeach
-                            <tr>
+                            <tr style="border-bottom: #FFFFFF;">
                                 <td colspan="3" class="align-top px-4 py-5">
                                     <div class="row">
                                         <div class="col-3 fw-medium">
@@ -174,20 +206,40 @@
                                 </td>
                                 <td class="text-end px-4 py-5">
                                     <p class="mb-2">Subtotal:</p>
-                                    <p class="mb-2">Tax :</p>
+                                    <p class="mb-2">Diskon:</p>
                                     <p class="mb-0">Total:</p>
+                                    <p class="mb-2">DPP Nilai Lain :</p>
+                                    <p class="mb-2">VAT 12% :</p>
+                                    <p class="mb-2 fw-bolder">Total Price :</p>
                                 </td>
                                 <td class="px-4 py-5">
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($purchase->subtotal, 0, '', '.') }}</p>
+                                    <p class="fw-semibold mb-2 text-end">RP
+                                        {{ number_format($purchase->diskon, 0, '', '.') }}</p>
+                                    <p class="fw-semibold mb-0 text-end">RP
+                                        {{ number_format($purchase->total, 0, '', '.') }}</p>
                                     <p class="fw-semibold mb-2 text-end">
                                         {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
-                                    <p class="fw-semibold mb-0 text-end">RP
-                                        {{ number_format($purchase->harga_total, 0, '', '.') }}</p>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <div class="row">
+                    <div class="col-4 text-center">
+                        <p class="fs-normal fw-bolder">Authorized By.</p>
+                        <img src="{{ url('') . '/asset/sign/ttdAngel.jpg' }}" alt="" srcset=""
+                            height="77">
+                        <p class="pt-3">Reftech Jaya Optima</p>
+                    </div>
+                    <div class="col-4"></div>
+                    <div class="col-4 text-center">
+                        <p class="fs-normal fw-bolder">Accepted By Vendor.</p>
+                        <div class="pb-5"></div>
+                        <p class="pt-3 mb-0 mt-2">{{ $purchase->attn }}</p>
+                        <p>{{ $purchase->company }}</p>
+                    </div>
                 </div>
             </div>
         </div>

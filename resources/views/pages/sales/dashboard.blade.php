@@ -465,11 +465,6 @@
                                                     $jumlahData = count($weekPerMonth);
                                                 }
                                             @endphp
-                                            {{-- @if ($jumlahData > 4)
-                                        {{ round($target->dc + $target->dc / 4) }}
-                                    @elseif($jumlahData == 4)
-                                        {{ round($target->dc) }}
-                                    @endif --}}
                                         </small>
                                     @endif
                                 </h4>
@@ -1439,8 +1434,8 @@
                                                                                         $targetSales[$item][0]->dc) *
                                                                                     100;
                                                                             @endphp
-                                                                            <h4 class="filtered-percent-dc fs-5 m-0">
-                                                                                {{ round($targetDC) }} %</h4>
+                                                                            {{-- <h4 class="filtered-percent-dc fs-5 m-0">
+                                                                                {{ round($targetDC) }} %</h4> --}}
                                                                         </div>
                                                                         <div class="col-8">
 
@@ -1449,11 +1444,12 @@
                                                                                     <span class="filtered-dc">
                                                                                         {{ $filteredDC }}
                                                                                     </span>
-                                                                                    <span
-                                                                                        class="filtered-target-dc text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span>
+                                                                                    {{-- <span
+                                                                                        class="filtered-target-dc text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span> --}}
                                                                                 </h5>
-                                                                                <small class="text-muted">Daily
-                                                                                    Call</small>
+                                                                                <small class="text-muted">
+                                                                                    Daily Call
+                                                                                </small>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1474,19 +1470,24 @@
                                                                                 ($filteredCRM / $targetCrm[$user->id]) *
                                                                                 100;
                                                                         @endphp
-                                                                        <h4 class="filtered-percent-crm fs-5 m-0">
-                                                                            {{ round($targetCRM) }} %</h4>
+                                                                        @if ($user->id != 3)
+                                                                            <h4 class="filtered-percent-crm fs-5 m-0">
+                                                                                {{ round($targetCRM) }} %</h4>
+                                                                        @endif
                                                                     </div>
                                                                     <div class="col-8">
-
                                                                         <div class="card-info">
-                                                                            <h5 class="mb-0">
-                                                                                <span class="filtered-crm">
-                                                                                    {{ $filteredCRM }}
-                                                                                </span>
-                                                                                <span
-                                                                                    class="filtered-target-crm text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] }}</span>
-                                                                            </h5>
+                                                                            @if ($user->id == 3)
+                                                                                -
+                                                                            @else
+                                                                                <h5 class="mb-0">
+                                                                                    <span class="filtered-crm">
+                                                                                        {{ $filteredCRM }}
+                                                                                    </span>
+                                                                                    <span
+                                                                                        class="filtered-target-crm text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] }}</span>
+                                                                                </h5>
+                                                                            @endif
                                                                             <small class="text-muted">CRM</small>
                                                                         </div>
                                                                     </div>
@@ -2272,23 +2273,23 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link waves-effect waves-light" role="tab"
-                        data-bs-toggle="tab" data-bs-target="#navs-pills-top-progress"
-                        aria-controls="navs-pills-top-progress" aria-selected="false" tabindex="-1">
+                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
+                        data-bs-target="#navs-pills-top-progress" aria-controls="navs-pills-top-progress"
+                        aria-selected="false" tabindex="-1">
                         Progress
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link waves-effect waves-light" role="tab"
-                        data-bs-toggle="tab" data-bs-target="#navs-pills-top-delivery"
-                        aria-controls="navs-pills-top-delivery" aria-selected="false" tabindex="-1">
+                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
+                        data-bs-target="#navs-pills-top-delivery" aria-controls="navs-pills-top-delivery"
+                        aria-selected="false" tabindex="-1">
                         Delivery
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link waves-effect waves-light" role="tab"
-                        data-bs-toggle="tab" data-bs-target="#navs-pills-top-done" aria-controls="navs-pills-top-done"
-                        aria-selected="false" tabindex="-1">
+                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
+                        data-bs-target="#navs-pills-top-done" aria-controls="navs-pills-top-done" aria-selected="false"
+                        tabindex="-1">
                         Done
                     </button>
                 </li>
@@ -2518,9 +2519,9 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link waves-effect waves-light" role="tab"
-                        data-bs-toggle="tab" data-bs-target="#navs-pills-top-2" aria-controls="navs-pills-top-2"
-                        aria-selected="false" tabindex="-1">
+                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
+                        data-bs-target="#navs-pills-top-2" aria-controls="navs-pills-top-2" aria-selected="false"
+                        tabindex="-1">
                         Semester 2
                     </button>
                 </li>
@@ -2541,8 +2542,7 @@
                                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i class="mdi mdi-dots-vertical mdi-24px"></i>
                                         </button>
-                                        <div class="dropdown-menu dropdown-menu-end"
-                                            aria-labelledby="generalStatistics">
+                                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
                                             <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
                                             <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
                                             <a class="dropdown-item" href="javascript:void(0);">Last Year</a>

@@ -722,8 +722,8 @@ class PendingController extends Controller
                 $return->date = Carbon::today();
                 $returnSave = $return->save();
                 // -- Stock
-                $dproduct->stock -= $value;
-                $product->stock -= $value;
+                $dproduct->stock += $value;
+                $product->stock += $value;
                 $dproduct->save();
                 $product->save();
             }

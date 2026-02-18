@@ -72,7 +72,7 @@
                 </div>
             </div>
         </div>
-        <div class="mb-2">
+        <div class="mb-5">
             <table class="table table-borderless m-0" style="width: 100%">
 
                 <thead class="table-light border-top">
@@ -105,7 +105,7 @@
                             </td>
                         </tr>
                     @endforeach
-                    <tr>
+                    <tr style="border-bottom: #FFFFFF;">
                         <td colspan="3" class="align-top px-4 py-5">
                             <div class="row">
                                 <div class="col-3 fw-medium">
@@ -119,6 +119,7 @@
                         <td class="text-end px-4 py-5">
                             <p class="mb-2">Subtotal:</p>
                             <p class="mb-2">Tax :</p>
+                            <p class="mb-0">Diskon:</p>
                             <p class="mb-0">Total:</p>
                         </td>
                         <td class="px-4 py-5">
@@ -127,11 +128,27 @@
                             <p class="fw-semibold mb-2 text-end">
                                 {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
                             <p class="fw-semibold mb-0 text-end">RP
-                                {{ number_format($purchase->harga_total, 0, '', '.') }}</p>
+                                {{ number_format($purchase->diskon, 0, '', '.') }}</p>
+                            <p class="fw-semibold mb-0 text-end">RP
+                                {{ number_format($purchase->total, 0, '', '.') }}</p>
                         </td>
                     </tr>
                 </tbody>
             </table>
+        </div>
+        <div class="row">
+            <div class="col-4 text-center">
+                <p class="fs-normal fw-bolder">Authorized By.</p>
+                <img src="{{ url('') . '/asset/sign/ttdAngel.jpg' }}" alt="" srcset="" height="77">
+                <p class="pt-3">Reftech Jaya Optima</p>
+            </div>
+            <div class="col-4"></div>
+            <div class="col-4 text-center">
+                <p class="fs-normal fw-bolder">Accepted By Vendor.</p>
+                <div class="pb-5"></div>
+                <p class="pt-3 mb-0 mt-2">{{ $purchase->attn }}</p>
+                <p>{{ $purchase->company }}</p>
+            </div>
         </div>
     </div>
 </div>
