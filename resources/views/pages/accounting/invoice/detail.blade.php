@@ -247,14 +247,14 @@
                             </thead>
                             <tbody>
                                 @php
-                                    $totalPph = 0;
+                                    // $totalPph = 0;
                                     $no = 0;
                                 @endphp
                                 @foreach ($dquote as $product)
                                     @php
                                         $no++;
-                                        $pph = ($product->amount * $product->pph) / 100;
-                                        $totalPph += $pph;
+                                        // $pph = ($product->amount * $product->pph) / 100;
+                                        // $totalPph += $pph;
                                         $dpp = ($product->amount * 11) / 12;
                                     @endphp
                                     <tr style="font-size: 13px">
@@ -723,7 +723,7 @@
                             <tbody>
                                 @php
                                     $abjad = 64;
-                                    $totalPph = 0;
+                                    // $totalPph = 0;
                                 @endphp
                                 @foreach ($subQuote as $subJudul)
                                     @php
@@ -742,8 +742,8 @@
                                     </tr>
                                     @foreach ($subJudul->detail as $product)
                                         @php
-                                            $pph = ($product->amount * $product->pph) / 100;
-                                            $totalPph += $pph;
+                                            // $pph = ($product->amount * $product->pph) / 100;
+                                            // $totalPph += $pph;
                                             $dpp = ($product->amount * 11) / 12;
                                         @endphp
                                         <tr
@@ -1357,15 +1357,28 @@
                 </div>
                 <div class="card mb-3">
                     <div class="card-body">
-                        @if ($totalPph > 0)
+                        @if ($totalPph23 > 0)
                             <a href="#"
                                 class="btn btn-danger d-grid w-100 waves-effect {{ $quote->type == 'Sparepart' ? 'delete-pph' : 'delete-pph-service' }} mb-3"
-                                data-id="{{ $invoice->id }}">Delete PPH</a>
+                                data-id="{{ $invoice->id }}">Delete PPH 23</a>
                         @else
                             <a type="button" data-bs-toggle="modal" data-bs-target="#addPph"
                                 class="d-grid w-100 waves-effect mb-3">
+                                <button type="button" class="btn btn-info">
+                                    Input PPH 23
+                                </button>
+                            </a>
+                        @endif
+                        
+                        @if ($invoice->pph > 0)
+                            <a href="#"
+                                class="btn btn-danger d-grid w-100 waves-effect delete-pph-manual mb-3"
+                                data-id="{{ $invoice->id }}">Delete PPH Manual</a>
+                        @else
+                            <a type="button" data-bs-toggle="modal" data-bs-target="#addPphManual"
+                                class="d-grid w-100 waves-effect mb-3">
                                 <button type="button" class="btn btn-twitter">
-                                    Input PPH
+                                    Input PPH Manual
                                 </button>
                             </a>
                         @endif
@@ -1540,6 +1553,7 @@
         @include('components.modal.invoice.date')
         @include('components.modal.invoice.desc')
         @include('components.modal.invoice.pph')
+        @include('components.modal.invoice.pph-manual')
         @include('components.modal.invoice.confirm')
         @include('components.modal.invoice.expense')
         @include('components.modal.invoice.due-date')
@@ -1581,6 +1595,25 @@
                 var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
                 console.log(nomorInt);
                 $(`#pricy`).val(nomorInt);
+            });
+
+            $(".invoice-item-pph-manual-label").on('keyup', function() {
+                var input = $(this)
+                var input_val = input.val();
+
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                console.log(nomorInt);
+                $(`#pphManual`).val(nomorInt);
             });
 
             // $(document).on('click', '.delete-contract', function() {
@@ -1938,6 +1971,62 @@
                             'type': 'POST',
                             'data': {
                                 '_method': 'DELETE',
+                                '_token': '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                if (response == 1) {
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "Deleted!",
+                                        text: "Your file has been deleted.",
+                                        customClass: {
+                                            confirmButton: "btn btn-success waves-effect",
+                                        },
+                                    })
+                                    window.setTimeout(function() {
+                                        window.location.href = '/invoice/' + id;
+                                    }, 2000);
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: 'Data Failed to Delete!'
+                                    });
+                                }
+                            }
+                        });
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            title: "Cancelled",
+                            text: "Your imaginary file is safe :)",
+                            icon: "error",
+                            customClass: {
+                                confirmButton: "btn btn-success waves-effect",
+                            },
+                        });
+                    }
+                });
+            });
+            $(document).on('click', '.delete-pph-manual', function() {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!",
+                    customClass: {
+                        confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                        cancelButton: "btn btn-label-secondary waves-effect",
+                    },
+                    buttonsStyling: false,
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            'url': '{{ url('invoice') }}/delete_pph_manual/' + id,
+                            'type': 'POST',
+                            'data': {
+                                '_method': 'PATCH',
                                 '_token': '{{ csrf_token() }}'
                             },
                             success: function(response) {

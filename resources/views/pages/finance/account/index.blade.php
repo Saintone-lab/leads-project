@@ -82,7 +82,11 @@
                 dataType: 'json',
                 success: function(res) {
                     console.log(res);
+                    
+                    let updateUrl = "{{ route('expense-account.update', ':id') }}";
+                    updateUrl = updateUrl.replace(':id', res.id);
 
+                    $('#editForm').attr('action', updateUrl);
                     $('.edit_code').val(res.code);
                     $('.edit_category').val(res.category);
                     $('.edit_name').val(res.name);

@@ -1177,6 +1177,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::delete('/invoice/del-sign/{id}', [InvoiceController::class, 'delete_hand_sign'])->name('invoice.del-sign');
     Route::delete('/invoice/del-expense/{id}', [InvoiceController::class, 'deleteExpense'])->name('invoice.del-expense');
     Route::post('/invoice/pph/{id}', [InvoiceController::class, 'add_pph'])->name('invoice.pph');
+    Route::post('/invoice/pph_manual/{id}', [InvoiceController::class, 'add_pph_manual'])->name('invoice.pph_manual');
+    Route::patch('/invoice/delete_pph_manual/{id}', [InvoiceController::class, 'delete_pph_manual'])->name('invoice.delete_pph_manual');
     Route::post('/invoice/pph_service/{id}', [InvoiceController::class, 'add_pph_service'])->name('invoice.pph_service');
     Route::post('/invoice/expense/{id}', [InvoiceController::class, 'inputExpense'])->name('invoice.expense');
     Route::delete('/invoice/del-pph/{id}', [InvoiceController::class, 'delete_pph'])->name('invoice.del-pph');
@@ -1497,6 +1499,8 @@ Route::group(["middleware" => "auth"], function () {
     // Purchase Order
     Route::resource('/purchase', POController::class);
     Route::get('/purchase/print/{id}', [POController::class, 'show_print'])->name('purchase.show_print');
+    Route::post('/purchase/pph/{id}', [POController::class, 'add_pph'])->name('purchase.add_pph');
+    Route::patch('/purchase/delete-pph/{id}', [POController::class, 'delete_pph'])->name('purchase.delete_pph');
 
     // Purchase Order
     Route::resource('/product-set', ProductSetController::class);

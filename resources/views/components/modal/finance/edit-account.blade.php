@@ -1,4 +1,4 @@
-<form action="{{ route('expense-account.update', $id) }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('expense-account.update', 1) }}" id="editForm" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PATCH')
     <div class="modal-onboarding modal fade animate__animated" id="editAccount" tabindex="-1" style="display: none;"

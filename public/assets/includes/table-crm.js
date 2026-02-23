@@ -151,11 +151,11 @@ $(function () {
                         dropdown +=
                             '<option value="2" ' +
                             (data === "2" ? "selected" : "") +
-                            ">Normal</option>";
+                            ">Aktif</option>";
                         dropdown +=
                             '<option value="3" ' +
                             (data === "3" ? "selected" : "") +
-                            ">Hot</option>";
+                            ">Non Aktif</option>";
                         dropdown += "</select>";
                         return dropdown;
                     },

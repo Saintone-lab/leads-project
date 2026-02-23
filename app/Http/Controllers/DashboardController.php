@@ -148,41 +148,6 @@ class DashboardController extends Controller
                 ->where('reports.viewed', 0)->count();
             // dd($ratingCount);
 
-            // Support
-            $monthNow = now()->month;
-            $yearNow  = now()->year;
-
-            $prospect  = $allProspect;       // sama dengan overview
-            $quotation = $filteredQuote;     // sama dengan overview
-            $po        = $filteredPO;        // sama dengan overview
-            $loss      = Quotation::whereYear('estimated_date', $yearNow)
-                ->whereMonth('estimated_date', $monthNow)
-                ->where('id_sales', $firstSales->id)
-                ->where('status', '0')
-                ->where('level', '1')
-                ->where('is_primary', '1')
-                ->count();
-
-            // Provided tetap dari prospect
-            $provided = Prospect::whereMonth('date', $monthNow)
-                ->whereYear('date', $yearNow)
-                ->where('provide', '1')
-                ->count();
-
-            $closingRate = $prospect > 0
-                ? round(($po / $prospect) * 100, 1)
-                : 0;
-
-            $lastMonth = now()->subMonth()->month;
-            $lastYear  = now()->subMonth()->year;
-
-            $lastProspect = Prospect::whereMonth('date', $lastMonth)
-                ->whereYear('date', $lastYear)
-                ->count();
-
-            $diffProspect = $prospect - $lastProspect;
-            $targetProspect = 100;
-
             return view(
                 "pages.sales.dashboard",
                 compact(
@@ -222,15 +187,7 @@ class DashboardController extends Controller
                     'clients',
                     'customers',
                     'unreadComment',
-                    'comment',
-                    'prospect',
-                    'provided',
-                    'quotation',
-                    'po',
-                    'loss',
-                    'closingRate',
-                    'diffProspect',
-                    'targetProspect',
+                    'comment'
                 )
             );
         } elseif (Auth::user()->role == 'Admin') {
@@ -1182,6 +1139,7 @@ class DashboardController extends Controller
             ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
 
         return $adminNotif;
+
     }
     // Ajax Sales Kanan
     public function totalQuotationAdmin($sales)

@@ -118,19 +118,35 @@
                         </td>
                         <td class="text-end px-4 py-5">
                             <p class="mb-2">Subtotal:</p>
-                            <p class="mb-2">Tax :</p>
-                            <p class="mb-0">Diskon:</p>
-                            <p class="mb-0">Total:</p>
+                            <p class="mb-2">Diskon:</p>
+                            <p class="mb-2">Total:</p>
+                            @if ($purchase->vat > 0)
+                                <p class="mb-2">DPP Nilai Lain :</p>
+                                <p class="mb-2">VAT 12% :</p>
+                                <p class="mb-2 fw-bolder">Total Price :</p>
+                            @endif
                         </td>
+                        @php
+                            $tax = ($purchase->total * 11) / 100;
+                            $noTax = $purchase->total - ($purchase->total * 11) / 100;
+                            $dpp = ($noTax * 11) / 12;
+                        @endphp
                         <td class="px-4 py-5">
                             <p class="fw-semibold mb-2 text-end">RP
                                 {{ number_format($purchase->subtotal, 0, '', '.') }}</p>
-                            <p class="fw-semibold mb-2 text-end">
-                                {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
-                            <p class="fw-semibold mb-0 text-end">RP
+                            <p class="fw-semibold mb-2 text-end">RP
                                 {{ number_format($purchase->diskon, 0, '', '.') }}</p>
-                            <p class="fw-semibold mb-0 text-end">RP
-                                {{ number_format($purchase->total, 0, '', '.') }}</p>
+                            <p class="fw-semibold mb-2 text-end">RP
+                                {{ number_format($purchase->vat > 0 ? $noTax : $purchase->total, 0, '', '.') }}</p>
+                            @if ($purchase->vat > 0)
+                                <p class="fw-semibold mb-2 text-end">
+                                    {{ $dpp == '0' ? '0' : 'RP ' . number_format($dpp, 0, '', '.') }}</p>
+                                <p class="fw-semibold mb-2 text-end">
+                                    {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
+                                <p class="fw-semibold mb-2 text-end">
+                                    {{ $purchase->total == '0' ? '0' : 'RP ' . number_format($purchase->total, 0, '', '.') }}
+                                </p>
+                            @endif
                         </td>
                     </tr>
                 </tbody>

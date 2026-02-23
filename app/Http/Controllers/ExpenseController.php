@@ -35,6 +35,7 @@ class Expensecontroller extends Controller
         }
 
         return response()->json([
+            'id' => $account->id ?? 1,
             'code' => $account->code ?? '',
             'name' => $account->name ?? '',
             'category' => $account->category ?? '',

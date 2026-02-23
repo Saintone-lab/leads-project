@@ -130,6 +130,7 @@ class ServiceReportsController extends Controller
      */
     public function edit($id)
     {
+        $sales = User::where('role', 'Sales')->get();
         $report = Reports::find($id);
         $image = ReportsPict::where('id_reports', $id)->get();
         $dateNow = Carbon::now();
@@ -140,7 +141,7 @@ class ServiceReportsController extends Controller
         $clients = Client::all();
         $pic = Pic::all();
         // dd($image);
-        return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow', 'report', 'image', 'clients'));
+        return view('pages.technician.service-reports.form', compact('sales','pic', 'formattedNumberS', 'formattedMonthNow', 'report', 'image', 'clients'));
     }
 
     /**

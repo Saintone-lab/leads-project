@@ -107,25 +107,26 @@ class InvoiceController extends Controller
         $expense = ExpenseInvoice::where('id_invoice', $id)->get();
         $totalExpense = ExpenseInvoice::where('id_invoice', $id)->sum('total');
 
+        $totalPph23 = 0;
         $totalPph = 0;
         if ($quote->type == 'Sparepart') {
             foreach ($dquote as $product) {
                 $pph = ($product->amount * $product->pph) / 100;
-                $totalPph += $pph;
+                $totalPph23 += $pph;
             }
         } else {
             foreach ($subQuote as $subtitle) {
                 foreach ($subtitle->detail as $detail) {
 
                     $pph = ($detail->amount * $detail->pph) / 100;
-                    $totalPph += $pph;
+                    $totalPph23 += $pph;
                 }
             }
         }
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
         }
-        // $totalPph += $totalExpense;
+        $totalPph = $totalPph23 + $invoice->pph;
         $hargaAfterExpanse = $quote->harga_total - $totalExpense;
         $remaining = $quote->harga_total - $totalAmount;
         $harga = Payment::where('id_quotation', $quote->id)->get();
@@ -147,9 +148,9 @@ class InvoiceController extends Controller
         $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
         // dd($doTekMan);
         if ($quote->type == 'Sparepart') {
-            return view('pages.accounting.invoice.detail', compact('lastPayment', 'requestContract', 'requestInvoice', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
+            return view('pages.accounting.invoice.detail', compact('totalPph23','totalPph','lastPayment', 'requestContract', 'requestInvoice', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
         } else {
-            return view('pages.accounting.invoice.detail', compact('lastPayment', 'requestContract', 'requestInvoice', 'subQuote', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
+            return view('pages.accounting.invoice.detail', compact('totalPph23','totalPph','lastPayment', 'requestContract', 'requestInvoice', 'subQuote', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
         }
 
     }
@@ -614,6 +615,15 @@ class InvoiceController extends Controller
             return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
         }
     }
+    public function add_pph_manual(Request $request, $id)
+    {
+        $invoice = Invoice::find($id);
+        $invoice->pph = $request->pph;
+        $status = $invoice->save();
+        if ($status) {
+            return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
     public function add_pph_service(Request $request, $id)
     {
         $invoice = Invoice::find($id);
@@ -639,6 +649,18 @@ class InvoiceController extends Controller
             $value->pph = 0;
             $status = $value->save();
         }
+        if ($status) {
+            return 1;
+        } else {
+            return 0;
+        }
+
+    }
+    public function delete_pph_manual($id)
+    {
+        $invoice = Invoice::find($id);
+        $invoice->pph = 0;
+        $status = $invoice->save();
         if ($status) {
             return 1;
         } else {

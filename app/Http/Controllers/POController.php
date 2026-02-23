@@ -86,7 +86,12 @@ class POController extends Controller
         $purchase = PurchaseOrder::find($id);
         $dPurchase = DetailPurchaseOrder::where('id_purchase_order', $id)->get();
         $tax = $purchase->total * 11 / 100;
-        return view('pages.accounting.purchase.detail', compact('purchase','dPurchase','tax'));
+        $totalPph = 0;
+            foreach ($dPurchase as $product) {
+                $pph = ($product->amount * $product->pph) / 100;
+                $totalPph += $pph;
+            }
+        return view('pages.accounting.purchase.detail', compact('purchase','dPurchase','tax','totalPph'));
     }
 
     /**
@@ -139,5 +144,33 @@ class POController extends Controller
         $dPurchase = DetailPurchaseOrder::where('id_purchase_order', $id)->get();
         $tax = $purchase->total * 11 / 100;
         return view('pages.accounting.purchase.detail-print', compact('purchase','dPurchase','tax'));
+    }
+
+    public function add_pph(Request $request, $id){
+        
+        $PO = PurchaseOrder::find($id);
+        $DPO = DetailPurchaseOrder::where('id_purchase_order', $id)->get();
+        foreach ($DPO as $item => $value) {
+            $value->pph = $request->pph[$item];
+            $status = $value->save();
+        }
+        if ($status) {
+            return redirect('/purchase/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
+    public function delete_pph($id)
+    {
+        $purchase = PurchaseOrder::find($id);
+        $dPurchase = DetailPurchaseOrder::where('id_purchase_order', $id)->get();
+        foreach ($dPurchase as $item => $value) {
+            $value->pph = 0;
+            $status = $value->save();
+        }
+        if ($status) {
+            return 1;
+        } else {
+            return 0;
+        }
+
     }
 }

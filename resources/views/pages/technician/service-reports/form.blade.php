@@ -70,6 +70,11 @@
                             <select id="client-dropdown" class="select2 form-select invoice-item-client" data-id="1"
                                 data-allow-clear="true" name="client" disabled>
                                 <option> ---- Choose Client Here ---- </option>
+                                @if (@$report)
+                                    <option data-id="{{ $report->pic->client->id }}" value="{{ $report->pic->client->id }}"
+                                        selected>
+                                        {{ $report->pic->client->company }}</option>
+                                @endif
                             </select>
                             <label for="client-dropdown">Client</label>
                         </div>
@@ -79,6 +84,10 @@
                             <select id="pic-dropdown" class="select2 form-select invoice-item-pic" data-id="1"
                                 data-allow-clear="true" name="id_pic" disabled>
                                 <option> ---- Choose PIC Here ---- </option>
+                                @if (@$report)
+                                    <option data-id="{{ $report->pic->id }}" value="{{ $report->pic->id }}" selected>
+                                        {{ $report->pic->name_pic }}</option>
+                                @endif
                             </select>
                             <label for="pic-dropdown">PIC</label>
                         </div>
@@ -114,6 +123,14 @@
                             <select id="machine-dropdown" class="select2 form-select invoice-item-machine" data-id="1"
                                 data-allow-clear="true" name="machine" disabled>
                                 <option> ---- Choose Machine Here ---- </option>
+                                @if (@$report)
+                                    <option data-id="{{ $report->machine->id }}" value="{{ $report->machine->id }}"
+                                        selected>
+                                        {{ $report->machine->unit->brand }} {{ $report->machine->unit->pn }} ||
+                                        {{ $report->machine->location }} - {{ $report->machine->tag }} -
+                                        {{ $report->machine->serial }}
+                                    </option>
+                                @endif
                             </select>
                             <label for="machine-dropdown">Machine</label>
                         </div>

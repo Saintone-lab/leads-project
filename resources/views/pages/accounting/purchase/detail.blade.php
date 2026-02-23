@@ -207,20 +207,43 @@
                                 <td class="text-end px-4 py-5">
                                     <p class="mb-2">Subtotal:</p>
                                     <p class="mb-2">Diskon:</p>
-                                    <p class="mb-0">Total:</p>
-                                    <p class="mb-2">DPP Nilai Lain :</p>
-                                    <p class="mb-2">VAT 12% :</p>
+                                    @if ($purchase->vat > 0)
+                                        <p class="mb-2">Total:</p>
+                                        <p class="mb-2">DPP Nilai Lain :</p>
+                                        <p class="mb-2">VAT 12% :</p>
+                                    @endif
+                                    @if ($totalPph > 0)
+                                        <p class="mb-2">Total PPH :</p>
+                                    @endif
                                     <p class="mb-2 fw-bolder">Total Price :</p>
                                 </td>
+                                @php
+                                    $tax = ($purchase->total * 11) / 100;
+                                    $noTax = $purchase->total - ($purchase->total * 11) / 100;
+                                    $dpp = ($noTax * 11) / 12;
+                                @endphp
                                 <td class="px-4 py-5">
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($purchase->subtotal, 0, '', '.') }}</p>
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($purchase->diskon, 0, '', '.') }}</p>
-                                    <p class="fw-semibold mb-0 text-end">RP
-                                        {{ number_format($purchase->total, 0, '', '.') }}</p>
+                                    @if ($purchase->vat > 0)
+                                        <p class="fw-semibold mb-2 text-end">RP
+                                            {{ number_format($noTax, 0, '', '.') }}
+                                        </p>
+                                        <p class="fw-semibold mb-2 text-end">
+                                            {{ $dpp == '0' ? '0' : 'RP ' . number_format($dpp, 0, '', '.') }}</p>
+                                        <p class="fw-semibold mb-2 text-end">
+                                            {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
+                                    @endif
+                                    @if ($totalPph > 0)
+                                        <p class="fw-semibold mb-2 text-end">
+                                            {{ $totalPph == '0' ? '0' : 'RP ' . number_format($totalPph, 0, '', '.') }}
+                                        </p>
+                                    @endif
                                     <p class="fw-semibold mb-2 text-end">
-                                        {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
+                                        {{ $purchase->total == '0' ? '0' : 'RP ' . number_format($purchase->total, 0, '', '.') }}
+                                    </p>
                                 </td>
                             </tr>
                         </tbody>
@@ -259,8 +282,30 @@
                     </button>
                 </div>
             </div>
+            <div class="card">
+                <div class="card-body">
+                    @if ($totalPph > 0)
+                        <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-pph mb-3"
+                            data-id="{{ $purchase->id }}">Delete PPH</a>
+                    @else
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#addPph"
+                            class="d-grid w-100 waves-effect mb-3">
+                            <button type="button" class="btn btn-twitter">
+                                Input PPH 23
+                            </button>
+                        </a>
+                    @endif
+                    {{-- <a type="button" data-bs-toggle="modal" data-bs-target="#addPph"
+                        class="d-grid w-100 waves-effect mb-3">
+                        <button type="button" class="btn btn-twitter">
+                            Input PPH Manual
+                        </button>
+                    </a> --}}
+                </div>
+            </div>
         </div>
     </div>
+    @include('components.modal.purchase.pph')
 @endsection
 @push('after-style')
     <!-- Page CSS -->
@@ -548,6 +593,54 @@
                 }
             });
         });
+
+        $(document).on('click', '.delete-pph', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('purchase') }}/delete-pph/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'PATCH',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Your file has been deleted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/purchase/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
         $(document).on('click', '.delete-fee', function() {
             var id = $(this).data('id');
             Swal.fire({
@@ -564,7 +657,8 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        'url': '{{ url('quotation') }}/' + id + '/delete_fee',
+                        'url': '{{ url('quotation') }}/' + id +
+                            '/delete_fee',
                         'type': 'POST',
                         'data': {
                             '_method': 'POST',
@@ -581,7 +675,8 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href =
+                                        '/quotation/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -620,7 +715,8 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        'url': '{{ url('quotation') }}/' + id + '/delete_po',
+                        'url': '{{ url('quotation') }}/' + id +
+                            '/delete_po',
                         'type': 'DELETE',
                         'data': {
                             '_method': 'DELETE',
@@ -637,7 +733,8 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href =
+                                        '/quotation/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -676,7 +773,8 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        'url': '{{ url('request/selling-contract') }}/' + id,
+                        'url': '{{ url('request/selling-contract') }}/' +
+                            id,
                         'type': 'POST',
                         'data': {
                             '_method': 'POST',
@@ -693,7 +791,8 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href =
+                                        '/quotation/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -732,7 +831,8 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        'url': '{{ url('request/confirm-order') }}/' + id,
+                        'url': '{{ url('request/confirm-order') }}/' +
+                            id,
                         'type': 'POST',
                         'data': {
                             '_method': 'POST',
@@ -749,7 +849,8 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href =
+                                        '/quotation/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -788,7 +889,8 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        'url': '{{ url('un-archive') }}/quotation/' + id,
+                        'url': '{{ url('un-archive') }}/quotation/' +
+                            id,
                         'type': 'POST',
                         'data': {
                             '_method': 'POST',
@@ -805,7 +907,8 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + id;
+                                    window.location.href =
+                                        '/quotation/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -844,7 +947,8 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        'url': '{{ url('delete-archive') }}/quotation/' + id,
+                        'url': '{{ url('delete-archive') }}/quotation/' +
+                            id,
                         'type': 'POST',
                         'data': {
                             '_method': 'DELETE',
@@ -861,7 +965,8 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation';
+                                    window.location.href =
+                                        '/quotation';
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -901,7 +1006,8 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        'url': '{{ url('quotation') }}/' + id + '/delete_payment',
+                        'url': '{{ url('quotation') }}/' + id +
+                            '/delete_payment',
                         'type': 'POST',
                         'data': {
                             '_method': 'DELETE',
@@ -918,7 +1024,9 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/quotation/' + quote;
+                                    window.location.href =
+                                        '/quotation/' +
+                                        quote;
                                 }, 2000);
                             } else {
                                 Swal.fire({
@@ -954,13 +1062,16 @@
                     _token: csrfToken
                 },
                 success: function(response) {
-                    console.log('Perubahan status berhasil dikirim ke server');
+                    console.log(
+                        'Perubahan status berhasil dikirim ke server');
                     window.setTimeout(function() {
-                        window.location.href = '/quotation/' + selectedValue;
+                        window.location.href = '/quotation/' +
+                            selectedValue;
                     }, 10);
                 },
                 error: function(error) {
-                    console.error('Gagal mengirim permintaan ke server:', error);
+                    console.error('Gagal mengirim permintaan ke server:',
+                        error);
                 }
             });
         });
@@ -977,13 +1088,16 @@
                     _token: csrfToken
                 },
                 success: function(response) {
-                    console.log('Perubahan status berhasil dikirim ke server');
+                    console.log(
+                        'Perubahan status berhasil dikirim ke server');
                     window.setTimeout(function() {
-                        window.location.href = '/quote/service-show/' + selectedValue;
+                        window.location.href =
+                            '/quote/service-show/' + selectedValue;
                     }, 10);
                 },
                 error: function(error) {
-                    console.error('Gagal mengirim permintaan ke server:', error);
+                    console.error('Gagal mengirim permintaan ke server:',
+                        error);
                 }
             });
         });
