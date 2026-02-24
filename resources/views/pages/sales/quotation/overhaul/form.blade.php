@@ -128,6 +128,8 @@
                                 </option>
                                 <option value="Service" {{ @$quote->type == 'Service' ? 'selected' : '' }}>Service
                                 </option>
+                                <option value="Project" {{ @$quote->type == 'Project' ? 'selected' : '' }}>Project
+                                </option>
                             </select>
                             <label for="exampleFormControlSelect1">Type</label>
                         </div>
@@ -269,6 +271,10 @@
                                                                     <option value="Tube"
                                                                         {{ $item->info_qty == 'Tube' ? 'selected' : '' }}>
                                                                         Tube
+                                                                    </option>
+                                                                    <option value="Box"
+                                                                        {{ $item->info_qty == 'Box' ? 'selected' : '' }}>
+                                                                        Box
                                                                     </option>
                                                                 </select>
                                                                 <label for="exampleFormControlSelect1">Info</label>
@@ -588,6 +594,7 @@
                                             <option value="Meter">Meter</option>
                                             <option value="Hari">Hari</option>
                                             <option value="Can">Can</option>
+                                            <option value="Box">Box</option>
                                         </select>
                                         <label for="exampleFormControlSelect1">Info</label>
                                     </div>

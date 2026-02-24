@@ -128,6 +128,8 @@
                                 </option>
                                 <option value="Service" {{ @$quote->type == 'Service' ? 'selected' : '' }}>Service
                                 </option>
+                                <option value="Project" {{ @$quote->type == 'Project' ? 'selected' : '' }}>Project
+                                </option>
                             </select>
                             <label for="exampleFormControlSelect1">Type</label>
                         </div>
@@ -286,6 +288,10 @@
                                                                         {{ $item->info_qty == 'Batang' ? 'selected' : '' }}>
                                                                         Batang
                                                                     </option>
+                                                                    <option value="Box"
+                                                                        {{ $item->info_qty == 'Box' ? 'selected' : '' }}>
+                                                                        Box
+                                                                    </option>
                                                                 </select>
                                                                 <label for="exampleFormControlSelect1">Info</label>
                                                             </div>
@@ -412,6 +418,7 @@
                                                             <option value="Tube">Tube</option>
                                                             <option value="Titik">Titik</option>
                                                             <option value="Batang">Batang</option>
+                                                            <option value="Box">Box</option>
                                                         </select>
                                                         <label for="exampleFormControlSelect1">Info</label>
                                                     </div>
@@ -712,6 +719,7 @@
                                             <option value="Hari">Hari</option>
                                             <option value="Bulan">Bulan</option>
                                             <option value="Can">Can</option>
+                                            <option value="Box">Box</option>
                                         </select>
                                         <label for="exampleFormControlSelect1">Info</label>
                                     </div>

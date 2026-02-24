@@ -411,7 +411,7 @@
                                             </p>
                                         </td>
                                         <td class="text-nowrap align-top py-1" style="border-bottom:none !important;">
-                                            <p class="mb-0">{{ $product->product }}</p>
+                                            <p class="mb-0">{{ $product->product }} {{ $product->detail != '-' ? $product->detail : '' }}</p>
                                             {{-- @if ($product->detail != '-')
                                                     <pre class="mb-0"
                                                         style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail }}</pre>
