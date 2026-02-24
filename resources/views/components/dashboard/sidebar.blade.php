@@ -1255,7 +1255,7 @@
                     <div data-i18n="Overview">Overview</div>
                 </a>
             </li>
-            <!-- Layouts -->
+            <!-- Layouts
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Client</span>
             </li>
@@ -1332,6 +1332,7 @@
                     <div data-i18n="Service Report">Service Report</div>
                 </a>
             </li>
+            -->
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Prospect</span>
@@ -1376,16 +1377,38 @@
                     </li>
                 </ul>
             </li>
+                        <li class="menu-header fw-light mt-4">
+                <span class="menu-header-text">E-Stock</span>
+            </li>
 
-            <li class="menu-header fw-light mt-4">
-                <span class="menu-header-text">Archive</span>
-            </li>
-            <li class="menu-item">
-                <a href="{{ route('archive.quotation') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-delete-variant"></i>
-                    <div data-i18n="Archive Quotation">Archive Quotation</div>
+            <li
+                class="menu-item {{ request()->is('master/product') ||
+                request()->is('product') ||
+                request()->is('product/*') ||
+                request()->is('unit') ||
+                request()->is('unit/*')
+                    ? 'open'
+                    : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
+                    <div data-i18n="E-Stock">E-Stock</div>
                 </a>
+                <ul class="menu-sub">
+                    <li
+                        class="menu-item {{ request()->is('product') || request()->is('product/*') ? 'active' : '' }}">
+                        <a href="{{ route('product.index') }}" class="menu-link">
+                            <div data-i18n="Product">Product</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('unit') || request()->is('unit/*') ? 'active' : '' }}">
+                        <a href="{{ route('unit.index') }}" class="menu-link">
+                            <div data-i18n="Unit">Unit</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
+
+
         @elseif(auth::user()?->role == 'Logistic')
             <li class="menu-item {{ request()->is('master/product') ? 'active' : '' }}">
                 <a href="{{ route('master.product') }}" class="menu-link">

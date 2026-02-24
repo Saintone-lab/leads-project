@@ -148,6 +148,65 @@ class DashboardController extends Controller
                 ->where('reports.viewed', 0)->count();
             // dd($ratingCount);
 
+            // Prospect Monthly (By Support - Sandhy)
+            $year = now()->year;
+            $month = now()->month;
+            $support = Auth::id();
+
+            $previousMonth = now()->subMonth();
+            $yearPrev = $previousMonth->year;
+            $monthPrev = $previousMonth->month;
+
+
+            $prospect = Prospect::whereYear('date', $year)
+                ->whereMonth('date', $month)
+                ->where('id_support', $support)
+                ->count();
+
+            $provided = Prospect::whereYear('date', $year)
+                ->whereMonth('date', $month)
+                ->where('provide', '!=', '0')
+                ->where('id_support', $support)
+                ->count();
+
+            $quotation = Quotation::whereYear('estimated_date', $year)
+                ->whereMonth('estimated_date', $month)
+                ->where('id_support', $support)
+                ->where('level', '1')
+                ->where('is_primary', '1')
+                ->count();
+
+            $po = Quotation::whereYear('po_date', $year)
+                ->whereMonth('po_date', $month)
+                ->where('id_support', $support)
+                ->where('status', '100')
+                ->where('level', '1')
+                ->where('is_primary', '1')
+                ->count();
+
+            $loss = Quotation::whereYear('estimated_date', $year)
+                ->whereMonth('estimated_date', $month)
+                ->where('id_support', $support)
+                ->where('status', '0')
+                ->where('level', '1')
+                ->where('is_primary', '1')
+                ->count();
+
+            $prospectLastMonth = Prospect::whereYear('date', $yearPrev)
+                ->whereMonth('date', $monthPrev)
+                ->where('id_support', $support)
+                ->count();
+
+            $diffProspect = $prospect - $prospectLastMonth;
+
+            $closingRate = $quotation > 0 ? round(($po / $quotation) * 100, 1) : 0;
+            $conversionRate = $prospect > 0 ? round(($quotation / $prospect) * 100, 1) : 0;
+            $providedRate = $prospect > 0 ? round(($provided / $prospect) * 100, 1) : 0;
+            $targetProspect = Target::where('id_sales', Auth::id())->first()->prospect ?? 100;
+            $progress = $targetProspect > 0
+                ? round(($prospect / $targetProspect) * 100, 1)
+                : 0;
+
             return view(
                 "pages.sales.dashboard",
                 compact(
@@ -187,7 +246,17 @@ class DashboardController extends Controller
                     'clients',
                     'customers',
                     'unreadComment',
-                    'comment'
+                    'comment',
+                    'prospect',
+                    'provided',
+                    'quotation',
+                    'po',
+                    'loss',
+                    'closingRate',
+                    'conversionRate',
+                    'providedRate',
+                    'targetProspect',
+                    'diffProspect'
                 )
             );
         } elseif (Auth::user()->role == 'Admin') {
@@ -1139,7 +1208,6 @@ class DashboardController extends Controller
             ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
 
         return $adminNotif;
-
     }
     // Ajax Sales Kanan
     public function totalQuotationAdmin($sales)
@@ -1166,6 +1234,7 @@ class DashboardController extends Controller
         $totalHotProspect = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->whereIn('status', ['80', '90'])->where('level', '1')->where('is_primary', '1')->sum('nett');
         return $totalHotProspect;
     }
+    
     public function totalLossAdmin($sales)
     {
         $dateNow = Carbon::now();
