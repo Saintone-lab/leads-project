@@ -516,7 +516,7 @@
                             </div>
                             <div class="card-info mt-4 pt-1">
                                 <h4 class="mb-2">
-                                    {{ $quotation->count() }}
+                                    {{ $quotation }}
                                     {{-- <small class="text-muted fs-tiny">/
                                         {{ $target->quote }}
                                     </small> --}}
@@ -539,7 +539,7 @@
                             </div>
                             <div class="card-info mt-4 pt-1">
                                 <h4 class="mb-2">
-                                    {{ $po->count() }}
+                                    {{ $po }}
                                 </h4>
                                 <div class="badge bg-label-secondary rounded-pill">Purchase Order</div>
                             </div>
@@ -812,7 +812,7 @@
 
                     <div class="card-body">
 
-                        <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="d-flex align-items-center gap-3 mb-3">
 
                             <div class="avatar">
                                 <div class="avatar-initial bg-label-secondary rounded">
@@ -820,9 +820,9 @@
                                 </div>
                             </div>
 
-                            <h5 class="mb-0 fw-semibold">
+                            <h3 class="mb-0 fw-semibold">
                                 {{ $prospect }}
-                            </h5>
+                            </h3>
 
                         </div>
 
@@ -847,16 +847,16 @@
 
                     <div class="card-body">
 
-                        <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="d-flex align-items-center gap-3 mb-3">
                             <div class="avatar">
                                 <div class="avatar-initial bg-label-info rounded">
                                     <i class="mdi mdi-phone-outline mdi-24px"></i>
                                 </div>
                             </div>
 
-                            <h5 class="mb-0 fw-semibold">
+                            <h3 class="mb-0 fw-semibold">
                                 {{ $provided }}
-                            </h5>
+                            </h3>
                         </div>
 
                         <div class="text-muted small mb-2">
@@ -878,16 +878,16 @@
 
                     <div class="card-body">
 
-                        <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="d-flex align-items-center gap-3 mb-3">
                             <div class="avatar">
                                 <div class="avatar-initial bg-label-warning rounded">
                                     <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
                                 </div>
                             </div>
 
-                            <h5 class="mb-1 fw-semibold">
+                            <h3 class="mb-1 fw-semibold">
                                 {{ $quotation }}
-                            </h5>
+                            </h3>
                         </div>
 
                         <div class="text-muted small mb-2">
@@ -910,16 +910,16 @@
 
                     <div class="card-body">
 
-                        <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="d-flex align-items-center gap-3 mb-3">
                             <div class="avatar">
                                 <div class="avatar-initial bg-label-success rounded">
                                     <i class="mdi mdi-cart-plus mdi-24px"></i>
                                 </div>
                             </div>
 
-                            <h5 class="mb-1 fw-semibold">
+                            <h3 class="mb-1 fw-semibold">
                                 {{ $po }}
-                            </h5>
+                            </h3>
                         </div>
 
                         <div class="text-muted small mb-2">
@@ -941,16 +941,16 @@
                 <div class="card w-100">
                     <div class="card-body d-flex flex-column">
 
-                        <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="d-flex align-items-center gap-3 mb-3">
                             <div class="avatar">
                                 <div class="avatar-initial bg-label-danger rounded">
                                     <i class="mdi mdi-close-circle-outline mdi-24px"></i>
                                 </div>
                             </div>
 
-                            <h5 class="mb-1 fw-semibold">
+                            <h3 class="mb-1 fw-semibold">
                                 {{ $loss }}
-                            </h5>
+                            </h3>
                         </div>
 
                         <div class="text-muted small mb-2">

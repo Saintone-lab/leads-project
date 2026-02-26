@@ -146,7 +146,6 @@ class DashboardController extends Controller
                 ->join('users as u', 'u.id', '=', 'c.id_sales')
                 ->where('u.id', Auth::user()->id)
                 ->where('reports.viewed', 0)->count();
-            // dd($ratingCount);
 
             // Prospect Monthly (By Support - Sandhy)
             $year = now()->year;
@@ -197,6 +196,7 @@ class DashboardController extends Controller
                 ->where('id_support', $support)
                 ->count();
 
+            // dd($quotation);
             $diffProspect = $prospect - $prospectLastMonth;
 
             $closingRate = $quotation > 0 ? round(($po / $quotation) * 100, 1) : 0;
@@ -249,7 +249,7 @@ class DashboardController extends Controller
                     'comment',
                     'prospect',
                     'provided',
-                    'quotation',
+                    // 'quotation',
                     'po',
                     'loss',
                     'closingRate',
