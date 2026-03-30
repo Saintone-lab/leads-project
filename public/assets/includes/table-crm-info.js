@@ -27,6 +27,7 @@ $(function () {
                 { data: "id" },
                 { data: "id" },
                 { data: "company" },
+                { data: "ru" },
                 { data: "status" },
                 { data: "email" },
                 { data: "phone" },
@@ -133,11 +134,6 @@ $(function () {
                                 '<a class="text-dark" href="' +
                                 detailRoute +
                                 '">' +
-                                '<span class="badge ' +
-                                $status[$status_ru].class +
-                                '">' +
-                                $status[$status_ru].title +
-                                "</span> " +
                                 data +
                                 ' <span class="badge ' +
                                 status_info[info].class +
@@ -152,6 +148,32 @@ $(function () {
                 },
                 {
                     targets: 4,
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var $status_ru = full["ru"];
+                            var $status = {
+                                User: {
+                                    title: "U",
+                                    class: "bg-success",
+                                },
+                                Reseller: {
+                                    title: "R",
+                                    class: " bg-warning",
+                                },
+                            };
+                            return (
+                                '<span class="badge ' +
+                                $status[$status_ru].class +
+                                '">' +
+                                $status[$status_ru].title +
+                                "</span> "
+                            );
+                        }
+                        return data;
+                    },
+                },
+                {
+                    targets: 5,
                     render: function (data, type, full, meta) {
                         // Tambahkan dropdown ke dalam kolom
                         var dropdown =
@@ -175,7 +197,7 @@ $(function () {
                     },
                 },
             ],
-            order: [[2, "desc"]],
+            order: [[4, "desc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],

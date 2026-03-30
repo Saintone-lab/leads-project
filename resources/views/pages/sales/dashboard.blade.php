@@ -516,7 +516,7 @@
                             </div>
                             <div class="card-info mt-4 pt-1">
                                 <h4 class="mb-2">
-                                    {{ $quotation }}
+                                    {{ $quotation->count() }}
                                     {{-- <small class="text-muted fs-tiny">/
                                         {{ $target->quote }}
                                     </small> --}}
@@ -539,7 +539,7 @@
                             </div>
                             <div class="card-info mt-4 pt-1">
                                 <h4 class="mb-2">
-                                    {{ $po }}
+                                    {{ $po->count() }}
                                 </h4>
                                 <div class="badge bg-label-secondary rounded-pill">Purchase Order</div>
                             </div>
@@ -827,7 +827,7 @@
                         </div>
 
                         <div class="text-muted small mb-2">
-                            {{ $diffProspect >= 0 ? '+' . $diffProspect : $diffProspect }} dari bulan lalu
+                            {{ $diffProspect >= 0 ? '+' . $diffProspect : $diffProspect }} ti sasih kamari
                         </div>
 
                         <div>
@@ -860,7 +860,7 @@
                         </div>
 
                         <div class="text-muted small mb-2">
-                            {{ $prospect > 0 ? round(($provided/$prospect)*100,1) : 0 }}% dari Prospect
+                            {{ $prospect > 0 ? round(($provided/$prospect)*100,1) : 0 }}% ti prospek
                         </div>
                         
                         <div>
@@ -891,7 +891,7 @@
                         </div>
 
                         <div class="text-muted small mb-2">
-                            {{ $prospect > 0 ? round(($quotation/$prospect)*100,1) : 0 }}% dari Provided
+                            {{ $prospect > 0 ? round(($quotation/$prospect)*100,1) : 0 }}% ti diladangan
                         </div>
 
                         <div>
@@ -923,7 +923,7 @@
                         </div>
 
                         <div class="text-muted small mb-2">
-                            {{ $closingRate }}% dari Quote
+                            {{ $closingRate }}% ti ditawaran
                         </div>
 
                         <div>
@@ -954,7 +954,7 @@
                         </div>
 
                         <div class="text-muted small mb-2">
-                            {{ $prospect > 0 ? round(($loss/$prospect)*100,1) : 0 }}% dari Quote
+                            {{ $prospect > 0 ? round(($loss/$prospect)*100,1) : 0 }}% ti ditawaran
                         </div>
 
                         <div>

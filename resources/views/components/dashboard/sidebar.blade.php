@@ -853,16 +853,16 @@
                     <li
                         class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') ? 'active' : '' }}">
                         <a href="{{ url('leads') }}" class="menu-link">
-                            <div data-i18n="Leads">Leads</div>
+                            <div data-i18n="Client">Client</div>
                         </a>
                     </li>
 
-                    <li
+                    {{-- <li
                         class="menu-item {{ request()->is('existing') || request()->is('existing/*') ? 'active' : '' }}">
                         <a href="{{ route('existing.index') }}" class="menu-link">
                             <div data-i18n="Customers">Customers</div>
                         </a>
-                    </li>
+                    </li> --}}
                     <li class="menu-item {{ request()->is('ru') ? 'active' : '' }}">
                         <a href="{{ route('ru.index') }}" class="menu-link">
                             <div data-i18n="R/U">R/U</div>
@@ -1041,7 +1041,7 @@
                     <div data-i18n="Service Report">Service Report</div>
                 </a>
             </li> --}}
-            @if (auth::user()->id == 3 || auth::user()->id == 4)
+            @if (auth::user()->id == 3)
                 <li
                     class="menu-item {{ request()->is('service-manager') || request()->is('service-manager/*') ? 'active' : '' }}">
                     <a href="{{ route('service-manager.index') }}" class="menu-link">

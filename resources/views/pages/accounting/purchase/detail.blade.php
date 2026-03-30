@@ -169,6 +169,7 @@
                                 <th>Item</th>
                                 <th>Qty</th>
                                 <th>Price</th>
+                                <th>Disc</th>
                                 <th>Amount</th>
                             </tr>
                         </thead>
@@ -189,12 +190,13 @@
                                     </td>
                                     <td class="align-top">{{ $product->qty }} {{ $product->info_qty }} </td>
                                     <td class="align-top text-end">RP {{ number_format($product->price, 0, '', '.') }}</td>
+                                    <td class="align-top">{{ $product->disc }} % </td>
                                     <td class="align-top text-end">RP {{ number_format($product->amount, 0, '', '.') }}
                                     </td>
                                 </tr>
                             @endforeach
                             <tr style="border-bottom: #FFFFFF;">
-                                <td colspan="3" class="align-top px-4 py-5">
+                                <td colspan="4" class="align-top px-4 py-5">
                                     <div class="row">
                                         <div class="col-3 fw-medium">
                                             <p class="mb-1">Note </p>

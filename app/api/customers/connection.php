@@ -1,7 +1,8 @@
 <?php
 use Illuminate\Support\Facades\Auth;
 
-header('Content-Type: application/json');$host = "localhost";
+header('Content-Type: application/json');
+$host = "localhost";
 $users = "root";
 $pass = "";
 
@@ -19,7 +20,7 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT c.*, p.name_pic, i.issue, u.name, MAX(a.date) AS date, MAX(a.follow_up) AS follow_up, MAX(a.note) AS note 
+        $query = "SELECT c.*, p.name_pic, i.issue, u.name, DATE_FORMAT(MAX(a.date), '%d-%m-%Y') AS date, DATE_FORMAT(MAX(a.follow_up), '%d-%m-%Y') AS follow_up, MAX(a.note) AS note 
                   FROM client c
                   INNER JOIN issues i ON c.id_issues = i.id
                   INNER JOIN users u ON c.id_sales = u.id

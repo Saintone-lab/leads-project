@@ -169,8 +169,12 @@
                     @php
                         $dataDetail = 1;
                     @endphp
-                    <div class="service mb-3">
-                        <h5 class="mb-0">Title</h5>
+                    <div class="service mb-3" data-row="{{$id}}">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h5 class="mb-0">Title</h5>
+                            <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-delete-title"
+                                data-id="{{ $id }}"></i>
+                        </div>
                         <input type="text" id="title" class="subtitle form-control form-control-lg mb-2"
                             name="subTitle[]" placeholder="Title Quotation" value="{{ $title->subtitle }}">
                         <div class="border rounded">
@@ -551,8 +555,11 @@
         </div>
     </form>
 
-    <div class="service-copy mb-3" hidden disable>
-        <h5 class="mb-0">Title</h5>
+    <div class="service-copy mb-3" data-row="1" hidden disable>
+        <div class="d-flex justify-content-between mb-3">
+            <h5 class="mb-0">Title</h5>
+            <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-delete-title" data-id="1"></i>
+        </div>
         <input type="text" id="title" class="form-control form-control-lg mb-2" name="subTitle[]"
             placeholder="Title Quotation">
         <div class="border rounded">
@@ -661,6 +668,46 @@
 @push('script')
     <script>
         $(() => {
+
+            $(document).on('click', '.btn-delete-title', function() {
+
+                const id = $(this).data('id');
+
+                $(`.service[data-row="${id}"]`).remove();
+
+                var hTotal = 0;
+                var sTotal = 0;
+                $('[id^="amount-"]').each(function() {
+                    const value = parseInt($(this).val());
+                    if (!isNaN(value)) {
+                        sTotal +=
+                            value;
+                    }
+                });
+                var shipping = isNaN(parseInt($('#shipping').val())) ?
+                    0 : parseInt(
+                        $(
+                            '#shipping').val());
+                var discount = isNaN(parseInt($('#diskon').val())) ? 0 :
+                    parseInt($(
+                            '#diskon')
+                        .val());
+                var dTotal = sTotal - discount;
+                var tax = isNaN(parseInt($('#tax').val())) ? 0 :
+                    parseInt($('#tax')
+                        .val());
+                hTotal = parseInt(dTotal + (dTotal * tax / 100) +
+                    shipping);
+                noTax = parseInt(dTotal + shipping);
+                console.log("TOTAL SEMUANYA" + hTotal);
+                $('#subtotal-label').html(
+                    `${formatter.format(sTotal)}`);
+                $('#subtotal').val(sTotal);
+                $('#hargaTotalLabel').html(
+                    `${formatter.format(hTotal)}`);
+                $('#hargaTotal').val(hTotal);
+                $('#totalNoTax').val(noTax);
+            });
 
             document.addEventListener('DOMContentLoaded', function() {
                 const modal = document.getElementById('scopeModal');
@@ -1310,6 +1357,8 @@
 
                 // Hitung elemen dengan class 'service'
                 const serviceCount = $('.service').length;
+                $clonedDiv.attr('data-row', serviceCount);
+                $clonedDiv.find('.btn-delete-title').attr('data-id', serviceCount);
                 $clonedDiv.find('#qty-' + serviceCount + '-1').val('1');
                 $clonedDiv.find('#qty-' + serviceCount + '-1').html('1');
                 // Reset nilai input dan sesuaikan ID
@@ -1642,6 +1691,46 @@
                                     $('#totalNoTax').val(noTax);
                                 });
                     });
+                    $(document).on('click', '.btn-delete-title', function() {
+
+                        const id = $(this).data('id');
+
+                        $(`.service[data-row="${id}"]`).remove();
+
+                        var hTotal = 0;
+                        var sTotal = 0;
+                        $('[id^="amount-"]').each(function() {
+                            const value = parseInt($(this).val());
+                            if (!isNaN(value)) {
+                                sTotal +=
+                                    value; // Tambahkan nilai jika valid (angka)
+                            }
+                        });
+                        var shipping = isNaN(parseInt($('#shipping').val())) ?
+                            0 : parseInt(
+                                $(
+                                    '#shipping').val());
+                        var discount = isNaN(parseInt($('#diskon').val())) ? 0 :
+                            parseInt($(
+                                    '#diskon')
+                                .val());
+                        var dTotal = sTotal - discount;
+                        var tax = isNaN(parseInt($('#tax').val())) ? 0 :
+                            parseInt($('#tax')
+                                .val());
+                        hTotal = parseInt(dTotal + (dTotal * tax / 100) +
+                            shipping);
+                        noTax = parseInt(dTotal + shipping);
+                        console.log("TOTAL SEMUANYA" + hTotal);
+                        $('#subtotal-label').html(
+                            `${formatter.format(sTotal)}`);
+                        $('#subtotal').val(sTotal);
+                        $('#hargaTotalLabel').html(
+                            `${formatter.format(hTotal)}`);
+                        $('#hargaTotal').val(hTotal);
+                        $('#totalNoTax').val(noTax);
+                    });
+
                 });
                 // document.addEventListener("click", function(e) {
                 //     const deleteButton = e.target.closest("[data-repeater-delete]");

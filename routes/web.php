@@ -1205,6 +1205,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/reminder-calendar/payment/', [PaymentController::class, 'reminder_calendar'])->name('reminder_calendar.payment');
     Route::get('/view-payment/payment/{id}', [PaymentController::class, 'view_payment'])->name('view_payment.payment');
     Route::post('/payment/addPph/{id}', [PaymentController::class, 'addPph'])->name('payment.addPph');
+    Route::post('/payment/addCost/{id}', [PaymentController::class, 'addCost'])->name('payment.addCost');
     Route::post('/payment/editDate/{id}', [PaymentController::class, 'editDate'])->name('payment.editDate');
 
     Route::resource('/delivery', DeliveryController::class);
@@ -3254,22 +3255,29 @@ Route::group(["middleware" => "auth"], function () {
         AND YEAR(q.po_date) = s.year
         AND q.level = "1"
         AND q.is_primary = "1"
-        AND u.id = ' . $sales->id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(q.nett), 0) FROM quotation AS q 
-        JOIN users AS u ON q.id_sales = u.id
-        WHERE MONTH(q.po_date) BETWEEN 
-            CASE 
-                WHEN s.semester = "1" THEN 1 
-                WHEN s.semester = "2" THEN 7 
-            END 
-        AND 
-            CASE 
-                WHEN s.semester = "1" THEN 6 
-                WHEN s.semester = "2" THEN 12 
-            END
-        AND YEAR(q.po_date) = s.year
-        AND q.level = "1"
-        AND q.is_primary = "1"
-        AND u.id = ' . $sales->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
+        AND u.id = ' . $sales->id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(
+    q.nett - COALESCE((
+        SELECT SUM(p.amount - p.pph - p.cost)
+        FROM payment p
+        WHERE p.id_quotation = q.id
+    ),0)
+),0) 
+FROM quotation AS q 
+JOIN users AS u ON q.id_sales = u.id
+WHERE MONTH(q.po_date) BETWEEN 
+    CASE 
+        WHEN s.semester = "1" THEN 1 
+        WHEN s.semester = "2" THEN 7 
+    END 
+AND 
+    CASE 
+        WHEN s.semester = "1" THEN 6 
+        WHEN s.semester = "2" THEN 12 
+    END
+AND YEAR(q.po_date) = s.year
+AND q.level = "1"
+AND q.is_primary = "1"
+AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
         JOIN users AS u ON q.id_sales = u.id
         WHERE MONTH(q.estimated_date) BETWEEN 
             CASE 
@@ -3549,22 +3557,29 @@ Route::group(["middleware" => "auth"], function () {
         AND q.level = "1"
         AND q.is_primary = "1"
         AND u.id = ' . Auth::user()->id . ') AS total'),
-                DB::raw('(SELECT COALESCE(SUM(q.nett), 0) FROM quotation AS q 
-        JOIN users AS u ON q.id_sales = u.id
-        WHERE MONTH(q.po_date) BETWEEN 
-            CASE 
-                WHEN s.semester = "1" THEN 1 
-                WHEN s.semester = "2" THEN 7 
-            END 
-        AND 
-            CASE 
-                WHEN s.semester = "1" THEN 6 
-                WHEN s.semester = "2" THEN 12 
-            END
-        AND YEAR(q.po_date) = s.year
-        AND q.level = "1"
-        AND q.is_primary = "1"
-        AND u.id = ' . Auth::user()->id . ') AS price'),
+                DB::raw('(SELECT COALESCE(SUM(
+    q.nett - COALESCE((
+        SELECT SUM(p.amount - p.pph - p.cost)
+        FROM payment p
+        WHERE p.id_quotation = q.id
+    ),0)
+),0) 
+FROM quotation AS q 
+JOIN users AS u ON q.id_sales = u.id
+WHERE MONTH(q.po_date) BETWEEN 
+    CASE 
+        WHEN s.semester = "1" THEN 1 
+        WHEN s.semester = "2" THEN 7 
+    END 
+AND 
+    CASE 
+        WHEN s.semester = "1" THEN 6 
+        WHEN s.semester = "2" THEN 12 
+    END
+AND YEAR(q.po_date) = s.year
+AND q.level = "1"
+AND q.is_primary = "1"
+AND u.id = ' . Auth::user()->id . ') AS price'),
                 DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
         JOIN users AS u ON q.id_sales = u.id
         WHERE MONTH(q.estimated_date) BETWEEN 
@@ -4787,9 +4802,9 @@ Route::group(["middleware" => "auth"], function () {
 
         $warehouse = ChangeWarehouse::join('users as s', 'change_warehouse.id_sender', '=', 's.id')
             ->leftJoin('users as r', 'change_warehouse.id_reciever', '=', 'r.id')
-            ->when(Auth::user()->role != 'Admin', function ($query) use ($to) {
-                $query->where('change_warehouse.to', $to);
-            })
+            // ->when(Auth::user()->role != 'Admin', function ($query) use ($to) {
+            //     $query->where('change_warehouse.to', $to);
+            // })
             ->where('change_warehouse.status', '!=', 2)
             ->orderBy('change_warehouse.status')
             ->orderBy('change_warehouse.date', 'desc')

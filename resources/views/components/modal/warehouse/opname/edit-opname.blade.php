@@ -1,4 +1,4 @@
-<form action="{{ route('opname.update_product', $opname->id) }}" method="post" enctype="multipart/form-data">
+<form id="formEditStock" action="{{ route('opname.update_product', $opname->id) }}" class="link_route" method="post" enctype="multipart/form-data">
     @csrf
     {{-- @if (@$product)
         @method('patch')
@@ -31,11 +31,19 @@
                                 <p class="text-muted">Pilih Dahulu Replacement</p>
                             </div>
                         </div>
-                        <div class="col-4 mb-2">
+                        
+                        <div class="col-2 mb-2">
                             <div class="form-floating form-floating-outline">
-                                <p class="mb-2 repeater-title">Stock Gudang</p>
-                                <input type="number" class="form-control edit_gudang" placeholder="Text Stock Gudang Here..."
-                                    name="stock_gudang" id="gudang" min='0' value="">
+                                <p class="mb-2 repeater-title">Stock BDG</p>
+                                <input type="number" class="form-control edit_bdg" placeholder="Pilih Dahulu Replacement..."
+                                    name="stock_bdg" value="0">
+                            </div>
+                        </div>
+                        <div class="col-2 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <p class="mb-2 repeater-title">Stock BKS</p>
+                                <input type="number" class="form-control edit_bks" placeholder="Pilih Dahulu Replacement..."
+                                    name="stock_bks" value="0">
                             </div>
                         </div>
                         <div class="col-4 mb-2">

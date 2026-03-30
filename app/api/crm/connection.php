@@ -20,7 +20,7 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT c.*, p.name_pic, s.status, u.name, MAX(a.date) AS date, MAX(a.follow_up) AS follow_up, MAX(a.note) AS note 
+        $query = "SELECT c.*, p.name_pic, s.status, u.name, DATE_FORMAT(MAX(a.date), '%d-%m-%Y') AS date, DATE_FORMAT(MAX(a.follow_up), '%d-%m-%Y') AS follow_up, MAX(a.note) AS note 
                   FROM client c
                   INNER JOIN users u ON c.id_sales = u.id
                   LEFT OUTER JOIN pic p ON c.id = p.id_client

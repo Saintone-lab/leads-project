@@ -106,7 +106,6 @@ $(function () {
                 //     },
                 // },
                 {
-                    // Label Status Name
                     targets: 9,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
@@ -131,7 +130,7 @@ $(function () {
                                 title: "Hot Prospect",
                                 class: " bg-label-warning",
                             },
-                            80: {
+                            90: {
                                 title: "Hot Prospect Bangettt",
                                 class: " bg-label-warning",
                             },

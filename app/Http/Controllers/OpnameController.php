@@ -92,12 +92,15 @@ class OpnameController extends Controller
     public function store_product(Request $request, $id)
     {
         $replacement = DetailProduct::find($request->replacement);
+        $stock_gudang = $request->stock_bdg + $request->stock_bks;
         $opname = new DetailStockOpname;
         $opname->id_stock_opname = $id;
         $opname->id_product = $request->replacement;
         $opname->stock_sistem = $replacement->stock + $replacement->warehouse_stock;
-        $opname->stock_gudang = $request->stock_gudang;
-        $opname->selisih = $replacement->stock + $replacement->warehouse_stock - $request->stock_gudang;
+        $opname->stock_bdg = $request->stock_bdg;
+        $opname->stock_bks = $request->stock_bks;
+        $opname->stock_gudang = $stock_gudang;
+        $opname->selisih = $replacement->stock + $replacement->warehouse_stock - $stock_gudang;
         $opname->note = $request->note;
         $opnameSave = $opname->save();
         if ($opnameSave) {
@@ -107,10 +110,13 @@ class OpnameController extends Controller
     public function update_product(Request $request, $id)
     {
         $opname = DetailStockOpname::find($id);
+        $stock_gudang = $request->stock_bdg + $request->stock_bks;
         $replacement = DetailProduct::find($opname->id_product);
         $opname->stock_sistem = $replacement->stock + $replacement->warehouse_stock;
-        $opname->stock_gudang = $request->stock_gudang;
-        $opname->selisih = $replacement->stock + $replacement->warehouse_stock - $request->stock_gudang;
+        $opname->stock_bdg = $request->stock_bdg;
+        $opname->stock_bks = $request->stock_bks;
+        $opname->stock_gudang = $stock_gudang;
+        $opname->selisih = $replacement->stock + $replacement->warehouse_stock - $stock_gudang;
         $opname->note = $request->note;
         $opnameSave = $opname->save();
         if ($opnameSave) {
@@ -141,6 +147,8 @@ class OpnameController extends Controller
             'product' => optional($product)->replacement,
             'web' => $opname->stock_sistem ?? 0,
             'gudang' => $opname->stock_gudang ?? 0,
+            'bdg' => $opname->stock_bdg ?? 0,
+            'bks' => $opname->stock_bks ?? 0,
             'selisih' => $opname->selisih ?? 0,
             'note' => $opname->note ?? '',
         ]);

@@ -19,7 +19,64 @@
     </h4>
 
     @if (Auth::user()->role == 'Sales')
-        @if (Auth::user()->id == '1' || Auth::user()->id == '16' || Auth::user()->id == '23')
+        <div class="nav-align-top mb-4">
+            <ul class="nav nav-pills mb-3" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button type="button" class="nav-link waves-effect waves-light active" role="tab"
+                        data-bs-toggle="tab" data-bs-target="#navs-pills-top-leads" aria-controls="navs-pills-top-leads"
+                        aria-selected="true">
+                        Leads
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
+                        data-bs-target="#navs-pills-top-cust" aria-controls="navs-pills-top-cust" aria-selected="true">
+                        customer
+                        {{-- @if (@$accCount >= 1)
+                            <div class="badge bg-danger rounded-pill ms-auto">{{ $accCount }}</div>
+                        @endif --}}
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade active show" id="navs-pills-top-leads" role="tabpanel">
+                    <div class="card-datatable pt-0">
+                        <table class="datatable-leads-search table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>R/U</th>
+                                    <th>Status</th>
+                                    <th>Address</th>
+                                    <th>Lass Contact</th>
+                                    <th>Next FU</th>
+                                    <th>Flag</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="navs-pills-top-cust" role="tabpanel">
+                    <div class="card-datatable pt-0">
+                        <table class="datatable-customer-search table table-striped" id="dataTableCrm">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>R/U</th>
+                                    <th>Status</th>
+                                    <th>Address</th>
+                                    <th>Note</th>
+                                    <th>Lass Contact</th>
+                                    <th>Next FU</th>
+                                    <th>Flag</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- @if (Auth::user()->id == '1' || Auth::user()->id == '16' || Auth::user()->id == '23')
             <div class="card">
                 <div class="card-datatable table-responsive pt-0">
                     <table class="datatable-leads-info table table-striped">
@@ -57,7 +114,7 @@
                     </table>
                 </div>
             </div>
-        @endif
+        @endif --}}
     @elseif(Auth::user()->role == 'Admin' || Auth::user()->role == 'Technician')
         <div class="card">
             <div class="card-datatable table-responsive pt-0">
@@ -111,7 +168,11 @@
 @endpush
 
 @push('page-script')
+    <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
+    <script src="{{ asset('assets') }}/js/tables-datatables-advanced.js"></script>
     <script src="{{ asset('assets') }}/includes/table-leads.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-leads-search.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-customer-search.js"></script>
     <script src="{{ asset('assets') }}/includes/table-leads-info.js"></script>
     <script src="{{ asset('assets') }}/includes/table-leads-admin.js"></script>
 @endpush
@@ -121,6 +182,32 @@
         // Initialize Bootstrap tooltips using jQuery
         $(document).ready(function() {
             $('[data-toggle="tooltip"]').tooltip();
+
+            $('#dataTableCrm').on('change', '.status-dropdown', function() {
+                var selectedValue = $(this).val();
+                var rowId = $(this).data('id');
+                var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                console.log('id = ' + rowId);
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/existing/update-status/' + rowId,
+                    data: {
+                        status: selectedValue,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        console.log('Perubahan status berhasil dikirim ke server');
+                        // Handle response jika perlu
+                    },
+                    error: function(error) {
+                        console.error('Gagal mengirim permintaan ke server:', error);
+                        // Handle error jika perlu
+                    }
+                });
+            });
         });
 
         $(document).on('click', '.delete-data-leads', function() {

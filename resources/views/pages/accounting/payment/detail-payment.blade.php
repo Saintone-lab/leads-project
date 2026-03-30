@@ -128,6 +128,11 @@
                         {{ $payment->pph > 0 ? 'Edit' : 'Add' }} PPH
                     </button>
                 </a>
+                <a class="mx-2" type="button" data-bs-toggle="modal" data-bs-target="#addCost">
+                    <button type="button" class="btn btn-info">
+                        {{ $payment->cost > 0 ? 'Edit' : 'Add' }} Cost
+                    </button>
+                </a>
                 {{-- </div> --}}
             </div>
             <div class="table-responsive mb-3">
@@ -139,8 +144,11 @@
                             @if ($payment->pph > 0)
                                 <th>PPH</th>
                             @endif
+                            @if ($payment->cost > 0)
+                                <th>Cost</th>
+                            @endif
                             <th>Amount</th>
-                            @if ($payment->pph > 0)
+                            @if ($payment->pph > 0 || $payment->cost > 0)
                                 <th>Total</th>
                             @endif
                             <th>TAG</th>
@@ -157,10 +165,13 @@
                             @if ($payment->pph > 0)
                                 <td class="align-top">RP {{ number_format($payment->pph, 0, '', '.') }}
                             @endif
+                            @if ($payment->cost > 0)
+                                <td class="align-top">RP {{ number_format($payment->cost, 0, '', '.') }}
+                            @endif
                             <td class="align-top">RP {{ number_format($payment->amount, 0, '', '.') }}
                             </td>
-                            @if ($payment->pph > 0)
-                                <td class="align-top">RP {{ number_format($payment->amount - $payment->pph, 0, '', '.') }}
+                            @if ($payment->pph > 0 || $payment->cost > 0)
+                                <td class="align-top">RP {{ number_format($payment->amount - $payment->pph - $payment->cost, 0, '', '.') }}
                             @endif
                             <td class="align-top">
                                 {{ $payment->type }} {{ $payment->percent }}%
@@ -276,6 +287,7 @@
 @endsection()
 @include('components.modal.payment.date ')
 @include('components.modal.payment.pph')
+@include('components.modal.payment.cost')
 @include('components.modal.payment.confirm')
 
 @push('after-style')
@@ -330,6 +342,25 @@
             var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
             console.log(nomorInt);
             $(`#pph`).val(nomorInt);
+        });
+
+        $(".invoice-item-cost-label").on('keyup', function() {
+            var input = $(this)
+            var input_val = input.val();
+
+            // original length
+            var original_len = input_val.length;
+
+            // add commas to number
+            // remove all non-digits
+            input_val = formatNumber(input_val);
+            input_val = input_val;
+
+            // send updated string to input
+            input.val(input_val);
+            var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+            console.log(nomorInt);
+            $(`#cost`).val(nomorInt);
         });
 
         $(document).on('click', '.confirm-payment', function() {

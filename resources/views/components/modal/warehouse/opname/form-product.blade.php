@@ -47,11 +47,19 @@
                                 <p class="text-muted">Pilih Dahulu Replacement</p>
                             </div>
                         </div>
-                        <div class="col-4 mb-2">
+
+                        <div class="col-2 mb-2">
                             <div class="form-floating form-floating-outline">
-                                <p class="mb-2 repeater-title">Stock Gudang</p>
-                                <input type="number" class="form-control" placeholder="Text Stock Gudang Here..."
-                                    name="stock_gudang" id="gudang" min='0' value="">
+                                <p class="mb-2 repeater-title">Stock BDG</p>
+                                <input type="number" class="form-control" placeholder="Pilih Dahulu Replacement..."
+                                    name="stock_bdg" id="bdg" value="0">
+                            </div>
+                        </div>
+                        <div class="col-2 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <p class="mb-2 repeater-title">Stock BKS</p>
+                                <input type="number" class="form-control" placeholder="Pilih Dahulu Replacement..."
+                                    name="stock_bks" id="bks" value="0">
                             </div>
                         </div>
                         <div class="col-4 mb-2">

@@ -66,6 +66,7 @@ class POController extends Controller
                 $dPurchase->qty = $request->qty[$key];
                 $dPurchase->info_qty = $request->info_qty[$key];
                 $dPurchase->price = $request->price[$key];
+                $dPurchase->disc = $request->disc[$key];
                 $dPurchase->amount = $request->amount[$key];
                 $dPurchaseSave = $dPurchase->save();
             }

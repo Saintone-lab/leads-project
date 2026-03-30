@@ -402,7 +402,7 @@ class PendingController extends Controller
     {
         $pending = PendingPO::find($id);
         $quote = Quotation::find($pending->id_quotation);
-        $Dquote = DetailQuotation::where('id_quotation', $pending->id_quotation)->get();
+        $Dquote = DetailQuotation::where('id_quotation', $pending->id_quotation)->whereNot('level', 7)->get();
         $dPending = DetailPendingPO::where('id_pending', $id)->get();
 
         $fullRep = [];
@@ -419,7 +419,7 @@ class PendingController extends Controller
         $pending = PendingPO::find($id);
         $quote = Quotation::find($pending->id_quotation);
         // $Dquote = DetailServiceQuotation::where('id_quotation', $pending->id_quotation)->get();
-        $dPending = DetailPendingPO::where('id_pending', $id)->get();
+        $dPending = DetailPendingPO::where('id_pending', $id)->whereNot('level', 7)->get();
 
         $fullRep = [];
         $fullEquiv = [];

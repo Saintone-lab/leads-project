@@ -605,6 +605,7 @@ class MonitoringController extends Controller
         // Ambil data monitoring dari database
         $monitoringData = Monitoring::whereBetween('date', [$startOfMonth, $endOfMonth])
             ->where('id_machine', $id)
+            ->whereYear('date', $today->year)
             ->join('users as u', 'u.id', '=', 'monitoring.id_pic')
             ->get(['monitoring.*', 'u.name'])
             ->map(function ($item) {
@@ -725,6 +726,7 @@ class MonitoringController extends Controller
             ->whereNot('issue', 'Normal')
             ->whereNotNull('issue')
             ->whereMonth('monitoring.date', $month)
+            ->whereYear('monitoring.date', $today->year)
             ->select(
                 'monitoring.*',
                 'u.name',
@@ -733,16 +735,21 @@ class MonitoringController extends Controller
             ->groupBy('monitoring.id')
             ->get();
 
-        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')->where('id_machine', $id)->whereMonth('date', $month)->whereNotNull('desc')->select('main_log.*', 'u.name')->get();
+        $mainlog = Mainlog::join('users as u', 'u.id', '=', 'main_log.id_teknisi')
+            ->where('id_machine', $id)
+            ->whereMonth('date', $month)
+            ->whereYear('date', $today->year)
+            ->whereNotNull('desc')
+            ->select('main_log.*', 'u.name')->get();
         $quotes = Quotation::join('detail_quotation as d', 'd.id_quotation', '=', 'quotation.id')
             ->leftJoin('serial_product as sp', 'sp.id', '=', 'd.id_equivalent')
             ->join('machine as m', 'm.id_unit', '=', 'sp.id')
             ->where('m.id_client', 1277)
             ->where('m.id', $id)
             ->where('quotation.is_primary', 1)
-            ->whereMonth('estimated_date', $month)->get();
-
-        $monthly = MonitoringMonthly::whereMonth('date', $month)->where('id_machine', $id)->first();
+            ->whereMonth('estimated_date', $month)
+            ->whereYear('estimated_date', $today->year)->get();
+        $monthly = MonitoringMonthly::whereMonth('date', $month)->whereYear('date', $today->year)->where('id_machine', $id)->first();
 
         return view('pages.monitoring.visitor-change', compact('quotes', 'machine', 'client', 'compressor', 'dryer', 'weeksoy', 'issue', 'mainlog', 'monthly'));
     }

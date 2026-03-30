@@ -53,7 +53,7 @@
                         </div> --}}
                         <div class="form-floating form-floating-outline">
                             <select class="select2 form-select form-select-lg invoice-item-sales" data-allow-clear="true"
-                                name="id_sales" id="selectSales">
+                                name="id_sales" id="selectSales" {{ @$reports ? 'disabled' : '' }}>
                                 <option selected>----- Select Company Sales -----</option>
                                 @foreach ($sales as $sale)
                                     <option data-id="{{ $sale->id }}" value="{{ $sale->id }}"
@@ -112,7 +112,7 @@
                     <div class="col-12 col-md mb-3">
                         <div class="form-floating form-floating-outline">
                             <input class="form-control" type="date" name="date" id="date"
-                                value="{{ now()->format('Y-m-d') }}">
+                                value="{{ $report->date ?? now()->format('Y-m-d') }}">
                             {{-- <input type="date" name="date" id="date" value="{{ now()->format('Y-m-d') }}"
                                 hidden> --}}
                             <label for="date">Date</label>

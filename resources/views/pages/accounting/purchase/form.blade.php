@@ -92,7 +92,7 @@
                             <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
                                 <div class="d-flex border rounded position-relative pe-0">
                                     <div class="row w-100 p-3">
-                                        <div class="col-md-6 col-12 mb-md-0">
+                                        <div class="col-md col-12 mb-md-0">
                                             <label for="product" class="mb-2">Product</label>
                                             <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-1"
                                                 placeholder="Detail Product. Example: Kaeser ASD" name="product[]"></textarea>
@@ -135,6 +135,14 @@
                                                     <option value="Tube">Tube</option>
                                                     <option value="Titik">Titik</option>
                                                 </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                            <p class="mb-2 repeater-title">Disc (%)</p>
+                                            <div class="input-group mb-3" data-disc="1">
+                                                <input type="text" class="form-control invoice-item-disc"
+                                                    id="disc-1" data-id="1" name="disc[]"
+                                                    placeholder="%" value="{{ old('disc[]', 0) }}">
                                             </div>
                                         </div>
                                         <div class="col-md-1 col-12 pe-0">

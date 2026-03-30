@@ -171,9 +171,9 @@ class ServiceReportsController extends Controller
         // Masukan Data ke Service Reports
         $reports = Reports::find($id);
         // $reports->id_technician = $request->technician;
-        $reports->id_pic = $request->id_pic;
+        // $reports->id_pic = $request->id_pic;
         $reports->type = $request->type;
-        $reports->id_machine = $request->machine;
+        // $reports->id_machine = $request->machine;
         // $reports->no_service = $request->no_service;
         $reports->running = $request->running;
         $reports->load = $request->load;

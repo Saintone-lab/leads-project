@@ -304,6 +304,17 @@ class PaymentController extends Controller
         }
     }
 
+    public function addCost(Request $request, $id)
+    {
+        // dd($request->all());
+        $payment = Payment::find($id);
+        $payment->cost = $request->cost;
+        $paymentSave = $payment->save();
+        if ($paymentSave) {
+            return redirect('/payment-detail/payment/' . $id)->with('success', 'Cost berhasil ditambahkan!');
+        }
+    }
+
     public function editDate(Request $request, $id)
     {
         // dd($request->all());

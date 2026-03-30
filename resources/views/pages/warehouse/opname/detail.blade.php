@@ -109,6 +109,9 @@
                 let id = $(this).data('id');
                 console.log(id);
 
+                let url = '/stock-opname/update/' + id;
+                $('#formEditStock').attr('action', url);
+
                 $('.edit_sistem').val('');
                 $('.edit_gudang').val('');
                 $('.edit_selisih').val('');
@@ -126,6 +129,8 @@
 
                         $('.edit_title').text(res.product);
                         $('.edit_gudang').val(res.gudang);
+                        $('.edit_bdg').val(res.bdg);
+                        $('.edit_bks').val(res.bks);
                         $('.edit_sistem').val(res.web);
                         $('.edit_selisih').val(res.selisih);
                         $('.edit_note').val(res.note);
@@ -155,7 +160,7 @@
                     dataType: 'json',
                     success: function(res) {
                         console.log(res);
-                        
+
                         let stockSistem = res.stock_sistem ?? 0;
 
                         $('#sistem').val(stockSistem);
@@ -168,26 +173,33 @@
             });
 
             // Saat stock gudang diinput
-            $('#gudang').on('keyup change', function() {
+            $('#bdg').on('keyup change', function() {
                 hitungSelisih();
             });
-            $('.edit_gudang').on('keyup change', function() {
+            $('.edit_bdg').on('keyup change', function() {
+                hitungSelisihEdit();
+            });
+            $('#bks').on('keyup change', function() {
+                hitungSelisih();
+            });
+            $('.edit_bks').on('keyup change', function() {
                 hitungSelisihEdit();
             });
 
             // Function hitung selisih
             function hitungSelisih() {
                 let sistem = parseInt($('#sistem').val()) || 0;
-                let gudang = parseInt($('#gudang').val()) || 0;
-                let selisih = sistem - gudang;
+                let bdg = parseInt($('#bdg').val()) || 0;
+                let bks = parseInt($('#bks').val()) || 0;
+                let selisih = sistem - bdg - bks;
 
                 $('#selisih').val(selisih);
             }
 
             function hitungSelisihEdit() {
                 let sistem = parseInt($('.edit_sistem').val()) || 0;
-                let gudang = parseInt($('.edit_gudang').val()) || 0;
-                $('.edit_selisih').val(sistem - gudang);
+                let bdg = parseInt($('.edit_bdg').val()) || 0;
+                $('.edit_selisih').val(sistem - bdg);
             }
 
         });
