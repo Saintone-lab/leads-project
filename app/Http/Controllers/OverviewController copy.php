@@ -300,7 +300,21 @@ class OverviewController extends Controller
         $POSemester = Quotation::whereBetween('po_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 100)->where('level', '1')->where('is_primary', '1')->count();
         $lossSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->count();
         $totalQuoteSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->sum('nett');
-        $totalPOSemester = Quotation::whereBetween('po_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 100)->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $payments = DB::table('payment')
+            ->select(
+                'id_quotation',
+                DB::raw('SUM(amount - pph - cost) as total_payment')
+            )
+            ->groupBy('id_quotation');
+        $totalPOSemester = Quotation::whereBetween('po_date', [$first, $lastDay])
+            ->leftJoinSub($payments, 'p', function ($join) {
+                $join->on('p.id_quotation', '=', 'id');
+            })
+            ->where('id_sales', $sales)
+            ->where('status', 100)
+            ->where('level', '1')
+            ->where('is_primary', '1')
+            ->sum(DB::raw('nett - COALESCE(p.total_payment,0)'));
 
         $totalLossSemester = Quotation::whereBetween('estimated_date', [$first, $lastDay])->where('id_sales', $sales)->where('status', 0)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $totalDCSemester = Activities::whereBetween('date', [$first, $lastDay])->rightJoin('client', 'client.id', '=', 'activities.id_client')->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->where('client.id_sales', $sales)->count();
@@ -366,7 +380,20 @@ class OverviewController extends Controller
         $lossCount = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->where('status', '0')->where('level', '1')->where('is_primary', '1')->count();
         $quoteCount = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereIn('status', ['20', '40', '60', '80', '90'])->where('level', '1')->where('is_primary', '1')->count();
         $quoteOnCount = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->where('level', '1')->where('is_primary', '1')->count();
-        $poTotal = Quotation::whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $payments = DB::table('payment')
+            ->select(
+                'id_quotation',
+                DB::raw('SUM(amount - pph - cost) as total_payment')
+            )
+            ->groupBy('id_quotation');
+        $poTotal = Quotation::whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->leftJoinSub($payments, 'p', function ($join) {
+                $join->on('p.id_quotation', '=', 'id');
+            })
+            ->where('status', '100')
+            ->where('level', '1')
+            ->where('is_primary', '1')
+            ->sum(DB::raw('nett - COALESCE(p.total_payment,0)'));
         $lossTotal = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
         $quoteTotal = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereIn('status', ['20', '40', '60', '80', '90'])->where('level', '1')->where('is_primary', '1')->sum('nett');
         $quoteOnTotal = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->where('level', '1')->where('is_primary', '1')->sum('nett');
@@ -390,22 +417,83 @@ class OverviewController extends Controller
         $data = [];
 
         foreach ($sales as $user) {
-            $poTotalSales = Quotation::whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])->where('id_sales', $user->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
-            $bulanan = DB::table('quotation')
-                ->selectRaw('MONTH(po_date) as bulan, SUM(nett) as total')
-                ->where('id_sales', $user->id)
-                ->where('status', 100)
-                ->where('level', '1')
-                ->where('is_primary', '1')
-                ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
-                ->groupBy(DB::raw('MONTH(po_date)'))
+
+            $noPayment = DB::table('quotation as q')
+                ->whereBetween('q.po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('q.id_sales', $sales->id)
+                ->where('q.status', '100')
+                ->where('q.level', '1')
+                ->where('q.is_primary', '1')
+                ->whereNotExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('payment as p')
+                        ->whereRaw('p.id_quotation = q.id');
+                })
+                ->select(DB::raw('q.nett as total'));
+
+            $withPayment = DB::table('payment as p')
+                ->join('quotation as q', 'q.id', '=', 'p.id_quotation')
+                ->whereBetween('p.date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('q.id_sales', $sales->id)
+                ->where('q.status', '100')
+                ->where('q.level', '1')
+                ->where('q.is_primary', '1')
+                ->select(DB::raw('(p.amount - p.pph - p.cost) as total'));
+
+            $poTotalSales = DB::query()
+                ->fromSub(
+                    $noPayment->unionAll($withPayment),
+                    'x'
+                )
+                ->sum('total');
+
+            // $poTotalSales = Quotation::whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])->where('id_sales', $user->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+
+            $noPayment = DB::table('quotation as q')
+                ->whereBetween('q.po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('q.id_sales', $user->id)
+                ->where('q.status', '100')
+                ->where('q.level', '1')
+                ->where('q.is_primary', '1')
+                ->whereNotExists(function ($query) use ($firstDayOfMonth, $lastDayOfMonth) {
+                    $query->select(DB::raw(1))
+                        ->from('payment as p')
+                        ->whereRaw('p.id_quotation = q.id')
+                        ->whereBetween('p.date', [$firstDayOfMonth, $lastDayOfMonth]); // 🔥 penting!
+                })
+                ->selectRaw('
+        CAST(MONTH(q.po_date) AS UNSIGNED) as bulan,
+        q.nett as total
+    ');
+
+            $withPayment = DB::table('payment as p')
+                ->join('quotation as q', 'q.id', '=', 'p.id_quotation')
+                ->where('q.id_sales', $user->id)
+                ->whereBetween('p.date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('q.status', '100')
+                ->where('q.level', '1')
+                ->where('q.is_primary', '1')
+                ->selectRaw('
+        CAST(MONTH(p.date) AS UNSIGNED) as bulan,
+        (COALESCE(p.amount,0) - COALESCE(p.pph,0) - COALESCE(p.cost,0)) as total
+    ');
+
+            $bulananRaw = DB::query()
+                ->fromSub(
+                    $noPayment->unionAll($withPayment),
+                    'x'
+                )
+                ->selectRaw('bulan, SUM(total) as total')
+                ->groupBy('bulan')
                 ->pluck('total', 'bulan')
                 ->toArray();
+
             $jumlah = [];
+
             for ($i = $startMonth; $i <= $endMonth; $i++) {
                 $jumlah[] = [
                     'bulan' => $i,
-                    'total' => (int) ($bulanan[$i] ?? 0)
+                    'total' => (int) ($bulananRaw[$i] ?? 0)
                 ];
             }
 
@@ -2190,7 +2278,24 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-06-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(nett) as total'));
+            $payments = DB::table('payment')
+                ->select(
+                    'id_quotation',
+                    DB::raw('SUM(amount - pph - cost) as total_payment')
+                )
+                ->groupBy('id_quotation');
+
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('nett - COALESCE(p.total_payment,0) as total'))
+                ->leftJoinSub($payments, 'p', function ($join) {
+                    $join->on('p.id_quotation', '=', 'id');
+                })
+                ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_sales', $sales)
+                ->where('level', '1')->where('is_primary', '1')
+                ->where('status', '100')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
 
             $fullMonthData = [];
             for ($month = 1; $month <= 6; $month++) {

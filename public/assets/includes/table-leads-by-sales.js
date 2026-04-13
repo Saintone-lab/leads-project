@@ -1,8 +1,9 @@
 $(function () {
-    var dt_table_leads_search = $(".datatable-leads-search");
-    var Url = "db/leads";
+    var dt_table_leads_by_sales = $(".datatable-leads-by-sales");
+    var Url = "/leads?sales_id=";
+    let selectedSales = 1;
 
-    if (dt_table_leads_search.length) {
+    if (dt_table_leads_by_sales.length) {
         $('[data-toggle="tooltip"]').tooltip();
         // Setup - add a text input to each footer cell
         $(".datatable-leads-search thead tr")
@@ -23,11 +24,10 @@ $(function () {
             });
         });
 
-        var dt_filter = dt_table_leads_search.DataTable({
-            ordering: false,
+        window.dtLeadsBySales = dt_table_leads_by_sales.DataTable({
             ajax: {
                 type: "GET",
-                url: Url,
+                url: Url + selectedSales,
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -36,7 +36,7 @@ $(function () {
                 //     console.log(hasil);
                 // },
                 // error: function (error) {
-                //     console.log("Url:", Url);
+                //     console.log("Url:", Url + selectedSales);
                 //     console.error("Error:", error);
                 //     console.log("error disini");
                 // },
@@ -221,8 +221,12 @@ $(function () {
                 $('[data-toggle="tooltip"]').tooltip();
             },
         });
+        window.reloadLeadsBySales = function (salesId) {
+            let url = "/leads/db?sales_id=" + salesId;
+            window.dtLeadsBySales.ajax.url(url).load();
+        };
     }
-    dt_table_leads_search.on("draw", function () {
+    dt_table_leads_by_sales.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 });

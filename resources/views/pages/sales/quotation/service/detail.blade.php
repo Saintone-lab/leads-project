@@ -230,11 +230,20 @@
                                         {{ number_format($quote->subtotal - $quote->diskon, 0, '', '.') }}</td>
                                 </tr>
                             @endif
-                            <tr>
-                                <td colspan="4"></td>
-                                <td class="text-end"> Total After :</td>
-                                <td class="text-end"> RP {{ number_format($tax, 0, '', '.') }}</td>
-                            </tr>
+                            @if ($quote->tax != 0)
+                                <tr>
+                                    <td colspan="4"></td>
+                                    <td class="text-end"> Total Tax :</td>
+                                    <td class="text-end"> RP {{ number_format($tax, 0, '', '.') }}</td>
+                                </tr>
+                            @endif
+                            @if ($quote->shipping != 0)
+                                <tr>
+                                    <td colspan="4"></td>
+                                    <td class="text-end"> Shipping Cost :</td>
+                                    <td class="text-end"> RP {{ number_format($quote->shipping, 0, '', '.') }}</td>
+                                </tr>
+                            @endif
                             <tr class="border-top">
                                 <td colspan="5" class="px-4 border-right" style="background-color: #E7FF00">
                                     <p class="fw-semibold mb-0 text-black">TOTAL PRICE </p>

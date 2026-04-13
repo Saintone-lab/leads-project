@@ -36,13 +36,17 @@
                             </span>
                         </td>
                     </tr>
+                    @php
+                        $capPalembang = 425000000;
+                        $modPalembang = 575000000;
+                    @endphp
                     <tr>
                         <td>
                             <span class="lvl-2">
                                 Bank
                             </span>
                         </td>
-                        <td class="fw-medium">TBA</td>
+                        <td class="fw-medium">{{ number_format($bank->saldo, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
                         <td>
@@ -50,7 +54,7 @@
                                 BCA IDR
                             </span>
                         </td>
-                        <td>TBA</td>
+                        <td>{{ number_format($bank->saldo, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
                         <td>
@@ -58,7 +62,7 @@
                                 Capital Cabang Palembang
                             </span>
                         </td>
-                        <td>TBA</td>
+                        <td>{{ number_format($capPalembang, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
                         <td>
@@ -66,7 +70,7 @@
                                 Modal Cabang Palembang
                             </span>
                         </td>
-                        <td>TBA</td>
+                        <td>{{ number_format($modPalembang, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
                         <td class="fw-medium">
@@ -74,7 +78,7 @@
                                 Jumlah Kas dan Bank
                             </span>
                         </td>
-                        <td class="fw-medium border-top">TBA</td>
+                        <td class="fw-medium border-top">{{ number_format($bank->saldo + $capPalembang + $modPalembang, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
                         <td colspan="2">

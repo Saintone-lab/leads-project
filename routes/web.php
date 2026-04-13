@@ -89,6 +89,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadsController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\UserController;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -149,6 +150,7 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route For Leads
     Route::resource('/leads', LeadsController::class);
+    Route::get('/leads-by-sales', [LeadsController::class, 'indexBySales'])->name('index-sales.leads');
     Route::get('/leads/detail/{id}', [LeadsController::class, 'show'])->name('detail.leads');
     Route::post('/leads/action/{id}', [LeadsController::class, 'storeActionWithLeads'])->name('action.leads');
     Route::post('/leads/visit/{id}', [LeadsController::class, 'storeVisitWithLeads'])->name('visit.leads');
@@ -227,6 +229,8 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk existing
     Route::resource('/existing', CrmController::class);
+    Route::get('/customer-by-sales', [CrmController::class, 'indexBySales'])->name('index-sales.customers');
+    Route::get('/customer-by-status', [CrmController::class, 'indexByStatus'])->name('index-status.customers');
     Route::get('/existing-bangkrupt', [CrmController::class, 'indexBangkrupt'])->name('index.bangkrupt');
     Route::post('/existing/action/{id}', [CrmController::class, 'storeActionWithCrm'])->name('action.crm');
     Route::post('/existing/update-status/{id}', [CrmController::class, 'updateStatusAtDropdown'])->name('update-status.crm');
@@ -290,7 +294,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/product-in', ProductInController::class);
     Route::get('/product-in/print/{id}', [ProductInController::class, 'productIn_print'])->name('productIn.print');
     Route::get('/product-in/replacement/{id}', function ($id) {
-        $product = DetailProduct::where('id_product', $id)->join('product as p', 'p.id', '=', 'detail_product.id_product')->get(['detail_product.*', 'p.weight', 'p.stock as pStock']);
+        $product = DetailProduct::where('id_product', $id)
+            ->join('product as p', 'p.id', '=', 'detail_product.id_product')
+            ->get(['detail_product.*', 'p.weight', 'p.stock as pStock']);
         return response()->json($product);
     });
     Route::post('/product-in/logistik', [ProductInController::class, 'logistic_store'])->name('product-in.logistic-store');
@@ -1384,6 +1390,11 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/get/account/{id}', [ExpenseController::class, 'getAccount'])->name('expense.getAccount');
     Route::post('/expense/store', [ExpenseController::class, 'storeexpense'])->name('expense.store');
 
+    Route::get('/expense-inventory', [ExpenseController::class, 'indexInvenAdj'])->name('expense-inventory.index');
+    Route::get('/expense-inventory/create', [ExpenseController::class, 'createExpenseInventory'])->name('expense-inventory.create');
+    Route::post('/expense-inventory', [ExpenseController::class, 'storeExpenseInventory'])->name('expense-inventory.store');
+    Route::delete('/expense-inventory/{id}', [ExpenseController::class, 'deleteExpenseInventory'])->name('expense-inventory.delete');
+
     Route::get('/income', [ExpenseController::class, 'indexIncome'])->name('expense-income.index');
     Route::post('/income', [ExpenseController::class, 'storeIncome'])->name('expense-income.store');
     Route::get('/income-print/{mounth}/{year}', [ExpenseController::class, 'printBulan'])->name('expense-income.print-bulan');
@@ -1692,6 +1703,91 @@ Route::group(["middleware" => "auth"], function () {
     // Route::get('/fetch-data/leads', [ApiTableController::class, 'tableLeads']);
     Route::get('/db/leads', function () {
         require_once base_path('app/api/leads/connection.php');
+    });
+    Route::get('/leads/db', function (Request $request) {
+
+        $id = $request->sales_id;
+
+        $data = DB::table('client as c')
+            ->select(
+                'c.*',
+                'p.name_pic',
+                'i.issue',
+                'u.name',
+                DB::raw("DATE_FORMAT(MAX(a.date), '%d-%m-%Y') as date"),
+                DB::raw("DATE_FORMAT(MAX(a.follow_up), '%d-%m-%Y') as follow_up"),
+                DB::raw("MAX(a.note) as note")
+            )
+            ->join('issues as i', 'c.id_issues', '=', 'i.id')
+            ->join('users as u', 'c.id_sales', '=', 'u.id')
+            ->leftJoin('pic as p', 'c.id', '=', 'p.id_client')
+            ->leftJoin('activities as a', 'a.id_client', '=', 'c.id')
+            ->where('c.role', 'Leads')
+            ->when($id, function ($q) use ($id) {
+                $q->where('u.id', $id);
+            })
+            ->groupBy('c.id')
+            ->orderByDesc('c.id')
+            ->get();
+
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/customers', function (Request $request) {
+
+        $id = $request->sales_id;
+
+        $data = DB::table('client as c')
+            ->select(
+                'c.*',
+                'p.name_pic',
+                'i.issue',
+                'u.name',
+                DB::raw("DATE_FORMAT(MAX(a.date), '%d-%m-%Y') as date"),
+                DB::raw("DATE_FORMAT(MAX(a.follow_up), '%d-%m-%Y') as follow_up"),
+                DB::raw("MAX(a.note) as note")
+            )
+            ->join('issues as i', 'c.id_issues', '=', 'i.id')
+            ->join('users as u', 'c.id_sales', '=', 'u.id')
+            ->leftJoin('pic as p', 'c.id', '=', 'p.id_client')
+            ->leftJoin('activities as a', 'a.id_client', '=', 'c.id')
+            ->where('c.role', 'Customers')
+            ->when($id, function ($q) use ($id) {
+                $q->where('u.id', $id);
+            })
+            ->groupBy('c.id')
+            ->orderByDesc('c.id')
+            ->get();
+
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/crm/status', function (Request $request) {
+        $status = $request->status;
+
+        $data = DB::table('client as c')
+            ->select(
+                'c.*',
+                'cs.status',
+                'p.name_pic',
+                'i.issue',
+                'u.name',
+                DB::raw("DATE_FORMAT(MAX(a.date), '%d-%m-%Y') as date"),
+                DB::raw("DATE_FORMAT(MAX(a.follow_up), '%d-%m-%Y') as follow_up"),
+                DB::raw("MAX(a.note) as note")
+            )
+            ->join('users as u', 'c.id_sales', '=', 'u.id')
+            ->leftJoin('pic as p', 'c.id', '=', 'p.id_client')
+            ->leftJoin('crm_status as cs', 'c.id', '=', 'cs.id_client')
+            ->leftJoin('activities as a', 'a.id_client', '=', 'c.id')
+            ->leftJoin('issues as i', 'c.id_issues', '=', 'i.id')
+            ->where('c.role', 'Customers')
+            ->where('u.id', Auth::user()->id)
+            ->when($status, function ($q) use ($status) {
+                $q->where('cs.status', $status);
+            })
+            ->groupBy('c.id')
+            ->orderByDesc('c.id')
+            ->get();
+        return response()->json(['data' => $data]);
     });
     Route::get('/db/leads/admin', function () {
         require_once base_path('app/api/leads/connectionAdmin.php');
@@ -4846,6 +4942,27 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
     });
     Route::get('/db/expense/umum/data', function () {
         $expense = Expense::whereNULL('id_bank')->get();
+        return response()->json(['data' => $expense]);
+    });
+    Route::get('/db/expense/inventory', function () {
+        $expense = Expense::join('detail_expense as de', 'de.id_expense', '=', 'expense.id')
+            ->join('account as acc', 'acc.id', '=', 'de.id_account')
+            ->join('detail_inventory_adj as da', 'da.id_detail_expense', '=', 'de.id')
+            ->leftJoin('detail_product as dp', 'dp.id', '=', 'da.id_product')
+            ->select(
+                'expense.*',
+                DB::raw("CONCAT(acc.code, ' - ', acc.name) as account"),
+                DB::raw("
+            GROUP_CONCAT(
+                CONCAT(dp.replacement)
+                SEPARATOR ' - '
+            ) as replacement
+        ")
+            )
+            ->whereNotNull('da.id_product')
+            ->whereNull('expense.id_bank')
+            ->groupBy('expense.id')
+            ->get();
         return response()->json(['data' => $expense]);
     });
     Route::get('/db/purchase-request/new', function () {

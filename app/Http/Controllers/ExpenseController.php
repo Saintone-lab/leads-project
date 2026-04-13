@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Account;
 use App\Models\Bank;
 use App\Models\DetailExpense;
+use App\Models\DetailInventoryAdj;
 use App\Models\DetailProduct;
 use App\Models\Expense;
 use App\Models\FixedAsset;
@@ -12,6 +13,7 @@ use App\Models\LabaRugi;
 use App\Models\Payment;
 use App\Models\ProductIn;
 use App\Models\Quotation;
+use App\Models\SerialProduct;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
@@ -47,7 +49,7 @@ class Expensecontroller extends Controller
     public function storeAccount(Request $request)
     {
         $account = new Account();
-        $account->id_parents = $request->parent ?? 0 ;
+        $account->id_parents = $request->parent ?? 0;
         $account->code = $request->code;
         $account->name = $request->name;
         $account->category = $request->category;
@@ -62,7 +64,7 @@ class Expensecontroller extends Controller
     public function updateAccount(Request $request, $id)
     {
         $account = Account::find($id);
-        $account->id_parents = $request->parent ?? 0 ;
+        $account->id_parents = $request->parent ?? 0;
         $account->code = $request->code;
         $account->name = $request->name;
         $account->category = $request->category;
@@ -92,6 +94,84 @@ class Expensecontroller extends Controller
     public function indexExpenseUmum()
     {
         return view('pages.finance.expense.index-umum');
+    }
+    public function indexInvenAdj()
+    {
+        return view('pages.finance.expense.index-inventory');
+    }
+    public function createExpenseInventory()
+    {
+        $bank = Bank::all();
+        $expense = Expense::all();
+        $account = Account::all();
+        $product = SerialProduct::join('product', 'serial_product.id_product', '=', 'product.id')->get('serial_product.*');
+        return view('pages.finance.expense.form-inventory', compact('bank', 'expense', 'account', 'product'));
+    }
+    public function storeExpenseInventory(Request $request)
+    {
+        // dd($request->all());
+        $expense = new Expense;
+        $expense->id_bank = null;
+        $expense->no_invoice = $request->no_invoice;
+        $expense->no_cheque = null;
+        $expense->memo = $request->detail;
+        $expense->date = $request->date;
+        $expense->amount = $request->total;
+        $expenseSave = $expense->save();
+        if ($expenseSave) {
+            $dExpense = new DetailExpense();
+            $dExpense->id_Expense = $expense->id;
+            $dExpense->id_account = $request->account;
+            $dExpense->memo = null;
+            $dExpense->amount = null;
+            $dExpenseSave = $dExpense->save();
+            foreach ($request->replacement as $item => $value) {
+                $replacement = DetailProduct::where('id', $request->replacement[$item])->first();
+                if ($request->warehouse[$item] == "BDG") {
+                    $replacement->stock -= $request->qty[$item];
+                } else {
+                    $replacement->warehouse_stock -= $request->qty[$item];
+                }
+                $replacement->save();
+                $inventory = new DetailInventoryAdj();
+                $inventory->id_detail_expense = $dExpense->id;
+                $inventory->id_product = $request->replacement[$item];
+                $inventory->qty = $request->qty[$item];
+                $inventory->warehouse = $request->warehouse[$item];
+                $inventory->price = $request->price[$item];
+                $inventory->amount = $request->amount[$item];
+                $inventorysave = $inventory->save();
+            }
+        }
+        if ($expenseSave && $dExpenseSave && $inventorysave) {
+            return redirect('expense-inventory')->with('success', 'Data berhasil disimpan');
+        }
+    }
+
+    public function deleteExpenseInventory($id)
+    {
+        $expense = Expense::find($id);
+        $detailExpense = DetailExpense::where('id_expense', $id)->first();
+        $inventory = DetailInventoryAdj::where('id_detail_expense', $detailExpense->id)->get();
+
+        foreach ($inventory as $adj) {
+            $replacement = DetailProduct::find($adj->id_product);
+
+            if ($adj->warehouse == "BDG") {
+                $replacement->stock += $adj->qty;
+            } else {
+                $replacement->warehouse_stock += $adj->qty; // fix typo juga
+            }
+
+            $replacement->save();
+            $adj->delete();
+        }
+
+        // delete SEKALI saja
+        $detailExpense->delete();
+        $expenseDel = $expense->delete();
+
+        return $expenseDel ? 1 : 0;
     }
 
     public function createExpense()
@@ -328,6 +408,7 @@ class Expensecontroller extends Controller
     }
     public function printBulanBalance($year, $month)
     {
+        $bank = Bank::where('bank','BCA')->first();
         $startDate = Carbon::create($year, $month, 1)->startOfMonth()->toDateString();
         $endDate = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
         $start = Carbon::create($year, $month, 1)->startOfMonth();
@@ -382,6 +463,7 @@ class Expensecontroller extends Controller
         $startString = $start->translatedFormat('j M Y');
         $endString = $end->translatedFormat('j M Y');
         return view('pages.finance.balance.print', compact(
+            'bank',
             'startDate',
             'endDate',
             'startString',
@@ -405,6 +487,7 @@ class Expensecontroller extends Controller
     }
     public function printTahunBalance($year)
     {
+        $bank = Bank::where('bank','BCA')->first();
         $startDate = Carbon::create($year, 1, 1)->startOfMonth()->toDateString();
         $endDate = Carbon::create($year, 12, 1)->endOfMonth()->toDateString();
         $start = Carbon::create($year, 1, 1)->startOfMonth();
@@ -459,6 +542,7 @@ class Expensecontroller extends Controller
         $startString = $start->translatedFormat('j M Y');
         $endString = $end->translatedFormat('j M Y');
         return view('pages.finance.balance.print', compact(
+            'bank',
             'startDate',
             'endDate',
             'startString',

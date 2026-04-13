@@ -376,7 +376,7 @@
                 </div>
             </div>
             @php
-                $salesID = $sales->id;
+                $salesID = Auth::user()->id;
             @endphp
             @include('components.modal.onlineSales.new-product')
             @include('components.modal.onlineSales.akurasi-data')
@@ -386,31 +386,117 @@
             @include('components.modal.onlineSales.customer')
             @include('components.modal.onlineSales.sw')
             @include('components.modal.onlineSales.video')
-        @else
-            <div class="row gy-4 mb-4">
-                <!-- Congratulations card -->
-                <div class="col-xl-4 col-lg-4 col-md-12 col-sm-8 col-12">
-                    <div class="card h-100">
-                        <div class="card-body text-nowrap">
-                            <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
-                                Congratulations <strong>{{ Auth::user()->name }}</strong> 🎉
-                            </h4>
-                            <p class="pb-0">Best seller of the month</p>
-                            <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPrice }}</h4>
-                            @php
-                                $jumlah_target = 0;
-                                $jumlah_target = ($poTotalPrice / $target->total) * 100;
-                                $formatted_jumlah_target = number_format($jumlah_target, 3);
-                            @endphp
-                            <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
-                            <a href="javascript:;" class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
+        @endif
+        <div class="row gy-4 mb-4">
+            <!-- Congratulations card -->
+            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h5 class="card-title m-0 me-2">Sale Ranking</h5>
+                        <div class="dropdown">
+                            <button class="btn p-0" type="button" id="projectStatus" data-bs-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                                <i class="mdi mdi-dots-vertical mdi-24px"></i>
+                            </button>
+                            {{-- <div class="dropdown-menu dropdown-menu-end" aria-labelledby="projectStatus">
+                                    <a class="dropdown-item waves-effect" href="javascript:void(0);">Last 28 Days</a>
+                                    <a class="dropdown-item waves-effect" href="javascript:void(0);">Last Month</a>
+                                    <a class="dropdown-item waves-effect" href="javascript:void(0);">Last Year</a>
+                                </div> --}}
                         </div>
-                        <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
-                            class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
+                    </div>
+                    <div class="card-body">
+                        <ul class="p-0 m-0">
+                            <li class="d-flex mb-3 justify-content-between pb-2">
+                                <h6 class="mb-0 small">NAME</h6>
+                                <h6 class="mb-0 small">PERCENTAGE</h6>
+                            </li>
+                            @php
+                                $no = 1;
+                            @endphp
+                            @foreach ($sorted as $sale)
+                                @php
+                                    switch ($no) {
+                                        case 1:
+                                            $color = 'warning'; // Kuning / Orange
+                                            break;
+                                        case 2:
+                                            $color = 'success'; // Hijau
+                                            break;
+                                        case 3:
+                                            $color = 'info'; // Biru
+                                            break;
+                                        case 4:
+                                            $color = 'secondary'; // Abu-abu
+                                            break;
+                                        case 5:
+                                            $color = 'primary'; // custom (kalau ada)
+                                            break;
+                                        case 6:
+                                            $color = 'danger'; // Merah
+                                            break;
+                                        case 7:
+                                            $color = 'dark'; // Hitam
+                                            break;
+                                        default:
+                                            $color = 'primary';
+                                            break;
+                                    }
+                                @endphp
+                                <li class="d-flex mb-4">
+                                    <span
+                                        class="badge bg-label-{{ $color }} d-inline-flex align-items-center justify-content-center">
+                                        # {{ $no }}
+                                    </span>
+                                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                        <div class="mx-2 me-2">
+                                            <h6 class="mb-0">{{ $sale['name'] }}
+                                                @if ($no == 1)
+                                                    <span class="text-warning">
+                                                        <i class="mdi mdi-crown mdi-24px"></i>
+                                                    </span>
+                                                @endif
+                                            </h6>
+                                            <small class="text-muted">{{ $sale['area'] }}</small>
+                                        </div>
+                                        <div class="badge bg-label-{{ $color }} rounded-pill">
+                                            {{ $sale['percentage'] }}%
+                                        </div>
+                                    </div>
+                                </li>
+                                @php
+                                    $no++;
+                                @endphp
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
-                <!--/ Congratulations card -->
-                <!-- Total New Leads chart -->
+            </div>
+            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                <div class="card h-100">
+                    <div class="card-body text-nowrap">
+                        <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
+                            Congratulations <strong>{{ Auth::user()->name }}</strong> 🎉
+                        </h4>
+                        <p class="pb-0">Best seller of the month</p>
+                        <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPrice }}</h4>
+                        @php
+                            $jumlah_target = 0;
+                            $jumlah_target = ($poTotalPrice / $target->total) * 100;
+                            $formatted_jumlah_target = number_format($jumlah_target, 3);
+                        @endphp
+                        <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
+                        <a href="javascript:;" class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
+                    </div>
+                    <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
+                        class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
+                </div>
+            </div>
+            <!--/ Congratulations card -->
+            <!-- Total New Leads chart -->
+        </div>
+        @if (Auth::user()->id != 16 || Auth::user()->id != 23)
+            <div class="row gy-4 mb-4">
                 @if (Auth::user()->id != '4')
                     <div class="col">
                         <div class="card h-100">
@@ -755,8 +841,8 @@
             @include('components.modal.prospect.confirm')
         @endforeach
 
-    
-    <!-- Prospect Dashboard -->
+
+        <!-- Prospect Dashboard -->
     @elseif (Auth::user()->role == 'Support')
         <div class="row g-4 mb-4">
             <!-- Monthly Achievement   -->
@@ -777,9 +863,7 @@
                         </h4>
 
                         @php
-                            $progress = $targetProspect > 0 
-                                ? round(($prospect / $targetProspect) * 100, 1) 
-                                : 0;
+                            $progress = $targetProspect > 0 ? round(($prospect / $targetProspect) * 100, 1) : 0;
 
                             $remaining = $targetProspect - $prospect;
                         @endphp
@@ -787,15 +871,14 @@
                         <p class="mb-2">
                             Target: {{ $targetProspect }}
                             |
-                            {{ $progress }}% achieved 
-                            ({{ $remaining > 0 ? 'sisa ' . $remaining  . ' lagi' : 'Target tercapai 🎯' }})
+                            {{ $progress }}% achieved
+                            ({{ $remaining > 0 ? 'sisa ' . $remaining . ' lagi' : 'Target tercapai 🎯' }})
                         </p>
 
                         <div class="progress" style="height:6px;">
                             <div class="progress-bar 
                                 {{ $progress >= 80 ? 'bg-success' : ($progress >= 50 ? 'bg-primary' : 'bg-warning') }}"
-                                role="progressbar"
-                                style="width: {{ $progress }}%;">
+                                role="progressbar" style="width: {{ $progress }}%;">
                             </div>
                         </div>
 
@@ -805,167 +888,166 @@
 
             <!-- KPI GRID START -->
             @if (Auth::user()->id != '4')
+                <!-- Prospect Masuk -->
+                <div class="col-12 col-md-6 col-xl d-flex">
+                    <div class="card w-100">
 
-            <!-- Prospect Masuk -->
-            <div class="col-12 col-md-6 col-xl d-flex">
-                <div class="card w-100">
+                        <div class="card-body">
 
-                    <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-3">
 
-                        <div class="d-flex align-items-center gap-3 mb-3">
-
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-secondary rounded">
-                                    <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
+                                <div class="avatar">
+                                    <div class="avatar-initial bg-label-secondary rounded">
+                                        <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
+                                    </div>
                                 </div>
+
+                                <h3 class="mb-0 fw-semibold">
+                                    {{ $prospect }}
+                                </h3>
+
                             </div>
 
-                            <h3 class="mb-0 fw-semibold">
-                                {{ $prospect }}
-                            </h3>
-
-                        </div>
-
-                        <div class="text-muted small mb-2">
-                            {{ $diffProspect >= 0 ? '+' . $diffProspect : $diffProspect }} ti sasih kamari
-                        </div>
-
-                        <div>
-                        <span class="badge bg-label-secondary rounded-pill">
-                            Prospek Anu Lebet
-                        </span>
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Provided -->
-            <div class="col-12 col-md-6 col-xl d-flex">
-                <div class="card w-100">
-
-                    <div class="card-body">
-
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-info rounded">
-                                    <i class="mdi mdi-phone-outline mdi-24px"></i>
-                                </div>
+                            <div class="text-muted small mb-2">
+                                {{ $diffProspect >= 0 ? '+' . $diffProspect : $diffProspect }} ti sasih kamari
                             </div>
 
-                            <h3 class="mb-0 fw-semibold">
-                                {{ $provided }}
-                            </h3>
-                        </div>
-
-                        <div class="text-muted small mb-2">
-                            {{ $prospect > 0 ? round(($provided/$prospect)*100,1) : 0 }}% ti prospek
-                        </div>
-                        
-                        <div>
-                        <span class="badge bg-label-secondary rounded-pill">
-                            Anu Diladangan
-                        </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quotation -->
-            <div class="col-12 col-md-4 col-xl d-flex">
-                <div class="card w-100">
-
-                    <div class="card-body">
-
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-warning rounded">
-                                    <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
-                                </div>
+                            <div>
+                                <span class="badge bg-label-secondary rounded-pill">
+                                    Prospek Anu Lebet
+                                </span>
                             </div>
 
-                            <h3 class="mb-1 fw-semibold">
-                                {{ $quotation }}
-                            </h3>
-                        </div>
-
-                        <div class="text-muted small mb-2">
-                            {{ $prospect > 0 ? round(($quotation/$prospect)*100,1) : 0 }}% ti diladangan
-                        </div>
-
-                        <div>
-                            <span class="badge bg-label-secondary rounded-pill">
-                                Anu Ditawaran
-                            </span>
                         </div>
 
                     </div>
                 </div>
-            </div>
 
-            <!-- Purchase Order -->
-            <div class="col-6 col-md-4 col-xl d-flex">
-                <div class="card w-100">
+                <!-- Provided -->
+                <div class="col-12 col-md-6 col-xl d-flex">
+                    <div class="card w-100">
 
-                    <div class="card-body">
+                        <div class="card-body">
 
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-success rounded">
-                                    <i class="mdi mdi-cart-plus mdi-24px"></i>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="avatar">
+                                    <div class="avatar-initial bg-label-info rounded">
+                                        <i class="mdi mdi-phone-outline mdi-24px"></i>
+                                    </div>
                                 </div>
+
+                                <h3 class="mb-0 fw-semibold">
+                                    {{ $provided }}
+                                </h3>
                             </div>
 
-                            <h3 class="mb-1 fw-semibold">
-                                {{ $po }}
-                            </h3>
-                        </div>
-
-                        <div class="text-muted small mb-2">
-                            {{ $closingRate }}% ti ditawaran
-                        </div>
-
-                        <div>
-                            <span class="badge bg-label-secondary rounded-pill">
-                                Anu Jadi Meser
-                            </span>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- Loss -->
-            <div class="col-6 col-md-4 col-xl d-flex">
-                <div class="card w-100">
-                    <div class="card-body d-flex flex-column">
-
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-danger rounded">
-                                    <i class="mdi mdi-close-circle-outline mdi-24px"></i>
-                                </div>
+                            <div class="text-muted small mb-2">
+                                {{ $prospect > 0 ? round(($provided / $prospect) * 100, 1) : 0 }}% ti prospek
                             </div>
 
-                            <h3 class="mb-1 fw-semibold">
-                                {{ $loss }}
-                            </h3>
+                            <div>
+                                <span class="badge bg-label-secondary rounded-pill">
+                                    Anu Diladangan
+                                </span>
+                            </div>
                         </div>
-
-                        <div class="text-muted small mb-2">
-                            {{ $prospect > 0 ? round(($loss/$prospect)*100,1) : 0 }}% ti ditawaran
-                        </div>
-
-                        <div>
-                            <span class="badge bg-label-secondary rounded-pill">
-                                Anu Bedo
-                            </span>
-                        </div>
-
                     </div>
                 </div>
-            </div>
+
+                <!-- Quotation -->
+                <div class="col-12 col-md-4 col-xl d-flex">
+                    <div class="card w-100">
+
+                        <div class="card-body">
+
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="avatar">
+                                    <div class="avatar-initial bg-label-warning rounded">
+                                        <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                    </div>
+                                </div>
+
+                                <h3 class="mb-1 fw-semibold">
+                                    {{ $quotation }}
+                                </h3>
+                            </div>
+
+                            <div class="text-muted small mb-2">
+                                {{ $prospect > 0 ? round(($quotation / $prospect) * 100, 1) : 0 }}% ti diladangan
+                            </div>
+
+                            <div>
+                                <span class="badge bg-label-secondary rounded-pill">
+                                    Anu Ditawaran
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Purchase Order -->
+                <div class="col-6 col-md-4 col-xl d-flex">
+                    <div class="card w-100">
+
+                        <div class="card-body">
+
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="avatar">
+                                    <div class="avatar-initial bg-label-success rounded">
+                                        <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                    </div>
+                                </div>
+
+                                <h3 class="mb-1 fw-semibold">
+                                    {{ $po }}
+                                </h3>
+                            </div>
+
+                            <div class="text-muted small mb-2">
+                                {{ $closingRate }}% ti ditawaran
+                            </div>
+
+                            <div>
+                                <span class="badge bg-label-secondary rounded-pill">
+                                    Anu Jadi Meser
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loss -->
+                <div class="col-6 col-md-4 col-xl d-flex">
+                    <div class="card w-100">
+                        <div class="card-body d-flex flex-column">
+
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="avatar">
+                                    <div class="avatar-initial bg-label-danger rounded">
+                                        <i class="mdi mdi-close-circle-outline mdi-24px"></i>
+                                    </div>
+                                </div>
+
+                                <h3 class="mb-1 fw-semibold">
+                                    {{ $loss }}
+                                </h3>
+                            </div>
+
+                            <div class="text-muted small mb-2">
+                                {{ $prospect > 0 ? round(($loss / $prospect) * 100, 1) : 0 }}% ti ditawaran
+                            </div>
+
+                            <div>
+                                <span class="badge bg-label-secondary rounded-pill">
+                                    Anu Bedo
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
         </div>
 
         <div class="row gy-4 mb-4">
@@ -992,41 +1074,121 @@
             </div>
             {{-- End:: Prospect Table --}}
         </div>
-
-    @endif     
+    @endif
     <!-- End Support Dashboard -->
+@elseif (Auth::user()->role == 'Admin')
+    <div class="row gy-4 mb-4">
+        <div class="col-12 col-lg-4">
 
-    @elseif (Auth::user()->role == 'Admin')
-        <div class="row gy-4 mb-4">
-            <div class="col-12 col-lg-4">
-                <div class="card h-100 mb-3">
-                    <div class="card-body text-nowrap">
-                        <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
-                            Sales Results</strong> 🎉
-                        </h4>
-                        <p class="pb-0">sell of the month</p>
-                        <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPriceAdmin }}</h4>
-                        @php
-                            $jumlah_target = 0;
-                            $jumlah_target = ($poTotalPriceAdmin / $targetAllSales) * 100;
-                            $formatted_jumlah_target = number_format($jumlah_target, 3);
-                        @endphp
-                        <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
-                        @php
-                            $today = \Carbon\Carbon::now();
-                            $semester = $today->month > 6 ? 2 : 1;
+            <div class="card mb-3">
+                <div class="card-body text-nowrap">
+                    <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
+                        Sales Results</strong> 🎉
+                    </h4>
+                    <p class="pb-0">sell of the month</p>
+                    <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPriceAdmin }}</h4>
+                    @php
+                        $jumlah_target = 0;
+                        $jumlah_target = ($poTotalPriceAdmin / $targetAllSales) * 100;
+                        $formatted_jumlah_target = number_format($jumlah_target, 3);
+                    @endphp
+                    <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
+                    @php
+                        $today = \Carbon\Carbon::now();
+                        $semester = $today->month > 6 ? 2 : 1;
 
-                            $semesterNow = \App\Models\SalesReports::where('semester', $semester)
-                                ->where('year', $today->year)
-                                ->first();
-                        @endphp
-                        <a href="{{ route('report.semester', $semesterNow) }}"
-                            class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
-                    </div>
-                    <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
-                        class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
+                        $semesterNow = \App\Models\SalesReports::where('semester', $semester)
+                            ->where('year', $today->year)
+                            ->first();
+                    @endphp
+                    <a href="{{ route('report.semester', $semesterNow) }}"
+                        class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
                 </div>
-                {{-- <div class="card">
+                <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
+                    class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
+            </div>
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title m-0 me-2">Sale Ranking</h5>
+                    <div class="dropdown">
+                        <button class="btn p-0" type="button" id="projectStatus" data-bs-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            <i class="mdi mdi-dots-vertical mdi-24px"></i>
+                        </button>
+                        {{-- <div class="dropdown-menu dropdown-menu-end" aria-labelledby="projectStatus">
+                                    <a class="dropdown-item waves-effect" href="javascript:void(0);">Last 28 Days</a>
+                                    <a class="dropdown-item waves-effect" href="javascript:void(0);">Last Month</a>
+                                    <a class="dropdown-item waves-effect" href="javascript:void(0);">Last Year</a>
+                                </div> --}}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <ul class="p-0 m-0">
+                        <li class="d-flex mb-3 justify-content-between pb-2">
+                            <h6 class="mb-0 small">NAME</h6>
+                            <h6 class="mb-0 small">PERCENTAGE</h6>
+                        </li>
+                        @php
+                            $no = 1;
+                        @endphp
+                        @foreach ($sorted as $sale)
+                            @php
+                                switch ($no) {
+                                    case 1:
+                                        $color = 'warning'; // Kuning / Orange
+                                        break;
+                                    case 2:
+                                        $color = 'success'; // Hijau
+                                        break;
+                                    case 3:
+                                        $color = 'info'; // Biru
+                                        break;
+                                    case 4:
+                                        $color = 'secondary'; // Abu-abu
+                                        break;
+                                    case 5:
+                                        $color = 'primary'; // custom (kalau ada)
+                                        break;
+                                    case 6:
+                                        $color = 'danger'; // Merah
+                                        break;
+                                    case 7:
+                                        $color = 'dark'; // Hitam
+                                        break;
+                                    default:
+                                        $color = 'primary';
+                                        break;
+                                }
+                            @endphp
+                            <li class="d-flex mb-4">
+                                <span
+                                    class="badge bg-label-{{ $color }} d-inline-flex align-items-center justify-content-center">
+                                    # {{ $no }}
+                                </span>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="mx-2 me-2">
+                                        <h6 class="mb-0">{{ $sale['name'] }}
+                                            @if ($no == 1)
+                                                <span class="text-warning">
+                                                    <i class="mdi mdi-crown mdi-24px"></i>
+                                                </span>
+                                            @endif
+                                        </h6>
+                                        <small class="text-muted">{{ $sale['area'] }}</small>
+                                    </div>
+                                    <div class="badge bg-label-{{ $color }} rounded-pill">
+                                        {{ $sale['percentage'] }}%
+                                    </div>
+                                </div>
+                            </li>
+                            @php
+                                $no++;
+                            @endphp
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            {{-- <div class="card">
                     <div class="card-body pb-0 pt-3">
                         <div class="row d-flex align-items-center">
                             <div class="col-5 col-lg-6 col-xl-5" style="position: relative;">
@@ -1246,342 +1408,336 @@
                         </div>
                     </div>
                 </div> --}}
-            </div>
-            <div class="col-12 col-lg-8">
-                <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between">
-                        <div class="card-title m-0">
-                            <h5 class="mb-0">Sales Overview</h5>
-                        </div>
-                        <div class="dropdown">
-                            <button class="btn p-0" type="button" id="earningReportsTabsId" data-bs-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                                <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="earningReportsTabsId">
-                                <a class="dropdown-item waves-effect" href="javascript:void(0);">View More</a>
-                                <a class="dropdown-item waves-effect" href="javascript:void(0);">Delete</a>
-                            </div>
+        </div>
+        <div class="col-12 col-lg-8">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="card-title m-0">
+                        <h5 class="mb-0">Sales Overview</h5>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn p-0" type="button" id="earningReportsTabsId" data-bs-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            <i class="mdi mdi-dots-vertical mdi-24px"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="earningReportsTabsId">
+                            <a class="dropdown-item waves-effect" href="javascript:void(0);">View More</a>
+                            <a class="dropdown-item waves-effect" href="javascript:void(0);">Delete</a>
                         </div>
                     </div>
-                    <div class="card-body pb-3">
-                        <ul class="nav nav-tabs nav-tabs-widget pb-3 gap-2 d-flex flex-nowrap" role="tablist">
-                            @foreach ($sales as $user)
-                                <li class="nav-item change-sales" role="presentation" style="width: 15%;height: 15%;"
-                                    data-id="{{ $user->id }}">
-                                    <img class="nav-link btn {{ $user->id == 1 ? 'active' : '' }} d-flex flex-column align-items-center justify-content-center"
-                                        role="tab" data-bs-toggle="tab"
-                                        data-bs-target="#navs-sales-{{ $user->id }}"
-                                        aria-controls="navs-sales-{{ $user->id }}" aria-selected="true"
-                                        src="{{ url('') . '/' . $user->image }}" alt="" srcset=""
-                                        style="width : 75px !important; height:75px !important; object-fit: cover; padding: 10px;">
-                                </li>
-                            @endforeach
-                            <span class="tab-slider" style="left: 0px; width: 112px; bottom: 0px;"></span>
-                        </ul>
-                        <div class="tab-content p-0 ms-0 ms-sm-2">
-                            @php
-                                $item = 0;
-                            @endphp
-                            @foreach ($sales as $user)
-                                <div class="tab-pane fade{{ $user->id == 1 ? ' show active' : '' }}"
-                                    id="navs-sales-{{ $user->id }}" role="tabpanel">
-                                    <div class="mb-3">
-                                        <div data-id="{{ $item }}">
-                                            <div class="card-header">
-                                                <div class="row">
-                                                    <div class="col-12 mb-3">
-                                                        <div class="d-flex justify-content-between">
-                                                            <h4 class="">{{ $user->name }}'s Overview</h4>
-                                                        </div>
+                </div>
+                <div class="card-body pb-3">
+                    <ul class="nav nav-tabs nav-tabs-widget pb-3 gap-2 d-flex flex-nowrap" role="tablist">
+                        @foreach ($sales as $user)
+                            <li class="nav-item change-sales" role="presentation" style="width: 15%;height: 15%;"
+                                data-id="{{ $user->id }}">
+                                <img class="nav-link btn {{ $user->id == 1 ? 'active' : '' }} d-flex flex-column align-items-center justify-content-center"
+                                    role="tab" data-bs-toggle="tab" data-bs-target="#navs-sales-{{ $user->id }}"
+                                    aria-controls="navs-sales-{{ $user->id }}" aria-selected="true"
+                                    src="{{ url('') . '/' . $user->image }}" alt="" srcset=""
+                                    style="width : 75px !important; height:75px !important; object-fit: cover; padding: 10px;">
+                            </li>
+                        @endforeach
+                        <span class="tab-slider" style="left: 0px; width: 112px; bottom: 0px;"></span>
+                    </ul>
+                    <div class="tab-content p-0 ms-0 ms-sm-2">
+                        @php
+                            $item = 0;
+                        @endphp
+                        @foreach ($sales as $user)
+                            <div class="tab-pane fade{{ $user->id == 1 ? ' show active' : '' }}"
+                                id="navs-sales-{{ $user->id }}" role="tabpanel">
+                                <div class="mb-3">
+                                    <div data-id="{{ $item }}">
+                                        <div class="card-header">
+                                            <div class="row">
+                                                <div class="col-12 mb-3">
+                                                    <div class="d-flex justify-content-between">
+                                                        <h4 class="">{{ $user->name }}'s Overview</h4>
                                                     </div>
-                                                    @if ($user->role == 'Sales')
-                                                        @if ($user->id == 16 || $user->id == 23)
-                                                            <div class="col-6">
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-info rounded">
-                                                                                <i
-                                                                                    class="mdi mdi-reproduction mdi-24px"></i>
-                                                                            </div>
+                                                </div>
+                                                @if ($user->role == 'Sales')
+                                                    @if ($user->id == 16 || $user->id == 23)
+                                                        <div class="col-6">
+                                                            <div class="row mb-2">
+                                                                <div class="col-2">
+                                                                    <div class="avatar">
+                                                                        <div class="avatar-initial bg-label-info rounded">
+                                                                            <i class="mdi mdi-reproduction mdi-24px"></i>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="col-2 d-flex align-items-center p-0">
-                                                                        <h4 class="filtered-percent-product fs-5 m-0">
-                                                                            0 %</h4>
-                                                                    </div>
-                                                                    <div class="col-8">
+                                                                </div>
+                                                                <div class="col-2 d-flex align-items-center p-0">
+                                                                    <h4 class="filtered-percent-product fs-5 m-0">
+                                                                        0 %</h4>
+                                                                </div>
+                                                                <div class="col-8">
 
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">Upload Product</h5>
-                                                                            <small>
-                                                                                <span class="filtered-product">
-                                                                                    0
-                                                                                </span>
-                                                                                <span
-                                                                                    class="filtered-target-product text-muted fs-tiny fw-normal">/
-                                                                                    100</span>
-                                                                            </small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-whatsapp rounded">
-                                                                                <i class="mdi mdi-whatsapp mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-2 d-flex align-items-center p-0">
-                                                                        <h4 class="filtered-percent-sw fs-5 m-0">
-                                                                            0 %</h4>
-                                                                    </div>
-                                                                    <div class="col-8">
-
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">Upload SW</h5>
-                                                                            <small>
-                                                                                <span class="filtered-sw">
-                                                                                    0
-                                                                                </span>
-                                                                                <span
-                                                                                    class="filtered-target-sw text-muted fs-tiny fw-normal">/
-                                                                                    {{ $user->id == 16 ? '120' : '60' }}</span>
-                                                                            </small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-secondary rounded">
-                                                                                <i
-                                                                                    class="mdi mdi-video-outline mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-2 d-flex align-items-center p-0">
-                                                                        <h4 class="filtered-percent-video fs-5 m-0">
-                                                                            0 %</h4>
-                                                                    </div>
-                                                                    <div class="col-8">
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">Upload Video</h5>
-                                                                            <small>
-                                                                                <span class="filtered-video">
-                                                                                    0
-                                                                                </span>
-                                                                                <span
-                                                                                    class="filtered-target-video text-muted fs-tiny fw-normal">/
-                                                                                    100%</span>
-                                                                            </small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-primary rounded">
-                                                                                <i
-                                                                                    class="mdi mdi-account-multiple-outline mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-2 d-flex align-items-center p-0">
-                                                                        <h4 class="filtered-percent-crm fs-5 m-0">
-                                                                            0 %</h4>
-                                                                    </div>
-                                                                    <div class="col-8">
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">CRM</h5>
-                                                                            <small>
-                                                                                <span class="filtered-crm">
-                                                                                    {{ $filteredCRM }}
-                                                                                </span>
-                                                                                <span
-                                                                                    class="filtered-target-crm text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] }}</span>
-                                                                            </small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-warning rounded">
-                                                                                <i
-                                                                                    class="mdi mdi-package-variant-closed-check mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-2 d-flex align-items-center p-0">
-                                                                        <h4 class="filtered-percent-status fs-5 m-0">
-                                                                            0 %</h4>
-                                                                    </div>
-                                                                    <div class="col-8">
-
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">Status Product</h5>
-                                                                            <small>
-                                                                                <span class="filtered-status">
-                                                                                    0
-                                                                                </span>
-                                                                                <span
-                                                                                    class="filtered-target-status text-muted fs-tiny fw-normal">/
-                                                                                    5,0</span>
-                                                                            </small>
-                                                                        </div>
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">Upload Product</h5>
+                                                                        <small>
+                                                                            <span class="filtered-product">
+                                                                                0
+                                                                            </span>
+                                                                            <span
+                                                                                class="filtered-target-product text-muted fs-tiny fw-normal">/
+                                                                                100</span>
+                                                                        </small>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-6">
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-facebook rounded">
-                                                                                <i
-                                                                                    class="mdi mdi-truck-delivery-outline mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-2 d-flex align-items-center p-0">
-                                                                        <h4 class="filtered-percent-delivery fs-5 m-0">
-                                                                            0 %</h4>
-                                                                    </div>
-                                                                    <div class="col-8">
-
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">Delivery Status</h5>
-                                                                            <small>
-                                                                                <span class="filtered-delivery">
-                                                                                    0
-                                                                                </span>
-                                                                                <span
-                                                                                    class="filtered-target-delivery text-muted fs-tiny fw-normal">/
-                                                                                    5,0</span>
-                                                                            </small>
+                                                            <div class="row mb-2">
+                                                                <div class="col-2">
+                                                                    <div class="avatar">
+                                                                        <div
+                                                                            class="avatar-initial bg-label-whatsapp rounded">
+                                                                            <i class="mdi mdi-whatsapp mdi-24px"></i>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-dark rounded">
-                                                                                <i class="mdi mdi-cart-check mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-2 d-flex align-items-center p-0">
-                                                                        <h4 class="filtered-percent-customer fs-5 m-0">
-                                                                            0 %</h4>
-                                                                    </div>
-                                                                    <div class="col-8">
+                                                                <div class="col-2 d-flex align-items-center p-0">
+                                                                    <h4 class="filtered-percent-sw fs-5 m-0">
+                                                                        0 %</h4>
+                                                                </div>
+                                                                <div class="col-8">
 
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">Customer Care</h5>
-                                                                            <small>
-                                                                                <span class="filtered-customer">
-                                                                                    0
-                                                                                </span>
-                                                                                <span
-                                                                                    class="filtered-target-customer text-muted fs-tiny fw-normal">/
-                                                                                    5,0</span>
-                                                                            </small>
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">Upload SW</h5>
+                                                                        <small>
+                                                                            <span class="filtered-sw">
+                                                                                0
+                                                                            </span>
+                                                                            <span
+                                                                                class="filtered-target-sw text-muted fs-tiny fw-normal">/
+                                                                                {{ $user->id == 16 ? '120' : '60' }}</span>
+                                                                        </small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row mb-2">
+                                                                <div class="col-2">
+                                                                    <div class="avatar">
+                                                                        <div
+                                                                            class="avatar-initial bg-label-secondary rounded">
+                                                                            <i class="mdi mdi-video-outline mdi-24px"></i>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-pinterest rounded">
-                                                                                <i
-                                                                                    class="mdi mdi-account-heart-outline mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
+                                                                <div class="col-2 d-flex align-items-center p-0">
+                                                                    <h4 class="filtered-percent-video fs-5 m-0">
+                                                                        0 %</h4>
+                                                                </div>
+                                                                <div class="col-8">
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">Upload Video</h5>
+                                                                        <small>
+                                                                            <span class="filtered-video">
+                                                                                0
+                                                                            </span>
+                                                                            <span
+                                                                                class="filtered-target-video text-muted fs-tiny fw-normal">/
+                                                                                100%</span>
+                                                                        </small>
                                                                     </div>
-                                                                    <div class="col-2 d-flex align-items-center p-0">
-                                                                        <h4 class="filtered-percent-response fs-5 m-0">
-                                                                            0 %</h4>
-                                                                    </div>
-                                                                    <div class="col-8">
-
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">Chat Response</h5>
-                                                                            <small>
-                                                                                <span class="filtered-response">
-                                                                                    0
-                                                                                </span>
-                                                                                <span
-                                                                                    class="filtered-target-response text-muted fs-tiny fw-normal">/
-                                                                                    100%</span>
-                                                                            </small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row mb-2">
+                                                                <div class="col-2">
+                                                                    <div class="avatar">
+                                                                        <div
+                                                                            class="avatar-initial bg-label-primary rounded">
+                                                                            <i
+                                                                                class="mdi mdi-account-multiple-outline mdi-24px"></i>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-reddit rounded">
-                                                                                <i
-                                                                                    class="mdi mdi-monitor-star mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
+                                                                <div class="col-2 d-flex align-items-center p-0">
+                                                                    <h4 class="filtered-percent-crm fs-5 m-0">
+                                                                        0 %</h4>
+                                                                </div>
+                                                                <div class="col-8">
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">CRM</h5>
+                                                                        <small>
+                                                                            <span class="filtered-crm">
+                                                                                {{ $filteredCRM }}
+                                                                            </span>
+                                                                            <span
+                                                                                class="filtered-target-crm text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] }}</span>
+                                                                        </small>
                                                                     </div>
-                                                                    <div class="col-2 d-flex align-items-center p-0">
-                                                                        <h4 class="filtered-percent-rating fs-5 m-0">
-                                                                            0 %</h4>
-                                                                    </div>
-                                                                    <div class="col-8">
-
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">Store Performance</h5>
-                                                                            <small>
-                                                                                <span class="filtered-rating">
-                                                                                    0
-                                                                                </span>
-                                                                                <span
-                                                                                    class="filtered-target-rating text-muted fs-tiny fw-normal">/
-                                                                                    5.0</span>
-                                                                            </small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row mb-2">
+                                                                <div class="col-2">
+                                                                    <div class="avatar">
+                                                                        <div
+                                                                            class="avatar-initial bg-label-warning rounded">
+                                                                            <i
+                                                                                class="mdi mdi-package-variant-closed-check mdi-24px"></i>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-success rounded">
-                                                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-2 d-flex align-items-center p-0">
-                                                                        <h4 class="admin-target-total-po fs-5 m-0">
-                                                                            0 %</h4>
-                                                                    </div>
-                                                                    <div class="col-8">
+                                                                <div class="col-2 d-flex align-items-center p-0">
+                                                                    <h4 class="filtered-percent-status fs-5 m-0">
+                                                                        0 %</h4>
+                                                                </div>
+                                                                <div class="col-8">
 
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">Purchase Order</h5>
-                                                                            <small>
-                                                                                <span class="admin-total-po">
-                                                                                    Rp 0
-                                                                                </span>
-                                                                            </small>
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">Status Product</h5>
+                                                                        <small>
+                                                                            <span class="filtered-status">
+                                                                                0
+                                                                            </span>
+                                                                            <span
+                                                                                class="filtered-target-status text-muted fs-tiny fw-normal">/
+                                                                                5,0</span>
+                                                                        </small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="row mb-2">
+                                                                <div class="col-2">
+                                                                    <div class="avatar">
+                                                                        <div
+                                                                            class="avatar-initial bg-label-facebook rounded">
+                                                                            <i
+                                                                                class="mdi mdi-truck-delivery-outline mdi-24px"></i>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                {{-- <div class="row mb-2">
+                                                                <div class="col-2 d-flex align-items-center p-0">
+                                                                    <h4 class="filtered-percent-delivery fs-5 m-0">
+                                                                        0 %</h4>
+                                                                </div>
+                                                                <div class="col-8">
+
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">Delivery Status</h5>
+                                                                        <small>
+                                                                            <span class="filtered-delivery">
+                                                                                0
+                                                                            </span>
+                                                                            <span
+                                                                                class="filtered-target-delivery text-muted fs-tiny fw-normal">/
+                                                                                5,0</span>
+                                                                        </small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row mb-2">
+                                                                <div class="col-2">
+                                                                    <div class="avatar">
+                                                                        <div class="avatar-initial bg-label-dark rounded">
+                                                                            <i class="mdi mdi-cart-check mdi-24px"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-2 d-flex align-items-center p-0">
+                                                                    <h4 class="filtered-percent-customer fs-5 m-0">
+                                                                        0 %</h4>
+                                                                </div>
+                                                                <div class="col-8">
+
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">Customer Care</h5>
+                                                                        <small>
+                                                                            <span class="filtered-customer">
+                                                                                0
+                                                                            </span>
+                                                                            <span
+                                                                                class="filtered-target-customer text-muted fs-tiny fw-normal">/
+                                                                                5,0</span>
+                                                                        </small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row mb-2">
+                                                                <div class="col-2">
+                                                                    <div class="avatar">
+                                                                        <div
+                                                                            class="avatar-initial bg-label-pinterest rounded">
+                                                                            <i
+                                                                                class="mdi mdi-account-heart-outline mdi-24px"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-2 d-flex align-items-center p-0">
+                                                                    <h4 class="filtered-percent-response fs-5 m-0">
+                                                                        0 %</h4>
+                                                                </div>
+                                                                <div class="col-8">
+
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">Chat Response</h5>
+                                                                        <small>
+                                                                            <span class="filtered-response">
+                                                                                0
+                                                                            </span>
+                                                                            <span
+                                                                                class="filtered-target-response text-muted fs-tiny fw-normal">/
+                                                                                100%</span>
+                                                                        </small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row mb-2">
+                                                                <div class="col-2">
+                                                                    <div class="avatar">
+                                                                        <div
+                                                                            class="avatar-initial bg-label-reddit rounded">
+                                                                            <i class="mdi mdi-monitor-star mdi-24px"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-2 d-flex align-items-center p-0">
+                                                                    <h4 class="filtered-percent-rating fs-5 m-0">
+                                                                        0 %</h4>
+                                                                </div>
+                                                                <div class="col-8">
+
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">Store Performance</h5>
+                                                                        <small>
+                                                                            <span class="filtered-rating">
+                                                                                0
+                                                                            </span>
+                                                                            <span
+                                                                                class="filtered-target-rating text-muted fs-tiny fw-normal">/
+                                                                                5.0</span>
+                                                                        </small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row mb-2">
+                                                                <div class="col-2">
+                                                                    <div class="avatar">
+                                                                        <div
+                                                                            class="avatar-initial bg-label-success rounded">
+                                                                            <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-2 d-flex align-items-center p-0">
+                                                                    <h4 class="admin-target-total-po fs-5 m-0">
+                                                                        0 %</h4>
+                                                                </div>
+                                                                <div class="col-8">
+
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">Purchase Order</h5>
+                                                                        <small>
+                                                                            <span class="admin-total-po">
+                                                                                Rp 0
+                                                                            </span>
+                                                                        </small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            {{-- <div class="row mb-2">
                                                                     <div class="col-2">
                                                                         <div class="avatar">
                                                                             <div
@@ -1620,214 +1776,42 @@
                                                                         </div>
                                                                     </div>
                                                                 </div> --}}
-                                                            </div>
-                                                        @else
-                                                            <div class="col-6">
-                                                                @if ($user->id == 1 || $user->id == 2 || $user->id == 32)
-                                                                    <div class="row mb-2">
-                                                                        <div class="col-2">
-                                                                            <div class="avatar">
-                                                                                <div
-                                                                                    class="avatar-initial bg-label-secondary rounded">
-                                                                                    <i
-                                                                                        class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="col-2 d-flex align-items-center">
-                                                                            @php
-                                                                                $targetLeads =
-                                                                                    ($filteredLeads /
-                                                                                        $targetSales[$item][0]->leads) *
-                                                                                    100;
-                                                                            @endphp
-                                                                            <h4 class="filtered-percent-leads fs-5 m-0">
-                                                                                {{ round($targetLeads) }} %</h4>
-                                                                        </div>
-                                                                        <div class="col-8">
-
-                                                                            <div class="card-info">
-                                                                                <h5 class="mb-0">
-                                                                                    <span class="filtered-leads">
-                                                                                        {{ $filteredLeads }}
-                                                                                    </span>
-                                                                                    <span
-                                                                                        class="filtered-target-leads text-muted fs-tiny fw-normal">/
-                                                                                        {{ $targetSales[$item][0]->leads }}</span>
-                                                                                </h5>
-                                                                                <small class="text-muted">New Leads</small>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row mb-2">
-                                                                        <div class="col-2">
-                                                                            <div class="avatar">
-                                                                                <div
-                                                                                    class="avatar-initial bg-label-info rounded">
-                                                                                    <i
-                                                                                        class="mdi mdi-phone-outline mdi-24px"></i>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="col-2 d-flex align-items-center">
-                                                                            @php
-                                                                                $targetDC =
-                                                                                    ($filteredDC /
-                                                                                        $targetSales[$item][0]->dc) *
-                                                                                    100;
-                                                                            @endphp
-                                                                            {{-- <h4 class="filtered-percent-dc fs-5 m-0">
-                                                                                {{ round($targetDC) }} %</h4> --}}
-                                                                        </div>
-                                                                        <div class="col-8">
-
-                                                                            <div class="card-info">
-                                                                                <h5 class="mb-0">
-                                                                                    <span class="filtered-dc">
-                                                                                        {{ $filteredDC }}
-                                                                                    </span>
-                                                                                    {{-- <span
-                                                                                        class="filtered-target-dc text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span> --}}
-                                                                                </h5>
-                                                                                <small class="text-muted">
-                                                                                    Daily Call
-                                                                                </small>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                @endif
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-primary rounded">
-                                                                                <i
-                                                                                    class="mdi mdi-account-multiple-outline mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-2 d-flex align-items-center">
-                                                                        @php
-                                                                            $targetCRM =
-                                                                                ($filteredCRM / $targetCrm[$user->id]) *
-                                                                                100;
-                                                                        @endphp
-                                                                        @if ($user->id != 3)
-                                                                            <h4 class="filtered-percent-crm fs-5 m-0">
-                                                                                {{ round($targetCRM) }} %</h4>
-                                                                        @endif
-                                                                    </div>
-                                                                    <div class="col-8">
-                                                                        <div class="card-info">
-                                                                            @if ($user->id == 3)
-                                                                                -
-                                                                            @else
-                                                                                <h5 class="mb-0">
-                                                                                    <span class="filtered-crm">
-                                                                                        {{ $filteredCRM }}
-                                                                                    </span>
-                                                                                    <span
-                                                                                        class="filtered-target-crm text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] }}</span>
-                                                                                </h5>
-                                                                            @endif
-                                                                            <small class="text-muted">CRM</small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                @php
-                                                                    $lastDetail = $user->detail->last();
-                                                                @endphp
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-warning rounded">
-                                                                                <i
-                                                                                    class="mdi mdi-email-multiple-outline mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-2 d-flex align-items-center">
-                                                                        {{-- @php
-                                                                            $targetQuote =
-                                                                                ($filteredQuote /
-                                                                                    $targetSales[$item][0]->quote) *
-                                                                                100;
-                                                                        @endphp
-                                                                        <h4 class="filtered-percent-quote fs-5 m-0">
-                                                                            {{ round($targetQuote) }} %</h4> --}}
-                                                                    </div>
-                                                                    <div class="col-8">
-
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">
-                                                                                <span class="filtered-quote">
-                                                                                    {{ $filteredQuote }}
-                                                                                </span>
-                                                                                {{-- <span
-                                                                                    class="filtered-target-quote text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->quote }}</span> --}}
-                                                                            </h5>
-                                                                            <small class="text-muted">Quotation</small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-success rounded">
-                                                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-2 d-flex align-items-center">
-                                                                        {{-- @php
-                                                                            $targetProspect =
-                                                                                $allProspect > 0
-                                                                                    ? ($filteredProspect /
-                                                                                            $allProspect) *
-                                                                                        100
-                                                                                    : 0;
-                                                                        @endphp
-                                                                        <h4
-                                                                            class="filtered-percent-prospect-sales fs-5 m-0">
-                                                                            {{ round($targetProspect) }} %</h4> --}}
-                                                                    </div>
-                                                                    <div class="col-8">
-
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">
-                                                                                <span class="filtered-prospect-sales">
-                                                                                    {{ $filteredProspect }}
-                                                                                </span>
-                                                                                {{-- <span
-                                                                                    class="filtered-all-prospect text-muted fs-tiny fw-normal">/{{ $allProspect }}</span> --}}
-                                                                            </h5>
-                                                                            <small class="text-muted">Prospect</small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-6">
+                                                        </div>
+                                                    @else
+                                                        <div class="col-6">
+                                                            @if ($user->id == 1 || $user->id == 2 || $user->id == 32)
                                                                 <div class="row mb-2">
                                                                     <div class="col-2">
                                                                         <div class="avatar">
                                                                             <div
                                                                                 class="avatar-initial bg-label-secondary rounded">
-                                                                                <i class="mdi mdi-cart mdi-24px"></i>
+                                                                                <i
+                                                                                    class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="col-10">
+                                                                    <div class="col-2 d-flex align-items-center">
+                                                                        @php
+                                                                            $targetLeads =
+                                                                                ($filteredLeads /
+                                                                                    $targetSales[$item][0]->leads) *
+                                                                                100;
+                                                                        @endphp
+                                                                        <h4 class="filtered-percent-leads fs-5 m-0">
+                                                                            {{ round($targetLeads) }} %</h4>
+                                                                    </div>
+                                                                    <div class="col-8">
 
                                                                         <div class="card-info">
                                                                             <h5 class="mb-0">
-                                                                                <span class="admin-total-quotation">
-                                                                                    Rp
-                                                                                    {{ number_format($totalQuotation, 0, ',', '.') }}
+                                                                                <span class="filtered-leads">
+                                                                                    {{ $filteredLeads }}
                                                                                 </span>
+                                                                                <span
+                                                                                    class="filtered-target-leads text-muted fs-tiny fw-normal">/
+                                                                                    {{ $targetSales[$item][0]->leads }}</span>
                                                                             </h5>
-                                                                            <small class="text-muted">Quotation</small>
+                                                                            <small class="text-muted">New Leads</small>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1837,165 +1821,37 @@
                                                                             <div
                                                                                 class="avatar-initial bg-label-info rounded">
                                                                                 <i
-                                                                                    class="mdi mdi-cart-arrow-down mdi-24px"></i>
+                                                                                    class="mdi mdi-phone-outline mdi-24px"></i>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="col-10">
+                                                                    <div class="col-2 d-flex align-items-center">
+                                                                        @php
+                                                                            $targetDC =
+                                                                                ($filteredDC /
+                                                                                    $targetSales[$item][0]->dc) *
+                                                                                100;
+                                                                        @endphp
+                                                                        {{-- <h4 class="filtered-percent-dc fs-5 m-0">
+                                                                                {{ round($targetDC) }} %</h4> --}}
+                                                                    </div>
+                                                                    <div class="col-8">
 
                                                                         <div class="card-info">
                                                                             <h5 class="mb-0">
-                                                                                <span class="admin-total-prospect">
-                                                                                    Rp
-                                                                                    {{ number_format($totalProspect, 0, ',', '.') }}
+                                                                                <span class="filtered-dc">
+                                                                                    {{ $filteredDC }}
                                                                                 </span>
+                                                                                {{-- <span
+                                                                                        class="filtered-target-dc text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span> --}}
                                                                             </h5>
-                                                                            <small class="text-muted">Prospect</small>
+                                                                            <small class="text-muted">
+                                                                                Daily Call
+                                                                            </small>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-warning rounded">
-                                                                                <i class="mdi mdi-cart-heart mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-10">
-
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">
-                                                                                <span class="admin-total-hot-prospect">
-                                                                                    Rp
-                                                                                    {{ number_format($totalHotProspect, 0, ',', '.') }}
-                                                                                </span>
-                                                                            </h5>
-                                                                            <small class="text-muted">Hot Prospect</small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-danger rounded">
-                                                                                <i class="mdi mdi-cart-minus mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-10">
-
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">
-                                                                                <span class="admin-total-loss">
-                                                                                    Rp
-                                                                                    {{ number_format($totalLoss, 0, ',', '.') }}
-                                                                                </span>
-                                                                            </h5>
-                                                                            <small class="text-muted">Quotation
-                                                                                Loss</small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-success rounded">
-                                                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-10">
-
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">
-                                                                                <span class="admin-total-po">
-                                                                                    Rp
-                                                                                    {{ number_format($totalPO, 0, ',', '.') }}
-                                                                                </span>
-                                                                                @php
-                                                                                    $targetPO =
-                                                                                        ($totalPO /
-                                                                                            $targetSales[$item][0]
-                                                                                                ->total) *
-                                                                                        100;
-                                                                                    if ($targetPO <= 80) {
-                                                                                        $color = 'danger';
-                                                                                    } elseif ($targetPO <= 100) {
-                                                                                        $color = 'warning';
-                                                                                    } else {
-                                                                                        $color = 'success';
-                                                                                    }
-                                                                                @endphp
-                                                                                <span
-                                                                                    class="admin-target-total-po bg-label-{{ $color }} fs-tiny fw-normal">{{ round($targetPO) }}
-                                                                                    %</span>
-                                                                            </h5>
-                                                                            <small class="text-muted">Purchase
-                                                                                Order</small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @endif
-                                                        <div class="col-12">
-                                                            <div class="row mt-3">
-                                                                @php
-                                                                    $month = date('m');
-                                                                    $year = date('Y');
-                                                                    $dateNow = $month . '-' . $year;
-                                                                @endphp
-                                                                <div class="col-2">
-                                                                    <a class="btn btn-warning d-grid w-100 waves-effect text-white h-100"
-                                                                        type="button" data-bs-toggle="modal"
-                                                                        data-bs-target="#overview-sales-{{ $user->id }}">
-                                                                        Info
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col-4">
-                                                                    <a class="btn btn-facebook d-grid w-100 waves-effect h-100"
-                                                                        href="{{ route('detail-overview.semester', ['sales' => $user->id, 'date' => $dateNow]) }}">
-                                                                        Detail
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col-6">
-                                                                    <a class="btn btn-secondary d-grid w-100 waves-effect h-100"
-                                                                        href="{{ route('overview.semester', $user->id) }}">
-                                                                        Semester
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    @else
-                                                        <div class="col-6">
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div class="avatar-initial bg-label-info rounded">
-                                                                            <i class="mdi mdi-phone-outline mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="filtered-percent-prospect fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span class="filtered-prospect">
-                                                                                {{ $filteredProspect }}
-                                                                            </span>
-                                                                            <span class="text-muted fs-tiny fw-normal">/
-                                                                                100</span>
-                                                                        </h5>
-                                                                        <small class="text-muted">Prospect</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                                                            @endif
                                                             <div class="row mb-2">
                                                                 <div class="col-2">
                                                                     <div class="avatar">
@@ -2007,22 +1863,36 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="filtered-percent-provided fs-5 m-0">
-                                                                        0 %</h4>
+                                                                    @php
+                                                                        $targetCRM =
+                                                                            ($filteredCRM / $targetCrm[$user->id]) *
+                                                                            100;
+                                                                    @endphp
+                                                                    @if ($user->id != 3)
+                                                                        <h4 class="filtered-percent-crm fs-5 m-0">
+                                                                            {{ round($targetCRM) }} %</h4>
+                                                                    @endif
                                                                 </div>
                                                                 <div class="col-8">
                                                                     <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span class="filtered-provided">
-                                                                                0
-                                                                            </span>
-                                                                            <span
-                                                                                class="filtered-all-prospect-provided text-muted fs-tiny fw-normal">/{{ $allProspect }}</span>
-                                                                        </h5>
-                                                                        <small class="text-muted">Provided</small>
+                                                                        @if ($user->id == 3)
+                                                                            -
+                                                                        @else
+                                                                            <h5 class="mb-0">
+                                                                                <span class="filtered-crm">
+                                                                                    {{ $filteredCRM }}
+                                                                                </span>
+                                                                                <span
+                                                                                    class="filtered-target-crm text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] }}</span>
+                                                                            </h5>
+                                                                        @endif
+                                                                        <small class="text-muted">CRM</small>
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                            @php
+                                                                $lastDetail = $user->detail->last();
+                                                            @endphp
                                                             <div class="row mb-2">
                                                                 <div class="col-2">
                                                                     <div class="avatar">
@@ -2034,46 +1904,26 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="filtered-percent-quote-prospect fs-5 m-0">
-                                                                        0 %</h4>
+                                                                    {{-- @php
+                                                                            $targetQuote =
+                                                                                ($filteredQuote /
+                                                                                    $targetSales[$item][0]->quote) *
+                                                                                100;
+                                                                        @endphp
+                                                                        <h4 class="filtered-percent-quote fs-5 m-0">
+                                                                            {{ round($targetQuote) }} %</h4> --}}
                                                                 </div>
                                                                 <div class="col-8">
+
                                                                     <div class="card-info">
                                                                         <h5 class="mb-0">
-                                                                            <span class="filtered-quote-prospect">
-                                                                                0
+                                                                            <span class="filtered-quote">
+                                                                                {{ $filteredQuote }}
                                                                             </span>
-                                                                            <span
-                                                                                class="filtered-all-quote-prospect text-muted fs-tiny fw-normal">/{{ $allProspect }}</span>
+                                                                            {{-- <span
+                                                                                    class="filtered-target-quote text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->quote }}</span> --}}
                                                                         </h5>
                                                                         <small class="text-muted">Quotation</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-danger rounded">
-                                                                            <i
-                                                                                class="mdi mdi-account-alert-outline mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="filtered-percent-not-provided fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span class="filtered-not-provided">
-                                                                                0
-                                                                            </span>
-                                                                            <span
-                                                                                class="filtered-all-prospect-not-provided text-muted fs-tiny fw-normal">/{{ $allProspect }}</span>
-                                                                        </h5>
-                                                                        <small class="text-muted">Not Provided</small>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -2087,19 +1937,29 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="filtered-percent-po-prospect fs-5 m-0">
-                                                                        0 %</h4>
+                                                                    {{-- @php
+                                                                            $targetProspect =
+                                                                                $allProspect > 0
+                                                                                    ? ($filteredProspect /
+                                                                                            $allProspect) *
+                                                                                        100
+                                                                                    : 0;
+                                                                        @endphp
+                                                                        <h4
+                                                                            class="filtered-percent-prospect-sales fs-5 m-0">
+                                                                            {{ round($targetProspect) }} %</h4> --}}
                                                                 </div>
                                                                 <div class="col-8">
+
                                                                     <div class="card-info">
                                                                         <h5 class="mb-0">
-                                                                            <span class="filtered-po-prospect">
-                                                                                0
+                                                                            <span class="filtered-prospect-sales">
+                                                                                {{ $filteredProspect }}
                                                                             </span>
-                                                                            <span
-                                                                                class="filtered-all-po-prospect text-muted fs-tiny fw-normal">/0</span>
+                                                                            {{-- <span
+                                                                                    class="filtered-all-prospect text-muted fs-tiny fw-normal">/{{ $allProspect }}</span> --}}
                                                                         </h5>
-                                                                        <small class="text-muted">Purchase Order</small>
+                                                                        <small class="text-muted">Prospect</small>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -2109,23 +1969,43 @@
                                                                 <div class="col-2">
                                                                     <div class="avatar">
                                                                         <div
-                                                                            class="avatar-initial bg-label-primary rounded">
+                                                                            class="avatar-initial bg-label-secondary rounded">
                                                                             <i class="mdi mdi-cart mdi-24px"></i>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="total-prospect-quotation-percent fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
+                                                                <div class="col-10">
+
                                                                     <div class="card-info">
                                                                         <h5 class="mb-0">
-                                                                            <span class="total-prospect-quotation">
-                                                                                0
+                                                                            <span class="admin-total-quotation">
+                                                                                Rp
+                                                                                {{ number_format($totalQuotation, 0, ',', '.') }}
                                                                             </span>
                                                                         </h5>
                                                                         <small class="text-muted">Quotation</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row mb-2">
+                                                                <div class="col-2">
+                                                                    <div class="avatar">
+                                                                        <div class="avatar-initial bg-label-info rounded">
+                                                                            <i
+                                                                                class="mdi mdi-cart-arrow-down mdi-24px"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-10">
+
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0">
+                                                                            <span class="admin-total-prospect">
+                                                                                Rp
+                                                                                {{ number_format($totalProspect, 0, ',', '.') }}
+                                                                            </span>
+                                                                        </h5>
+                                                                        <small class="text-muted">Prospect</small>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -2138,15 +2018,13 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="total-prospect-po-percent fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
+                                                                <div class="col-10">
+
                                                                     <div class="card-info">
                                                                         <h5 class="mb-0">
-                                                                            <span class="total-prospect-hot">
-                                                                                0
+                                                                            <span class="admin-total-hot-prospect">
+                                                                                Rp
+                                                                                {{ number_format($totalHotProspect, 0, ',', '.') }}
                                                                             </span>
                                                                         </h5>
                                                                         <small class="text-muted">Hot Prospect</small>
@@ -2157,23 +2035,22 @@
                                                                 <div class="col-2">
                                                                     <div class="avatar">
                                                                         <div
-                                                                            class="avatar-initial bg-label-success rounded">
-                                                                            <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                                            class="avatar-initial bg-label-danger rounded">
+                                                                            <i class="mdi mdi-cart-minus mdi-24px"></i>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="total-prospect-po-percent fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
+                                                                <div class="col-10">
+
                                                                     <div class="card-info">
                                                                         <h5 class="mb-0">
-                                                                            <span class="total-prospect-po">
-                                                                                0
+                                                                            <span class="admin-total-loss">
+                                                                                Rp
+                                                                                {{ number_format($totalLoss, 0, ',', '.') }}
                                                                             </span>
                                                                         </h5>
-                                                                        <small class="text-muted">Purchase Order</small>
+                                                                        <small class="text-muted">Quotation
+                                                                            Loss</small>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -2186,63 +2063,39 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="-percent m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
+                                                                <div class="col-10">
+
                                                                     <div class="card-info">
                                                                         <h5 class="mb-0">
-                                                                            <span class="">
-                                                                                -
+                                                                            <span class="admin-total-po">
+                                                                                Rp
+                                                                                {{ number_format($totalPO, 0, ',', '.') }}
                                                                             </span>
+                                                                            @php
+                                                                                $targetPO =
+                                                                                    ($totalPO /
+                                                                                        $targetSales[$item][0]->total) *
+                                                                                    100;
+                                                                                if ($targetPO <= 80) {
+                                                                                    $color = 'danger';
+                                                                                } elseif ($targetPO <= 100) {
+                                                                                    $color = 'warning';
+                                                                                } else {
+                                                                                    $color = 'success';
+                                                                                }
+                                                                            @endphp
+                                                                            <span
+                                                                                class="admin-target-total-po bg-label-{{ $color }} fs-tiny fw-normal">{{ round($targetPO) }}
+                                                                                %</span>
                                                                         </h5>
-                                                                        <small class="text-muted">-</small>
+                                                                        <small class="text-muted">Purchase
+                                                                            Order</small>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-success rounded">
-                                                                            <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center">
-                                                                    <h4 class="-percent m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span class="">
-                                                                                -
-                                                                            </span>
-                                                                        </h5>
-                                                                        <small class="text-muted">-</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            {{-- <div class="d-flex align-items-center gap-2">
-                                                                <div class="d-flex mb-2 gap-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-warning rounded">
-                                                                            <i
-                                                                                class="mdi mdi-email-alert-outline mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0 total-prospect">Rp
-                                                                            {{ number_format($totalProspect, 2, ',', '.') }}
-                                                                        </h5>
-                                                                        <small class="text-muted">Hot Prospect</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div> --}}
                                                         </div>
+                                                    @endif
+                                                    <div class="col-12">
                                                         <div class="row mt-3">
                                                             @php
                                                                 $month = date('m');
@@ -2250,9 +2103,9 @@
                                                                 $dateNow = $month . '-' . $year;
                                                             @endphp
                                                             <div class="col-2">
-                                                                <a class="btn btn-warning d-grid w-100 waves-effect h-100"
+                                                                <a class="btn btn-warning d-grid w-100 waves-effect text-white h-100"
                                                                     type="button" data-bs-toggle="modal"
-                                                                    data-bs-target="#overview-sales-{{ $item }}">
+                                                                    data-bs-target="#overview-sales-{{ $user->id }}">
                                                                     Info
                                                                 </a>
                                                             </div>
@@ -2269,43 +2122,335 @@
                                                                 </a>
                                                             </div>
                                                         </div>
-                                                    @endif
-                                                </div>
+                                                    </div>
+                                                @else
+                                                    <div class="col-6">
+                                                        <div class="row mb-2">
+                                                            <div class="col-2">
+                                                                <div class="avatar">
+                                                                    <div class="avatar-initial bg-label-info rounded">
+                                                                        <i class="mdi mdi-phone-outline mdi-24px"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-2 d-flex align-items-center">
+                                                                <h4 class="filtered-percent-prospect fs-5 m-0">
+                                                                    0 %</h4>
+                                                            </div>
+                                                            <div class="col-8">
+                                                                <div class="card-info">
+                                                                    <h5 class="mb-0">
+                                                                        <span class="filtered-prospect">
+                                                                            {{ $filteredProspect }}
+                                                                        </span>
+                                                                        <span class="text-muted fs-tiny fw-normal">/
+                                                                            100</span>
+                                                                    </h5>
+                                                                    <small class="text-muted">Prospect</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-2">
+                                                                <div class="avatar">
+                                                                    <div class="avatar-initial bg-label-primary rounded">
+                                                                        <i
+                                                                            class="mdi mdi-account-multiple-outline mdi-24px"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-2 d-flex align-items-center">
+                                                                <h4 class="filtered-percent-provided fs-5 m-0">
+                                                                    0 %</h4>
+                                                            </div>
+                                                            <div class="col-8">
+                                                                <div class="card-info">
+                                                                    <h5 class="mb-0">
+                                                                        <span class="filtered-provided">
+                                                                            0
+                                                                        </span>
+                                                                        <span
+                                                                            class="filtered-all-prospect-provided text-muted fs-tiny fw-normal">/{{ $allProspect }}</span>
+                                                                    </h5>
+                                                                    <small class="text-muted">Provided</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-2">
+                                                                <div class="avatar">
+                                                                    <div class="avatar-initial bg-label-warning rounded">
+                                                                        <i
+                                                                            class="mdi mdi-email-multiple-outline mdi-24px"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-2 d-flex align-items-center">
+                                                                <h4 class="filtered-percent-quote-prospect fs-5 m-0">
+                                                                    0 %</h4>
+                                                            </div>
+                                                            <div class="col-8">
+                                                                <div class="card-info">
+                                                                    <h5 class="mb-0">
+                                                                        <span class="filtered-quote-prospect">
+                                                                            0
+                                                                        </span>
+                                                                        <span
+                                                                            class="filtered-all-quote-prospect text-muted fs-tiny fw-normal">/{{ $allProspect }}</span>
+                                                                    </h5>
+                                                                    <small class="text-muted">Quotation</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-2">
+                                                                <div class="avatar">
+                                                                    <div class="avatar-initial bg-label-danger rounded">
+                                                                        <i
+                                                                            class="mdi mdi-account-alert-outline mdi-24px"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-2 d-flex align-items-center">
+                                                                <h4 class="filtered-percent-not-provided fs-5 m-0">
+                                                                    0 %</h4>
+                                                            </div>
+                                                            <div class="col-8">
+                                                                <div class="card-info">
+                                                                    <h5 class="mb-0">
+                                                                        <span class="filtered-not-provided">
+                                                                            0
+                                                                        </span>
+                                                                        <span
+                                                                            class="filtered-all-prospect-not-provided text-muted fs-tiny fw-normal">/{{ $allProspect }}</span>
+                                                                    </h5>
+                                                                    <small class="text-muted">Not Provided</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-2">
+                                                                <div class="avatar">
+                                                                    <div class="avatar-initial bg-label-success rounded">
+                                                                        <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-2 d-flex align-items-center">
+                                                                <h4 class="filtered-percent-po-prospect fs-5 m-0">
+                                                                    0 %</h4>
+                                                            </div>
+                                                            <div class="col-8">
+                                                                <div class="card-info">
+                                                                    <h5 class="mb-0">
+                                                                        <span class="filtered-po-prospect">
+                                                                            0
+                                                                        </span>
+                                                                        <span
+                                                                            class="filtered-all-po-prospect text-muted fs-tiny fw-normal">/0</span>
+                                                                    </h5>
+                                                                    <small class="text-muted">Purchase Order</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="row mb-2">
+                                                            <div class="col-2">
+                                                                <div class="avatar">
+                                                                    <div class="avatar-initial bg-label-primary rounded">
+                                                                        <i class="mdi mdi-cart mdi-24px"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-2 d-flex align-items-center">
+                                                                <h4 class="total-prospect-quotation-percent fs-5 m-0">
+                                                                    0 %</h4>
+                                                            </div>
+                                                            <div class="col-8">
+                                                                <div class="card-info">
+                                                                    <h5 class="mb-0">
+                                                                        <span class="total-prospect-quotation">
+                                                                            0
+                                                                        </span>
+                                                                    </h5>
+                                                                    <small class="text-muted">Quotation</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-2">
+                                                                <div class="avatar">
+                                                                    <div class="avatar-initial bg-label-warning rounded">
+                                                                        <i class="mdi mdi-cart-heart mdi-24px"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-2 d-flex align-items-center">
+                                                                <h4 class="total-prospect-po-percent fs-5 m-0">
+                                                                    0 %</h4>
+                                                            </div>
+                                                            <div class="col-8">
+                                                                <div class="card-info">
+                                                                    <h5 class="mb-0">
+                                                                        <span class="total-prospect-hot">
+                                                                            0
+                                                                        </span>
+                                                                    </h5>
+                                                                    <small class="text-muted">Hot Prospect</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-2">
+                                                                <div class="avatar">
+                                                                    <div class="avatar-initial bg-label-success rounded">
+                                                                        <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-2 d-flex align-items-center">
+                                                                <h4 class="total-prospect-po-percent fs-5 m-0">
+                                                                    0 %</h4>
+                                                            </div>
+                                                            <div class="col-8">
+                                                                <div class="card-info">
+                                                                    <h5 class="mb-0">
+                                                                        <span class="total-prospect-po">
+                                                                            0
+                                                                        </span>
+                                                                    </h5>
+                                                                    <small class="text-muted">Purchase Order</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-2">
+                                                                <div class="avatar">
+                                                                    <div class="avatar-initial bg-label-success rounded">
+                                                                        <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-2 d-flex align-items-center">
+                                                                <h4 class="-percent m-0">
+                                                                    0 %</h4>
+                                                            </div>
+                                                            <div class="col-8">
+                                                                <div class="card-info">
+                                                                    <h5 class="mb-0">
+                                                                        <span class="">
+                                                                            -
+                                                                        </span>
+                                                                    </h5>
+                                                                    <small class="text-muted">-</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-2">
+                                                                <div class="avatar">
+                                                                    <div class="avatar-initial bg-label-success rounded">
+                                                                        <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-2 d-flex align-items-center">
+                                                                <h4 class="-percent m-0">
+                                                                    0 %</h4>
+                                                            </div>
+                                                            <div class="col-8">
+                                                                <div class="card-info">
+                                                                    <h5 class="mb-0">
+                                                                        <span class="">
+                                                                            -
+                                                                        </span>
+                                                                    </h5>
+                                                                    <small class="text-muted">-</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        {{-- <div class="d-flex align-items-center gap-2">
+                                                                <div class="d-flex mb-2 gap-2">
+                                                                    <div class="avatar">
+                                                                        <div
+                                                                            class="avatar-initial bg-label-warning rounded">
+                                                                            <i
+                                                                                class="mdi mdi-email-alert-outline mdi-24px"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="card-info">
+                                                                        <h5 class="mb-0 total-prospect">Rp
+                                                                            {{ number_format($totalProspect, 2, ',', '.') }}
+                                                                        </h5>
+                                                                        <small class="text-muted">Hot Prospect</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div> --}}
+                                                    </div>
+                                                    <div class="row mt-3">
+                                                        @php
+                                                            $month = date('m');
+                                                            $year = date('Y');
+                                                            $dateNow = $month . '-' . $year;
+                                                        @endphp
+                                                        <div class="col-2">
+                                                            <a class="btn btn-warning d-grid w-100 waves-effect h-100"
+                                                                type="button" data-bs-toggle="modal"
+                                                                data-bs-target="#overview-sales-{{ $item }}">
+                                                                Info
+                                                            </a>
+                                                        </div>
+                                                        <div class="col-4">
+                                                            <a class="btn btn-facebook d-grid w-100 waves-effect h-100"
+                                                                href="{{ route('detail-overview.semester', ['sales' => $user->id, 'date' => $dateNow]) }}">
+                                                                Detail
+                                                            </a>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <a class="btn btn-secondary d-grid w-100 waves-effect h-100"
+                                                                href="{{ route('overview.semester', $user->id) }}">
+                                                                Semester
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
-                                    @php
-                                        $item++;
-                                    @endphp
                                 </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="card mb-3">
-                    <div class="card-datatable table-responsive pt-0" style="font-size: 13px;">
-                        <table class="datatable-prospect-quote table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    {{-- <th></th> --}}
-                                    <th>ID</th>
-                                    <th>Quote No.</th>
-                                    <th>Company</th>
-                                    <th>Total Price</th>
-                                    <th>Status</th>
-                                    <th>Assigned</th>
-                                    {{-- <th>Actions</th> --}}
-                                </tr>
-                            </thead>
-                        </table>
+                                @php
+                                    $item++;
+                                @endphp
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
         </div>
-        {{-- <div class="card mb-4">
+        <div class="col-12">
+            <div class="card mb-3">
+                <div class="card-datatable table-responsive pt-0" style="font-size: 13px;">
+                    <table class="datatable-prospect-quote table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                {{-- <th></th> --}}
+                                <th>ID</th>
+                                <th>Quote No.</th>
+                                <th>Company</th>
+                                <th>Total Price</th>
+                                <th>Status</th>
+                                <th>Assigned</th>
+                                {{-- <th>Actions</th> --}}
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- <div class="card mb-4">
             <div class="card-datatable table-responsive pt-0">
                 <table class="datatable-notulen table table-striped">
                     <thead>
@@ -2322,993 +2467,988 @@
                 </table>
             </div>
         </div> --}}
-        @php
-            $item = 0;
-        @endphp
-        @foreach ($dataOverview as $overview)
-            @include('components.modal.overview')
-        @endforeach
-    @elseif(Auth::user()->role == 'Logistic')
-        <h4 class="fw-bold py-3 mb-4">
-            Product
-        </h4>
-        <div class="card mb-4">
-            <div class="card-widget-separator-wrapper">
-                <div class="card-body card-widget-separator">
-                    <div class="row gy-4 gy-sm-1">
-                        <div class="col-sm-6 col-lg-3">
-                            <div
-                                class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
-                                <div>
-                                    <p class="mb-2">Comodity</p>
-                                    <h4 class="mb-2">{{ $commodity }}</h4>
-                                    <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
-                                </div>
-                                <div class="avatar me-sm-4">
-                                    <span class="avatar-initial rounded bg-label-secondary">
-                                        <i class="mdi mdi-home-outline mdi-24px"></i>
-                                    </span>
-                                </div>
+    @php
+        $item = 0;
+    @endphp
+    @foreach ($dataOverview as $overview)
+        @include('components.modal.overview')
+    @endforeach
+@elseif(Auth::user()->role == 'Logistic')
+    <h4 class="fw-bold py-3 mb-4">
+        Product
+    </h4>
+    <div class="card mb-4">
+        <div class="card-widget-separator-wrapper">
+            <div class="card-body card-widget-separator">
+                <div class="row gy-4 gy-sm-1">
+                    <div class="col-sm-6 col-lg-3">
+                        <div
+                            class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
+                            <div>
+                                <p class="mb-2">Comodity</p>
+                                <h4 class="mb-2">{{ $commodity }}</h4>
+                                <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
                             </div>
-                            <hr class="d-none d-sm-block d-lg-none me-4">
-                        </div>
-                        <div class="col-sm-6 col-lg-3">
-                            <div
-                                class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
-                                <div>
-                                    <p class="mb-2">Equivalent</p>
-                                    <h4 class="mb-2">{{ $sproduct }}</h4>
-                                    <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
-                                </div>
-                                <div class="avatar me-lg-4">
-                                    <span class="avatar-initial rounded bg-label-secondary">
-                                        <i class="mdi mdi-laptop mdi-24px"></i>
-                                    </span>
-                                </div>
-                            </div>
-                            <hr class="d-none d-sm-block d-lg-none">
-                        </div>
-                        <div class="col-sm-6 col-lg-3">
-                            <div
-                                class="d-flex justify-content-between align-items-start border-end pb-3 pb-sm-0 card-widget-3">
-                                <div>
-                                    <p class="mb-2">Pruchase Order</p>
-                                    <h4 class="mb-2">1</h4>
-                                    <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
-                                </div>
-                                <div class="avatar me-sm-4">
-                                    <span class="avatar-initial rounded bg-label-secondary">
-                                        <i class="mdi mdi-wallet-giftcard mdi-24px"></i>
-                                    </span>
-                                </div>
+                            <div class="avatar me-sm-4">
+                                <span class="avatar-initial rounded bg-label-secondary">
+                                    <i class="mdi mdi-home-outline mdi-24px"></i>
+                                </span>
                             </div>
                         </div>
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <p class="mb-2">Loss Order</p>
-                                    <h4 class="mb-2">2</h4>
-                                    <p class="mb-0"><span class="badge rounded-pill bg-label-danger"></span></p>
-                                </div>
-                                <div class="avatar">
-                                    <span class="avatar-initial rounded bg-label-secondary">
-                                        <i class="mdi mdi-currency-usd mdi-24px"></i>
-                                    </span>
-                                </div>
+                        <hr class="d-none d-sm-block d-lg-none me-4">
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div
+                            class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
+                            <div>
+                                <p class="mb-2">Equivalent</p>
+                                <h4 class="mb-2">{{ $sproduct }}</h4>
+                                <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
+                            </div>
+                            <div class="avatar me-lg-4">
+                                <span class="avatar-initial rounded bg-label-secondary">
+                                    <i class="mdi mdi-laptop mdi-24px"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <hr class="d-none d-sm-block d-lg-none">
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div
+                            class="d-flex justify-content-between align-items-start border-end pb-3 pb-sm-0 card-widget-3">
+                            <div>
+                                <p class="mb-2">Pruchase Order</p>
+                                <h4 class="mb-2">1</h4>
+                                <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
+                            </div>
+                            <div class="avatar me-sm-4">
+                                <span class="avatar-initial rounded bg-label-secondary">
+                                    <i class="mdi mdi-wallet-giftcard mdi-24px"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-2">Loss Order</p>
+                                <h4 class="mb-2">2</h4>
+                                <p class="mb-0"><span class="badge rounded-pill bg-label-danger"></span></p>
+                            </div>
+                            <div class="avatar">
+                                <span class="avatar-initial rounded bg-label-secondary">
+                                    <i class="mdi mdi-currency-usd mdi-24px"></i>
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card mb-3">
-            <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-product table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>SKU</th>
-                            <th>Part Number</th>
-                            {{-- <th>Brand</th> --}}
-                            {{-- <th>Price</th> --}}
-                            <th>Desc</th>
-                            <th>Dimension</th>
-                            <th>G/O</th>
-                            <th>Stock BDG</th>
-                            <th>Stock BKS</th>
-                            <th>stock Pending</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-datatable table-responsive pt-0">
+            <table class="datatable-product table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>SKU</th>
+                        <th>Part Number</th>
+                        {{-- <th>Brand</th> --}}
+                        {{-- <th>Price</th> --}}
+                        <th>Desc</th>
+                        <th>Dimension</th>
+                        <th>G/O</th>
+                        <th>Stock BDG</th>
+                        <th>Stock BKS</th>
+                        <th>stock Pending</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
-        <div class="card mb-4">
-            <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-notulen table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Desc</th>
-                            <th>Level</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-datatable table-responsive pt-0">
+            <table class="datatable-notulen table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Desc</th>
+                        <th>Level</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
-        @include('components.modal.warehouse.product.form')
-    @elseif(Auth::user()->role == 'Coordinator')
-        <h4 class="fw-3">Request Visit</h4>
-        <div class="card mb-3">
-            <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-visit-coordinator table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>company</th>
-                            <th>Machine</th>
-                            <th>Date Request</th>
-                            <th>Sales</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
+    </div>
+    @include('components.modal.warehouse.product.form')
+@elseif(Auth::user()->role == 'Coordinator')
+    <h4 class="fw-3">Request Visit</h4>
+    <div class="card mb-3">
+        <div class="card-datatable table-responsive pt-0">
+            <table class="datatable-visit-coordinator table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>company</th>
+                        <th>Machine</th>
+                        <th>Date Request</th>
+                        <th>Sales</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
-        <h4 class="fw-3">Visit Schedule</h4>
-        <div class="card mb-3">
-            <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-visit-accept table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>company</th>
-                            <th>Machine</th>
-                            <th>Date</th>
-                            <th>Sales</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
+    </div>
+    <h4 class="fw-3">Visit Schedule</h4>
+    <div class="card mb-3">
+        <div class="card-datatable table-responsive pt-0">
+            <table class="datatable-visit-accept table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>company</th>
+                        <th>Machine</th>
+                        <th>Date</th>
+                        <th>Sales</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
-        <div class="card mb-4">
-            <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-notulen table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Desc</th>
-                            <th>Level</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-datatable table-responsive pt-0">
+            <table class="datatable-notulen table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Desc</th>
+                        <th>Level</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
-        @foreach ($visits as $visit)
-            @include('components.modal.req-visit.form-accept')
-        @endforeach
-        @foreach ($visited as $visit)
-            @include('components.modal.req-visit.form-visited')
-        @endforeach
-    @elseif(Auth::user()->role == 'ServiceM')
-        <div class="nav-align-top mb-4">
-            <ul class="nav nav-pills mb-3" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link active waves-effect waves-light" role="tab"
-                        data-bs-toggle="tab" data-bs-target="#navs-pills-top-new" aria-controls="navs-pills-top-new"
-                        aria-selected="true">
-                        New
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
-                        data-bs-target="#navs-pills-top-progress" aria-controls="navs-pills-top-progress"
-                        aria-selected="false" tabindex="-1">
-                        Progress
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
-                        data-bs-target="#navs-pills-top-delivery" aria-controls="navs-pills-top-delivery"
-                        aria-selected="false" tabindex="-1">
-                        Delivery
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
-                        data-bs-target="#navs-pills-top-done" aria-controls="navs-pills-top-done" aria-selected="false"
-                        tabindex="-1">
-                        Done
-                    </button>
-                </li>
-            </ul>
-            <div class="tab-content">
-                <div class="tab-pane fade show active" id="navs-pills-top-new" role="tabpanel">
-                    <div class="card-datatable pt-0">
-                        <table
-                            class="datatable-new-order-search{{ auth::user()->role == 'Sales' ? '' : '-admin' }} table table-bordered">
-                            <thead>
-                                @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Logistic' || Auth::user()->role == 'ServiceM')
-                                    <tr>
-                                        <th>No SO</th>
-                                        <th>Date</th>
-                                        <th>Category</th>
-                                        <th>Customer</th>
-                                        <th>Description</th>
-                                        <th>Status</th>
-                                        <th>Payment</th>
-                                        <th>area</th>
-                                        <th>Delivery</th>
-                                        <th>Sales</th>
-                                        <th>Team</th>
-                                    </tr>
-                                @endif
-                                @if (Auth::user()->role == 'Sales')
-                                    <tr>
-                                        <th>No SO</th>
-                                        <th>Date</th>
-                                        <th>PO No.</th>
-                                        <th>Customer</th>
-                                        <th>Part Desc</th>
-                                        <th>Status</th>
-                                        <th>Payment</th>
-                                        <th>Delivery</th>
-                                    </tr>
-                                @endif
-                            </thead>
-                        </table>
-                    </div>
-                </div>
-                <div class="tab-pane fade" id="navs-pills-top-progress" role="tabpanel">
-
-                    <div class="card-datatable pt-0">
-                        <table
-                            class="datatable-sales-list-search{{ auth::user()->role == 'Sales' ? '' : '-admin' }} table table-bordered">
-                            <thead>
-                                @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Logistic' || Auth::user()->role == 'ServiceM')
-                                    <tr>
-                                        <th>No SO</th>
-                                        <th>Date</th>
-                                        <th>Category</th>
-                                        <th>Customer</th>
-                                        <th>Description</th>
-                                        <th>Status</th>
-                                        <th>Payment</th>
-                                        <th>area</th>
-                                        <th>Delivery</th>
-                                        <th>Sales</th>
-                                        <th>Team</th>
-                                    </tr>
-                                @endif
-                                @if (Auth::user()->role == 'Sales')
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>PO No.</th>
-                                        <th>Customer</th>
-                                        <th>Part Desc</th>
-                                        <th>Status</th>
-                                        <th>Payment</th>
-                                        <th>Delivery</th>
-                                    </tr>
-                                @endif
-                            </thead>
-                        </table>
-                    </div>
-                </div>
-                <div class="tab-pane fade" id="navs-pills-top-delivery" role="tabpanel">
-                    <div class="card-datatable pt-0">
-                        <table
-                            class="datatable-sales-delivery-search{{ auth::user()->role == 'Sales' ? '' : '-admin' }} table table-bordered">
-                            <thead>
+    </div>
+    @foreach ($visits as $visit)
+        @include('components.modal.req-visit.form-accept')
+    @endforeach
+    @foreach ($visited as $visit)
+        @include('components.modal.req-visit.form-visited')
+    @endforeach
+@elseif(Auth::user()->role == 'ServiceM')
+    <div class="nav-align-top mb-4">
+        <ul class="nav nav-pills mb-3" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button type="button" class="nav-link active waves-effect waves-light" role="tab"
+                    data-bs-toggle="tab" data-bs-target="#navs-pills-top-new" aria-controls="navs-pills-top-new"
+                    aria-selected="true">
+                    New
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
+                    data-bs-target="#navs-pills-top-progress" aria-controls="navs-pills-top-progress"
+                    aria-selected="false" tabindex="-1">
+                    Progress
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
+                    data-bs-target="#navs-pills-top-delivery" aria-controls="navs-pills-top-delivery"
+                    aria-selected="false" tabindex="-1">
+                    Delivery
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
+                    data-bs-target="#navs-pills-top-done" aria-controls="navs-pills-top-done" aria-selected="false"
+                    tabindex="-1">
+                    Done
+                </button>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="navs-pills-top-new" role="tabpanel">
+                <div class="card-datatable pt-0">
+                    <table
+                        class="datatable-new-order-search{{ auth::user()->role == 'Sales' ? '' : '-admin' }} table table-bordered">
+                        <thead>
+                            @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Logistic' || Auth::user()->role == 'ServiceM')
                                 <tr>
-                                    <th>PO Date</th>
-                                    @if (Auth::user()->role == 'Sales')
-                                        <th>PO No.</th>
-                                    @endif
+                                    <th>No SO</th>
+                                    <th>Date</th>
+                                    <th>Category</th>
+                                    <th>Customer</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                    <th>Payment</th>
+                                    <th>area</th>
+                                    <th>Delivery</th>
+                                    <th>Sales</th>
+                                    <th>Team</th>
+                                </tr>
+                            @endif
+                            @if (Auth::user()->role == 'Sales')
+                                <tr>
+                                    <th>No SO</th>
+                                    <th>Date</th>
+                                    <th>PO No.</th>
                                     <th>Customer</th>
                                     <th>Part Desc</th>
                                     <th>Status</th>
                                     <th>Payment</th>
                                     <th>Delivery</th>
-                                    @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Logistic' || Auth::user()->role == 'ServiceM')
-                                        <th>Sales</th>
-                                        <th>Team</th>
-                                    @endif
                                 </tr>
-                            </thead>
-                        </table>
-                    </div>
+                            @endif
+                        </thead>
+                    </table>
                 </div>
-                <div class="tab-pane fade" id="navs-pills-top-done  " role="tabpanel">
-                    <div class="card-datatable pt-0">
-                        <table
-                            class="datatable-sales-completed-search{{ auth::user()->role == 'Sales' ? '' : '-admin' }} table table-bordered">
-                            <thead>
+            </div>
+            <div class="tab-pane fade" id="navs-pills-top-progress" role="tabpanel">
+
+                <div class="card-datatable pt-0">
+                    <table
+                        class="datatable-sales-list-search{{ auth::user()->role == 'Sales' ? '' : '-admin' }} table table-bordered">
+                        <thead>
+                            @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Logistic' || Auth::user()->role == 'ServiceM')
                                 <tr>
-                                    <th>PO Date</th>
-                                    @if (Auth::user()->role == 'Sales')
-                                        <th>PO No.</th>
-                                    @endif
+                                    <th>No SO</th>
+                                    <th>Date</th>
+                                    <th>Category</th>
+                                    <th>Customer</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                    <th>Payment</th>
+                                    <th>area</th>
+                                    <th>Delivery</th>
+                                    <th>Sales</th>
+                                    <th>Team</th>
+                                </tr>
+                            @endif
+                            @if (Auth::user()->role == 'Sales')
+                                <tr>
+                                    <th>Date</th>
+                                    <th>PO No.</th>
                                     <th>Customer</th>
                                     <th>Part Desc</th>
                                     <th>Status</th>
                                     <th>Payment</th>
                                     <th>Delivery</th>
-                                    @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Logistic' || Auth::user()->role == 'ServiceM')
-                                        <th>Sales</th>
-                                        <th>Team</th>
-                                    @endif
                                 </tr>
-                            </thead>
-                        </table>
-                    </div>
+                            @endif
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="navs-pills-top-delivery" role="tabpanel">
+                <div class="card-datatable pt-0">
+                    <table
+                        class="datatable-sales-delivery-search{{ auth::user()->role == 'Sales' ? '' : '-admin' }} table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>PO Date</th>
+                                @if (Auth::user()->role == 'Sales')
+                                    <th>PO No.</th>
+                                @endif
+                                <th>Customer</th>
+                                <th>Part Desc</th>
+                                <th>Status</th>
+                                <th>Payment</th>
+                                <th>Delivery</th>
+                                @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Logistic' || Auth::user()->role == 'ServiceM')
+                                    <th>Sales</th>
+                                    <th>Team</th>
+                                @endif
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="navs-pills-top-done  " role="tabpanel">
+                <div class="card-datatable pt-0">
+                    <table
+                        class="datatable-sales-completed-search{{ auth::user()->role == 'Sales' ? '' : '-admin' }} table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>PO Date</th>
+                                @if (Auth::user()->role == 'Sales')
+                                    <th>PO No.</th>
+                                @endif
+                                <th>Customer</th>
+                                <th>Part Desc</th>
+                                <th>Status</th>
+                                <th>Payment</th>
+                                <th>Delivery</th>
+                                @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Logistic' || Auth::user()->role == 'ServiceM')
+                                    <th>Sales</th>
+                                    <th>Team</th>
+                                @endif
+                            </tr>
+                        </thead>
+                    </table>
                 </div>
             </div>
         </div>
-    @elseif(Auth::user()->role == 'Technician')
-        <div class="card mb-3">
-            <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-notulen table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Desc</th>
-                            <th>Level</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
+    </div>
+@elseif(Auth::user()->role == 'Technician')
+    <div class="card mb-3">
+        <div class="card-datatable table-responsive pt-0">
+            <table class="datatable-notulen table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Desc</th>
+                        <th>Level</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
-    @elseif(Auth::user()->role == 'Client')
-        <div class="row">
-            <div class="col-12">
-                @if (auth::user()->level == '1')
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h5> Machine </h5>
-                            <div class="card-datatable table-responsive pt-0">
-                                <table class="datatable-client-compressor table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th></th>
-                                            <th>ID</th>
-                                            <th>Brand</th>
-                                            <th>Unit</th>
-                                            <th>Tag</th>
-                                            <th>Location</th>
-                                        </tr>
-                                    </thead>
-                                </table>
-                            </div>
+    </div>
+@elseif(Auth::user()->role == 'Client')
+    <div class="row">
+        <div class="col-12">
+            @if (auth::user()->level == '1')
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5> Machine </h5>
+                        <div class="card-datatable table-responsive pt-0">
+                            <table class="datatable-client-compressor table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>Brand</th>
+                                        <th>Unit</th>
+                                        <th>Tag</th>
+                                        <th>Location</th>
+                                    </tr>
+                                </thead>
+                            </table>
                         </div>
                     </div>
-                @else
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <div class="card-datatable table-responsive pt-0">
-                                <table class="datatable-machine-monitoring table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>ID</th>
-                                            <th>Status</th>
-                                            <th>Brand</th>
-                                            <th>Type</th>
-                                            <th>Unit</th>
-                                            <th>SN</th>
-                                            <th>PIC</th>
-                                            <th>Time</th>
-                                            <th>Detail</th>
-                                        </tr>
-                                    </thead>
-                                </table>
-                            </div>
+                </div>
+            @else
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="card-datatable table-responsive pt-0">
+                            <table class="datatable-machine-monitoring table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>Status</th>
+                                        <th>Brand</th>
+                                        <th>Type</th>
+                                        <th>Unit</th>
+                                        <th>SN</th>
+                                        <th>PIC</th>
+                                        <th>Time</th>
+                                        <th>Detail</th>
+                                    </tr>
+                                </thead>
+                            </table>
                         </div>
                     </div>
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <div class="card-datatable table-responsive pt-0">
-                                <table class="datatable-issue-monitoring table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>ID</th>
-                                            <th>Date</th>
-                                            <th>Brand</th>
-                                            <th>Type</th>
-                                            <th>SN</th>
-                                            <th>Description</th>
-                                            <th>PIC</th>
-                                            <th>Accept</th>
-                                        </tr>
-                                    </thead>
-                                </table>
-                            </div>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="card-datatable table-responsive pt-0">
+                            <table class="datatable-issue-monitoring table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>Date</th>
+                                        <th>Brand</th>
+                                        <th>Type</th>
+                                        <th>SN</th>
+                                        <th>Description</th>
+                                        <th>PIC</th>
+                                        <th>Accept</th>
+                                    </tr>
+                                </thead>
+                            </table>
                         </div>
                     </div>
-                @endif
-            </div>
+                </div>
+            @endif
         </div>
-    @elseif(Auth::user()->role == 'Accounting')
-        <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Dashboard /</span> Overview</h4>
+    </div>
+@elseif(Auth::user()->role == 'Accounting')
+    <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Dashboard /</span> Overview</h4>
 
-        <div class="nav-align-top mb-4">
-            <ul class="nav nav-pills mb-3" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link active waves-effect waves-light" role="tab"
-                        data-bs-toggle="tab" data-bs-target="#navs-pills-top-1" aria-controls="navs-pills-top-1"
-                        aria-selected="true">
-                        Semester 1
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
-                        data-bs-target="#navs-pills-top-2" aria-controls="navs-pills-top-2" aria-selected="false"
-                        tabindex="-1">
-                        Semester 2
-                    </button>
-                </li>
-            </ul>
-            <div class="tab-content">
-                <div class="tab-pane fade show active" id="navs-pills-top-1" role="tabpanel">
-                    <div class="row mb-3">
-                        <!-- General Statistics -->
-                        <div class="col-lg-6 col-xl-4 mb-4 ">
-                            <div class="card h-100">
-                                <div class="card-header d-flex align-items-center justify-content-between">
-                                    <div class="ms-2">
-                                        <h4 class="mb-0">All Companies</h4>
-                                        <small class="text-muted">Invoice & AR Summary</small>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn p-0" type="button" id="generalStatistics"
-                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
-                                            <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                            <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                            <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                        </div>
-                                    </div>
+    <div class="nav-align-top mb-4">
+        <ul class="nav nav-pills mb-3" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button type="button" class="nav-link active waves-effect waves-light" role="tab"
+                    data-bs-toggle="tab" data-bs-target="#navs-pills-top-1" aria-controls="navs-pills-top-1"
+                    aria-selected="true">
+                    Semester 1
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
+                    data-bs-target="#navs-pills-top-2" aria-controls="navs-pills-top-2" aria-selected="false"
+                    tabindex="-1">
+                    Semester 2
+                </button>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="navs-pills-top-1" role="tabpanel">
+                <div class="row mb-3">
+                    <!-- General Statistics -->
+                    <div class="col-lg-6 col-xl-4 mb-4 ">
+                        <div class="card h-100">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <div class="ms-2">
+                                    <h4 class="mb-0">All Companies</h4>
+                                    <small class="text-muted">Invoice & AR Summary</small>
                                 </div>
-                                <div class="card-body pb-3">
-                                    <div class="mb-4 mt-2">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar avatar-md">
-                                                <div class="avatar-initial bg-label-primary rounded">
-                                                    <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
-                                                        class="w-px-30" />
-                                                </div>
-                                            </div>
-                                            <div class="ms-3">
-                                                <h3 class="mb-0">Rp.
-                                                    {{ number_format($allInvoice1->sum('harga_total'), 0, ',', '.') }}</h3>
-                                                <small class="text-muted">October</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="table-responsive text-nowrap">
-                                        <table class="table">
-                                            <tbody class="table-border-bottom-0">
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-success me-2"></span>
-                                                        <span class="text-heading">PAID</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($paidInvoice1->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-primary me-2"></span><span
-                                                            class="text-heading">UNPAID</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($unpaidGeneral1, 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-warning me-2"></span><span
-                                                            class="text-heading">OUTSTANDING</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($outstandingInvoice1->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-danger me-2"></span><span
-                                                            class="text-heading">OVERDUE</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($overdueInvoice1->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                <div class="dropdown">
+                                    <button class="btn p-0" type="button" id="generalStatistics"
+                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="mdi mdi-dots-vertical mdi-24px"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
+                                        <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
+                                        <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
+                                        <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <!--/ General Statistics -->
-                        <!-- General Statistics -->
-                        <div class="col-lg-6 col-xl-4 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header d-flex align-items-center justify-content-between">
-                                    <div class="ms-2">
-                                        <h4 class="mb-0">Reftech</h4>
-                                        <small class="text-muted">Invoice & AR Summary</small>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn p-0" type="button" id="generalStatistics"
-                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-end"
-                                            aria-labelledby="generalStatistics">
-                                            <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                            <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                            <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
+                            <div class="card-body pb-3">
+                                <div class="mb-4 mt-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-md">
+                                            <div class="avatar-initial bg-label-primary rounded">
+                                                <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
+                                                    class="w-px-30" />
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h3 class="mb-0">Rp.
+                                                {{ number_format($allInvoice1->sum('harga_total'), 0, ',', '.') }}</h3>
+                                            <small class="text-muted">October</small>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-body pb-3">
-                                    <div class="mb-4 mt-2">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar avatar-md">
-                                                <div class="avatar-initial bg-label-primary rounded">
-                                                    <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
-                                                        class="w-px-30" />
-                                                </div>
-                                            </div>
-                                            <div class="ms-3">
-                                                <h3 class="mb-0">Rp.
-                                                    {{ number_format($allInvoice1->where('info', 'Reftech')->sum('harga_total'), 0, ',', '.') }}
-                                                </h3>
-                                                <small class="text-muted">October</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="table-responsive text-nowrap">
-                                        <table class="table">
-                                            <tbody class="table-border-bottom-0">
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-success me-2"></span>
-                                                        <span class="text-heading">PAID</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($paidInvoice1->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-primary me-2"></span><span
-                                                            class="text-heading">UNPAID</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($unpaidReftech1, 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-warning me-2"></span><span
-                                                            class="text-heading">OUTSTANDING</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($outstandingInvoice1->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-danger me-2"></span><span
-                                                            class="text-heading">OVERDUE</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($overdueInvoice1->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                <div class="table-responsive text-nowrap">
+                                    <table class="table">
+                                        <tbody class="table-border-bottom-0">
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-success me-2"></span>
+                                                    <span class="text-heading">PAID</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($paidInvoice1->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-primary me-2"></span><span
+                                                        class="text-heading">UNPAID</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($unpaidGeneral1, 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-warning me-2"></span><span
+                                                        class="text-heading">OUTSTANDING</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($outstandingInvoice1->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-danger me-2"></span><span
+                                                        class="text-heading">OVERDUE</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($overdueInvoice1->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                        <!--/ General Statistics -->
-                        <!-- General Statistics -->
-                        <div class="col-lg-6 col-xl-4 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header d-flex align-items-center justify-content-between">
-                                    <div class="ms-2">
-                                        <h4 class="mb-0">Kojisha</h4>
-                                        <small class="text-muted">Invoice & AR Summary</small>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn p-0" type="button" id="generalStatistics"
-                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-end"
-                                            aria-labelledby="generalStatistics">
-                                            <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                            <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                            <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-body pb-3">
-                                    <div class="mb-4 mt-2">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar avatar-md">
-                                                <div class="avatar-initial bg-label-primary rounded">
-                                                    <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
-                                                        class="w-px-30" />
-                                                </div>
-                                            </div>
-                                            <div class="ms-3">
-                                                <h3 class="mb-0">Rp.
-                                                    {{ number_format($allInvoice1->where('info', 'Kojisha')->sum('harga_total'), 0, ',', '.') }}
-                                                </h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="table-responsive text-nowrap">
-                                        <table class="table">
-                                            <tbody class="table-border-bottom-0">
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-success me-2"></span>
-                                                        <span class="text-heading">PAID</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($paidInvoice1->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-primary me-2"></span><span
-                                                            class="text-heading">UNPAID</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($unpaidKojisha1, 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-warning me-2"></span><span
-                                                            class="text-heading">OUTSTANDING</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($outstandingInvoice1->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-danger me-2"></span><span
-                                                            class="text-heading">OVERDUE</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($overdueInvoice1->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!--/ General Statistics -->
                     </div>
+                    <!--/ General Statistics -->
+                    <!-- General Statistics -->
+                    <div class="col-lg-6 col-xl-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <div class="ms-2">
+                                    <h4 class="mb-0">Reftech</h4>
+                                    <small class="text-muted">Invoice & AR Summary</small>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn p-0" type="button" id="generalStatistics"
+                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="mdi mdi-dots-vertical mdi-24px"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
+                                        <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
+                                        <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
+                                        <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body pb-3">
+                                <div class="mb-4 mt-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-md">
+                                            <div class="avatar-initial bg-label-primary rounded">
+                                                <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
+                                                    class="w-px-30" />
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h3 class="mb-0">Rp.
+                                                {{ number_format($allInvoice1->where('info', 'Reftech')->sum('harga_total'), 0, ',', '.') }}
+                                            </h3>
+                                            <small class="text-muted">October</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive text-nowrap">
+                                    <table class="table">
+                                        <tbody class="table-border-bottom-0">
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-success me-2"></span>
+                                                    <span class="text-heading">PAID</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($paidInvoice1->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-primary me-2"></span><span
+                                                        class="text-heading">UNPAID</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($unpaidReftech1, 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-warning me-2"></span><span
+                                                        class="text-heading">OUTSTANDING</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($outstandingInvoice1->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-danger me-2"></span><span
+                                                        class="text-heading">OVERDUE</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($overdueInvoice1->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ General Statistics -->
+                    <!-- General Statistics -->
+                    <div class="col-lg-6 col-xl-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <div class="ms-2">
+                                    <h4 class="mb-0">Kojisha</h4>
+                                    <small class="text-muted">Invoice & AR Summary</small>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn p-0" type="button" id="generalStatistics"
+                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="mdi mdi-dots-vertical mdi-24px"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
+                                        <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
+                                        <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
+                                        <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body pb-3">
+                                <div class="mb-4 mt-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-md">
+                                            <div class="avatar-initial bg-label-primary rounded">
+                                                <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
+                                                    class="w-px-30" />
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h3 class="mb-0">Rp.
+                                                {{ number_format($allInvoice1->where('info', 'Kojisha')->sum('harga_total'), 0, ',', '.') }}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive text-nowrap">
+                                    <table class="table">
+                                        <tbody class="table-border-bottom-0">
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-success me-2"></span>
+                                                    <span class="text-heading">PAID</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($paidInvoice1->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-primary me-2"></span><span
+                                                        class="text-heading">UNPAID</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($unpaidKojisha1, 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-warning me-2"></span><span
+                                                        class="text-heading">OUTSTANDING</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($outstandingInvoice1->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-danger me-2"></span><span
+                                                        class="text-heading">OVERDUE</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($overdueInvoice1->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ General Statistics -->
                 </div>
-                <div class="tab-pane fade" id="navs-pills-top-2" role="tabpanel">
-                    <div class="row mb-3">
-                        <!-- General Statistics -->
-                        <div class="col-lg-6 col-xl-4 mb-4 ">
-                            <div class="card h-100">
-                                <div class="card-header d-flex align-items-center justify-content-between">
-                                    <div class="ms-2">
-                                        <h4 class="mb-0">All Companies</h4>
-                                        <small class="text-muted">Invoice & AR Summary</small>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn p-0" type="button" id="generalStatistics"
-                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-end"
-                                            aria-labelledby="generalStatistics">
-                                            <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                            <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                            <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                        </div>
-                                    </div>
+            </div>
+            <div class="tab-pane fade" id="navs-pills-top-2" role="tabpanel">
+                <div class="row mb-3">
+                    <!-- General Statistics -->
+                    <div class="col-lg-6 col-xl-4 mb-4 ">
+                        <div class="card h-100">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <div class="ms-2">
+                                    <h4 class="mb-0">All Companies</h4>
+                                    <small class="text-muted">Invoice & AR Summary</small>
                                 </div>
-                                <div class="card-body pb-3">
-                                    <div class="mb-4 mt-2">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar avatar-md">
-                                                <div class="avatar-initial bg-label-primary rounded">
-                                                    <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
-                                                        class="w-px-30" />
-                                                </div>
-                                            </div>
-                                            <div class="ms-3">
-                                                <h3 class="mb-0">Rp.
-                                                    {{ number_format($allInvoice2->sum('harga_total'), 0, ',', '.') }}
-                                                </h3>
-                                                <small class="text-muted">October</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="table-responsive text-nowrap">
-                                        <table class="table">
-                                            <tbody class="table-border-bottom-0">
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-success me-2"></span>
-                                                        <span class="text-heading">PAID</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($paidInvoice2->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-primary me-2"></span><span
-                                                            class="text-heading">UNPAID</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($unpaidGeneral2, 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-warning me-2"></span><span
-                                                            class="text-heading">OUTSTANDING</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($outstandingInvoice2->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-danger me-2"></span><span
-                                                            class="text-heading">OVERDUE</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($overdueInvoice2->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                <div class="dropdown">
+                                    <button class="btn p-0" type="button" id="generalStatistics"
+                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="mdi mdi-dots-vertical mdi-24px"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
+                                        <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
+                                        <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
+                                        <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <!--/ General Statistics -->
-                        <!-- General Statistics -->
-                        <div class="col-lg-6 col-xl-4 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header d-flex align-items-center justify-content-between">
-                                    <div class="ms-2">
-                                        <h4 class="mb-0">Reftech</h4>
-                                        <small class="text-muted">Invoice & AR Summary</small>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn p-0" type="button" id="generalStatistics"
-                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-end"
-                                            aria-labelledby="generalStatistics">
-                                            <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                            <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                            <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
+                            <div class="card-body pb-3">
+                                <div class="mb-4 mt-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-md">
+                                            <div class="avatar-initial bg-label-primary rounded">
+                                                <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
+                                                    class="w-px-30" />
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h3 class="mb-0">Rp.
+                                                {{ number_format($allInvoice2->sum('harga_total'), 0, ',', '.') }}
+                                            </h3>
+                                            <small class="text-muted">October</small>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-body pb-3">
-                                    <div class="mb-4 mt-2">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar avatar-md">
-                                                <div class="avatar-initial bg-label-primary rounded">
-                                                    <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
-                                                        class="w-px-30" />
-                                                </div>
-                                            </div>
-                                            <div class="ms-3">
-                                                <h3 class="mb-0">Rp.
-                                                    {{ number_format($allInvoice2->where('info', 'Reftech')->sum('harga_total'), 0, ',', '.') }}
-                                                </h3>
-                                                <small class="text-muted">October</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="table-responsive text-nowrap">
-                                        <table class="table">
-                                            <tbody class="table-border-bottom-0">
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-success me-2"></span>
-                                                        <span class="text-heading">PAID</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($paidInvoice2->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-primary me-2"></span><span
-                                                            class="text-heading">UNPAID</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($unpaidReftech2, 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-warning me-2"></span><span
-                                                            class="text-heading">OUTSTANDING</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($outstandingInvoice2->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-danger me-2"></span><span
-                                                            class="text-heading">OVERDUE</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($overdueInvoice2->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                <div class="table-responsive text-nowrap">
+                                    <table class="table">
+                                        <tbody class="table-border-bottom-0">
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-success me-2"></span>
+                                                    <span class="text-heading">PAID</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($paidInvoice2->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-primary me-2"></span><span
+                                                        class="text-heading">UNPAID</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($unpaidGeneral2, 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-warning me-2"></span><span
+                                                        class="text-heading">OUTSTANDING</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($outstandingInvoice2->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-danger me-2"></span><span
+                                                        class="text-heading">OVERDUE</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($overdueInvoice2->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                        <!--/ General Statistics -->
-                        <!-- General Statistics -->
-                        <div class="col-lg-6 col-xl-4 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header d-flex align-items-center justify-content-between">
-                                    <div class="ms-2">
-                                        <h4 class="mb-0">Kojisha</h4>
-                                        <small class="text-muted">Invoice & AR Summary</small>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn p-0" type="button" id="generalStatistics"
-                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-end"
-                                            aria-labelledby="generalStatistics">
-                                            <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                            <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                            <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-body pb-3">
-                                    <div class="mb-4 mt-2">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar avatar-md">
-                                                <div class="avatar-initial bg-label-primary rounded">
-                                                    <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
-                                                        class="w-px-30" />
-                                                </div>
-                                            </div>
-                                            <div class="ms-3">
-                                                <h3 class="mb-0">Rp.
-                                                    {{ number_format($allInvoice2->where('info', 'Kojisha')->sum('harga_total'), 0, ',', '.') }}
-                                                </h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="table-responsive text-nowrap">
-                                        <table class="table">
-                                            <tbody class="table-border-bottom-0">
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-success me-2"></span>
-                                                        <span class="text-heading">PAID</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($paidInvoice2->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-primary me-2"></span><span
-                                                            class="text-heading">UNPAID</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($unpaidKojisha2, 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-warning me-2"></span><span
-                                                            class="text-heading">OUTSTANDING</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($outstandingInvoice2->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="ps-0 pe-5">
-                                                        <span class="badge badge-dot bg-danger me-2"></span><span
-                                                            class="text-heading">OVERDUE</span>
-                                                    </td>
-                                                    <td class="ps-5 d-flex justify-content-end">
-                                                        <span class="text-heading fw-semibold">Rp.
-                                                            {{ number_format($overdueInvoice2->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!--/ General Statistics -->
                     </div>
+                    <!--/ General Statistics -->
+                    <!-- General Statistics -->
+                    <div class="col-lg-6 col-xl-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <div class="ms-2">
+                                    <h4 class="mb-0">Reftech</h4>
+                                    <small class="text-muted">Invoice & AR Summary</small>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn p-0" type="button" id="generalStatistics"
+                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="mdi mdi-dots-vertical mdi-24px"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
+                                        <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
+                                        <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
+                                        <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body pb-3">
+                                <div class="mb-4 mt-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-md">
+                                            <div class="avatar-initial bg-label-primary rounded">
+                                                <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
+                                                    class="w-px-30" />
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h3 class="mb-0">Rp.
+                                                {{ number_format($allInvoice2->where('info', 'Reftech')->sum('harga_total'), 0, ',', '.') }}
+                                            </h3>
+                                            <small class="text-muted">October</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive text-nowrap">
+                                    <table class="table">
+                                        <tbody class="table-border-bottom-0">
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-success me-2"></span>
+                                                    <span class="text-heading">PAID</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($paidInvoice2->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-primary me-2"></span><span
+                                                        class="text-heading">UNPAID</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($unpaidReftech2, 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-warning me-2"></span><span
+                                                        class="text-heading">OUTSTANDING</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($outstandingInvoice2->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-danger me-2"></span><span
+                                                        class="text-heading">OVERDUE</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($overdueInvoice2->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ General Statistics -->
+                    <!-- General Statistics -->
+                    <div class="col-lg-6 col-xl-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <div class="ms-2">
+                                    <h4 class="mb-0">Kojisha</h4>
+                                    <small class="text-muted">Invoice & AR Summary</small>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn p-0" type="button" id="generalStatistics"
+                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="mdi mdi-dots-vertical mdi-24px"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
+                                        <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
+                                        <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
+                                        <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body pb-3">
+                                <div class="mb-4 mt-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-md">
+                                            <div class="avatar-initial bg-label-primary rounded">
+                                                <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
+                                                    class="w-px-30" />
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h3 class="mb-0">Rp.
+                                                {{ number_format($allInvoice2->where('info', 'Kojisha')->sum('harga_total'), 0, ',', '.') }}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive text-nowrap">
+                                    <table class="table">
+                                        <tbody class="table-border-bottom-0">
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-success me-2"></span>
+                                                    <span class="text-heading">PAID</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($paidInvoice2->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-primary me-2"></span><span
+                                                        class="text-heading">UNPAID</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($unpaidKojisha2, 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-warning me-2"></span><span
+                                                        class="text-heading">OUTSTANDING</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($outstandingInvoice2->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 pe-5">
+                                                    <span class="badge badge-dot bg-danger me-2"></span><span
+                                                        class="text-heading">OVERDUE</span>
+                                                </td>
+                                                <td class="ps-5 d-flex justify-content-end">
+                                                    <span class="text-heading fw-semibold">Rp.
+                                                        {{ number_format($overdueInvoice2->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ General Statistics -->
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="card app-calendar-wrapper">
-            <div class="row gy-4">
-                <!-- Calendar Sidebar -->
-                <div class="col app-calendar-sidebar pt-1" id="app-calendar-sidebar">
-                    {{-- <div class="p-3 pb-2 my-sm-0 mb-3">
+    <div class="card app-calendar-wrapper">
+        <div class="row gy-4">
+            <!-- Calendar Sidebar -->
+            <div class="col app-calendar-sidebar pt-1" id="app-calendar-sidebar">
+                {{-- <div class="p-3 pb-2 my-sm-0 mb-3">
                         <div class="d-grid">
                             <button class="btn btn-primary btn-toggle-sidebar" data-bs-toggle="offcanvas"
                                 data-bs-target="#addEventSidebar" aria-controls="addEventSidebar">
@@ -3317,162 +3457,162 @@
                             </button>
                         </div>
                     </div> --}}
-                    <div class="p-4">
-                        <!-- inline calendar (flatpicker) -->
-                        <div class="inline-calendar"></div>
+                <div class="p-4">
+                    <!-- inline calendar (flatpicker) -->
+                    <div class="inline-calendar"></div>
 
-                        <hr class="container-m-nx my-4" />
+                    <hr class="container-m-nx my-4" />
 
-                        <!-- Filter -->
-                        <div class="mb-4">
-                            <small class="text-small text-muted text-uppercase align-middle">Filter</small>
+                    <!-- Filter -->
+                    <div class="mb-4">
+                        <small class="text-small text-muted text-uppercase align-middle">Filter</small>
+                    </div>
+
+                    <div class="form-check form-check-secondary mb-3">
+                        <input class="form-check-input select-all" type="checkbox" id="selectAll" data-value="all"
+                            checked />
+                        <label class="form-check-label" for="selectAll">View All</label>
+                    </div>
+
+                    <div class="app-calendar-events-filter">
+                        <div class="form-check form-check-danger mb-3">
+                            <input class="form-check-input input-filter" type="checkbox" id="select-business"
+                                data-value="Business" checked />
+                            <label class="form-check-label" for="select-business">Due Date</label>
                         </div>
-
+                        <div class="form-check form-check-primary mb-3">
+                            <input class="form-check-input input-filter" type="checkbox" id="select-holiday"
+                                data-value="Holiday" checked />
+                            <label class="form-check-label" for="select-holiday">Reftech</label>
+                        </div>
                         <div class="form-check form-check-secondary mb-3">
-                            <input class="form-check-input select-all" type="checkbox" id="selectAll"
-                                data-value="all" checked />
-                            <label class="form-check-label" for="selectAll">View All</label>
-                        </div>
-
-                        <div class="app-calendar-events-filter">
-                            <div class="form-check form-check-danger mb-3">
-                                <input class="form-check-input input-filter" type="checkbox" id="select-business"
-                                    data-value="Business" checked />
-                                <label class="form-check-label" for="select-business">Due Date</label>
-                            </div>
-                            <div class="form-check form-check-primary mb-3">
-                                <input class="form-check-input input-filter" type="checkbox" id="select-holiday"
-                                    data-value="Holiday" checked />
-                                <label class="form-check-label" for="select-holiday">Reftech</label>
-                            </div>
-                            <div class="form-check form-check-secondary mb-3">
-                                <input class="form-check-input input-filter" type="checkbox" id="select-personal"
-                                    data-value="Personal" checked />
-                                <label class="form-check-label" for="select-personal">Kojisha</label>
-                            </div>
+                            <input class="form-check-input input-filter" type="checkbox" id="select-personal"
+                                data-value="Personal" checked />
+                            <label class="form-check-label" for="select-personal">Kojisha</label>
                         </div>
                     </div>
                 </div>
-                <!-- /Calendar Sidebar -->
+            </div>
+            <!-- /Calendar Sidebar -->
 
-                <!-- Calendar & Modal -->
-                <div class="col app-calendar-content">
-                    <div class="card shadow-none border-0 border-start rounded-0">
-                        <div class="card-body pb-0">
-                            <!-- FullCalendar -->
-                            <div id="calendar"></div>
-                        </div>
+            <!-- Calendar & Modal -->
+            <div class="col app-calendar-content">
+                <div class="card shadow-none border-0 border-start rounded-0">
+                    <div class="card-body pb-0">
+                        <!-- FullCalendar -->
+                        <div id="calendar"></div>
                     </div>
-                    <div class="app-overlay"></div>
-                    <!-- FullCalendar Offcanvas -->
-                    <div class="offcanvas offcanvas-end event-sidebar" tabindex="-1" id="addEventSidebar"
-                        aria-labelledby="addEventSidebarLabel">
-                        <div class="offcanvas-header">
-                            <h5 class="offcanvas-title" id="addEventSidebarLabel">Add Event</h5>
-                            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
-                                aria-label="Close"></button>
-                        </div>
-                        <div class="offcanvas-body">
-                            <form class="event-form pt-0" id="eventForm" onsubmit="return false">
-                                {{-- <div class="form-floating form-floating-outline mb-4">
+                </div>
+                <div class="app-overlay"></div>
+                <!-- FullCalendar Offcanvas -->
+                <div class="offcanvas offcanvas-end event-sidebar" tabindex="-1" id="addEventSidebar"
+                    aria-labelledby="addEventSidebarLabel">
+                    <div class="offcanvas-header">
+                        <h5 class="offcanvas-title" id="addEventSidebarLabel">Add Event</h5>
+                        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                        <form class="event-form pt-0" id="eventForm" onsubmit="return false">
+                            {{-- <div class="form-floating form-floating-outline mb-4">
                                     <input type="text" class="form-control" id="eventTitle" name="eventTitle"
                                         placeholder="Event Title" />
                                     <label for="eventTitle">Client</label>
                                 </div> --}}
-                                <div class="form-floating form-floating-outline mb-4">
-                                    <input type="text" class="form-control" id="eventEndDate" name="eventEndDate"
-                                        placeholder="End Date" />
-                                    <label for="eventEndDate">Follow Up Date</label>
+                            <div class="form-floating form-floating-outline mb-4">
+                                <input type="text" class="form-control" id="eventEndDate" name="eventEndDate"
+                                    placeholder="End Date" />
+                                <label for="eventEndDate">Follow Up Date</label>
+                            </div>
+                            <div class="form-floating form-floating-outline mb-4">
+                                <textarea class="form-control" name="eventNote" id="eventNote"></textarea>
+                                <label for="eventNote">Reminder Note</label>
+                            </div>
+                            <input class="form-control" type="text" name="eventComp" id="eventComp"
+                                value="" hidden>
+                            <div class="form-floating mb-4">
+                                <p id="eventNoteBefore"></p>
+                            </div>
+                            <div class="mb-3 d-flex justify-content-sm-between justify-content-start my-4 gap-2">
+                                <div class="d-flex">
+                                    <button type="submit"
+                                        class="btn btn-primary btn-add-event me-sm-2 me-1">Add</button>
+                                    <button type="reset" class="btn btn-label-secondary btn-cancel me-sm-0 me-1"
+                                        data-bs-dismiss="offcanvas">
+                                        Cancel
+                                    </button>
                                 </div>
-                                <div class="form-floating form-floating-outline mb-4">
-                                    <textarea class="form-control" name="eventNote" id="eventNote"></textarea>
-                                    <label for="eventNote">Reminder Note</label>
-                                </div>
-                                <input class="form-control" type="text" name="eventComp" id="eventComp"
-                                    value="" hidden>
-                                <div class="form-floating mb-4">
-                                    <p id="eventNoteBefore"></p>
-                                </div>
-                                <div class="mb-3 d-flex justify-content-sm-between justify-content-start my-4 gap-2">
-                                    <div class="d-flex">
-                                        <button type="submit"
-                                            class="btn btn-primary btn-add-event me-sm-2 me-1">Add</button>
-                                        <button type="reset" class="btn btn-label-secondary btn-cancel me-sm-0 me-1"
-                                            data-bs-dismiss="offcanvas">
-                                            Cancel
-                                        </button>
-                                    </div>
-                                    {{-- <button class="btn btn-label-danger btn-delete-event d-none">Delete</button> --}}
-                                </div>
-                            </form>
-                        </div>
+                                {{-- <button class="btn btn-label-danger btn-delete-event d-none">Delete</button> --}}
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <!-- /Calendar & Modal -->
             </div>
-
+            <!-- /Calendar & Modal -->
         </div>
 
-        <h5>Request</h5>
-        <div class="card mb-3">
-            <div class="table-responsive text-nowrap">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Invoice</th>
-                            <th>Customer</th>
-                            <th>Nominal</th>
-                            <th>Date</th>
-                            <th>Follow Up</th>
-                            <th>Reminder</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($reminder as $item)
-                            <tr>
-                                <td>{{ $item->no_invoice }}</td>
-                                <td>{{ $item->company }}</td>
-                                <td>Rp. {{ number_format($item->amount, 0, ',', '.') }}</td>
-                                <td>{{ $item->date }}</td>
-                                <td>{{ $item->date_fu }}</td>
-                                <td>{{ $item->reminder }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5">Kamu Belum Melakukan Reminder.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    </div>
 
-        <h5>Recent Invoice</h5>
-        <div class="card mb-3">
-            <div class="table-responsive text-nowrap">
-                <table class="table table-bordered">
-                    <thead>
+    <h5>Request</h5>
+    <div class="card mb-3">
+        <div class="table-responsive text-nowrap">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Invoice</th>
+                        <th>Customer</th>
+                        <th>Nominal</th>
+                        <th>Date</th>
+                        <th>Follow Up</th>
+                        <th>Reminder</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($reminder as $item)
                         <tr>
-                            <th>No. Invoice</th>
-                            <th>Customer</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Flag</th>
+                            <td>{{ $item->no_invoice }}</td>
+                            <td>{{ $item->company }}</td>
+                            <td>Rp. {{ number_format($item->amount, 0, ',', '.') }}</td>
+                            <td>{{ $item->date }}</td>
+                            <td>{{ $item->date_fu }}</td>
+                            <td>{{ $item->reminder }}</td>
                         </tr>
-                    </thead>
-                    <tbody>
+                    @empty
                         <tr>
-                            <td>Selling Contract</td>
-                            <td>PT. XYZ</td>
-                            <td>Rp. 1.000.000</td>
-                            <td>xx-xx-xxxx</td>
-                            <td>Full Paid</td>
-                            <td>RJO</td>
+                            <td colspan="5">Kamu Belum Melakukan Reminder.</td>
                         </tr>
-                    </tbody>
-                </table>
-            </div>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
+    </div>
+
+    <h5>Recent Invoice</h5>
+    <div class="card mb-3">
+        <div class="table-responsive text-nowrap">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>No. Invoice</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Flag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Selling Contract</td>
+                        <td>PT. XYZ</td>
+                        <td>Rp. 1.000.000</td>
+                        <td>xx-xx-xxxx</td>
+                        <td>Full Paid</td>
+                        <td>RJO</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
     @endif
     @foreach ($notulens as $notulen)
         @include('components.modal.notulen.detail')

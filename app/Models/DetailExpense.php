@@ -17,6 +17,10 @@ class DetailExpense extends Model
         'amount',
         'memo',
     ];
+    public function inventory()
+    {
+        return $this->hasMany('App\Models\DetailInventoryAdj', 'id_detail_expense');
+    }
     public function expense()
     {
         return $this->belongsTo('App\Model\Expense', 'id_expense', 'id');

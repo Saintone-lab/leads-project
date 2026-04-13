@@ -27,7 +27,7 @@ if (Auth::check()) {
                   LEFT JOIN activities a ON a.id_client = c.id
                   WHERE c.role = 'Leads' AND u.id = $user->id
                   GROUP BY c.id  
-                  ORDER BY MAX(a.date) DESC";
+                  ORDER BY c.id DESC";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

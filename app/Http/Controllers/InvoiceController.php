@@ -136,7 +136,7 @@ class InvoiceController extends Controller
         $fullPrice = $this->terbilang($quote->harga_total - $totalPph);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         // $pph = $quote->subtotal * $invoice->pph / 100;
-        // dd($price);
+        // dd($quote->harga_total - $totalpph);
         $afterDisc = $quote->subtotal - $quote->diskon;
 
         $doTek = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->whereNot('code', 'Manual')->get();

@@ -82,11 +82,23 @@
                             <div data-i18n="Leads">Leads</div>
                         </a>
                     </li>
+                    <li
+                        class="menu-item {{ request()->is('leads-by-sales') ? 'active' : '' }}">
+                        <a href="{{ route('index-sales.leads') }}" class="menu-link">
+                            <div data-i18n="Leads By Sales">Leads By Sales</div>
+                        </a>
+                    </li>
 
                     <li
                         class="menu-item {{ request()->is('existing') || request()->is('existing/*') ? 'active' : '' }}">
                         <a href="{{ route('existing.index') }}" class="menu-link">
                             <div data-i18n="Customers">Customers</div>
+                        </a>
+                    </li>
+                    <li
+                        class="menu-item {{ request()->is('customers-by-sales') ? 'active' : '' }}">
+                        <a href="{{ route('index-sales.customers') }}" class="menu-link">
+                            <div data-i18n="Customers By Sales">Customers By Sales</div>
                         </a>
                     </li>
                     <li class="menu-item {{ request()->is('ru') ? 'active' : '' }}">
@@ -522,7 +534,7 @@
                 </li>
 
                 <li
-                    class="menu-item {{ request()->is('expense-account') || request()->is('expense') || request()->is('expense-umum') ? 'open' : '' }}">
+                    class="menu-item {{ request()->is('expense-account') || request()->is('expense') || request()->is('expense-umum') || request()->is('expense-inventory') ? 'open' : '' }}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons mdi mdi-cash-multiple"></i>
                         <div data-i18n="Expense">Expense</div>
@@ -539,6 +551,11 @@
                         <li class="menu-item {{ request()->is('expense') ? 'active' : '' }}">
                             <a href="{{ route('expense.index') }}" class="menu-link">
                                 <div data-i18n="Expense">Expense</div>
+                            </a>
+                        </li>
+                        <li class="menu-item {{ request()->is('expense-inventory') ? 'active' : '' }}">
+                            <a href="{{ route('expense-inventory.index') }}" class="menu-link">
+                                <div data-i18n="Inventory Adjusment">Inventory Adjusment</div>
                             </a>
                         </li>
                         <li class="menu-item {{ request()->is('expense-umum') ? 'active' : '' }}">
@@ -843,7 +860,7 @@
                 <span class="menu-header-text">Client</span>
             </li>
             <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('ru') || request()->is('existing-bangkrupt') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('ru') || request()->is('existing-bangkrupt') || request()->is('customer-by-status') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
                     <div data-i18n="Client">Client</div>
@@ -857,12 +874,12 @@
                         </a>
                     </li>
 
-                    {{-- <li
-                        class="menu-item {{ request()->is('existing') || request()->is('existing/*') ? 'active' : '' }}">
-                        <a href="{{ route('existing.index') }}" class="menu-link">
-                            <div data-i18n="Customers">Customers</div>
+                    <li
+                        class="menu-item {{ request()->is('customer-by-status') || request()->is('existing/*') ? 'active' : '' }}">
+                        <a href="{{ route('index-status.customers') }}" class="menu-link">
+                            <div data-i18n="CRM">CRM</div>
                         </a>
-                    </li> --}}
+                    </li>
                     <li class="menu-item {{ request()->is('ru') ? 'active' : '' }}">
                         <a href="{{ route('ru.index') }}" class="menu-link">
                             <div data-i18n="R/U">R/U</div>

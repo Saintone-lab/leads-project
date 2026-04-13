@@ -209,30 +209,30 @@
                                 @endforeach
                             @endforeach
                             <tr>
-                                <td colspan="4"></td>
+                                <td colspan="3"></td>
                                 <td class="text-end"> Subtotal :</td>
-                                <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
+                                <td colspan="2" class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
                             </tr>
                             <tr>
-                                <td colspan="4"></td>
+                                <td colspan="3"></td>
                                 <td class="text-end"> Discount :</td>
-                                <td class="text-end"> RP {{ number_format($quote->diskon, 0, '', '.') }}</td>
+                                <td colspan="2" class="text-end"> RP {{ number_format($quote->diskon, 0, '', '.') }}</td>
                             </tr>
                             <tr>
-                                <td colspan="4"></td>
+                                <td colspan="3"></td>
                                 <td class="text-end"> Total After Discount :</td>
-                                <td class="text-end"> RP {{ number_format($quote->subtotal - $quote->diskon, 0, '', '.') }}</td>
+                                <td colspan="2" class="text-end"> RP {{ number_format($quote->subtotal - $quote->diskon, 0, '', '.') }}</td>
                             </tr>
                             <tr>
-                                <td colspan="4"></td>
+                                <td colspan="3"></td>
                                 <td class="text-end"> Total Tax :</td>
-                                <td class="text-end"> RP {{ number_format($tax, 0, '', '.') }}</td>
+                                <td colspan="2" class="text-end"> RP {{ number_format($tax, 0, '', '.') }}</td>
                             </tr>
                             <tr class="border-top">
-                                <td colspan="5" class="px-4 border-right" style="background-color: #E7FF00">
+                                <td colspan="4" class="px-4 border-right" style="background-color: #E7FF00">
                                     <p class="fw-semibold mb-0 text-black">TOTAL PRICE </p>
                                 </td>
-                                <td class="text-end px-4 border-left" style="background-color: #E7FF00">
+                                <td colspan="2" class="text-end px-4 border-left" style="background-color: #E7FF00">
                                     <p class="fw-semibold mb-0 text-end text-black">RP
                                         {{ number_format($quote->harga_total, 0, '', '.') }}</p>
                                 </td>

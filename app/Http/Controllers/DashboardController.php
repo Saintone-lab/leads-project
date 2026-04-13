@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Comment;
 use App\Models\Contract;
 use App\Models\DetailProduct;
+use App\Models\DetailUser;
 use App\Models\Invoice;
 use App\Models\Issues;
 use App\Models\Machine;
@@ -37,6 +38,68 @@ class DashboardController extends Controller
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
         $notulens = Notulen::join('mention_notulen as m', 'm.id_notulen', '=', 'notulen.id')->join('users as u', 'm.id_mention', '=', 'u.id')->get(['notulen.*', 'u.name', 'm.level']);
+
+        $sales = User::where('role', 'Sales')
+            ->where('active', '1')
+            ->with('latestTarget')
+            ->with('latestRole')
+            ->orderByDesc('id')
+            ->get();
+
+        $result = [];
+        $teamIds = [16, 23];
+
+        $teamTotalPO = 0;
+        $teamTotalTarget = 0;
+
+        foreach ($sales as $sale) {
+
+            $targetPerSales = $sale->latestTarget->total ?? 0;
+
+            $poTotalPricePerSales = Quotation::whereYear('po_date', $yearNow)
+                ->whereMonth("po_date", $monthNow)
+                ->where("id_sales", $sale->id)
+                ->where("status", "100")
+                ->where('level', '1')
+                ->where('is_primary', '1')
+                ->sum('nett');
+
+            // 🔥 kalau termasuk team ecommerce
+            if (in_array($sale->id, $teamIds)) {
+                $teamTotalPO += $poTotalPricePerSales;
+                $teamTotalTarget += $targetPerSales;
+                continue; // skip masuk ke result individual
+            }
+
+            $percentage = $targetPerSales > 0
+                ? round(($poTotalPricePerSales / $targetPerSales) * 100, 2)
+                : 0;
+
+            $result[] = [
+                'name' => $sale->name,
+                'area' => $sale->latestRole->area ?? '-',
+                'percentage' => $percentage,
+            ];
+        }
+
+        ## 🔥 Tambahin team ecommerce di akhir
+
+        $teamPercentage = $teamTotalTarget > 0
+            ? round(($teamTotalPO / $teamTotalTarget) * 100, 2)
+            : 0;
+
+        $result[] = [
+            'name' => 'Team Ecommerce',
+            'area' => 'Online',
+            'percentage' => $teamPercentage,
+        ];
+
+        ## 🚀 Sorting tetap sama
+
+        $sorted = collect($result)
+            ->sortByDesc('percentage')
+            ->values();
+
         if (Auth::user()->role == 'Sales') {
             $clients = Client::where('id_sales', Auth::id())->get();
             $issue = Issues::all();
@@ -49,24 +112,37 @@ class DashboardController extends Controller
             $po = $this->getPoSales();
             $leads = $this->getLeadsSales();
             $visit = $this->getVisitSales();
-            $payments = DB::table('payment')
-                ->select(
-                    'id_quotation',
-                    DB::raw('SUM(amount - pph - cost) as total_payment')
-                )
-                ->groupBy('id_quotation');
+            $poTotalPrice = Quotation::whereYear('po_date', $yearNow)->whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->where('level', '1')->where('is_primary', '1')->sum('nett');
+            // $noPayment = DB::table('quotation as q')
+            //     ->whereYear('q.po_date', $yearNow)
+            //     ->whereMonth('q.po_date', $monthNow)
+            //     ->where('q.id_sales', Auth::user()->id)
+            //     ->where('q.status', '100')
+            //     ->where('q.level', '1')
+            //     ->where('q.is_primary', '1')
+            //     ->whereNotExists(function ($query) {
+            //         $query->select(DB::raw(1))
+            //             ->from('payment as p')
+            //             ->whereRaw('p.id_quotation = q.id');
+            //     })
+            //     ->select(DB::raw('q.nett as total'));
 
-            $poTotalPrice = DB::table('quotation as q')
-                ->leftJoinSub($payments, 'p', function ($join) {
-                    $join->on('p.id_quotation', '=', 'q.id');
-                })
-                ->whereYear('q.po_date', $yearNow)
-                ->whereMonth('q.po_date', $monthNow)
-                ->where('q.id_sales', Auth::user()->id)
-                ->where('q.status', '100')
-                ->where('q.level', '1')
-                ->where('q.is_primary', '1')
-                ->sum(DB::raw('q.nett - COALESCE(p.total_payment,0)'));
+            // $withPayment = DB::table('payment as p')
+            //     ->join('quotation as q', 'q.id', '=', 'p.id_quotation')
+            //     ->whereYear('p.date', $yearNow)
+            //     ->whereMonth('p.date', $monthNow)
+            //     ->where('q.id_sales', Auth::user()->id)
+            //     ->where('q.status', '100')
+            //     ->where('q.level', '1')
+            //     ->where('q.is_primary', '1')
+            //     ->select(DB::raw('(p.amount - p.pph - p.cost) as total'));
+
+            // $poTotalPrice = DB::query()
+            //     ->fromSub(
+            //         $noPayment->unionAll($withPayment),
+            //         'x'
+            //     )
+            //     ->sum('total');
             $formattedTotalPrice = $this->formatNumber($poTotalPrice);
             $target = Target::where('id_sales', Auth::user()->id)->first();
             $prospects = Prospect::where('id_sales', Auth::id())->whereNull('level')->get();
@@ -144,7 +220,6 @@ class DashboardController extends Controller
             $product = SalesOnline::where('id_sales', Auth::user()->id)
                 ->where('type', 'product')
                 ->whereDate('date', Carbon::now())->get();
-            $sales = Auth::user();
             // dd($delivery);
             // dd($sales);
             $akurasiCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Akurasi')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
@@ -157,7 +232,7 @@ class DashboardController extends Controller
             $productCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Product')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->count();
             $POCount = Quotation::where('id_sales', Auth::user()->id)->where('is_primary', '1')->where('status', '100')->where('level', '1')->whereMonth('po_date', Carbon::now())->whereYear('po_date', Carbon::now())->count();
 
-            $jumlahCustomer = Client::where('role', 'Customers')->where('id_sales', Auth::user()->id)->count();
+            $jumlahCustomer = Client::leftJoin('crm_status as cs','client.id','=','cs.id_client')->where('role', 'Customers')->where('id_sales', Auth::user()->id)->where('cs.status',2)->count();
             $reportsCount = Reports::join('machine as m', 'm.id', '=', 'reports.id_machine')
                 ->join('client as c', 'c.id', '=', 'm.id_client')
                 ->join('users as u', 'u.id', '=', 'c.id_sales')
@@ -167,6 +242,7 @@ class DashboardController extends Controller
             return view(
                 "pages.sales.dashboard",
                 compact(
+                    'sorted',
                     'reportsCount',
                     'sales',
                     'akurasi',
@@ -316,7 +392,12 @@ class DashboardController extends Controller
                 ->where('q.status', '100')
                 ->where('q.level', '1')
                 ->where('q.is_primary', '1')
-                ->sum(DB::raw('q.nett - COALESCE(p.total_payment,0)'));
+                ->sum(DB::raw('
+                    CASE 
+                        WHEN p.total_payment IS NOT NULL THEN p.total_payment
+                        ELSE q.nett
+                    END
+                '));
             $formattedTotalPriceAdmin = $this->formatNumber($poTotalPriceAdmin);
             $sales = User::whereIn('role', ['Sales', 'Support'])->where('active', '1')->orderByDesc('id')->get();
             $firstSales = User::find(1);
@@ -410,6 +491,7 @@ class DashboardController extends Controller
             return view(
                 "pages.sales.dashboard",
                 compact(
+                    'sorted',
                     'requestContract',
                     'requestInvoice',
                     'newCount',
@@ -1306,7 +1388,12 @@ class DashboardController extends Controller
             ->where('q.status', '100')
             ->where('q.level', '1')
             ->where('q.is_primary', '1')
-            ->sum(DB::raw('q.nett - COALESCE(p.total_payment,0)'));
+            ->sum(DB::raw('
+                CASE 
+                    WHEN p.total_payment IS NOT NULL THEN p.total_payment
+                    ELSE q.nett
+                END
+            '));
         return $totalPO;
     }
     public function totalTargetPoAdmin($sales)
