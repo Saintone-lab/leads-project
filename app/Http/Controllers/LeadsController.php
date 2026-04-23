@@ -133,7 +133,7 @@ class LeadsController extends Controller
             'ru' =>
                 'required',
 
-            'web' =>
+            'unit' =>
                 'required',
 
             'source' =>
@@ -169,7 +169,7 @@ class LeadsController extends Controller
             'email.required' => 'Field Email Wajib Diisi',
             'phone.required' => 'Field Phone Wajib Diisi',
             'ru.required' => 'Wajib Pilih Reseller atau User',
-            'web.required' => 'Field Web Wajib Diisi',
+            'unit.required' => 'Field Unit Wajib Diisi',
             'source.required' => 'Field Source Wajib Diisi',
             'mobile.required' => 'Field Mobile Wajib Diisi',
             'address.required' => 'Field Address Wajib Diisi',
@@ -192,7 +192,7 @@ class LeadsController extends Controller
         $leads->email = $request->email;
         $leads->phone = $request->phone;
         $leads->ru = $request->ru;
-        $leads->web = $request->web;
+        $leads->unit = $request->unit;
         $leads->image = 'profile.jpg';
         $leads->source = $request->source;
         $leads->created_date = Carbon::today()->toDateString();
@@ -350,7 +350,7 @@ class LeadsController extends Controller
             'phone' =>
                 'required',
 
-            'web' =>
+            'unit' =>
                 'required',
 
             'source' =>
@@ -374,7 +374,7 @@ class LeadsController extends Controller
             'email.required' => 'Field Email Wajib Diisi',
             'phone.required' => 'Field Phone Wajib Diisi',
             'ru.required' => 'Wajib Pilih Reseller atau User',
-            'web.required' => 'Field Web Wajib Diisi',
+            'unit.required' => 'Field unit Wajib Diisi',
             'source.required' => 'Field Source Wajib Diisi',
             'mobile.required' => 'Field Mobile Wajib Diisi',
             'address.required' => 'Field Address Wajib Diisi',
@@ -390,7 +390,7 @@ class LeadsController extends Controller
         $leads->email = $request->email;
         $leads->phone = $request->phone;
         $leads->ru = $request->ru;
-        $leads->web = $request->web;
+        $leads->unit = $request->unit;
         $leads->source = $request->source;
         $leads->npwp = $request->npwp;
         $leads->mobile = $request->mobile;

@@ -173,29 +173,6 @@ class CrmController extends Controller
     }
     public function indexByStatus()
     {
-        // $data = DB::table('client as c')
-        //     ->select(
-        //         'c.*',
-        //         'cs.status',
-        //         'p.name_pic',
-        //         'i.issue',
-        //         'u.name',
-        //         DB::raw("DATE_FORMAT(MAX(a.date), '%d-%m-%Y') as date"),
-        //         DB::raw("DATE_FORMAT(MAX(a.follow_up), '%d-%m-%Y') as follow_up"),
-        //         DB::raw("MAX(a.note) as note")
-        //     )
-        //     ->join('crm_status as cs', 'cs.id_client', '=', 'c.id')
-        //     ->join('issues as i', 'c.id_issues', '=', 'i.id')
-        //     ->join('users as u', 'c.id_sales', '=', 'u.id')
-        //     ->leftJoin('pic as p', 'c.id', '=', 'p.id_client')
-        //     ->leftJoin('activities as a', 'a.id_client', '=', 'c.id')
-        //     ->where('c.role', 'Customers')
-        //     ->where('u.id', Auth::user()->id)
-        //     ->where('cs.status', 1)
-        //     ->groupBy('c.id')
-        //     ->orderByDesc('c.id')
-        //     ->get();
-        // dd($data);
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         // Comment Buat Admin
@@ -510,7 +487,7 @@ class CrmController extends Controller
             'phone' =>
                 'required',
 
-            'web' =>
+            'unit' =>
                 'required',
 
             'source' =>
@@ -534,7 +511,7 @@ class CrmController extends Controller
             'email.required' => 'Field Email Wajib Diisi',
             'phone.required' => 'Field Phone Wajib Diisi',
             'ru.required' => 'Wajib Pilih Reseller atau User',
-            'web.required' => 'Field Web Wajib Diisi',
+            'unit.required' => 'Field unit Wajib Diisi',
             'source.required' => 'Field Source Wajib Diisi',
             'mobile.required' => 'Field Mobile Wajib Diisi',
             'address.required' => 'Field Address Wajib Diisi',
@@ -549,7 +526,7 @@ class CrmController extends Controller
         $existings->email = $request->email;
         $existings->phone = $request->phone;
         $existings->ru = $request->ru;
-        $existings->web = $request->web;
+        $existings->unit = $request->unit;
         $existings->source = $request->source;
         $existings->npwp = $request->npwp;
         $existings->mobile = $request->mobile;

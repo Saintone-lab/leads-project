@@ -277,6 +277,10 @@
                         href="{{ route('purchase.show_print', $purchase->id) }}">
                         Download
                     </a>
+                    <a class="btn btn-label-info d-grid w-100 mb-3 waves-effect"
+                        href="{{ route('purchase.edit', $purchase->id) }}">
+                        Edit
+                    </a>
                     <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-purchase mb-3"
                         data-id="{{ $purchase->id }}">Delete</a>
                     <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">

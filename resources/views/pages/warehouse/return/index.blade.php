@@ -7,6 +7,24 @@
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
             <table
+                class="datatable-sales-completed-retur table table-striped">
+                <thead>
+                    <tr>
+                        <th>No Return</th>
+                        {{-- <th>No PO</th> --}}
+                        <th>Company</th>
+                        <th>Status</th>
+                        <th>Sales</th>
+                        <th>Date PO</th>
+                        <th>Date Return</th>
+                    </tr>   
+                </thead>
+            </table>
+        </div>
+    </div>
+    {{-- <div class="card mb-3">
+        <div class="card-datatable table-responsive pt-0">
+            <table
                 class="datatable-request-return table table-striped">
                 <thead>
                     <tr>
@@ -44,7 +62,7 @@
                 </thead>
             </table>
         </div>
-    </div>
+    </div> --}}
 @endsection()
 
 @push('after-style')
@@ -69,6 +87,6 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-request-return.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-return.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-search-retur.js"></script>
+    {{-- <script src="{{ asset('assets') }}/includes/table-return.js"></script> --}}
 @endpush

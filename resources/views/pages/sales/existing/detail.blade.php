@@ -63,6 +63,14 @@
                     </div>
                     <div class="row mb-1">
                         <div class="col-3">
+                            unit
+                        </div>
+                        <div class="col-9">
+                            : {{ $existing->unit }}
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-3">
                             Mobile
                         </div>
                         <div class="col-9">
@@ -119,7 +127,8 @@
             {{-- @foreach ($charge as $pic) --}}
             <div class="card mb-2">
                 <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-pic-client{{ Auth::user()->role == "Sales" ? '-sales' : '' }} table table-striped">
+                    <table
+                        class="datatable-pic-client{{ Auth::user()->role == 'Sales' ? '-sales' : '' }} table table-striped">
                         <thead>
                             <tr>
                                 <th></th>
@@ -296,11 +305,24 @@
                             + Request Visit
                         </button>
                     </a>
-                    <a type="button" data-bs-toggle="modal" data-bs-target="#createAction{{ $existing->id }}">
-                        <button type="button" class="btn btn-primary">
-                            + New Action
-                        </button>
-                    </a>
+
+                    @php
+                        $emailPic = 0;
+                    @endphp
+
+                    @foreach ($charge as $pic)
+                        @php
+                            if ($pic->email_pic != null && $pic->email_pic != '-') {
+                                $emailPic++;
+                            }
+                        @endphp
+                    @endforeach
+
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#createAction{{ $existing->id }}"
+                        @if ($emailPic <= 0 || $existing->unit == null || $existing->unit == '-') disabled @endif>
+                        + New Action
+                    </button>
                 </div>
             @endif
         </div>

@@ -4,12 +4,13 @@
     @php
         $no = 0;
     @endphp
-    <form action="{{ route('product-in.invoicing', $productIn->id) }}" method="post" enctype="multipart/form-data">
+    <form action="{{ route('product-in.return-store', $id) }}" method="post" enctype="multipart/form-data">
         @csrf
-        <h5>Edit Barang Masuk <span class="fw-bolder fs-4">{{ $productIn->no_do }}</span></h5>
+        <h5>Return Barang Masuk <span class="fw-bolder fs-4">{{ $return->no_return }}</span></h5>
         <div class="form-floating mb-3">
             <input type="text" class="form-control form-control-lg fw-bold fs-3" id="floatingInputFilled"
-                placeholder="xxx/xx/xx/xxxx xxxx" aria-describedby="floatingInputFilledHelp" name="invoice">
+                placeholder="xxx/xx/xx/xxxx xxxx" aria-describedby="floatingInputFilledHelp" name="invoice"
+                value="{{ $return->no_return }}">
             <label for="floatingInputFilled">No Invoice</label>
             <span class="form-floating-focused"></span>
         </div>
@@ -33,14 +34,14 @@
                                     <option selected>Pilih Supplier...</option>
                                     @foreach ($suppliers as $supp)
                                         <option value="{{ $supp->id }}" data-info="{{ $supp->info }}"
-                                            {{ $supp->id == $productIn->id_supplier ? 'selected' : '' }}>
+                                            {{ $supp->id == @$productIn->id_supplier ? 'selected' : '' }}>
                                             {{ $supp->supplier }}
                                         </option>
                                     @endforeach
                                 </select>
                                 <label for="supplier-dropdown">Supplier</label>
                             </div>
-                            <div class="text-muted">{{ $productIn->supplier }}</div>
+                            <div class="text-muted">{{ @$productIn->supplier ?? '' }}</div>
                             {{-- bekas --}}
                             {{-- <div class="form-floating form-floating-outline mb-4">
                                 <input class="form-control" type="text" placeholder="Put Supplier Quotation Here ...."
@@ -54,7 +55,8 @@
                             <div class="form-floating form-floating-outline mb-4">
                                 <select class="form-select invoice-item-info" id="info-dropdown" name="info"
                                     aria-label="Default select example" disabled>
-                                    <option selected disabled>{{ $productIn->supp->info ?? 'Pilih Supplier Dulu' }}</option>
+                                    <option selected disabled>{{ @$productIn->supp->info ?? 'Pilih Supplier Dulu' }}
+                                    </option>
                                 </select>
                                 <label for="info-dropdown">Supplier Info</label>
                             </div>
@@ -63,9 +65,9 @@
                             <div class="form-floating form-floating-outline mb-4">
                                 <input class="form-control" type="date" id="Date" name="date"
                                     {{-- {{ @$productIn->date ? '' : '_label' }}  naikin nanti --}}
-                                    value="{{ old('date', @$productIn->date ?? now()->format('Y-m-d')) }}"
+                                    value="{{ old('date', @$return->date ?? now()->format('Y-m-d')) }}"
                                     {{-- {{ @$productIn->date ? '' : 'disabled' }} --}}>
-                                @if (empty($productIn->date))
+                                @if (empty($return->date))
                                     <input type="date" name="estimated_date" id=""
                                         value="{{ now()->format('Y-m-d') }}" hidden>
                                 @endif
@@ -76,7 +78,7 @@
                             <div class="form-floating form-floating-outline mb-4">
                                 <input class="form-control" type="date" id="Date" name="date"
                                     {{-- {{ @$productIn->date ? '' : '_label' }}  naikin nanti --}}
-                                    value="{{ old('date', @$productIn->date ?? now()->format('Y-m-d')) }}"
+                                    value="{{ old('date', @$return->date ?? now()->format('Y-m-d')) }}"
                                     {{-- {{ @$productIn->date ? '' : 'disabled' }} --}} {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
                                 <label for="Date">Date Invoice</label>
                             </div>
@@ -89,7 +91,10 @@
                         </div>
                     </div>
                     <div class="mb-3" data-repeater-list="group-a">
-                        @foreach ($dProductIn as $product)
+                        @php
+                            $subtotal = 0;
+                        @endphp
+                        @foreach ($dReturn as $product)
                             @php
                                 $no++;
                             @endphp
@@ -104,12 +109,12 @@
                                                     data-allow-clear="true" name="replacement[]"
                                                     data-id="{{ $product->id }}" disabled>
                                                     <option selected>
-                                                        {{ $product->detailProduct->product->description }}
-                                                        {{ $product->detailProduct->product->commodity }}
-                                                        ({{ $product->detailProduct->product->detail_desc }})
+                                                        {{ $product->replacement->product->description }}
+                                                        {{ $product->replacement->product->commodity }}
+                                                        ({{ $product->replacement->product->detail_desc }})
                                                         ||
-                                                        {{ $product->detailProduct->replacement }} -
-                                                        {{ $product->detailProduct->product->go == 'Genuine' ? 'G' : 'R' }}
+                                                        {{ $product->replacement->replacement }} -
+                                                        {{ $product->replacement->product->go == 'Genuine' ? 'G' : 'R' }}
                                                     </option>
                                                 </select>
                                                 <label for="replacement-dropdown">Commodity || Replacement</label>
@@ -126,10 +131,15 @@
                                             <p class="mb-2 repeater-title">warehouse</p>
                                             <div class="form-floating form-floating-outline mb-4">
                                                 <select class="form-select invoice-item-warehouse" id="warehouse-1"
-                                                    data-id="1" aria-label="Default select example" name="warehouse[]"
-                                                    disabled>
-                                                    <option selected> {{ $product->warehouse }} </option>
+                                                    data-id="1" aria-label="Default select example" disabled>
+                                                    <option selected>
+                                                        {{ $product->return->pending->product_out->detail[$no - 1]->warehouse }}
+                                                    </option>
                                                 </select>
+                                                <input class="form-control" type="text"
+                                                    name="warehouse[]"
+                                                    value="{{ $product->return->pending->product_out->detail[$no - 1]->warehouse }}"
+                                                    hidden>
                                             </div>
                                         </div>
                                         <div class="col-md-2 col-12 mb-md-0 mb-3">
@@ -140,10 +150,12 @@
                                                     id="price-label" data-id="{{ $no }}" min="0"
                                                     placeholder="Put Price Here" data-type="currency"
                                                     pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                                    @blur="focused = false" value="{{ old('price[]') }}">
+                                                    @blur="focused = false"
+                                                    value="{{ number_format($product->return->pending->product_out->detail[$no - 1]->price, 0, ',', '.') }}">
                                                 <input class="form-control invoice-item-price" type="number"
                                                     name="price[]" id="price-{{ $no }}"
-                                                    value="{{ old('price[]') }}" hidden>
+                                                    value="{{ $product->return->pending->product_out->detail[$no - 1]->price }}"
+                                                    hidden>
                                             </div>
                                         </div>
                                         <div class="col-md-2 col-12 mb-md-0 mb-3">
@@ -165,11 +177,13 @@
                                             <p class="mb-2 repeater-title">Amount</p>
                                             <p class="mb-0 amount-label" id="amount-label-{{ $no }}"
                                                 data-id="{{ $no }}">
-                                                {{ old(strval('amount[]')) }}</p>
+                                                {{ number_format($product->return->pending->product_out->detail[$no - 1]->price * $product->qty, 0, ',', '.') }}
+                                            </p>
                                             <input type="number" class="form-control invoice-item-amount"
                                                 name="amount[]" id="amount-{{ $no }}"
                                                 data-id="{{ $no }}" min="0"
-                                                value="{{ old('amount[]') }}" hidden>
+                                                value="{{ $product->return->pending->product_out->detail[$no - 1]->price * $product->qty }}"
+                                                hidden>
                                         </div>
                                     </div>
                                     <div
@@ -179,16 +193,20 @@
                                     </div>
                                 </div>
                             </div>
+                            @php
+                                $subtotal +=
+                                    $product->return->pending->product_out->detail[$no - 1]->price * $product->qty;
+                            @endphp
                         @endforeach
                     </div>
-                    <div class="row mb-3">
+                    {{-- <div class="row mb-3">
                         <div class="col-12 mb-2">
                             <button type="button" class="btn btn-sm btn-primary waves-effect waves-light btn-add"
                                 data-repeater-create="">
                                 <i class="mdi mdi-plus me-1"></i> Add Item
                             </button>
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="row mb-1">
                         <div class="col-lg-8"></div>
                         <div class="col-lg-4 col-12">
@@ -198,12 +216,12 @@
                             <div class="input-group" data-subtotal="1">
                                 <span class="input-group-text">Rp. </span>
                                 <p class="form-control invoice-item-subtotal-label h-px-25 mb-0" id="subtotal-label">
-                                    Subtotal
-                                    Here </p>
+                                    {{ number_format($subtotal, 0, ',', '.') }}
+                                </p>
                                 <input class="form-control invoice-item-subtotal" type="number" name="subtotal"
-                                    id="subtotal" value="{{ old('subtotal') }}" hidden>
+                                    id="subtotal" value="{{ $subtotal }}" hidden>
                                 <input class="form-control invoice-item-total-no-tax" type="number" name="total_no_tax"
-                                    id="totalNoTax" value="{{ old('total_no_tax') }}" hidden>
+                                    id="totalNoTax" value="{{ $subtotal }}" hidden>
                             </div>
                         </div>
                     </div>
@@ -216,7 +234,7 @@
                             <div class="input-group" data-total-disc="1">
                                 <span class="input-group-text">Rp. </span>
                                 <p class="form-control invoice-item-total-disc-label h-px-25 mb-0" id="total-disc-label">
-                                    Total Discount Here </p>
+                                    0 </p>
                                 <input class="form-control invoice-item-total-disc" type="number" name="total-disc"
                                     id="total-disc" value="{{ old('total-disc') }}" hidden>
                             </div>
@@ -233,9 +251,9 @@
                                 <input type="text" class="form-control invoice-item-shipping-label"
                                     id="shipping-label" data-id="1" min="0" placeholder="Put shipping Here"
                                     data-type="currency" pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                    @blur="focused = false" value="{{ old('shipping') }}">
+                                    @blur="focused = false" value="{{ number_format(0, 0, ',', '.') }}">
                                 <input class="form-control invoice-item-shipping" type="number" name="shipping"
-                                    id="shipping" value="{{ old('shipping') }}" hidden>
+                                    id="shipping" value="0" hidden>
                             </div>
                         </div>
                     </div>
@@ -262,11 +280,12 @@
                                 Total Price
                             </h5>
                             <div class="input-group" data-total="1">
-                                <span class="input-group-text">Rp. </span>
-                                <p class="form-control invoice-item-total-label h-px-25 mb-0" id="total-label"> Total
-                                    Price Here </p>
+                                <span class="input-group-text">Rp.
+                                </span>
+                                <p class="form-control invoice-item-total-label h-px-25 mb-0" id="total-label">
+                                    {{ number_format($subtotal, 0, ',', '.') }} </p>
                                 <input class="form-control invoice-item-total" type="number" name="total"
-                                    id="total" value="{{ old('total') }}" hidden>
+                                    id="total" value="{{ $subtotal }}" hidden>
                             </div>
                         </div>
                     </div>

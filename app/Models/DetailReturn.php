@@ -9,21 +9,22 @@ class DetailReturn extends Model
 {
     protected $table = "detail_return";
     protected $fillable = [
-        'id_return',
-        'id_pn',
+        'id_retur',
+        'id_replacement',
         'qty',
-        'price',
-        'amount',
+        // 'price',
+        // 'amount',
         'note',
+        'status',
     ];
 
     
     public function return()
     {
-        return $this->belongsTo('App\Models\ReturnQ', 'id_return', 'id');
+        return $this->belongsTo('App\Models\Retur', 'id_retur', 'id');
     }
-    public function equivalent()
+    public function replacement()
     {
-        return $this->belongsTo('App\Models\SerialProduct', 'id_pn', 'id');
+        return $this->belongsTo('App\Models\DetailProduct', 'id_replacement', 'id');
     }
 }

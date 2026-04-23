@@ -8,6 +8,7 @@ use App\Models\DetailPendingPO;
 use App\Models\DetailProduct;
 use App\Models\DetailProductOut;
 use App\Models\DetailQuotation;
+use App\Models\DetailReturn;
 use App\Models\DetailServiceQuotation;
 use App\Models\Expanse;
 use App\Models\Invoice;
@@ -705,6 +706,13 @@ class PendingController extends Controller
         $pending = PendingPO::find($id);
         $quote = Quotation::find($pending->id_quotation);
         // dd($pending);
+        $return = new Retur();
+        $return->id_pending = $id; 
+        $return->no_return = $request->no_return; 
+        $return->status = 0; 
+        $return->date = Carbon::now();
+        $returnSave = $return->save();
+
         $pending->status = '8';
         $pending->save();
         $productOut = ProductOut::find($pending->id_product_out);
@@ -713,14 +721,14 @@ class PendingController extends Controller
             if ($value != 0) {
                 $dproduct = DetailProduct::find($detProduct[$key]->id_detail_product);
                 $product = Product::find($dproduct->id_product);
-                $return = new Retur();
-                $return->id_pending = $id;
-                $return->id_replacement = $detProduct[$key]->id_detail_product;
-                $return->qty = $value;
-                $return->note = $request->note[$key] ?? '-';
-                $return->status = 0;
-                $return->date = Carbon::today();
-                $returnSave = $return->save();
+                $detReturn = new DetailReturn();
+                $detReturn->id_retur = $return->id;
+                $detReturn->id_replacement = $detProduct[$key]->id_detail_product;
+                $detReturn->qty = $value;
+                $detReturn->note = $request->note[$key] ?? '-';
+                $detReturn->status = 0;
+                $detReturn->date = Carbon::today();
+                $detReturnSave = $detReturn->save();
                 // -- Stock
                 $dproduct->stock += $value;
                 $product->stock += $value;
@@ -728,7 +736,7 @@ class PendingController extends Controller
                 $product->save();
             }
         }
-        if ($returnSave) {
+        if ($detReturnSave && $returnSave) {
             return redirect()->back()->with('success', 'Data Return Telah Ditambahkan');
         }
     }

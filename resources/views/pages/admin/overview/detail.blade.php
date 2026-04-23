@@ -76,7 +76,7 @@
                                         </div>
                                     </a>
                                     <div class="card-info">
-                                        <h5 class="mb-0">{{ $quoteSemester }} 
+                                        <h5 class="mb-0">{{ $quoteSemester }}
                                             {{-- / <span
                                                 class="fw-lighter fs-tiny">{{ $target->quote ? $target->quote * 6 : '0' }}
                                             </span>
@@ -198,8 +198,8 @@
 
                                 <p class="fw-medium fs-normal">Percentage On Quotation</p>
                                 @php
-                                    $percentPO = ($POSemester * 100) / $quoteSemester;
-                                    $percentLoss = ($lossSemester * 100) / $quoteSemester;
+                                    $percentPO = $quoteSemester ? ($POSemester * 100) / $quoteSemester : 0;
+                                    $percentLoss = $quoteSemester ? ($lossSemester * 100) / $quoteSemester : 0;
                                 @endphp
                                 <div class="d-flex mb-2 gap-2">
                                     <a href="#po">
@@ -282,8 +282,12 @@
                                 </div>
                                 <p class="fw-medium fs-normal">Percentage Per Quotation</p>
                                 @php
-                                    $percentPO = ($POSemesterProspect * 100) / $quoteSemesterProspect;
-                                    $percentLoss = ($lossSemesterProspect * 100) / $quoteSemesterProspect;
+                                    $percentPO = $quoteSemesterProspect
+                                        ? ($POSemester * 100) / $quoteSemesterProspect
+                                        : 0;
+                                    $percentLoss = $quoteSemesterProspect
+                                        ? ($lossSemester * 100) / $quoteSemesterProspect
+                                        : 0;
                                 @endphp
                                 <div class="d-flex mb-2 gap-2">
                                     <a href="#po">

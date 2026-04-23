@@ -13,6 +13,13 @@
                     <div class="onboarding-content mb-0">
                         <h4 class="onboarding-title text-body"> Return Barang </h4>
                         <form>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control form-control-lg fw-bold fs-3"
+                                    id="floatingInputFilled" placeholder="xxx/xx/xx/xxxx xxxx"
+                                    aria-describedby="floatingInputFilledHelp" name="no_return">
+                                <label for="floatingInputFilled">No Return</label>
+                                <span class="form-floating-focused"></span>
+                            </div>
                             <div class="card">
                                 <div class="table-responsive text-nowrap h-100">
                                     <table class="table table-striped">

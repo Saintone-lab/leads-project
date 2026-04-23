@@ -34,6 +34,10 @@ class PendingPO extends Model
     {
         return $this->hasMany('App\Models\PurchaseRequest', 'id_pending');
     }
+    public function return()
+    {
+        return $this->hasMany('App\Models\Retur', 'id_pending');
+    }
     public function expanse()
     {
         return $this->belongsTo('App\Models\Expanse', 'id_pending', 'id');

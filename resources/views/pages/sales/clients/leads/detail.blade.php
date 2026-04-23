@@ -65,6 +65,14 @@
                     </div>
                     <div class="row mb-1">
                         <div class="col-3">
+                            Unit
+                        </div>
+                        <div class="col-9">
+                            : {{ $leads->unit }}
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-3">
                             Mobile
                         </div>
                         <div class="col-9">
@@ -122,7 +130,8 @@
             {{-- @foreach ($charge as $pic) --}}
             <div class="card mb-2">
                 <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-pic-client{{ Auth::user()->role == "Sales" ? '-sales' : '' }} table table-striped">
+                    <table
+                        class="datatable-pic-client{{ Auth::user()->role == 'Sales' ? '-sales' : '' }} table table-striped">
                         <thead>
                             <tr>
                                 <th></th>
@@ -195,11 +204,22 @@
                 <h5 class="fw-bold pb-1 mb-2">
                     Daily Call History
                 </h5>
-                <a type="button" data-bs-toggle="modal" data-bs-target="#createAction{{ $leads->id }}">
-                    <button type="button" class="btn btn-primary">
-                        + New Action
-                    </button>
-                </a>
+                @php
+                    $emailPic = 0;
+                @endphp
+
+                @foreach ($charge as $pic)
+                    @php
+                        if ($pic->email_pic != null && $pic->email_pic != '-') {
+                            $emailPic++;
+                        }
+                    @endphp
+                @endforeach
+
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#createAction{{ $leads->id }}" @if ($emailPic <= 0 || $leads->unit == null || $leads->unit == '-') disabled @endif>
+                    + New Action
+                </button>
             </div>
             <div class="card">
                 <div class="card-datatable table-responsive pt-0">
@@ -438,6 +458,7 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-crm-history.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-machine-client.js"></script>
     <script src="{{ asset('assets') }}/includes/table-quotation-leads.js"></script>
     <script src="{{ asset('assets') }}/includes/table-pic-client.js"></script>
     <script src="{{ asset('assets') }}/includes/table-pic-client-sales.js"></script>

@@ -601,9 +601,10 @@
                         <thead>
                             <tr>
                                 <th>Item</th>
-                                <th>Desc</th>
-                                <th>Qty</th>
-                                <th>Note</th>
+                                <th>No Return</th>
+                                <th>No Do</th>
+                                <th>Date</th>
+                                <th>Date Done</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -613,17 +614,19 @@
                                 <tr style="font-size: 13px">
                                     <td class="align-top">{{ $no }}</td>
                                     <td class="text-nowrap align-top">
-                                        <p class="mb-0 fw-semibold" style="font-size: 12px">
-                                            {{ $retur->replacement->replacement }}
+                                        <a href="{{ route('return.show', $retur->id) }}" class="mb-0 text-dark fw-semibold">
+                                            {{ $retur->no_return }}
+                                        </a>
+                                    </td>
+                                    <td class="text-nowrap align-top">
+                                        <p class="mb-0">
+                                            {{ $retur->product_in->no_do ?? 'Belum Ada Product In' }}
                                         </p>
-                                        <pre class="mb-0" style="font-size: 10px; white-space: pre-wrap;">
-{{ $retur->replacement->product->description }}
-                                </pre>
                                     </td>
                                     <td class="align-top">
-                                        {{ $retur->qty }} {{ $retur->replacement->product->unit }}
+                                        {{ $retur->date }}
                                     </td>
-                                    <td class="align-top">{{ $retur->note }}</td>
+                                    <td class="align-top">{{ $retur->date_done ?? '-' }}</td>
                                 </tr>
                             @empty
                                 <tr>

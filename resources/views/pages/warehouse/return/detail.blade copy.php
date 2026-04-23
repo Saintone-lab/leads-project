@@ -35,10 +35,12 @@
                         <div class="col-4 col-lg-2 fw-medium">
                             <p class="mb-1">Client </p>
                             <p class="mb-1">Sales </p>
+                            <p class="mb-1">Note</p>
                         </div>
                         <div class="col-8">
                             <p class="mb-1">: {{ $quote->pic->client->company }} - {{ $quote->pic->name_pic }}</p>
                             <p class="mb-1">: {{ $quote->sales->name }}</p>
+                            <p class="mb-1">: {{ $return->note }}</p>
                         </div>
                     </div>
                 </div>
@@ -49,8 +51,7 @@
                                 <th>No.</th>
                                 <th>Item</th>
                                 <th>Qty</th>
-                                <th>note</th>
-                                <th>Action</th>
+                                <th>Price</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -65,36 +66,31 @@
                                     <td class="align-top">{{ $no }}</td>
                                     <td class="text-nowrap align-top">
                                         <p class="mb-0 fw-semibold" style="font-size: 12px">
-                                            {{ $product->replacement->replacement }}
+                                            {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
                                         </p>
                                         <pre class="mb-0"
-                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->replacement->product->description }}</pre>
+                                            style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
                                     </td>
-                                    <td class="align-top">{{ $product->qty }}
+                                    <td class="align-top">{{ $product->qty }} {{ $product->info_qty }}
                                     </td>
-                                    <td class="align-top">{{ $product->note }}
-                                    </td>
-                                    <td class="align-top">
-                                        @if ($return->status == 0)
-                                            @if ($product->status == 0)
-                                                <a href="#"
-                                                    class="btn btn-primary d-grid w-100 waves-effect accept-return mb-3"
-                                                    data-id="{{ $product->id }}" data-return="{{ $return->id }}">
-                                                    Accept
-                                                </a>
-                                            @else
-                                                Accepted
-                                            @endif
-                                        @else
-                                            @if ($product->status == 0)
-                                                Not Accepted
-                                            @else
-                                                Done
-                                            @endif
-                                        @endif
-                                    </td>
+                                    <td class="align-top">RP {{ number_format($product->price, 0, '', '.') }}</td>
                                 </tr>
                             @endforeach
+                            <tr style="font-size: 13px">
+                                <td colspan="2" style="border:none;"></td>
+                                <td>Subtotal</td>
+                                <td>: RP {{ number_format($return->subtotal, 0, '', '.') }}</td>
+                            </tr>
+                            <tr style="font-size: 13px">
+                                <td colspan="2" style="border:none;"></td>
+                                <td>Tax {{ $return->tax == '11' ? '11%' : '' }}</td>
+                                <td>: RP {{ number_format($tax, 0, '', '.') }}</td>
+                            </tr>
+                            <tr style="font-size: 13px">
+                                <td colspan="2" style="border:none;"></td>
+                                <td style="border:none;">Total</td>
+                                <td style="border:none;">: RP {{ number_format($return->total, 0, '', '.') }}</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -103,21 +99,18 @@
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
-            <div class="card">
-                <div class="card-body">
-                    @if ($return->status == 0)
-                        <a class="btn btn-primary d-grid w-100 mb-3 waves-effect"
-                            href="{{ route('product-in.return', $return->id) }}">
-                            Cetak Product In
+            @if ($return->lvl == '0')
+                <div class="card">
+                    <div class="card-body">
+                        <a href="#" class="btn btn-primary d-grid w-100 waves-effect accept-return mb-3"
+                            data-id="{{ $return->id }}">
+                            Accept
                         </a>
-                        <a href="#" class="btn btn-outline-danger d-grid w-100 mb-3 waves-effect delete-invoice"
+                        <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-invoice"
                             data-id="{{ $return->id }}">Delete</a>
-                    @endif
-                    <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">
-                        Back
-                    </button>
+                    </div>
                 </div>
-            </div>
+            @endif
         </div>
         {{-- End : Button Invoice --}}
     </div>
@@ -140,9 +133,6 @@
             return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
         }
 
-        $('#backButton').click(function() {
-            window.history.back();
-        });
 
         $(".invoice-item-modal-label").on('keyup', function() {
             var input = $(this)
@@ -168,7 +158,6 @@
 
         $(document).on('click', '.accept-return', function() {
             var id = $(this).data('id');
-            var idreturn = $(this).data('return');
             Swal.fire({
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
@@ -200,7 +189,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/return/' + idreturn;
+                                    window.location.href = '/return/' + id;
                                 }, 2000);
                             } else {
                                 Swal.fire({

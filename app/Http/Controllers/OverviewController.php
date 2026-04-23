@@ -318,6 +318,7 @@ class OverviewController extends Controller
         // dd($totalLossSemesterProspect
 
         // data all month
+        // dd($sales);
         $getDC = $this->getMonthlyDataDCSales($report->semester, $report->year, $sales);
         $cardDC = $this->cardMonthlyDCSales($report->semester, $report->year, $sales);
         $getCRM = $this->getMonthlyDataCRMSales($report->semester, $report->year, $sales);
@@ -2190,7 +2191,14 @@ class OverviewController extends Controller
             $firstDayOfLastMonth = "{$year}-06-01";
             $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfLastMonth));
 
-            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(nett) as total'));
+            $dCallPerMonth = Quotation::select(DB::raw('CONCAT(YEAR(po_date), "-", MONTH(po_date)) as date'), DB::raw('month(po_date) as month'), DB::raw('SUM(nett) as total'))
+                ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+                ->where('id_support', $sales)
+                ->where('level', '1')->where('is_primary', '1')
+                ->where('status', '100')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('total', 'month');
 
             $fullMonthData = [];
             for ($month = 1; $month <= 6; $month++) {

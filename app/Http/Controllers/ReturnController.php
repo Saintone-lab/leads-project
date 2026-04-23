@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DetailQuotation;
 use App\Models\DetailReturn;
 use App\Models\Invoice;
+use App\Models\PendingPO;
 use App\Models\Quotation;
 use App\Models\ReturnQ;
 use App\Models\SerialProduct;
@@ -52,12 +53,13 @@ class ReturnController extends Controller
     public function show($id)
     {
         $return = ReturnQ::find($id);
-        $dReturn = DetailReturn::where('id_return', $id)->get();
-        $quote = Quotation::where('id', $return->id_quotation)->first();
-        $tax = $return->subtotal * $return->tax / 100;
-        // dd($quote);
-        $dQuote = DetailQuotation::where('id_quotation', $return->id_quotation)->get();
-        return view('pages.warehouse.return.detail', compact('return', 'quote', 'dQuote', 'dReturn', 'tax'));
+        $dReturn = DetailReturn::where('id_retur', $id)->get();
+        $pending = PendingPO::find($return->id_pending);
+        $quote = Quotation::find($pending->id_quotation);
+        // $tax = $return->subtotal * $return->tax / 100;
+        // dd($pending);
+        // $dQuote = DetailQuotation::where('id_quotation', $return->id_quotation)->get();
+        return view('pages.warehouse.return.detail', compact('return', 'dReturn', 'pending', 'quote'));
     }
 
     /**
@@ -155,6 +157,18 @@ class ReturnController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function accept($id)
+    {
+        $dReturn = DetailReturn::find($id);
+        $dReturn->status = 1;
+        $returnSave = $dReturn->save();
+        if ($returnSave) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     public function accept_return($id)

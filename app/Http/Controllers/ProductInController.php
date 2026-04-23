@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DetailProduct;
 use App\Models\DetailProductIn;
+use App\Models\DetailReturn;
 use App\Models\Product;
 use App\Models\ProductIn;
 use App\Models\Prospect;
@@ -143,6 +144,14 @@ class ProductInController extends Controller
         return view('pages.warehouse.product-in.invoicing', compact('suppliers', 'productIn', 'dProductIn'));
     }
 
+    public function edit_return($id)
+    {
+        $return = Retur::find($id);
+        $dReturn = DetailReturn::where('id_retur', $id)->where('status', 1)->get();
+        $suppliers = Supplier::all();
+        // dd($dReturn[0]->return);
+        return view('pages.warehouse.product-in.return', compact('suppliers', 'return', 'dReturn','id'));
+    }
     /**
      * Update the specified resource in storage.
      *
@@ -322,6 +331,60 @@ class ProductInController extends Controller
             return redirect('/product-in')->with('message', 'data telah di tambahkan');
         }
     }
+    public function return_in(Request $request, $id)
+    {
+        $return = Retur::find($id);
+        $dReturn = DetailReturn::where('id_retur', $id)->where('status', 1)->get();
+        // dd($request->all());
+        $rule = [
+            'invoice' => 'required',
+            // 'suplier' => 'required',
+            // 'date_invoice' => 'required',
+            'note' => 'required',
+        ];
+        $message = [
+            'invoice.required' => 'Field No Invoice Wajib Diisi',
+            // 'suplier.required' => 'Field Suplier Wajib Diisi',
+            // 'date_invoice.required' => 'Field Date Wajib Diisi',
+            'note.required' => 'Field Note Wajib Diisi',
+        ];
+        $this->validate($request, $rule, $message);
+        // dd($request->all());
+        // Masukan Data ke Tabel Quotataiona
+        $productIn = new ProductIn();
+        $productIn->invoice = $request->invoice;
+        $productIn->id_supplier = $request->supplier;
+        // $productIn->supplier = $request->suplier;
+        $productIn->date_invoice = $request->date_invoice;
+        $productIn->date = Carbon::now();
+        $productIn->subtotal = $request->subtotal;
+        $productIn->total_no_tax = $request->total_no_tax;
+        $productIn->tax = $request->tax;
+        $productIn->note = $request->note;
+        $productIn->shipping = $request->shipping;
+        $productIn->total = $request->total;
+        $productInSave = $productIn->save();
+        if ($productInSave) {
+            // Masukan Data Ke Tabel Detail Quotataion
+            foreach ($dReturn as $item => $value) {
+                $dproductIn = new DetailProductIn();
+                $dproductIn->id_product_in = $productIn->id;
+                $dproductIn->id_detail_product = $value->id_replacement;
+                $dproductIn->qty = $value->qty;
+                $dproductIn->warehouse = $request->warehouse[$item];
+                $dproductIn->modal = $request->price[$item];
+                $dproductIn->amount = $request->amount[$item];
+                $dproductIn->disc = $request->disc[$item];
+                $dProductSave = $dproductIn->save();
+            }
+        }
+        $return->status = 1;
+        $return->save();
+        if ($dProductSave) {
+            return redirect('/return/'. $id)->with('message', 'data telah di tambahkan');
+        }
+    }
+
 
     public function productIn_print($id)
     {

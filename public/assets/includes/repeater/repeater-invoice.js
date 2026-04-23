@@ -58,7 +58,7 @@ $(function(){
                     $(amount[i]).attr("id", idAmount);
                     $(amountLabel[i]).attr("id", idAmountLabel);
                     $(amount[i]).val('');
-                    $(amountLabel[i]).val('');
+                    $(amountLabel[i]).html('');
                     $(amount[i]).attr("data-id", row);
                     $(del[i]).attr("data-id", row);
                     $(stock[i]).attr("id", idStock);

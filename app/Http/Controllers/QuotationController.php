@@ -7,6 +7,7 @@ use App\Models\ChangeStatus;
 use App\Models\Client;
 use App\Models\Comment;
 use App\Models\Contract;
+use App\Models\CrmStatus;
 use App\Models\Delivery;
 use App\Models\DetailDelivery;
 use App\Models\DetailPendingPO;
@@ -1011,10 +1012,16 @@ class QuotationController extends Controller
             $action->note = 'Done PO';
             $activitiesSave = $action->save();
 
-            $client->id_issues = '5';
-            $client->role = 'Customers';
-            $isuSave = $client->save();
+            if ($client->id_issues != "5") {
+                $client->id_issues = '5';
+                $client->role = 'Customers';
+                $isuSave = $client->save();
 
+                $status = new CrmStatus();
+                $status->id_client = $id;
+                $status->status = 2;
+                $statSave = $status->save();
+            }
             // foreach ($detQuote as $item) {
             //     $product = Product::join('serial_product as sp', 'sp.id', '=', 'product.id')->where('sp.id', $item->id_equivalent)->select('product.*')->first();
             //     $product->stock -= $item->qty;
@@ -1265,6 +1272,10 @@ class QuotationController extends Controller
             $client->id_issues = '5';
             $client->role = 'Customers';
             $client->save();
+            $status = new CrmStatus();
+            $status->id_client = $id;
+            $status->status = 2;
+            $statSave = $status->save();
         }
         $stats = new ChangeStatus;
         $stats->id_quotation = $quotation->primary_id;
@@ -1358,6 +1369,43 @@ class QuotationController extends Controller
         }
 
         $quoteSave = $quote->save();
+        if ($quoteSave) {
+            if ($quote->type == 'Sparepart') {
+                return redirect('/quotation/' . $id)->with("success", "data telah ditambahkan");
+            } else {
+                return redirect('/quote/service-show/' . $id)->with("success", "data telah ditambahkan");
+            }
+        } else {
+            return redirect()->back()->with('error', 'Failed to save quotation');
+        }
+    }
+    public function insert_fee_service(Request $request, $id)
+    {
+        $quote = Quotation::find($id);
+        if (!$quote) {
+            return redirect()->back()->with('error', 'Quotation not found');
+        }
+        $subtotal = $quote->subtotal;
+
+        // $dQuotes = SubtitleQuotation::where('id_quotation', $id)->get();
+        $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $id)->get();
+
+        $quote->fee = $request->total;
+        $quote->nett = $subtotal - $request->total;
+
+        $row = 0;
+        foreach ($request->fee as $detailId => $fee) {
+            if (isset($fee)) {
+                $item = DetailServiceQuotation::find($detailId);
+                if ($item) {
+                    $item->fee = $fee;
+                    $item->save();
+                }
+            }
+        }
+
+        $quoteSave = $quote->save();
+
         if ($quoteSave) {
             if ($quote->type == 'Sparepart') {
                 return redirect('/quotation/' . $id)->with("success", "data telah ditambahkan");

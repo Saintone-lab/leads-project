@@ -75,6 +75,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
 use App\Models\Quotation;
 use App\Models\Reports;
+use App\Models\Retur;
 use App\Models\ReturnQ;
 use App\Models\SalesReports;
 use App\Models\SerialProduct;
@@ -175,6 +176,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/quotation/{id}/download_po', [QuotationController::class, 'download_po'])->name('download-po.quotation');
     Route::delete('/quotation/{id}/delete_po', [QuotationController::class, 'delete_po'])->name('delete-po.quotation');
     Route::post('/quotation/{id}/insert_fee', [QuotationController::class, 'insert_fee'])->name('insert_fee.quotation');
+    Route::post('/quotation/{id}/insert_fee_service', [QuotationController::class, 'insert_fee_service'])->name('insert_fee_service.quotation');
     Route::post('/quotation/{id}/delete_fee', [QuotationController::class, 'delete_fee'])->name('delete_fee.quotation');
     Route::post('/quotation/{id}/add_payment', [QuotationController::class, 'add_payment'])->name('add_payment.quotation');
     Route::post('/quotation/{id}/proof_payment', [QuotationController::class, 'proof_payment'])->name('proof_payment.quotation');
@@ -301,6 +303,8 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::post('/product-in/logistik', [ProductInController::class, 'logistic_store'])->name('product-in.logistic-store');
     Route::post('/product-in/invoicing/{id}', [ProductInController::class, 'invoicing'])->name('product-in.invoicing');
+    Route::get('/product-in/return/{id}', [ProductInController::class, 'edit_return'])->name('product-in.return');
+    Route::post('/product-in/return-store/{id}', [ProductInController::class, 'return_in'])->name('product-in.return-store');
     Route::post('/product-in/accept/{id}', [ProductInController::class, 'acceptIn'])->name('product-in.accept');
     Route::post('/product-in/return/{id}', [ProductInController::class, 'return'])->name('product-in.return');
     Route::post('/product-in/clear-return/{id}', [ProductInController::class, 'clearReturn'])->name('product-in.clear-return');
@@ -1241,7 +1245,7 @@ Route::group(["middleware" => "auth"], function () {
     });
 
     Route::resource('/return', ReturnController::class);
-    Route::post('/accept/return/{id}', [ReturnController::class, 'accept_return'])->name('return.accept');
+    Route::post('/accept/return/{id}', [ReturnController::class, 'accept'])->name('return.accept');
     Route::get('/db/request-return', function () {
         $return = ReturnQ::join('quotation as q', 'q.id', '=', 'return.id_quotation')
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
@@ -1267,6 +1271,21 @@ Route::group(["middleware" => "auth"], function () {
                 'u.name',
                 'c.company',
                 'q.no_quote'
+            ]);
+        return response()->json(['data' => $return]);
+    });
+    Route::get('/db/retur', function () {
+        $return = Retur::join('pending_po as pe', 'pe.id', '=', 'return.id_pending')
+            ->join('quotation as q', 'q.id', '=', 'pe.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->get([
+                'return.*',
+                'u.name',
+                'c.company',
+                // 'q.no_quote',
+                'q.po_date'
             ]);
         return response()->json(['data' => $return]);
     });
@@ -1784,7 +1803,13 @@ Route::group(["middleware" => "auth"], function () {
             ->when($status, function ($q) use ($status) {
                 $q->where('cs.status', $status);
             })
-            ->groupBy('c.id')
+            ->groupBy(
+                'c.id',
+                'cs.status',
+                'p.name_pic',
+                'i.issue',
+                'u.name'
+            )
             ->orderByDesc('c.id')
             ->get();
         return response()->json(['data' => $data]);

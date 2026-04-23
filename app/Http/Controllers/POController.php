@@ -88,11 +88,11 @@ class POController extends Controller
         $dPurchase = DetailPurchaseOrder::where('id_purchase_order', $id)->get();
         $tax = $purchase->total * 11 / 100;
         $totalPph = 0;
-            foreach ($dPurchase as $product) {
-                $pph = ($product->amount * $product->pph) / 100;
-                $totalPph += $pph;
-            }
-        return view('pages.accounting.purchase.detail', compact('purchase','dPurchase','tax','totalPph'));
+        foreach ($dPurchase as $product) {
+            $pph = ($product->amount * $product->pph) / 100;
+            $totalPph += $pph;
+        }
+        return view('pages.accounting.purchase.detail', compact('purchase', 'dPurchase', 'tax', 'totalPph'));
     }
 
     /**
@@ -103,7 +103,10 @@ class POController extends Controller
      */
     public function edit($id)
     {
-        //
+        $purchase = PurchaseOrder::find($id);
+        $dPurchase = DetailPurchaseOrder::where('id_purchase_order', $id)->get();
+        $suppliers = Supplier::all();
+        return view('pages.accounting.purchase.form', compact('suppliers', 'purchase', 'dPurchase'));
     }
 
     /**
@@ -115,7 +118,41 @@ class POController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $supplier = Supplier::find($request->supplier);
+        $purchase = PurchaseOrder::find($id);
+        $purchase->id_supplier = $request->supplier;
+        $purchase->no_po = $request->no_po;
+        $purchase->company = $supplier->supplier;
+        $purchase->attn = $request->attn;
+        $purchase->mobile = $request->mobile;
+        $purchase->delivery = $request->delivery;
+        $purchase->date = $request->date;
+        $purchase->email = $supplier->email ?? '-';
+        $purchase->phone = $supplier->phone ?? '-';
+        $purchase->address = $supplier->address ?? '-';
+        $purchase->payment = $request->payment;
+        $purchase->note = $request->note;
+        $purchase->subtotal = $request->subtotal;
+        $purchase->vat = $request->tax;
+        $purchase->diskon = $request->diskon;
+        $purchase->total = $request->harga_total;
+        $purchaseSave = $purchase->save();
+        if ($purchaseSave) {
+            $dPurchase = DetailPurchaseOrder::where('id_purchase_order', $id)->get();
+            foreach ($dPurchase as $key => $value) {
+                // $dPurchase->id_purchase_order = $purchase->id;
+                $value->product = $request->product[$key];
+                $value->qty = $request->qty[$key];
+                $value->info_qty = $request->info_qty[$key];
+                $value->price = $request->price[$key];
+                $value->disc = $request->disc[$key];
+                $value->amount = $request->amount[$key];
+                $dPurchaseSave = $value->save();
+            }
+        }
+        if ($purchaseSave && $dPurchaseSave) {
+            return redirect('purchase/'. $id)->with('success', 'data berhasil ditambahkan');
+        }
     }
 
     /**
@@ -137,18 +174,19 @@ class POController extends Controller
         } else {
             return 0;
         }
-        
+
     }
     public function show_print($id)
     {
         $purchase = PurchaseOrder::find($id);
         $dPurchase = DetailPurchaseOrder::where('id_purchase_order', $id)->get();
         $tax = $purchase->total * 11 / 100;
-        return view('pages.accounting.purchase.detail-print', compact('purchase','dPurchase','tax'));
+        return view('pages.accounting.purchase.detail-print', compact('purchase', 'dPurchase', 'tax'));
     }
 
-    public function add_pph(Request $request, $id){
-        
+    public function add_pph(Request $request, $id)
+    {
+
         $PO = PurchaseOrder::find($id);
         $DPO = DetailPurchaseOrder::where('id_purchase_order', $id)->get();
         foreach ($DPO as $item => $value) {

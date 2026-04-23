@@ -45,6 +45,14 @@
                     </div>
                     <div class="row mb-1">
                         <div class="col-3">
+                            Unit
+                        </div>
+                        <div class="col-9">
+                            : {{ $customers->unit }}
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-3">
                             Mobile
                         </div>
                         <div class="col-9">

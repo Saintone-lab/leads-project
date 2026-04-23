@@ -96,9 +96,9 @@
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="websiteAnimation" class="form-control" name="web"
-                                    placeholder="xxxxxxxxx.com" value="{{ old('web', @$leads->web ?? '') }}">
-                                <label for="websiteAnimation">Website</label>
+                                <input type="text" id="unitsiteAnimation" class="form-control" name="unit"
+                                    placeholder="xxx-21" value="{{ old('unit', @$leads->unit ?? '') }}">
+                                <label for="unitsiteAnimation">Unit</label>
                             </div>
                         </div>
                         <div class="col mb-2">
