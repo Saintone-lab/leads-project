@@ -1459,7 +1459,36 @@ class QuotationController extends Controller
         } else {
             return response()->json(['error' => 'No file uploaded.'], 400);
         }
-
+    }
+    public function request_next_invoice(Request $request, $id)
+    {
+        $quote = Quotation::find($id);
+        $payment = Payment::where('id_quotation')->get();
+        $invoiceCount = Invoice::where('id_quotation')->count();
+        $invoice = new Invoice;
+        $invoice->id_quotation = $id;
+        $invoice->no_po = $request->po;
+        $invoice->no_invoice = NULL;
+        $invoice->flag = $quote->pic->client->info;
+        if (@$payment[$invoiceCount]) {
+            $invoice->type = $payment[$invoiceCount]->type;
+        }
+        $invoice->type = 'BP';
+        $invoice->date = Carbon::today();
+        $invoice->term = NULL;
+        $invoice->invoiceTo = NULL;
+        $invoice->pph = 0;
+        $invoice->sign = NULL;
+        $invoiceSave = $invoice->save();
+        if ($invoiceSave) {
+            if ($quote->type == 'Sparepart') {
+                return redirect('/quotation/' . $id)->with("success", "data telah ditambahkan");
+            } else {
+                return redirect('/quote/service-show/' . $id)->with("success", "data telah ditambahkan");
+            }
+        } else {
+            return response()->json(['error' => 'No file uploaded.'], 400);
+        }
     }
     public function upload_po(Request $request, $id)
     {
@@ -1588,79 +1617,9 @@ class QuotationController extends Controller
         }
 
         $paymentCount = Payment::where('id_quotation', $id)->count();
-        $invoice = Invoice::where('id_quotation', $id)->get();
         $payment = new Payment;
 
-        // if ($request->hasFile('file')) {
-        //     $foto = $request->file('file');
-
-        //     // Validate the file to ensure it's a PDF, JPG, JPEG, or PNG
-        //     $request->validate([
-        //         'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        //     ]);
-
-        //     // Get file extension
-        //     $file_ext = $foto->getClientOriginalExtension();
-
-        //     // Sanitize the quote number to create a valid filename
-        //     $sanitized_file_name = preg_replace('/[^A-Za-z0-9\-]/', '_', $quote->no_quote);
-
-        //     // Construct file name
-        //     $file_name = $sanitized_file_name . '-' . ($paymentCount + 1) . '.' . $file_ext;
-
-        //     // Set upload path
-        //     $upload_path = 'asset/payment';
-
-        //     // Move the file to the upload path
-        //     $foto->move(public_path($upload_path), $file_name);
-
-
-        //     $targetInvoice = $invoice->count() - 1;
-        //     if ($invoice->count() == 1) {
-        //         if ($request->type == 'DP') {
-        //             $invoice[$targetInvoice]->type = 'DP';
-        //             $invoice[$targetInvoice]->save();
-        //         }
-        //     } else {
-        //         $invoice[$targetInvoice]->type = 'BP';
-        //         $invoice[$targetInvoice]->save();
-        //     }
-
-        //     // Update the payment with the new file path
-        //     $payment->id_quotation = $id;
-        //     $payment->file = $upload_path . '/' . $file_name;
-        //     $payment->amount = $request->amount;
-        //     $payment->type = $request->type;
-        //     $payment->method = $request->method;
-        //     $payment->level = 0;
-        //     $payment->percent = $request->percent;
-        //     if ($request->type == 'Tempo') {
-        //         $payment->tempo = $request->tempo;
-        //         $payment->due_date = Carbon::today()->addDays($request->tempo);
-        //     }
-        //     $payment->note = $request->note;
-        //     $payment->save();
-
-        //     if ($quote->type == 'Sparepart') {
-        //         return redirect('/quotation/' . $id)->with('message', 'File has Uploaded');
-        //     } else {
-        //         return redirect('/quote/service-show/' . $id)->with('message', 'File has Uploaded');
-        //     }
-        // } else {
-        //     return response()->json(['error' => 'No file uploaded.'], 400);
-        // }
-
-
-        $targetInvoice = $invoice->count() - 1;
-        if ($invoice->count() == 1) {
-            if ($request->type == 'DP') {
-                $invoice[$targetInvoice]->type = 'DP';
-                $invoice[$targetInvoice]->save();
-            }
-        } else {
-            $invoice[$targetInvoice]->type = 'BP';
-            $invoice[$targetInvoice]->save();
-        }
+        // $targetInvoice = $invoice->count() - 1;
         $payment->id_quotation = $id;
         // $payment->file = $upload_path . '/' . $file_name;
         $payment->amount = $request->amount;
@@ -1677,6 +1636,21 @@ class QuotationController extends Controller
         }
         $payment->note = $request->note;
         $payment->save();
+
+        $invoice = Invoice::where('id_quotation', $id)->get();
+        // dd($request->type);
+        $targetInvoice = $invoice[$paymentCount] ?? null;
+        if ($targetInvoice != null) {
+
+            if ($request->type == 'CBD' || $request->type == 'COD') {
+                $targetInvoice->type = 'CT';
+            } elseif ($request->type != 'Tempo') {
+                $targetInvoice->type = $request->type;
+            } else {
+                $targetInvoice->type = 'BP';
+            }
+            $targetInvoice->save();
+        }
 
         $activity = new ChangeStatus();
         $activity->id_user = Auth::user()->id;

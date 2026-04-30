@@ -215,7 +215,8 @@
                             <tr>
                                 <td colspan="3"></td>
                                 <td class="text-end"> Subtotal :</td>
-                                <td colspan="2" class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
+                                <td colspan="2" class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}
+                                </td>
                             </tr>
                             @if ($quote->diskon != 0)
                                 <tr>
@@ -499,7 +500,32 @@
                                     data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
                             @else
                                 @if ($quote->po_file != null)
-                                    @if ($invoice->count() >= 1 && $invoice[0]->no_invoice == null)
+                                    @php
+                                        $no = 1;
+                                    @endphp
+                                    @foreach ($invoice as $inv)
+                                        @if ($inv->no_invoice == null)
+                                            <button type="button"
+                                                class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
+                                                Waiting Accounting Apply
+                                            </button>
+                                        @elseif($inv->no_invoice)
+                                            <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
+                                                href="{{ route('invoice.show', $inv->id) }}">
+                                                Go To Invoice {{ $no }}
+                                            </a>
+                                        @endif
+                                        @php
+                                            $no++;
+                                        @endphp
+                                    @endforeach
+                                    <button type="button" class="btn btn-outline-dark d-grid w-100 waves-effect mb-3"
+                                        data-bs-toggle="modal" data-bs-target="#request-bp">
+                                        Request Next Invoice
+                                    </button>
+
+                                    {{-- SEBELUMNYA REQ inVoiCE diBAWAH --}}
+                                    {{-- @if ($invoice->count() >= 1 && $invoice[0]->no_invoice == null)
                                         <button type="button"
                                             class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
                                             Waiting Accounting Apply
@@ -510,11 +536,11 @@
                                             Go To Invoice {{ $invoice[0]->type == 'CT' ? '' : 'DP' }}
                                         </a>
                                         @if (@$payments)
-                                            @if ($invoice->count() == 1)
+                                            @if ($invoice->count() > 1)
                                                 <button type="button"
                                                     class="btn btn-outline-dark d-grid w-100 waves-effect mb-3"
                                                     data-bs-toggle="modal" data-bs-target="#request-bp">
-                                                    Request Invoice BP
+                                                    Request Next Invoice
                                                 </button>
                                             @elseif ($invoice[1]->no_invoice == null)
                                                 <button type="button"
@@ -524,11 +550,11 @@
                                             @elseif ($invoice[1]->no_invoice)
                                                 <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
                                                     href="{{ route('invoice.show', $invoice[1]->id) }}">
-                                                    Go To Invoice BP
+                                                    Go To Invoice {{ $invoice->count() > 1 ? '1' : '' }}
                                                 </a>
                                             @endif
                                         @endif
-                                    @endif
+                                    @endif --}}
                                     <div class="d-flex justify-content-between mb-3">
                                         <button class="btn btn-primary d-grid w-100 waves-effect"
                                             onclick="copyDownloadLink('{{ route('download-po.quotation', $quote->id) }}')">
@@ -546,7 +572,7 @@
                                     @foreach ($invoice as $invoices)
                                         <button type="button" class="btn btn-outline-dark d-grid w-100 waves-effect mb-3"
                                             data-bs-toggle="modal" data-bs-target="#changePo{{ $invo }}">
-                                            Change No PO {{ $invo == 0 ? 'DP' : 'BP' }}
+                                            Change No PO {{ $invo + 1 }}
                                         </button>
                                         @php
                                             $invo++;
@@ -761,7 +787,7 @@
             $invo++;
         @endphp
     @endforeach
-    @include('components.modal.quotation.request-bp')
+    @include('components.modal.quotation.request-next')
     @include('components.modal.accounting.selling-contract')
     @include('components.modal.accounting.confirm-order')
     @include('components.modal.quotation.insert-fee-service')

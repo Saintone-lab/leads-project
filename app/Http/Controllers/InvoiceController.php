@@ -93,17 +93,23 @@ class InvoiceController extends Controller
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
             ->count();
-        $invoice = Invoice::find($id);
         $totalAmount = 0;
         $invoice = Invoice::find($id);
+        $invoiceOrder = Invoice::where('id_quotation', $invoice->id_quotation)
+            ->orderBy('id')
+            ->pluck('id')
+            ->search($id) + 1;
         $quote = Quotation::where('id', $invoice->id_quotation)->first();
         if ($quote->type != 'Sparepart') {
             $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
         }
-        // dd($quote->type);
         // $return = ReturnQ::where('id_quotation', $invoice->id_quotation)->first();
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
-        $payments = Payment::where('id_quotation', $quote->id)->get();
+        $payments = Payment::where('id_quotation', $invoice->id_quotation)
+        ->orderBy('id')
+        ->take($invoiceOrder)
+        ->get();
+        // dd($payments);
         $expense = ExpenseInvoice::where('id_invoice', $id)->get();
         $totalExpense = ExpenseInvoice::where('id_invoice', $id)->sum('total');
 
@@ -148,9 +154,9 @@ class InvoiceController extends Controller
         $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
         // dd($doTekMan);
         if ($quote->type == 'Sparepart') {
-            return view('pages.accounting.invoice.detail', compact('totalPph23','totalPph','lastPayment', 'requestContract', 'requestInvoice', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
+            return view('pages.accounting.invoice.detail', compact('totalPph23', 'totalPph', 'lastPayment', 'requestContract', 'requestInvoice', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
         } else {
-            return view('pages.accounting.invoice.detail', compact('totalPph23','totalPph','lastPayment', 'requestContract', 'requestInvoice', 'subQuote', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
+            return view('pages.accounting.invoice.detail', compact('totalPph23', 'totalPph', 'lastPayment', 'requestContract', 'requestInvoice', 'subQuote', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
         }
 
     }
@@ -351,9 +357,10 @@ class InvoiceController extends Controller
         // dd($nextCodeNPK);
 
         $totalAmount = 0;
-        $quote = Quotation::find($id);
+        $invoice = Invoice::find($id);
+        $quote = Quotation::find($invoice->id_quotation);
         if ($quote->type != 'Sparepart') {
-            $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $id)->get();
+            $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $invoice->id_quotation)->get();
         }
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
@@ -366,7 +373,6 @@ class InvoiceController extends Controller
         $remaining = $quote->harga_total - $totalAmount;
         $price = $this->terbilang($remaining);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
-        $invoice = Invoice::where('id_quotation', $id)->orderBy('created_at', 'desc')->first();
         // dd($price);
         if ($quote->type != 'Sparepart') {
             return view('pages.accounting.invoice.before-accept', compact('lastPayment', 'requestContract', 'requestInvoice', 'quote', 'subQuote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));

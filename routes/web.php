@@ -171,6 +171,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/quotation/{id}/convert_flag', [QuotationController::class, 'convert_flag'])->name('convert-flag.quotation');
     Route::post('/quotation/{id}/convert_po', [QuotationController::class, 'convert_po'])->name('convert-po.quotation');
     Route::post('/quotation/{id}/request_bp', [QuotationController::class, 'request_bp'])->name('request-bp.quotation');
+    Route::post('/quotation/{id}/request_next_invoice', [QuotationController::class, 'request_next_invoice'])->name('request_next_invoice.quotation');
     Route::post('/quotation/{id}/upload_po', [QuotationController::class, 'upload_po'])->name('upload-po.quotation');
     Route::post('/quotation/{id}/mentions', [QuotationController::class, 'add_mention'])->name('add_mention.quotation');
     Route::get('/quotation/{id}/download_po', [QuotationController::class, 'download_po'])->name('download-po.quotation');
@@ -1723,7 +1724,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/leads', function () {
         require_once base_path('app/api/leads/connection.php');
     });
-    Route::get('/leads/db', function (Request $request) {
+    Route::get('/leads-sales/db', function (Request $request) {
 
         $id = $request->sales_id;
 
@@ -1737,7 +1738,7 @@ Route::group(["middleware" => "auth"], function () {
                 DB::raw("DATE_FORMAT(MAX(a.follow_up), '%d-%m-%Y') as follow_up"),
                 DB::raw("MAX(a.note) as note")
             )
-            ->join('issues as i', 'c.id_issues', '=', 'i.id')
+            ->leftJoin('issues as i', 'c.id_issues', '=', 'i.id')
             ->join('users as u', 'c.id_sales', '=', 'u.id')
             ->leftJoin('pic as p', 'c.id', '=', 'p.id_client')
             ->leftJoin('activities as a', 'a.id_client', '=', 'c.id')
@@ -1745,7 +1746,12 @@ Route::group(["middleware" => "auth"], function () {
             ->when($id, function ($q) use ($id) {
                 $q->where('u.id', $id);
             })
-            ->groupBy('c.id')
+            ->groupBy(
+                'c.id',
+                'p.name_pic',
+                'i.issue',
+                'u.name'
+            )
             ->orderByDesc('c.id')
             ->get();
 
@@ -1804,11 +1810,11 @@ Route::group(["middleware" => "auth"], function () {
                 $q->where('cs.status', $status);
             })
             ->groupBy(
-                'c.id',
-                'cs.status',
-                'p.name_pic',
-                'i.issue',
-                'u.name'
+                'c.id'
+                // 'cs.status',
+                // 'p.name_pic',
+                // 'i.issue',
+                // 'u.name'
             )
             ->orderByDesc('c.id')
             ->get();
@@ -1886,7 +1892,7 @@ Route::group(["middleware" => "auth"], function () {
             ->whereNotNULL('client.npwp')
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
-            ->get(['quotation.*', 'client.company', 'users.name']);
+            ->get(['quotation.no_quote','quotation.po_date', 'quotation.harga_total', 'client.company', 'users.name', 'invoice.id']);
         ;
         return response()->json(['data' => $quotation]);
     });

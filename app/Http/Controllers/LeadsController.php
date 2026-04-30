@@ -16,6 +16,7 @@ use App\Models\Activities;
 use App\Models\Visit;
 use App\Models\Quotation;
 use App\Models\Pic;
+use DB;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -205,7 +206,7 @@ class LeadsController extends Controller
         $leads->mobile = $request->mobile;
         if (in_array(Auth::id(), [1, 16, 23])) {
             $leads->info = $request->info;
-        }else{
+        } else {
             $leads->info = "Reftech";
         }
         // if (Auth::id() == 2 || Auth::id() == 16 || Auth::id() == 23) {
@@ -533,9 +534,37 @@ class LeadsController extends Controller
         }
 
     }
-    
+
     public function indexBySales()
     {
+        // $id = 1;
+        // $data = DB::table('client as c')
+        //     ->select(
+        //         'c.*',
+        //         'p.name_pic',
+        //         'i.issue',
+        //         'u.name',
+        //         DB::raw("DATE_FORMAT(MAX(a.date), '%d-%m-%Y') as date"),
+        //         DB::raw("DATE_FORMAT(MAX(a.follow_up), '%d-%m-%Y') as follow_up"),
+        //         DB::raw("MAX(a.note) as note")
+        //     )
+        //     ->leftJoin('issues as i', 'c.id_issues', '=', 'i.id')
+        //     ->join('users as u', 'c.id_sales', '=', 'u.id')
+        //     ->leftJoin('pic as p', 'c.id', '=', 'p.id_client')
+        //     ->leftJoin('activities as a', 'a.id_client', '=', 'c.id')
+        //     ->where('c.role', 'Leads')
+        //     ->where('u.id', $id)
+        //     ->groupBy(
+        //         'c.id',
+        //         'p.name_pic',
+        //         'i.issue',
+        //         'u.name'
+        //     )
+        //     ->orderByDesc('c.id')
+        //     ->get();
+
+        // dd($data);
+
         $client = Client::where("role", "Leads")->get();
         $issue = Issues::get();
         $sales = User::where('role', 'sales')->where('active', '1')->get();

@@ -1,6 +1,6 @@
 $(function () {
     var dt_table_leads_by_sales = $(".datatable-leads-by-sales");
-    var Url = "/leads?sales_id=";
+    var Url = "/leads-sales/db?sales_id=";
     let selectedSales = 1;
 
     if (dt_table_leads_by_sales.length) {
@@ -42,7 +42,7 @@ $(function () {
                 // },
             },
             columns: [
-                { data: "company" },
+                { data: "company", defaultContent: "-" },
                 { data: "ru" },
                 { data: "issue" },
                 { data: "area" },
@@ -222,7 +222,7 @@ $(function () {
             },
         });
         window.reloadLeadsBySales = function (salesId) {
-            let url = "/leads/db?sales_id=" + salesId;
+            let url = "/leads-sales/db?sales_id=" + salesId;
             window.dtLeadsBySales.ajax.url(url).load();
         };
     }
