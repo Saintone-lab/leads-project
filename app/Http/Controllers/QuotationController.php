@@ -1640,16 +1640,17 @@ class QuotationController extends Controller
         $invoice = Invoice::where('id_quotation', $id)->get();
         // dd($request->type);
         $targetInvoice = $invoice[$paymentCount] ?? null;
-        if ($targetInvoice != null) {
-
-            if ($request->type == 'CBD' || $request->type == 'COD') {
-                $targetInvoice->type = 'CT';
-            } elseif ($request->type != 'Tempo') {
-                $targetInvoice->type = $request->type;
-            } else {
-                $targetInvoice->type = 'BP';
+        if ($paymentCount != 0 || $request->type == "DP") {
+            if ($targetInvoice != null) {
+                if ($request->type == 'CBD' || $request->type == 'COD') {
+                    $targetInvoice->type = 'CT';
+                } elseif ($request->type != 'Tempo') {
+                    $targetInvoice->type = $request->type;
+                } else {
+                    $targetInvoice->type = 'BP';
+                }
+                $targetInvoice->save();
             }
-            $targetInvoice->save();
         }
 
         $activity = new ChangeStatus();
