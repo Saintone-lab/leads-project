@@ -751,7 +751,8 @@ class MonitoringController extends Controller
             ->whereYear('estimated_date', $today->year)->get();
         $monthly = MonitoringMonthly::whereMonth('date', $month)->whereYear('date', $today->year)->where('id_machine', $id)->first();
 
-        return view('pages.monitoring.visitor-change', compact('quotes', 'machine', 'client', 'compressor', 'dryer', 'weeksoy', 'issue', 'mainlog', 'monthly'));
+        // return view('pages.monitoring.visitor-change', compact('quotes', 'machine', 'client', 'compressor', 'dryer', 'weeksoy', 'issue', 'mainlog', 'monthly'));
+        return view('pages.under-maintenance', compact('quotes', 'machine', 'client', 'compressor', 'dryer', 'weeksoy', 'issue', 'mainlog', 'monthly'));
     }
     public function visitorDaily($id)
     {
