@@ -166,8 +166,8 @@ class LeadsController extends Controller
         ];
 
         $message = [
-            'company.required' => 'Field company Wajib Diisi',
-            'email.required' => 'Field Email Wajib Diisi',
+            'company.required' => 'Field Company Wajib Diisi',
+            'email.required' => 'Field Email Company Wajib Diisi',
             'phone.required' => 'Field Phone Wajib Diisi',
             'ru.required' => 'Wajib Pilih Reseller atau User',
             'unit.required' => 'Field Unit Wajib Diisi',
@@ -372,10 +372,10 @@ class LeadsController extends Controller
 
         $message = [
             'company.required' => 'Field company Wajib Diisi',
-            'email.required' => 'Field Email Wajib Diisi',
+            'email.required' => 'Email Perusahaan Wajib Diisi',
             'phone.required' => 'Field Phone Wajib Diisi',
             'ru.required' => 'Wajib Pilih Reseller atau User',
-            'unit.required' => 'Field unit Wajib Diisi',
+            'unit.required' => 'Field Unit Wajib Diisi',
             'source.required' => 'Field Source Wajib Diisi',
             'mobile.required' => 'Field Mobile Wajib Diisi',
             'address.required' => 'Field Address Wajib Diisi',

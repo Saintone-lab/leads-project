@@ -1,4 +1,4 @@
-<form action="" method="post" enctype="multipart/form-data">
+ <form action="" method="post" enctype="multipart/form-data">
     {{-- {{ csrf_token() }} --}}
     @csrf
     <div class="modal modal-xl animate__animated animate__fadeIn" id="createProspect" tabindex="-1" style="display: none;"
@@ -36,12 +36,21 @@
                             <div class="row g-2 mb-3">
                                 <div class="col mb-2">
                                     <div class="form-floating form-floating-outline">
+                                        <input type="email" id="emailAnimation" class="form-control" name="email"
+                                            placeholder="company@email.com" value="{{ old('email', @$leads->email ?? '') }}">
+                                        <label for="emailAnimation">Email</label>
+                                    </div>
+                                </div>
+                                <div class="col mb-2">
+                                    <div class="form-floating form-floating-outline">
                                         <input type="phone" id="phoneAnimation" class="form-control" name="phone"
                                             placeholder="081xxxxx" value="{{ old('phone', @$leads->phone ?? '') }}">
                                         <label for="phoneAnimation">Phone</label>
                                     </div>
                                 </div>
-                                <div class="col mb-2">
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-4 mb-2">
                                     <div class="form-floating form-floating-outline">
                                         <select class="form-select" id="selectMobile"
                                             aria-label="Default select example" name="mobile">
@@ -57,9 +66,7 @@
                                         <label for="selectMobile">Mobile</label>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row g-2 mb-3">
-                                <div class="col mb-2">
+                                <div class="col-4 mb-2">
                                     <div class="form-floating form-floating-outline">
                                         <select class="form-select" id="selectR/U" aria-label="Default select example"
                                             name="ru">
@@ -72,10 +79,10 @@
                                                 {{ old('ru', @$leads->ru) == 'Reseller' ? 'selected' : '' }}>Reseller
                                             </option>
                                         </select>
-                                        <label for="selectSource">R/U</label>
+                                        <label for="selectR/U">R/U</label>
                                     </div>
                                 </div>
-                                <div class="col mb-2">
+                                <div class="col-4 mb-2">
                                     <div class="form-floating form-floating-outline">
                                         <select class="form-select" id="selectSource"
                                             aria-label="Default select example" name="source">
@@ -160,7 +167,7 @@
                         <div class="col-12 col-md-6">
                             <h6> PIC </h6>
                             <div class="row g-2 mb-3">
-                                <div class="col mb-2">
+                                <div class="col-md-6 mb-2">
                                     <div class="form-floating form-floating-outline">
                                         <input type="text" id="nameAnimation" class="form-control" name="namePic"
                                             placeholder="xxxxxxx xxxxxxxx"
@@ -168,7 +175,7 @@
                                         <label for="nameAnimation">Name</label>
                                     </div>
                                 </div>
-                                <div class="col mb-2">
+                                <div class="col-md-6 mb-2">
                                     <div class="form-floating form-floating-outline">
                                         <input type="text" id="positionAnimation" class="form-control"
                                             name="position" placeholder="example: CEO"
@@ -178,7 +185,7 @@
                                 </div>
                             </div>
                             <div class="row g-2 mb-3">
-                                <div class="col mb-2">
+                                <div class="col-md-6 mb-2">
                                     <div class="form-floating form-floating-outline">
                                         <input type="text" id="emailPicAnimation" class="form-control"
                                             name="emailPic" placeholder="xxxxxxxx@xxx.xx"
@@ -186,7 +193,7 @@
                                         <label for="emailPicAnimation">Email PIC</label>
                                     </div>
                                 </div>
-                                <div class="col mb-2">
+                                <div class="col-md-6 mb-2">
                                     <div class="form-floating form-floating-outline">
                                         <input type="phone" id="phonePicAnimation" class="form-control"
                                             name="phonePic" placeholder="08xxxxxxxxxx"
@@ -196,7 +203,7 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <div class="col mb-2">
+                                <div class="col-md-6 mb-2">
                                     <div class="form-floating form-floating-outline">
                                         <select class="form-select" id="category"
                                             aria-label="Default select example" name="category">
@@ -235,6 +242,14 @@
                                             </option>
                                         </select>
                                         <label for="category">Category</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-floating form-floating-outline">
+                                        <input type="text" id="unit" class="form-control" name="unit"
+                                            placeholder="Contoh: KAESER SK 21"
+                                            value="{{ old('unit', @$leads->unit ?? '') }}">
+                                        <label for="unit">Unit Existing</label>
                                     </div>
                                 </div>
                             </div>

@@ -160,6 +160,9 @@ class ProspectController extends Controller
             'company' =>
                 'required',
 
+            'email' =>
+                'required',
+
             'phone' =>
                 'required',
 
@@ -176,6 +179,9 @@ class ProspectController extends Controller
                 'required',
 
             'subAddress' =>
+                'required',
+
+            'unit' =>
                 'required',
 
             'area' =>
@@ -196,12 +202,14 @@ class ProspectController extends Controller
 
         $message = [
             'company.required' => 'Field company Wajib Diisi',
+            'email.required' => 'Field Email Perusahaan Wajib Diisi',
             'phone.required' => 'Field Phone Wajib Diisi',
             'ru.required' => 'Wajib Pilih Reseller atau User',
             'source.required' => 'Field Source Wajib Diisi',
             'mobile.required' => 'Field Mobile Wajib Diisi',
             'address.required' => 'Field Address Wajib Diisi',
             'subAddress.required' => 'Field Sub Address Wajib Diisi',
+            'unit.required' => 'Field Unit Wajib Diisi',
             'area.required' => 'Field Area Wajib Diisi',
             // 'namePic.required'=> 'Field Nama PIC Wajib Diisi',
             // 'emailPic.required'=> 'Field Email PIC Wajib Diisi',
@@ -217,10 +225,11 @@ class ProspectController extends Controller
         $client->id_support = Auth::id();
         $client->id_issues = 1;
         $client->company = $request->company;
-        $client->email = '-';
+        $client->email = $request->email; // Menyimpan Email Company
         $client->phone = $request->phone;
         $client->ru = $request->ru;
         $client->web = '-';
+        $client->unit = $request->unit; // Menyimpan Unit
         $client->image = 'profile.jpg';
         $client->source = $request->source;
         $client->created_date = Carbon::today()->toDateString();
