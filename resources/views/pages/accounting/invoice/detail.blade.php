@@ -1346,6 +1346,13 @@
                 </div>
                 <div class="card mb-3">
                     <div class="card-body">
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#editInvoiceModal"
+                            class="d-grid w-100 waves-effect mb-3">
+                            <button type="button" class="btn btn-outline-secondary">
+                                Edit No Invoice / Term
+                            </button>
+                        </a>
+
                         @if ($totalPph23 > 0)
                             <a href="#"
                                 class="btn btn-danger d-grid w-100 waves-effect {{ $quote->type == 'Sparepart' ? 'delete-pph' : 'delete-pph-service' }} mb-3"
@@ -1388,6 +1395,37 @@
                         @endif
                     </div>
                 </div>
+
+                <!-- Edit Invoice Modal -->
+                <div class="modal fade" id="editInvoiceModal" tabindex="-1" aria-labelledby="editInvoiceModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editInvoiceModalLabel">Edit No Invoice & Term of Payment</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="{{ route('invoice.update', $invoice->id) }}">
+                                @csrf
+                                @method('PUT')
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="invoiceNumber" class="form-label">No Invoice</label>
+                                        <input type="text" class="form-control" id="invoiceNumber" name="invoice" value="{{ old('invoice', $invoice->no_invoice) }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="termPayment" class="form-label">Term of Payment</label>
+                                        <textarea class="form-control" id="termPayment" name="payment" rows="4" required>{{ old('payment', $invoice->term) }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card mb-3">
                     <div class="card-body">
                         @if (isset($invoice->sign))
