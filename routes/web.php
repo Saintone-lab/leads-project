@@ -241,6 +241,9 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk service Reports
     Route::resource('/service-reports', ServiceReportsController::class);
+    Route::get('/service-reports/machine/{id_machine}', [ServiceReportsController::class, 'createByMachine'])->name('service-reports.machine');
+    Route::get('/service-reports/unit/{id_unit}', [ServiceReportsController::class, 'createByUnit'])->name('service-reports.unit');
+    Route::get('/service-reports/unit/{id_unit}/machine/{id_machine}', [ServiceReportsController::class, 'createByUnitMachine'])->name('service-reports.unit.machine');
     Route::post('/service-reports/sign/{id}', [ServiceReportsController::class, 'hand_sign'])->name('service-reports.sign');
     Route::post('/service-reports/image/{id}', [ServiceReportsController::class, 'inputImage'])->name('service-reports.image');
     Route::delete('/service-reports/del-sign/{id}', [ServiceReportsController::class, 'delete_hand_sign'])->name('service-reports.del-sign');
@@ -682,7 +685,7 @@ Route::group(["middleware" => "auth"], function () {
     });
 
     Route::get('db/monitoring/reports', function () {
-        $data = Monitoring::join(DB::raw("(SELECT sm1.* FROM status_monitoring sm1 
+        $data = Monitoring::join(DB::raw("(SELECT sm1.* FROM status_monitoring sm1
                     WHERE sm1.id = (SELECT MAX(sm2.id) FROM status_monitoring sm2 WHERE sm2.id_monitoring = sm1.id_monitoring)
                 ) as sm"), 'monitoring.id', '=', 'sm.id_monitoring')
             ->join('machine as m', 'monitoring.id_machine', '=', 'm.id')
@@ -915,7 +918,7 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $data]);
     });
     Route::get('db/monitoring/arsip', function () {
-        $data = Monitoring::join(DB::raw("(SELECT sm1.* FROM status_monitoring sm1 
+        $data = Monitoring::join(DB::raw("(SELECT sm1.* FROM status_monitoring sm1
                     WHERE sm1.id = (SELECT MAX(sm2.id) FROM status_monitoring sm2 WHERE sm2.id_monitoring = sm1.id_monitoring)
                 ) as sm"), 'monitoring.id', '=', 'sm.id_monitoring')
             ->join('machine as m', 'monitoring.id_machine', '=', 'm.id')
@@ -1505,7 +1508,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/notifactivity/activity/{date}', [DashboardController::class, 'dateActivity'])->name('date.activity');
     Route::post('/activities/update_calendar', [ActivitiesController::class, 'update_calendar'])->name('date.update_calendar');
 
-    // Payable 
+    // Payable
     Route::get('/payable/invoice', [PayableController::class, 'index_invoice'])->name('payable.index_invoice');
     Route::get('/payable/invoice/{id}', [PayableController::class, 'show_invoice'])->name('payable.show_invoice');
     Route::get('/payable/aging', [PayableController::class, 'index_aging'])->name('payable.index_aging');
@@ -1587,12 +1590,12 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/accounting/callendar', function () {
         $subquery = DB::table(DB::raw('(
-                    SELECT p.*, 
+                    SELECT p.*,
                         ROW_NUMBER() OVER (PARTITION BY p.id_quotation ORDER BY p.id ASC) AS payment_order
                     FROM payment p
                 ) as pay'))
             ->leftJoin(DB::raw('(
-                    SELECT i.*, 
+                    SELECT i.*,
                         ROW_NUMBER() OVER (PARTITION BY i.id_quotation ORDER BY i.id ASC) AS invoice_order
                     FROM invoice i
                 ) as inv'), function ($join) {
@@ -2095,17 +2098,17 @@ Route::group(["middleware" => "auth"], function () {
                     THEN (
                         CASE
                             -- kalau method DP
-                            WHEN pay.method = 'DP' THEN 
-                                CASE 
+                            WHEN pay.method = 'DP' THEN
+                                CASE
                                     WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total
                                     ELSE quotation.harga_total - IFNULL(pay.amount,0)
                                 END
 
                             -- kalau bukan DP
                             ELSE (
-                                CASE 
-                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total 
-                                    ELSE 0 
+                                CASE
+                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total
+                                    ELSE 0
                                 END
                             )
                         END
@@ -2115,11 +2118,11 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN IFNULL(pay_count.payment_count,0) > 1
                     THEN (
                         CASE
-                            WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0
                                 THEN quotation.harga_total
-                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0
                                 THEN quotation.harga_total - IFNULL(dp_sum.total_dp,0)
-                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0
                                 THEN 0
                             ELSE quotation.harga_total
                         END
@@ -2266,17 +2269,17 @@ Route::group(["middleware" => "auth"], function () {
                     THEN (
                         CASE
                             -- kalau method DP
-                            WHEN pay.method = 'DP' THEN 
-                                CASE 
+                            WHEN pay.method = 'DP' THEN
+                                CASE
                                     WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total
                                     ELSE quotation.harga_total - IFNULL(pay.amount,0)
                                 END
 
                             -- kalau bukan DP
                             ELSE (
-                                CASE 
-                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total 
-                                    ELSE 0 
+                                CASE
+                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total
+                                    ELSE 0
                                 END
                             )
                         END
@@ -2286,11 +2289,11 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN IFNULL(pay_count.payment_count,0) > 1
                     THEN (
                         CASE
-                            WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0
                                 THEN quotation.harga_total
-                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0
                                 THEN quotation.harga_total - IFNULL(dp_sum.total_dp,0)
-                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0
                                 THEN 0
                             ELSE quotation.harga_total
                         END
@@ -2437,17 +2440,17 @@ Route::group(["middleware" => "auth"], function () {
                     THEN (
                         CASE
                             -- kalau method DP
-                            WHEN pay.method = 'DP' THEN 
-                                CASE 
+                            WHEN pay.method = 'DP' THEN
+                                CASE
                                     WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total
                                     ELSE quotation.harga_total - IFNULL(pay.amount,0)
                                 END
 
                             -- kalau bukan DP
                             ELSE (
-                                CASE 
-                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total 
-                                    ELSE 0 
+                                CASE
+                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total
+                                    ELSE 0
                                 END
                             )
                         END
@@ -2457,11 +2460,11 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN IFNULL(pay_count.payment_count,0) > 1
                     THEN (
                         CASE
-                            WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0
                                 THEN quotation.harga_total
-                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0
                                 THEN quotation.harga_total - IFNULL(dp_sum.total_dp,0)
-                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0
                                 THEN 0
                             ELSE quotation.harga_total
                         END
@@ -2609,17 +2612,17 @@ Route::group(["middleware" => "auth"], function () {
                     THEN (
                         CASE
                             -- kalau method DP
-                            WHEN pay.method = 'DP' THEN 
-                                CASE 
+                            WHEN pay.method = 'DP' THEN
+                                CASE
                                     WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total
                                     ELSE quotation.harga_total - IFNULL(pay.amount,0)
                                 END
 
                             -- kalau bukan DP
                             ELSE (
-                                CASE 
-                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total 
-                                    ELSE 0 
+                                CASE
+                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total
+                                    ELSE 0
                                 END
                             )
                         END
@@ -2629,11 +2632,11 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN IFNULL(pay_count.payment_count,0) > 1
                     THEN (
                         CASE
-                            WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0
                                 THEN quotation.harga_total
-                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0
                                 THEN quotation.harga_total - IFNULL(dp_sum.total_dp,0)
-                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0
                                 THEN 0
                             ELSE quotation.harga_total
                         END
@@ -2780,17 +2783,17 @@ Route::group(["middleware" => "auth"], function () {
                     THEN (
                         CASE
                             -- kalau method DP
-                            WHEN pay.method = 'DP' THEN 
-                                CASE 
+                            WHEN pay.method = 'DP' THEN
+                                CASE
                                     WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total
                                     ELSE quotation.harga_total - IFNULL(pay.amount,0)
                                 END
 
                             -- kalau bukan DP
                             ELSE (
-                                CASE 
-                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total 
-                                    ELSE 0 
+                                CASE
+                                    WHEN IFNULL(pay.level,0) = 0 THEN quotation.harga_total
+                                    ELSE 0
                                 END
                             )
                         END
@@ -2800,11 +2803,11 @@ Route::group(["middleware" => "auth"], function () {
                 WHEN IFNULL(pay_count.payment_count,0) > 1
                     THEN (
                         CASE
-                            WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0
                                 THEN quotation.harga_total
-                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0
                                 THEN quotation.harga_total - IFNULL(dp_sum.total_dp,0)
-                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0 
+                            WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0
                                 THEN 0
                             ELSE quotation.harga_total
                         END
@@ -2851,7 +2854,7 @@ Route::group(["middleware" => "auth"], function () {
         ])
             // ->whereYear('payment.created_at', Carbon::now()->year)
             ->orderByRaw("
-        CASE 
+        CASE
             WHEN level = 0 AND file IS NOT NULL THEN 1
             WHEN level = 0 AND file IS NULL THEN 2
             WHEN level = 1 THEN 3
@@ -3367,17 +3370,17 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/sales/overview/{id}', function ($id) {
         $sales = User::find($id);
         $data = DB::table('sales_reports AS s')
-            ->select('s.*', DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
+            ->select('s.*', DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q
         JOIN users AS u ON q.id_sales = u.id
-        WHERE MONTH(q.po_date) BETWEEN 
-            CASE 
-                WHEN s.semester = "1" THEN 1 
-                WHEN s.semester = "2" THEN 7 
-            END 
-        AND 
-            CASE 
-                WHEN s.semester = "1" THEN 6 
-                WHEN s.semester = "2" THEN 12 
+        WHERE MONTH(q.po_date) BETWEEN
+            CASE
+                WHEN s.semester = "1" THEN 1
+                WHEN s.semester = "2" THEN 7
+            END
+        AND
+            CASE
+                WHEN s.semester = "1" THEN 6
+                WHEN s.semester = "2" THEN 12
             END
         AND YEAR(q.po_date) = s.year
         AND q.level = "1"
@@ -3388,33 +3391,33 @@ Route::group(["middleware" => "auth"], function () {
         FROM payment p
         WHERE p.id_quotation = q.id
     ),0)
-),0) 
-FROM quotation AS q 
+),0)
+FROM quotation AS q
 JOIN users AS u ON q.id_sales = u.id
-WHERE MONTH(q.po_date) BETWEEN 
-    CASE 
-        WHEN s.semester = "1" THEN 1 
-        WHEN s.semester = "2" THEN 7 
-    END 
-AND 
-    CASE 
-        WHEN s.semester = "1" THEN 6 
-        WHEN s.semester = "2" THEN 12 
+WHERE MONTH(q.po_date) BETWEEN
+    CASE
+        WHEN s.semester = "1" THEN 1
+        WHEN s.semester = "2" THEN 7
+    END
+AND
+    CASE
+        WHEN s.semester = "1" THEN 6
+        WHEN s.semester = "2" THEN 12
     END
 AND YEAR(q.po_date) = s.year
 AND q.level = "1"
 AND q.is_primary = "1"
-AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
+AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q
         JOIN users AS u ON q.id_sales = u.id
-        WHERE MONTH(q.estimated_date) BETWEEN 
-            CASE 
-                WHEN s.semester = "1" THEN 1 
-                WHEN s.semester = "2" THEN 7 
-            END 
-        AND 
-            CASE 
-                WHEN s.semester = "1" THEN 6 
-                WHEN s.semester = "2" THEN 12 
+        WHERE MONTH(q.estimated_date) BETWEEN
+            CASE
+                WHEN s.semester = "1" THEN 1
+                WHEN s.semester = "2" THEN 7
+            END
+        AND
+            CASE
+                WHEN s.semester = "1" THEN 6
+                WHEN s.semester = "2" THEN 12
             END
         AND YEAR(q.estimated_date) = s.year
         AND q.level = "1"
@@ -3427,44 +3430,44 @@ AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT
     Route::get('/db/sales/overview-prospect/{id}', function ($id) {
         $sales = User::find($id);
         $data = DB::table('sales_reports AS s')
-            ->select('s.*', DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
-        WHERE MONTH(q.po_date) BETWEEN 
-            CASE 
-                WHEN s.semester = "1" THEN 1 
-                WHEN s.semester = "2" THEN 7 
-            END 
-        AND 
-            CASE 
-                WHEN s.semester = "1" THEN 6 
-                WHEN s.semester = "2" THEN 12 
+            ->select('s.*', DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q
+        WHERE MONTH(q.po_date) BETWEEN
+            CASE
+                WHEN s.semester = "1" THEN 1
+                WHEN s.semester = "2" THEN 7
+            END
+        AND
+            CASE
+                WHEN s.semester = "1" THEN 6
+                WHEN s.semester = "2" THEN 12
             END
         AND YEAR(q.po_date) = s.year
         AND q.level = "1"
         AND q.is_primary = "1"
-        AND q.id_support = ' . $id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(q.nett), 0) FROM quotation AS q 
-        WHERE MONTH(q.po_date) BETWEEN 
-            CASE 
-                WHEN s.semester = "1" THEN 1 
-                WHEN s.semester = "2" THEN 7 
-            END 
-        AND 
-            CASE 
-                WHEN s.semester = "1" THEN 6 
-                WHEN s.semester = "2" THEN 12 
+        AND q.id_support = ' . $id . ') AS total'), DB::raw('(SELECT COALESCE(SUM(q.nett), 0) FROM quotation AS q
+        WHERE MONTH(q.po_date) BETWEEN
+            CASE
+                WHEN s.semester = "1" THEN 1
+                WHEN s.semester = "2" THEN 7
+            END
+        AND
+            CASE
+                WHEN s.semester = "1" THEN 6
+                WHEN s.semester = "2" THEN 12
             END
         AND YEAR(q.po_date) = s.year
         AND q.level = "1"
         AND q.is_primary = "1"
-        AND q.id_support = ' . $id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
-        WHERE MONTH(q.estimated_date) BETWEEN 
-            CASE 
-                WHEN s.semester = "1" THEN 1 
-                WHEN s.semester = "2" THEN 7 
-            END 
-        AND 
-            CASE 
-                WHEN s.semester = "1" THEN 6 
-                WHEN s.semester = "2" THEN 12 
+        AND q.id_support = ' . $id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q
+        WHERE MONTH(q.estimated_date) BETWEEN
+            CASE
+                WHEN s.semester = "1" THEN 1
+                WHEN s.semester = "2" THEN 7
+            END
+        AND
+            CASE
+                WHEN s.semester = "1" THEN 6
+                WHEN s.semester = "2" THEN 12
             END
         AND YEAR(q.estimated_date) = s.year
         AND q.level = "1"
@@ -3668,17 +3671,17 @@ AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT
         $sales = DB::table('sales_reports AS s')
             ->select(
                 's.*',
-                DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
+                DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q
         JOIN users AS u ON q.id_sales = u.id
-        WHERE MONTH(q.po_date) BETWEEN 
-            CASE 
-                WHEN s.semester = "1" THEN 1 
-                WHEN s.semester = "2" THEN 7 
-            END 
-        AND 
-            CASE 
-                WHEN s.semester = "1" THEN 6 
-                WHEN s.semester = "2" THEN 12 
+        WHERE MONTH(q.po_date) BETWEEN
+            CASE
+                WHEN s.semester = "1" THEN 1
+                WHEN s.semester = "2" THEN 7
+            END
+        AND
+            CASE
+                WHEN s.semester = "1" THEN 6
+                WHEN s.semester = "2" THEN 12
             END
         AND YEAR(q.po_date) = s.year
         AND q.level = "1"
@@ -3690,47 +3693,47 @@ AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT
         FROM payment p
         WHERE p.id_quotation = q.id
     ),0)
-),0) 
-FROM quotation AS q 
+),0)
+FROM quotation AS q
 JOIN users AS u ON q.id_sales = u.id
-WHERE MONTH(q.po_date) BETWEEN 
-    CASE 
-        WHEN s.semester = "1" THEN 1 
-        WHEN s.semester = "2" THEN 7 
-    END 
-AND 
-    CASE 
-        WHEN s.semester = "1" THEN 6 
-        WHEN s.semester = "2" THEN 12 
+WHERE MONTH(q.po_date) BETWEEN
+    CASE
+        WHEN s.semester = "1" THEN 1
+        WHEN s.semester = "2" THEN 7
+    END
+AND
+    CASE
+        WHEN s.semester = "1" THEN 6
+        WHEN s.semester = "2" THEN 12
     END
 AND YEAR(q.po_date) = s.year
 AND q.level = "1"
 AND q.is_primary = "1"
 AND u.id = ' . Auth::user()->id . ') AS price'),
-                DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q 
+                DB::raw('(SELECT COALESCE(COUNT(q.id), 0) FROM quotation AS q
         JOIN users AS u ON q.id_sales = u.id
-        WHERE MONTH(q.estimated_date) BETWEEN 
-            CASE 
-                WHEN s.semester = "1" THEN 1 
-                WHEN s.semester = "2" THEN 7 
-            END 
-        AND 
-            CASE 
-                WHEN s.semester = "1" THEN 6 
-                WHEN s.semester = "2" THEN 12 
+        WHERE MONTH(q.estimated_date) BETWEEN
+            CASE
+                WHEN s.semester = "1" THEN 1
+                WHEN s.semester = "2" THEN 7
+            END
+        AND
+            CASE
+                WHEN s.semester = "1" THEN 6
+                WHEN s.semester = "2" THEN 12
             END
         AND YEAR(q.estimated_date) = s.year
         AND q.level = "1"
         AND q.is_primary = "1"
         AND u.id = ' . Auth::user()->id . ') AS quote'),
-                DB::raw(' CASE 
-                WHEN s.semester = "1" THEN 1 
-                WHEN s.semester = "2" THEN 7 
+                DB::raw(' CASE
+                WHEN s.semester = "1" THEN 1
+                WHEN s.semester = "2" THEN 7
             END AS firstMonth
         '),
-                DB::raw(' CASE 
-                WHEN s.semester = "1" THEN 6 
-                WHEN s.semester = "2" THEN 12 
+                DB::raw(' CASE
+                WHEN s.semester = "1" THEN 6
+                WHEN s.semester = "2" THEN 12
             END AS lastMonth
         ')
             )
@@ -3742,20 +3745,20 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
         // $reports = SalesReports::orderBy('id', 'ASC')->get();
         $reports = DB::table('sales_reports AS s')
             ->select('s.*', DB::raw('
-        (SELECT COALESCE(SUM(dpo.qty), 0) 
+        (SELECT COALESCE(SUM(dpo.qty), 0)
             FROM product_out AS po
-            JOIN detail_product_out AS dpo ON dpo.id_product_out = po.id 
-            WHERE 
-                MONTH(po.date) >= 
-                    CASE 
-                        WHEN s.semester = "1" THEN 1 
-                        WHEN s.semester = "2" THEN 7 
-                    END 
-                AND 
-                MONTH(po.date) <= 
-                    CASE 
-                        WHEN s.semester = "1" THEN 6 
-                        WHEN s.semester = "2" THEN 12 
+            JOIN detail_product_out AS dpo ON dpo.id_product_out = po.id
+            WHERE
+                MONTH(po.date) >=
+                    CASE
+                        WHEN s.semester = "1" THEN 1
+                        WHEN s.semester = "2" THEN 7
+                    END
+                AND
+                MONTH(po.date) <=
+                    CASE
+                        WHEN s.semester = "1" THEN 6
+                        WHEN s.semester = "2" THEN 12
                     END
                 AND YEAR(po.date) = s.year
                 AND po.vers = "Online"
@@ -3767,20 +3770,20 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
         // $reports = SalesReports::orderBy('id', 'ASC')->get();
         $reports = DB::table('sales_reports AS s')
             ->select('s.*', DB::raw('
-        (SELECT COALESCE(SUM(dpo.qty), 0) 
+        (SELECT COALESCE(SUM(dpo.qty), 0)
             FROM product_out AS po
-            JOIN detail_product_out AS dpo ON dpo.id_product_out = po.id 
-            WHERE 
-                MONTH(po.date) >= 
-                    CASE 
-                        WHEN s.semester = "1" THEN 1 
-                        WHEN s.semester = "2" THEN 7 
-                    END 
-                AND 
-                MONTH(po.date) <= 
-                    CASE 
-                        WHEN s.semester = "1" THEN 6 
-                        WHEN s.semester = "2" THEN 12 
+            JOIN detail_product_out AS dpo ON dpo.id_product_out = po.id
+            WHERE
+                MONTH(po.date) >=
+                    CASE
+                        WHEN s.semester = "1" THEN 1
+                        WHEN s.semester = "2" THEN 7
+                    END
+                AND
+                MONTH(po.date) <=
+                    CASE
+                        WHEN s.semester = "1" THEN 6
+                        WHEN s.semester = "2" THEN 12
                     END
                 AND YEAR(po.date) = s.year
                 AND po.vers = "Offline"
@@ -4230,11 +4233,11 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
@@ -4270,11 +4273,11 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
@@ -4310,11 +4313,11 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
@@ -4351,19 +4354,19 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
-            ->leftJoin(DB::raw("(SELECT so1.* 
-                            FROM service_order so1 
+            ->leftJoin(DB::raw("(SELECT so1.*
+                            FROM service_order so1
                             INNER JOIN (
-                                SELECT id_sales_order, MAX(id) as max_id 
-                                FROM service_order 
+                                SELECT id_sales_order, MAX(id) as max_id
+                                FROM service_order
                                 GROUP BY id_sales_order
                             ) so2 ON so1.id = so2.max_id
                         ) as so"), 'so.id_sales_order', '=', 'pending_po.id')
@@ -4403,11 +4406,11 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
@@ -4441,11 +4444,11 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
@@ -4480,11 +4483,11 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
@@ -4519,11 +4522,11 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
@@ -4558,11 +4561,11 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
@@ -4598,11 +4601,11 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
@@ -4639,11 +4642,11 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
@@ -4680,11 +4683,11 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
@@ -4719,11 +4722,11 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
@@ -4759,11 +4762,11 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->leftJoin(DB::raw("(SELECT p1.* 
-                                        FROM payment p1 
+            ->leftJoin(DB::raw("(SELECT p1.*
+                                        FROM payment p1
                                         INNER JOIN (
-                                            SELECT id_quotation, MAX(id) as max_id 
-                                            FROM payment 
+                                            SELECT id_quotation, MAX(id) as max_id
+                                            FROM payment
                                             GROUP BY id_quotation
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')

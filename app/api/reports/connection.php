@@ -20,7 +20,9 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT r.*, c.company, u.name, CONCAT(sp.brand, ' ', un.sku) AS brand_type FROM reports r 
+        $query = "SELECT r.*, c.company, u.name, CONCAT(sp.brand, ' ', un.sku) AS brand_type,
+        m.serial AS serial, m.tag AS tag, CONCAT(m.serial, IFNULL(CONCAT(' / ', m.tag), '')) AS serial_tag
+        FROM reports r
         JOIN machine m on r.id_machine = m.id
         LEFT JOIN pic p on p.id = r.id_pic
         LEFT JOIN client c on c.id = p.id_client
@@ -34,14 +36,14 @@ if (Auth::check()) {
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);
         $stmt->execute();
 
-        // Fetch result 
+        // Fetch result
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $arr = [
             "data" => $result,
         ];
 
-        // Echo result as JSON 
+        // Echo result as JSON
         $hasil = json_encode($arr, JSON_PRETTY_PRINT);
 
         // Menampilkan hasil JSON

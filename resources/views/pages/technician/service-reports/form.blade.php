@@ -57,7 +57,7 @@
                                 <option selected>----- Select Company Sales -----</option>
                                 @foreach ($sales as $sale)
                                     <option data-id="{{ $sale->id }}" value="{{ $sale->id }}"
-                                        {{ @$report->pic->client->sales->id == $sale->id ? 'selected' : '' }}>
+                                        {{ (isset($selectedSalesId) && $selectedSalesId == $sale->id) || (@$report && @$report->pic->client->sales->id == $sale->id) ? 'selected' : '' }}>
                                         {{ $sale->name }}</option>
                                 @endforeach
                             </select>
@@ -218,10 +218,10 @@
             }
         }
         $(document).ready(function() {
-            var selectedMachineId = '{{ $report->id_machine ?? '' }}';
-            var selectedSalesId = '{{ $report->pic->client->id_sales ?? '' }}';
-            var selectedClientId = '{{ $report->pic->id_client ?? '' }}';
-            var selectedPICId = '{{ $report->id_pic ?? '' }}';
+            var selectedMachineId = '{{ $selectedMachineId ?? $report->id_machine ?? '' }}';
+            var selectedSalesId = '{{ $selectedSalesId ?? $report->pic->client->id_sales ?? '' }}';
+            var selectedClientId = '{{ $selectedClientId ?? $report->pic->id_client ?? '' }}';
+            var selectedPICId = '{{ $selectedPICId ?? $report->id_pic ?? '' }}';
             initNumericInput();
             $('#formFileMultiple').on('change', function() {
                 var files = this.files;
@@ -279,7 +279,6 @@
                     url: Url,
                     type: 'GET',
                     success: function(response) {
-                        // Clear and populate the machine dropdown
                         var clientDropdown = $('#client-dropdown');
                         clientDropdown.empty();
                         clientDropdown.append(
@@ -289,14 +288,14 @@
                         $.each(response, function(key, value) {
                             var option = $('<option></option>').attr('value', value.id)
                                 .text(value.company);
-                            if (value.id == selectedSalesId) {
-                                option.attr('selected', 'selected');
-                            }
                             clientDropdown.append(option);
                         });
 
-                        // Enable the machine dropdown
                         clientDropdown.prop('disabled', false);
+
+                        if (selectedClientId) {
+                            clientDropdown.val(selectedClientId).trigger('change');
+                        }
                     }
                 });
             });
@@ -309,7 +308,6 @@
                     url: Url,
                     type: 'GET',
                     success: function(response) {
-                        // Clear and populate the machine dropdown
                         var picDropdown = $('#pic-dropdown');
                         picDropdown.empty();
                         picDropdown.append(
@@ -319,14 +317,14 @@
                         $.each(response, function(key, value) {
                             var option = $('<option></option>').attr('value', value.id)
                                 .text(value.name_pic);
-                            if (value.id == selectedClientId) {
-                                option.attr('selected', 'selected');
-                            }
                             picDropdown.append(option);
                         });
 
-                        // Enable the machine dropdown
                         picDropdown.prop('disabled', false);
+
+                        if (selectedPICId) {
+                            picDropdown.val(selectedPICId).trigger('change');
+                        }
                     }
                 });
             });
@@ -339,44 +337,32 @@
                     url: Url,
                     type: 'GET',
                     success: function(response) {
-                        // Clear and populate the machine dropdown
                         var machineDropdown = $('#machine-dropdown');
                         machineDropdown.empty();
                         machineDropdown.append(
                             '<option selected="" disabled> ---- Choose Machine Here ---- </option>'
                         );
-                        console.log(clientId);
-                        console.log(response);
 
                         $.each(response, function(key, value) {
                             var option = $('<option></option>').attr('value', value.id)
                                 .text(value.brand + " " + value.sku +
                                     " || " + value.location + " - " + value.tag +
                                     " - " + value.serial);
-                            if (value.id == selectedMachineId) {
-                                option.attr('selected', 'selected');
-                            }
                             machineDropdown.append(option);
                         });
 
-                        // Enable the machine dropdown
                         machineDropdown.prop('disabled', false);
+
+                        if (selectedMachineId) {
+                            machineDropdown.val(selectedMachineId).trigger('change');
+                        }
                     }
                 });
             });
 
-            // Trigger change event if updating to pre-select the machine
-            if (selectedsalesId) {
+            // Trigger change event to pre-select dependent dropdowns in order
+            if (selectedSalesId) {
                 $('#selectSales').trigger('change');
-            }
-            if (selectedClientId) {
-                $('#client-dropdown').trigger('change');
-            }
-            if (selectedPICId) {
-                $('#pic-dropdown').trigger('change');
-            }
-            if (selectedMachineId) {
-                $('#machine-dropdown').trigger('change');
             }
         });
     </script>

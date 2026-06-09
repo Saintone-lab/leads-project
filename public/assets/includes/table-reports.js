@@ -29,6 +29,7 @@ $(function () {
                 { data: "company" },
                 { data: "jobdesc" },
                 { data: "brand_type" },
+                { data: "serial_tag" },
                 { data: "date" },
                 { data: "" },
             ],
@@ -117,8 +118,8 @@ $(function () {
                             extend: "print",
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
-                            exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                exportOptions: {
+                                columns: [3, 4, 5, 6, 7, 8],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -174,7 +175,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                columns: [3, 4, 5, 6, 7, 8],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -211,7 +212,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                columns: [3, 4, 5, 6, 7, 8],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -247,8 +248,8 @@ $(function () {
                             extend: "pdf",
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
-                            exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                exportOptions: {
+                                columns: [3, 4, 5, 6, 7, 8],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -285,7 +286,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                columns: [3, 4, 5, 6, 7, 8],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
