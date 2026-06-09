@@ -1346,12 +1346,14 @@
                 </div>
                 <div class="card mb-3">
                     <div class="card-body">
-                        <a type="button" data-bs-toggle="modal" data-bs-target="#editInvoiceModal"
-                            class="d-grid w-100 waves-effect mb-3">
-                            <button type="button" class="btn btn-outline-secondary">
-                                Edit No Invoice / Term
-                            </button>
-                        </a>
+                        @if(Auth::user()->role == 'Admin')
+                            <a type="button" data-bs-toggle="modal" data-bs-target="#editInvoiceModal"
+                                class="d-grid w-100 waves-effect mb-3">
+                                <button type="button" class="btn btn-outline-secondary">
+                                    Edit No Invoice / Term
+                                </button>
+                            </a>
+                        @endif
 
                         @if ($totalPph23 > 0)
                             <a href="#"
