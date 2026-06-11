@@ -5,64 +5,110 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Frontend development
-npm run dev        # Start Vite dev server with HMR
-npm run build      # Build frontend assets for production
+# Start PHP development server
+php artisan serve
 
-# Backend development
-php artisan serve              # Start Laravel dev server
-php artisan migrate            # Run database migrations
-php artisan migrate:rollback   # Rollback last migration batch
-php artisan db:seed            # Run database seeders
-php artisan cache:clear        # Clear application cache
-php artisan route:list         # List all registered routes
+# Start Vite frontend dev server (run alongside artisan serve)
+npm run dev
 
-# Testing
-php artisan test               # Run PHPUnit test suite
-php artisan test --filter=TestName   # Run a single test
+# Build frontend assets for production
+npm run build
+
+# Run database migrations
+php artisan migrate
+
+# Run tests
+php artisan test
+
+# Run a single test file
+php artisan test --filter=ExampleTest
+
+# Code style fixer (Laravel Pint)
+php vendor/bin/pint
+
+# Interactive REPL
+php artisan tinker
 ```
 
-## Architecture
+## Architecture Overview
 
-This is a Laravel 9 + Vite monolith — a CRM/ERP system managing sales pipelines, accounting, warehouse, and service monitoring with role-based access control.
+This is a **Laravel 9 CRM/Sales management system** for tracking leads, customers, quotations, inventory, and field service operations.
 
-**Stack:** Laravel 9 (PHP 8.0+), Blade templates, Bootstrap 5, Axios, MySQL (Eloquent ORM), Laravel Sanctum, DomPDF, Intervention/Image.
+### User Roles
 
-### Business Domain Flow
+The `users.role` field controls which views and features are accessible: `sales`, `admin`, `coordinator`, `technician`, `support`, `service-manager`, `accounting`, `finance`, `warehouse`. Views are organized by role under `resources/views/pages/{role}/`.
 
-The core business pipeline: **Leads → Prospects → Quotations → Purchase Orders → Invoices → Payments**
+### Client Lifecycle
 
-Modules and their controllers:
-- **Sales/CRM**: `LeadsController`, `ProspectController`, `QuotationController`, `CustomersController`
-- **Accounting**: `InvoiceController`, `PaymentController`, `PayableController`, `ExpenseController`
-- **Warehouse**: `ProductController`, `ProductInController`, `ProductOutController`, `StockController`, `WarehouseController`
-- **Logistics**: `DeliveryController`, `PendingController`
-- **Operations**: `MonitoringController`, `MachineController`, `ContractController`, `AuditController`
-- **Admin/HR**: `DashboardController`, `UserController`, `EmployeeController`
-- **Reporting**: `ReportsController`, `SalesReportController`, `NotulenController`
+`Client` (table: `client`) serves dual purpose via the `role` column:
+- `role = 'Leads'` — prospects not yet converted
+- `role = 'Customers'` — converted customers (also managed via `CrmController` / `/existing` route)
 
-### Role-Based Access
+Conversion from Leads to Customers happens in `LeadsController::convertToCustomers()` and also auto-converts when `id_issues = 5` in activity logging.
 
-Roles: `Sales`, `Support`, `Admin`, `Accounting`, `Coordinator`, `Technician`, `Warehouse`. Access control is enforced in controllers and Blade templates via `Auth::user()->role`. The `DashboardController` is the central router — it conditionally renders different views per role.
+### Quotation Status Codes
 
-### Frontend Pattern
+`quotation.status` uses numeric codes:
+- `0` — expired (auto-set by `CheckExpiredQuotations` middleware on session start)
+- `20/30/40/60/80` — pipeline stages (prospect → negotiation → etc.)
+- `100` — PO confirmed
 
-No SPA framework. All rendering is server-side Blade. Client-side interactivity uses:
-- Bootstrap 5 modals and components
-- Axios (configured in `resources/js/bootstrap.js`) for AJAX calls
-- CSRF token is injected globally via the meta tag in the base layout
+Quotation types: `Sparepart`, `Unit`, `service`, `overhaul` — each has its own create/show/print flows.
 
-Blade structure: `resources/views/layouts/app.blade.php` is the base layout. Module views live under `resources/views/pages/{module}/`.
+### `app/api/` — Legacy DataTables Endpoints
 
-### Key Conventions
+`app/api/` contains raw PHP files using direct PDO connections (hardcoded `localhost`/`root`/`""`) to database `db_leads_v1`. These are **not** Laravel routes — they are called directly from DataTables AJAX. Do not refactor to Eloquent without updating the corresponding JS table initializations in Blade views.
 
-- **Routes**: `routes/web.php` is the single large routing file (5000+ lines). Routes are grouped by module/role.
-- **Models**: 88+ Eloquent models in `app/Models/`. Relationships follow standard Eloquent conventions.
-- **Form validation**: Uses Laravel Form Request classes in `app/Http/Requests/`.
-- **PDF generation**: Uses `barryvdh/laravel-dompdf` — controllers return `PDF::loadView(...)`.
-- **File uploads**: Uses Intervention/Image for processing; files stored via Laravel's `Storage` facade.
-- **Payment types**: DP (down payment) and Tempo are the two core payment structures used throughout accounting logic.
+### Comment / Notification System
 
-### Legacy Code
+`comment.level` tracks read/unread state (`1` = unread). Comments can be linked to quotations (via `change_status`) or prospects. The notification badge logic in controllers builds two queries — `$comment` (all) and `$unreadComment` (level=1) — and this block is duplicated across many controllers that render nav.
 
-`app/api/leads/` and `resources/api/` contain legacy PHP files with direct PDO database connections (hardcoded to `db_leads_v1`). These predate the Laravel structure — avoid extending them; migrate logic to controllers/models when touching those areas.
+### Key Relationships
+
+- `Client` → `Pic` (contacts) → `Prospect` → `Quotation`
+- `Quotation` → `DetailQuotation` (line items), `Payment`, `Invoice`, `Delivery`
+- `Machine` → `Monitoring` → `MonitoringWeekly`/`MonitoringMonthly`
+- `Product` → `SerialProduct` (tracked units with serial numbers) + `DetailProduct` (warehouse stock)
+
+### Frontend Stack
+
+Bootstrap 5.2 + SASS + Vite. JavaScript uses vanilla JS + jQuery (via Bootstrap) + Dropzone for file uploads. Ziggy provides named routes in JS via `@routes` directive.
+
+### Hard-coded Business Logic
+
+Several places reference specific user IDs (e.g., `[1, 16, 23]` for admin override permissions on the `info` field). Search for these before adding role-based access logic to ensure consistency.
+
+### PDF Generation
+
+Uses `barryvdh/laravel-dompdf` via the `PDF` facade (aliased from `Barryvdh\LaravelDompdf\Facade\Pdf`). Print views are Blade templates rendered to PDF — they live alongside regular views with names like `print_quote`, `pdf_quote`.
+
+### Database
+
+MySQL, database name `db_leads_v1`. All migrations are in `database/migrations/`. The schema has grown incrementally — check migration history when tracing when a column was added.
+
+### Personalisasi
+Kamu adalah asisten pengembang senior. Seluruh komunikasi, penjelasan kode, dan jawaban harus menggunakan Bahasa Indonesia yang formal namun natural dan mudah dipahami. Hindari penggunaan istilah teknis yang terlalu kaku jika bisa dijelaskan dengan bahasa awam.
+
+### Aturan Kerja (Working Principles)
+- **Hati-hati dengan Legacy:** Proyek ini mengandung kode warisan yang sensitif. Jangan melakukan refactoring besar-besaran (seperti mengubah PDO murni ke Eloquent) kecuali saya minta secara eksplisit.
+- **Utamakan Komunikasi:** Jika ada perubahan yang berpotensi merusak alur data (terutama di bagian Quotation/Client), tanyakan kepada saya terlebih dahulu sebelum mengeksekusi perubahan tersebut.
+- **Gunakan Pendekatan Bertahap:** Selalu kerjakan tugas dalam potongan kecil. Setelah selesai satu bagian, lakukan verifikasi mandiri sebelum melanjutkan ke bagian berikutnya.
+- **Konsistensi Gaya:** Ikuti gaya penulisan kode yang sudah ada di dalam repository. Jangan mengubah struktur folder atau penamaan variabel secara sepihak.
+
+### Pedoman UI/UX
+- **Bootstrap 5.2:** Semua penambahan input harus menggunakan kelas Bootstrap 5.2.
+- **Layout:** Saat diminta menambahkan kolom, pastikan layout tetap responsif menggunakan sistem grid Bootstrap.
+- **User-Friendly:** Jika saya meminta penambahan field, pastikan label dan penempatan input konsisten dengan desain form yang sudah ada. Jika ragu, ambil screenshot form tersebut dan ajukan rencana tata letak kepada saya.
+
+### Protokol Verifikasi (Self-Check)
+Setiap kali selesai mengubah kode, lakukan hal berikut sebelum melaporkan kepada saya:
+1. Jalankan `php vendor/bin/pint` untuk memastikan format kode rapi.
+2. Cek apakah ada file yang tidak sengaja terhapus atau terduplikat.
+3. Pastikan tidak ada hardcoded value baru yang melanggar aturan bisnis (seperti referensi User ID).
+4. Jika ada error, sertakan log error-nya dalam penjelasan Anda menggunakan Bahasa Indonesia.
+
+### Protokol Darurat
+- Jika terjadi *runtime error* setelah perubahan kode, segera lakukan `git checkout` ke kondisi sebelum perubahan (rollback).
+- Jangan mencoba menebak perbaikan yang bersifat destruktif.
+- Laporkan masalah dalam bahasa Indonesia dengan format: 
+  [Masalah] -> [Penyebab Dugaan] -> [Tindakan Rollback yang Dilakukan].
