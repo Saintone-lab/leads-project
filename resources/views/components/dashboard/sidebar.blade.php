@@ -392,6 +392,12 @@
                     </li>
                 </ul>
             </li>
+            <li class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
+                <a href="{{ route('return.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-list-box-outline"></i>
+                    <div data-i18n="Service Report">Service Report</div>
+                </a>
+            </li>
             @endif
 
             {{-- <li class="menu-header fw-light mt-4">
