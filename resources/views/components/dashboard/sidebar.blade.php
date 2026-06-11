@@ -65,6 +65,7 @@
                 </a>
             </li>
             <!-- Layouts -->
+            @if (auth::user()->role != 'Accounting')
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Sales & Marketing</span>
             </li>
@@ -210,6 +211,7 @@
                     </li>
                 </ul>
             </li>
+            @endif
 
             {{-- <li class="menu-item {{ request()->is('visits/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -330,6 +332,7 @@
                 </ul>
             </li> --}}
 
+            @if (auth::user()->role != 'Accounting')
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Service Contract</span>
             </li>
@@ -389,6 +392,7 @@
                     </li>
                 </ul>
             </li>
+            @endif
 
             {{-- <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Marketting</span>
@@ -742,7 +746,7 @@
                 </a>
             </li>
 
-
+            @if (auth::user()->role != 'Accounting')
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Library</span>
             </li>
@@ -774,7 +778,9 @@
                     </li>
                 </ul>
             </li>
+            @endif
 
+            @if (auth::user()->role != 'Accounting')
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Template</span>
             </li>
@@ -784,6 +790,7 @@
                     <div data-i18n="Machine">Machine</div>
                 </a>
             </li>
+            @endif
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Employee</span>
@@ -794,6 +801,7 @@
                     <div data-i18n="User">User</div>
                 </a>
             </li>
+            @if (auth::user()->role != 'Accounting')
             <li
                 class="menu-item {{ request()->is('unit-global') || request()->is('unit-global/*') ? 'active' : '' }}">
                 <a href="{{ route('unit-global.index') }}" class="menu-link">
@@ -815,6 +823,8 @@
                     <div data-i18n="Correction Factor Calc">Correction Factor Calc</div>
                 </a>
             </li>
+            @endif
+            @if (auth::user()->role != 'Accounting')
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Notulen</span>
             </li>
@@ -828,6 +838,7 @@
                     @endif --}}
                 </a>
             </li>
+            @endif
         @elseif (auth::user()?->role == 'Sales')
             <!-- Dashboards -->
             <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
