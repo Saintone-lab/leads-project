@@ -376,28 +376,12 @@ class DashboardController extends Controller
                 ->whereNull('invoice.no_invoice')
                 ->count();
             $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-            $payments = DB::table('payment')
-                ->select(
-                    'id_quotation',
-                    DB::raw('SUM(amount - pph - cost) as total_payment')
-                )
-                ->groupBy('id_quotation');
-
-            $poTotalPriceAdmin = DB::table('quotation as q')
-                ->leftJoinSub($payments, 'p', function ($join) {
-                    $join->on('p.id_quotation', '=', 'q.id');
-                })
-                ->whereYear('q.po_date', $yearNow)
-                ->whereMonth('q.po_date', $monthNow)
-                ->where('q.status', '100')
-                ->where('q.level', '1')
-                ->where('q.is_primary', '1')
-                ->sum(DB::raw('
-                    CASE 
-                        WHEN p.total_payment IS NOT NULL THEN p.total_payment
-                        ELSE q.nett
-                    END
-                '));
+            $poTotalPriceAdmin = Quotation::whereYear('po_date', $yearNow)
+                ->whereMonth('po_date', $monthNow)
+                ->where('status', '100')
+                ->where('level', '1')
+                ->where('is_primary', '1')
+                ->sum('nett');
             $formattedTotalPriceAdmin = $this->formatNumber($poTotalPriceAdmin);
             $sales = User::whereIn('role', ['Sales', 'Support'])->where('active', '1')->orderByDesc('id')->get();
             $firstSales = User::find(1);
@@ -1371,29 +1355,15 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $payments = DB::table('payment')
-            ->select(
-                'id_quotation',
-                DB::raw('SUM(amount - pph - cost) as total_payment')
-            )
-            ->groupBy('id_quotation');
 
-        $totalPO = DB::table('quotation as q')
-            ->leftJoinSub($payments, 'p', function ($join) {
-                $join->on('p.id_quotation', '=', 'q.id');
-            })
-            ->whereYear('q.po_date', $yearNow)
-            ->whereMonth('q.po_date', $monthNow)
-            ->where('q.id_sales', $sales)
-            ->where('q.status', '100')
-            ->where('q.level', '1')
-            ->where('q.is_primary', '1')
-            ->sum(DB::raw('
-                CASE 
-                    WHEN p.total_payment IS NOT NULL THEN p.total_payment
-                    ELSE q.nett
-                END
-            '));
+        $totalPO = Quotation::whereYear('po_date', $yearNow)
+            ->whereMonth('po_date', $monthNow)
+            ->where('id_sales', $sales)
+            ->where('status', '100')
+            ->where('level', '1')
+            ->where('is_primary', '1')
+            ->sum('nett');
+
         return $totalPO;
     }
     public function totalTargetPoAdmin($sales)
