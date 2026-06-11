@@ -32,7 +32,6 @@
                     <thead>
                         <tr>
                             <th></th>
-                            <th></th>
                             <th>ID</th>
                             <th>No Service</th>
                             <th>Company</th>
