@@ -77,12 +77,12 @@
                 </a>
 
                 <ul class="menu-sub">
-                    <li
+                {{--    <li
                         class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') ? 'active' : '' }}">
                         <a href="{{ url('leads') }}" class="menu-link">
                             <div data-i18n="Leads">Leads</div>
                         </a>
-                    </li>
+                    </li> --}}
                     <li
                         class="menu-item {{ request()->is('leads-by-sales') ? 'active' : '' }}">
                         <a href="{{ route('index-sales.leads') }}" class="menu-link">
@@ -90,26 +90,16 @@
                         </a>
                     </li>
 
-                    <li
+                {{--<li
                         class="menu-item {{ request()->is('existing') || request()->is('existing/*') ? 'active' : '' }}">
                         <a href="{{ route('existing.index') }}" class="menu-link">
                             <div data-i18n="Customers">Customers</div>
                         </a>
-                    </li>
+                    </li> --}}
                     <li
                         class="menu-item {{ request()->is('customers-by-sales') ? 'active' : '' }}">
                         <a href="{{ route('index-sales.customers') }}" class="menu-link">
                             <div data-i18n="Customers By Sales">Customers By Sales</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('ru') ? 'active' : '' }}">
-                        <a href="{{ route('ru.index') }}" class="menu-link">
-                            <div data-i18n="R/U">R/U</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('existing-bangkrupt') ? 'active' : '' }}">
-                        <a href="{{ route('index.bangkrupt') }}" class="menu-link">
-                            <div data-i18n="List Bangkrupt">List Bangkrupt</div>
                         </a>
                     </li>
                 </ul>
@@ -393,7 +383,7 @@
                 </ul>
             </li>
             <li class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">
-                <a href="{{ route('return.index') }}" class="menu-link">
+                <a href="{{ route('service-reports.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-list-box-outline"></i>
                     <div data-i18n="Service Report">Service Report</div>
                 </a>
@@ -897,6 +887,7 @@
                             <div data-i18n="CRM">CRM</div>
                         </a>
                     </li>
+                    {{--
                     <li class="menu-item {{ request()->is('ru') ? 'active' : '' }}">
                         <a href="{{ route('ru.index') }}" class="menu-link">
                             <div data-i18n="R/U">R/U</div>
@@ -907,6 +898,7 @@
                             <div data-i18n="List Bangkrupt">List Bangkrupt</div>
                         </a>
                     </li>
+                    --}}
                 </ul>
             </li>
 
