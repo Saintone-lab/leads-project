@@ -1,6 +1,6 @@
 $(function () {
     var dt_table_reports = $(".datatable-reports");
-    var Url = "db/reports";
+    var Url = "/db/reports";
 
     if (dt_table_reports.length) {
         var dt_reports = dt_table_reports.DataTable({
@@ -81,6 +81,15 @@ $(function () {
                 {
                     responsivePriority: 2,
                     targets: [3,4],
+                },
+                {
+                    targets: 7,
+                    render: function (data, type, full, meta) {
+                        if (type === "display") {
+                            return data && data.length ? data : '-';
+                        }
+                        return data;
+                    },
                 },
                 {
                     // Actions

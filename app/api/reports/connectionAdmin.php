@@ -2,9 +2,9 @@
 use Illuminate\Support\Facades\Auth;
 
 header('Content-Type: application/json');
-$host = "localhost";
-$users = "root";
-$pass = "";
+$host = env('DB_HOST', 'localhost');
+$users = env('DB_USERNAME', 'root');
+$pass = env('DB_PASSWORD', '');
 
 $databaseName = "db_leads_v1";
 $tableName = "reports";

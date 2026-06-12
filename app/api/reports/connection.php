@@ -21,7 +21,7 @@ if (Auth::check()) {
 
         // Query database for data
         $query = "SELECT r.*, c.company, u.name, CONCAT(sp.brand, ' ', un.sku) AS brand_type,
-        m.serial AS serial, m.tag AS tag, CONCAT(m.serial, IFNULL(CONCAT(' / ', m.tag), '')) AS serial_tag
+        m.serial AS serial, m.tag AS tag, COALESCE(NULLIF(CONCAT_WS(' / ', m.serial, m.tag), ''), '-') AS serial_tag
         FROM reports r
         JOIN machine m on r.id_machine = m.id
         LEFT JOIN pic p on p.id = r.id_pic
