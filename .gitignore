@@ -16,3 +16,9 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# User uploaded files
+leads-project.zip
+public/asset/po/
+public/asset/facilities/
+public/asset/machines/

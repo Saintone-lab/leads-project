@@ -3,10 +3,10 @@ use Illuminate\Support\Facades\Auth;
 
 header('Content-Type: application/json');
 $host = "localhost";
-$users = "root";
-$pass = "";
+$users = "u877155683_reftech_my";
+$pass = "REFtechjaya321!";
 
-$databaseName = "db_leads_v1";
+$databaseName = "u877155683_reftech_my";
 $tableName = "product_in";
 
 // Periksa apakah pengguna terotentikasi

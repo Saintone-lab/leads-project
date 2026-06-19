@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\DetailProduct;
 use App\Models\DetailProductIn;
+use App\Models\DetailReturn;
 use App\Models\Product;
 use App\Models\ProductIn;
 use App\Models\Prospect;
+use App\Models\Retur;
+use App\Models\Supplier;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ProductInController extends Controller
@@ -21,7 +25,7 @@ class ProductInController extends Controller
         // $product = ProductIn::all();
         // dd($product);
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.warehouse.product-in.index',compact('noSaleProspect'));
+        return view('pages.warehouse.product-in.index', compact('noSaleProspect'));
     }
 
     /**
@@ -31,8 +35,9 @@ class ProductInController extends Controller
      */
     public function create()
     {
+        $suppliers = Supplier::all();
         $detProduct = DetailProduct::join('product', 'detail_product.id_product', '=', 'product.id')->get('detail_product.*');
-        return view('pages.warehouse.product-in.form', compact('detProduct'));
+        return view('pages.warehouse.product-in.form', compact('detProduct', 'suppliers'));
     }
 
     /**
@@ -45,23 +50,24 @@ class ProductInController extends Controller
     {
         $rule = [
             'invoice' => 'required',
-            'suplier' => 'required',
             'date' => 'required',
             'note' => 'required',
         ];
         $message = [
             'invoice.required' => 'Field No Invoice Wajib Diisi',
-            'suplier.required' => 'Field Suplier Wajib Diisi',
             'date.required' => 'Field Date Wajib Diisi',
             'note.required' => 'Field Note Wajib Diisi',
         ];
         $this->validate($request, $rule, $message);
         // dd($request->all());
+        $supplier = Supplier::find($request->supplier);
         // Masukan Data ke Tabel Quotataion
         $productIn = new ProductIn();
         $productIn->no_do = NULL;
         $productIn->invoice = $request->invoice;
-        $productIn->supplier = $request->suplier;
+        $productIn->id_supplier = $request->supplier;
+        // $productIn->supplier = $request->suplier;
+        $productIn->info = $supplier->info;
         $productIn->date = $request->date;
         $productIn->date_invoice = $request->date_invoice;
         $productIn->subtotal = $request->subtotal;
@@ -79,6 +85,7 @@ class ProductInController extends Controller
                 $dProductIn->id_detail_product = $request->replacement[$item];
                 $dProductIn->qty = $request->qty[$item];
                 $dProductIn->modal = $request->price[$item];
+                $dProductIn->disc = $request->disc[$item];
                 $dProductIn->amount = $request->amount[$item];
                 $dProductIn->warehouse = $request->warehouse[$item];
                 $productD = DetailProduct::where('id', $request->replacement[$item])->first();
@@ -118,7 +125,8 @@ class ProductInController extends Controller
         $tax = $product->subtotal * $product->tax / 100;
         $detail = DetailProductIn::where('id_product_in', $id)->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.warehouse.product-in.detail', compact('product', 'detail', 'noSaleProspect', 'tax'));
+        $return = Retur::where('id_product_in', $id)->get();
+        return view('pages.warehouse.product-in.detail', compact('product', 'detail', 'noSaleProspect', 'tax', 'return'));
     }
 
     /**
@@ -131,10 +139,19 @@ class ProductInController extends Controller
     {
         $productIn = ProductIn::find($id);
         $dProductIn = DetailProductIn::where('id_product_in', $id)->get();
+        $suppliers = Supplier::all();
         // dd($dProductIn);
-        return view('pages.warehouse.product-in.invoicing', compact('productIn', 'dProductIn'));
+        return view('pages.warehouse.product-in.invoicing', compact('suppliers', 'productIn', 'dProductIn'));
     }
 
+    public function edit_return($id)
+    {
+        $return = Retur::find($id);
+        $dReturn = DetailReturn::where('id_retur', $id)->where('status', 1)->get();
+        $suppliers = Supplier::all();
+        // dd($dReturn[0]->return);
+        return view('pages.warehouse.product-in.return', compact('suppliers', 'return', 'dReturn','id'));
+    }
     /**
      * Update the specified resource in storage.
      *
@@ -146,20 +163,22 @@ class ProductInController extends Controller
     {
         $product = ProductIn::find($id);
         $dProductIn = DetailProductIn::where('id_product_in', $id)->get();
-        // dd($dProductIn);
+        // dd($request->all());
         $total = 0;
         foreach ($dProductIn as $item) {
             $item->detailProduct->modal = $request->modal[$item->id];
             $item->modal = $request->modal[$item->id];
+            // $item->disc = $request->disc[$item->id];
             $item->amount = $request->modal[$item->id] * $item->qty;
             $detailSave = $item->save();
             $item->detailProduct->save();
             $total += $item->amount;
         }
         if ($detailSave) {
+            $taxed = $total * $product->tax;
             $product->subtotal = $total;
             $product->total_no_tax = $total + $product->shipping;
-            $product->total = $total + ($total * $product->tax) + $product->shipping;
+            $product->total = $total + $taxed + $product->shipping;
             $productSave = $product->save();
         }
         if ($productSave) {
@@ -216,11 +235,16 @@ class ProductInController extends Controller
         ];
         $this->validate($request, $rule, $message);
         // dd($request->all());
+        $supplier = Supplier::find($request->supplier);
         // Masukan Data ke Tabel Quotataion
         $productIn = new ProductIn();
         $productIn->no_do = $request->no_do;
         $productIn->invoice = null;
+        // $productIn->id_supplier = null;
+        $productIn->id_supplier = $request->supplier;
         $productIn->supplier = null;
+        // $productIn->info = $supplier->info;
+        $productIn->info = $request->info;
         $productIn->date = $request->date;
         $productIn->date_invoice = null;
         $productIn->subtotal = null;
@@ -263,27 +287,29 @@ class ProductInController extends Controller
             return redirect('/product-in')->with('message', 'data telah di tambahkan');
         }
     }
-    public function invoicing(Request $request, $id){
+    public function invoicing(Request $request, $id)
+    {
         $productIn = ProductIn::find($id);
         $dProductIn = DetailProductIn::where('id_product_in', $id)->get();
-        // dd($dProductIn);
+        // dd($request->all());
         $rule = [
             'invoice' => 'required',
-            'suplier' => 'required',
-            'date_invoice' => 'required',
+            // 'suplier' => 'required',
+            // 'date_invoice' => 'required',
             'note' => 'required',
         ];
         $message = [
             'invoice.required' => 'Field No Invoice Wajib Diisi',
-            'suplier.required' => 'Field Suplier Wajib Diisi',
-            'date_invoice.required' => 'Field Date Wajib Diisi',
+            // 'suplier.required' => 'Field Suplier Wajib Diisi',
+            // 'date_invoice.required' => 'Field Date Wajib Diisi',
             'note.required' => 'Field Note Wajib Diisi',
         ];
         $this->validate($request, $rule, $message);
         // dd($request->all());
         // Masukan Data ke Tabel Quotataion
         $productIn->invoice = $request->invoice;
-        $productIn->supplier = $request->suplier;
+        $productIn->id_supplier = $request->supplier;
+        // $productIn->supplier = $request->suplier;
         $productIn->date_invoice = $request->date_invoice;
         $productIn->subtotal = $request->subtotal;
         $productIn->total_no_tax = $request->total_no_tax;
@@ -297,6 +323,7 @@ class ProductInController extends Controller
             foreach ($dProductIn as $item => $value) {
                 $value->modal = $request->price[$item];
                 $value->amount = $request->amount[$item];
+                $value->disc = $request->disc[$item];
                 $dProductSave = $value->save();
             }
         }
@@ -304,6 +331,60 @@ class ProductInController extends Controller
             return redirect('/product-in')->with('message', 'data telah di tambahkan');
         }
     }
+    public function return_in(Request $request, $id)
+    {
+        $return = Retur::find($id);
+        $dReturn = DetailReturn::where('id_retur', $id)->where('status', 1)->get();
+        // dd($request->all());
+        $rule = [
+            'invoice' => 'required',
+            // 'suplier' => 'required',
+            // 'date_invoice' => 'required',
+            'note' => 'required',
+        ];
+        $message = [
+            'invoice.required' => 'Field No Invoice Wajib Diisi',
+            // 'suplier.required' => 'Field Suplier Wajib Diisi',
+            // 'date_invoice.required' => 'Field Date Wajib Diisi',
+            'note.required' => 'Field Note Wajib Diisi',
+        ];
+        $this->validate($request, $rule, $message);
+        // dd($request->all());
+        // Masukan Data ke Tabel Quotataiona
+        $productIn = new ProductIn();
+        $productIn->invoice = $request->invoice;
+        $productIn->id_supplier = $request->supplier;
+        // $productIn->supplier = $request->suplier;
+        $productIn->date_invoice = $request->date_invoice;
+        $productIn->date = Carbon::now();
+        $productIn->subtotal = $request->subtotal;
+        $productIn->total_no_tax = $request->total_no_tax;
+        $productIn->tax = $request->tax;
+        $productIn->note = $request->note;
+        $productIn->shipping = $request->shipping;
+        $productIn->total = $request->total;
+        $productInSave = $productIn->save();
+        if ($productInSave) {
+            // Masukan Data Ke Tabel Detail Quotataion
+            foreach ($dReturn as $item => $value) {
+                $dproductIn = new DetailProductIn();
+                $dproductIn->id_product_in = $productIn->id;
+                $dproductIn->id_detail_product = $value->id_replacement;
+                $dproductIn->qty = $value->qty;
+                $dproductIn->warehouse = $request->warehouse[$item];
+                $dproductIn->modal = $request->price[$item];
+                $dproductIn->amount = $request->amount[$item];
+                $dproductIn->disc = $request->disc[$item];
+                $dProductSave = $dproductIn->save();
+            }
+        }
+        $return->status = 1;
+        $return->save();
+        if ($dProductSave) {
+            return redirect('/return/'. $id)->with('message', 'data telah di tambahkan');
+        }
+    }
+
 
     public function productIn_print($id)
     {
@@ -313,4 +394,98 @@ class ProductInController extends Controller
         return view('pages.warehouse.product-in.detail-print', compact('product', 'detail', 'tax'));
     }
 
+    public function indexSupplier()
+    {
+        return view('pages.warehouse.supplier.index');
+    }
+    public function detailSupplier($id)
+    {
+        $supplier = Supplier::find($id);
+        return view('pages.warehouse.supplier.detail', compact('supplier'));
+    }
+
+    public function storeSupplier(Request $request)
+    {
+        $supplier = new Supplier();
+        $supplier->supplier = $request->supplier;
+        $supplier->phone = $request->phone;
+        $supplier->email = $request->email;
+        $supplier->code = $request->code;
+        $supplier->area = $request->area;
+        $supplier->address = $request->address;
+        $supplier->npwp = $request->npwp;
+        $supplier->info = $request->info;
+        $supplierSave = $supplier->save();
+        if ($supplierSave) {
+            return redirect()->back()->with('success', 'Supplier berhasil ditambahkan!');
+        }
+    }
+    public function deleteSupplier($id)
+    {
+        $supplier = Supplier::find($id);
+        $supplierDel = $supplier->delete();
+        if ($supplierDel) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    public function updateSupplier(Request $request, $id)
+    {
+        $supplier = Supplier::find($id);
+        $supplier->supplier = $request->supplier;
+        $supplier->phone = $request->phone;
+        $supplier->email = $request->email;
+        $supplier->code = $request->code;
+        $supplier->area = $request->area;
+        $supplier->address = $request->address;
+        $supplier->npwp = $request->npwp;
+        $supplier->info = $request->info;
+        $supplierSave = $supplier->save();
+        if ($supplierSave) {
+            return redirect()->back()->with('success', 'Supplier berhasil ditambahkan!');
+        }
+    }
+    public function acceptIn($id)
+    {
+        $product = ProductIn::find($id);
+        $product->accept = '1';
+        $productSave = $product->save();
+        if ($productSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    public function return(Request $request, $id)
+    {
+        $detProduct = DetailProductIn::where('id_product_in', $id)->get();
+        foreach ($request->qty as $key => $value) {
+            if ($value != 0) {
+                // dd($key);
+                $return = new Retur();
+                $return->id_product_in = $id;
+                $return->id_replacement = $detProduct[$key]->id_detail_product;
+                $return->qty = $value;
+                $return->note = $request->note[$key] ?? '-';
+                $return->status = 0;
+                $return->date = Carbon::today();
+                $returnSave = $return->save();
+            }
+        }
+        if ($returnSave) {
+            return redirect()->back()->with('success', 'Data Return Telah Ditambahkan');
+        }
+    }
+    public function clearReturn($id)
+    {
+        $return = Retur::find($id);
+        $return->status = 1;
+        $returnSave = $return->save();
+        if ($returnSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 }

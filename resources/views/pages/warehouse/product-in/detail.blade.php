@@ -11,9 +11,8 @@
                             <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
                                 <span class="app-brand-logo demo">
                                     <span style="color: var(--bs-primary)">
-                                        <img class="text-md"
-                                                src="{{ asset('/asset') }}/logo/Reftech-Log.png"
-                                            alt="" srcset="" width="60%">
+                                        <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt=""
+                                            srcset="" width="60%">
                                     </span>
                                 </span>
                             </div>
@@ -37,7 +36,7 @@
                             <p class="mb-1">Note</p>
                         </div>
                         <div class="col-8">
-                            <p class="mb-1">: {{ $product->supplier }}</p>
+                            <p class="mb-1">: {{ $product->supplier ?? $product->supp->supplier }}</p>
                             <p class="mb-1">: {{ $product->note }}</p>
                         </div>
                     </div>
@@ -50,6 +49,7 @@
                                 <th>Item</th>
                                 <th>Qty</th>
                                 <th>Modal</th>
+                                <th>Discount</th>
                                 <th>Amount</th>
                             </tr>
                         </thead>
@@ -75,43 +75,47 @@
                                     @if (Auth::user()->role == 'Logistic')
                                         <td class="align-top">RP {{ str_repeat('*', strlen((string) $products->modal)) }}
                                         </td>
+                                        <td class="align-top">RP {{ str_repeat('*', strlen((string) $products->disc)) }}
+                                        </td>
                                         <td class="align-top">RP {{ str_repeat('*', strlen((string) $products->amount)) }}
                                         </td>
                                     @else
                                         <td class="align-top">RP {{ number_format($products->modal, 0, '', '.') }}</td>
+                                        <td class="align-top">RP {{ number_format($products->disc, 0, '', '.') }}</td>
                                         <td class="align-top">RP {{ number_format($products->amount, 0, '', '.') }}</td>
                                     @endif
                                 </tr>
                             @endforeach
                             <tr style="font-size: 13px">
-                                <td colspan="3" style="border:none;"></td>
-                                <td >Subtotal</td>
+                                <td colspan="4" style="border:none;"></td>
+                                <td>Subtotal</td>
                                 @if (Auth::user()->role == 'Logistic')
                                     <td>: RP {{ str_repeat('*', strlen((string) $product->subtotal)) }}</td>
-                                    @else
+                                @else
                                     <td>: RP {{ number_format($product->subtotal, 0, '', '.') }}</td>
                                 @endif
                             </tr>
                             <tr style="font-size: 13px">
-                                <td colspan="3" style="border:none;"></td>
-                                <td >Tax {{$product->tax == '11' ? '11%' : ''}}</td>
+                                <td colspan="4" style="border:none;"></td>
+                                <td>Tax {{ $product->tax == '11' ? '11%' : '' }}</td>
                                 @if (Auth::user()->role == 'Logistic')
                                     <td>: RP {{ str_repeat('*', strlen((string) $tax)) }}</td>
-                                    @else
+                                @else
                                     <td>: RP {{ number_format($tax, 0, '', '.') }}</td>
                                 @endif
                             </tr>
                             <tr style="font-size: 13px;">
-                                <td colspan="3" style="border:none;"></td>
+                                <td colspan="4" style="border:none;"></td>
                                 <td>Shipping</td>
                                 <td>: RP {{ number_format($product->shipping, 0, '', '.') }}</td>
                             </tr>
                             <tr style="font-size: 13px">
-                                <td colspan="3" style="border:none;"></td>
+                                <td colspan="4" style="border:none;"></td>
                                 <td style="border:none;">Total</td>
                                 @if (Auth::user()->role == 'Logistic')
-                                    <td style="border:none;">: RP {{ str_repeat('*', strlen((string) $product->total)) }}</td>
-                                    @else
+                                    <td style="border:none;">: RP {{ str_repeat('*', strlen((string) $product->total)) }}
+                                    </td>
+                                @else
                                     <td style="border:none;">: RP {{ number_format($product->total, 0, '', '.') }}</td>
                                 @endif
                             </tr>
@@ -119,14 +123,73 @@
                     </table>
                 </div>
             </div>
+
+
+            <div class="table-responsive">
+                <table class="table m-0">
+                    <thead class="">
+                        <tr>
+                            <th>Item</th>
+                            <th>Desc</th>
+                            <th>Qty</th>
+                            <th>Note</th>
+                            <th style="width: 20%">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $no = 0;
+                        @endphp
+                        @forelse ($return as $retur)
+                            @php
+                                $no++;
+                            @endphp
+                            <tr style="font-size: 13px">
+                                <td class="align-top">{{ $no }}</td>
+                                <td class="text-nowrap align-top">
+                                    <p class="mb-0 fw-semibold" style="font-size: 12px">
+                                        {{ $retur->replacement->replacement }}
+                                    </p>
+                                    <pre class="mb-0"
+                                        style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $retur->replacement->product->description }}</pre>
+                                </td>
+                                <td class="align-top">{{ $retur->qty }}
+                                    {{ $retur->replacement->product->unit }}
+                                </td>
+                                <td class="align-top">{{ $retur->note }}</td>
+                                <td class="align-top">
+                                    @if ($retur->status == 0)
+                                        <a href="#" class="btn btn-primary d-grid w-100 waves-effect clear-return"
+                                            data-id="{{ $retur->id }}">Clear Return</a>
+                                    @else
+                                        <p class="text-success">Sudah Clear</p>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center">Tidak ada return di invoice ini</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+            @if ($product->accept == '0')
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <a href="#" class="btn btn-success d-grid w-100 waves-effect accept-product"
+                            data-id="{{ $product->id }}">Accept</a>
+                    </div>
+                </div>
+            @endif
             <div class="card">
                 <div class="card-body">
                     <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
-                        href="{{route('productIn.print', $product->id)}}">
+                        href="{{ route('productIn.print', $product->id) }}">
                         Download
                     </a>
                     {{-- <a href="javascript{0}" type="button" class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">
@@ -228,6 +291,118 @@
                                     icon: 'error',
                                     title: 'Oops...',
                                     text: 'Data Failed to Delete!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.accept-product', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Accept it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('product-in') }}/accept/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Accepted!",
+                                    text: "Your file has been Accepted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href = '/product-in/' + id;
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Accept!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "Your imaginary file is safe :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.clear-return', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Accept it!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('product-in') }}/clear-return/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Accepted!",
+                                    text: "Your file has been Accepted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed to Accept!'
                                 });
                             }
                         }

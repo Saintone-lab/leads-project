@@ -24,10 +24,19 @@ class ProductIn extends Model
         'total_no_tax',
         'shipping',
         'tax',
+        'total',
         'price',
     ];
+    public function supp()
+    {
+        return $this->belongsTo('App\Models\Supplier', 'id_supplier', 'id');
+    }
     public function detail()
     {
         return $this->hasMany('App\Models\DetailProductIn', 'id_product_in');
+    }
+    public function return()
+    {
+        return $this->hasMany('App\Models\Retur', 'id_product_in');
     }
 }

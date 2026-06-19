@@ -27,13 +27,55 @@
                         </div>
                     @endif
                     <div class="row g-2 mb-3">
-                        <div class="col-12 mb-2">
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" id="company" class="form-control" name="company"
-                                    placeholder="PT xxxxxxx" value="{{ old('company', @$leads->company ?? '') }}">
-                                <label for="company">Company</label>
+                        @if (Auth::user()->id == '1' || Auth::user()->id == '16' || Auth::user()->id == '23')
+                            <div class="col-6 mb-2">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" id="company" class="form-control" name="company"
+                                        placeholder="PT xxxxxxx" value="{{ old('company', @$leads->company ?? '') }}">
+                                    <label for="company">Company</label>
+                                </div>
                             </div>
-                        </div>
+                            <div class="col mb-2">
+                                <div class="form-floating form-floating-outline">
+                                    <select class="form-select" id="selectVia" aria-label="Default select example"
+                                        name="info">
+                                        <option disabled>----- Choose Via -----</option>
+                                        <option value="Reftech"
+                                            {{ old('info', @$leads->info) == 'Reftech' ? 'selected' : '' }}>
+                                            Reftech
+                                        </option>
+                                        <option value="Kojisha"
+                                            {{ old('info', @$leads->info) == 'Kojisha' ? 'selected' : '' }}>Kojisha
+                                        </option>
+                                    </select>
+                                    <label for="selectSource">Via</label>
+                                </div>
+                            </div>
+                            @if (empty($leads))
+                                <div class="col mb-2">
+                                    <div class="form-floating form-floating-outline">
+                                        <select class="form-select" id="selectWeek" aria-label="Default select example"
+                                            name="week" {{ @$leads ? 'disabled' : '' }}>
+                                            <option disabled>----- Choose Week -----</option>
+                                            <option value="1">Week 1</option>
+                                            <option value="2">Week 2</option>
+                                            <option value="3">Week 3</option>
+                                            <option value="4">Week 4</option>
+                                            <option value="5">Week 5</option>
+                                        </select>
+                                        <label for="selectWeek">Week</label>
+                                    </div>
+                                </div>
+                            @endif
+                        @else
+                            <div class="col-12 mb-2">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" id="company" class="form-control" name="company"
+                                        placeholder="PT xxxxxxx" value="{{ old('company', @$leads->company ?? '') }}">
+                                    <label for="company">Company</label>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
@@ -54,9 +96,9 @@
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="websiteAnimation" class="form-control" name="web"
-                                    placeholder="xxxxxxxxx.com" value="{{ old('web', @$leads->web ?? '') }}">
-                                <label for="websiteAnimation">Website</label>
+                                <input type="text" id="unitsiteAnimation" class="form-control" name="unit"
+                                    placeholder="xxx-21" value="{{ old('unit', @$leads->unit ?? '') }}">
+                                <label for="unitsiteAnimation">Unit</label>
                             </div>
                         </div>
                         <div class="col mb-2">
@@ -108,7 +150,8 @@
                                 <select class="form-select" id="selectMobile" aria-label="Default select example"
                                     name="mobile">
                                     <option disabled>----- Choose Mobile -----</option>
-                                    <option value="WA" {{ old('mobile', @$leads->mobile) == 'WA' ? 'selected' : '' }}>
+                                    <option value="WA"
+                                        {{ old('mobile', @$leads->mobile) == 'WA' ? 'selected' : '' }}>
                                         WhatsApp</option>
                                     <option value="Phone Office"
                                         {{ old('mobile', @$leads->mobile) == 'Phone Office' ? 'selected' : '' }}>Phone
@@ -122,9 +165,9 @@
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="machineAnimation" class="form-control"
-                                    placeholder="Contoh: Copco Atlas" name="machine"
-                                    value="{{ old('machine', @$leads->machine ?? '') }}">
-                                <label for="machineAnimation">Machine</label>
+                                    placeholder="123xxxxxxxx" name="npwp"
+                                    value="{{ old('npwp', @$leads->npwp ?? '') }}">
+                                <label for="npwpAnimation">NPWP</label>
                             </div>
                         </div>
                         <div class="col mb-2">
@@ -141,7 +184,7 @@
                             <div class="form-floating form-floating-outline mb-4">
                                 <textarea class="form-control h-px-100" name="address" id="addressTextarea1"
                                     placeholder="Contoh: Jl Taman Kopo Indah 5 Kota...">{{ old('address', @$leads->address ?? '') }}</textarea>
-                                <label for="addressTextarea1">Address</label>
+                                <label for="addressTextarea1">NPWP Address</label>
                             </div>
                         </div>
                         <div class="col mb-2">
@@ -150,7 +193,7 @@
                                     placeholder="Contoh: Jl Taman Kopo Indah 5 Kota...">{{ old('subAddress', @$leads->subAddress ?? '') }}</textarea>
                                 <label for="addressTextarea2">Sub Address</label>
                             </div>
-                        </div>  
+                        </div>
                     </div>
                     {{-- @empty($leads)
                     <div class="divider divider-dark mx-3">

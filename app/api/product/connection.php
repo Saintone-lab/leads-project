@@ -3,10 +3,10 @@ use Illuminate\Support\Facades\Auth;
 
 header('Content-Type: application/json');
 $host = "localhost";
-$users = "root";
-$pass = "";
+$users = "u877155683_reftech_my";
+$pass = "REFtechjaya321!";
 
-$databaseName = "db_leads_v1";
+$databaseName = "u877155683_reftech_my";
 $tableName = "product";
 
 // Periksa apakah pengguna terotentikasi
@@ -22,6 +22,13 @@ if (Auth::check()) {
         // Query database for data
         $query = "SELECT 
                     p.*,
+                    CONCAT(' (', 
+                        CASE 
+                            WHEN p.go = 'Replacement' THEN 'R'
+                            WHEN p.go = 'Genuine' THEN 'G'
+                            ELSE p.go
+                        END
+                    , ')', p.description) as descrip,
                     s.pn,
                     s.brand,
                     s.price,
@@ -30,16 +37,11 @@ if (Auth::check()) {
                     p.stock AS all_stock, 
                     -- CONCAT(p.commodity, IFNULL(CONCAT(' || ', s.pn), '')) AS product, 
                     IFNULL(
-                        GROUP_CONCAT(
                             CONCAT(
                                 'Average HPP ', 
-                                dp.replacement,
-                                '( Rp ', 
-                                FORMAT(dp.modal, 2), 
-                                ' )' 
-                            ) 
-                            SEPARATOR ' || '
-                        ), 
+                                'Rp ', 
+                                FORMAT(dp.modal, 2)
+                            ),
                         'Tidak Ada Replacement'
                     ) AS modal_replacements,
                     CONCAT(p.stock, ' - ', p.warehouse_stock) AS stok,

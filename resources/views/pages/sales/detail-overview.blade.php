@@ -11,7 +11,7 @@
             } else {
                 $item = 7;
             }
-            
+
         @endphp
         @foreach ($getDC as $DC)
             <div class="col-lg-6 mb-3">
@@ -61,13 +61,25 @@
                     <div class="card-body d-flex justify-content-between flex-wrap gap-3">
                         <div class="d-flex gap-2">
                             <div class="avatar">
+                                <div class="avatar-initial bg-label-secondary rounded">
+                                    <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <h5 class="mb-0">{{ $getLeads[$item]['total'] }}</h5>
+                                <small class="text-muted">Leads</small>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <div class="avatar">
                                 <div class="avatar-initial bg-label-info rounded">
                                     <i class="mdi mdi-phone-outline mdi-24px"></i>
                                 </div>
                             </div>
                             <div class="card-info">
                                 <h5 class="mb-0">{{ $DC['total'] }}</h5>
-                                <small class="text-muted">{{Auth::user()->id == '1' ? 'New Leads' : 'Daily Call'}}</small>
+                                <small
+                                    class="text-muted">{{ Auth::user()->id == '1' ? 'New Leads' : 'Daily Call' }}</small>
                             </div>
                         </div>
                         <div class="d-flex gap-2">
@@ -81,7 +93,9 @@
                                 <small class="text-muted">CRM</small>
                             </div>
                         </div>
-                        @if (Auth::user()->detail[0]->area == 'Bekasi' || Auth::user()->detail[0]->area == 'Jabodetabek' || Auth::user()->detail[0]->area == 'Jawa Barat')
+                        @if (Auth::user()->detail[0]->area == 'Bekasi' ||
+                                Auth::user()->detail[0]->area == 'Jabodetabek' ||
+                                Auth::user()->detail[0]->area == 'Jawa Barat')
                             <div class="d-flex gap-2">
                                 <div class="avatar">
                                     <div class="avatar-initial bg-label-danger rounded">

@@ -1,15 +1,15 @@
 @extends('layouts.sales.app')
 @section('title', $quote->no_quote)
 @php
-    if ($quote->flag == 'Reftech') {
-        $bgColor = 'rgb(224, 248, 248)';
+    if ($quote->pic->client->info == 'Reftech') {
+        $bgColor = 'rgb(255, 212, 0)';
     } else {
-        $bgColor = 'rgb(255, 232, 210)';
+        $bgColor = 'rgb(255, 212, 0)';
     }
 @endphp
 <div class="invoice-print p-4">
     <div class="container-fluid flex-grow-1 container-p-y">
-        @if ($quote->flag == 'Reftech')
+        @if ($quote->pic->client->info == 'Reftech')
             <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
                 <div class="mb-xl-0 pb-1">
                     <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
@@ -20,14 +20,14 @@
                             </span>
                         </span>
                     </div>
-                    <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
-                    <div style="font-size: 10px">
-                        <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
+                    <p class="mb-1 fw-bolder" style="font-size: 15px">PT Reftech Jaya Optima</p>
+                    <div style="font-size: 13px">
+                        <p class="mb-1">Taman Kopo Indah V, Soho Sommerville No. 31</p>
                         <p class="mb-1">Bandung – Jawa Barat 40218</p>
                         <p class="mb-1">
-                            <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
+                            <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-13px"></i>022 54417653
                             {{ '   ' }}<i
-                                class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@reftech.id
+                                class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-13px"></i>info@reftech.id
                         </p>
                         <p class="mb-1">
                         </p>
@@ -104,7 +104,7 @@
         <div class="mb-4">
             <div class="row">
                 <div class="col-6">
-                    <h6 class="fw-semibold fs-4 mb-3">Quote To:</h6>
+                    <h6 class="fw-semibold fs-4 mb-3">Quote to :</h6>
                 </div>
                 <div class="col-6 mb-2">
                 </div>
@@ -121,29 +121,33 @@
                     <p class="mb-1">: {{ $quote->pic->phone_pic }}</p>
                 </div>
                 <div class="col-2 fw-medium text-end">
-                    <p class="mb-1">Sales :</p>
+                    <p class="mb-1">Seller :</p>
                     <p class="mb-1">No PR :</p>
                     <p class="mb-1">Email :</p>
                 </div>
                 <div class="col-4 text-end">
                     <p class="mb-1">
-                        {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}</p>
+                        {{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}</p>
                     <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                     <p class="mb-1"> {{ $quote->pic->client->email }}</p>
                 </div>
             </div>
         </div>
-
+        <hr>
+        <p class="mb-1">Sir/Madam,
+            We are pleased to offer the under – we mention as per conditions and details described as following
+            :
+        </p>
         <div class="mb-2">
-            <table class="table table-borderless m-0" style="width: 100%">
-                <thead class="table-light border-top">
+            <table class="table table-bordered m-0" style="width: 100%">
+                <thead class="table-light border-top text-center">
                     <tr>
-                        <th class="no">No.</th>
-                        <th class="item text-nowrap">Item</th>
-                        <th class="price">Price</th>
-                        <th class="qty">Qty</th>
-                        <th class="disc">Disc</th>
-                        <th class="amount">Amount</th>
+                        <th style="width: 1%;">No.</th>
+                        <th style="width: 40%">Item Description</th>
+                        <th style="width: 12%">Qty</th>
+                        <th style="width: 20%">Price (IDR)</th>
+                        <th style="width: 1%">Disc</th>
+                        <th style="width: 30%">Total Price (IDR)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -155,38 +159,36 @@
                             $no++;
                         @endphp
                         <tr style="font-size: 13px">
-                            <td class="align-top">{{ $no }}</td>
+                            <td class="align-top text-center">{{ $no }}</td>
                             <td class="text-nowrap align-top">
                                 <p class="mb-0 fw-semibold" style="font-size: 12px">
                                     {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}
                                 </p>
                                 <pre class="mb-0"
-                                    style="font-size: 10px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
+                                    style="font-size: 10px; font-family: Inter ; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
                             </td>
-                            <td class="align-top text-end">RP {{ number_format($product->price, 0, '', '.') }}</td>
-                            <td class="align-top">{{ $product->qty }} {{ $product->info_qty }}</td>
-                            <td class="align-top">{{ $product->disc }}%</td>
-                            <td class="align-top text-end">RP {{ number_format($product->amount, 0, '', '.') }}</td>
+                            <td class="align-top text-center">{{ $product->qty }} {{ $product->info_qty }}</td>
+                            <td class="align-top text-end">{{ number_format($product->price, 0, '', '.') }}</td>
+                            <td class="align-top text-center">{{ $product->disc }}%</td>
+                            <td class="align-top text-end">{{ number_format($product->amount, 0, '', '.') }}</td>
                         </tr>
                     @endforeach
                     <tr class="" style="height: 10px !important;">
-                        <td colspan="5" class="align-top" style="font-size: 1px;"> </td>
+                        <td colspan="6" class="align-top" style="font-size: 1px;"> </td>
                     </tr>
                     <tr class="">
-                        <td rowspan="2" class="align-top note text-start">
-                            <p class="mb-0">Note</p>
-                        </td>
-                        <td colspan="2" rowspan="2" class="align-top note">
+                        <td colspan="2"rowspan="2" class="align-top note">
                             <pre style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap; font-size: 12px;"
-                                class="fw-semibold mb-0">: {{ $quote->termncon[0]->note }}</pre>
+                                class="fw-semibold mb-0">Note : {{ $quote->termncon[0]->note }}</pre>
                         </td>
                         <td colspan="2" class="text-end py-0">
-                            <p class="mb-2">Subtotal:</p>
+                            <p class="mb-2">Subtotal :</p>
                             @if ($quote->diskon != 0)
                                 <p class="mb-2">Discount:</p>
                                 <p class="mb-2">Subtotal After Discount:</p>
-                            @endif
-                            <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
+                                @endif
+                                {{-- <p class="mb-2">DPP On VAT:</p> --}}
+                            <p class="mb-2">Tax :</p>
                             @if ($quote->shipping != 0)
                                 <p class="mb-2">Shipping Cost:</p>
                             @endif
@@ -200,6 +202,12 @@
                                 <p class="fw-semibold mb-2 text-end">Rp
                                     {{ number_format($afterDisc, 0, '', '.') }}</p>
                             @endif
+                            @php
+                                $dpp = $afterDisc * 11 / 12;
+                            @endphp
+                            {{-- <p class="fw-semibold mb-2 text-end">RP
+                                {{ number_format($dpp, 0, '', '.') }}
+                            </p> --}}
                             <p class="fw-semibold mb-2 text-end">
                                 {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
                             @if ($quote->shipping != 0)
@@ -208,13 +216,12 @@
                             @endif
                         </td>
                     </tr>
-                    <tr>
-                        <td colspan="1"></td>
-                        <td colspan="1" class="total">
-                            <p class="mb-0 text-end">Total:</p>
+                    <tr style="font-size: 14px;">
+                        <td colspan="2" class="total" style="background-color: #E7FF00">
+                            <p class="fw-bold mb-0 text-end">TOTAL PRICE :</p>
                         </td>
-                        <td colspan="2" class="total">
-                            <p class="fw-semibold mb-0 text-end">Rp
+                        <td colspan="2" class="total" style="background-color: #E7FF00">
+                            <p class="fw-bold mb-0 text-end">Rp
                                 {{ number_format($quote->harga_total, 0, '', '.') }}</p>
                         </td>
                     </tr>
@@ -241,7 +248,7 @@
         </div>
         <div class="mb-0">
             <p class="text-center mb-0">if you have any questions about this quotation, please contact :</p>
-            @if ($quote->flag == 'Reftech')
+            @if ($quote->pic->client->info == 'Reftech')
                 <p class="text-center">{{ $quote->sales->name }} {{ $quote->sales->phone }}</p>
             @else
                 <p class="text-center">+62 812-1000-0997</p>

@@ -23,7 +23,7 @@
                     <p class="card-text">
                     <div class="row mb-1">
                         <div class="col-3">
-                            Adress
+                            NPWP Adress
                         </div>
                         <div class="col-9">
                             : {{ $existing->address }}
@@ -63,6 +63,14 @@
                     </div>
                     <div class="row mb-1">
                         <div class="col-3">
+                            unit
+                        </div>
+                        <div class="col-9">
+                            : {{ $existing->unit }}
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-3">
                             Mobile
                         </div>
                         <div class="col-9">
@@ -87,10 +95,10 @@
                     </div>
                     <div class="row mb-1">
                         <div class="col-3">
-                            Machine
+                            NPWP
                         </div>
                         <div class="col-9">
-                            : {{ $existing->machine }}
+                            : {{ $existing->npwp }}
                         </div>
                     </div>
                     <div class="row">
@@ -116,9 +124,26 @@
                     </button>
                 </a>
             </div>
-            @foreach ($charge as $pic)
-                <div class="card mb-2">
-                    <div class="card-header pb-0">
+            {{-- @foreach ($charge as $pic) --}}
+            <div class="card mb-2">
+                <div class="card-datatable table-responsive pt-0">
+                    <table
+                        class="datatable-pic-client{{ Auth::user()->role == 'Sales' ? '-sales' : '' }} table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                {{-- <div class="card-header pb-0">
                         <div class="text-end text-muted">
                             <a type="button" data-bs-toggle="modal" data-bs-target="#updatePic-{{ $pic->id }}">
                                 <button type="button" class="btn btn-sm btn-label-primary">
@@ -165,9 +190,9 @@
                             </div>
                         </div>
                         </p>
-                    </div>
-                </div>
-            @endforeach
+                    </div> --}}
+            </div>
+            {{-- @endforeach --}}
         </div>
         <div class="col-md-12 mt-4">
             <div class="d-flex justify-content-between mb-2">
@@ -180,7 +205,27 @@
                     </button>
                 </a>
             </div>
-            <div class="row">
+            <div class="card">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-machine-client table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Category</th>
+                                <th>Brand</th>
+                                <th>Type</th>
+                                <th>SN</th>
+                                <th>Tag</th>
+                                <th>Location</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            {{-- <div class="row">
                 @foreach ($machines as $machine)
                     <div class="col-6 col-md-4">
                         <div class="card mb-2">
@@ -245,7 +290,7 @@
                         </div>
                     </div>
                 @endforeach
-            </div>
+            </div> --}}
         </div>
     </div>
     <div class="row mb-3">
@@ -260,11 +305,24 @@
                             + Request Visit
                         </button>
                     </a>
-                    <a type="button" data-bs-toggle="modal" data-bs-target="#createAction{{ $existing->id }}">
-                        <button type="button" class="btn btn-primary">
-                            + New Action
-                        </button>
-                    </a>
+
+                    @php
+                        $emailPic = 0;
+                    @endphp
+
+                    @foreach ($charge as $pic)
+                        @php
+                            if ($pic->email_pic != null && $pic->email_pic != '-') {
+                                $emailPic++;
+                            }
+                        @endphp
+                    @endforeach
+
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#createAction{{ $existing->id }}"
+                        @if ($emailPic <= 0 || $existing->unit == null || $existing->unit == '-') disabled @endif>
+                        + New Action
+                    </button>
                 </div>
             @endif
         </div>
@@ -754,6 +812,9 @@
     <script src="{{ asset('assets') }}/includes/table-quotation-client.js"></script>
     <script src="{{ asset('assets') }}/includes/table-crm-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-po-history.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-machine-client.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-pic-client.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-pic-client-sales.js"></script>
     <script src="{{ asset('assets') }}/includes/table-service-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-general-history.js"></script>
     <script src="{{ asset('assets') }}/includes/table-visit-history.js"></script>
@@ -968,44 +1029,6 @@
                     });
                 }
             });
-            // Swal.fire({
-            //     title: "Are you sure?",
-            //     text: "You won't be able to revert this!",
-            //     icon: "warning",
-            //     showCancelButton: true,
-            //     confirmButtonColor: "#3085d6",
-            //     cancelButtonColor: "#d33",
-            //     confirmButtonText: "Yes, delete it!"
-            // }).then((result) => {
-            //     if (result.isConfirmed) {
-            //         $.ajax({
-            //             'url': '{{ url('existing') }}/' + id,
-            //             'type': 'POST',
-            //             'data': {
-            //                 '_method': 'DELETE',
-            //                 '_token': '{{ csrf_token() }}'
-            //             },
-            //             success: function(response) {
-            //                 if (response == 1) {
-            //                     Swal.fire({
-            //                         title: "Deleted!",
-            //                         text: "Your file has been deleted.",
-            //                         icon: "success"
-            //                     })
-            //                     window.setTimeout(function() {
-            //                         location.reload();
-            //                     }, 2000);
-            //                 } else {
-            //                     Swal.fire({
-            //                         icon: 'error',
-            //                         title: 'Oops...',
-            //                         text: 'Data Failed to Delete!'
-            //                     });
-            //                 }
-            //             }
-            //         });
-            //     }
-            // });
         });
     </script>
 @endpush

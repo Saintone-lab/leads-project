@@ -6,8 +6,10 @@ use App\Models\DetailProduct;
 use App\Models\DetailProductOut;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
+use App\Models\ItemProductSet;
 use App\Models\Product;
 use App\Models\ProductOut;
+use App\Models\ProductSet;
 use App\Models\Prospect;
 use App\Models\SerialProduct;
 use Illuminate\Http\Request;
@@ -24,7 +26,7 @@ class ProductOutController extends Controller
     public function index()
     {
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.warehouse.product-out.index',compact('noSaleProspect'));
+        return view('pages.warehouse.product-out.index', compact('noSaleProspect'));
     }
 
     /**
@@ -80,6 +82,23 @@ class ProductOutController extends Controller
         if ($productOutSave) {
             // Masukan Data Ke Tabel Detail Quotataion
             foreach ($request->equivalent as $item => $value) {
+                $dProduct = DetailProduct::findOrFail($request->replacement[$item]);
+                $productSet = ProductSet::where('id_product', $dProduct->id_product)->first();
+
+                if ($productSet) {
+
+                    $items = ItemProductSet::where('id_product_set', $productSet->id)->get();
+
+                    foreach ($items as $psItem) {
+
+                        $replacement = DetailProduct::find($psItem->id_replacement);
+
+                        if ($replacement) {
+                            $replacement->stock -= $request->qty[$item];
+                            $replacement->save();
+                        }
+                    }
+                }
                 $dProductIn = new DetailProductOut;
                 $dProductIn->id_product_out = $productOut->id;
                 $dProductIn->id_detail_product = $request->replacement[$item];
@@ -107,7 +126,7 @@ class ProductOutController extends Controller
             }
         }
         if ($dProductSave) {
-            return redirect('/product-out/'. $productOut->id)->with('message', 'data telah di tambahkan');
+            return redirect('/product-out/' . $productOut->id)->with('message', 'data telah di tambahkan');
         }
     }
 
@@ -122,7 +141,7 @@ class ProductOutController extends Controller
         $product = ProductOut::find($id);
         $detail = DetailProductOut::where('id_product_out', $id)->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.warehouse.product-out.detail', compact('product','noSaleProspect', 'detail'));
+        return view('pages.warehouse.product-out.detail', compact('product', 'noSaleProspect', 'detail'));
     }
 
     /**
@@ -175,16 +194,18 @@ class ProductOutController extends Controller
             return 0;
         }
     }
-    public function index_invoice(){
+    public function index_invoice()
+    {
         return view('pages.warehouse.product-out.invoice');
     }
-    public function invoice($id){
+    public function invoice($id)
+    {
         $invoice = Invoice::find($id);
         $detailQ = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
         $product = SerialProduct::all();
         // dd($product);
         $dProduct = DetailProduct::all();
-        return view('pages.warehouse.product-out.form-invoice',compact('invoice', 'detailQ', 'product', 'dProduct'));
+        return view('pages.warehouse.product-out.form-invoice', compact('invoice', 'detailQ', 'product', 'dProduct'));
     }
 
     public function invoice_store(Request $request)
@@ -256,7 +277,7 @@ class ProductOutController extends Controller
         }
     }
 
-    
+
     public function change_no(Request $request, $id)
     {
         $product = ProductOut::find($id);

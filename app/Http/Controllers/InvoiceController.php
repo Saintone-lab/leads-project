@@ -3,15 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Contract;
 use App\Models\Delivery;
 use App\Models\DetailQuotation;
+use App\Models\Expense;
+use App\Models\ExpenseInvoice;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\ProductOut;
 use App\Models\Prospect;
 use App\Models\Quotation;
-use App\Models\ReturnQ;
+use App\Models\SubtitleQuotation;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -26,8 +30,23 @@ class InvoiceController extends Controller
      */
     public function index()
     {
+        $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.level', '0')
+            ->count();
+        $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->whereNotNull('client.npwp')
+            ->whereNotNull('quotation.po_file')
+            ->whereNull('invoice.no_invoice')
+            ->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.accounting.invoice.index', compact('noSaleProspect'));
+        return view('pages.accounting.invoice.index', compact('requestContract', 'requestInvoice', 'noSaleProspect'));
     }
 
     /**
@@ -59,37 +78,88 @@ class InvoiceController extends Controller
      */
     public function show($id)
     {
+        $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.level', '0')
+            ->count();
+        $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->whereNotNull('client.npwp')
+            ->whereNotNull('quotation.po_file')
+            ->whereNull('invoice.no_invoice')
+            ->count();
+        $invoice = Invoice::find($id);
         $totalAmount = 0;
         $invoice = Invoice::find($id);
+        $invoiceOrder = Invoice::where('id_quotation', $invoice->id_quotation)
+            ->orderBy('id')
+            ->pluck('id')
+            ->search($id) + 1;
         $quote = Quotation::where('id', $invoice->id_quotation)->first();
-        $return = ReturnQ::where('id_quotation', $invoice->id_quotation)->first();
+        if ($quote->type != 'Sparepart') {
+            $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
+        }
+        // $return = ReturnQ::where('id_quotation', $invoice->id_quotation)->first();
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
-        $payments = Payment::where('id_quotation', $quote->id)->get();
-        // dd($dquote->fee);
+        $payments = Payment::where('id_quotation', $invoice->id_quotation)
+        ->orderBy('id')
+        ->take($invoiceOrder)
+        ->get();
+        // dd($payments);
+        $expense = ExpenseInvoice::where('id_invoice', $id)->get();
+        $totalExpense = ExpenseInvoice::where('id_invoice', $id)->sum('total');
 
+        $totalPph23 = 0;
         $totalPph = 0;
-        foreach ($dquote as $product) {
-            $pph = ($product->amount * $product->pph) / 100;
-            $totalPph += $pph;
+        if ($quote->type == 'Sparepart') {
+            foreach ($dquote as $product) {
+                $pph = ($product->amount * $product->pph) / 100;
+                $totalPph23 += $pph;
+            }
+        } else {
+            foreach ($subQuote as $subtitle) {
+                foreach ($subtitle->detail as $detail) {
+
+                    $pph = ($detail->amount * $detail->pph) / 100;
+                    $totalPph23 += $pph;
+                }
+            }
         }
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
         }
+        $totalPph = $totalPph23 + $invoice->pph;
+        $hargaAfterExpanse = $quote->harga_total - $totalExpense;
         $remaining = $quote->harga_total - $totalAmount;
-        $harga = Payment::where('id_quotation', $quote->id)->orderBy('created_at', 'DESC')->first();
-        $price = $this->terbilang(@$harga->amount - $totalPph);
+        $harga = Payment::where('id_quotation', $quote->id)->get();
+        $priceDp = $this->terbilang($quote->harga_total * @$harga[0]->percent / 100 - $totalPph);
+        $priceBp = $this->terbilang($quote->harga_total * @$harga[1]->percent / 100 - $totalPph);
+        // $price = $this->terbilang(@$harga->amount - $totalPph);
         $fullPrice = $this->terbilang($quote->harga_total - $totalPph);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         // $pph = $quote->subtotal * $invoice->pph / 100;
-        // dd($pph);
+        // dd($quote->harga_total - $totalpph);
         $afterDisc = $quote->subtotal - $quote->diskon;
 
-        $doTek = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->get();
-        $doEks = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->get();
+        $doTek = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->whereNot('code', 'Manual')->get();
+        $doEks = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->whereNot('code', 'Manual')->get();
+        $doTekMan = Delivery::where('id_invoice', $id)->where('type', 'teknisi')->where('code', 'Manual')->get();
+        $doEksMan = Delivery::where('id_invoice', $id)->where('type', 'ekspedisi')->where('code', 'Manual')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $pOut = ProductOut::where('invoice', $invoice->no_invoice)->first();
-        // dd($pOut);
-        return view('pages.accounting.invoice.detail', compact('noSaleProspect', 'return', 'pOut', 'quote', 'harga', 'dquote', 'price', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks'));
+        $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
+        // dd($doTekMan);
+        if ($quote->type == 'Sparepart') {
+            return view('pages.accounting.invoice.detail', compact('totalPph23', 'totalPph', 'lastPayment', 'requestContract', 'requestInvoice', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
+        } else {
+            return view('pages.accounting.invoice.detail', compact('totalPph23', 'totalPph', 'lastPayment', 'requestContract', 'requestInvoice', 'subQuote', 'hargaAfterExpanse', 'totalExpense', 'expense', 'noSaleProspect', 'pOut', 'quote', 'harga', 'dquote', 'priceDp', 'priceBp', 'fullPrice', 'tax', 'invoice', 'payments', 'remaining', 'afterDisc', 'doTek', 'doEks', 'doTekMan', 'doEksMan'));
+        }
+
     }
 
     /**
@@ -127,6 +197,9 @@ class InvoiceController extends Controller
         $invoice->term = $request->payment;
         $invoice->invoiceTo = $quote->destination;
         $invoiceSave = $invoice->save();
+        // $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
+        // $lastPayment->due_date = Carbon::now()->addDays($request->due_date);
+        // $lastPayment->save();
         if ($invoiceSave) {
             return redirect('/invoice/' . $id)->with('message', 'Invoice has been accepted');
         }
@@ -158,24 +231,103 @@ class InvoiceController extends Controller
     }
     public function index_kojisha()
     {
+        $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.level', '0')
+            ->count();
+        $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->whereNotNull('client.npwp')
+            ->whereNull('invoice.no_invoice')
+            ->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.accounting.invoice.index-kojisha', compact('noSaleProspect'));
+        return view('pages.accounting.invoice.index-kojisha', compact('requestContract', 'requestInvoice', 'noSaleProspect'));
     }
     public function request()
     {
+        $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.level', '0')
+            ->count();
+        $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->whereNotNull('client.npwp')
+            ->whereNull('invoice.no_invoice')
+            ->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.accounting.invoice.index-request', compact('noSaleProspect'));
+        return view('pages.accounting.invoice.index-request', compact('requestContract', 'requestInvoice', 'noSaleProspect'));
     }
     public function before_accept($id)
     {
+        $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.level', '0')
+            ->count();
+        $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->whereNotNull('client.npwp')
+            ->whereNull('invoice.no_invoice')
+            ->count();
         $dateNow = Carbon::now();
         $year = $dateNow->year;
         $month = $dateNow->month;
         $monthCode = $this->convertToRoman($month);
-        $lastInvoicePRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->where('invoice.flag', 'Reftech')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.no_invoice', 'desc')->first(['invoice.*', 'quotation.tax']);
-        $lastInvoiceNPRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->where('invoice.flag', 'Reftech')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.no_invoice', 'desc')->first(['invoice.*', 'quotation.tax']);
-        $lastInvoicePKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '11')->where('invoice.flag', 'Kojisha')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.no_invoice', 'desc')->first(['invoice.*', 'quotation.tax']);
-        $lastInvoiceNPKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')->where('quotation.tax', '0')->where('invoice.flag', 'Kojisha')->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)->orderBy('invoice.no_invoice', 'desc')->first(['invoice.*', 'quotation.tax']);
+        $lastInvoicePRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->leftJoin('payment as p', 'p.id_quotation', '=', 'quotation.id')
+            ->where('quotation.tax', '11')
+            ->where('invoice.flag', 'Reftech')
+            ->whereNotNull('no_invoice')
+            ->whereYear('invoice.created_at', $year)
+            ->whereNot('p.method', 'Escrow')
+            ->orderBy('invoice.no_invoice', 'desc')
+            ->first(['invoice.*', 'quotation.tax']);
+        $lastInvoiceNPRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->leftJoin('payment as p', 'p.id_quotation', '=', 'quotation.id')
+            ->where('quotation.tax', '0')
+            ->where('invoice.flag', 'Reftech')
+            ->whereNotNull('no_invoice')
+            ->whereYear('invoice.created_at', $year)
+            ->whereNot('p.method', 'Escrow')
+            ->orderBy('invoice.no_invoice', 'desc')
+            ->first(['invoice.*', 'quotation.tax']);
+        $lastInvoicePKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->leftJoin('payment as p', 'p.id_quotation', '=', 'quotation.id')
+            ->where('quotation.tax', '11')
+            ->where('invoice.flag', 'Kojisha')
+            ->whereNotNull('no_invoice')
+            ->whereNotIn('quotation.id_sales', [16, 23])
+            ->whereNot('p.method', 'Escrow')
+            ->whereYear('invoice.created_at', $year)
+            ->orderBy('invoice.no_invoice', 'desc')
+            ->first(['invoice.*', 'quotation.tax']);
+        $lastInvoiceNPKoj = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->leftJoin('payment as p', 'p.id_quotation', '=', 'quotation.id')
+            ->where('quotation.tax', '0')
+            ->where('invoice.flag', 'Kojisha')
+            ->whereNotNull('no_invoice')
+            ->whereNotIn('quotation.id_sales', [16, 23])
+            ->whereNot('p.method', 'Escrow')
+            ->whereYear('invoice.created_at', $year)
+            ->orderBy('invoice.no_invoice', 'desc')
+            ->first(['invoice.*', 'quotation.tax']);
         // dd($lastInvoicePKoj);
         function generateNextInvoiceNumber($lastInvoice, $defaultCode)
         {
@@ -206,9 +358,14 @@ class InvoiceController extends Controller
         // dd($nextCodeNPK);
 
         $totalAmount = 0;
-        $quote = Quotation::find($id);
+        $invoice = Invoice::find($id);
+        $quote = Quotation::find($invoice->id_quotation);
+        if ($quote->type != 'Sparepart') {
+            $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $invoice->id_quotation)->get();
+        }
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
+        $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
 
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
@@ -217,9 +374,12 @@ class InvoiceController extends Controller
         $remaining = $quote->harga_total - $totalAmount;
         $price = $this->terbilang($remaining);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
-        $invoice = Invoice::where('id_quotation', $id)->orderBy('created_at', 'desc')->first();
         // dd($price);
-        return view('pages.accounting.invoice.before-accept', compact('quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));
+        if ($quote->type != 'Sparepart') {
+            return view('pages.accounting.invoice.before-accept', compact('lastPayment', 'requestContract', 'requestInvoice', 'quote', 'subQuote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));
+        } else {
+            return view('pages.accounting.invoice.before-accept', compact('lastPayment', 'requestContract', 'requestInvoice', 'quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));
+        }
     }
 
     public function print_invoice($id)
@@ -230,24 +390,46 @@ class InvoiceController extends Controller
         $dquote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payments = Payment::where('id_quotation', $quote->id)->get();
 
+        if ($quote->type != 'Sparepart') {
+            $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
+            // dd($subQuote);
+        }
         $totalPph = 0;
-        foreach ($dquote as $product) {
-            $pph = ($product->amount * $product->pph) / 100;
-            $totalPph += $pph;
+
+        if ($quote->type == 'Sparepart') {
+            foreach ($dquote as $product) {
+                $pph = ($product->amount * $product->pph) / 100;
+                $totalPph += $pph;
+            }
+        } else {
+            foreach ($subQuote as $subtitle) {
+                foreach ($subtitle->detail as $detail) {
+
+                    $pph = ($detail->amount * $detail->pph) / 100;
+                    $totalPph += $pph;
+                }
+            }
         }
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
         }
 
         $remaining = $quote->harga_total - $totalAmount;
-        $harga = Payment::where('id_quotation', $quote->id)->orderBy('created_at', 'DESC')->first();
-        $price = $this->terbilang(@$harga->amount - $totalPph);
+        $harga = Payment::where('id_quotation', $quote->id)->get();
+        $price = $this->terbilang(@$harga[0]->amount - $totalPph);
         $fullPrice = $this->terbilang($quote->harga_total - $totalPph);
+        $priceDp = $this->terbilang($quote->harga_total * @$harga[0]->percent / 100 - $totalPph);
+        $priceBp = $this->terbilang($quote->harga_total * @$harga[1]->percent / 100 - $totalPph);
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         // $pph = $quote->subtotal * $invoice->pph / 100;
         $afterDisc = $quote->subtotal - $quote->diskon;
         // dd($termncon);
-        return view("pages.accounting.invoice.detail-print", compact('harga', 'quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
+        if ($quote->type == 'Sparepart') {
+            return view("pages.accounting.invoice.detail-print", compact('harga', 'quote', 'priceDp', 'priceBp', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
+        } else {
+            return view("pages.accounting.invoice.detail-print", compact('subQuote', 'harga', 'priceDp', 'priceBp', 'quote', 'dquote', 'tax', 'invoice', 'price', 'fullPrice', 'payments', 'remaining', 'afterDisc'));
+        }
+
     }
 
     public function hand_sign(Request $request, $id)
@@ -313,12 +495,39 @@ class InvoiceController extends Controller
         $invoice = Invoice::find($id);
 
         $invoice->date = $request->date;
-        // $invoice->invoiceTo = $request->destination;
+        $invoice->invoiceTo = $request->destination;
         $invoiceSave = $invoice->save();
 
         if ($invoiceSave) {
             return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
         }
+    }
+
+    public function inputExpense(Request $request, $id)
+    {
+        // dd($request->all());
+        $expense = new ExpenseInvoice();
+        $expense->id_invoice = $id;
+        $expense->desc = $request->desc;
+        $expense->qty = $request->qty;
+        $expense->price = $request->price;
+        $expense->total = $request->price * $request->qty;
+        $expenseSave = $expense->save();
+        if ($expenseSave) {
+            return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
+
+    public function deleteExpense($id)
+    {
+        $expense = ExpenseInvoice::find($id);
+        $expenseDel = $expense->delete();
+        if ($expenseDel) {
+            return 1;
+        } else {
+            return 0;
+        }
+
     }
 
     public function do_ekspedisi($id)
@@ -413,6 +622,31 @@ class InvoiceController extends Controller
             return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
         }
     }
+    public function add_pph_manual(Request $request, $id)
+    {
+        $invoice = Invoice::find($id);
+        $invoice->pph = $request->pph;
+        $status = $invoice->save();
+        if ($status) {
+            return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
+    public function add_pph_service(Request $request, $id)
+    {
+        $invoice = Invoice::find($id);
+        $subQuotes = SubtitleQuotation::with('detail')->where('id_quotation', $invoice->id_quotation)->get();
+        $row = 0;
+        foreach ($subQuotes as $subQuote) {
+            foreach ($subQuote->detail as $index => $value) {
+                $row++;
+                $value->pph = $request->pph[$row]; // pastikan $request->pph ada dan indexnya sesuai
+                $status = $value->save();
+            }
+        }
+        if ($status) {
+            return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
+        }
+    }
 
     public function delete_pph($id)
     {
@@ -421,6 +655,36 @@ class InvoiceController extends Controller
         foreach ($dQuote as $item => $value) {
             $value->pph = 0;
             $status = $value->save();
+        }
+        if ($status) {
+            return 1;
+        } else {
+            return 0;
+        }
+
+    }
+    public function delete_pph_manual($id)
+    {
+        $invoice = Invoice::find($id);
+        $invoice->pph = 0;
+        $status = $invoice->save();
+        if ($status) {
+            return 1;
+        } else {
+            return 0;
+        }
+
+    }
+    public function delete_pph_service($id)
+    {
+        $invoice = Invoice::find($id);
+        $subQuotes = SubtitleQuotation::with('detail')->where('id_quotation', $invoice->id_quotation)->get();
+
+        foreach ($subQuotes as $subQuote) {
+            foreach ($subQuote->detail as $index => $value) {
+                $value->pph = 0;
+                $status = $value->save();
+            }
         }
         if ($status) {
             return 1;
@@ -446,6 +710,41 @@ class InvoiceController extends Controller
             return redirect('/invoice/' . $id)->with('message', 'Data telah terkirim');
         } else {
             return redirect('/invoice/' . $id)->with('error', 'Terjadi kesalahan saat mengirim data');
+        }
+    }
+    public function due_date(Request $request, $id)
+    {
+        $invoice = Invoice::find($id);
+        $quote = Quotation::find($invoice->id_quotation);
+        // dd($request->all());
+        $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
+        $lastPayment->overdue = $request->due_date;
+        $lastPayment->due_date = Carbon::parse($request->date)->addDays($request->due_date);
+        $paymentSave = $lastPayment->save();
+        if ($paymentSave) {
+            return redirect('/invoice/' . $id)->with('message', 'Data telah terkirim');
+        }
+    }
+    public function confirm_payment(Request $request, $id)
+    {
+        $invoice = Invoice::find($id);
+        $invoice->status_p = 1;
+        $invoice->note_p = $request->note;
+        $invoiceSave = $invoice->save();
+        if ($invoiceSave) {
+            return redirect('/invoice/' . $id)->with('message', 'Data telah terkirim');
+        }
+    }
+    public function undo_confirm_payment($id)
+    {
+        $invoice = Invoice::find($id);
+        $invoice->status_p = 0;
+        $invoice->note_p = null;
+        $invoiceSave = $invoice->save();
+        if ($invoiceSave) {
+            return 1;
+        } else {
+            return 0;
         }
     }
     private function terbilang($number)

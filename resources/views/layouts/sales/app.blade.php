@@ -23,9 +23,56 @@
     {{--  ? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.   --}}
     <script src="{{ asset('assets') }}/js/config.js"></script>
     @routes
+    @if (Auth::check() && Auth::id() === 22)
+        <style>
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: url('{{ asset('asset/bg-shandy.gif') }}');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: center;
+                filter: blur(8px);
+                opacity: 0.9;
+                z-index: -1;
+            }
+
+            body {
+                cursor: url('{{ asset('asset/cursor-sandy.ico') }}'), auto;
+            }
+        </style>
+    @endif
+    @if ((Auth::check() && Auth::id() === 23) || Auth::id() === 16 || Auth::id() === 18)
+        <style>
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: url('{{ asset('asset/bg-ari.jpg') }}');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: center;
+                filter: blur(8px);
+                opacity: 0.9;
+                z-index: -1;
+            }
+        </style>
+    @endif
 </head>
 
 <body>
+    @if (Auth::check() && Auth::id() === 16)
+        <audio id="bgm" autoplay loop style="display: none;">
+            <source src="{{ asset('asset/sound-ari.mp3') }}" type="audio/mpeg">
+        </audio>
+    @endif
     <!--  Layout wrapper  -->
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
@@ -43,13 +90,18 @@
 
                 <!-- Content wrapper -->
                 <div class="content-wrapper">
-                    <div class="container-xxl flex-grow-1 container-p-y">
 
+                    @if (!View::hasSection('no-container'))
+                        <div class="container-xxl flex-grow-1 container-p-y">
+                            <!--  Content  -->
+                            @yield('content')
+                            <!--  END: Content  -->
+                        </div>
+                    @else
                         <!--  Content  -->
                         @yield('content')
                         <!--  END: Content  -->
-
-                    </div>
+                    @endif
                     <div class="content-backdrop fade"></div>
                 </div>
                 <!-- END : Content Wrapper -->
@@ -104,7 +156,7 @@
             var href = $(this).attr('href'); // Ambil URL tujuan
 
             console.log(id);
-            
+
             $.ajax({
                 url: '{{ url('quotation') }}/' + id + '/view_comment',
                 type: 'POST',
@@ -151,6 +203,38 @@
     @stack('page-script')
 
     @stack('script')
+
+    {{-- Modal NPWP Error (dipakai saat klik Upload PO dengan NPWP tidak valid) --}}
+    <div class="modal fade" id="modalNpwpError" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+            <div class="modal-content text-center">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <i class="mdi mdi-alert-circle text-danger" style="font-size: 56px;"></i>
+                    </div>
+                    <h5 class="fw-bold text-danger mb-2">NPWP Belum Lengkap!</h5>
+                    <p class="text-muted mb-4">TOLONG ISI NPWP CLIENT TERLEBIH DAHULU (minimal 10 angka).</p>
+                    <button type="button" class="btn btn-danger waves-effect waves-light px-5"
+                        data-bs-dismiss="modal">OK, Mengerti</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.btn-upload-po').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var npwp = (this.dataset.npwp || '').replace(/[^0-9]/g, '');
+                    if (npwp.length <= 10) {
+                        new bootstrap.Modal(document.getElementById('modalNpwpError')).show();
+                    } else {
+                        new bootstrap.Modal(document.getElementById('uploadPo')).show();
+                    }
+                });
+            });
+        });
+    </script>
+
 </body>
 
 </html>

@@ -201,8 +201,8 @@
                 // send updated string to input
                 input.val(input_val);
                 var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
-                // console.log(id);
-                $(`#total`).val(nomorInt);
+                $(`#semuanya`).val(nomorInt);
+                console.log('ini value semuanya :' + $('#semuanya').val());
             });
             $('#ddSales').on('change', function() {
                 var role = $(this).val();

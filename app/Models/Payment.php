@@ -16,4 +16,9 @@ class Payment extends Model
         'amount',
         'note',
     ];
+    
+    public function quotation()
+    {
+        return $this->belongsTo('App\Models\Quotation', 'id_quotation', 'id');
+    }
 }

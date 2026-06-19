@@ -13,7 +13,7 @@
                             <div
                                 class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
                                 <div>
-                                    <p class="mb-2">Comodity</p>
+                                    <p class="mb-2">SKU</p>
                                     <h4 class="mb-2">{{ $commodity }}</h4>
                                     <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
                                 </div>
@@ -88,9 +88,9 @@
                             <th>Brand</th>
                             <th>PN</th>
                             <th>Desc</th>
-                            <th>G/O</th>
                             <th>Stock BDG</th>
                             <th>Stock BKS</th>
+                            <th>Stock Pending</th>
                             <th>Price</th>
                         </tr>
                     </thead>
@@ -108,9 +108,10 @@
                             <th>Price</th>
                             <th>Desc</th>
                             <th>Dimension</th>
-                            <th>G/O</th>
+                            {{-- <th>G/O</th> --}}
                             <th>Stock BDG</th>
                             <th>Stock BKS</th>
+                            <th>stock Pending</th>
                         </tr>
                     </thead>
                 </table>

@@ -58,6 +58,7 @@
                         <th>Item</th>
                         <th>Qty</th>
                         <th>Modal</th>
+                        <th>Discount</th>
                         <th>Amount</th>
                     </tr>
                 </thead>
@@ -83,16 +84,19 @@
                             @if (Auth::user()->role == 'Logistic')
                                 <td class="align-top">RP {{ str_repeat('*', strlen((string) $products->modal)) }}
                                 </td>
+                                <td class="align-top">RP {{ str_repeat('*', strlen((string) $products->disc)) }}
+                                </td>
                                 <td class="align-top">RP {{ str_repeat('*', strlen((string) $products->amount)) }}
                                 </td>
                             @else
                                 <td class="align-top">RP {{ number_format($products->modal, 0, '', '.') }}</td>
+                                <td class="align-top">RP {{ number_format($products->disc, 0, '', '.') }}</td>
                                 <td class="align-top">RP {{ number_format($products->amount, 0, '', '.') }}</td>
                             @endif
                         </tr>
                     @endforeach
                     <tr style="font-size: 13px">
-                        <td colspan="3" style="border:none;"></td>
+                        <td colspan="4" style="border:none;"></td>
                         <td>Subtotal</td>
                         @if (Auth::user()->role == 'Logistic')
                             <td>: RP {{ str_repeat('*', strlen((string) $product->subtotal)) }}</td>
@@ -101,7 +105,7 @@
                         @endif
                     </tr>
                     <tr style="font-size: 13px">
-                        <td colspan="3" style="border:none;"></td>
+                        <td colspan="4" style="border:none;"></td>
                         <td>Tax {{ $product->tax == '11' ? '11%' : '' }}</td>
                         @if (Auth::user()->role == 'Logistic')
                             <td>: RP {{ str_repeat('*', strlen((string) $tax)) }}</td>
@@ -110,12 +114,12 @@
                         @endif
                     </tr>
                     <tr style="font-size: 13px;">
-                        <td colspan="3" style="border:none;"></td>
+                        <td colspan="4" style="border:none;"></td>
                         <td>Shipping</td>
                         <td>: RP {{ number_format($product->shipping, 0, '', '.') }}</td>
                     </tr>
                     <tr style="font-size: 13px">
-                        <td colspan="3" style="border:none;"></td>
+                        <td colspan="4" style="border:none;"></td>
                         <td style="border:none;" class="total">Total</td>
                         @if (Auth::user()->role == 'Logistic')
                             <td style="border:none;" class="total">: RP

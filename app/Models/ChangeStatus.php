@@ -16,8 +16,12 @@ class ChangeStatus extends Model
     ];
     protected $fillable = [
         'id_quotation',
+        'id_user',
+        'id_payment',
+        'id_pending',
         'status',
         'note',
+        'date', 
     ];
     
     public function quotation()
@@ -27,5 +31,13 @@ class ChangeStatus extends Model
     public function comment()
     {
         return $this->hasMany('App\Models\Comment', 'id_status');
+    }
+    public function payment()
+    {
+        return $this->belongsTo('App\Models\Payment', 'id_payment', 'id');
+    }
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User', 'id_user', 'id');
     }
 }

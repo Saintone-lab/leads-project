@@ -8,12 +8,15 @@ use App\Models\Client;
 use App\Models\Comment;
 use App\Models\CrmStatus;
 use App\Models\Issues;
+use App\Models\Machine;
 use App\Models\Prospect;
+use App\Models\SerialProduct;
 use App\Models\User;
 use App\Models\Activities;
 use App\Models\Visit;
 use App\Models\Quotation;
 use App\Models\Pic;
+use DB;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +35,6 @@ class LeadsController extends Controller
         $sales = User::where('role', 'sales')->get();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-
 
         // Comment Buat Admin
         $firstComments = Comment::where('id_user', Auth::id())
@@ -132,7 +134,7 @@ class LeadsController extends Controller
             'ru' =>
                 'required',
 
-            'web' =>
+            'unit' =>
                 'required',
 
             'source' =>
@@ -164,11 +166,11 @@ class LeadsController extends Controller
         ];
 
         $message = [
-            'company.required' => 'Field company Wajib Diisi',
-            'email.required' => 'Field Email Wajib Diisi',
+            'company.required' => 'Field Company Wajib Diisi',
+            'email.required' => 'Field Email Company Wajib Diisi',
             'phone.required' => 'Field Phone Wajib Diisi',
             'ru.required' => 'Wajib Pilih Reseller atau User',
-            'web.required' => 'Field Web Wajib Diisi',
+            'unit.required' => 'Field Unit Wajib Diisi',
             'source.required' => 'Field Source Wajib Diisi',
             'mobile.required' => 'Field Mobile Wajib Diisi',
             'address.required' => 'Field Address Wajib Diisi',
@@ -181,7 +183,7 @@ class LeadsController extends Controller
         ];
 
         $this->validate($request, $rule, $message);
-        // dd($request);
+        // dd(Auth::id());
         //masukan data ke table leads(client)
         $leads = new Client;
         $leads->id_sales = Auth::id();
@@ -191,19 +193,28 @@ class LeadsController extends Controller
         $leads->email = $request->email;
         $leads->phone = $request->phone;
         $leads->ru = $request->ru;
-        $leads->web = $request->web;
+        $leads->unit = $request->unit;
         $leads->image = 'profile.jpg';
         $leads->source = $request->source;
         $leads->created_date = Carbon::today()->toDateString();
         $leads->role = 'Leads';
-        if ($request->machine != NULL) {
-            $leads->machine = $request->machine;
+        if ($request->npwp != NULL) {
+            $leads->npwp = $request->npwp;
         } else {
-            $leads->machine = NULL;
+            $leads->npwp = NULL;
         }
         $leads->mobile = $request->mobile;
+        if (in_array(Auth::id(), [1, 16, 23])) {
+            $leads->info = $request->info;
+        } else {
+            $leads->info = "Reftech";
+        }
+        // if (Auth::id() == 2 || Auth::id() == 16 || Auth::id() == 23) {
+        //     $leads->info = $request->info;
+        // }
         $leads->address = $request->address;
         $leads->subAddress = $request->subAddress;
+        $leads->week = $request->week;
         $leads->area = $request->area;
         $leadsave = $leads->save();
 
@@ -229,8 +240,11 @@ class LeadsController extends Controller
      */
     public function show($id)
     {
+        $existing = Client::where('id', $id)->first();
         $leads = Client::where('id', $id)->first();
         $charge = PIC::where('id_client', $id)->get();
+        $unit = SerialProduct::whereNotNull('detail')->get();
+        $machines = Machine::where('id_client', $id)->get();
         $callhis = Activities::where('id_client', $id)->whereIn('name', ['Daily Call', 'Follow Up'])->get();
         $visit = Activities::where('id_client', $id)->where('name', 'Visit')->get();
         $quote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('level', '1')->get('quotation.*');
@@ -304,7 +318,7 @@ class LeadsController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.sales.clients.leads.detail', compact('noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'leads', 'callhis', 'quote', 'sales', 'charge', 'issue', 'visit'));
+        return view('pages.sales.clients.leads.detail', compact('existing', 'unit', 'machines', 'noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'leads', 'callhis', 'quote', 'sales', 'charge', 'issue', 'visit'));
     }
 
     /**
@@ -337,7 +351,7 @@ class LeadsController extends Controller
             'phone' =>
                 'required',
 
-            'web' =>
+            'unit' =>
                 'required',
 
             'source' =>
@@ -352,21 +366,21 @@ class LeadsController extends Controller
             'area' =>
                 'required',
 
-            'machine' =>
+            'npwp' =>
                 'required',
         ];
 
         $message = [
             'company.required' => 'Field company Wajib Diisi',
-            'email.required' => 'Field Email Wajib Diisi',
+            'email.required' => 'Email Perusahaan Wajib Diisi',
             'phone.required' => 'Field Phone Wajib Diisi',
             'ru.required' => 'Wajib Pilih Reseller atau User',
-            'web.required' => 'Field Web Wajib Diisi',
+            'unit.required' => 'Field Unit Wajib Diisi',
             'source.required' => 'Field Source Wajib Diisi',
             'mobile.required' => 'Field Mobile Wajib Diisi',
             'address.required' => 'Field Address Wajib Diisi',
             'area.required' => 'Field Area Wajib Diisi',
-            'machine.required' => 'Field Machine Wajib Diisi',
+            'npwp.required' => 'Field npwp Wajib Diisi',
         ];
 
         $this->validate($request, $rule, $message);
@@ -377,10 +391,13 @@ class LeadsController extends Controller
         $leads->email = $request->email;
         $leads->phone = $request->phone;
         $leads->ru = $request->ru;
-        $leads->web = $request->web;
+        $leads->unit = $request->unit;
         $leads->source = $request->source;
-        $leads->machine = $request->machine;
+        $leads->npwp = $request->npwp;
         $leads->mobile = $request->mobile;
+        if (Auth::user()->id == 1 || Auth::user()->id == 16) {
+            $leads->info = $request->info;
+        }
         $leads->address = $request->address;
         $leads->subAddress = $request->subAddress;
         $leads->area = $request->area;
@@ -436,6 +453,7 @@ class LeadsController extends Controller
 
     public function storeActionWithLeads(Request $request, $id)
     {
+        // dd($request->all());
         $leads = Client::where("id", $id)->first();
         $leads->id_issues = $request->issues;
         if ($request->issues == '5') {
@@ -456,6 +474,7 @@ class LeadsController extends Controller
         }
         $action->status = $request->status;
         $action->action = $request->action;
+        $action->week = $request->week;
         $action->note = $request->note;
         $action->date = \Carbon\Carbon::today();
         $action->follow_up = $request->follow_up;
@@ -514,5 +533,109 @@ class LeadsController extends Controller
             return 0;
         }
 
+    }
+
+    public function indexBySales()
+    {
+        // $id = 1;
+        // $data = DB::table('client as c')
+        //     ->select(
+        //         'c.*',
+        //         'p.name_pic',
+        //         'i.issue',
+        //         'u.name',
+        //         DB::raw("DATE_FORMAT(MAX(a.date), '%d-%m-%Y') as date"),
+        //         DB::raw("DATE_FORMAT(MAX(a.follow_up), '%d-%m-%Y') as follow_up"),
+        //         DB::raw("MAX(a.note) as note")
+        //     )
+        //     ->leftJoin('issues as i', 'c.id_issues', '=', 'i.id')
+        //     ->join('users as u', 'c.id_sales', '=', 'u.id')
+        //     ->leftJoin('pic as p', 'c.id', '=', 'p.id_client')
+        //     ->leftJoin('activities as a', 'a.id_client', '=', 'c.id')
+        //     ->where('c.role', 'Leads')
+        //     ->where('u.id', $id)
+        //     ->groupBy(
+        //         'c.id',
+        //         'p.name_pic',
+        //         'i.issue',
+        //         'u.name'
+        //     )
+        //     ->orderByDesc('c.id')
+        //     ->get();
+
+        // dd($data);
+
+        $client = Client::where("role", "Leads")->get();
+        $issue = Issues::get();
+        $sales = User::where('role', 'sales')->where('active', '1')->get();
+        $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
+
+
+        // Comment Buat Admin
+        $firstComments = Comment::where('id_user', Auth::id())
+            ->groupBy('id_status')
+            ->get();
+
+        $statusIds = $firstComments->pluck('id_status')->toArray();
+        $dates = $firstComments->pluck('created_at', 'id_status');
+
+        $commentsQuery = Comment::join('change_status as c', 'c.id', '=', 'comment.id_status')
+            ->join('quotation as q', 'q.id', '=', 'c.id_quotation')
+            ->join('users as u', 'u.id', '=', 'comment.id_user')
+            ->whereIn('comment.id_status', $statusIds)
+            ->where(function ($query) use ($dates) {
+                foreach ($dates as $statusId => $createdAt) {
+                    $query->orWhere(function ($subQuery) use ($statusId, $createdAt) {
+                        $subQuery->where('comment.id_status', $statusId)
+                            ->whereRaw('TIMESTAMPDIFF(SECOND, ?, comment.created_at) > 0', [$createdAt]);
+                    });
+                }
+            })
+            ->where('comment.id_user', '!=', Auth::id());
+
+        // Ambil semua komentar yang relevan
+        $commentAdmin = $commentsQuery->orderBy('comment.id_status')
+            ->orderByDesc('comment.created_at')
+            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+        // Filter untuk komentar dengan level '1'
+        $unreadCommentAdmin = $commentsQuery->where('comment.level', '1')
+            ->orderBy('comment.id_status')
+            ->orderByDesc('comment.created_at')
+            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+        // End Comment Admin 
+        $quotationComment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', 'o.id_status', '=', 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.type', 'quotation')  // Pastikan filter type di sini
+            ->where('o.id_user', '!=', Auth::id())
+            ->orderBy('o.date', 'DESC')
+            ->select(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.level', 'o.comment', 'o.date', 'o.type', 'quotation.no_quote', 'u.name', 'u.image']);
+
+        // Query untuk mengambil data dengan type "prospect"
+        $prospectComment = Comment::join('prospect as p', 'comment.id_prospect', '=', 'p.id')
+            ->join('users as u', 'u.id', '=', 'comment.id_user')
+            ->join('pic as pi', 'pi.id', '=', 'p.id_pic')
+            ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->where('p.id_sales', Auth::id())
+            ->where('comment.type', 'prospect')  // Pastikan filter type di sini
+            ->where('comment.id_user', '!=', Auth::id())
+            ->orderBy('comment.date', 'DESC')
+            ->select(['p.id as idP', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'comment.type', 'c.company', 'u.name', 'u.image']);
+
+        // Menggabungkan kedua query menggunakan union
+        $comment = $quotationComment->union($prospectComment)
+            ->orderBy('date', 'DESC')
+            ->take(5)
+            ->get();
+        $unreadComment = $quotationComment->union($prospectComment)
+            ->orderBy('date', 'DESC')
+            ->where('o.level', '1')
+            ->take(5)
+            ->get();
+        return view('pages.sales.clients.leads.indexBySales', compact('noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'client', 'sales', 'issue'));
     }
 }

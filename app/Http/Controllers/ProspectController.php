@@ -39,6 +39,35 @@ class ProspectController extends Controller
         $prospects = Prospect::where('id_sales', Auth::id())->whereNull('level')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
+        $now = Carbon::now();
+        $startOfMonth = $now->copy()->startOfMonth();
+        $endOfMonth = $now->copy()->endOfMonth();
+
+        $availableWeeks = [];
+        $cursor = $startOfMonth->copy();
+        $wNum = 1;
+        while ($cursor->lte($endOfMonth)) {
+            $wEnd = $cursor->copy()->addDays(6);
+            if ($wEnd->gt($endOfMonth)) {
+                $wEnd = $endOfMonth->copy();
+            }
+            $availableWeeks[] = [
+                'week' => $wNum,
+                'start' => $cursor->copy(),
+                'end' => $wEnd->copy(),
+                'label' => 'Week '.$wNum.' ('.$cursor->format('d').'–'.$wEnd->format('d').' '.$cursor->format('M Y').')',
+            ];
+            $cursor->addDays(7);
+            $wNum++;
+        }
+
+        $defaultWeek = (int) ceil($now->day / 7);
+        $defaultWeek = min($defaultWeek, count($availableWeeks));
+        $selectedWeekNum = max(1, min((int) request('week', $defaultWeek), count($availableWeeks)));
+        $selectedWeek = $availableWeeks[$selectedWeekNum - 1];
+
+        $startOfWeek = $selectedWeek['start'];
+        $endOfWeek = $selectedWeek['end'];
 
         // Comment Buat Admin
         $firstComments = Comment::where('id_user', Auth::id())
@@ -104,8 +133,38 @@ class ProspectController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.support.prospect.index', compact('prospects', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'quotation', 'leveledProspect', 'noSaleProspect', 'quotationAdmin', 'forecast', 'prospect', 'po', 'loss', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
 
+        // Hitung jumlah prospek yang dibuat oleh setiap sales dalam minggu ini
+        $salesLeads = User::where('role', 'Sales')
+            ->where('active', '1')
+            ->wherein('id', ['1', '4', '2', '32'])
+            ->withCount(['prospects as weekly_leads' => function ($query) use ($startOfWeek, $endOfWeek) {
+                $query->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
+            }])
+            ->get();
+
+        return view('pages.support.prospect.index', compact(
+            'prospects',
+            'comment',
+            'unreadComment',
+            'commentAdmin',
+            'unreadCommentAdmin',
+            'quotation',
+            'leveledProspect',
+            'noSaleProspect',
+            'quotationAdmin',
+            'forecast',
+            'prospect',
+            'po',
+            'loss',
+            'forecastAdmin',
+            'prospectAdmin',
+            'poAdmin',
+            'lossAdmin',
+            'salesLeads',
+            'availableWeeks',
+            'selectedWeekNum'
+        ));
     }
 
     /**
@@ -121,35 +180,30 @@ class ProspectController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $rule = [
-            'company' =>
-                'required',
+            'company' => 'required',
 
-            'phone' =>
-                'required',
+            'email' => 'required',
 
-            'ru' =>
-                'required',
+            'phone' => 'required',
 
-            'source' =>
-                'required',
+            'ru' => 'required',
 
-            'mobile' =>
-                'required',
+            'source' => 'required',
 
-            'address' =>
-                'required',
+            'mobile' => 'required',
 
-            'subAddress' =>
-                'required',
+            'address' => 'required',
 
-            'area' =>
-                'required',
+            'subAddress' => 'required',
+
+            'unit' => 'required',
+
+            'area' => 'required',
 
             // 'namePic' =>
             //     'required',
@@ -166,12 +220,14 @@ class ProspectController extends Controller
 
         $message = [
             'company.required' => 'Field company Wajib Diisi',
+            'email.required' => 'Field Email Perusahaan Wajib Diisi',
             'phone.required' => 'Field Phone Wajib Diisi',
             'ru.required' => 'Wajib Pilih Reseller atau User',
             'source.required' => 'Field Source Wajib Diisi',
             'mobile.required' => 'Field Mobile Wajib Diisi',
             'address.required' => 'Field Address Wajib Diisi',
             'subAddress.required' => 'Field Sub Address Wajib Diisi',
+            'unit.required' => 'Field Unit Wajib Diisi',
             'area.required' => 'Field Area Wajib Diisi',
             // 'namePic.required'=> 'Field Nama PIC Wajib Diisi',
             // 'emailPic.required'=> 'Field Email PIC Wajib Diisi',
@@ -187,15 +243,16 @@ class ProspectController extends Controller
         $client->id_support = Auth::id();
         $client->id_issues = 1;
         $client->company = $request->company;
-        $client->email = '-';
+        $client->email = $request->email; // Menyimpan Email Company
         $client->phone = $request->phone;
         $client->ru = $request->ru;
         $client->web = '-';
+        $client->unit = $request->unit; // Menyimpan Unit
         $client->image = 'profile.jpg';
         $client->source = $request->source;
         $client->created_date = Carbon::today()->toDateString();
         $client->role = 'Leads';
-        $client->machine = '-';
+        $client->npwp = '0';
         $client->mobile = $request->mobile;
         $client->address = $request->address;
         $client->subAddress = $request->subAddress;
@@ -212,16 +269,16 @@ class ProspectController extends Controller
         $picsave = $pic->save();
 
         $prospect = new Prospect();
-        $prospect->id_sales = NULL;
-        $prospect->id_quotation = NULL;
+        $prospect->id_sales = null;
+        $prospect->id_quotation = null;
         $prospect->id_pic = $pic->id;
         $prospect->id_support = Auth::id();
+        $prospect->category = $request->category;
         $prospect->kebutuhan = $request->prospect;
         $prospect->date = Carbon::now();
-        $prospect->level = NULL;
-        $prospect->provide = NULL;
+        $prospect->level = null;
+        $prospect->provide = null;
         $prospectSave = $prospect->save();
-
 
         if ($prospectSave) {
             return redirect('prospect')->with('message', 'data telah ditambahkan');
@@ -238,15 +295,15 @@ class ProspectController extends Controller
     {
         $prospect = Prospect::find($id);
         $quotation = Quotation::find($prospect->id_quotation);
+        $allQuotation = Quotation::where('id_pic', $prospect->id_pic)->get();
         $pic = Pic::where('id', $prospect->id_pic)->first();
         $client = Client::where('id', $pic->id_client)->first();
-        $sales = User::where('role', 'Sales')->get();
+        $sales = User::where('role', 'Sales')->where('active', '1')->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         $prospectComments = Comment::where('id_prospect', $id)->where('type', 'prospect')->with('mention')->get();
         $user = User::whereNot('id', Auth::user()->id)->get();
         // dd($prospectComments);
-
 
         // Comment Buat Admin
         $firstComments = Comment::where('id_user', Auth::id())
@@ -312,7 +369,8 @@ class ProspectController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.support.prospect.detail', compact('prospect', 'comment', 'prospectComments', 'unreadComment', 'commentAdmin', 'quotation', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'pic', 'client', 'sales', 'user'));
+
+        return view('pages.support.prospect.detail', compact('allQuotation', 'prospect', 'comment', 'prospectComments', 'unreadComment', 'commentAdmin', 'quotation', 'unreadCommentAdmin', 'leveledProspect', 'noSaleProspect', 'pic', 'client', 'sales', 'user'));
     }
 
     /**
@@ -329,7 +387,6 @@ class ProspectController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -378,12 +435,24 @@ class ProspectController extends Controller
             $client->id_sales = $request->sales;
         } else {
             $prospect->provide = '0';
-            $prospect->id_sales = NULL;
+            $prospect->id_sales = null;
         }
         $prospectSave = $prospect->save();
         $client->save();
         if ($prospectSave) {
             return redirect('prospect')->with('message', 'data telah ditambahkan');
+        }
+    }
+
+    public function onProcessFU($id)
+    {
+        $prospect = Prospect::find($id);
+        $prospect->level = '9';
+        $prospectSave = $prospect->save();
+        if ($prospectSave) {
+            return 1;
+        } else {
+            return 0;
         }
     }
 
@@ -398,6 +467,7 @@ class ProspectController extends Controller
             return 0;
         }
     }
+
     public function with_quotation($id)
     {
         $prospect = Prospect::find($id);
@@ -412,8 +482,22 @@ class ProspectController extends Controller
 
     public function no_respond($id)
     {
-        $prospect = Prospect::find($id);
+        $prospect = Prospect::find(id: $id);
         $prospect->level = '2';
+        $prospectSave = $prospect->save();
+        if ($prospectSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public function no_provide($id)
+    {
+        $prospect = Prospect::find($id);
+        $prospect->provide = '0';
+        $prospect->level = null;
+
         $prospectSave = $prospect->save();
         if ($prospectSave) {
             return 1;
@@ -431,6 +515,7 @@ class ProspectController extends Controller
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
+
         return view('pages.support.prospect.quotation', compact('prospect', 'numberQ', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 
@@ -464,22 +549,24 @@ class ProspectController extends Controller
         $quotation = new Quotation();
         $quotation->id_pic = $prospect->id_pic;
         $quotation->id_sales = $prospect->id_sales;
-        $quotation->id_service = NULL;
+        $quotation->id_service = null;
         $quotation->id_support = $prospect->id_support;
-        $quotation->is_primary = "1";
+        $quotation->is_primary = '1';
         $quotation->primary_id = 0;
         $quotation->num_rev = 0;
         $quotation->destination = $request->destination;
-        $quotation->no_pr = NULL;
-        $quotation->status = "20";
+        $quotation->no_pr = null;
+        $quotation->status = '20';
         $quotation->status_date = Carbon::today();
-        $quotation->note = "-";
+        $quotation->note = '-';
         $quotation->expired_date = $request->expired_date;
-        $quotation->po_date = NULL;
-        $quotation->po_file = NULL;
+        $quotation->po_date = null;
+        $quotation->po_file = null;
+        $quotation->quote_for = $request->type;
+        $quotation->type = 'Sparepart';
         $quotation->level = '1';
         $quotation->estimated_date = $request->estimated_date;
-        if ($request->tax != NULL) {
+        if ($request->tax != null) {
             $quotation->tax = $request->tax;
         } else {
             $quotation->tax = 0;
@@ -488,7 +575,7 @@ class ProspectController extends Controller
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
-        if ($request->diskon != NULL) {
+        if ($request->diskon != null) {
             $quotation->diskon = $request->diskon;
         } else {
             $quotation->diskon = 0;
@@ -520,7 +607,7 @@ class ProspectController extends Controller
             $stats->id_quotation = $quotation->id;
             $stats->date = Carbon::now();
             $stats->note = 'Quotation has been created';
-            $stats->status = "10";
+            $stats->status = '10';
             $stats->save();
             if ($dQuoteSave) {
                 // Masukan Data ke dalam Tabel Term n Condition
@@ -537,7 +624,18 @@ class ProspectController extends Controller
         $prospect->id_quotation = $quotation->id;
         $prospectSave = $prospect->save();
         if ($prospectSave) {
-            return redirect('/quotation/' . $quotation->id)->with('message', 'data telah di tambahkan');
+            return redirect('/quotation/'.$quotation->id)->with('message', 'data telah di tambahkan');
+        }
+    }
+
+    public function choose_quotation(Request $request, $id)
+    {
+        $prospect = Prospect::find($id);
+        $prospect->id_quotation = $request->id_quotation;
+        $prospect->level = '1';
+        $prospectSave = $prospect->save();
+        if ($prospectSave) {
+            return redirect('/quotation/'.$request->id_quotation);
         }
     }
 
@@ -545,7 +643,7 @@ class ProspectController extends Controller
     {
         // dd($request->all());
         $comment = new Comment;
-        $comment->id_status = NULL;
+        $comment->id_status = null;
         $comment->id_prospect = $id;
         $comment->id_user = Auth::user()->id;
         $comment->date = Carbon::now();
@@ -564,9 +662,10 @@ class ProspectController extends Controller
             }
         }
         if ($commentSave) {
-            return redirect('/prospect/' . $id . '#viewComment')->with('massage', 'Data berhasil di buat');
+            return redirect('/prospect/'.$id.'#viewComment')->with('massage', 'Data berhasil di buat');
         }
     }
+
     public function view_comment($id)
     {
         $comment = Comment::find($id);

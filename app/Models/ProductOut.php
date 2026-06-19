@@ -26,10 +26,14 @@ class ProductOut extends Model
     ];
     public function detail()
     {
-        return $this->hasMany('App\Models\DetailProductIn', 'id_product_out');
+        return $this->hasMany('App\Models\DetailProductOut', 'id_product_out');
     }
     public function user()
     {
         return $this->belongsTo('App\Models\User', 'id_user', 'id');
+    }
+    public function pending()
+    {
+        return $this->hasMany('App\Models\PendingPO', 'id_product_out');
     }
 }

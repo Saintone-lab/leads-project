@@ -3,10 +3,10 @@ use Illuminate\Support\Facades\Auth;
 
 header('Content-Type: application/json');
 $host = "localhost";
-$users = "root";
-$pass = "";
+$users = "u877155683_reftech_my";
+$pass = "REFtechjaya321!";
 
-$databaseName = "db_leads_v1";
+$databaseName = "u877155683_reftech_my";
 $tableName = "product";
 
 // Periksa apakah pengguna terotentikasi
@@ -20,7 +20,14 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT p.*, s.image, s.brand, s.pn, s.price, CONCAT(p.stock, ' - ', p.warehouse_stock ) AS stok FROM product p
+        $query = "SELECT p.*,
+                    CONCAT(' (', 
+                        CASE 
+                            WHEN p.go = 'Replacement' THEN 'R'
+                            WHEN p.go = 'Genuine' THEN 'G'
+                            ELSE p.go
+                        END
+                    , ')', p.description) as descrip, s.image, s.brand, s.pn, s.price, CONCAT(p.stock, ' - ', p.warehouse_stock ) AS stok FROM product p
         RIGHT JOIN serial_product s on p.id = s.id_product";
 
         $stmt = $pdo->prepare($query);

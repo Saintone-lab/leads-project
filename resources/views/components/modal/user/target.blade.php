@@ -23,6 +23,13 @@
                         </h5>
                         <div class="col-6 mt-2">
                             <div class="form-floating form-floating-outline">
+                                <input class="form-control" type="number" id="leads" name="leads"
+                                    value="{{ old('leads', @$users->target[0]->leads ?? '') }}" placeholder="61256996" />
+                                <label for="leads">New Leads</label>
+                            </div>
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="number" id="dc" name="dc"
                                     value="{{ old('dc', @$users->target[0]->dc ?? '') }}" placeholder="61256996" />
                                 <label for="dc">
@@ -34,7 +41,7 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="col-6 mt-2">
+                        <div class="col-6">
                             <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="number" id="crm" name="crm"
                                     value="{{ old('crm', @$users->target[0]->crm ?? '') }}" placeholder="61256996" />
@@ -59,13 +66,6 @@
                                 <label for="quote">Quotation</label>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="form-floating form-floating-outline">
-                                <input class="form-control" type="number" id="po" name="po"
-                                    value="{{ old('po', @$users->target[0]->po ?? '') }}" placeholder="61256996" />
-                                <label for="po">Pruchase Order</label>
-                            </div>
-                        </div>
                         <div class="col-12">
                             <label for="total-label">Target Total</label>
                             <div class="input-group form-floating form-floating-outline" data-total="1">
@@ -74,7 +74,7 @@
                                     min="12" placeholder="Put total Here" data-type="currency"
                                     pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true" @blur="focused = false"
                                     value="{{ old('total', @$users->target[0]->total ? number_format($users->target[0]->total, 0, '', '.') : '') }}">
-                                <input class="form-control total" type="number" name="total" id="total"
+                                <input class="form-control total" type="number" name="semuanya" id="semuanya"
                                     value="{{ old('total', @$users->target[0]->total ?? '') }}" hidden>
                             </div>
                         </div>

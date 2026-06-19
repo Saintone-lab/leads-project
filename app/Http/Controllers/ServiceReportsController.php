@@ -3,13 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\DetailProduct;
 use App\Models\ImageService;
+use App\Models\MonitoringActivities;
+use App\Models\Notulen;
+use App\Models\PendingPO;
 use App\Models\Pic;
+use App\Models\Product;
 use App\Models\Prospect;
 use App\Models\Reports;
 use App\Models\ReportsPict;
+use App\Models\ReqVisit;
+use App\Models\SerialProduct;
 use App\Models\Service;
 use App\Models\SignPict;
+use App\Models\User;
 use Carbon\Carbon;
 use File;
 use Illuminate\Http\Request;
@@ -27,7 +35,12 @@ class ServiceReportsController extends Controller
     public function index()
     {
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.technician.service-reports.index', compact('noSaleProspect',));
+        $reportsCount = Reports::join('machine as m', 'm.id', '=', 'reports.id_machine')
+            ->join('client as c', 'c.id', '=', 'm.id_client')
+            ->join('users as u', 'u.id', '=', 'c.id_sales')
+            ->where('u.id', Auth::user()->id)
+            ->where('reports.viewed', 0)->count();
+        return view('pages.technician.service-reports.index', compact('reportsCount', 'noSaleProspect', ));
     }
 
     /**
@@ -37,14 +50,128 @@ class ServiceReportsController extends Controller
      */
     public function create()
     {
+        $sales = User::where('role', 'Sales')->get();
         $clients = Client::all();
         $dateNow = Carbon::now();
         $numberS = Reports::whereYear('date', $dateNow)->where('id_technician', Auth::user()->id)->count();
         $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::all();
-        return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow', 'clients'));
+        $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->select('pic.*')->get();
+        // default selections
+        $selectedSalesId = 23;
+        $selectedClientId = 5568;
+        $selectedPICId = null;
+        $selectedMachineId = null;
+
+        return view('pages.technician.service-reports.form', compact('sales', 'pic', 'formattedNumberS', 'formattedMonthNow', 'clients', 'selectedSalesId', 'selectedClientId', 'selectedPICId', 'selectedMachineId'));
+    }
+
+    public function createByUnit($id_unit)
+    {
+        $sales = User::where('role', 'Sales')->get();
+        $clients = Client::all();
+        $dateNow = Carbon::now();
+        $numberS = Reports::whereYear('date', $dateNow)->where('id_technician', Auth::user()->id)->count();
+        $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
+        $monthNow = $dateNow->month;
+        $formattedMonthNow = $this->convertToRoman($monthNow);
+        $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->select('pic.*')->get();
+
+        $machine = \App\Models\Machine::where('id_unit', $id_unit)->first();
+        if (!$machine) {
+            abort(404);
+        }
+
+        $selectedClientId = $machine->id_client ?? 5568;
+        $selectedSalesId = optional(Client::find($selectedClientId))->id_sales ?? 23;
+        $selectedPICId = optional(Pic::where('id_client', $selectedClientId)->first())->id;
+        $selectedMachineId = $machine->id;
+
+        return view('pages.technician.service-reports.form', compact(
+            'sales',
+            'pic',
+            'formattedNumberS',
+            'formattedMonthNow',
+            'clients',
+            'selectedSalesId',
+            'selectedClientId',
+            'selectedPICId',
+            'selectedMachineId'
+        ));
+    }
+
+    public function createByUnitMachine($id_unit, $id_machine)
+    {
+        $sales = User::where('role', 'Sales')->get();
+        $clients = Client::all();
+        $dateNow = Carbon::now();
+        $numberS = Reports::whereYear('date', $dateNow)->where('id_technician', Auth::user()->id)->count();
+        $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
+        $monthNow = $dateNow->month;
+        $formattedMonthNow = $this->convertToRoman($monthNow);
+        $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->select('pic.*')->get();
+
+        $machine = \App\Models\Machine::find($id_machine);
+        if (!$machine) {
+            abort(404);
+        }
+
+        // If provided unit doesn't match machine's id_unit, prefer machine's id_unit
+        if ($machine->id_unit != $id_unit) {
+            $id_unit = $machine->id_unit;
+        }
+
+        $selectedClientId = $machine->id_client ?? 5568;
+        $selectedSalesId = optional(Client::find($selectedClientId))->id_sales ?? 23;
+        $selectedPICId = optional(Pic::where('id_client', $selectedClientId)->first())->id;
+        $selectedMachineId = $machine->id;
+
+        return view('pages.technician.service-reports.form', compact(
+            'sales',
+            'pic',
+            'formattedNumberS',
+            'formattedMonthNow',
+            'clients',
+            'selectedSalesId',
+            'selectedClientId',
+            'selectedPICId',
+            'selectedMachineId'
+        ));
+    }
+
+    public function createByMachine($id_machine)
+    {
+        $sales = User::where('role', 'Sales')->get();
+        $clients = Client::all();
+        $dateNow = Carbon::now();
+        $numberS = Reports::whereYear('date', $dateNow)->where('id_technician', Auth::user()->id)->count();
+        $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
+        $monthNow = $dateNow->month;
+        $formattedMonthNow = $this->convertToRoman($monthNow);
+        $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->select('pic.*')->get();
+
+        $machine = \App\Models\Machine::find($id_machine);
+        if (!$machine) {
+            abort(404);
+        }
+
+        $selectedClientId = $machine->id_client ?? 5568;
+        $selectedSalesId = optional(Client::find($selectedClientId))->id_sales ?? 23;
+        $selectedPICId = optional(Pic::where('id_client', $selectedClientId)->first())->id;
+        $selectedMachineId = $machine->id;
+
+        return view('pages.technician.service-reports.form', compact(
+            'sales',
+            'pic',
+            'formattedNumberS',
+            'formattedMonthNow',
+            'clients',
+            'selectedSalesId',
+            'selectedClientId',
+            'selectedPICId',
+            'selectedMachineId'
+        ));
     }
 
     /**
@@ -56,11 +183,11 @@ class ServiceReportsController extends Controller
     public function store(Request $request)
     {
         $rule = [
-            'no_service => required',
-            'running => required',
-            'load => required',
-            'jobdesc => required',
-            'desc => required',
+            'no_service' => 'required',
+            'running' => 'required',
+            'load' => 'required',
+            'jobdesc' => 'required',
+            'desc' => 'required',
         ];
         $customMessages = [
             'no_service.required' => 'Field No Service Wajib Diisi!',
@@ -105,7 +232,7 @@ class ServiceReportsController extends Controller
         $pict = ReportsPict::where('id_reports', $id)->get();
         // dd($pict);
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        return view('pages.technician.service-reports.detail', compact('noSaleProspect','service', 'pict'));
+        return view('pages.technician.service-reports.detail', compact('noSaleProspect', 'service', 'pict'));
     }
 
     /**
@@ -116,6 +243,7 @@ class ServiceReportsController extends Controller
      */
     public function edit($id)
     {
+        $sales = User::where('role', 'Sales')->get();
         $report = Reports::find($id);
         $image = ReportsPict::where('id_reports', $id)->get();
         $dateNow = Carbon::now();
@@ -126,7 +254,7 @@ class ServiceReportsController extends Controller
         $clients = Client::all();
         $pic = Pic::all();
         // dd($image);
-        return view('pages.technician.service-reports.form', compact('pic', 'formattedNumberS', 'formattedMonthNow', 'report', 'image', 'clients'));
+        return view('pages.technician.service-reports.form', compact('sales','pic', 'formattedNumberS', 'formattedMonthNow', 'report', 'image', 'clients'));
     }
 
     /**
@@ -139,14 +267,12 @@ class ServiceReportsController extends Controller
     public function update(Request $request, $id)
     {
         $rule = [
-            'no_service => required',
-            'running => required',
-            'load => required',
-            'jobdesc => required',
-            'desc => required',
+            'running' => 'required',
+            'load' => 'required',
+            'jobdesc' => 'required',
+            'desc' => 'required',
         ];
         $customMessages = [
-            'no_service.required' => 'Field No Service Wajib Diisi!',
             'running.required' => 'Field Running Wajib Diisi!',
             'load.required' => 'Field Load Wajib Diisi!',
             'jobdesc.required' => 'Field Jobdesc Wajib Diisi!',
@@ -157,18 +283,17 @@ class ServiceReportsController extends Controller
         // dd($request);
         // Masukan Data ke Service Reports
         $reports = Reports::find($id);
-        $reports->id_technician = $request->technician;
-        $reports->id_pic = $request->id_pic;
+        // $reports->id_technician = $request->technician;
+        // $reports->id_pic = $request->id_pic;
         $reports->type = $request->type;
         $reports->id_machine = $request->machine;
-        $reports->no_service = $request->no_service;
+        // $reports->no_service = $request->no_service;
         $reports->running = $request->running;
         $reports->load = $request->load;
         $reports->jobdesc = $request->jobdesc;
         $reports->date = $request->date;
         $reports->desc = $request->desc;
         $reports->recomendation = $request->recomendation;
-        $reports->date = $request->date;
         $status = $reports->save();
         // dd($reports);
         if ($status) {
@@ -294,9 +419,69 @@ class ServiceReportsController extends Controller
         }
         if ($status) {
             return 1;
-        }else{
+        } else {
             return 0;
         }
+    }
+
+    public function markViewed(Request $request)
+    {
+        $report = Reports::findOrFail($request->id);
+        $report->viewed += 1;
+        $report->save();
+
+        return response()->json(['success' => true]);
+    }
+    public function serviceMer()
+    {
+        $today = Carbon::now()->toDateString();
+        $commodity = Product::count();
+        $dproduct = DetailProduct::count();
+        $sproduct = SerialProduct::count();
+        $user = User::find('25');
+        $monitoring = MonitoringActivities::whereDate('date', $today)->first();
+
+        $newCount = PendingPO::where('status', operator: 0)
+            ->where('type', 'Non Project')
+            ->count();
+        // dd($newCount);
+        $listCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])
+            ->where('type', 'Non Project')
+            ->count();
+        $deliveryCount = PendingPO::where('pending_po.status', 5)
+            ->where('type', 'Non Project')
+            ->count();
+        $doneCount = PendingPO::where('pending_po.status', 6)
+            ->where('type', 'Non Project')
+            ->count();
+
+        $visits = ReqVisit::whereNull('date')->get();
+        $notulens = Notulen::join('mention_notulen as m', 'm.id_notulen', '=', 'notulen.id')->join('users as u', 'm.id_mention', '=', 'u.id')->get(['notulen.*', 'u.name', 'm.level']);
+        $visited = ReqVisit::whereNotNull('date')->whereNull('visit_date')->get();
+        return view(
+            "pages.support.serviceM.reports",
+            compact(
+                'user',
+                'newCount',
+                'listCount',
+                'deliveryCount',
+                'notulens',
+                'commodity',
+                'dproduct',
+                'sproduct',
+                'visits',
+                'visited'
+            )
+        );
+    }
+
+    public function get_client($id)
+    {
+        $client = Client::where('id_status',$id)->get();
+
+        return response()->json([
+            'data' => $client
+        ]);
     }
 
     protected function convertToRoman($month)

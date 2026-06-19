@@ -22,6 +22,8 @@ class SerialProduct extends Model
         'rental',
         'second',
         'new',
+        'bar',
+        'air_cap',
     ];
     public function product()
     {
@@ -42,5 +44,17 @@ class SerialProduct extends Model
     public function detail_delivery()
     {
         return $this->hasMany('App\Models\DetailDelivery', 'id_pn');
+    }
+    public function detail_pending()
+    {
+        return $this->hasMany('App\Models\DetailPending', 'id_equivalent');
+    }
+    public function pr()
+    {
+        return $this->hasMany('App\Models\PurchaseRequest', 'id_equivalent');
+    }
+    public function machine()
+    {
+        return $this->hasMany('App\Models\Machine', 'id_unit');
     }
 }

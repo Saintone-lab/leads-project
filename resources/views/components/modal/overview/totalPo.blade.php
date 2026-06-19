@@ -36,7 +36,7 @@
                                             <a class="text-black"
                                                 href="{{ route('quotation.show', $quoteObj->id) }}">{{ $quoteObj->no_quote }}</a>
                                         </td>
-                                        <td>{{ $quoteObj->pic->client->company }}</td>
+                                        <td>{{ $quoteObj->pic->client->company ?? 'Client Di Hapus' }}</td>
                                         <td>{{ $quoteObj->title }}</td>
                                         <td>{{ \Carbon\Carbon::parse($quoteObj->estimated_date)->format('d-m-Y') }}</td>
                                         <td class="text-end">Rp

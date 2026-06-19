@@ -53,7 +53,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    
+
     public function detail()
     {
         return $this->hasMany('App\Models\DetailUser', 'id_users');
@@ -63,7 +63,7 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\Client', 'id_sales');
     }
-    
+
     public function quotation()
     {
         return $this->hasMany('App\Models\Quotation', 'id_sales');
@@ -84,5 +84,34 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\ChangeStatus', 'id_user');
     }
-    
+    public function monitoring()
+    {
+        return $this->hasMany('App\Models\Monitoring', 'id_user');
+    }
+    public function monitoringStatus()
+    {
+        return $this->hasMany('App\Models\StatusMonitoring', 'id_pic');
+    }
+    public function salesOnline()
+    {
+        return $this->hasMany('App\Models\SalesOnline', 'id_sales');
+    }
+    public function opname()
+    {
+        return $this->hasMany('App\Models\StockOpname', 'id_user');
+    }
+
+    public function prospects()
+    {
+        return $this->hasMany(Prospect::class, 'id_sales');
+    }
+
+    public function latestTarget()
+    {
+        return $this->hasOne(Target::class, 'id_sales')->latestOfMany();
+    }
+    public function latestRole()
+    {
+        return $this->hasOne(DetailUser::class, 'id_users')->latestOfMany();
+    }
 }

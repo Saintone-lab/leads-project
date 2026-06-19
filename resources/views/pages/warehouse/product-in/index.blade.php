@@ -4,51 +4,116 @@
     <h4 class="fw-bold py-3 mb-4">
         Product In
     </h4>
-    <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0">
-            <table
-                class="datatable-product-in-{{ Auth::user()->role == 'Logistic' ? 'req-logistic' : 'req' }} table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>No DO</th>
-                        <th>Date</th>
-                        <th>Total Qty</th>
-                        @if (Auth::user()->role != 'Logistic')
+    @if (Auth::user()->role == 'Admin')
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="card mb-3">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-product-in-req-lokal table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>No DO</th>
+                                    <th>Date</th>
+                                    <th>VAT</th>
+                                    <th>Total Qty</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card mb-3">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-product-in-req-import table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>No DO</th>
+                                    <th>Date</th>
+                                    <th>VAT</th>
+                                    <th>Total Qty</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif'
+    @if (in_array(Auth::user()->id, [18, 20]))
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-product-in-req-logistic table table-striped">
+                    <thead>
+                        <tr>
                             <th></th>
-                        @endif
-                    </tr>
-                </thead>
-            </table>
+                            <th></th>
+                            <th>ID</th>
+                            <th>No DO</th>
+                            <th>Date</th>
+                            <th>VAT</th>
+                            <th>Total Qty</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
-    </div>
-    <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0">
-            <table
-                class="datatable-product-{{ Auth::user()->role == 'Logistic' ? 'in-logistic' : 'in' }} table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Invoice</th>
-                        <th>Supplier</th>
-                        <th>Product</th>
-                        <th>Qty</th>
-                        <th>Price</th>
-                        <th>Date</th>
-                        <th></th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
+    @endif
     @if (Auth::user()->role != 'Logistic')
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-product-in-no-tax table table-striped">
+                <table class="datatable-product-in-lokal table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Invoice</th>
+                            <th>Supplier</th>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>VAT</th>
+                            <th>Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-product-in-import table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Invoice</th>
+                            <th>Supplier</th>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>VAT</th>
+                            <th>Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    @else
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-product-in-logistic table table-striped">
                     <thead>
                         <tr>
                             <th></th>
@@ -91,9 +156,10 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-product-in.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-product-in-req.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-product-in-lokal.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-product-in-import.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-product-in-req-lokal.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-product-in-req-import.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-in-req-logistic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-product-in-no-tax.js"></script>
     <script src="{{ asset('assets') }}/includes/table-product-in-logistic.js"></script>
 @endpush

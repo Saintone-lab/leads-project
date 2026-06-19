@@ -142,11 +142,18 @@
                                     <h5>Prospect</h5>
                                     <div class="row">
                                         <div class="col-3">
+                                            Category
+                                        </div>
+                                        <div class="col-9">
+                                            <pre class="mb-0"
+                                                style="font-size: 15px; font-family: Inter; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $prospect->category }}</pre>
+                                        </div>
+                                        <div class="col-3">
                                             Prospect
                                         </div>
                                         <div class="col-9">
                                             <pre class="mb-0"
-                                                style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $prospect->kebutuhan }}</pre>
+                                                style="font-size: 15px; font-family: Inter; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $prospect->kebutuhan }}</pre>
                                         </div>
                                     </div>
                                 </div>
@@ -162,10 +169,10 @@
                         <thead class="table-light">
                             <tr>
                                 <th>No Quote</th>
-                                <th>Description</th>
                                 <th>Client</th>
                                 <th>Status</th>
                                 <th>Value</th>
+                                <th>Detail</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -191,12 +198,17 @@
                                 @endphp
                                 <tr>
                                     <td>{{ $quotation->no_quote }}</td>
-                                    <td>{{ $quotation->desc }}</td>
                                     <td>{{ $quotation->pic->client->company }}</td>
                                     <td>
-                                        <p class="badge badge-label-{{ $color }}">{{ $quotation->status }}</p>
+                                        <p class="badge bg-label-{{ $color }}">{{ $quotation->status }}</p>
                                     </td>
-                                    <td class="text-end">{{ $quotation->nett }}</td>
+                                    <td class="text-end">RP {{ number_format($quotation->nett, 0, '', '.') }}</td>
+                                    <td>
+                                        <a href="{{ route('quotation.show', $quotation->id) }}"
+                                            class="btn btn-info d-grid w-100 waves-effect">
+                                            <span class="mdi mdi-eye-outline"></span>
+                                        </a>
+                                    </td>
                                 </tr>
                             @else
                                 <tr>
@@ -315,7 +327,7 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-md">
                                     <div
-                                        class="form-check custom-option custom-option-icon  {{ @$prospect->provide == '1' ? 'checked disabled' : '' }} h-100">
+                                        class="form-check custom-option custom-option-icon  {{ @$prospect->provide == '1' ? 'checked' : '' }}{{ @$prospect->quotation ? 'disabled' : '' }} h-100">
                                         <label class="form-check-label custom-option-content" for="provideCheck1">
                                             <span class="custom-option-body">
                                                 <i class="mdi mdi-file-check-outline"></i>
@@ -324,13 +336,14 @@
                                             </span>
                                             <input name="provideCheck" class="form-check-input check-provide"
                                                 type="radio" value="1" id="provideCheck1"
-                                                {{ @$prospect->provide == '1' ? 'checked disabled' : '' }}>
+                                                {{ @$prospect->provide == '1' ? 'checked' : '' }}
+                                                {{ @$prospect->quotation ? 'disabled' : '' }}>
                                         </label>
                                     </div>
                                 </div>
                                 <div class="col-md">
                                     <div
-                                        class="form-check custom-option custom-option-icon  {{ @$prospect->provide == '0' ? 'checked' : '' }} h-100">
+                                        class="form-check custom-option custom-option-icon  {{ @$prospect->provide == '0' ? 'checked' : '' }} {{ @$prospect->quotation ? 'disabled' : '' }} h-100">
                                         <label class="form-check-label custom-option-content" for="provideCheck2">
                                             <span class="custom-option-body">
                                                 <i class="mdi mdi-file-alert-outline"></i>
@@ -339,15 +352,15 @@
                                             </span>
                                             <input name="provideCheck" class="form-check-input check-no-provide"
                                                 type="radio" value="0" id="provideCheck2"
-                                                {{ @$prospect->provide == '0' ? 'checked' : '' }}{{ @$prospect->provide == '1' ? ' disabled' : '' }}>
+                                                {{ @$prospect->provide == '0' ? 'checked' : '' }}{{ @$prospect->quotation ? 'disabled' : '' }}>
                                         </label>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-floating form-floating-outline form-sales"
-                                {{ @$prospect->provide == '1' ? 'disabled' : 'hidden' }}>
+                                {{ @$prospect->provide == '1' ? '' : 'hidden' }}>
                                 <select class="form-select" id="selectSales" aria-label="Default select example"
-                                    name="sales" {{ @$prospect->id_sales ? 'disabled' : '' }}>
+                                    name="sales" {{ @$prospect->quotation ? 'disabled' : '' }}>
                                     <option disabled="">----- Choose Sales -----</option>
                                     @foreach ($sales as $user)
                                         <option value="{{ $user->id }}"
@@ -358,7 +371,7 @@
                                 <label for="selectSales">Sales</label>
                             </div>
                         </div>
-                        <div class="card-footer float-end" {{ @$prospect->provide == '1' ? 'hidden' : '' }}>
+                        <div class="card-footer float-end">
                             <button type="submit" class="btn btn-primary waves-effect waves-light">Submit</button>
                         </div>
                     </form>
@@ -388,9 +401,58 @@
                                 data-id="{{ $prospect->id }}">
                                 No Quote
                             </a>
+                            <a href="#" class="btn btn-whatsapp d-grid w-100 waves-effect fu-wa mb-3"
+                                data-id="{{ $prospect->id }}">
+                                On Process Follow UP WA
+                            </a>
                             <a href="#" class="btn btn-warning d-grid w-100 waves-effect no-respond mb-3"
                                 data-id="{{ $prospect->id }}">
                                 No Respond
+                            </a>
+                        </div>
+                    </div>
+                @elseif ($prospect->level == 9)
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <a href="#" class="btn btn-primary d-grid w-100 waves-effect with-quote mb-4"
+                                data-id="{{ $prospect->id }}">
+                                Create Quote
+                            </a>
+                            <p class="text-center mb-4">- or -</p>
+                            <form action="{{ route('choose_quotation.prospect', $prospect->id) }}" method="post"
+                                enctype="multipart/form-data">
+                                @csrf
+                                <div class="form-floating form-floating-outline mb-2">
+                                    <select class="form-select" id="Type" aria-label="Default select example"
+                                        name="id_quotation">
+                                        @forelse ($allQuotation as $item)
+                                            <option value="{{ $item->id }}">
+                                                {{ $item->no_quote }} - {{ $item->title }}
+                                            </option>
+                                        @empty
+                                            <option value="" disabled>No Quotation</option>
+                                        @endforelse
+                                    </select>
+                                    <label for="exampleFormControlSelect1">Choose Quotation</label>
+                                </div>
+                                <button type="submit"
+                                    class="btn btn-primary waves-effect waves-light float-end">Choose</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <a href="#" class="btn btn-danger d-grid w-100 waves-effect without-quote mb-3"                             
+                                data-id="{{ $prospect->id }}">
+                                No Quote
+                            </a>
+                            <a href="#" class="btn btn-warning d-grid w-100 waves-effect no-respond mb-3"
+                                data-id="{{ $prospect->id }}">
+                                No Respond
+                            </a>
+                            <a href="#" class="btn btn-pinterest d-grid w-100 waves-effect no-provide mb-3"
+                                data-id="{{ $prospect->id }}">
+                                No Provide
                             </a>
                         </div>
                     </div>
@@ -606,6 +668,63 @@
                 }
             });
         });
+        $(document).on('click', '.fu-wa', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure move to Process?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Follow Up!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('prospect') }}/' + 'onProcessFU/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Converted!",
+                                    text: "Your file has been converted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href =
+                                        '/prospect/';
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed On Process!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "You cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
         $(document).on('click', '.no-respond', function() {
             var id = $(this).data('id');
             Swal.fire({
@@ -623,6 +742,63 @@
                 if (result.value) {
                     $.ajax({
                         'url': '{{ url('prospect') }}/' + 'no_respond/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_method': 'POST',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Converted!",
+                                    text: "Your file has been converted.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                })
+                                window.setTimeout(function() {
+                                    window.location.href =
+                                        '/prospect/';
+                                }, 2000);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data Failed Without Quotation!'
+                                });
+                            }
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        title: "Cancelled",
+                        text: "You cancelled :)",
+                        icon: "error",
+                        customClass: {
+                            confirmButton: "btn btn-success waves-effect",
+                        },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.no-provide', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure No Provide this Prospect?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, No Provide!",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('prospect') }}/' + 'no_provide/' + id,
                         'type': 'POST',
                         'data': {
                             '_method': 'POST',

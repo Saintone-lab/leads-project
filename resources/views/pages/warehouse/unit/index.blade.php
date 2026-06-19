@@ -70,51 +70,108 @@
             </div>
         </div>
     </div> --}}
-    <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0">
-            @if (Auth::user()->role == 'Admin')
-                <table class="datatable-product-unit table table-striped">
+    @if (Auth::user()->role == 'Admin')
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-product-unit table table-striped mb-3">
                     <thead>
                         <tr>
                             <th></th>
                             <th></th>
                             <th>ID</th>
-                            <th>SKU</th>
                             <th>Brand</th>
+                            <th>Unit</th>
                             <th>Type</th>
                             <th>Sn</th>
                             <th>Power</th>
                             <th>Pressure</th>
                             <th>Capacity</th>
                             <th>status</th>
-                            <th>Price</th>
+                            <th>Unit Price</th>
+                            <th>Rental Price</th>
                         </tr>
                     </thead>
                 </table>
-            @else
-                <table class="datatable-product-sales-unit table table-striped">
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-product-unit-second table table-striped">
                     <thead>
                         <tr>
                             <th></th>
                             <th></th>
                             <th>ID</th>
-                            <th>Info</th>
-                            <th>Unit</th>
                             <th>Brand</th>
+                            <th>Unit</th>
+                            <th>Type</th>
+                            <th>Sn</th>
+                            <th>Power</th>
+                            <th>Pressure</th>
+                            <th>Capacity</th>
+                            <th>status</th>
+                            <th>Unit Price</th>
+                            <th>Rental Price</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    @else
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-product-sales-unit table table-striped mb-3">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            {{-- <th>Info</th> --}}
+                            <th>Brand</th>
+                            <th>Unit</th>
                             <th>Type</th>
                             <th>SN</th>
                             <th>Power</th>
                             <th>Pressure</th>
                             <th>Capacity</th>
-                            <th>status</th>
-                            <th>Price</th>
+                            {{-- <th>status</th>
+                            <th>Unit Price</th>
+                            <th>Rental Price</th> --}}
                         </tr>
                     </thead>
                 </table>
-            @endif
+            </div>
         </div>
-    </div>
+        <div class="card mb-3">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatable-product-sales-unit-second table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>ID</th>
+                            {{-- <th>Info</th> --}}
+                            <th>Brand</th>
+                            <th>Unit</th>
+                            <th>Type</th>
+                            <th>SN</th>
+                            <th>Power</th>
+                            <th>Pressure</th>
+                            <th>Capacity</th>
+                            {{-- <th>status</th>
+                            <th>Unit Price</th>
+                            <th>Rental Price</th> --}}
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    @endif
     @include('components.modal.warehouse.unit.form')
+    @foreach ($units as $unitr)
+        @include('components.modal.warehouse.unit.form-edit')
+        @include('components.modal.warehouse.unit.detail')
+    @endforeach
 @endsection()
 
 @push('after-style')
@@ -142,6 +199,129 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-unit.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-unit-second.js"></script>
     <script src="{{ asset('assets') }}/includes/table-unit-sales.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-unit-sales-second.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
+@endpush
+
+@push('script')
+    <script>
+        $(document).ready(function() {
+            function formatNumber(n) {
+                return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+            }
+            $(".price-label").on('keyup click change', function() {
+                var input = $(this)
+                var input_val = input.val();
+
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                $(`#semuanya`).val(nomorInt);
+                console.log('ini value semuanya :' + $('#semuanya').val());
+            });
+            $(".rental-label").on('keyup click change', function() {
+                var input = $(this)
+                var input_val = input.val();
+
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                $(`#rental`).val(nomorInt);
+                console.log('ini value rental :' + $('#rental').val());
+            });
+            $(".best-label").on('keyup click change', function() {
+                var input = $(this)
+                var input_val = input.val();
+
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                $(`#best`).val(nomorInt);
+                console.log('ini value best :' + $('#best').val());
+            });
+            $(".harga-label").on('keyup click change', function() {
+                var input = $(this)
+                var input_val = input.val();
+                var idHarga = input.data('id');
+
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                $(`#harga` + idHarga).val(nomorInt);
+                console.log('ini value harga :' + $('#harga' + idHarga).val());
+            });
+            $(".harga-rental-label").on('keyup click change', function() {
+                var input = $(this)
+                var input_val = input.val();
+                var idHarga = input.data('id');
+
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                $(`#hargaRental` + idHarga).val(nomorInt);
+                console.log('ini value harga :' + $('#hargaRental' + idHarga).val());
+            });
+            $(".harga-best-label").on('keyup click change', function() {
+                var input = $(this)
+                var input_val = input.val();
+                var idHarga = input.data('id');
+
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                $(`#totalBest` + idHarga).val(nomorInt);
+                console.log('ini value harga :' + $('#totalBest' + idHarga).val());
+            });
+        });
+    </script>
 @endpush

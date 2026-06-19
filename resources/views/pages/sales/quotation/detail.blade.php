@@ -2,7 +2,7 @@
 @section('title', 'Detail Quotation')
 @section('content')
     @php
-        if ($quote->flag == 'Reftech') {
+        if ($quote->pic->client->info == 'Reftech') {
             $bgColor = 'rgb(224, 248, 248)';
         } else {
             $bgColor = 'rgb(255, 232, 210)';
@@ -13,7 +13,7 @@
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
             <div class="card invoice-preview-card mb-3">
                 <div class="card-body">
-                    @if ($quote->flag == 'Reftech')
+                    @if ($quote->pic->client->info == 'Reftech')
                         <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
                             <div class="mb-xl-0 pb-1">
                                 <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
@@ -132,7 +132,7 @@
                         </div>
                         <div class="col-3 text-end">
                             <p class="mb-1">
-                                {{ $quote->flag == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
+                                {{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}
                             </p>
                             <p class="mb-1"> {{ $quote->no_pr ?? '-' }}</p>
                             <p class="mb-1"> {{ $quote->pic->client->email }}</p>
@@ -145,8 +145,8 @@
                             <tr>
                                 <th>No.</th>
                                 <th>Item</th>
-                                <th>Price</th>
                                 <th>Qty</th>
+                                <th>Price</th>
                                 <th>Discount</th>
                                 <th>Amount</th>
                             </tr>
@@ -172,8 +172,8 @@
                                         <pre class="mb-0"
                                             style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail_product }}</pre>
                                     </td>
-                                    <td class="align-top text-end">RP {{ number_format($product->price, 0, '', '.') }}</td>
                                     <td class="align-top">{{ $product->qty }} {{ $product->info_qty }} </td>
+                                    <td class="align-top text-end">RP {{ number_format($product->price, 0, '', '.') }}</td>
                                     <td class="align-top">{{ $product->disc }}%</td>
                                     <td class="align-top text-end">RP {{ number_format($product->amount, 0, '', '.') }}
                                     </td>
@@ -187,7 +187,8 @@
                                     <p class="mb-2">Subtotal:</p>
                                     <p class="mb-2">Discount Quote:</p>
                                     <p class="mb-2">Subtotal After Discount:</p>
-                                    <p class="mb-2">Tax {{ $quote->tax == '11' ? '(11%)' : '' }}:</p>
+                                    {{-- <p class="mb-2">DPP On VAT:</p> --}}
+                                    <p class="mb-2">Tax :</p>
                                     <p class="mb-2">Shipping Cost:</p>
                                     <p class="mb-0">Total:</p>
                                 </td>
@@ -200,6 +201,12 @@
                                     <p class="fw-semibold mb-2 text-end">RP
                                         {{ number_format($afterDisc, 0, '', '.') }}
                                     </p>
+                                    @php
+                                        $dpp = ($afterDisc * 11) / 12;
+                                    @endphp
+                                    {{-- <p class="fw-semibold mb-2 text-end">RP
+                                        {{ number_format($dpp, 0, '', '.') }}
+                                    </p> --}}
                                     <p class="fw-semibold mb-2 text-end">
                                         {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
                                     <p class="fw-semibold mb-2 text-end">RP
@@ -341,8 +348,8 @@
                 <div class="card mb-3">
                     <div class="card-body">
                         <div class="form-floating form-floating-outline mb-2">
-                            <select class="form-select change-primary" name="changePrimary" id="changePrimary"
-                                aria-label="Default select example">
+                            <select class="form-select change-primary{{ $quote->type == 'Service' ? '-service' : '' }}"
+                                name="changePrimary" id="changePrimary" aria-label="Default select example">
                                 @foreach ($quotations as $item)
                                     <option data-id="{{ $item->id }}" value="{{ $item->id }}"
                                         {{ $item->is_primary == '1' ? 'Selected' : '' }}>
@@ -356,6 +363,10 @@
                         <a class="btn btn-outline-primary d-grid w-100 mb-3 waves-effect"
                             href="{{ route('revisi.quotation', @$primQuote->id ?? $lastQuote->id) }}">
                             + Revisi Quotation
+                        </a>
+                        <a class="btn btn-outline-info d-grid w-100 mb-3 waves-effect"
+                            href="{{ route('edit-sparepart.quotation', @$primQuote->id ?? $lastQuote->id) }}">
+                            + Edit Quotation
                         </a>
                     </div>
                 </div>
@@ -395,17 +406,42 @@
                 @if (Auth::user()->role == 'Sales')
                     <div class="card mb-3">
                         <div class="card-body">
-                            @if ((Auth::user()->id == '1' || Auth::user()->id == '16') && $invoice->count() < 1)
+                            {{-- @if ((Auth::user()->id == '1' || Auth::user()->id == '16' || Auth::user()->id == '23') && $invoice->count() < 1)
                                 <a href="#" data-id="{{ $quote->id }}"
                                     class="btn btn-instagram d-grid w-100 waves-effect mb-3 convert-flag">Change to
-                                    {{ $quote->flag == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
-                            @endif
+                                    {{ $quote->pic->client->info == 'Reftech' ? 'Kojisha' : 'Reftech' }}</a>
+                            @endif --}}
                             @if ($quote->status != '100')
                                 <button type="button" class="btn btn-outline-whatsapp d-grid w-100 waves-effect mb-3"
                                     data-bs-toggle="modal" data-bs-target="#convertPo">Convert to PO</button>
                             @else
                                 @if ($quote->po_file != null)
-                                    @if ($invoice->count() >= 1 && $invoice[0]->no_invoice == null)
+                                    @php
+                                        $no = 1;
+                                    @endphp
+                                    @foreach ($invoice as $inv)
+                                        @if ($inv->no_invoice == null)
+                                            <button type="button"
+                                                class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
+                                                Waiting Accounting Apply
+                                            </button>
+                                        @elseif($inv->no_invoice)
+                                            <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
+                                                href="{{ route('invoice.show', $inv->id) }}">
+                                                Go To Invoice {{ $no }}
+                                            </a>
+                                        @endif
+                                        @php
+                                            $no++;
+                                        @endphp
+                                    @endforeach
+                                    <button type="button" class="btn btn-outline-dark d-grid w-100 waves-effect mb-3"
+                                        data-bs-toggle="modal" data-bs-target="#request-bp">
+                                        Request Next Invoice
+                                    </button>
+
+                                    {{-- SEBELUMNYA REQ inVoiCE diBAWAH --}}
+                                    {{-- @if ($invoice->count() >= 1 && $invoice[0]->no_invoice == null)
                                         <button type="button"
                                             class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
                                             Waiting Accounting Apply
@@ -416,11 +452,11 @@
                                             Go To Invoice {{ $invoice[0]->type == 'CT' ? '' : 'DP' }}
                                         </a>
                                         @if (@$payments)
-                                            @if ($invoice->count() == 1)
+                                            @if ($invoice->count() > 1)
                                                 <button type="button"
                                                     class="btn btn-outline-dark d-grid w-100 waves-effect mb-3"
                                                     data-bs-toggle="modal" data-bs-target="#request-bp">
-                                                    Request Invoice BP
+                                                    Request Next Invoice
                                                 </button>
                                             @elseif ($invoice[1]->no_invoice == null)
                                                 <button type="button"
@@ -430,14 +466,16 @@
                                             @elseif ($invoice[1]->no_invoice)
                                                 <a class="btn btn-facebook d-grid w-100 mb-3 waves-effect"
                                                     href="{{ route('invoice.show', $invoice[1]->id) }}">
-                                                    Go To Invoice BP
+                                                    Go To Invoice {{ $invoice->count() > 1 ? '1' : '' }}
                                                 </a>
                                             @endif
                                         @endif
-                                    @endif
+                                    @endif --}}
                                     <div class="d-flex justify-content-between mb-3">
-                                        <a href="{{ route('download-po.quotation', $quote->id) }}"
-                                            class="btn btn-primary d-grid w-100 waves-effect"> Download PO</a>
+                                        <button class="btn btn-primary d-grid w-100 waves-effect"
+                                            onclick="copyDownloadLink('{{ route('download-po.quotation', $quote->id) }}')">
+                                            Copy Link PO
+                                        </button>
                                         <a href="#"
                                             class="btn btn-label-danger d-grid waves-effect delete-file mx-2"
                                             data-id="{{ $quote->id }}"> <i
@@ -450,7 +488,7 @@
                                     @foreach ($invoice as $invoices)
                                         <button type="button" class="btn btn-outline-dark d-grid w-100 waves-effect mb-3"
                                             data-bs-toggle="modal" data-bs-target="#changePo{{ $invo }}">
-                                            Change No PO {{ $invo == 0 ? 'DP' : 'BP' }}
+                                            Change No PO {{ $invo + 1 }}
                                         </button>
                                         @php
                                             $invo++;
@@ -459,10 +497,11 @@
                                 @else
                                     @if ($quote->pic->client->address == '-' && $quote->pic->client->subAddress == '-')
                                         <button type="button"
-                                            class="btn btn-whatsapp d-grid w-100 waves-effect mb-3 btn-no-address">Upload PO</button>
+                                            class="btn btn-whatsapp d-grid w-100 waves-effect mb-3 btn-no-address">Upload
+                                            PO</button>
                                     @else
-                                        <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3"
-                                            data-bs-toggle="modal" data-bs-target="#uploadPo">Upload PO</button>
+                                        <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3 btn-upload-po"
+                                            data-npwp="{{ $quote->pic->client->npwp ?? '' }}">Upload PO</button>
                                     @endif
                                 @endif
                             @endif
@@ -664,7 +703,7 @@
             $invo++;
         @endphp
     @endforeach
-    @include('components.modal.quotation.request-bp')
+    @include('components.modal.quotation.request-next')
     @include('components.modal.accounting.selling-contract')
     @include('components.modal.accounting.confirm-order')
     @include('components.modal.quotation.insert-fee')
@@ -1373,6 +1412,29 @@
                 }
             });
         });
+        $(document).on('change', '.change-primary-service', function() {
+            var selectedValue = $(this).val();
+            var rowId = $(this).data('id');
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            $.ajax({
+                type: 'POST',
+                url: '/quotation/' + selectedValue + '/change_primary',
+                data: {
+                    status: selectedValue,
+                    _token: csrfToken
+                },
+                success: function(response) {
+                    console.log('Perubahan status berhasil dikirim ke server');
+                    window.setTimeout(function() {
+                        window.location.href = '/quote/service-show/' + selectedValue;
+                    }, 10);
+                },
+                error: function(error) {
+                    console.error('Gagal mengirim permintaan ke server:', error);
+                }
+            });
+        });
         $(document).on('click', '.btn-no-address', function() {
             var id = $(this).data('id');
             Swal.fire({
@@ -1388,5 +1450,16 @@
                 buttonsStyling: false,
             });
         });
+
+        function copyDownloadLink(link) {
+            navigator.clipboard.writeText(link)
+                .then(() => {
+                    alert('Link berhasil disalin!');
+                })
+                .catch(err => {
+                    alert('Gagal menyalin link');
+                    console.error(err);
+                });
+        }
     </script>
 @endpush

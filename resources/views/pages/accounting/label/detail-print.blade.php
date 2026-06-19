@@ -45,7 +45,7 @@
                         <p class="text-black">From :</p>
                     </div>
                     <div class="col-8 px-0">
-                        <p class="mb-0">Ahmad</p>
+                        <p class="mb-0">Rayi</p>
                         <p class="mb-0 fst-italic">Staff Accounting</p>
                     </div>
                 </div>

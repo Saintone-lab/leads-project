@@ -85,6 +85,14 @@
                                         {{ @$product->category == 'Non Consumable Part' ? 'selected' : '' }}>
                                         Non Consumable Part
                                     </option>
+                                    <option value="Unit"
+                                        {{ @$product->category == 'Unit' ? 'selected' : '' }}>
+                                        Unit
+                                    </option>
+                                    <option value="Jasa"
+                                        {{ @$product->category == 'Jasa' ? 'selected' : '' }}>
+                                        Jasa
+                                    </option>
                                 </select>
                                 <label for="selectSource">Category</label>
                             </div>

@@ -1,11 +1,12 @@
 <?php
 use Illuminate\Support\Facades\Auth;
 
-header('Content-Type: application/json');$host = "localhost";
-$users = "root";
-$pass = "";
+header('Content-Type: application/json');
+$host = "localhost";
+$users = "u877155683_reftech_my";
+$pass = "REFtechjaya321!";
 
-$databaseName = "db_leads_v1";
+$databaseName = "u877155683_reftech_my";
 $tableName = "quotation";
 
 // Periksa apakah pengguna terotentikasi
@@ -19,11 +20,11 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT q.*, CONCAT(q.note, ' (', q.status_date, ')') AS tip, c.company, u.name FROM quotation q 
+        $query = "SELECT q.*, CONCAT(q.note, ' (', q.status_date, ')') AS tip, c.company, c.ru, u.name FROM quotation q 
         LEFT JOIN pic p on p.id = q.id_pic
         LEFT JOIN client c on c.id = p.id_client
         INNER JOIN users u on u.id = q.id_sales
-        WHERE u.id = $user->id AND q.status IN (20,30,40,60,80) AND q.level = '1' AND q.is_primary = '1' AND q.type = 'Sparepart'
+        WHERE u.id = $user->id AND q.status IN (20,30,40,60,80) AND q.level = '1' AND q.is_primary = '1' AND q.type != 'Unit'
         GROUP BY primary_id ORDER BY q.expired_date ASC";
 
         $stmt = $pdo->prepare($query);

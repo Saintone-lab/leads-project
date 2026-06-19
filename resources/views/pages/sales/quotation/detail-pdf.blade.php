@@ -148,7 +148,7 @@
                         </span>
                         <span class="h4 mb-0 fw-bold">PT REFTECH JAYA OPTIMA</span>
                     </div>
-                    <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 27</p>
+                    <p class="mb-1">Taman Kopo Indah V, Soho Sommerville No. 31</p>
                     <p class="mb-1">Bandung – Jawa Barat 40218</p>
                     <p class="mb-0"><i class="mdi mdi-whatsapp scaleX-n1-rtl me-1"></i>+62 813-2058-3277
                     </p>
@@ -220,7 +220,7 @@
                             <th class="desc">Description</th>
                             <th class="price">Price</th>
                             <th class="qty">Qty</th>
-                            <th class="disc">Discount</th>
+                            <th class="disc">Disc</th>
                             <th class="amount">Amount</th>
                         </tr>
                     </thead>

@@ -25,7 +25,7 @@
                     <p class="card-text">
                     <div class="row mb-1">
                         <div class="col-3">
-                            Address
+                            NPWP Address
                         </div>
                         <div class="col-9">
                             : {{ $leads->address }}
@@ -65,6 +65,14 @@
                     </div>
                     <div class="row mb-1">
                         <div class="col-3">
+                            Unit
+                        </div>
+                        <div class="col-9">
+                            : {{ $leads->unit }}
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-3">
                             Mobile
                         </div>
                         <div class="col-9">
@@ -89,10 +97,10 @@
                     </div>
                     <div class="row mb-1">
                         <div class="col-3">
-                            Machine
+                            Npwp
                         </div>
                         <div class="col-9">
-                            : {{ $leads->machine }}
+                            : {{ $leads->npwp }}
                         </div>
                     </div>
                     <div class="row">
@@ -118,9 +126,27 @@
                     </button>
                 </a>
             </div>
-            @foreach ($charge as $pic)
-                <div class="card mb-2">
-                    <div class="card-header pb-0">
+
+            {{-- @foreach ($charge as $pic) --}}
+            <div class="card mb-2">
+                <div class="card-datatable table-responsive pt-0">
+                    <table
+                        class="datatable-pic-client{{ Auth::user()->role == 'Sales' ? '-sales' : '' }} table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                {{-- <div class="card-header pb-0">
                         <div class="text-end text-muted">
                             <a type="button" data-bs-toggle="modal" data-bs-target="#updatePic-{{ $pic->id }}">
                                 <button type="button" class="btn btn-sm btn-label-primary">
@@ -144,18 +170,18 @@
                         </div>
                         <div class="row mb-1">
                             <div class="col-3">
-                                Phone
-                            </div>
-                            <div class="col-9">
-                                : {{ $pic->phone_pic }}
-                            </div>
-                        </div>
-                        <div class="row mb-1">
-                            <div class="col-3">
                                 Position
                             </div>
                             <div class="col-9">
                                 : {{ $pic->position }}
+                            </div>
+                        </div>
+                        <div class="row mb-1">
+                            <div class="col-3">
+                                Phone
+                            </div>
+                            <div class="col-9">
+                                : {{ $pic->phone_pic }}
                             </div>
                         </div>
                         <div class="row mb-1">
@@ -167,9 +193,9 @@
                             </div>
                         </div>
                         </p>
-                    </div>
-                </div>
-            @endforeach
+                    </div> --}}
+            </div>
+            {{-- @endforeach --}}
         </div>
     </div>
     <div class="row">
@@ -178,11 +204,22 @@
                 <h5 class="fw-bold pb-1 mb-2">
                     Daily Call History
                 </h5>
-                <a type="button" data-bs-toggle="modal" data-bs-target="#createAction{{ $leads->id }}">
-                    <button type="button" class="btn btn-primary">
-                        + New Action
-                    </button>
-                </a>
+                @php
+                    $emailPic = 0;
+                @endphp
+
+                @foreach ($charge as $pic)
+                    @php
+                        if ($pic->email_pic != null && $pic->email_pic != '-') {
+                            $emailPic++;
+                        }
+                    @endphp
+                @endforeach
+
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#createAction{{ $leads->id }}" @if ($emailPic <= 0 || $leads->unit == null || $leads->unit == '-') disabled @endif>
+                    + New Action
+                </button>
             </div>
             <div class="card">
                 <div class="card-datatable table-responsive pt-0">
@@ -201,6 +238,104 @@
                     </table>
                 </div>
             </div>
+        </div>
+        <div class="col-md-12 mt-4">
+            <div class="d-flex justify-content-between mb-2">
+                <h5 class="fw-bold pb-1 mb-3">
+                    Machine
+                </h5>
+                <a type="button" data-bs-toggle="modal" data-bs-target="#createMachine">
+                    <button type="button" class="btn btn-primary">
+                        + Create New machine
+                    </button>
+                </a>
+            </div>
+            <div class="card">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-machine-client table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Category</th>
+                                <th>Brand</th>
+                                <th>Type</th>
+                                <th>SN</th>
+                                <th>Tag</th>
+                                <th>Location</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            {{-- <div class="row">
+                @foreach ($machines as $machine)
+                    <div class="col-6 col-md-4">
+                        <div class="card mb-2">
+                            <div class="card-header pb-0">
+                                <div class="text-end text-muted">
+                                    <a type="button" data-bs-toggle="modal"
+                                        data-bs-target="#createMachine{{ $machine->id }}">
+                                        <button type="button" class="btn btn-sm btn-label-warning">
+                                            Edit
+                                        </button>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-label-danger delete-machine"
+                                        data-id="{{ $machine->id }}">
+                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Brand
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->brand }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Type
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->type }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Serial Number
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->serial_number }} ({{$machine->reports->count() > 0 ? $machine->reports->count() : '0'}})
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Bar
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->bar }}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        Running Hour
+                                    </div>
+                                    <div class="col-8">
+                                        : {{ $machine->running }}
+                                    </div>
+                                </div>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div> --}}
         </div>
         <div class="col-md-6 my-3">
             <div class="d-flex justify-content-between mb-2">
@@ -289,6 +424,10 @@
     @include('components.modal.pic.leads.form-create')
     @include('pages.sales.activities.form')
     @include('pages.sales.activities.form-visit')
+    @include('components.modal.machine.form')
+    @foreach ($machines as $machine)
+        @include('components.modal.machine.form-edit')
+    @endforeach
     @foreach ($charge as $pic)
         @include('components.modal.pic.leads.form-update')
     @endforeach
@@ -304,6 +443,7 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
 @endpush
 @push('after-script')
     <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
@@ -313,12 +453,17 @@
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
 @endpush
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-crm-history.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-machine-client.js"></script>
     <script src="{{ asset('assets') }}/includes/table-quotation-leads.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-pic-client.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-pic-client-sales.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
+    <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush
 @push('script')
     <script>

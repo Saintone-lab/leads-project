@@ -1,8 +1,8 @@
 <?php
 $host = "localhost";
-$user = "root";
-$pass = "";
+$users = "airc8361_my_reftech";
+$pass = "~@qi{9W(PbaR";
 
-$databaseName = "db_leads_v1";
+$databaseName = "airc8361_reftech_my";
 $tableName = "visit";
 ?>

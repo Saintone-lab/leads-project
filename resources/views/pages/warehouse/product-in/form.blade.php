@@ -33,15 +33,47 @@
                 <div class="form-invoice-repeater source-item">
                     <div class="row">
                         <div class="col-12 col-lg-6">
-                            <div class="form-floating form-floating-outline mb-4">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <select id="supplier-dropdown" class="select2 form-select invoice-item-supplier"
+                                    data-allow-clear="true" name="supplier" data-id="1"
+                                    {{ Auth::user()->role == 'Logistic' ? 'disabled' : '' }}>
+                                    <option selected>Pilih Supplier...</option>
+                                    @foreach ($suppliers as $supp)
+                                        <option value="{{ $supp->id }}" data-info="{{ $supp->info }}">
+                                            {{ $supp->supplier }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="supplier-dropdown">Supplier</label>
+                                {{-- bekas --}}
+                                {{-- <div class="form-floating form-floating-outline mb-4">
                                 <input class="form-control" type="text" placeholder="Put Supplier Quotation Here ...."
                                     id="supplier-input" name="suplier"
                                     value="{{ old('supplier', @$productIn->supplier ?? '') }}"
                                     {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
                                 <label for="supplier-input">Suplier</label>
+                            </div> --}}
                             </div>
                         </div>
                         <div class="col-6 col-lg-2">
+                            @if (Auth::user()->role == 'Logistic')
+                                <div class="form-floating form-floating-outline mb-4">
+                                    <select class="form-select invoice-item-info" id="info-dropdown" name="info"
+                                        aria-label="Default select example">
+                                        <option value="Lokal">Lokal</option>
+                                        <option value="Import">Import</option>
+                                    </select>
+                                    <label for="info-dropdown">Supplier Info</label>
+                                </div>
+                            @else
+                                <div class="form-floating form-floating-outline mb-4">
+                                    <select class="form-select invoice-item-info" id="info-dropdown" name="info"
+                                        aria-label="Default select example" disabled>
+                                        <option selected disabled>Pilih supplier dulu...</option>
+                                    </select>
+                                    <label for="info-dropdown">Supplier Info</label>
+                                </div>
+                            @endif
                         </div>
                         <div class="col-6 col-lg-2">
                             <div class="form-floating form-floating-outline mb-4">
@@ -65,12 +97,19 @@
                                 <label for="Date">Date Invoice</label>
                             </div>
                         </div>
+                        <div class="col-lg-2">
+                            <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal"
+                                data-bs-target="#createSupplier" {{ Auth::user()->role == 'Logistic' ? 'disabled' : '' }}>
+                                + Supplier
+                            </button>
+                        </div>
                     </div>
                     <div class="mb-3" data-repeater-list="group-a">
                         <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
                             <div class="d-flex border rounded position-relative pe-0">
                                 <div class="row w-100 p-3">
-                                    <div class="col-md-6 col-12 mb-md-0 mb-3">
+                                    <div
+                                        class="{{ Auth::user()->role == 'Admin' ? 'col-md-4' : 'col-md-6' }} col-12 mb-md-0 mb-3">
                                         <label for="product" class="mb-2">Product</label>
                                         <div class="form-floating form-floating-outline mb-2">
                                             <select id="replacement-dropdown-1"
@@ -124,6 +163,20 @@
                                                     name="price[]" id="price-1" value="{{ old('price[]') }}" hidden>
                                             </div>
                                         </div>
+                                        <div class="col-md-2 col-12 mb-md-0 mb-3">
+                                            <p class="mb-2 repeater-title">Discount</p>
+                                            <div class="input-group" data-disc="1">
+                                                <span class="input-group-text">Rp. </span>
+                                                <input type="text" class="form-control invoice-item-disc-label"
+                                                    id="disc-label" data-id="1" min="0"
+                                                    placeholder="Put Discount Here" data-type="currency"
+                                                    pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                                    @blur="focused = false" value="{{ old('disc[]') }}"
+                                                    {{ Auth::user()->role == 'Logistic' ? 'Disabled' : '' }}>
+                                                <input class="form-control invoice-item-disc" type="number"
+                                                    name="disc[]" id="disc-1" value="{{ old('disc[]') }}" hidden>
+                                            </div>
+                                        </div>
                                         <div class="col-md-2 col-12 pe-0">
                                             <p class="mb-2 repeater-title">Amount</p>
                                             <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
@@ -166,6 +219,22 @@
                                         id="subtotal" value="{{ old('subtotal') }}" hidden>
                                     <input class="form-control invoice-item-total-no-tax" type="number"
                                         name="total_no_tax" id="totalNoTax" value="{{ old('total_no_tax') }}" hidden>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-1">
+                            <div class="col-lg-8"></div>
+                            <div class="col-lg-4 col-12">
+                                <h5 class="my-2">
+                                    Discount
+                                </h5>
+                                <div class="input-group" data-total-disc="1">
+                                    <span class="input-group-text">Rp. </span>
+                                    <p class="form-control invoice-item-total-disc-label h-px-25 mb-0"
+                                        id="total-disc-label">
+                                        Total Discount Here </p>
+                                    <input class="form-control invoice-item-total-disc" type="number" name="total-disc"
+                                        id="total-disc" value="{{ old('total-disc') }}" hidden>
                                 </div>
                             </div>
                         </div>
@@ -244,6 +313,7 @@
             </div>
         </div>
     </form>
+    @include('components.modal.warehouse.supplier.form')
 @endsection
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
@@ -296,6 +366,13 @@
                 // console.log(id);
                 $(`#shipping`).val(nomorInt);
             });
+            $('#supplier-dropdown').on('change', function() {
+                let info = $(this).find(':selected').data('info');
+
+                $('#info-dropdown').empty().append(`
+                    <option value="${info}" selected>${info}</option>
+                `);
+            });
 
             $(".invoice-item-price-label").on('keyup', function() {
                 var input = $(this)
@@ -316,28 +393,61 @@
                 // console.log(id);
                 $(`#price-${id}`).val(nomorInt);
             })
+            $(".invoice-item-disc-label").on('keyup', function() {
+                var input = $(this)
+                var id = input.data('id');
+                var input_val = input.val();
 
-            $('.invoice-item-price-label, .invoice-item-qty').on('keyup change click', function(
-                ev) {
-                var id = $(this).data('id');
-                var sTotal = 0,
-                    row = 0;
-                var amount = 0,
-                    valHarga = $(`#price-${id}`).val(),
-                    harga = Number(valHarga);
-                amount = harga * $(`#qty-${id}`).val();
-                $(`#amount-${id}`).val(amount);
-                $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
-                $('.amount-label').each(() => {
-                    row++;
-                    sTotal += parseInt($(`#amount-${row}`).val())
+                // original length
+                var original_len = input_val.length;
+
+                // add commas to number
+                // remove all non-digits
+                input_val = formatNumber(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                input.val(input_val);
+                var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                // console.log(id);
+                $(`#disc-${id}`).val(nomorInt);
+            })
+
+            $('.invoice-item-price-label, .invoice-item-qty, .invoice-item-disc-label').on('keyup change click',
+                function(
+                    ev) {
+                    var id = $(this).data('id');
+                    var sTotal = 0,
+                        totalDisc = 0,
+                        row = 0,
+                        rowD = 0;
+                    var amount = 0,
+                        valDiscount = $(`#disc-${id}`).val(),
+                        valHarga = $(`#price-${id}`).val(),
+                        disc = Number(valDiscount),
+                        harga = Number(valHarga);
+
+                    amount = harga * $(`#qty-${id}`).val() - disc;
+                    $(`#amount-${id}`).val(amount);
+                    $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+                    $('.amount-label').each(() => {
+                        row++;
+                        sTotal += parseInt($(`#amount-${row}`).val())
+                    });
+                    $('.invoice-item-disc-label').each(() => {
+                        rowD++;
+                        let val = Number($(`#disc-${rowD}`).val());
+                        totalDisc += isNaN(val) ? 0 : val;
+                    });
+                    console.log('discount : ' + totalDisc);
+                    $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                    $('#total-disc-label').html(`${formatter.format(totalDisc)}`);
+                    $('#subtotal').val(sTotal);
+                    $('#total-disc').val(totalDisc);
                 });
-                $('#subtotal-label').html(`${formatter.format(sTotal)}`);
-                $('#subtotal').val(sTotal);
-            });
 
             // Logic Harga Total
-            $('#shipping-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-tax')
+            $('#shipping-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-tax, .invoice-item-disc-label')
                 .on('keyup change',
                     () => {
                         var row = 0,
@@ -377,27 +487,60 @@
                 });
 
 
-                $('.invoice-item-price-label, .invoice-item-qty').on('keyup change click', function(
-                    ev) {
-                    var id = $(this).data('id');
-                    var sTotal = 0,
-                        row = 0;
-                    var amount = 0,
-                        valHarga = $(`#price-${id}`).val(),
-                        harga = Number(valHarga);
-                    amount = harga * $(`#qty-${id}`).val();
-                    $(`#amount-${id}`).val(amount);
-                    $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
-                    $('.amount-label').each(() => {
-                        row++;
-                        sTotal += parseInt($(`#amount-${row}`).val())
+                $(".invoice-item-disc-label").on('keyup', function() {
+                    var input = $(this)
+                    var id = input.data('id');
+                    var input_val = input.val();
+
+                    // original length
+                    var original_len = input_val.length;
+
+                    // add commas to number
+                    // remove all non-digits
+                    input_val = formatNumber(input_val);
+                    input_val = input_val;
+
+                    // send updated string to input
+                    input.val(input_val);
+                    var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
+                    // console.log(id);
+                    $(`#disc-${id}`).val(nomorInt);
+                })
+
+                $('.invoice-item-price-label, .invoice-item-qty, .invoice-item-disc-label').on(
+                    'keyup change click',
+                    function(
+                        ev) {
+                        var id = $(this).data('id');
+                        var sTotal = 0,
+                            totalDisc = 0,
+                            row = 0,
+                            rowD = 0;
+                        var amount = 0,
+                            valDiscount = $(`#disc-${id}`).val(),
+                            valHarga = $(`#price-${id}`).val(),
+                            disc = Number(valDiscount),
+                            harga = Number(valHarga);
+
+                        amount = harga * $(`#qty-${id}`).val() - disc;
+                        $(`#amount-${id}`).val(amount);
+                        $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+                        $('.amount-label').each(() => {
+                            row++;
+                            sTotal += parseInt($(`#amount-${row}`).val())
+                        });
+                        $('.invoice-item-disc-label').each(() => {
+                            rowD++;
+                            let val = Number($(`#disc-${rowD}`).val());
+                            totalDisc += isNaN(val) ? 0 : val;
+                        });
+                        $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                        $('#total-disc-label').html(`${formatter.format(totalDisc)}`);
+                        $('#subtotal').val(sTotal);
+                        $('#total-disc').val(totalDisc);
                     });
-                    $('#subtotal-label').html(`${formatter.format(sTotal)}`);
-                    $('#subtotal').val(sTotal);
-                });
-
-
-                $('#shipping-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-tax')
+                // Logic Harga Total
+                $('#shipping-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-tax, .invoice-item-disc-label')
                     .on('keyup change',
                         () => {
                             var row = 0,
@@ -413,6 +556,7 @@
                             totalNoTax = parseInt(subtotal + shipping);
                             $('#total-label').html(`${formatter.format(hTotal)}`);
                             $('#total').val(hTotal);
+                            $('#totalNoTax').val(totalNoTax);
                             console.log('Harga total: ' + hTotal);
                         });
                 rep++;

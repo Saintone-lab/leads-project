@@ -5,7 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DetailProduct extends Model
+class 
+DetailProduct extends Model
 {
     use HasFactory;
     protected $table = "detail_product";
@@ -18,6 +19,7 @@ class DetailProduct extends Model
         'hpp',
         'stock',
         'warehouse_stock',
+        'pending_stock',
     ];
     
     public function unit()
@@ -31,5 +33,25 @@ class DetailProduct extends Model
     public function detailProductIn()
     {
         return $this->hasMany('App\Models\DetailProductIn', 'id_detail_product');
+    }
+    public function sparepart()
+    {
+        return $this->hasMany('App\Models\Sparepart', 'id_equivalent');
+    }
+    public function detailChangeWarehouse()
+    {
+        return $this->hasMany('App\Models\DetailChangeWarehouse', 'id_replacement');
+    }
+    public function return()
+    {
+        return $this->hasMany('App\Models\Retur', 'id_replacement');
+    }
+    public function opname()
+    {
+        return $this->hasMany('App\Models\DetailStockOpname', 'id_replacement');
+    }
+    public function item()
+    {
+        return $this->hasMany('App\Models\ItemProductSet', 'id_replacement');
     }
 }

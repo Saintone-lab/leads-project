@@ -44,16 +44,16 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $rule = [
-            'nip => required',
-            'name => required',
-            'email => required',
-            'password => required',
-            'area => required',
-            'address => required',
-            'position => required',
-            'code => required',
-            'image => required',
-            'phone => required',
+            'nip'      => 'required',
+            'name'     => 'required',
+            'email'    => 'required',
+            'password' => 'required',
+            'area'     => 'required',
+            'address'  => 'required',
+            'position' => 'required',
+            'code'     => 'required',
+            'image'    => 'required',
+            'phone'    => 'required',
         ];
         $customMessages = [
             'nip.required' => 'Field NIP Wajib Diisi!',
@@ -93,8 +93,9 @@ class EmployeeController extends Controller
             $foto_name = Str::random(8);
 
             $upload_path = 'asset/profile';
-            $imagename = $upload_path . '/' . $foto_name . '.' . $foto_ext;
-            $request->file('image')->move($upload_path, $imagename);
+            $foto_filename = $foto_name . '.' . $foto_ext;
+            $imagename = $upload_path . '/' . $foto_filename;
+            $request->file('image')->move($upload_path, $foto_filename);
 
             $users['image'] = $imagename;
         } else {
@@ -112,7 +113,7 @@ class EmployeeController extends Controller
                 $target->visit = 1;
             }
             $target->quote = $request->quote;
-            $target->po = $request->po;
+            $target->leads = $request->leads;
             $target->total = $request->total;
             $target->save();
         }
@@ -192,7 +193,7 @@ class EmployeeController extends Controller
         $users->code = $request->code;
         $users->active = $request->active;
         $users->email = $request->email;
-        // $users->password = Hash::make($request->password);
+        $users->password = $request->password ? Hash::make($request->password) : $users->password;
         // $users->phone = '+62' . $request->phone;
         if ($request->hasFile('image')) {
             if ($users->image != 'asset/profile/profile.jpg') {
@@ -265,7 +266,7 @@ class EmployeeController extends Controller
                     $request->visit = 0;
                 }
                 $target->quote = $request->quote;
-                $target->po = $request->po;
+                $target->leads = $request->leads;
                 $target->total = $request->total;
                 $target->save();
                 $user->role = $request->role;
@@ -288,7 +289,7 @@ class EmployeeController extends Controller
                     $request->visit = NULL;
                 }
                 $target->quote = $request->quote;
-                $target->po = $request->po;
+                $target->leads = $request->leads;
                 $target->total = $request->total;
                 $target->save();
                 $user->role = $request->role;
@@ -309,19 +310,19 @@ class EmployeeController extends Controller
             'crm => required',
             'quote => required',
             'po => required',
-            'total => required',
+            // 'total => required',
         ];
         $customMessages = [
             'dc.required' => 'Field dc Wajib Diisi!',
             'crm.required' => 'Field crm Wajib Diisi!',
             'quote.required' => 'Field quote Wajib Diisi',
             'po.required' => 'Field po Wajib Diisi',
-            'total.required' => 'Field code Wajib Diisi',
+            // 'total.required' => 'Field code Wajib Diisi',
         ];
         $this->validate($request, $rule, $customMessages);
         $sales = User::find($id);
         $lastDetail = $sales->detail->last();
-        dd($lastDetail);
+        // dd($lastDetail);
         $target = Target::where('id_sales', $id)->first();
         $target->dc = $request->dc;
         $target->crm = $request->crm;
@@ -329,8 +330,8 @@ class EmployeeController extends Controller
             $target->visit = $request->visit;
         }
         $target->quote = $request->quote;
-        $target->po = $request->po;
-        $target->total = $request->total;
+        $target->leads = $request->leads;
+        $target->total = $request->semuanya;
         $status = $target->save();
         if ($status) {
             return redirect('/employee/' . $id)->with('message', 'Target telah diubah');

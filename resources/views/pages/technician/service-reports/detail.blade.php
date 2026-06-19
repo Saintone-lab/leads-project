@@ -6,27 +6,50 @@
             <div class="card invoice-preview-card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-row flex-column">
-                        <div class="mb-xl-0 pb-1">
-                            <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
-                                <span class="app-brand-logo demo">
-                                    <span style="color: var(--bs-primary)">
-                                        <img class="text-md"
-                                            src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
-                                            alt="" srcset="" width="60%">
+                        @if ($service->pic->client->info == 'Reftech')
+                            <div class="mb-xl-0 pb-1">
+                                <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
+                                    <span class="app-brand-logo demo">
+                                        <span style="color: var(--bs-primary)">
+                                            <img class="text-md"
+                                                src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
+                                                alt="" srcset="" width="60%">
+                                        </span>
                                     </span>
-                                </span>
+                                </div>
+                                <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
+                                <div style="font-size: 10px">
+                                    <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
+                                    <p class="mb-1">Bandung – Jawa Barat 40218</p>
+                                    <p class="mb-1">
+                                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022
+                                        54417653{{ '  |  ' }}<i
+                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
+                                    </p>
+                                </div>
                             </div>
-                            <p class="mb-1 fw-bolder">PT Reftech Jaya Optima</p>
-                            <div style="font-size: 10px">
-                                <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
-                                <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                                <p class="mb-1">
-                                    <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022
-                                    54417653{{ '  |  ' }}<i
-                                        class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
-                                </p>
+                        @else
+                            <div class="mb-xl-0 pb-1">
+                                <div class="d-flex svg-illustration align-items-center gap-2 mb-2">
+                                    <span class="app-brand-logo demo">
+                                        <span style="color: var(--bs-primary)">
+                                            <img class="text-md" src="{{ asset('/asset') }}/logo/Kojisha-Log.png"
+                                                alt="" srcset="" width="60%">
+                                        </span>
+                                    </span>
+                                </div>
+                                <p class="mb-1 fw-bolder">PT Kojisha Innotiv Indonesia</p>
+                                <div style="font-size: 10px">
+                                    <p class="mb-1">Jl. Nancep No. 45A, Setu</p>
+                                    <p class="mb-1">Cibitung - Kab. Bekasi 17320</p>
+                                    <p class="mb-1">
+                                        <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>+62 812-1000-0997
+                                        {{ '   ' }}<i
+                                            class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@kojisha.com
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                        @endif
                         <div>
                             <h3 class="fw-bold">SERVICE REPORT</h3>
                             <div>
@@ -79,8 +102,11 @@
                             <p class="mb-1">Running & Load </p>
                         </div>
                         <div class="col-lg-4 col-8">
-                            <p class="mb-1">: {{ $service->machine->brand }} {{ $service->machine->type }}</p>
-                            <p class="mb-1">: {{ $service->machine->serial_number }}</p>
+                            <p class="mb-1">: {{ $service->machine->unit->brand }}
+                                {{ $service->machine->unit->unit->sku }}</p>
+                            <p class="mb-1">: {{ $service->machine->serial }}
+                                {{ $service->machine->tag ? '| ' . $service->machine->tag : '' }}
+                                {{ $service->machine->location ? '| ' . $service->machine->location : '' }}</p>
                             <p class="mb-1">: {{ $service->running }} | {{ $service->load }}</p>
                         </div>
                     </div>
@@ -121,7 +147,7 @@
                     </div>
                     <div class="row mt-5">
                         <div class="col-4 mt-5 text-center">
-                            <p>PT Reftech Jaya Optima</p>
+                            <p>{{ $service->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}</p>
                             @if (isset($service->technician->sign))
                                 <img src="{{ url('') . '/' . $service->technician->sign }}" alt="" srcset=""
                                     height="100">
@@ -154,25 +180,17 @@
                         href="{{ route('service-reports.print', $service->id) }}">
                         Download
                     </a>
-                    {{-- <a href="#" type="button"
-                    class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">Download</a> --}}
-                    @if (isset($service->sign_client))
-                        <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-hand-sign mb-3"
-                            data-id="{{ $service->id }}">Delete Hand Sign</a>
-                    @else
-                        <a type="button" data-bs-toggle="modal" data-bs-target="#inputSign-{{ $service->id }}"
-                            class="d-grid w-100 waves-effect mb-3">
-                            <button type="button" class="btn btn-secondary">
-                                Input Hand Sign
-                            </button>
-                        </a>
-                    @endif
+                    <button id="buttonShare" data-id="{{ $service->id }}"
+                        class="btn btn-success d-grid w-100 waves-effect mb-3">Bagikan</button>
+                    <a href="{{ route('service-reports.edit', $service->id) }}"
+                        class="btn btn-outline-warning d-grid w-100 waves-effect mb-3">Edit</a>
                     @if (Auth::user()->role == 'Technician' || Auth::user()->role == 'Coordinator')
-                        <a href="{{ route('service-reports.edit', $service->id) }}"
-                            class="btn btn-outline-warning d-grid w-100 waves-effect mb-3">Edit</a>
-                        <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-service"
+                        <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-service mb-3"
                             data-id="{{ $service->id }}">Delete</a>
                     @endif
+                    <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">
+                        Back
+                    </button>
                 </div>
             </div>
 
@@ -186,6 +204,17 @@
                             class="d-grid w-100 waves-effect mb-3">
                             <button type="button" class="btn btn-primary">
                                 Input Image Reports
+                            </button>
+                        </a>
+                    @endif
+                    @if (isset($service->sign_client))
+                        <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-hand-sign mb-3"
+                            data-id="{{ $service->id }}">Delete Hand Sign</a>
+                    @else
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#inputSign-{{ $service->id }}"
+                            class="d-grid w-100 waves-effect mb-3">
+                            <button type="button" class="btn btn-secondary">
+                                Input Hand Sign
                             </button>
                         </a>
                     @endif
@@ -214,7 +243,9 @@
             $('#formFileMultiple').on('change', function() {
                 var files = this.files;
                 var dynamicInputsContainer = $('#dynamicInputsContainer');
+                var dynamicInputsContainer = $('#dynamicInputsPhotoContainer');
                 dynamicInputsContainer.empty();
+
 
                 // Hanya mengambil satu file (file pertama)
                 var file = files[0];
@@ -243,12 +274,33 @@
 
                 reader.readAsDataURL(file);
             });
+            $('#buttonShare').on('click', function() {
+                const id = $(this).data('id')
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Service Reports',
+                        text: 'Check This Service Reports!',
+                        url: '{{ route('service-reports.print', ':id') }}'.replace(':id', id)
+                    }).then(() => {
+                        console.log('Thanks for sharing!');
+                    }).catch(err => {
+                        console.error('Error sharing:', err);
+                    });
+                } else {
+                    alert('Sharing not supported in this browser.');
+                }
+            });
+
+            $('#backButton').click(function() {
+                window.history.back();
+            });
         });
         $(document).ready(function() {
-            $('#formFileMultiplePict').on('change', function() {
+            $('#formFileMultiplePict').on('change', function(event) {
                 var files = this.files;
                 var dynamicInputsContainer = $('#dynamicInputsPhotoContainer');
                 console.log(dynamicInputsContainer);
+                console.log(files.length);
 
                 dynamicInputsContainer.empty();
 
@@ -259,71 +311,85 @@
                     dynamicInputsContainer.append(dynamicInput);
                 }
 
-                if (files.length !== 3 && files.length !== 6 && files.length !== 9) {
-                    alert('Gambar Wajib Kelipatan 3! 3/6/9 Maksimal 9');
+                if (files.length !== 3 && files.length !== 6 && files.length !== 9 && files.length !== 12) {
+                    alert('Gambar Wajib Kelipatan 3! 3/6/9/12 Maksimal 12');
                     this.value = ''; // Menghapus file yang tidak memenuhi syarat
                     dynamicInputsContainer.empty();
                     return; // Menghentikan eksekusi lebih lanjut jika jumlah file tidak memenuhi syarat
                 }
 
                 console.log(files);
+
+                // photo
                 const previewContainer = document.getElementById('photo-preview');
                 previewContainer.innerHTML = '';
-
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
+                const filesArray = Array.from(event.target.files);
+                console.log(filesArray.map(file => file.name));
+                for (let i = 0; i < filesArray.length; i++) {
+                    const file = filesArray[i];
                     const reader = new FileReader();
 
-                    reader.onload = function(e) {
-                        const image = new Image();
-                        image.src = e.target.result;
+                    reader.onload = (function(fileIndex) {
+                        return function(e) {
+                            const image = new Image();
+                            image.src = e.target.result;
 
-                        image.onload = function() {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
+                            image.onload = function() {
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
 
-                            // Tentukan ukuran baru untuk gambar
-                            const MAX_WIDTH = 150;
-                            const MAX_HEIGHT = 150;
-                            let width = image.width;
-                            let height = image.height;
+                                // Tentukan ukuran baru untuk gambar
+                                const MAX_WIDTH = 150;
+                                const MAX_HEIGHT = 150;
+                                let width = image.width;
+                                let height = image.height;
 
-                            if (width > height) {
-                                if (width > MAX_WIDTH) {
-                                    height *= MAX_WIDTH / width;
-                                    width = MAX_WIDTH;
+                                if (width > height) {
+                                    if (width > MAX_WIDTH) {
+                                        height *= MAX_WIDTH / width;
+                                        width = MAX_WIDTH;
+                                    }
+                                } else {
+                                    if (height > MAX_HEIGHT) {
+                                        width *= MAX_HEIGHT / height;
+                                        height = MAX_HEIGHT;
+                                    }
                                 }
-                            } else {
-                                if (height > MAX_HEIGHT) {
-                                    width *= MAX_HEIGHT / height;
-                                    height = MAX_HEIGHT;
-                                }
-                            }
 
-                            canvas.width = width;
-                            canvas.height = height;
+                                canvas.width = width;
+                                canvas.height = height;
 
-                            ctx.drawImage(image, 0, 0, width, height);
+                                ctx.drawImage(image, 0, 0, width, height);
 
-                            const resizedImageURL = canvas.toDataURL(file.type);
+                                const resizedImageURL = canvas.toDataURL(file.type);
 
-                            const imageContainer = document.createElement('div');
-                            const imageElement = document.createElement('img');
-                            const description = document.createElement('p');
+                                const rowContainer = document.createElement('div');
+                                const imageContainer = document.createElement('div');
+                                const imageElement = document.createElement('img');
+                                const inputElement = document.createElement('input');
 
-                            imageContainer.className =
-                                'photo-container'; // Tambahkan kelas sesuai kebutuhan
-                            imageElement.src = resizedImageURL;
-                            description.textContent = 'Photo ' + (i + 1);
+                                rowContainer.className = 'row';
+                                imageContainer.className = 'col-6 col-md-4 photo-container';
+                                imageElement.className = 'mb-2';
+                                imageElement.src = resizedImageURL;
 
-                            imageContainer.appendChild(imageElement);
-                            imageContainer.appendChild(description);
-                            previewContainer.appendChild(imageContainer);
+                                inputElement.className = 'form-control mb-3';
+                                inputElement.type = 'text';
+                                inputElement.name = 'description[' + (i) + ']';
+                                inputElement.placeholder = 'Deskripsi untuk Photo ' + (
+                                    fileIndex + 1);
+
+                                imageContainer.appendChild(imageElement);
+                                imageContainer.appendChild(inputElement);
+                                previewContainer.appendChild(imageContainer);
+                            };
                         };
-                    };
+                    })(i);
 
                     reader.readAsDataURL(file);
                 }
+
+
             });
         });
         $(document).on('click', '.delete-hand-sign', function() {

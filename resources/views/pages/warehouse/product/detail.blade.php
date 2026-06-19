@@ -100,6 +100,14 @@
                             </div>
                             <div class="row mb-1">
                                 <div class="col-3">
+                                    Pending Stock
+                                </div>
+                                <div class="col-9">
+                                    : {{ $product->pending_stock }} {{ $product->unit }}
+                                </div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-3">
                                     All Stock
                                 </div>
                                 <div class="col-9">
@@ -289,6 +297,7 @@
                                     <th>equivalent</th>
                                     <th>Qty</th>
                                     <th>price</th>
+                                    <th>Status</th>
                                     <th>Date</th>
                                 </tr>
                             </thead>

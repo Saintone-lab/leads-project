@@ -31,19 +31,19 @@
             @endphp
             @foreach ($sales as $sale)
                 <div class="col-6 col-lg-4 mb-3">
-                    <a href="{{Route('overview.semester', $sale->id)}}" class="text-decoration-none text-black">
+                    <a href="{{ Route('overview.semester', $sale->id) }}" class="text-decoration-none text-black">
                         <div class="card">
                             <div class="row">
                                 <div class="col-4">
-                                    <img src="{{ url('') . '/' . $sale->image }}" alt="" srcset="" class="rounded-circle"
-                                        style="width : 100%; height:100%;">
+                                    <img src="{{ url('') . '/' . $sale->image }}" alt="" srcset=""
+                                        class="rounded-circle" style="width : 100%; height:100%;">
                                 </div>
                                 <div class="col-8 m-auto">
                                     @php
                                         $lastDetail = $sale->detail->last();
                                     @endphp
-                                    <h3>{{$sale->name}}</h3>
-                                    <p>{{$lastDetail->area}}</p>
+                                    <h3>{{ $sale->name }}</h3>
+                                    <p>{{ $lastDetail->area }}</p>
                                 </div>
                             </div>
                         </div>
@@ -135,8 +135,8 @@
                                     </div>
                                 </div>
                                 <div class="card-info">
-                                    <h5 class="mb-0">{{ $filteredPO[$item] }}</h5>
-                                    <small class="text-muted">PO</small>
+                                    <h5 class="mb-0">{{ $filteredLeads[$item] }}</h5>
+                                    <small class="text-muted">Leads</small>
                                 </div>
                             </div>
                         </div>
@@ -146,6 +146,25 @@
                     $item++;
                 @endphp
             @endforeach
+            <div class="col-6 col-lg-4 mb-3">
+                <a href="{{ Route('overview.semester', $support->id) }}" class="text-decoration-none text-black">
+                    <div class="card">
+                        <div class="row">
+                            <div class="col-4">
+                                <img src="{{ url('') . '/' . $support->image }}" alt="" srcset=""
+                                    class="rounded-circle" style="width : 100%; height:100%;">
+                            </div>
+                            <div class="col-8 m-auto">
+                                {{-- @php
+                                    $lastDetail = $sale->detail->last();
+                                @endphp --}}
+                                <h3>{{ $support->name }}</h3>
+                                <p>Online</p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
         </div>
     @endif
     @include('pages.warehouse.reports.form')

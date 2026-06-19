@@ -1,19 +1,11 @@
-<form action="{{ @$product ? route('unit.update', @$product->id) : route('unit.store') }}" method="post"
-    enctype="multipart/form-data">
-    {{-- {{ csrf_token() }} --}}
+<form action="{{ route('unit.store') }}" method="post" enctype="multipart/form-data">
     @csrf
-
-    @if (@$product)
-        @method('patch')
-    @endif
-    <div class="modal animate__animated animate__fadeIn"
-        id="{{ @$product ? 'updateProduct-' . @$product->id : 'createProduct' }}" tabindex="-1" style="display: none;"
+    <div class="modal animate__animated animate__fadeIn" id="createProduct" tabindex="-1" style="display: none;"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel5">
-                        {{ @$product ? 'Update Unit' . @$product->commodity : 'Create Unit' }}
+                    <h4 class="modal-title" id="exampleModalLabel5">Create New Machine
                     </h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -27,15 +19,45 @@
                             </ul>
                         </div>
                     @endif
+                    <div class="divider divider-dark mx-3">
+                        <div class="divider-text"><span class="fw-semibold">Machine</span></div>
+                    </div>
                     <div class="row g-2 mb-3">
-                        <div class="col mb-2">
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" id="sku" class="form-control" name="sku"
-                                    placeholder="W XXX" value="{{ old('sku', @$product->sku ?? '') }}">
-                                <label for="sku">SKU</label>
+                        <div class="col-12 col-md-6 mb-2">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <input type="text" id="id_client" class="form-control" name="id_client"
+                                    value="1" hidden>
+                                <select class="select2 form-select" data-allow-clear="true" name="unit"
+                                    data-id="1">
+                                    <option> ---- Choose Uniit Here ---- </option>
+                                    @foreach ($unit as $machine)
+                                        <option value="{{ $machine->id }}">
+                                            {{ $machine->brand }} - {{ $machine->unit->sku ?? '-' }} ||
+                                            {{ $machine->bar ?? '-' }} - {{ $machine->air_cap ?? '-' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="Unit" class="mb-2">Unit</label>
                             </div>
                         </div>
-                        <div class="col mb-2">
+                        <div class="col-12 col-md-6 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="descAnimation" class="form-control" name="desc"
+                                    placeholder="Example: CEO" value="{{ old('desc') }}">
+                                <label for="descAnimation">Url Google Drive</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-12 col-md-6 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" id="serialAnimation" class="form-control" name="serial"
+                                    placeholder="Example: CEO" value="{{ old('serial') }}">
+                                <label for="serialAnimation">Serial Number</label>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6 mb-2">
                             <div class="form-floating form-floating-outline">
                                 <select class="form-select invoice-item-info" id="status"
                                     aria-label="Default select example" name="status">
@@ -56,114 +78,63 @@
                         </div>
                     </div>
                     <div class="row g-2 mb-3">
-                        <div class="col mb-2">
+                        <div class="col-12 col-md-6 mb-2">
                             <div class="form-floating form-floating-outline">
-                                <select class="form-select invoice-item-info" id="unit"
-                                    aria-label="Default select example" name="unit">
-                                    <option disabled>----- Unit -----</option>
-                                    <option value="AIR COMPRESSOR SCREW"
-                                        {{ @$product->status == 'AIR COMPRESSOR SCREW' ? 'selected' : '' }}>AIR COMPRESSOR SCREW
+                                <input type="text" id="tagAnimation" class="form-control" name="tag"
+                                    placeholder="Example: Second - Rental" value="{{ old('tag') }}">
+                                <label for="tagAnimation">Keterangan</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <select class="form-select invoice-item-info" id="status_unit"
+                                    aria-label="Default select example" name="status_unit">
+                                    <option disabled>----- Info Unit -----</option>
+                                    <option value="Baru" {{ @$product->status == 'Baru' ? 'selected' : '' }}>Baru
                                     </option>
-                                    <option value="REFRIGERANT AIR DRYER"
-                                        {{ @$product->status == 'REFRIGERANT AIR DRYER' ? 'selected' : '' }}>
-                                        REFRIGERANT AIR DRYER
-                                    </option>
-                                    <option value="FILTER HOUSING"
-                                        {{ @$product->status == 'FILTER HOUSING' ? 'selected' : '' }}>FILTER HOUSING
-                                    </option>
-                                    <option value="AIR RECEIVER TANK"
-                                        {{ @$product->status == 'AIR RECEIVER TANK' ? 'selected' : '' }}>
-                                        AIR RECEIVER TANK
-                                    </option>
-                                    <option value="WATER CHILLER"
-                                        {{ @$product->status == 'WATER CHILLER' ? 'selected' : '' }}>
-                                        WATER CHILLER
+                                    <option value="Second" {{ @$product->status == 'Second' ? 'selected' : '' }}>
+                                        Second
                                     </option>
                                 </select>
-                                <label for="exampleFormControlSelect1">Unit</label>
-                            </div>
-                            {{-- <div class="form-floating form-floating-outline">
-                                <div class="select2-primary">
-                                    <select id="select2Primary" class="select2 form-select" name="unit[]" multiple>
-                                        <option value="rental" {{ @$product->rental == '1' ? 'selected' : '' }}> Rental
-                                        </option>
-                                        <option value="second" {{ @$product->second == '1' ? 'selected' : '' }}> Second
-                                            Unit </option>
-                                        <option value="new" {{ @$product->new == '1' ? 'selected' : '' }}> New
-                                            Unit </option>
-                                    </select>
-                                </div>
-                                <label for="select2Primary">Unit</label>
-                            </div> --}}
-                        </div>
-                        <div class="col mb-2">
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" id="desc" class="form-control" name="desc"
-                                    placeholder="Short Description" value="{{ old('desc', @$product->desc ?? '') }}">
-                                <label for="desc">Short Description</label>
+                                <label for="exampleFormControlSelect1">Status Unit</label>
                             </div>
                         </div>
                     </div>
                     <div class="row g-2 mb-3">
-                        <div class="col-6 g-2">
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" id="sn" class="form-control" name="sn"
-                                    placeholder="Serial Number" value="{{ old('sn', @$product->sn ?? '') }}">
-                                <label for="sn">Serial Number</label>
+                        <div class="col-12 col-md-4 mb-2">
+                            <label for="priceAnimation">Price</label>
+                            <div class="input-group form-floating form-floating-outline" data-price="1">
+                                <span class="input-group-text">Rp. </span>
+                                <input type="text" class="form-control price-label" id="price-label" data-id="1"
+                                    min="12" placeholder="Put price Here" data-type="currency"
+                                    pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                    @blur="focused = false" value="{{ old('price') }}">
+                                <input class="form-control price" type="number" name="semuanya" id="semuanya"
+                                    value="{{ old('price') }}" hidden="">
                             </div>
                         </div>
-                        <div class="col g-2">
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" id="bar" class="form-control" name="bar"
-                                    placeholder="Bar" value="{{ old('bar', @$product->bar ?? '') }}">
-                                <label for="bar">Bar</label>
+                        <div class="col-12 col-md-4 mb-2">
+                            <label for="priceAnimation">Price Rental</label>
+                            <div class="input-group form-floating form-floating-outline" data-price="1">
+                                <span class="input-group-text">Rp. </span>
+                                <input type="text" class="form-control rental-label" id="rental-label"
+                                    data-id="1" min="12" placeholder="Put rental Here" data-type="currency"
+                                    pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                    @blur="focused = false" value="{{ old('rental') }}">
+                                <input class="form-control rental" type="number" name="rental" id="rental"
+                                    value="{{ old('rental') }}" hidden="">
                             </div>
                         </div>
-                        <div class="col mb-2">
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" id="power" class="form-control" name="power"
-                                    placeholder="Power" value="{{ old('power', @$product->power ?? '') }}">
-                                <label for="power">Power</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row g-2 mb-3">
-                        <div class="col mb-2">
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" id="air_cap" class="form-control" name="air_cap"
-                                    placeholder="Air Capacity" value="{{ old('air_cap', @$product->air_cap ?? '') }}">
-                                <label for="air_cap">Air Capacity</label>
-                            </div>
-                        </div>
-                        <div class="col mb-2">
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" id="connect" class="form-control" name="connect"
-                                    placeholder="Connection" value="{{ old('connect', @$product->connect ?? '') }}">
-                                <label for="connect">Connection</label>
-                            </div>
-                        </div>
-                        <div class="col mb-2">
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" id="dimension" class="form-control" name="dimension"
-                                    placeholder="Dimension"
-                                    value="{{ old('dimension', @$product->dimension ?? '') }}">
-                                <label for="dimension">Dimension</label>
-                            </div>
-                        </div>
-                        <div class="col g-2">
-                            <div class="form-floating form-floating-outline input-group">
-                                <input type="number" class="form-control" placeholder="Weight" min="0"
-                                    name="weight"value="{{ old('dimension', @$product->dimension ?? '') }}">
-                                <span class="input-group-text">Kg</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row g-2 mb-3">
-                        <div class="col g-2">
-                            <div class="form-floating form-floating-outline mb-4">
-                                <textarea class="form-control h-px-100" name="note" id="noteTextarea1"
-                                    placeholder="Contoh: Jl Taman Kopo Indah 5 Kota...">{{ old('note', @$product->note ?? '') }}</textarea>
-                                <label for="noteTextarea1">note</label>
+                        <div class="col-12 col-md-4 mb-2">
+                            <label for="priceAnimation">Best Price</label>
+                            <div class="input-group form-floating form-floating-outline" data-price="1">
+                                <span class="input-group-text">Rp. </span>
+                                <input type="text" class="form-control best-label" id="best-label" data-id="1"
+                                    min="12" placeholder="Put best Here" data-type="currency"
+                                    pattern="^[1-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                    @blur="focused = false" value="{{ old('best') }}">
+                                <input class="form-control best" type="number" name="best" id="best"
+                                    value="{{ old('best') }}" hidden="">
                             </div>
                         </div>
                     </div>

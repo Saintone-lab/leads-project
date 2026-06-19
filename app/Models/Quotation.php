@@ -22,6 +22,7 @@ class Quotation extends Model
         'id_sales',
         'id_admin',
         'id_service',
+        'id_monitoring',
         'primary_id',
         'is_primary',
         'num_rev',
@@ -80,8 +81,16 @@ class Quotation extends Model
     {
         return $this->hasMany('App\Models\Invoice', 'id_quotation');
     }
+    public function payment()
+    {
+        return $this->hasMany('App\Models\Payment', 'id_quotation');
+    }
     public function status()
     {
         return $this->hasMany('App\Models\ChangeStatus', 'id_quotation');
+    }
+    public function return()
+    {
+        return $this->hasMany('App\Models\Retur', 'id_quotation');
     }
 }

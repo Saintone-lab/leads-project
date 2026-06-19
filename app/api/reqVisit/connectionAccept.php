@@ -1,11 +1,12 @@
 <?php
 use Illuminate\Support\Facades\Auth;
 
-header('Content-Type: application/json');$host = "localhost";
-$users = "root";
-$pass = "";
+header('Content-Type: application/json');
+$host = "localhost";
+$users = "u877155683_reftech_my";
+$pass = "REFtechjaya321!";
 
-$databaseName = "db_leads_v1";
+$databaseName = "u877155683_reftech_my";
 $tableName = "req_visit";
 
 // Periksa apakah pengguna terotentikasi
@@ -19,12 +20,15 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT r.*, c.company, u.name, CONCAT(m.brand, ' ', m.type) AS machine
+        $query = "SELECT r.*, c.company, u.name, CONCAT(s.brand, ' ', un.sku) AS machine
                   FROM req_visit r
                   INNER JOIN machine m ON r.id_machine = m.id
+                  INNER JOIN unit un ON un.id = m.id_unit
+                  INNER JOIN serial_product s ON s.id_product = un.id
                   INNER JOIN client c ON m.id_client = c.id
                   INNER JOIN users u ON c.id_sales = u.id
                   WHERE r.date IS NOT NULL AND r.visit_date IS NULL
+                  GROUP BY un.id
                   ORDER BY r.req_date ASC";
 
         $stmt = $pdo->prepare($query);

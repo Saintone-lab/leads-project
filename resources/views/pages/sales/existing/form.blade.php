@@ -28,7 +28,7 @@
                         </div>
                     @endif
                     <div class="row g-2 mb-3">
-                        <div class="col mb-2">
+                        {{-- <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <select class="form-select" id="selectSales" name="sales"
                                     aria-label="Default select example">
@@ -41,12 +41,28 @@
                                 </select>
                                 <label for="selectSales">Sales</label>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="company" class="form-control" name="company"
                                     placeholder="Mr/Mss xxxx" value="{{ old('company', @$existing->company ?? '') }}">
                                 <label for="company">Company</label>
+                            </div>
+                        </div>
+                        <div class="col mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <select class="form-select" id="selectVia" aria-label="Default select example"
+                                    name="info">
+                                    <option disabled>----- Choose Via -----</option>
+                                    <option value="Reftech"
+                                        {{ old('info', @$existing->info) == 'Reftech' ? 'selected' : '' }}>
+                                        Reftech
+                                    </option>
+                                    <option value="Kojisha"
+                                        {{ old('info', @$existing->info) == 'Kojisha' ? 'selected' : '' }}>Kojisha
+                                    </option>
+                                </select>
+                                <label for="selectSource">Via</label>
                             </div>
                         </div>
                     </div>
@@ -69,9 +85,9 @@
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="websiteAnimation" class="form-control" name="web"
-                                    placeholder="xxxxxxxxx.com" value="{{ old('web', @$existing->web ?? '') }}">
-                                <label for="websiteAnimation">Website</label>
+                                <input type="text" id="unitsiteAnimation" class="form-control" name="unit"
+                                    placeholder="XXX-21" value="{{ old('unit', @$existing->unit ?? '') }}">
+                                <label for="unitsiteAnimation">Unit</label>
                             </div>
                         </div>
                         <div class="col mb-2">
@@ -140,9 +156,9 @@
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
                                 <input type="text" id="machineAnimation" class="form-control"
-                                    placeholder="Contoh: Copco Atlas" name="machine"
-                                    value="{{ old('machine', @$existing->machine ?? '') }}">
-                                <label for="machineAnimation">Machine</label>
+                                    placeholder="123xxxxxxxx" name="npwp"
+                                    value="{{ old('npwp', @$existing->npwp ?? '') }}">
+                                <label for="npwpAnimation">NPWP</label>
                             </div>
                         </div>
                         <div class="col mb-2">

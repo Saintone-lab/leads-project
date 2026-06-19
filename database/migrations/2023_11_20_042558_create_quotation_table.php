@@ -31,6 +31,7 @@ return new class extends Migration
             $table->longText('comment')->nullable();
             $table->longText('commentAdmin')->nullable();
             $table->enum('flag',['Reftech','Kojisha']);
+            $table->enum('type',['Sparepart','Service']);
 
             //Quote Date
             $table->date('status_date');

@@ -7,8 +7,8 @@
     html,
     body {
         background: #fff !important;
-        -webkit-print-color-adjust:exact !important;
-        print-color-adjust:exact !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     body > :not(.invoice-print) {
@@ -18,7 +18,7 @@
     .invoice-print {
         font-size: 14px !important;
     }
-    .invoice-print .title-invoice{
+    .invoice-print .title-invoice {
         color: blue !important;
     }
 
@@ -27,8 +27,8 @@
         width: 100%;
         font-size: 12px !important;
     }
-    
-    .invoice-print table th{
+
+    .invoice-print table th {
         color: white !important;
         background-color: rgb(53, 53, 53) !important;
     }
@@ -37,11 +37,11 @@
         border-bottom: 1px solid rgba(76, 78, 100, 0.5) !important;
     }
 
-    .invoice-print table .total{
+    .invoice-print table .total {
         background-color: #dedede;
     }
-    .invoice-print table .note{
-        background-color: #FBFBFB;
+    .invoice-print table .note {
+        background-color: #fbfbfb;
     }
     .invoice-print svg {
         fill: #828393 !important;
@@ -51,7 +51,7 @@
     }
 
     .invoice-print .termc {
-        background-color: #FBFBFB !important;
+        background-color: #fbfbfb !important;
         font-size: 12px !important;
     }
 
@@ -61,6 +61,17 @@
     }
     .invoice-print * .border-top {
         border-top: 1px solid rgba(76, 78, 100, 0.5) !important;
+    }
+    .termncon {
+        margin-top: 1vh;
+        page-break-inside: avoid;
+    }
+    .facilities,
+    .ketenagakerjaan,
+    .k3-teknisi {
+        margin-top: 1vh;
+        page-break-before: always;
+        break-after: page;
     }
 }
 
@@ -109,5 +120,8 @@
 
     .dark-style .invoice-print th {
         color: #fff !important;
+    }
+    .termncon{
+        margin-top: 1vh;
     }
 }

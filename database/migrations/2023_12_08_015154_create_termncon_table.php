@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('pricing');
             $table->string('delivery_process');
             $table->string('payment');
+            $table->string('warranty')->nullable();
             $table->string('note')->nullable();
             $table->timestamps();
         });

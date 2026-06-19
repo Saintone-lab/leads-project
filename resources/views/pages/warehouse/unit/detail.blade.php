@@ -2,7 +2,7 @@
 @section('title', 'Data Unit')
 @section('content')
     <h4 class="fw-bold py-3 mb-4">
-        <span class="text-muted fw-light">Units /</span> {{ $product->commodity }}
+        <span class="text-muted fw-light">Units /</span> {{ $product->sku }}
     </h4>
     <div class="row mb-3">
         <div class="col-12 mb-4">
@@ -264,7 +264,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        {{-- <div class="row">
             <div class="col-12 col-lg-6 mb-3">
                 <div class="card">
                     <div class="card-body">
@@ -323,7 +323,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
     @include('components.modal.warehouse.unit.form')
     @include('components.modal.warehouse.unit.stock')

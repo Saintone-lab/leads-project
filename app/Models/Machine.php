@@ -11,11 +11,12 @@ class Machine extends Model
     protected $table = "machine";
     protected $fillable = [
         'id_client',
-        'brand',
-        'type',
-        'serial_number',
-        'bar',
-        'running',
+        'id_unit',
+        'desc',
+        'serial',
+        'tag',
+        'status',
+        'location',
     ];
 
     
@@ -23,8 +24,28 @@ class Machine extends Model
     {
         return $this->belongsTo('App\Models\Client', 'id_client', 'id');
     }
+    public function unit()
+    {
+        return $this->belongsTo('App\Models\SerialProduct', 'id_unit', 'id');
+    }
     public function reports()
     {
         return $this->hasMany('App\Models\Reports', 'id_machine');
+    }
+    public function monitoring()
+    {
+        return $this->hasMany('App\Models\Monitoring', 'id_machine');
+    }
+    public function mainlog()
+    {
+        return $this->hasMany('App\Models\Mainlog', 'id_machine');
+    }
+    public function monitoringW()
+    {
+        return $this->hasMany('App\Models\MonitoringWeekly', 'id_machine');
+    }
+    public function monitoringM()
+    {
+        return $this->hasMany('App\Models\MonitoringMonthly', 'id_machine');
     }
 }

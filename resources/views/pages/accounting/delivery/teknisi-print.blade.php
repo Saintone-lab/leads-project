@@ -115,7 +115,7 @@
                         $no = 0;
                     @endphp
                     <tr style="font-size: 13px">
-                        <td class="text-nowrap align-top">
+                        <td class="text-wrap align-top">
                             @foreach ($dQuote as $product)
                                 @php
                                     $no++;
@@ -125,14 +125,14 @@
                                 </p>
                             @endforeach
                         </td>
-                        <td class="text-nowrap align-top">
+                        <td class="text-wrap align-top">
                             @foreach ($dQuote as $product)
                                 <p class="mb-0 fw-semibold">
                                     {{ $product->qty }} {{ $product->info_qty }}
                                 </p>
                             @endforeach
                         </td>
-                        <td class="text-nowrap align-top">
+                        <td class="text-wrap align-top">
                             @foreach ($dQuote as $product)
                                 <p class="mb-0 fw-semibold">
                                     {{ $product->equivalent->brand }} {{ $product->equivalent->pn }}

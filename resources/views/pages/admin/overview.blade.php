@@ -10,7 +10,7 @@
                 <div class="card" data-id="{{ $item }}">
                     <div class="card-header">
                         <div class="d-flex justify-content-between">
-                            <h4 class="mb-2">{{ $sale->name }}'s Overview</h4>
+                            <h4 class="mb-2">{{ $sale->name }}</h4>
                             <div class="dropdown">
                                 <button class="btn p-0" type="button" id="salesOverview" data-bs-toggle="dropdown"
                                     aria-haspopup="true" aria-expanded="false">
@@ -50,6 +50,17 @@
                         </div>
                     </div>
                     <div class="card-body d-flex justify-content-between flex-wrap gap-3">
+                        <div class="d-flex gap-2">
+                            <div class="avatar">
+                                <div class="avatar-initial bg-label-secondary rounded">
+                                    <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <h5 class="mb-0">{{ $filteredLeads[$item] }}</h5>
+                                <small class="text-muted">Leads</small>
+                            </div>
+                        </div>
                         <div class="d-flex gap-2">
                             <div class="avatar">
                                 <div class="avatar-initial bg-label-info rounded">
