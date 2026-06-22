@@ -1448,6 +1448,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/purchase-request/done-all/{id}', [PurchaseController::class, 'done_all'])->name('purchase-request.done-all');
     Route::post('/purchase-request/store-done-all/{id}', [PurchaseController::class, 'store_done_all'])->name('purchase-request.store-done-all');
     Route::post('/purchase-request/store-done-all-logistic/{id}', [PurchaseController::class, 'store_done_all_logistic'])->name('purchase-request.store-done-all-logistic');
+    Route::post('/purchase-request/{id}/discussion', [PurchaseController::class, 'addDiscussion'])->name('purchase-request.add-discussion');
+    Route::post('/purchase-request/mention/{id}/read', [PurchaseController::class, 'readPrMention'])->name('purchase-request.mention-read');
 
     // Dashboard Function
     // Ajax Sales Kanan

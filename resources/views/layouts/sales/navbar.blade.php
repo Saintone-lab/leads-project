@@ -24,16 +24,14 @@
                     href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside"
                     aria-expanded="false">
                     <i class="mdi mdi-bell-outline mdi-24px"></i>
-                    @if (Auth::user()?->role == 'Admin')
-                        @if (@$unreadCommentAdmin && $unreadCommentAdmin->count() >= 1)
-                            <span
-                                class="position-absolute top-0 start-50 translate-middle-y badge badge-dot bg-danger mt-2 border"></span>
-                        @endif
-                    @else
-                        @if (@$unreadComment && $unreadComment->count() >= 1)
-                            <span
-                                class="position-absolute top-0 start-50 translate-middle-y badge badge-dot bg-danger mt-2 border"></span>
-                        @endif
+                    @php
+                        $hasBadge = false;
+                        if (Auth::user()?->role == 'Admin' && @$unreadCommentAdmin && $unreadCommentAdmin->count() >= 1) $hasBadge = true;
+                        if (Auth::user()?->role != 'Admin' && @$unreadComment && $unreadComment->count() >= 1) $hasBadge = true;
+                        if (@$prMentions && $prMentions->count() >= 1) $hasBadge = true;
+                    @endphp
+                    @if ($hasBadge)
+                        <span class="position-absolute top-0 start-50 translate-middle-y badge badge-dot bg-danger mt-2 border"></span>
                     @endif
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end py-0">
@@ -139,6 +137,34 @@
                             @endif
                         </ul>
                     </li>
+                            {{-- Notifikasi PR Discussion Mention --}}
+                            @if (@$prMentions && $prMentions->count() > 0)
+                                @foreach ($prMentions as $pm)
+                                    <a href="{{ route('purchase-request.show', $pm->discussion->id_pending) }}#diskusi"
+                                        class="view-pr-mention {{ $pm->level == '0' ? 'bg-label-secondary' : '' }}"
+                                        data-mention-id="{{ $pm->id }}">
+                                        <li class="list-group-item list-group-item-action dropdown-notifications-item">
+                                            <div class="d-flex gap-2">
+                                                <div class="flex-shrink-0">
+                                                    <div class="avatar me-1">
+                                                        <span class="avatar-initial rounded-circle bg-label-warning">
+                                                            <i class="mdi mdi-at"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex flex-column flex-grow-1 overflow-hidden w-px-200">
+                                                    <h6 class="mb-1 text-truncate">PR #{{ $pm->discussion->pending->no_pending ?? $pm->discussion->id_pending }}</h6>
+                                                    <small class="text-truncate text-body">Kamu di-mention dalam diskusi</small>
+                                                </div>
+                                                <div class="flex-shrink-0 dropdown-notifications-actions">
+                                                    <small class="text-muted">{{ \Carbon\Carbon::parse($pm->created_at)->diffForHumans() }}</small>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </a>
+                                @endforeach
+                            @endif
+
                     <li class="dropdown-menu-footer border-top p-2">
                         <a href="{{ route('index.notif') }}" class="btn btn-primary d-flex justify-content-center">
                             View all notifications

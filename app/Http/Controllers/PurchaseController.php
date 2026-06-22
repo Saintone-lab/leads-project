@@ -3,20 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChangeStatus;
+use App\Models\Comment;
 use App\Models\DetailProduct;
 use App\Models\DetailProductIn;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\PendingPO;
+use App\Models\PrDiscussion;
+use App\Models\PrDiscussionMention;
 use App\Models\Product;
 use App\Models\ProductIn;
+use App\Models\Prospect;
 use App\Models\PurchaseRequest;
 use App\Models\Quotation;
 use App\Models\SerialProduct;
 use App\Models\SubtitleQuotation;
 use App\Models\Supplier;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PurchaseController extends Controller
 {
@@ -63,7 +69,7 @@ class PurchaseController extends Controller
         $purchase = new PurchaseRequest();
         $purchase->id_pending = $id;
         $purchase->id_equivalent = $request->id_equivalent;
-        $purchase->qty = $request->qty;  
+        $purchase->qty = $request->qty;
         $purchase->note = $request->note;
         $purchase->status = '0';
         $purchase->date = Carbon::now();
@@ -86,7 +92,110 @@ class PurchaseController extends Controller
         $activity = ChangeStatus::where('id_pending', $id)->with('comment')->get();
         $serial = SerialProduct::all();
         $purchase = PurchaseRequest::where('id_pending', $id)->get();
-        return view('pages.warehouse.purchase.detail', compact('purchase', 'serial', 'activity', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation'));
+
+        // Data diskusi PR
+        $discussions = PrDiscussion::where('id_pending', $id)
+            ->with(['user', 'mentions.user'])
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // Semua user aktif untuk dropdown mention
+        $allUsers = User::where('active', '1')->orderBy('name')->get(['id', 'name', 'role', 'image']);
+
+        // Variabel notifikasi navbar (pola standar)
+        $firstComments = Comment::where('id_user', Auth::id())
+            ->groupBy('id_status')
+            ->get();
+        $statusIds = $firstComments->pluck('id_status')->toArray();
+        $dates = $firstComments->pluck('created_at', 'id_status');
+
+        $commentsQuery = Comment::join('change_status as c', 'c.id', '=', 'comment.id_status')
+            ->join('quotation as q', 'q.id', '=', 'c.id_quotation')
+            ->join('users as u', 'u.id', '=', 'comment.id_user')
+            ->whereIn('comment.id_status', count($statusIds) ? $statusIds : [0])
+            ->where(function ($query) use ($dates) {
+                foreach ($dates as $statusId => $createdAt) {
+                    $query->orWhere(function ($subQuery) use ($statusId, $createdAt) {
+                        $subQuery->where('comment.id_status', $statusId)
+                            ->whereRaw('TIMESTAMPDIFF(SECOND, ?, comment.created_at) > 0', [$createdAt]);
+                    });
+                }
+            })
+            ->where('comment.id_user', '!=', Auth::id());
+
+        $commentAdmin = $commentsQuery->orderBy('comment.id_status')
+            ->orderByDesc('comment.created_at')
+            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+        $unreadCommentAdmin = $commentsQuery->where('comment.level', '1')
+            ->orderBy('comment.id_status')
+            ->orderByDesc('comment.created_at')
+            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+        $quotationComment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', 'o.id_status', '=', 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.type', 'quotation')
+            ->where('o.id_user', '!=', Auth::id())
+            ->orderBy('o.date', 'DESC')
+            ->select(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.level', 'o.comment', 'o.date', 'o.type', 'quotation.no_quote', 'u.name', 'u.image']);
+
+        $prospectComment = Comment::join('prospect as p', 'comment.id_prospect', '=', 'p.id')
+            ->join('users as u', 'u.id', '=', 'comment.id_user')
+            ->join('pic as pi', 'pi.id', '=', 'p.id_pic')
+            ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->where('p.id_sales', Auth::id())
+            ->where('comment.type', 'prospect')
+            ->where('comment.id_user', '!=', Auth::id())
+            ->orderBy('comment.date', 'DESC')
+            ->select(['p.id as idP', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'comment.type', 'c.company', 'u.name', 'u.image']);
+
+        $comment = $quotationComment->union($prospectComment)->orderBy('date', 'DESC')->take(5)->get();
+        $unreadComment = $quotationComment->union($prospectComment)->orderBy('date', 'DESC')->where('o.level', '1')->take(5)->get();
+
+        $noSaleProspect = Prospect::whereNull('id_sales')->whereNull('provide')->count();
+        $leveledProspect = Prospect::whereNull('level')->where('id_sales', Auth::id())->count();
+
+        return view('pages.warehouse.purchase.detail', compact(
+            'purchase', 'serial', 'activity', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation',
+            'discussions', 'allUsers',
+            'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'noSaleProspect', 'leveledProspect'
+        ));
+    }
+
+    public function addDiscussion(Request $request, $id)
+    {
+        $request->validate(['message' => 'required|string|max:2000']);
+
+        $discussion = new PrDiscussion();
+        $discussion->id_pending = $id;
+        $discussion->id_user = Auth::id();
+        $discussion->message = $request->message;
+        $discussion->save();
+
+        if ($request->mentions) {
+            foreach ($request->mentions as $userId) {
+                $mention = new PrDiscussionMention();
+                $mention->id_discussion = $discussion->id;
+                $mention->id_user_mention = $userId;
+                $mention->level = '0';
+                $mention->save();
+            }
+        }
+
+        return redirect()->route('purchase-request.show', $id)->with('success', 'Pesan berhasil dikirim')->withFragment('diskusi');
+    }
+
+    public function readPrMention($id)
+    {
+        $mention = PrDiscussionMention::find($id);
+        if ($mention && $mention->id_user_mention == Auth::id()) {
+            $mention->level = '1';
+            $mention->save();
+            return response()->json(['message' => 'ok']);
+        }
+        return response()->json(['message' => 'not found'], 404);
     }
     public function delete($id)
     {

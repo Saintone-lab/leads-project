@@ -1,5 +1,5 @@
 @extends('layouts.sales.app')
-@section('title', 'Detail Quotation')
+@section('title', 'Purchase Request')
 @section('content')
     <div class="row invoice-preview">
         {{-- Invoice --}}
@@ -207,6 +207,95 @@
                     </table>
                 </div>
             </div>
+            {{-- Diskusi --}}
+            <div class="card mb-4" id="diskusi">
+                <div class="card-header border-bottom">
+                    <h5 class="card-title mb-0">
+                        <i class="mdi mdi-forum-outline me-2"></i>Diskusi
+                    </h5>
+                </div>
+                <div class="card-body">
+
+                    {{-- Daftar pesan --}}
+                    <div class="discussion-list mb-4" style="max-height: 450px; overflow-y: auto;">
+                        @forelse($discussions as $disc)
+                            @php
+                                $isMe = $disc->id_user == Auth::id();
+                            @endphp
+                            <div class="d-flex gap-3 mb-4 {{ $isMe ? 'flex-row-reverse' : '' }}">
+                                <div class="flex-shrink-0">
+                                    <img src="{{ url('') . '/' . $disc->user->image }}"
+                                        class="rounded-circle"
+                                        style="width:38px;height:38px;object-fit:cover;"
+                                        alt="{{ $disc->user->name }}">
+                                </div>
+                                <div style="max-width:75%">
+                                    <div class="d-flex align-items-center gap-2 mb-1 {{ $isMe ? 'flex-row-reverse' : '' }}">
+                                        <span class="fw-semibold small">{{ $disc->user->name }}</span>
+                                        <span class="text-muted" style="font-size:11px;">
+                                            {{ \Carbon\Carbon::parse($disc->created_at)->diffForHumans() }}
+                                        </span>
+                                    </div>
+                                    <div class="p-2 px-3 rounded-3 discussion-bubble {{ $isMe ? 'bg-primary text-white ms-auto' : 'bg-label-secondary' }}"
+                                        style="word-break:break-word;">
+                                        @php
+                                            $msg = e($disc->message);
+                                            // Highlight @mention
+                                            foreach ($disc->mentions as $m) {
+                                                $msg = str_replace(
+                                                    '@' . $m->user->name,
+                                                    '<span class="fw-bold ' . ($isMe ? 'text-warning' : 'text-primary') . '">@' . e($m->user->name) . '</span>',
+                                                    $msg
+                                                );
+                                            }
+                                        @endphp
+                                        {!! nl2br($msg) !!}
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center text-muted py-4">
+                                <i class="mdi mdi-chat-outline mdi-48px d-block mb-2"></i>
+                                Belum ada diskusi. Mulai percakapan sekarang.
+                            </div>
+                        @endforelse
+                    </div>
+
+                    {{-- Form kirim pesan --}}
+                    <form action="{{ route('purchase-request.add-discussion', $pending->id) }}" method="POST" id="discussionForm">
+                        @csrf
+                        <div class="position-relative">
+                            <textarea
+                                name="message"
+                                id="discussionMessage"
+                                class="form-control"
+                                rows="3"
+                                placeholder="Tulis pesan... ketik @ untuk mention seseorang"
+                                style="padding-right: 100px; resize:none;"
+                                required></textarea>
+
+                            {{-- Hidden inputs untuk mention --}}
+                            <div id="mentionInputs"></div>
+
+                            <button type="submit" class="btn btn-primary btn-sm position-absolute"
+                                style="bottom:10px;right:10px;">
+                                <i class="mdi mdi-send me-1"></i>Kirim
+                            </button>
+                        </div>
+
+                        {{-- Mention dropdown --}}
+                        <ul id="mentionDropdown"
+                            class="list-group shadow"
+                            style="display:none;position:absolute;z-index:999;min-width:220px;max-height:200px;overflow-y:auto;">
+                        </ul>
+
+                        {{-- Tag mention yang dipilih --}}
+                        <div id="mentionTags" class="d-flex flex-wrap gap-1 mt-2"></div>
+                    </form>
+                </div>
+            </div>
+            {{-- End: Diskusi --}}
+
         </div>
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
@@ -241,6 +330,15 @@
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/dropzone/dropzone.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
+    <style>
+        .discussion-bubble { line-height: 1.5; }
+        #mentionDropdown .list-group-item { cursor: pointer; padding: 6px 12px; }
+        #mentionDropdown .list-group-item:hover { background: #f0f0f0; }
+        #mentionDropdown .list-group-item img { width: 28px; height: 28px; object-fit: cover; }
+        .mention-tag { background: #e7f1ff; color: #3b82f6; border: 1px solid #bfdbfe; border-radius: 999px; padding: 2px 10px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
+        .mention-tag .remove-mention { cursor: pointer; font-weight: bold; color: #6b7280; }
+        .mention-tag .remove-mention:hover { color: #ef4444; }
+    </style>
 @endpush
 @push('after-script')
     <script src="{{ asset('assets') }}/vendor/libs/dropzone/dropzone.js"></script>
@@ -251,6 +349,129 @@
 @endpush
 @push('script')
     <script>
+        // Scroll diskusi ke pesan terbaru
+        (function () {
+            var list = document.querySelector('.discussion-list');
+            if (list) list.scrollTop = list.scrollHeight;
+        })();
+
+        // @mention logic
+        var allUsers = @json($allUsers);
+        var selectedMentions = {}; // id => name
+        var mentionStartIndex = -1;
+
+        var textarea = document.getElementById('discussionMessage');
+        var dropdown = document.getElementById('mentionDropdown');
+        var tagsEl = document.getElementById('mentionTags');
+        var inputsEl = document.getElementById('mentionInputs');
+
+        function renderDropdown(query) {
+            var filtered = allUsers.filter(function (u) {
+                return u.name.toLowerCase().indexOf(query.toLowerCase()) !== -1 && !selectedMentions[u.id];
+            }).slice(0, 8);
+
+            dropdown.innerHTML = '';
+            if (!filtered.length) { dropdown.style.display = 'none'; return; }
+
+            filtered.forEach(function (u) {
+                var li = document.createElement('li');
+                li.className = 'list-group-item d-flex align-items-center gap-2';
+                li.innerHTML = '<img src="/' + (u.image || 'assets/img/avatars/1.png') + '" class="rounded-circle">' +
+                    '<span>' + u.name + '</span>' +
+                    '<small class="text-muted ms-auto">' + u.role + '</small>';
+                li.addEventListener('mousedown', function (e) {
+                    e.preventDefault();
+                    selectMention(u);
+                });
+                dropdown.appendChild(li);
+            });
+
+            // Posisikan di bawah textarea
+            var rect = textarea.getBoundingClientRect();
+            dropdown.style.display = 'block';
+            dropdown.style.top = (textarea.offsetTop + textarea.offsetHeight) + 'px';
+            dropdown.style.left = textarea.offsetLeft + 'px';
+        }
+
+        function selectMention(user) {
+            // Ganti teks @query dengan @name di textarea
+            var val = textarea.value;
+            var before = val.substring(0, mentionStartIndex);
+            var after = val.substring(textarea.selectionStart);
+            textarea.value = before + '@' + user.name + ' ' + after;
+            textarea.focus();
+
+            selectedMentions[user.id] = user.name;
+            dropdown.style.display = 'none';
+            mentionStartIndex = -1;
+            renderTags();
+        }
+
+        function renderTags() {
+            tagsEl.innerHTML = '';
+            inputsEl.innerHTML = '';
+            Object.keys(selectedMentions).forEach(function (id) {
+                var span = document.createElement('span');
+                span.className = 'mention-tag';
+                span.innerHTML = '@' + selectedMentions[id] +
+                    ' <span class="remove-mention" data-id="' + id + '">&times;</span>';
+                tagsEl.appendChild(span);
+
+                var inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = 'mentions[]';
+                inp.value = id;
+                inputsEl.appendChild(inp);
+            });
+
+            // Hapus mention dari tag
+            tagsEl.querySelectorAll('.remove-mention').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    delete selectedMentions[this.dataset.id];
+                    renderTags();
+                });
+            });
+        }
+
+        textarea.addEventListener('input', function () {
+            var val = this.value;
+            var pos = this.selectionStart;
+
+            // Cari posisi @ terakhir sebelum kursor
+            var atPos = -1;
+            for (var i = pos - 1; i >= 0; i--) {
+                if (val[i] === '@') { atPos = i; break; }
+                if (val[i] === ' ' || val[i] === '\n') break;
+            }
+
+            if (atPos !== -1) {
+                mentionStartIndex = atPos;
+                var query = val.substring(atPos + 1, pos);
+                renderDropdown(query);
+            } else {
+                dropdown.style.display = 'none';
+                mentionStartIndex = -1;
+            }
+        });
+
+        textarea.addEventListener('keydown', function (e) {
+            if (dropdown.style.display === 'block') {
+                if (e.key === 'Escape') dropdown.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!dropdown.contains(e.target) && e.target !== textarea) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Validasi form sebelum submit
+        document.getElementById('discussionForm').addEventListener('submit', function (e) {
+            var msg = textarea.value.trim();
+            if (!msg) { e.preventDefault(); textarea.focus(); }
+        });
+
         $('#backButton').click(function() {
             window.history.back();
         });
