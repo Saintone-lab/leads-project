@@ -26,10 +26,13 @@
                                         </div>
                                     </div>
                                     <div class="card-info">
+                                        @php
+                                            $targetLeads6 = ($target->leads ?? 0) * 6;
+                                        @endphp
                                         <h5 class="mb-0">{{ $totalLeadsSemester }} / <span
-                                                class="fw-lighter fs-tiny">{{ $target->leads ? $target->leads * 6 : '0' }}</span>
+                                                class="fw-lighter fs-tiny">{{ $targetLeads6 ?: '0' }}</span>
                                             <span
-                                                class="bg-label-secondary rounded">{{ round(($totalLeadsSemester * 100) / ($target->leads * 6), 2) }}
+                                                class="bg-label-secondary rounded">{{ $targetLeads6 ? round(($totalLeadsSemester * 100) / $targetLeads6, 2) : '0' }}
                                                 %</span>
                                         </h5>
                                         <small class="text-muted">Leads</small>
@@ -42,10 +45,13 @@
                                         </div>
                                     </div>
                                     <div class="card-info">
+                                        @php
+                                            $targetDc6 = ($target->dc ?? 0) * 6;
+                                        @endphp
                                         <h5 class="mb-0">{{ $totalDCSemester }} / <span
-                                                class="fw-lighter fs-tiny">{{ $target->dc ? $target->dc * 6 : '0' }}</span>
+                                                class="fw-lighter fs-tiny">{{ $targetDc6 ?: '0' }}</span>
                                             <span
-                                                class="bg-label-info rounded">{{ round(($totalDCSemester * 100) / ($target->dc * 6), 2) }}
+                                                class="bg-label-info rounded">{{ $targetDc6 ? round(($totalDCSemester * 100) / $targetDc6, 2) : '0' }}
                                                 %</span>
                                         </h5>
                                         <small class="text-muted">Daily Call</small>
@@ -61,7 +67,7 @@
                                         <h5 class="mb-0">{{ $totalCRMSemester }} / <span
                                                 class="fw-lighter fs-tiny">{{ $averageCRM ?? '0' }}</span>
                                             <span
-                                                class="bg-label-primary rounded">{{ round(($totalCRMSemester * 100) / $averageCRM, 2) }}
+                                                class="bg-label-primary rounded">{{ $averageCRM ? round(($totalCRMSemester * 100) / $averageCRM, 2) : '0' }}
                                                 %</span>
                                         </h5>
                                         <small class="text-muted">CRM</small>
@@ -165,7 +171,7 @@
                                 </div>
                                 <p class="fw-medium fs-normal">Percentage Achievement</p>
                                 @php
-                                    $percentPOTotal = ($totalPOSemester * 100) / ($targett * 6);
+                                    $percentPOTotal = ($targett * 6) ? ($totalPOSemester * 100) / ($targett * 6) : 0;
                                 @endphp
                                 <div class="d-flex mb-2 gap-2">
                                     <a href="#po">

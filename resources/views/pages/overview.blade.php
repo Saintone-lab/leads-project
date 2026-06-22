@@ -43,7 +43,7 @@
                                         $lastDetail = $sale->detail->last();
                                     @endphp
                                     <h3>{{ $sale->name }}</h3>
-                                    <p>{{ $lastDetail->area }}</p>
+                                    <p>{{ $lastDetail->area ?? '-' }}</p>
                                 </div>
                             </div>
                         </div>

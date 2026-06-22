@@ -29,7 +29,7 @@
                                         </a>
                                         <div class="card-info">
                                             <h5 class="mb-0">{{ $totalLeads }}<span
-                                                    class="text-muted fs-tiny fw-normal">/{{ $target->leads }}</span>
+                                                    class="text-muted fs-tiny fw-normal">/{{ $target->leads ?? '-' }}</span>
                                             </h5>
                                             <small class="text-muted">New Leads</small>
                                         </div>
@@ -44,7 +44,7 @@
                                         </a>
                                         <div class="card-info">
                                             <h5 class="mb-0">{{ $totalDC }} <span
-                                                    class="text-muted fs-tiny fw-normal">/{{ $target->dc }}</span>
+                                                    class="text-muted fs-tiny fw-normal">/{{ $target->dc ?? '-' }}</span>
                                             </h5>
                                             <small
                                                 class="text-muted">{{ $user->id == '1' ? 'New Leads' : 'Daily Call' }}</small>
@@ -68,7 +68,7 @@
                                     @php
                                         $lastDetail = $user->detail->last();
                                     @endphp
-                                    @if ($lastDetail->area == 'Bekasi' || $lastDetail->area == 'Jabodetabek' || $lastDetail->area == 'Jawa Barat')
+                                    @if ($lastDetail && ($lastDetail->area == 'Bekasi' || $lastDetail->area == 'Jabodetabek' || $lastDetail->area == 'Jawa Barat'))
                                         <div class="d-flex mb-2 gap-2">
                                             <a href="#activities">
                                                 <div class="avatar">
@@ -79,7 +79,7 @@
                                             </a>
                                             <div class="card-info">
                                                 <h5 class="mb-0">{{ $totalVisit }}<span
-                                                        class="text-muted fs-tiny fw-normal">/{{ $target->visit }}</span>
+                                                        class="text-muted fs-tiny fw-normal">/{{ $target->visit ?? '-' }}</span>
                                                 </h5>
                                                 <small class="text-muted">Visit</small>
                                             </div>
@@ -95,7 +95,7 @@
                                         </a>
                                         <div class="card-info">
                                             <h5 class="mb-0">{{ $totalQuote }}<span
-                                                    class="text-muted fs-tiny fw-normal">/{{ $target->quote }}</span>
+                                                    class="text-muted fs-tiny fw-normal">/{{ $target->quote ?? '-' }}</span>
                                             </h5>
                                             <small class="text-muted">Quotation</small>
                                         </div>
@@ -223,7 +223,7 @@
                                         </a>
                                         <div class="card-info">
                                             <h5 class="mb-0">{{ $filteredProspect }} <span
-                                                    class="text-muted fs-tiny fw-normal">/{{ $target->dc }}</span>
+                                                    class="text-muted fs-tiny fw-normal">/{{ $target->dc ?? '-' }}</span>
                                             </h5>
                                             <small class="text-muted">Prospect</small>
                                         </div>
@@ -253,7 +253,7 @@
                                         </a>
                                         <div class="card-info">
                                             <h5 class="mb-0">{{ $filteredProspectQuote }}<span
-                                                    class="text-muted fs-tiny fw-normal">/{{ $target->quote }}</span>
+                                                    class="text-muted fs-tiny fw-normal">/{{ $target->quote ?? '-' }}</span>
                                             </h5>
                                             <small class="text-muted">Quotation</small>
                                         </div>
