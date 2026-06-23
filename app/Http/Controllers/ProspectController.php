@@ -134,12 +134,15 @@ class ProspectController extends Controller
             ->take(5)
             ->get();
 
-        // Hitung jumlah prospek yang dibuat oleh setiap sales dalam minggu ini
+        // Hitung jumlah prospek yang dibuat oleh setiap sales dalam minggu ini dan bulan berjalan
         $salesLeads = User::where('role', 'Sales')
             ->where('active', '1')
-            ->wherein('id', ['1', '4', '2', '32'])
+            ->wherein('id', ['1', '4', '2', '32', '41'])
             ->withCount(['prospects as weekly_leads' => function ($query) use ($startOfWeek, $endOfWeek) {
                 $query->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
+            }])
+            ->withCount(['prospects as monthly_leads' => function ($query) use ($startOfMonth, $endOfMonth) {
+                $query->whereBetween('created_at', [$startOfMonth, $endOfMonth]);
             }])
             ->get();
 

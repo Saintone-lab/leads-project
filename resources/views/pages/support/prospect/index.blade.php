@@ -95,8 +95,8 @@
                     <!-- Header -->
                     <div class="mb-4 d-flex justify-content-between align-items-center">
                         <div class="header-content">
-                            <h5 class="fw-semibold mb-1">Weekly Leads Distribution</h5>
-                            <p class="text-muted">Updated automatically every week</p>
+                            <h5 class="fw-semibold mb-1">Monthly Leads Distribution</h5>
+                            <p class="text-muted">Akumulasi leads bulan berjalan · detail per minggu via dropdown</p>
                         </div>
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
@@ -117,16 +117,17 @@
                     </div>
 
 
-                    <div class="row g-4">
+                    <div class="row g-4 row-cols-1 row-cols-sm-2 row-cols-lg-5">
 
                         @foreach ($salesLeads as $sales)
                             @php
-                                $count = $sales->weekly_leads;
+                                $count = $sales->monthly_leads;
+                                $weekCount = $sales->weekly_leads;
 
-                                if ($count <= 5) {
+                                if ($count <= 20) {
                                     $color = 'success';
                                     $bg = 'bg-success-subtle';
-                                } elseif ($count <= 10) {
+                                } elseif ($count <= 40) {
                                     $color = 'warning';
                                     $bg = 'bg-warning-subtle';
                                 } else {
@@ -135,7 +136,7 @@
                                 }
                             @endphp
 
-                            <div class="col-sm-6 col-lg-3">
+                            <div class="col">
                                 <div
                                     class="d-flex align-items-center justify-content-between p-3 rounded-3 border h-100 transition-hover">
 
@@ -165,8 +166,12 @@
 
                                             <h4 class="mb-0 fw-bold text-{{ $color }}">
                                                 {{ $count }}
-                                                <span class="fs-6 fw-normal text-muted">Leads</span>
+                                                <span class="fs-6 fw-normal text-muted">Leads/Bulan</span>
                                             </h4>
+
+                                            <p class="mb-0 text-muted" style="font-size:0.78rem;">
+                                                Week {{ $selectedWeekNum }}: {{ $weekCount }} leads
+                                            </p>
                                         </div>
                                     </div>
 
