@@ -11,15 +11,16 @@
         </div>
         <div class="text-end">
             <div class="btn-group">
-                <button type="button" class="btn btn-outline-secondary dropdown-toggle waves-effect" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                    Choose Semester
+                <button type="button" class="btn btn-outline-secondary dropdown-toggle waves-effect"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="mdi mdi-calendar me-1"></i> Pilih Tahun
                 </button>
-                <ul class="dropdown-menu">
-                    @foreach ($semester as $semesters)
-                        <li><a class="dropdown-item waves-effect"
-                                href="{{ route('report.semester', $semesters->id) }}">Semester
-                                {{ $semesters->semester }} {{ $semesters->year }}</a></li>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    @foreach ($semester->pluck('year')->unique()->sortDesc() as $yr)
+                        <li>
+                            <a class="dropdown-item waves-effect {{ $yr == $report->year ? 'active' : '' }}"
+                                href="{{ route('report.year', $yr) }}">{{ $yr }}</a>
+                        </li>
                     @endforeach
                 </ul>
             </div>
@@ -132,8 +133,30 @@
                 12 => 'Desember',
             ];
         @endphp
+        @php
+            $ecommerceIds = [16, 23];
+            $ecommerceMembers = array_values(array_filter($data, fn($s) => in_array($s['id'], $ecommerceIds)));
+            $regularSales = array_values(array_filter($data, fn($s) => !in_array($s['id'], $ecommerceIds)));
+
+            // Gabungkan data bulanan Tim E-Commerce
+            $teamTotal = array_sum(array_column($ecommerceMembers, 'total'));
+            $teamTarget = array_sum(array_column($ecommerceMembers, 'target'));
+            $teamJumlah = [];
+            foreach ($ecommerceMembers as $member) {
+                foreach ($member['jumlah'] as $j) {
+                    $bulan = $j['bulan'];
+                    if (!isset($teamJumlah[$bulan])) $teamJumlah[$bulan] = 0;
+                    $teamJumlah[$bulan] += $j['total'];
+                }
+            }
+            ksort($teamJumlah);
+            $teamJumlahArr = [];
+            foreach ($teamJumlah as $b => $t) {
+                $teamJumlahArr[] = ['bulan' => $b, 'total' => $t];
+            }
+        @endphp
         {{-- @foreach ($sales as $user) --}}
-        @foreach ($data as $sale)
+        @foreach ($regularSales as $sale)
             <div class="col-6 col-lg-4 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
@@ -206,6 +229,54 @@
             </div>
         @endforeach
         {{-- @endforeach --}}
+
+        {{-- Team E-Commerce (ID 16 & 23 digabung) --}}
+        @if (count($ecommerceMembers) > 0)
+            <div class="col-6 col-lg-4 mb-3">
+                <div class="card h-100 border border-warning">
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-3 p-0">
+                                @php $mainMember = collect($ecommerceMembers)->firstWhere('id', 16); @endphp
+                                <img src="{{ url('') . '/' . $mainMember['image'] }}" alt=""
+                                    class="rounded" style="width:100%; height:100%;">
+                            </div>
+                            <div class="col-9">
+                                <h4 class="badge bg-label-warning w-100 text-center fs-4 fw-semibold">Team E-Commerce</h4>
+                                <h5 class="text-center">Rp {{ number_format($teamTotal, 0, ',', '.') }}</h5>
+                                <div class="d-flex flex-wrap gap-1 justify-content-center mt-1">
+                                    @foreach ($ecommerceMembers as $member)
+                                        <span class="badge bg-label-secondary small">{{ $member['name'] }}</span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container">
+                            <div class="row">
+                                @foreach ($teamJumlahArr as $item)
+                                    <div class="col-4 mb-2">
+                                        <h6 class="mb-0">{{ $bulanMap[$item['bulan']] }}</h6>
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <p class="fw-semibold text-heading text-end p-0 m-0">Rp
+                                            {{ number_format($item['total'], 0, ',', '.') }}</p>
+                                    </div>
+                                    <div class="col-2 mb-2">
+                                        @php
+                                            $pct = $teamTarget > 0 ? round(($item['total'] / $teamTarget) * 100, 2) : 0;
+                                            $lbl = $pct >= 100 ? 'success' : ($pct >= 90 ? 'warning' : 'danger');
+                                        @endphp
+                                        <div class="badge bg-label-{{ $lbl }} rounded-pill">{{ $pct }}%</div>
+                                    </div>
+                                    <hr>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="col-6 col-lg-4 mb-3">
             <div class="card h-100">
                 <div class="card-body">
@@ -231,7 +302,7 @@
                                 <div class="col-8 mb-2">
                                     <p class="fw-semibold text-heading text-end p-0 m-0">Rp
                                         {{ number_format($item->total, 0, ',', '.') }}</p>
-                                    
+
                                 </div>
                                 <hr>
                                 {{-- <div class="col-2 mb-2">
@@ -250,7 +321,7 @@
                                             @endphp
                                             <div class="badge bg-label-{{ $label }} rounded-pill">
                                                 {{ $persenanSales }}%</div>
-                                                
+
                                         </div>  --}}
                             @endforeach
                         </div>
