@@ -42,55 +42,43 @@ $(function () {
                 // },
             },
             columns: [
+                { data: "no_expense" },
+                { data: "no_invoice" },
                 { data: "date" },
                 { data: "memo" },
-                { data: "no_invoice" },
                 { data: "no_cheque" },
                 { data: "amount" },
             ],
             columnDefs: [
-                // {
-                //     targets: 1,
-                //     render: function (data, type, full, row) {
-                //         if (type === "display") {
-                //             var id = full["id"];
-                //             return (
-                //                 '<a class="text-black cursor-pointer" data-bs-toggle="modal" data-bs-target="#detailPending-' +
-                //                 id +
-                //                 '">' +
-                //                 data +
-                //                 "</a>"
-                //             );
-                //         }
-                //         return data;
-                //     },
-                // },
-                // {
-                //     targets: 1,
-                //     render: function (data, type, full, row) {
-                //         if (type === "display") {
-                //             var $dataId = full["id"];
-                //             var detailRoute = route("expense.show", $dataId);
-                //             return (
-                //                 '<a class="text-dark" href="' +
-                //                 detailRoute +
-                //                 '">' +
-                //                 data +
-                //                 "</a>"
-                //             );
-                //         }
-                //         return data;
-                //     },
-                // },
                 {
-                    targets: 4,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                    targets: 0,
+                    render: function (data, type, full, meta) {
+                        var detailUrl = route("expense.show", full["id"]);
+                        return '<a href="' + detailUrl + '" class="fw-semibold text-primary">' + (data ?? '-') + '</a>';
+                    },
+                },
+                {
+                    targets: 2,
+                    className: "text-center",
+                    render: function (data, type, full, meta) {
+                        if (!data) return '-';
+                        var d = new Date(data);
+                        var day   = String(d.getDate()).padStart(2, '0');
+                        var month = String(d.getMonth() + 1).padStart(2, '0');
+                        var year  = d.getFullYear();
+                        return day + '-' + month + '-' + year;
+                    },
+                },
+                {
+                    targets: 5,
+                    className: "text-end",
+                    render: $.fn.dataTable.render.number(".", "", 0, "Rp "),
                 },
             ],
             order: [[2, "desc"]],
             // orderCellsTop: true,
             dom:
-                '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f><"dt-action-buttons text-end pt-3 pt-md-0"B>>' +
+                '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"B>>' +
                 '<"table-responsive"t>' +
                 '<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             buttons: [

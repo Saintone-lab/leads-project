@@ -46,7 +46,14 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-3">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <input class="form-control fw-bold bg-light" type="text" id="no-expense-input"
+                                    name="no_expense" value="{{ $noExpense }}" readonly>
+                                <label for="no-expense-input">No. Expense</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
                             <div class="form-floating form-floating-outline mb-2">
                                 <input class="form-control" type="text" placeholder="Put No Voucher Here ...."
                                     id="no-voucher-input" name="no_invoice" value="{{ old('no_invoice') }}">

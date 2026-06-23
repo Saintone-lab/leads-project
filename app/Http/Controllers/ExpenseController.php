@@ -179,7 +179,18 @@ class Expensecontroller extends Controller
         $bank = Bank::all();
         $expense = Expense::all();
         $account = Account::all();
-        return view('pages.finance.expense.form', compact('bank', 'expense', 'account'));
+        $noExpense = $this->generateNoExpense();
+        return view('pages.finance.expense.form', compact('bank', 'expense', 'account', 'noExpense'));
+    }
+
+    private function generateNoExpense()
+    {
+        $romans = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+        $now = \Carbon\Carbon::now();
+        $roman = $romans[$now->month - 1];
+        $year = $now->year;
+        $count = Expense::where('no_expense', 'LIKE', "EXP%-{$roman}-{$year}")->count();
+        return 'EXP' . str_pad($count + 1, 3, '0', STR_PAD_LEFT) . '-' . $roman . '-' . $year;
     }
     public function createExpenseUmum()
     {
@@ -198,6 +209,7 @@ class Expensecontroller extends Controller
         }
         $expense = new Expense;
         $expense->id_bank = $request->bank ?? null;
+        $expense->no_expense = $request->no_expense;
         $expense->no_invoice = $request->no_invoice;
         $expense->no_cheque = $request->no_cheque;
         $expense->memo = $request->detail;

@@ -20,7 +20,10 @@
                         <div class="text-end">
                             <h3 class="fw-bold">Transaction Journal</h3>
                             <div>
-                                <span class="fw-bolder">{{ $expense->no_invoice }}</span>
+                                <span class="badge bg-label-primary fs-6 fw-bold">{{ $expense->no_expense ?? '-' }}</span>
+                            </div>
+                            <div class="mt-1">
+                                <span class="fw-semibold text-dark">{{ $expense->no_invoice ?? '-' }}</span>
                             </div>
                             <div class="mt-1">
                                 <span class="text-muted">{{ Carbon\Carbon::parse($expense->date)->format('d-m-Y') }}</span>

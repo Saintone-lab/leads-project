@@ -1,15 +1,19 @@
 @extends('layouts.sales.app')
-@section('title', 'expense')
+@section('title', 'Expense')
 @section('content')
+    <h4 class="fw-bold py-3 mb-4">
+        <span class="text-muted fw-light">Finance /</span> Expense
+    </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
             <table
                 class="datatable-expense-data table table-striped">
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>memo</th>
+                        <th>No. Expense</th>
                         <th>No Invoice</th>
+                        <th>Date</th>
+                        <th>Memo</th>
                         <th>No Cheque</th>
                         <th>Amount</th>
                     </tr>

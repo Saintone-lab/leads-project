@@ -15,6 +15,7 @@ class Expense extends Model
         'updated_at'
     ];
     protected $fillable = [
+        'no_expense',
         'no_voucher',
         'no_cheque',
         'memo',
