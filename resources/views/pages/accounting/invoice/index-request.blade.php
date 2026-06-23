@@ -13,6 +13,7 @@
                         <th></th>
                         <th>ID</th>
                         <th>Quotation No.</th>
+                        <th>No. PO</th>
                         <th>Company</th>
                         <th>Total Price</th>
                         <th>Date</th>

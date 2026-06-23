@@ -21,12 +21,6 @@
         <ul class="nav nav-pills mb-3" role="tablist">
             <li class="nav-item" role="presentation">
                 <button type="button" class="nav-link waves-effect waves-light select-status active" aria-selected="true"
-                    data-id="1">
-                    Bangkrupt
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button type="button" class="nav-link waves-effect waves-light select-status " aria-selected="true"
                     data-id="2">
                     Active
                 </button>
@@ -35,6 +29,12 @@
                 <button type="button" class="nav-link waves-effect waves-light select-status " aria-selected="true"
                     data-id="3">
                     Non Active
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button type="button" class="nav-link waves-effect waves-light select-status " aria-selected="true"
+                    data-id="1">
+                    Bangkrupt
                 </button>
             </li>
         </ul>

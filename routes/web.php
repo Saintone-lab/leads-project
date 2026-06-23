@@ -1773,6 +1773,7 @@ Route::group(["middleware" => "auth"], function () {
                 'p.name_pic',
                 'i.issue',
                 'u.name',
+                'cs.status',
                 DB::raw("DATE_FORMAT(MAX(a.date), '%d-%m-%Y') as date"),
                 DB::raw("DATE_FORMAT(MAX(a.follow_up), '%d-%m-%Y') as follow_up"),
                 DB::raw("MAX(a.note) as note")
@@ -1781,6 +1782,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('users as u', 'c.id_sales', '=', 'u.id')
             ->leftJoin('pic as p', 'c.id', '=', 'p.id_client')
             ->leftJoin('activities as a', 'a.id_client', '=', 'c.id')
+            ->leftJoin(DB::raw('(SELECT id_client, status FROM crm_status WHERE id IN (SELECT MAX(id) FROM crm_status GROUP BY id_client)) as cs'), 'c.id', '=', 'cs.id_client')
             ->where('c.role', 'Customers')
             ->when($id, function ($q) use ($id) {
                 $q->where('u.id', $id);
@@ -1898,7 +1900,7 @@ Route::group(["middleware" => "auth"], function () {
             ->whereNotNULL('client.npwp')
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
-            ->get(['quotation.no_quote','quotation.po_date', 'quotation.harga_total', 'client.company', 'users.name', 'invoice.id']);
+            ->get(['quotation.no_quote', 'invoice.no_po', 'quotation.po_date', 'quotation.harga_total', 'client.company', 'users.name', 'invoice.id']);
         ;
         return response()->json(['data' => $quotation]);
     });

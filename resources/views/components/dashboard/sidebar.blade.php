@@ -3,7 +3,7 @@
         <a href="{{ url('/') }}" class="app-brand-link">
             <span class="app-brand-logo demo">
                 {{-- reftech --}}
-                <img src="{{ url('https://reftech.id/wp-content/uploads/2021/10/Reftech-Logo-Hitam.png') }}"
+                <img src="{{ asset('assets/img/favicon/logo-hitam-app.png') }}"
                     alt="logo-reftech" width="35%">
             </span>
         </a>

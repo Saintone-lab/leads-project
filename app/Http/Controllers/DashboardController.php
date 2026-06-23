@@ -232,7 +232,7 @@ class DashboardController extends Controller
             $productCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Product')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->count();
             $POCount = Quotation::where('id_sales', Auth::user()->id)->where('is_primary', '1')->where('status', '100')->where('level', '1')->whereMonth('po_date', Carbon::now())->whereYear('po_date', Carbon::now())->count();
 
-            $jumlahCustomer = Client::leftJoin('crm_status as cs','client.id','=','cs.id_client')->where('role', 'Customers')->where('id_sales', Auth::user()->id)->where('cs.status',2)->count();
+            $jumlahCustomer = Client::join(DB::raw('(SELECT id_client, status FROM crm_status WHERE id IN (SELECT MAX(id) FROM crm_status GROUP BY id_client)) as cs'), 'client.id', '=', 'cs.id_client')->where('role', 'Customers')->where('id_sales', Auth::user()->id)->where('cs.status', '2')->count();
             $reportsCount = Reports::join('machine as m', 'm.id', '=', 'reports.id_machine')
                 ->join('client as c', 'c.id', '=', 'm.id_client')
                 ->join('users as u', 'u.id', '=', 'c.id_sales')
@@ -408,7 +408,7 @@ class DashboardController extends Controller
             $totalPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
             $filteredLeads = Client::whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->where('id_sales', $firstSales->id)->count();
             $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->whereIn('activities.name', ['Daily Call', 'Follow Up'])->count();
-            $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('activities.status', 'Responded')->where('activities.name', 'CRM')->count(DB::raw('DISTINCT c.id'));
+            $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->join(DB::raw('(SELECT id_client, status FROM crm_status WHERE id IN (SELECT MAX(id) FROM crm_status GROUP BY id_client)) as cs'), 'c.id', '=', 'cs.id_client')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('activities.status', 'Responded')->where('activities.name', 'CRM')->where('cs.status', '2')->count(DB::raw('DISTINCT c.id'));
             $filteredQuote = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('level', '1')->where('is_primary', '1')->count();
             $filteredProspect = Prospect::whereNotNull('id_quotation')->whereMonth('date', $monthNow)->whereYear('date', $yearNow)->count();
             $allProspect = Prospect::whereMonth('date', $monthNow)->whereYear('date', $yearNow)->count();
@@ -424,7 +424,9 @@ class DashboardController extends Controller
             // dd($dataOverview);
             $dataLeads = $this->getWeekDataLeads();
             $dataPO = $this->getWeekDataPO();
-            $targetCrm = Client::where('role', 'Customers')
+            $targetCrm = Client::join(DB::raw('(SELECT id_client, status FROM crm_status WHERE id IN (SELECT MAX(id) FROM crm_status GROUP BY id_client)) as cs'), 'client.id', '=', 'cs.id_client')
+                ->where('role', 'Customers')
+                ->where('cs.status', '2')
                 ->select('id_sales', DB::RAW('COUNT(*) as total'))
                 ->groupBy('id_sales')
                 ->pluck('total', 'id_sales')->toArray();
@@ -1461,12 +1463,12 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $sales)->where('activities.status', 'Responded')->where('activities.name', 'CRM')->count(DB::raw('DISTINCT c.id'));
+        $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->join(DB::raw('(SELECT id_client, status FROM crm_status WHERE id IN (SELECT MAX(id) FROM crm_status GROUP BY id_client)) as cs'), 'c.id', '=', 'cs.id_client')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $sales)->where('activities.status', 'Responded')->where('activities.name', 'CRM')->where('cs.status', '2')->count(DB::raw('DISTINCT c.id'));
         return $filteredCRM;
     }
     public function filteredTargetCRMAdmin($sales)
     {
-        $target = Client::where('role', 'Customers')->where('id_sales', $sales)->count();
+        $target = Client::join(DB::raw('(SELECT id_client, status FROM crm_status WHERE id IN (SELECT MAX(id) FROM crm_status GROUP BY id_client)) as cs'), 'client.id', '=', 'cs.id_client')->where('role', 'Customers')->where('id_sales', $sales)->where('cs.status', '2')->count();
         return $target;
     }
     public function filteredPercentCRMAdmin($sales)
@@ -1474,9 +1476,9 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $sales)->where('activities.status', 'Responded')->where('activities.name', 'CRM')->count(DB::raw('DISTINCT c.id'));
-        $target = Client::where('role', 'Customers')->where('id_sales', $sales)->count();
-        $crmTarget = ($filteredCRM / $target) * 100;
+        $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->join(DB::raw('(SELECT id_client, status FROM crm_status WHERE id IN (SELECT MAX(id) FROM crm_status GROUP BY id_client)) as cs'), 'c.id', '=', 'cs.id_client')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $sales)->where('activities.status', 'Responded')->where('activities.name', 'CRM')->where('cs.status', '2')->count(DB::raw('DISTINCT c.id'));
+        $target = Client::join(DB::raw('(SELECT id_client, status FROM crm_status WHERE id IN (SELECT MAX(id) FROM crm_status GROUP BY id_client)) as cs'), 'client.id', '=', 'cs.id_client')->where('role', 'Customers')->where('id_sales', $sales)->where('cs.status', '2')->count();
+        $crmTarget = $target > 0 ? ($filteredCRM / $target) * 100 : 0;
         return round($crmTarget);
     }
     public function filteredQuoteAdmin($sales)

@@ -1,0 +1,408 @@
+$(function () {
+    var dt_table_reports_monitoring = $(".datatable-reports-archived");
+    var Url = "/db/monitoring/arsip";
+
+    // console.log("ID:", id); // Output: ID: 2
+
+    if (dt_table_reports_monitoring.length) {
+        $('[data-toggle="tooltip"]').tooltip();
+        var dt_product = dt_table_reports_monitoring.DataTable({
+            ajax: {
+                type: "GET",
+                url: Url,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                // success: function (hasil, url) {
+                //     console.log("Url:", url);
+                //     console.log(hasil);
+                // },
+                // error: function (error) {
+                //     console.log("Url:", Url);
+                //     console.error("Error:", error);
+                //     console.log("error disini");
+                // },
+            },
+            columns: [
+                { data: "" },
+                { data: "id" },
+                { data: "date" },
+                { data: "location" },
+                { data: "tag" },
+                { data: "name" },
+                { data: "machine" },
+                { data: "issue" },
+                { data: "recommendation" },
+                { data: "status" },
+            ],
+            columnDefs: [
+                {
+                    // For Responsive
+                    className: "control",
+                    orderable: false,
+                    searchable: false,
+                    responsivePriority: 5,
+                    targets: 0,
+                    render: function (data, type, full, meta) {
+                        return "";
+                    },
+                },
+                {
+                    targets: 1,
+                    searchable: true,
+                    visible: false,
+                },
+                {
+                    responsivePriority: 1,
+                    targets: 2,
+                },
+                {
+                    targets: 2,
+                    render: function (data, type, row) {
+                        return moment(data).format("DD-MM-YYYY"); // Format d-m-Y
+                    },
+                },
+                {
+                    targets: 9,
+                    render: function (data, type, full, row) {
+                        var $status_number = full["status"];
+                        var status_desc = full["status_desc"];
+                        var $status = {
+                            1: {
+                                title: "Proccess FU to User",
+                                class: " bg-label-info",
+                                colorTip: "tooltip-info",
+                                titleTip: status_desc,
+                            },
+                            2: {
+                                title: "Send Inquiry",
+                                class: " bg-label-warning",
+                                colorTip: "tooltip-warning",
+                                titleTip: status_desc,
+                            },
+                            3: {
+                                title: "Hold by User",
+                                class: " bg-label-danger",
+                                colorTip: "tooltip-danger",
+                                titleTip: status_desc,
+                            },
+                            4: {
+                                title: "Done",
+                                class: " bg-label-success",
+                                colorTip: "tooltip-success",
+                                titleTip: "Done",
+                            },
+                            5: {
+                                title: "Archive",
+                                class: " bg-label-dark",
+                                colorTip: "tooltip-dark",
+                                titleTip: "Archive",
+                            },
+                        };
+                        if (typeof $status[$status_number] === "undefined") {
+                            return data;
+                        }
+                        return (
+                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
+                            $status[$status_number].colorTip +
+                            '" title="' +
+                            $status[$status_number].titleTip +
+                            '" class="badge rounded-pill ' +
+                            $status[$status_number].class +
+                            '">' +
+                            $status[$status_number].title +
+                            "</span>"
+                        );
+                    },
+                },
+                {
+                    targets: [3, 4, 5, 6, 7, 8],
+                    render: function (data, type, full, row) {
+                        if (type === "display") {
+                            var id = full["id"];
+                            var $date = full["date"];
+                            var detailRoute = route(
+                                "monitoring.fajarPaper-detail",
+                                id
+                            );
+                            return (
+                                '<a class="text-dark back-arsip" href="#" data-id="'+ id +'">' +
+                                data +
+                                "</a>"
+                            );
+                        }
+                        return data;
+                    },
+                },
+            ],
+            // order: [[2, "desc"]],
+            // dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            // displayLength: 7,
+            // lengthMenu: [7, 10, 25, 50, 75, 100],
+            // buttons: [
+            //     {
+            //         extend: "collection",
+            //         className: "btn btn-label-primary dropdown-toggle me-2",
+            //         text: '<i class="mdi mdi-export-variant me-sm-1"></i> <span class="d-none d-sm-inline-block">Export</span>',
+            //         buttons: [
+            //             {
+            //                 extend: "print",
+            //                 text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
+            //                 className: "dropdown-item",
+            //                 exportOptions: {
+            //                     columns: [3, 4, 5, 6, 7, 8, 9],
+            //                     // prevent avatar to be display
+            //                     format: {
+            //                         body: function (inner, coldex, rowdex) {
+            //                             if (inner.length <= 0) return inner;
+            //                             var el = $.parseHTML(inner);
+            //                             var result = "";
+            //                             $.each(el, function (index, item) {
+            //                                 if (
+            //                                     item.classList !== undefined &&
+            //                                     item.classList.contains(
+            //                                         "user-name"
+            //                                     )
+            //                                 ) {
+            //                                     result =
+            //                                         result +
+            //                                         item.lastChild.firstChild
+            //                                             .textContent;
+            //                                 } else if (
+            //                                     item.innerText === undefined
+            //                                 ) {
+            //                                     result =
+            //                                         result + item.textContent;
+            //                                 } else
+            //                                     result =
+            //                                         result + item.innerText;
+            //                             });
+            //                             return result;
+            //                         },
+            //                     },
+            //                 },
+            //                 customize: function (win) {
+            //                     //customize print view for dark
+            //                     $(win.document.body)
+            //                         .css("color", config.colors.headingColor)
+            //                         .css(
+            //                             "border-color",
+            //                             config.colors.borderColor
+            //                         )
+            //                         .css(
+            //                             "background-color",
+            //                             config.colors.bodyBg
+            //                         );
+            //                     $(win.document.body)
+            //                         .find("table")
+            //                         .addClass("compact")
+            //                         .css("color", "inherit")
+            //                         .css("border-color", "inherit")
+            //                         .css("background-color", "inherit");
+            //                 },
+            //             },
+            //             {
+            //                 extend: "csv",
+            //                 text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
+            //                 className: "dropdown-item",
+            //                 exportOptions: {
+            //                     columns: [3, 4, 5, 6, 7, 8, 9],
+            //                     // prevent avatar to be display
+            //                     format: {
+            //                         body: function (inner, coldex, rowdex) {
+            //                             if (inner.length <= 0) return inner;
+            //                             var el = $.parseHTML(inner);
+            //                             var result = "";
+            //                             $.each(el, function (index, item) {
+            //                                 if (
+            //                                     item.classList !== undefined &&
+            //                                     item.classList.contains(
+            //                                         "user-name"
+            //                                     )
+            //                                 ) {
+            //                                     result =
+            //                                         result +
+            //                                         item.lastChild.firstChild
+            //                                             .textContent;
+            //                                 } else if (
+            //                                     item.innerText === undefined
+            //                                 ) {
+            //                                     result =
+            //                                         result + item.textContent;
+            //                                 } else
+            //                                     result =
+            //                                         result + item.innerText;
+            //                             });
+            //                             return result;
+            //                         },
+            //                     },
+            //                 },
+            //             },
+            //             {
+            //                 extend: "excel",
+            //                 text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
+            //                 className: "dropdown-item",
+            //                 exportOptions: {
+            //                     columns: [3, 4, 5, 6, 7, 8, 9],
+            //                     // prevent avatar to be display
+            //                     format: {
+            //                         body: function (inner, coldex, rowdex) {
+            //                             if (inner.length <= 0) return inner;
+            //                             var el = $.parseHTML(inner);
+            //                             var result = "";
+            //                             $.each(el, function (index, item) {
+            //                                 if (
+            //                                     item.classList !== undefined &&
+            //                                     item.classList.contains(
+            //                                         "user-name"
+            //                                     )
+            //                                 ) {
+            //                                     result =
+            //                                         result +
+            //                                         item.lastChild.firstChild
+            //                                             .textContent;
+            //                                 } else if (
+            //                                     item.innerText === undefined
+            //                                 ) {
+            //                                     result =
+            //                                         result + item.textContent;
+            //                                 } else
+            //                                     result =
+            //                                         result + item.innerText;
+            //                             });
+            //                             return result;
+            //                         },
+            //                     },
+            //                 },
+            //             },
+            //             {
+            //                 extend: "pdf",
+            //                 text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
+            //                 className: "dropdown-item",
+            //                 exportOptions: {
+            //                     columns: [3, 4, 5, 6, 7, 8, 9],
+            //                     // prevent avatar to be display
+            //                     format: {
+            //                         body: function (inner, coldex, rowdex) {
+            //                             if (inner.length <= 0) return inner;
+            //                             var el = $.parseHTML(inner);
+            //                             var result = "";
+            //                             $.each(el, function (index, item) {
+            //                                 if (
+            //                                     item.classList !== undefined &&
+            //                                     item.classList.contains(
+            //                                         "user-name"
+            //                                     )
+            //                                 ) {
+            //                                     result =
+            //                                         result +
+            //                                         item.lastChild.firstChild
+            //                                             .textContent;
+            //                                 } else if (
+            //                                     item.innerText === undefined
+            //                                 ) {
+            //                                     result =
+            //                                         result + item.textContent;
+            //                                 } else
+            //                                     result =
+            //                                         result + item.innerText;
+            //                             });
+            //                             return result;
+            //                         },
+            //                     },
+            //                 },
+            //             },
+            //             {
+            //                 extend: "copy",
+            //                 text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
+            //                 className: "dropdown-item",
+            //                 exportOptions: {
+            //                     columns: [3, 4, 5, 6, 7, 8, 9],
+            //                     // prevent avatar to be display
+            //                     format: {
+            //                         body: function (inner, coldex, rowdex) {
+            //                             if (inner.length <= 0) return inner;
+            //                             var el = $.parseHTML(inner);
+            //                             var result = "";
+            //                             $.each(el, function (index, item) {
+            //                                 if (
+            //                                     item.classList !== undefined &&
+            //                                     item.classList.contains(
+            //                                         "user-name"
+            //                                     )
+            //                                 ) {
+            //                                     result =
+            //                                         result +
+            //                                         item.lastChild.firstChild
+            //                                             .textContent;
+            //                                 } else if (
+            //                                     item.innerText === undefined
+            //                                 ) {
+            //                                     result =
+            //                                         result + item.textContent;
+            //                                 } else
+            //                                     result =
+            //                                         result + item.innerText;
+            //                             });
+            //                             return result;
+            //                         },
+            //                     },
+            //                 },
+            //             },
+            //         ],
+            //     },
+            //     {
+            //         text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
+            //         className: "btn btn-primary",
+            //         attr: {
+            //             "data-bs-target": "#createProduct",
+            //             "data-bs-toggle": "modal",
+            //         },
+            //     },
+            // ],
+            drawCallback: function (settings) {
+                $('[data-toggle="tooltip"]').tooltip();
+            },
+            responsive: {
+                details: {
+                    display: $.fn.dataTable.Responsive.display.modal({
+                        header: function (row) {
+                            var data = row.data();
+                            return "Details of " + data["pn"];
+                        },
+                    }),
+                    type: "column",
+                    renderer: function (api, rowIdx, columns) {
+                        var data = $.map(columns, function (col, i) {
+                            return col.title !== "" // ? Do not show row in modal popup if title is blank (for check box)
+                                ? '<tr data-dt-row="' +
+                                      col.rowIndex +
+                                      '" data-dt-column="' +
+                                      col.columnIndex +
+                                      '">' +
+                                      "<td>" +
+                                      col.title +
+                                      ":" +
+                                      "</td> " +
+                                      "<td>" +
+                                      col.data +
+                                      "</td>" +
+                                      "</tr>"
+                                : "";
+                        }).join("");
+
+                        return data
+                            ? $('<table class="table"/><tbody />').append(data)
+                            : false;
+                    },
+                },
+            },
+        });
+        $("div.head-label").html(
+            '<h5 class="card-title mb-0">Table Product</h5>'
+        );
+    }
+    dt_table_reports_monitoring.on("draw", function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+});
