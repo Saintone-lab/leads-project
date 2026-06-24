@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Delivery;
 use App\Models\DetailDelivery;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\Quotation;
+use App\Models\Suo;
 use App\Models\SubtitleQuotation;
 use Illuminate\Http\Request;
 
@@ -97,9 +99,16 @@ class DeliveryController extends Controller
     {
         $delivery = Delivery::find($id);
         $dDelivery = DetailDelivery::where('id_delivery', $id)->get();
-        $invoice = invoice::find($delivery->id_invoice);
-        $quote = Quotation::find($invoice->id_quotation);
-        // $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
+
+        // SUO delivery — tidak punya id_invoice
+        if ($delivery->id_suo) {
+            $suo    = Suo::with(['detail', 'sales'])->find($delivery->id_suo);
+            $client = Client::where('company', $suo->company)->first();
+            return view('pages.suo.sj-detail', compact('delivery', 'dDelivery', 'suo', 'client'));
+        }
+
+        $invoice  = Invoice::find($delivery->id_invoice);
+        $quote    = Quotation::find($invoice->id_quotation);
         $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
 
         return view("pages.accounting.delivery.detail", compact('subQuote', 'delivery', 'dDelivery', 'invoice', 'quote'));
@@ -231,11 +240,19 @@ class DeliveryController extends Controller
     }
     public function print_delivery($id)
     {
-        $delivery = Delivery::find($id);
+        $delivery  = Delivery::find($id);
         $dDelivery = DetailDelivery::where('id_delivery', $id)->get();
-        $invoice = invoice::find($delivery->id_invoice);
-        $quote = Quotation::find($invoice->id_quotation);
-        // $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
+
+        // SUO delivery — tidak ada id_invoice
+        if ($delivery->id_suo) {
+            $suo    = Suo::with(['detail', 'sales'])->find($delivery->id_suo);
+            $client = Client::where('company', $suo->company)->first();
+            $view   = request('format') == '1' ? 'pages.suo.sj-print-type1' : 'pages.suo.sj-print';
+            return view($view, compact('delivery', 'dDelivery', 'suo', 'client'));
+        }
+
+        $invoice  = Invoice::find($delivery->id_invoice);
+        $quote    = Quotation::find($invoice->id_quotation);
         $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
 
         return view("pages.accounting.delivery.detail-print", compact('subQuote', 'delivery', 'dDelivery', 'invoice', 'quote'));

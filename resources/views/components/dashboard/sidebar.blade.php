@@ -43,16 +43,8 @@
                     <div data-i18n="Reports">Reports</div>
                 </a>
             </li> --}}
-            @php
-                $today = \Carbon\Carbon::now();
-                $semester = $today->month > 6 ? 2 : 1;
-
-                $semesterNow = \App\Models\SalesReports::where('semester', $semester)
-                    ->where('year', $today->year)
-                    ->first();
-            @endphp
             <li class="menu-item {{ request()->is('report/*') ? 'active' : '' }}">
-                <a href="{{ route('report.semester', $semesterNow) }}" class="menu-link">
+                <a href="{{ route('report.current') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-chart-areaspline"></i>
                     <div data-i18n="Reports">Reports</div>
                 </a>
@@ -239,6 +231,16 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Sales Order</span>
             </li>
+            @php $suoAccountingPending = \App\Models\Suo::where('status','confirmed')->whereNull('no_invoice_booking')->count(); @endphp
+            <li class="menu-item {{ request()->is('suo-accounting') ? 'active' : '' }}">
+                <a href="{{ route('suo.accounting.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-lightning-bolt-outline"></i>
+                    <div data-i18n="Urgent Order">Urgent Order (SUO)</div>
+                    @if ($suoAccountingPending >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $suoAccountingPending }}</div>
+                    @endif
+                </a>
+            </li>
             <li class="menu-item {{ request()->is('sales-order') || request()->is('pending-po/*') ? 'active' : '' }}">
                 <a href="{{ route('pending-po.sales-order') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-list-box-outline"></i>
@@ -393,6 +395,7 @@
             {{-- <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Marketting</span>
             </li> --}}
+
             @if (auth::user()->id != 38)
                 <li class="menu-header fw-light mt-4">
                     <span class="menu-header-text">Accounting</span>
@@ -980,9 +983,18 @@
                     <div data-i18n="Forecast">Forecast</div>
                 </a>
             </li>
-
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Sales Order</span>
+            </li>
+            @php $suoPending = \App\Models\Suo::where('id_sales', Auth::id())->where('status','goods_out')->count(); @endphp
+            <li class="menu-item {{ request()->is('suo') || request()->is('suo/*') ? 'active' : '' }}">
+                <a href="{{ route('suo.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-lightning-bolt-outline"></i>
+                    <div data-i18n="Urgent Order">Urgent Order (SUO)</div>
+                    @if ($suoPending >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $suoPending }}</div>
+                    @endif
+                </a>
             </li>
             <li
                 class="menu-item {{ request()->is('sales-order') || request()->is('pending-po/*') ? 'active' : '' }}">
@@ -1505,10 +1517,18 @@
                     <div data-i18n="Return">Return</div>
                 </a>
             </li>
-
-
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Sales Order</span>
+            </li>
+            @php $suoLogisticPending = \App\Models\Suo::where('status','submitted')->count(); @endphp
+            <li class="menu-item {{ request()->is('suo-logistic') ? 'active' : '' }}">
+                <a href="{{ route('suo.logistic.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-lightning-bolt-outline"></i>
+                    <div data-i18n="Urgent Order">Urgent Order (SUO)</div>
+                    @if ($suoLogisticPending >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $suoLogisticPending }}</div>
+                    @endif
+                </a>
             </li>
             <li
                 class="menu-item {{ request()->is('sales-order') || request()->is('pending-po/*') ? 'active' : '' }}">

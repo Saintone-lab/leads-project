@@ -1077,29 +1077,43 @@
     <div class="row gy-4 mb-4">
         <div class="col-12 col-lg-4">
 
+            @php
+                $pctAdmin     = $targetAllSales > 0 ? round(($poTotalPriceAdmin / $targetAllSales) * 100, 1) : 0;
+                $pctAdmColor  = $pctAdmin >= 100 ? 'success' : ($pctAdmin >= 80 ? 'warning' : 'danger');
+                $pctAdmBar    = min($pctAdmin, 100);
+                $today        = \Carbon\Carbon::now();
+                $semesterNow  = \App\Models\SalesReports::where('semester', $today->month > 6 ? 2 : 1)
+                                    ->where('year', $today->year)->first();
+            @endphp
             <div class="card mb-3">
-                <div class="card-body text-nowrap">
-                    <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
-                        Sales Performance</strong> 🎉
-                    </h4>
-                    <p class="pb-0">Monthly Achievement</p>
-                    <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPriceAdmin }}</h4>
-                    @php
-                        $jumlah_target = 0;
-                        $jumlah_target = ($poTotalPriceAdmin / $targetAllSales) * 100;
-                        $formatted_jumlah_target = number_format($jumlah_target, 3);
-                    @endphp
-                    <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
-                    @php
-                        $today = \Carbon\Carbon::now();
-                        $semester = $today->month > 6 ? 2 : 1;
+                <div class="card-body" style="padding-right: 10rem;">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-label-primary">
+                            <i class="mdi mdi-chart-line"></i> Monthly
+                        </span>
+                        <small class="text-muted">{{ $today->locale('id')->translatedFormat('F Y') }}</small>
+                    </div>
+                    <h5 class="card-title mb-1">Sales Performance</h5>
+                    <h3 class="text-primary fw-bold mb-0">Rp. {{ $formattedTotalPriceAdmin }}</h3>
+                    <small class="text-muted">Target: Rp. {{ number_format($targetAllSales, 0, ',', '.') }}</small>
 
-                        $semesterNow = \App\Models\SalesReports::where('semester', $semester)
-                            ->where('year', $today->year)
-                            ->first();
-                    @endphp
-                    <a href="{{ route('report.semester', $semesterNow) }}"
-                        class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
+                    <div class="my-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted fw-semibold">Pencapaian Target</small>
+                            <small class="fw-bold text-{{ $pctAdmColor }}">{{ $pctAdmin }}%</small>
+                        </div>
+                        <div class="progress" style="height:6px;border-radius:4px;">
+                            <div class="progress-bar bg-{{ $pctAdmColor }}"
+                                 style="width:{{ $pctAdmBar }}%;border-radius:4px;"></div>
+                        </div>
+                    </div>
+
+                    @if ($semesterNow)
+                        <a href="{{ route('report.semester', $semesterNow) }}"
+                           class="btn btn-sm btn-primary waves-effect waves-light mt-1">
+                            <i class="mdi mdi-chart-areaspline me-1"></i> View Sales
+                        </a>
+                    @endif
                 </div>
                 <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
                     class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
@@ -1142,24 +1156,29 @@
                                         break;
                                 }
                             @endphp
-                            <li class="d-flex mb-4">
-                                <span style="font-size:16px"
-                                    class="badge bg-label-{{ $color }} d-inline-flex align-items-center justify-content-center">
-                                    # {{ $no }}
+                            <li class="d-flex align-items-start mb-3" style="list-style:none;">
+                                <span class="badge bg-label-{{ $color }} d-inline-flex align-items-center justify-content-center flex-shrink-0"
+                                      style="min-width:36px;font-size:13px;">
+                                    #{{ $no }}
                                 </span>
-                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                    <div class="mx-2 me-2">
-                                        <h6 class="mb-0">{{ $sale['name'] }}
-                                            @if ($no == 1)
-                                                <span class="text-warning">
-                                                    <i class="mdi mdi-crown mdi-24px"></i>
-                                                </span>
-                                            @endif
-                                        </h6>
-                                        <small class="text-muted">{{ $sale['area'] }}</small>
+                                <div class="ms-2 w-100">
+                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                        <div>
+                                            <span class="fw-semibold" style="font-size:0.875rem;">
+                                                {{ $sale['name'] }}
+                                                @if ($no == 1)
+                                                    <i class="mdi mdi-crown text-warning ms-1"></i>
+                                                @endif
+                                            </span>
+                                            <small class="text-muted d-block" style="font-size:0.7rem;">{{ $sale['area'] }}</small>
+                                        </div>
+                                        <span class="badge bg-label-{{ $color }} rounded-pill" style="font-size:12px;">
+                                            {{ $sale['percentage'] }}%
+                                        </span>
                                     </div>
-                                    <div style="font-size:16px" class="badge bg-label-{{ $color }} rounded-pill">
-                                        {{ $sale['percentage'] }}%
+                                    <div class="progress" style="height:4px;border-radius:4px;">
+                                        <div class="progress-bar bg-{{ $color }}"
+                                             style="width:{{ min($sale['percentage'], 100) }}%;border-radius:4px;"></div>
                                     </div>
                                 </div>
                             </li>

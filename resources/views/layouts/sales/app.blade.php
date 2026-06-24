@@ -22,6 +22,80 @@
 
     {{--  ? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.   --}}
     <script src="{{ asset('assets') }}/js/config.js"></script>
+
+    {{-- Dark/light mode shim: webpack bundles don't expose globals, so we shim them manually --}}
+    <script>
+    (function () {
+        var LS_KEY = 'templateCustomizer-vertical-menu-template-Style';
+
+        var DARK_CORE_ID  = 'rt-dark-core-css';
+        var DARK_THEME_ID = 'rt-dark-theme-css';
+
+        function applyCSSStyle(isDark) {
+            if (isDark) {
+                // Append core-dark.css after existing stylesheets so it wins the cascade
+                if (!document.getElementById(DARK_CORE_ID)) {
+                    var coreLink = document.querySelector('link.template-customizer-core-css');
+                    if (coreLink) {
+                        var el = document.createElement('link');
+                        el.id   = DARK_CORE_ID;
+                        el.rel  = 'stylesheet';
+                        el.href = (coreLink.getAttribute('href') || '').replace('core.css', 'core-dark.css');
+                        document.head.appendChild(el);
+                    }
+                }
+                // Append theme-default-dark.css after existing stylesheets
+                if (!document.getElementById(DARK_THEME_ID)) {
+                    var themeLink = document.querySelector('link[href*="theme-default.css"]');
+                    if (themeLink) {
+                        var el2 = document.createElement('link');
+                        el2.id   = DARK_THEME_ID;
+                        el2.rel  = 'stylesheet';
+                        el2.href = (themeLink.getAttribute('href') || '').replace('theme-default.css', 'theme-default-dark.css');
+                        document.head.appendChild(el2);
+                    }
+                }
+            } else {
+                // Remove dark CSS to revert to light mode
+                var dc = document.getElementById(DARK_CORE_ID);
+                if (dc) dc.parentNode.removeChild(dc);
+                var dt = document.getElementById(DARK_THEME_ID);
+                if (dt) dt.parentNode.removeChild(dt);
+            }
+        }
+
+        // Restore style from localStorage before render (prevents flash)
+        var stored = localStorage.getItem(LS_KEY);
+        if (stored === 'dark-style') {
+            document.documentElement.classList.remove('light-style');
+            document.documentElement.classList.add('dark-style');
+            applyCSSStyle(true);
+        }
+
+        // Shim window.Helpers so main.js can call isLightStyle()
+        window.Helpers = window.Helpers || {
+            isLightStyle: function () {
+                return document.documentElement.classList.contains('light-style');
+            }
+        };
+
+        // Shim window.templateCustomizer so main.js doesn't remove the style-switcher toggle
+        window.templateCustomizer = window.templateCustomizer || {
+            settings: {
+                defaultShowDropdownOnHover: true,
+                defaultMenuCollapsed: false
+            },
+            setStyle: function (style) {
+                var dark = (style === 'dark');
+                document.documentElement.classList.remove('light-style', 'dark-style');
+                document.documentElement.classList.add(style + '-style');
+                applyCSSStyle(dark);
+                localStorage.setItem(LS_KEY, style + '-style');
+            }
+        };
+    })();
+    </script>
+
     @routes
     @if (Auth::check() && Auth::id() === 22)
         <style>
@@ -122,6 +196,29 @@
 
     {{-- Main JS --}}
     <script src="{{ asset('assets') }}/js/main.js"></script>
+
+    {{-- Patch setStyle so icon updates on click without page reload --}}
+    <script>
+    (function () {
+        var toggle = document.querySelector('.style-switcher-toggle');
+        if (!toggle || !window.templateCustomizer) return;
+        var icon = toggle.querySelector('i');
+
+        function syncIcon() {
+            var isDark = document.documentElement.classList.contains('dark-style');
+            icon.classList.toggle('mdi-weather-night', !isDark);
+            icon.classList.toggle('mdi-weather-sunny', isDark);
+        }
+
+        var orig = window.templateCustomizer.setStyle.bind(window.templateCustomizer);
+        window.templateCustomizer.setStyle = function (style) {
+            orig(style);
+            syncIcon();
+        };
+
+        syncIcon();
+    })();
+    </script>
 
     <script>
         $(document).on('click', '.view-quote', function(e) {

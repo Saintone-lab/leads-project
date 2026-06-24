@@ -23,90 +23,152 @@
     @endphp
 
     {{-- Header --}}
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-        <h2 class="text-black mb-0">OVERVIEW TAHUN {{ $year }} ({{ $fullPercent }}%)</h2>
-        <div class="btn-group">
-            <button type="button" class="btn btn-outline-secondary dropdown-toggle waves-effect"
-                data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="mdi mdi-calendar me-1"></i> Pilih Tahun
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                @foreach ($yearList as $yr)
-                    <li>
-                        <a class="dropdown-item waves-effect {{ $yr == $year ? 'active' : '' }}"
-                            href="{{ route('report.year', $yr) }}">{{ $yr }}</a>
-                    </li>
-                @endforeach
-            </ul>
+    @php
+        $pctColor = $fullPercent >= 100 ? 'success' : ($fullPercent >= 80 ? 'warning' : 'danger');
+    @endphp
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+
+        {{-- Kiri: judul + meta --}}
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-label-secondary fs-6 px-3 py-2">
+                    <i class="mdi mdi-calendar-text me-1"></i> Tahunan
+                </span>
+                <span class="text-muted fw-semibold">{{ $year }}</span>
+                <span class="text-muted">•</span>
+                <small class="text-muted">Januari – Desember</small>
+            </div>
+            <h4 class="fw-bold mb-1 text-heading">Overview Report Penjualan</h4>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-{{ $pctColor }} rounded-pill px-3">
+                    {{ $fullPercent }}% pencapaian target
+                </span>
+                <small class="text-muted">Rp {{ number_format($poTotal, 0, ',', '.') }} dari Rp {{ number_format($totalTarget * 12, 0, ',', '.') }}</small>
+            </div>
         </div>
+
+        {{-- Kanan: link semester + pilih tahun --}}
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div class="btn-group" role="group">
+                @if ($reportS1)
+                    <a href="{{ route('report.semester', $reportS1->id) }}"
+                       class="btn btn-sm btn-outline-primary waves-effect">
+                        <i class="mdi mdi-numeric-1-circle-outline me-1"></i>Semester 1
+                    </a>
+                @endif
+                @if ($reportS2)
+                    <a href="{{ route('report.semester', $reportS2->id) }}"
+                       class="btn btn-sm btn-outline-primary waves-effect">
+                        <i class="mdi mdi-numeric-2-circle-outline me-1"></i>Semester 2
+                    </a>
+                @endif
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle waves-effect"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="mdi mdi-calendar me-1"></i> {{ $year }}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    @foreach ($yearList as $yr)
+                        <li>
+                            <a class="dropdown-item waves-effect {{ $yr == $year ? 'active' : '' }}"
+                                href="{{ route('report.year', $yr) }}">{{ $yr }}</a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+
     </div>
 
     {{-- Summary Cards --}}
-    <div class="row mb-4">
-        <div class="col-6 col-md-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="avatar mb-3">
-                        <div class="avatar-initial bg-label-success rounded">
-                            <i class="mdi mdi-cart-plus mdi-24px"></i>
+    @php
+        $winRate       = $quoteOnCount > 0 ? round(($poCount   / $quoteOnCount) * 100, 1) : 0;
+        $lossRate      = $quoteOnCount > 0 ? round(($lossCount / $quoteOnCount) * 100, 1) : 0;
+        $mktContrib    = $poTotal > 0 ? round(($poTotalSupport / $poTotal) * 100, 1) : 0;
+        $winColor      = $winRate  >= 50 ? 'success' : ($winRate  >= 30 ? 'warning' : 'danger');
+        $lossColor     = $lossRate <= 20 ? 'success' : ($lossRate <= 40 ? 'warning' : 'danger');
+        $mktColor      = $mktContrib >= 30 ? 'success' : ($mktContrib >= 15 ? 'warning' : 'secondary');
+        $yearCards = [
+            [
+                'label'  => 'Purchase Order',
+                'icon'   => 'mdi-cart-plus',
+                'color'  => 'success',
+                'amount' => 'Rp ' . number_format($poTotal, 0, ',', '.'),
+                'sub'    => $poCount . ' transaksi',
+            ],
+            [
+                'label'  => 'Total Quotation',
+                'icon'   => 'mdi-cart',
+                'color'  => 'primary',
+                'amount' => 'Rp ' . number_format($quoteOnTotal, 0, ',', '.'),
+                'sub'    => $quoteOnCount . ' transaksi',
+            ],
+            [
+                'label'  => 'Quotation Aktif',
+                'icon'   => 'mdi-cart-outline',
+                'color'  => 'info',
+                'amount' => 'Rp ' . number_format($quoteTotal, 0, ',', '.'),
+                'sub'    => $quoteCount . ' transaksi',
+            ],
+            [
+                'label'  => 'Loss',
+                'icon'   => 'mdi-cart-minus',
+                'color'  => 'danger',
+                'amount' => 'Rp ' . number_format($lossTotal, 0, ',', '.'),
+                'sub'    => $lossCount . ' transaksi',
+            ],
+            [
+                'label'  => 'Convertion Rate',
+                'icon'   => 'mdi-trophy-outline',
+                'color'  => $winColor,
+                'amount' => $winRate . '%',
+                'sub'    => $poCount . ' PO dari ' . $quoteOnCount . ' quotation',
+            ],
+            [
+                'label'  => 'Loss Rate',
+                'icon'   => 'mdi-trending-down',
+                'color'  => $lossColor,
+                'amount' => $lossRate . '%',
+                'sub'    => $lossCount . ' loss dari ' . $quoteOnCount . ' quotation',
+            ],
+            [
+                'label'  => 'Marketing Contribution',
+                'icon'   => 'mdi-handshake-outline',
+                'color'  => $mktColor,
+                'amount' => 'Rp ' . number_format($poTotalSupport, 0, ',', '.'),
+                'sub'    => $mktContrib . '% dari total PO tahunan',
+            ],
+            [
+                'label'  => 'Marketing Quotation',
+                'icon'   => 'mdi-file-document-outline',
+                'color'  => 'secondary',
+                'amount' => 'Rp ' . number_format($quoteTotalSupport, 0, ',', '.'),
+                'sub'    => $quoteCountSupport . ' quotation',
+            ],
+        ];
+    @endphp
+    <div class="row mb-4 g-3">
+        @foreach ($yearCards as $card)
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="avatar">
+                                <div class="avatar-initial bg-label-{{ $card['color'] }} rounded">
+                                    <i class="mdi {{ $card['icon'] }} mdi-24px"></i>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <p class="mb-0 fw-semibold text-heading" style="font-size:0.82rem">{{ $card['label'] }}</p>
+                                <small class="text-muted">{{ $card['sub'] }}</small>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-info">
-                        <h5 class="mb-1">Rp {{ number_format($poTotal, 0, ',', '.') }}</h5>
-                        <p class="text-muted mb-0">{{ $poCount }} transaksi</p>
-                        <p class="mb-0">Purchase Order</p>
+                        <h4 class="fw-bold mb-0 text-{{ $card['color'] }}">{{ $card['amount'] }}</h4>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="avatar mb-3">
-                        <div class="avatar-initial bg-label-primary rounded">
-                            <i class="mdi mdi-cart mdi-24px"></i>
-                        </div>
-                    </div>
-                    <div class="card-info">
-                        <h5 class="mb-1">Rp {{ number_format($quoteOnTotal, 0, ',', '.') }}</h5>
-                        <p class="text-muted mb-0">{{ $quoteOnCount }} transaksi</p>
-                        <p class="mb-0">Quotation</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="avatar mb-3">
-                        <div class="avatar-initial bg-label-danger rounded">
-                            <i class="mdi mdi-cart-minus mdi-24px"></i>
-                        </div>
-                    </div>
-                    <div class="card-info">
-                        <h5 class="mb-1">Rp {{ number_format($lossTotal, 0, ',', '.') }}</h5>
-                        <p class="text-muted mb-0">{{ $lossCount }} transaksi</p>
-                        <p class="mb-0">Loss</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="avatar mb-3">
-                        <div class="avatar-initial bg-label-secondary rounded">
-                            <i class="mdi mdi-cart-outline mdi-24px"></i>
-                        </div>
-                    </div>
-                    <div class="card-info">
-                        <h5 class="mb-1">Rp {{ number_format($quoteTotal, 0, ',', '.') }}</h5>
-                        <p class="text-muted mb-0">{{ $quoteCount }} transaksi</p>
-                        <p class="mb-0">Quotation Active</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @endforeach
     </div>
 
     {{-- ===== GRAFIK PENJUALAN PER SEMESTER ===== --}}

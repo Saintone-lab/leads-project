@@ -1,116 +1,132 @@
 @extends('layouts.sales.app')
 @section('title', 'Overview Sales')
 @section('content')
-    <div class="row">
-        @php
-            $item = 0;
-        @endphp
-        @foreach ($sales as $sale)
-            <div class="col-lg-6 mb-3">
-                <div class="card" data-id="{{ $item }}">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between">
-                            <h4 class="mb-2">{{ $sale->name }}</h4>
-                            <div class="dropdown">
-                                <button class="btn p-0" type="button" id="salesOverview" data-bs-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false">
-                                    <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="salesOverview" style="">
-                                    <a class="dropdown-item waves-effect" href="javascript:void(0);">Refresh</a>
-                                    <a class="dropdown-item waves-effect" href="javascript:void(0);">Share</a>
-                                    <a class="dropdown-item waves-effect" href="javascript:void(0);">Update</a>
+
+    @php
+        $now         = \Carbon\Carbon::now();
+        $semesterNow = \App\Models\SalesReports::where('semester', $now->month > 6 ? 2 : 1)
+                           ->where('year', $now->year)->first();
+        $bulanLabel  = $now->locale('id')->translatedFormat('F Y');
+    @endphp
+
+    {{-- Page Header --}}
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-label-primary fs-6 px-3 py-2">
+                    <i class="mdi mdi-view-dashboard-outline me-1"></i> Dashboard
+                </span>
+                <span class="text-muted fw-semibold">{{ $bulanLabel }}</span>
+            </div>
+            <h4 class="fw-bold mb-1 text-heading">Overview Kinerja Sales</h4>
+            <small class="text-muted">Data pencapaian target bulan {{ $bulanLabel }}</small>
+        </div>
+        @if ($semesterNow)
+            <a href="{{ route('report.semester', $semesterNow->id) }}"
+               class="btn btn-sm btn-outline-primary waves-effect align-self-center">
+                <i class="mdi mdi-chart-areaspline me-1"></i> Lihat Report Semester
+            </a>
+        @endif
+    </div>
+
+    {{-- Sales Cards --}}
+    <div class="row g-3">
+        @foreach ($sales as $i => $sale)
+            @php
+                $po       = $totalPO[$i] ?? 0;
+                $target   = $targett[$i] ?? 0;
+                $pct      = $target > 0 ? round(($po / $target) * 100, 1) : 0;
+                $pctColor = $pct >= 100 ? 'success' : ($pct >= 80 ? 'warning' : 'danger');
+                $barWidth = min($pct, 100);
+                $forecast = $totalForecast[$i] ?? '0';
+
+                $stats = [
+                    ['icon' => 'mdi-account-multiple-plus-outline', 'color' => 'secondary', 'val' => $filteredLeads[$i] ?? 0, 'label' => 'Leads'],
+                    ['icon' => 'mdi-phone-outline',                  'color' => 'info',      'val' => $filteredDC[$i]    ?? 0, 'label' => 'Daily Call'],
+                    ['icon' => 'mdi-account-multiple-outline',       'color' => 'primary',   'val' => $filteredCRM[$i]   ?? 0, 'label' => 'CRM'],
+                    ['icon' => 'mdi-map-marker-outline',             'color' => 'warning',   'val' => $filteredVisit[$i] ?? 0, 'label' => 'Visit'],
+                    ['icon' => 'mdi-email-multiple-outline',         'color' => 'info',      'val' => $filteredQuote[$i] ?? 0, 'label' => 'Quotation'],
+                    ['icon' => 'mdi-cart-plus',                      'color' => 'success',   'val' => $filteredPO[$i]    ?? 0, 'label' => 'PO'],
+                ];
+            @endphp
+            <div class="col-12 col-lg-6">
+                <div class="card h-100">
+                    <div class="card-body pb-2">
+
+                        {{-- Header: foto + nama + % badge --}}
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="{{ url('') . '/' . $sale->image }}" alt="{{ $sale->name }}"
+                                    class="rounded-circle border"
+                                    style="width:48px;height:48px;object-fit:cover;">
+                                <div>
+                                    <h5 class="mb-0 fw-semibold">{{ $sale->name }}</h5>
+                                    <small class="text-muted">Target: Rp {{ number_format($target, 0, ',', '.') }}</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-{{ $pctColor }} rounded-pill px-3 py-2 fs-6">
+                                {{ $pct }}%
+                            </span>
+                        </div>
+
+                        {{-- Total PO + progress bar --}}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <small class="text-muted fw-semibold">Total PO Bulan Ini</small>
+                                <small class="fw-bold text-{{ $pctColor }}">
+                                    Rp {{ number_format($po, 0, ',', '.') }}
+                                </small>
+                            </div>
+                            <div class="progress" style="height:8px;border-radius:4px;">
+                                <div class="progress-bar bg-{{ $pctColor }}"
+                                     role="progressbar"
+                                     style="width:{{ $barWidth }}%;border-radius:4px;"
+                                     aria-valuenow="{{ $barWidth }}" aria-valuemin="0" aria-valuemax="100">
                                 </div>
                             </div>
                         </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <h5 class="mb-0 fw-normal">Total Sales <span class="fs-4">Rp
-                                    {{ number_format($totalPO[$item], 2, ',', '.') }}</span></h5>
-                            @php
-                                $jumlah_target = [];
-                                foreach ($totalPO as $key => $value) {
-                                    if (isset($targett[$key]) && $targett[$key] != 0) {
-                                        $jumlah_target[$key] = ($value / $targett[$key]) * 100;
-                                        $formatted_jumlah_target[$key] = number_format($jumlah_target[$key], 3);
-                                    } else {
-                                        $jumlah_target[$key] = 0;
-                                    }
-                                }
-                            @endphp
-                            <div class="d-flex align-items-center text-success">
-                                <p class="mb-0"> {{ $formatted_jumlah_target[$item] }}%</p>
-                            </div>
+
+                        {{-- Forecast --}}
+                        <div class="d-flex align-items-center gap-2 px-3 py-2 rounded mb-3"
+                             style="background:rgba(105,108,255,.06);">
+                            <i class="mdi mdi-trending-up text-primary"></i>
+                            <small class="text-muted">Forecast</small>
+                            <small class="fw-semibold ms-auto">Rp {{ $forecast }}</small>
                         </div>
-                        <div class="d-flex align-items-center">
-                            <h5 class="fw-normal">Forecast <span class="fs-4">Rp {{ $totalForecast[$item] }}</span></h5>
-                            {{-- <div class="d-flex align-items-center text-success">
-                                <p class="mb-0">+18%</p>
-                                <i class="mdi mdi-chevron-up"></i>
-                            </div> --}}
+
+                        {{-- Stats grid --}}
+                        <div class="row g-2">
+                            @foreach ($stats as $stat)
+                                <div class="col-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar avatar-sm">
+                                            <div class="avatar-initial bg-label-{{ $stat['color'] }} rounded">
+                                                <i class="mdi {{ $stat['icon'] }} mdi-18px"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">{{ $stat['val'] }}</h6>
+                                            <small class="text-muted" style="font-size:0.7rem;">{{ $stat['label'] }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
+
                     </div>
-                    <div class="card-body d-flex justify-content-between flex-wrap gap-3">
-                        <div class="d-flex gap-2">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-secondary rounded">
-                                    <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
-                                </div>
-                            </div>
-                            <div class="card-info">
-                                <h5 class="mb-0">{{ $filteredLeads[$item] }}</h5>
-                                <small class="text-muted">Leads</small>
-                            </div>
+
+                    {{-- Footer: link ke detail per sales --}}
+                    @if ($semesterNow)
+                        <div class="card-footer py-2">
+                            <a href="{{ route('overview-sales.semester', [$semesterNow->id, $sale->id]) }}"
+                               class="btn btn-sm btn-outline-primary w-100 waves-effect">
+                                <i class="mdi mdi-eye-outline me-1"></i> Lihat Detail
+                            </a>
                         </div>
-                        <div class="d-flex gap-2">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-info rounded">
-                                    <i class="mdi mdi-phone-outline mdi-24px"></i>
-                                </div>
-                            </div>
-                            <div class="card-info">
-                                <h5 class="mb-0">{{ $filteredDC[$item] }}</h5>
-                                <small class="text-muted">Daily Call</small>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-primary rounded">
-                                    <i class="mdi mdi-account-multiple-outline mdi-24px"></i>
-                                </div>
-                            </div>
-                            <div class="card-info">
-                                <h5 class="mb-0">{{ $filteredCRM[$item] }}</h5>
-                                <small class="text-muted">CRM</small>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-warning rounded">
-                                    <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
-                                </div>
-                            </div>
-                            <div class="card-info">
-                                <h5 class="mb-0">{{ $filteredQuote[$item] }}</h5>
-                                <small class="text-muted">Quotation</small>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-success rounded">
-                                    <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                </div>
-                            </div>
-                            <div class="card-info">
-                                <h5 class="mb-0">{{ $filteredPO[$item] }}</h5>
-                                <small class="text-muted">PO</small>
-                            </div>
-                        </div>
-                    </div>
+                    @endif
                 </div>
             </div>
-            @php
-                $item++;
-            @endphp
         @endforeach
     </div>
+
 @endsection

@@ -14,6 +14,7 @@ use App\Models\ProductOut;
 use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\SubtitleQuotation;
+use App\Models\Suo;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
@@ -328,34 +329,49 @@ class InvoiceController extends Controller
             ->whereYear('invoice.created_at', $year)
             ->orderBy('invoice.no_invoice', 'desc')
             ->first(['invoice.*', 'quotation.tax']);
-        // dd($lastInvoicePKoj);
-        function generateNextInvoiceNumber($lastInvoice, $defaultCode)
-        {
-            if ($lastInvoice) {
-                // Ekstrak 3 digit numerik pertama dari no_invoice
-                preg_match('/^\d{3}/', $lastInvoice->no_invoice, $matches);
-
-                if (!empty($matches)) {
-                    $lastNumber = $matches[0]; // Bagian numerik yang diekstrak, misal "004"
-                    $newNumber = str_pad((int) $lastNumber + 1, 3, '0', STR_PAD_LEFT); // Increment dan pad angka
-
-                    return $newNumber;
-                } else {
-                    // Jika tidak ada bagian numerik yang ditemukan, gunakan default
-                    return $defaultCode;
-                }
-            } else {
-                // Jika tidak ada invoice sebelumnya, mulai dari awal
-                return $defaultCode;
-            }
+        // Ambil sequence terakhir dari SUO booking agar urutan invoice global konsisten
+        $lastSuoBookingNo = Suo::whereNotNull('no_invoice_booking')->orderByDesc('id')->value('no_invoice_booking');
+        $lastSuoSeq = 0;
+        if ($lastSuoBookingNo) {
+            preg_match('/^(\d+)\//', $lastSuoBookingNo, $m);
+            $lastSuoSeq = isset($m[1]) ? (int) $m[1] : 0;
         }
-        // Generate next invoice numbers
-        $nextCodePR = generateNextInvoiceNumber($lastInvoicePRef, '001');
-        $nextCodeNPR = generateNextInvoiceNumber($lastInvoiceNPRef, '001');
-        $nextCodePK = generateNextInvoiceNumber($lastInvoicePKoj, '001');
-        $nextCodeNPK = generateNextInvoiceNumber($lastInvoiceNPKoj, '001');
-        // dd($nextCodePK);
-        // dd($nextCodeNPK);
+
+        function generateNextInvoiceNumber($lastInvoice, $defaultCode, $lastSuoSeq = 0)
+        {
+            $lastSeqFromInvoice = 0;
+            if ($lastInvoice) {
+                preg_match('/^(\d+)\//', $lastInvoice->no_invoice, $matches);
+                if (!empty($matches)) {
+                    $lastSeqFromInvoice = (int) $matches[1];
+                }
+            }
+
+            $effectiveLast = max($lastSeqFromInvoice, $lastSuoSeq);
+
+            if ($effectiveLast > 0) {
+                return str_pad($effectiveLast + 1, 3, '0', STR_PAD_LEFT);
+            }
+
+            return $defaultCode;
+        }
+        // Generate next invoice numbers — mempertimbangkan sequence SUO booking
+        $nextCodePR  = generateNextInvoiceNumber($lastInvoicePRef,  '001', $lastSuoSeq);
+        $nextCodeNPR = generateNextInvoiceNumber($lastInvoiceNPRef, '001', $lastSuoSeq);
+        $nextCodePK  = generateNextInvoiceNumber($lastInvoicePKoj,  '001', $lastSuoSeq);
+        $nextCodeNPK = generateNextInvoiceNumber($lastInvoiceNPKoj, '001', $lastSuoSeq);
+
+        // "Last No" display — tampilkan nomor terakhir yg benar-benar dipakai (invoice atau SUO booking)
+        $getEffectiveLastDisplay = function ($lastInvoice) use ($lastSuoBookingNo, $lastSuoSeq) {
+            if (!$lastInvoice) return $lastSuoBookingNo;
+            preg_match('/^(\d+)\//', $lastInvoice->no_invoice, $m);
+            $invoiceSeq = isset($m[1]) ? (int) $m[1] : 0;
+            return $invoiceSeq >= $lastSuoSeq ? $lastInvoice->no_invoice : $lastSuoBookingNo;
+        };
+        $displayLastPR  = $getEffectiveLastDisplay($lastInvoicePRef);
+        $displayLastNPR = $getEffectiveLastDisplay($lastInvoiceNPRef);
+        $displayLastPK  = $getEffectiveLastDisplay($lastInvoicePKoj);
+        $displayLastNPK = $getEffectiveLastDisplay($lastInvoiceNPKoj);
 
         $totalAmount = 0;
         $invoice = Invoice::find($id);
@@ -376,9 +392,9 @@ class InvoiceController extends Controller
         $tax = ($quote->subtotal - $quote->diskon) * $quote->tax / 100;
         // dd($price);
         if ($quote->type != 'Sparepart') {
-            return view('pages.accounting.invoice.before-accept', compact('lastPayment', 'requestContract', 'requestInvoice', 'quote', 'subQuote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));
+            return view('pages.accounting.invoice.before-accept', compact('lastPayment', 'requestContract', 'requestInvoice', 'quote', 'subQuote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'displayLastPR', 'displayLastNPR', 'displayLastPK', 'displayLastNPK', 'year', 'monthCode'));
         } else {
-            return view('pages.accounting.invoice.before-accept', compact('lastPayment', 'requestContract', 'requestInvoice', 'quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'year', 'monthCode'));
+            return view('pages.accounting.invoice.before-accept', compact('lastPayment', 'requestContract', 'requestInvoice', 'quote', 'dquote', 'price', 'tax', 'invoice', 'payments', 'remaining', 'lastInvoicePRef', 'lastInvoiceNPRef', 'lastInvoicePKoj', 'lastInvoiceNPKoj', 'nextCodePR', 'nextCodeNPR', 'nextCodePK', 'nextCodeNPK', 'displayLastPR', 'displayLastNPR', 'displayLastPK', 'displayLastNPK', 'year', 'monthCode'));
         }
     }
 

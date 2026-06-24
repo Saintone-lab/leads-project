@@ -42,6 +42,7 @@ use App\Http\Controllers\ServiceReportsController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UnitController;
+use App\Http\Controllers\SuoController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WatermarkController;
 use App\Models\Account;
@@ -241,7 +242,9 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route untuk service Reports
     Route::resource('/service-reports', ServiceReportsController::class);
-    Route::get('/service-reports/machine/{id_machine}', [ServiceReportsController::class, 'createByMachine'])->name('service-reports.machine');
+    Route::get('/service-reports/machine/{id_machine}', [ServiceReportsController::class, 'indexByMachine'])->name('service-reports.machine');
+    Route::get('/service-reports/machine/{id_machine}/create', [ServiceReportsController::class, 'createByMachine'])->name('service-reports.machine.create');
+    Route::get('/db/service-reports/machine/{id_machine}', [ServiceReportsController::class, 'dataByMachine'])->name('service-reports.data.machine');
     Route::get('/service-reports/unit/{id_unit}', [ServiceReportsController::class, 'createByUnit'])->name('service-reports.unit');
     Route::get('/service-reports/unit/{id_unit}/machine/{id_machine}', [ServiceReportsController::class, 'createByUnitMachine'])->name('service-reports.unit.machine');
     Route::post('/service-reports/sign/{id}', [ServiceReportsController::class, 'hand_sign'])->name('service-reports.sign');
@@ -261,6 +264,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/detail-overview/{sales}/{date}', [OverviewController::class, 'detailSemesterOverview'])->name('detail-overview.semester');
     Route::get('/overview/{semester}/{sales}', [OverviewController::class, 'overviewAdmin'])->name('overview-sales.semester');
     Route::get('/report/year/{year}', [OverviewController::class, 'reportsByYear'])->name('report.year');
+    Route::get('/report/current', [OverviewController::class, 'reportCurrent'])->name('report.current');
     Route::get('/report/{semester}', [OverviewController::class, 'reportsSemester'])->name('report.semester');
     // Route untuk PO
     // Route::get('/pending-po', function () {
@@ -1366,6 +1370,25 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/library/store/manbook', [LibraryController::class, 'store_manbook'])->name(name: 'store_manbook.library');
 
     Route::resource('/notulen', NotulenController::class);
+
+    // SUO (Sales Urgent Order)
+    Route::get('/suo', [SuoController::class, 'index'])->name('suo.index');
+    Route::get('/suo/create', [SuoController::class, 'create'])->name('suo.create');
+    Route::post('/suo', [SuoController::class, 'store'])->name('suo.store');
+    Route::get('/suo/{id}', [SuoController::class, 'show'])->name('suo.show');
+    Route::post('/suo/{id}/check-stock', [SuoController::class, 'checkStock'])->name('suo.checkStock');
+    Route::post('/suo/{id}/approve', [SuoController::class, 'approve'])->name('suo.approve');
+    Route::get('/suo/{id}/suggest-booking', [SuoController::class, 'suggestBookingNumber'])->name('suo.suggestBooking');
+    Route::post('/suo/{id}/delivery', [SuoController::class, 'storeDelivery'])->name('suo.storeDelivery');
+    Route::get('/suo/{id}/convert', [SuoController::class, 'convert'])->name('suo.convert');
+    Route::post('/suo/{id}/mark-converted', [SuoController::class, 'markConverted'])->name('suo.markConverted');
+    // AJAX data
+    Route::get('/db/suo/sales', [SuoController::class, 'dataSales'])->name('suo.data.sales');
+    Route::get('/db/suo/logistic', [SuoController::class, 'dataLogistic'])->name('suo.data.logistic');
+    Route::get('/db/suo/accounting', [SuoController::class, 'dataAccounting'])->name('suo.data.accounting');
+    // Logistic & Accounting index pages
+    Route::get('/suo-logistic', [SuoController::class, 'logisticIndex'])->name('suo.logistic.index');
+    Route::get('/suo-accounting', [SuoController::class, 'accountingIndex'])->name('suo.accounting.index');
 
     // Pending PO
     Route::resource('/pending-po', PendingController::class);

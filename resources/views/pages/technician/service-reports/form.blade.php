@@ -190,6 +190,7 @@
         </div>
     </form>
     @include('components.modal.machine.form-technician')
+
 @endsection
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
@@ -364,6 +365,7 @@
             if (selectedSalesId) {
                 $('#selectSales').trigger('change');
             }
+
         });
     </script>
 @endpush

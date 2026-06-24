@@ -16,6 +16,7 @@ class Delivery extends Model
     ];
     protected $fillable = [
         'id_invoice',
+        'id_suo',
         'destination',
     ];
 

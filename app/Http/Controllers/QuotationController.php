@@ -26,6 +26,7 @@ use App\Models\SubtitleQuotation;
 use App\Models\SubtitleTemplate;
 use App\Models\Termncon;
 use App\Models\Unit;
+use App\Models\Suo;
 use App\Models\User;
 use Carbon\Carbon;
 use File;
@@ -278,7 +279,7 @@ class QuotationController extends Controller
         } else {
             $quotation->tax = 0;
         }
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
@@ -328,6 +329,16 @@ class QuotationController extends Controller
                 $termncon->payment = $request->payment;
                 $termncon->note = $request->note;
                 $termnconSave = $termncon->save();
+
+                // Link ke SUO jika convert dari SUO
+                if (session('suo_convert')) {
+                    $suoData = session('suo_convert');
+                    Suo::where('id', $suoData['id_suo'])->update([
+                        'status'       => 'converted',
+                        'id_quotation' => $quotation->id,
+                    ]);
+                    session()->forget('suo_convert');
+                }
             }
         }
         if ($previousUrl == 'unit') {
@@ -531,7 +542,7 @@ class QuotationController extends Controller
         $quotation->expired_date = $request->expired_date;
         $quotation->estimated_date = $request->estimated_date;
         $quotation->tax = $request->tax;
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
@@ -736,7 +747,7 @@ class QuotationController extends Controller
         } else {
             $quotation->tax = 0;
         }
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
@@ -1533,7 +1544,14 @@ class QuotationController extends Controller
             $invoice->id_quotation = $id;
             $invoice->no_po = $request->po;
             $invoice->flag = $quote->pic->client->info;
-            if (Auth::user()->id == 16 || Auth::user()->id == 23) {
+
+            // Jika quotation berasal dari SUO, gunakan no_invoice_booking langsung
+            $suo = Suo::where('id_quotation', $id)->whereNotNull('no_invoice_booking')->first();
+            if ($suo) {
+                $invoice->no_invoice = $suo->no_invoice_booking;
+                $invoice->term = 'Cash Before Delivery';
+                $invoice->invoiceTo = $quote->destination;
+            } elseif (Auth::user()->id == 16 || Auth::user()->id == 23) {
                 $invoice->no_invoice = $quote->no_quote;
                 $invoice->term = 'Cash Before Delivery';
                 $invoice->invoiceTo = $quote->destination;
@@ -2229,7 +2247,7 @@ class QuotationController extends Controller
         } else {
             $quotation->tax = 0;
         }
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
@@ -2352,7 +2370,7 @@ class QuotationController extends Controller
         } else {
             $quotation->tax = 0;
         }
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
@@ -2836,7 +2854,7 @@ class QuotationController extends Controller
         } else {
             $quotation->tax = 0;
         }
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
@@ -3191,7 +3209,7 @@ class QuotationController extends Controller
         } else {
             $quotation->tax = 0;
         }
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;

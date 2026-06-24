@@ -152,7 +152,17 @@ class OverviewController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.sales.detail-overview', compact('noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'report', 'getDCS1', 'getDCS2', 'getCRMS1', 'getCRMS2', 'getVisitS1', 'getVisitS2', 'getQuoteS1', 'getQuoteS2', 'getPOS1', 'getPOS2', 'getLeadsS1', 'getLeadsS2', 'getPOModalS1', 'getPOModalS2', 'getTotalForecastS1', 'getTotalForecastS2', 'getTotalPOS1', 'getTotalPOS2', 'targett'));
+        $getDC = $report->semester == 1 ? $getDCS1 : $getDCS2;
+        $getCRM = $report->semester == 1 ? $getCRMS1 : $getCRMS2;
+        $getVisit = $report->semester == 1 ? $getVisitS1 : $getVisitS2;
+        $getQuote = $report->semester == 1 ? $getQuoteS1 : $getQuoteS2;
+        $getPO = $report->semester == 1 ? $getPOS1 : $getPOS2;
+        $getLeads = $report->semester == 1 ? $getLeadsS1 : $getLeadsS2;
+        $getPOModal = $report->semester == 1 ? $getPOModalS1 : $getPOModalS2;
+        $getTotalForecast = $report->semester == 1 ? $getTotalForecastS1 : $getTotalForecastS2;
+        $getTotalPO = $report->semester == 1 ? $getTotalPOS1 : $getTotalPOS2;
+
+        return view('pages.sales.detail-overview', compact('noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'report', 'getDC', 'getCRM', 'getVisit', 'getQuote', 'getPO', 'getLeads', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'targett'));
     }
 
     /**
@@ -360,6 +370,22 @@ class OverviewController extends Controller
 
         return view('pages.admin.overview.detail', compact('averageCRM', 'totalDCSemester', 'totalCRMSemester', 'totalLeadsSemester', 'totalLossSemesterProspect', 'totalPOSemesterProspect', 'totalQuoteSemesterProspect', 'lossSemesterProspect', 'POSemesterProspect', 'quoteSemesterProspect', 'totalCRMSemester', 'totalDCSemester', 'totalLossSemester', 'totalPOSemester', 'totalQuoteSemester', 'lossSemester', 'POSemester', 'quoteSemester', 'getPOProspect', 'getQuoteProspect', 'getProspectProvide', 'getProspect', 'getTotalForecastProspect', 'getTotalPOProspect', 'noSaleProspect', 'report', 'getDC', 'getCRM', 'getVisit', 'getQuote', 'getPO', 'getLoss', 'getLeads', 'getPOModal', 'getTotalForecast', 'getTotalPO', 'target', 'targett', 'user'));
     }
+    public function reportCurrent()
+    {
+        $now = Carbon::now();
+        $semester = $now->month > 6 ? 2 : 1;
+
+        $report = SalesReports::where('semester', $semester)
+            ->where('year', $now->year)
+            ->first();
+
+        if (!$report) {
+            abort(404, 'Data semester untuk tahun ini belum tersedia.');
+        }
+
+        return redirect()->route('report.semester', $report->id);
+    }
+
     public function reportsSemester($semester)
     {
         $report = SalesReports::find($semester);
@@ -384,8 +410,7 @@ class OverviewController extends Controller
         $quoteTotal = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereIn('status', ['20', '40', '60', '80', '90'])->where('level', '1')->where('is_primary', '1')->sum('nett');
         $quoteOnTotal = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->where('level', '1')->where('is_primary', '1')->sum('nett');
         $sales = User::where('role', 'Sales')->where('active', '1')->get();
-        $target = Target::orderBy('id_sales')->groupBy('id_sales')->get();
-        $totalTarget = $target->sum('total');
+        $totalTarget = Target::whereIn('id_sales', $sales->pluck('id'))->sum('total');
         $support = User::find('22');
         $dataSupport = DB::table('quotation')
             ->selectRaw('MONTH(po_date) as bulan, SUM(nett) as total')
@@ -396,7 +421,9 @@ class OverviewController extends Controller
             ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
             ->groupBy(DB::raw('MONTH(po_date)'))
             ->get();
-        $poTotalSupport = Quotation::whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $poTotalSupport    = Quotation::whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $quoteTotalSupport = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $quoteCountSupport = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->count();
 
         // dd($dataSupport);
 
@@ -426,7 +453,7 @@ class OverviewController extends Controller
                 'id' => $user->id,
                 'image' => $user->image,
                 'name' => $user->name,
-                'target' => $target->where('id_sales', $user->id)->pluck('total')->first(),
+                'target' => Target::where('id_sales', $user->id)->sum('total'),
                 'total' => $poTotalSales,
                 'jumlah' => $jumlah
             ];
@@ -448,7 +475,9 @@ class OverviewController extends Controller
             'semester',
             'support',
             'dataSupport',
-            'poTotalSupport'
+            'poTotalSupport',
+            'quoteTotalSupport',
+            'quoteCountSupport'
         ));
     }
 
@@ -469,8 +498,7 @@ class OverviewController extends Controller
         $quoteOnTotal = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('level', '1')->where('is_primary', '1')->sum('nett');
 
         $sales       = User::where('role', 'Sales')->where('active', '1')->get();
-        $target      = Target::orderBy('id_sales')->groupBy('id_sales')->get();
-        $totalTarget = $target->sum('total');
+        $totalTarget = Target::whereIn('id_sales', $sales->pluck('id'))->sum('total');
         $support     = User::find('22');
         $reportS1    = SalesReports::where('year', $year)->where('semester', 1)->first();
         $reportS2    = SalesReports::where('year', $year)->where('semester', 2)->first();
@@ -490,7 +518,9 @@ class OverviewController extends Controller
         for ($i = 1; $i <= 12; $i++) {
             $dataSupport[$i] = (int) ($dataSupportRaw[$i] ?? 0);
         }
-        $poTotalSupport = array_sum($dataSupport);
+        $poTotalSupport    = array_sum($dataSupport);
+        $quoteTotalSupport = Quotation::whereYear('estimated_date', $year)->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $quoteCountSupport = Quotation::whereYear('estimated_date', $year)->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->count();
 
         $data = [];
         foreach ($sales as $user) {
@@ -514,7 +544,7 @@ class OverviewController extends Controller
                 'id'     => $user->id,
                 'image'  => $user->image,
                 'name'   => $user->name,
-                'target' => $target->where('id_sales', $user->id)->pluck('total')->first(),
+                'target' => Target::where('id_sales', $user->id)->sum('total'),
                 'total'  => array_sum($jumlah),
                 'jumlah' => $jumlah,
             ];
@@ -525,6 +555,7 @@ class OverviewController extends Controller
             'poCount', 'lossCount', 'quoteCount', 'quoteOnCount',
             'poTotal', 'lossTotal', 'quoteTotal', 'quoteOnTotal',
             'totalTarget', 'data', 'support', 'dataSupport', 'poTotalSupport',
+            'quoteTotalSupport', 'quoteCountSupport',
             'reportS1', 'reportS2'
         ));
     }

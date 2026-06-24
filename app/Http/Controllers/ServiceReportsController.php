@@ -140,6 +140,15 @@ class ServiceReportsController extends Controller
         ));
     }
 
+    public function indexByMachine($id_machine)
+    {
+        $machine = \App\Models\Machine::with(['unit', 'client'])->find($id_machine);
+        if (!$machine) {
+            abort(404);
+        }
+        return view('pages.technician.service-reports.machine-index', compact('machine'));
+    }
+
     public function createByMachine($id_machine)
     {
         $sales = User::where('role', 'Sales')->get();
@@ -172,6 +181,25 @@ class ServiceReportsController extends Controller
             'selectedPICId',
             'selectedMachineId'
         ));
+    }
+
+    public function dataByMachine($id_machine)
+    {
+        $data = Reports::with('technician')
+            ->where('id_machine', $id_machine)
+            ->orderByDesc('date')
+            ->get(['id', 'no_service', 'type', 'jobdesc', 'date', 'id_technician']);
+
+        return response()->json(['data' => $data->map(function ($r) {
+            return [
+                'id'         => $r->id,
+                'no_service' => $r->no_service,
+                'type'       => $r->type,
+                'jobdesc'    => $r->jobdesc,
+                'date'       => $r->date,
+                'technician' => optional($r->technician)->name ?? '-',
+            ];
+        })]);
     }
 
     /**
