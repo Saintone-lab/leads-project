@@ -2202,13 +2202,12 @@
                             <tr>
                                 <th></th>
                                 {{-- <th></th> --}}
-                                <th>ID</th>
-                                <th>Quote No.</th>
-                                <th>Company</th>
-                                <th>Total Price</th>
-                                <th>Status</th>
-                                <th>Assigned</th>
-                                {{-- <th>Actions</th> --}}
+                                <th class="text-center">ID</th>
+                                <th class="text-center">Quote No.</th>
+                                <th class="text-center">Company</th>
+                                <th class="text-center">Value</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Sales</th>
                             </tr>
                         </thead>
                     </table>

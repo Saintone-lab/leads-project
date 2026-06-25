@@ -1,12 +1,12 @@
-<?php
+﻿<?php
 use Illuminate\Support\Facades\Auth;
 
 header('Content-Type: application/json');
-$host = "localhost";
-$users = "u877155683_reftech_my";
-$pass = "REFtechjaya321!";
+$host = env('DB_HOST', '127.0.0.1');
+$users = env('DB_USERNAME', 'root');
+$pass = env('DB_PASSWORD', '');
 
-$databaseName = "u877155683_reftech_my";
+$databaseName = env('DB_DATABASE', 'u877155683_reftech_my');
 $tableName = "client";
 
 // Periksa apakah pengguna terotentikasi

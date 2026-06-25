@@ -1,12 +1,12 @@
-<?php
+﻿<?php
 use Illuminate\Support\Facades\Auth;
 
 header('Content-Type: application/json');
-$host = "localhost";
-$users = "u877155683_reftech_my";
-$pass = "REFtechjaya321!";
+$host = env('DB_HOST', '127.0.0.1');
+$users = env('DB_USERNAME', 'root');
+$pass = env('DB_PASSWORD', '');
 
-$databaseName = "u877155683_reftech_my";
+$databaseName = env('DB_DATABASE', 'u877155683_reftech_my');
 $tableName = "quotation";
 
 // Periksa apakah pengguna terotentikasi
@@ -20,7 +20,7 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT q.*, c.company, u.name FROM quotation q 
+        $query = "SELECT q.*, c.company, u.name FROM quotation q
         LEFT JOIN pic p on p.id = q.id_pic
         LEFT JOIN client c on c.id = p.id_client
         INNER JOIN users u on u.id = q.id_sales
@@ -31,14 +31,14 @@ if (Auth::check()) {
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);
         $stmt->execute();
 
-        // Fetch result 
+        // Fetch result
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $arr = [
             "data" => $result,
         ];
 
-        // Echo result as JSON 
+        // Echo result as JSON
         $hasil = json_encode($arr, JSON_PRETTY_PRINT);
 
         // Menampilkan hasil JSON

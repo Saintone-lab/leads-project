@@ -43,16 +43,16 @@
                     <div data-i18n="Reports">Reports</div>
                 </a>
             </li> --}}
-            <li class="menu-item {{ request()->is('report/*') ? 'active' : '' }}">
-                <a href="{{ route('report.current') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-chart-areaspline"></i>
+            <li class="menu-item {{ request()->is('report/monthly*') ? 'active' : '' }}">
+                <a href="{{ route('report.monthly') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-finance"></i>
                     <div data-i18n="Reports">Reports</div>
                 </a>
             </li>
             <li
-                class="menu-item {{ request()->is('overview') || request()->is('overview/*') || request()->is('overview/*/*') ? 'active' : '' }}">
-                <a href="{{ url('/overview') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-account-eye-outline"></i>
+                class="menu-item {{ request()->is('report/*') && !request()->is('report/monthly*') ? 'active' : '' }}">
+                <a href="{{ route('report.current') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-chart-areaspline"></i>
                     <div data-i18n="Overview">Overview</div>
                 </a>
             </li>

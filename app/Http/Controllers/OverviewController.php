@@ -425,6 +425,50 @@ class OverviewController extends Controller
         $quoteTotalSupport = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->sum('nett');
         $quoteCountSupport = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->count();
 
+        // Marketing report — semester
+        $smktProspectCount = Prospect::whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->count();
+        $smktQuoteCount    = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->count();
+        $smktQuoteTotal    = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $smktPoCount       = Quotation::whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+        $smktPoTotal       = Quotation::whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $smktLossCount     = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->where('status', '0')->where('level', '1')->where('is_primary', '1')->count();
+        $smktLossTotal     = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereNotNull('id_support')->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
+
+        $smktProspectByStatus = Prospect::whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->whereNotNull('id_support')
+            ->selectRaw('
+                SUM(CASE WHEN provide IS NULL THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN provide = "1"  THEN 1 ELSE 0 END) as provided,
+                SUM(CASE WHEN provide = "0"  THEN 1 ELSE 0 END) as no_provide
+            ')
+            ->first();
+
+        $smktPerPerson = Prospect::join('users', 'users.id', '=', 'prospect.id_support')
+            ->whereBetween('prospect.date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->whereNotNull('prospect.id_support')
+            ->selectRaw('
+                users.id, users.name, users.image,
+                COUNT(*) as total,
+                SUM(CASE WHEN prospect.provide = "1"  THEN 1 ELSE 0 END) as provided,
+                SUM(CASE WHEN prospect.provide = "0"  THEN 1 ELSE 0 END) as no_provide,
+                SUM(CASE WHEN prospect.provide IS NULL THEN 1 ELSE 0 END) as pending
+            ')
+            ->groupBy('users.id', 'users.name', 'users.image')
+            ->orderByDesc('total')
+            ->get();
+
+        $smktProspectBySource = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereBetween('prospect.date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->whereNotNull('prospect.id_support')
+            ->selectRaw('COALESCE(client.source, "Other") as source, COUNT(*) as total')
+            ->groupBy('source')->orderByDesc('total')->get();
+
+        $smktProspectByCategory = Prospect::whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->whereNotNull('id_support')
+            ->selectRaw('COALESCE(category, "Uncategorized") as category, COUNT(*) as total')
+            ->groupBy('category')->orderByDesc('total')->get();
+
         // dd($dataSupport);
 
         $data = [];
@@ -449,13 +493,20 @@ class OverviewController extends Controller
                 ];
             }
 
+            $smktProspectForSales = Prospect::whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])->where('id_sales', $user->id)->whereNotNull('id_support')->count();
+            $smktQuoteForSales    = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->where('id_sales', $user->id)->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->count();
+            $smktPoForSales       = Quotation::whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])->where('id_sales', $user->id)->whereNotNull('id_support')->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+
             $data[] = [
-                'id' => $user->id,
-                'image' => $user->image,
-                'name' => $user->name,
-                'target' => Target::where('id_sales', $user->id)->sum('total'),
-                'total' => $poTotalSales,
-                'jumlah' => $jumlah
+                'id'          => $user->id,
+                'image'       => $user->image,
+                'name'        => $user->name,
+                'target'      => Target::where('id_sales', $user->id)->sum('total'),
+                'total'       => $poTotalSales,
+                'jumlah'      => $jumlah,
+                'mktProspect' => $smktProspectForSales,
+                'mktQuote'    => $smktQuoteForSales,
+                'mktPo'       => $smktPoForSales,
             ];
         }
         // dd($data);
@@ -477,7 +528,11 @@ class OverviewController extends Controller
             'dataSupport',
             'poTotalSupport',
             'quoteTotalSupport',
-            'quoteCountSupport'
+            'quoteCountSupport',
+            'smktProspectCount', 'smktQuoteCount', 'smktQuoteTotal',
+            'smktPoCount', 'smktPoTotal', 'smktLossCount', 'smktLossTotal',
+            'smktProspectByStatus', 'smktPerPerson',
+            'smktProspectBySource', 'smktProspectByCategory'
         ));
     }
 
@@ -557,6 +612,157 @@ class OverviewController extends Controller
             'totalTarget', 'data', 'support', 'dataSupport', 'poTotalSupport',
             'quoteTotalSupport', 'quoteCountSupport',
             'reportS1', 'reportS2'
+        ));
+    }
+
+    public function reportMonthly($year = null, $month = null)
+    {
+        $now   = Carbon::now();
+        $year  = (int) ($year  ?? $now->year);
+        $month = (int) ($month ?? $now->month);
+
+        $firstDay = Carbon::create($year, $month, 1)->startOfMonth()->toDateString();
+        $lastDay  = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
+
+        $sales = User::where('role', 'Sales')->where('active', '1')->get();
+
+        $poCount      = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+        $poTotal      = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $quoteCount   = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereIn('status', ['20', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->count();
+        $quoteTotal   = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereIn('status', ['20', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $lossCount    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('status', '0')->where('level', '1')->where('is_primary', '1')->count();
+        $lossTotal    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $quoteOnCount = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('level', '1')->where('is_primary', '1')->count();
+        $totalTarget  = Target::whereIn('id_sales', $sales->pluck('id'))->sum('total');
+
+        $data = [];
+        foreach ($sales as $user) {
+            $leads   = Client::whereMonth('created_at', $month)->whereYear('created_at', $year)->where('id_sales', $user->id)->count();
+            $dc      = Activities::join('client as c', 'activities.id_client', '=', 'c.id')
+                        ->whereBetween('activities.date', [$firstDay, $lastDay])
+                        ->where('c.id_sales', $user->id)
+                        ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
+                        ->where('activities.status', 'Responded')
+                        ->distinct('activities.id_client')
+                        ->count('activities.id_client');
+            $crm     = Activities::join('client as c', 'activities.id_client', '=', 'c.id')
+                        ->whereBetween('activities.date', [$firstDay, $lastDay])
+                        ->where('c.id_sales', $user->id)
+                        ->where('activities.name', 'CRM')
+                        ->where('activities.status', 'Responded')
+                        ->distinct('activities.id_client')
+                        ->count('activities.id_client');
+            $userQuoteCount   = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_sales', $user->id)->where('level', '1')->where('is_primary', '1')->count();
+            $userQuoteTotal   = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_sales', $user->id)->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $userProspectCount = Quotation::where('status', '80')->whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_sales', $user->id)->where('level', '1')->where('is_primary', '1')->count();
+            $userPoCount      = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->where('id_sales', $user->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+            $userPoTotal      = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->where('id_sales', $user->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $userLossCount    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_sales', $user->id)->where('status', '0')->where('level', '1')->where('is_primary', '1')->count();
+            $target = Target::where('id_sales', $user->id)->sum('total');
+
+            $mktProspectForSales = Prospect::whereBetween('date', [$firstDay, $lastDay])->where('id_sales', $user->id)->whereNotNull('id_support')->count();
+            $mktQuoteForSales    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_sales', $user->id)->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->count();
+            $mktPoForSales       = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->where('id_sales', $user->id)->whereNotNull('id_support')->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+
+            $data[] = [
+                'id'                  => $user->id,
+                'name'                => $user->name,
+                'image'               => $user->image,
+                'leads'               => $leads,
+                'dc'                  => $dc,
+                'crm'                 => $crm,
+                'quoteCount'          => $userQuoteCount,
+                'quoteTotal'          => $userQuoteTotal,
+                'prospectCount'       => $userProspectCount,
+                'poCount'             => $userPoCount,
+                'poTotal'             => $userPoTotal,
+                'lossCount'           => $userLossCount,
+                'target'              => $target,
+                'mktProspect'         => $mktProspectForSales,
+                'mktQuote'            => $mktQuoteForSales,
+                'mktPo'               => $mktPoForSales,
+            ];
+        }
+
+        usort($data, fn($a, $b) => $b['poTotal'] <=> $a['poTotal']);
+
+        $yearList = SalesReports::select('year')->distinct()->orderBy('year', 'desc')->pluck('year');
+
+        // Marketing funnel
+        $mktProspectCount  = Prospect::whereMonth('date', $month)->whereYear('date', $year)->whereNotNull('id_support')->count();
+        $mktQuoteCount     = Quotation::whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->count();
+        $mktQuoteTotal     = Quotation::whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $mktPoCount        = Quotation::whereMonth('po_date', $month)->whereYear('po_date', $year)->whereNotNull('id_support')->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+        $mktPoTotal        = Quotation::whereMonth('po_date', $month)->whereYear('po_date', $year)->whereNotNull('id_support')->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+
+        $mktProspectBySource = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereMonth('prospect.date', $month)
+            ->whereYear('prospect.date', $year)
+            ->whereNotNull('prospect.id_support')
+            ->selectRaw('COALESCE(client.source, "Other") as source, COUNT(*) as total')
+            ->groupBy('source')
+            ->orderByDesc('total')
+            ->get();
+
+        $mktProspectByCategory = Prospect::whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->whereNotNull('id_support')
+            ->selectRaw('COALESCE(category, "Uncategorized") as category, COUNT(*) as total')
+            ->groupBy('category')
+            ->orderByDesc('total')
+            ->get();
+
+        $mktProspectByArea = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereMonth('prospect.date', $month)
+            ->whereYear('prospect.date', $year)
+            ->whereNotNull('prospect.id_support')
+            ->selectRaw('COALESCE(NULLIF(client.area, ""), "Unknown") as area, COUNT(*) as total')
+            ->groupBy('area')
+            ->orderByDesc('total')
+            ->get();
+
+        // Status prospect (pending / provided / no provide)
+        $mktProspectByStatus = Prospect::whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->whereNotNull('id_support')
+            ->selectRaw('
+                SUM(CASE WHEN provide IS NULL THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN provide = "1"  THEN 1 ELSE 0 END) as provided,
+                SUM(CASE WHEN provide = "0"  THEN 1 ELSE 0 END) as no_provide
+            ')
+            ->first();
+
+        // Per marketing person
+        $mktPerPerson = Prospect::join('users', 'users.id', '=', 'prospect.id_support')
+            ->whereMonth('prospect.date', $month)
+            ->whereYear('prospect.date', $year)
+            ->whereNotNull('prospect.id_support')
+            ->selectRaw('
+                users.id, users.name, users.image,
+                COUNT(*) as total,
+                SUM(CASE WHEN prospect.provide = "1"  THEN 1 ELSE 0 END) as provided,
+                SUM(CASE WHEN prospect.provide = "0"  THEN 1 ELSE 0 END) as no_provide,
+                SUM(CASE WHEN prospect.provide IS NULL THEN 1 ELSE 0 END) as pending
+            ')
+            ->groupBy('users.id', 'users.name', 'users.image')
+            ->orderByDesc('total')
+            ->get();
+
+        // Loss dari marketing leads
+        $mktLossCount = Quotation::whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->whereNotNull('id_support')->where('status', '0')->where('level', '1')->where('is_primary', '1')->count();
+        $mktLossTotal = Quotation::whereMonth('estimated_date', $month)->whereYear('estimated_date', $year)->whereNotNull('id_support')->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
+
+        return view('pages.admin.report-monthly', compact(
+            'year', 'month', 'yearList',
+            'data', 'poCount', 'poTotal',
+            'quoteCount', 'quoteTotal',
+            'lossCount', 'lossTotal',
+            'quoteOnCount', 'totalTarget',
+            'mktProspectCount', 'mktQuoteCount', 'mktQuoteTotal',
+            'mktPoCount', 'mktPoTotal', 'mktProspectBySource', 'mktProspectByCategory', 'mktProspectByArea',
+            'mktProspectByStatus', 'mktPerPerson', 'mktLossCount', 'mktLossTotal'
         ));
     }
 

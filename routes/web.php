@@ -263,6 +263,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/overview/sales/{id}', [OverviewController::class, 'semesterOverviewSales'])->name('overview.semester');
     Route::get('/detail-overview/{sales}/{date}', [OverviewController::class, 'detailSemesterOverview'])->name('detail-overview.semester');
     Route::get('/overview/{semester}/{sales}', [OverviewController::class, 'overviewAdmin'])->name('overview-sales.semester');
+    Route::get('/report/monthly/{year?}/{month?}', [OverviewController::class, 'reportMonthly'])->name('report.monthly');
     Route::get('/report/year/{year}', [OverviewController::class, 'reportsByYear'])->name('report.year');
     Route::get('/report/current', [OverviewController::class, 'reportCurrent'])->name('report.current');
     Route::get('/report/{semester}', [OverviewController::class, 'reportsSemester'])->name('report.semester');

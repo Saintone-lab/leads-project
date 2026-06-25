@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="light-style layout-navbar-fixed layout-menu-fixed" dir="ltr" data-theme="theme-default"
-    data-assets-path="../../assets/" data-template="vertical-menu-template">
+    data-assets-path="/assets/" data-template="vertical-menu-template">
 
 <head>
     @include('includes.sales.meta')
