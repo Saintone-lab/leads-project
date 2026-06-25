@@ -36,7 +36,7 @@
                             <p class="mb-1">Note</p>
                         </div>
                         <div class="col-8">
-                            <p class="mb-1">: {{ $product->supplier ?? $product->supp->supplier }}</p>
+                            <p class="mb-1">: {{ $product->supplier ?? optional($product->supp)->supplier ?? '-' }}</p>
                             <p class="mb-1">: {{ $product->note }}</p>
                         </div>
                     </div>

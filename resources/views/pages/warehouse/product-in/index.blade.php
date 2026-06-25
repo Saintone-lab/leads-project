@@ -13,13 +13,12 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th></th>
                                     <th>ID</th>
+                                    <th>No. Product In</th>
                                     <th>No DO</th>
                                     <th>Date</th>
                                     <th>VAT</th>
-                                    <th>Total Qty</th>
-                                    <th></th>
+                                    <th>Qty</th>
                                 </tr>
                             </thead>
                         </table>
@@ -33,13 +32,12 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th></th>
                                     <th>ID</th>
+                                    <th>No. Product In</th>
                                     <th>No DO</th>
                                     <th>Date</th>
                                     <th>VAT</th>
-                                    <th>Total Qty</th>
-                                    <th></th>
+                                    <th>Qty</th>
                                 </tr>
                             </thead>
                         </table>
@@ -47,7 +45,7 @@
                 </div>
             </div>
         </div>
-    @endif'
+    @endif
     @if (in_array(Auth::user()->id, [18, 20]))
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
@@ -55,14 +53,27 @@
                     <thead>
                         <tr>
                             <th></th>
-                            <th></th>
                             <th>ID</th>
+                            <th>No. Product In</th>
                             <th>No DO</th>
+                            <th>Category</th>
                             <th>Date</th>
-                            <th>VAT</th>
-                            <th>Total Qty</th>
+                            <th>Qty</th>
+                            <th>Assign</th>
                         </tr>
                     </thead>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>No. Product In</th>
+                            <th>No DO</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Qty</th>
+                            <th>Assign</th>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
@@ -103,27 +114,6 @@
                             <th>Qty</th>
                             <th>Price</th>
                             <th>VAT</th>
-                            <th>Date</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-        </div>
-    @else
-        <div class="card mb-3">
-            <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-product-in-logistic table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>Invoice</th>
-                            <th>Supplier</th>
-                            <th>Product</th>
-                            <th>Qty</th>
-                            <th>Price</th>
                             <th>Date</th>
                             <th></th>
                         </tr>

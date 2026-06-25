@@ -11,16 +11,6 @@ $(function () {
                 headers: {
                     "Content-Type": "application/json",
                 },
-
-                // success: function (hasil, Url) {
-                //     console.log("Url:", Url);
-                //     console.log(hasil);
-                // },
-                // error: function (error) {
-                //     console.log("Url:", Url);
-                //     console.error("Error:", error);
-                //     console.log("error disini");
-                // },
             },
             columns: [
                 { data: "" },
@@ -131,205 +121,31 @@ $(function () {
                             extend: "print",
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
-                            exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
-                                // prevent avatar to be display
-                                format: {
-                                    body: function (inner, coldex, rowdex) {
-                                        if (inner.length <= 0) return inner;
-                                        var el = $.parseHTML(inner);
-                                        var result = "";
-                                        $.each(el, function (index, item) {
-                                            if (
-                                                item.classList !== undefined &&
-                                                item.classList.contains(
-                                                    "user-name"
-                                                )
-                                            ) {
-                                                result =
-                                                    result +
-                                                    item.lastChild.firstChild
-                                                        .textContent;
-                                            } else if (
-                                                item.innerText === undefined
-                                            ) {
-                                                result =
-                                                    result + item.textContent;
-                                            } else
-                                                result =
-                                                    result + item.innerText;
-                                        });
-                                        return result;
-                                    },
-                                },
-                            },
-                            customize: function (win) {
-                                //customize print view for dark
-                                $(win.document.body)
-                                    .css("color", config.colors.headingColor)
-                                    .css(
-                                        "border-color",
-                                        config.colors.borderColor
-                                    )
-                                    .css(
-                                        "background-color",
-                                        config.colors.bodyBg
-                                    );
-                                $(win.document.body)
-                                    .find("table")
-                                    .addClass("compact")
-                                    .css("color", "inherit")
-                                    .css("border-color", "inherit")
-                                    .css("background-color", "inherit");
-                            },
+                            exportOptions: { columns: [3, 4, 5, 6, 7, 8, 9] },
                         },
                         {
                             extend: "csv",
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
-                            exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
-                                // prevent avatar to be display
-                                format: {
-                                    body: function (inner, coldex, rowdex) {
-                                        if (inner.length <= 0) return inner;
-                                        var el = $.parseHTML(inner);
-                                        var result = "";
-                                        $.each(el, function (index, item) {
-                                            if (
-                                                item.classList !== undefined &&
-                                                item.classList.contains(
-                                                    "user-name"
-                                                )
-                                            ) {
-                                                result =
-                                                    result +
-                                                    item.lastChild.firstChild
-                                                        .textContent;
-                                            } else if (
-                                                item.innerText === undefined
-                                            ) {
-                                                result =
-                                                    result + item.textContent;
-                                            } else
-                                                result =
-                                                    result + item.innerText;
-                                        });
-                                        return result;
-                                    },
-                                },
-                            },
+                            exportOptions: { columns: [3, 4, 5, 6, 7, 8, 9] },
                         },
                         {
                             extend: "excel",
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
-                            exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
-                                // prevent avatar to be display
-                                format: {
-                                    body: function (inner, coldex, rowdex) {
-                                        if (inner.length <= 0) return inner;
-                                        var el = $.parseHTML(inner);
-                                        var result = "";
-                                        $.each(el, function (index, item) {
-                                            if (
-                                                item.classList !== undefined &&
-                                                item.classList.contains(
-                                                    "user-name"
-                                                )
-                                            ) {
-                                                result =
-                                                    result +
-                                                    item.lastChild.firstChild
-                                                        .textContent;
-                                            } else if (
-                                                item.innerText === undefined
-                                            ) {
-                                                result =
-                                                    result + item.textContent;
-                                            } else
-                                                result =
-                                                    result + item.innerText;
-                                        });
-                                        return result;
-                                    },
-                                },
-                            },
+                            exportOptions: { columns: [3, 4, 5, 6, 7, 8, 9] },
                         },
                         {
                             extend: "pdf",
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
-                            exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
-                                // prevent avatar to be display
-                                format: {
-                                    body: function (inner, coldex, rowdex) {
-                                        if (inner.length <= 0) return inner;
-                                        var el = $.parseHTML(inner);
-                                        var result = "";
-                                        $.each(el, function (index, item) {
-                                            if (
-                                                item.classList !== undefined &&
-                                                item.classList.contains(
-                                                    "user-name"
-                                                )
-                                            ) {
-                                                result =
-                                                    result +
-                                                    item.lastChild.firstChild
-                                                        .textContent;
-                                            } else if (
-                                                item.innerText === undefined
-                                            ) {
-                                                result =
-                                                    result + item.textContent;
-                                            } else
-                                                result =
-                                                    result + item.innerText;
-                                        });
-                                        return result;
-                                    },
-                                },
-                            },
+                            exportOptions: { columns: [3, 4, 5, 6, 7, 8, 9] },
                         },
                         {
                             extend: "copy",
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
-                            exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
-                                // prevent avatar to be display
-                                format: {
-                                    body: function (inner, coldex, rowdex) {
-                                        if (inner.length <= 0) return inner;
-                                        var el = $.parseHTML(inner);
-                                        var result = "";
-                                        $.each(el, function (index, item) {
-                                            if (
-                                                item.classList !== undefined &&
-                                                item.classList.contains(
-                                                    "user-name"
-                                                )
-                                            ) {
-                                                result =
-                                                    result +
-                                                    item.lastChild.firstChild
-                                                        .textContent;
-                                            } else if (
-                                                item.innerText === undefined
-                                            ) {
-                                                result =
-                                                    result + item.textContent;
-                                            } else
-                                                result =
-                                                    result + item.innerText;
-                                        });
-                                        return result;
-                                    },
-                                },
-                            },
+                            exportOptions: { columns: [3, 4, 5, 6, 7, 8, 9] },
                         },
                     ],
                 },
@@ -348,7 +164,7 @@ $(function () {
                     type: "column",
                     renderer: function (api, rowIdx, columns) {
                         var data = $.map(columns, function (col, i) {
-                            return col.title !== "" // ? Do not show row in modal popup if title is blank (for check box)
+                            return col.title !== ""
                                 ? '<tr data-dt-row="' +
                                       col.rowIndex +
                                       '" data-dt-column="' +

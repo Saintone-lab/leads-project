@@ -16,6 +16,8 @@ class ProductIn extends Model
         'date'
     ];
     protected $fillable = [
+        'no_product_in',
+        'created_by',
         'no_do',
         'invoice',
         'supplier',
@@ -30,6 +32,11 @@ class ProductIn extends Model
     public function supp()
     {
         return $this->belongsTo('App\Models\Supplier', 'id_supplier', 'id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo('App\Models\User', 'created_by', 'id');
     }
     public function detail()
     {

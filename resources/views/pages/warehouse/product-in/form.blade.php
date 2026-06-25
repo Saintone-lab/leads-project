@@ -4,6 +4,12 @@
     <form action="{{ route(Auth::user()->role == 'Logistic' ? 'product-in.logistic-store' : 'product-in.store') }}"
         method="post" enctype="multipart/form-data">
         @csrf
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control form-control-lg fw-bold fs-3 text-primary"
+                id="noProductInPreview" value="{{ $nextNoProductIn }}" disabled>
+            <label for="noProductInPreview">No. Product In <span class="badge bg-label-secondary ms-1">Auto</span></label>
+            <span class="form-floating-focused"></span>
+        </div>
         @if (Auth::user()->role == 'Admin')
             <div class="form-floating mb-3">
                 <input type="text" class="form-control form-control-lg fw-bold fs-3" id="floatingInputFilled"

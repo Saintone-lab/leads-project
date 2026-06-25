@@ -189,6 +189,10 @@ class ProductController extends Controller
         $allStock = $product->stock + $product->warehouse_stock;
         $details = DetailProduct::where('id_product', $id)->get();
         $serials = SerialProduct::where('id_product', $id)->get();
+        $partInquiries = SerialProduct::with(['sparePartVendorPrices.supplier'])
+            ->where('id_product', $id)
+            ->whereHas('sparePartVendorPrices')
+            ->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
@@ -257,7 +261,7 @@ class ProductController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.warehouse.product.detail', compact('product', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
+        return view('pages.warehouse.product.detail', compact('product', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock', 'partInquiries'));
     }
 
     /**

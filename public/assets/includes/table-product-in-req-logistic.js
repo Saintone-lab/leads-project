@@ -8,27 +8,17 @@ $(function () {
             ajax: {
                 type: "GET",
                 url: Url,
-                headers: {
-                    "Content-Type": "application/json",
-                },
-
-                // success: function (hasil, Url) {
-                //     console.log("Url:", Url);
-                //     console.log(hasil);
-                // },
-                // error: function (error) {
-                //     console.log("Url:", Url);
-                //     console.error("Error:", error);
-                //     console.log("error disini");
-                // },
+                headers: { "Content-Type": "application/json" },
             },
             columns: [
                 { data: "" },
                 { data: "id" },
-                { data: "id" },
+                { data: "no_product_in" },
                 { data: "no_do" },
+                { data: "info" },
                 { data: "date" },
                 { data: "total_qty" },
+                { data: "creator_name" },
             ],
             columnDefs: [
                 {
@@ -38,36 +28,49 @@ $(function () {
                     searchable: false,
                     responsivePriority: 2,
                     targets: 0,
-                    render: function (data, type, full, meta) {
-                        return "";
-                    },
+                    render: function () { return ""; },
                 },
                 {
-                    // For Checkboxes
                     targets: 1,
-                    orderable: false,
-                    searchable: false,
-                    responsivePriority: 3,
-                    checkboxes: true,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender:
-                            '<input type="checkbox" class="form-check-input">',
-                    },
-                },
-                {
-                    targets: 2,
                     searchable: true,
                     visible: false,
                 },
                 {
+                    // No DO, Category, Date, Qty, Assign — rata tengah
+                    targets: [3, 4, 5, 6, 7],
+                    className: "text-center",
+                },
+                {
+                    // No. Product In — link ke detail
                     responsivePriority: 1,
-                    targets: 3,
+                    targets: 2,
+                    render: function (data, type, full, meta) {
+                        var $detailUrl = route("product-in.preview", full["id"]);
+                        return '<a href="' + $detailUrl + '">#' + (data ?? "-") + "</a>";
+                    },
+                },
+                {
+                    // Category badge
+                    targets: 4,
+                    render: function (data, type, full, meta) {
+                        if (!data) return "-";
+                        var color = data === "Import" ? "warning" : "info";
+                        return '<span class="badge bg-label-' + color + '">' + data + '</span>';
+                    },
+                },
+                {
+                    targets: 5,
+                    render: function (data, type, full, meta) {
+                        if (!data) return "-";
+                        var d = new Date(data);
+                        var day = String(d.getDate()).padStart(2, "0");
+                        var month = String(d.getMonth() + 1).padStart(2, "0");
+                        var year = d.getFullYear();
+                        return day + "-" + month + "-" + year;
+                    },
                 },
             ],
-            order: [[2, "desc"]],
+            order: [[1, "desc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label-delay text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
@@ -80,6 +83,27 @@ $(function () {
                     },
                 },
             ],
+            initComplete: function () {
+                var api = this.api();
+                // Search input untuk: No. Product In(2), No DO(3), Category(4), Date(5), Qty(6), Assign(7)
+                var searchableCols = [2, 3, 4, 5, 6, 7];
+                api.columns().every(function () {
+                    var col = this;
+                    var idx = col.index();
+                    var $footer = $(col.footer());
+                    if (!searchableCols.includes(idx)) {
+                        $footer.empty();
+                        return;
+                    }
+                    $('<input type="text" class="form-control form-control-sm" placeholder="Cari...">')
+                        .appendTo($footer.empty())
+                        .on("keyup change clear", function () {
+                            if (col.search() !== this.value) {
+                                col.search(this.value).draw();
+                            }
+                        });
+                });
+            },
             drawCallback: function (settings) {
                 $('[data-toggle="tooltip"]').tooltip();
             },
@@ -87,33 +111,18 @@ $(function () {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal({
                         header: function (row) {
-                            var data = row.data();
-                            return "Details of " + data["company"];
+                            return "Details of " + row.data()["no_product_in"];
                         },
                     }),
                     type: "column",
                     renderer: function (api, rowIdx, columns) {
-                        var data = $.map(columns, function (col, i) {
-                            return col.title !== "" // ? Do not show row in modal popup if title is blank (for check box)
-                                ? '<tr data-dt-row="' +
-                                      col.rowIndex +
-                                      '" data-dt-column="' +
-                                      col.columnIndex +
-                                      '">' +
-                                      "<td>" +
-                                      col.title +
-                                      ":" +
-                                      "</td> " +
-                                      "<td>" +
-                                      col.data +
-                                      "</td>" +
-                                      "</tr>"
+                        var data = $.map(columns, function (col) {
+                            return col.title !== ""
+                                ? '<tr data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
+                                  "<td>" + col.title + ":</td><td>" + col.data + "</td></tr>"
                                 : "";
                         }).join("");
-
-                        return data
-                            ? $('<table class="table"/><tbody />').append(data)
-                            : false;
+                        return data ? $('<table class="table"/><tbody />').append(data) : false;
                     },
                 },
             },

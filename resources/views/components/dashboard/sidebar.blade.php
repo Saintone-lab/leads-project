@@ -690,6 +690,14 @@
                             <div data-i18n="Product">Product</div>
                         </a>
                     </li>
+                    <li class="menu-item disabled">
+                        <a href="#" class="menu-link" onclick="return false;"
+                            data-bs-toggle="tooltip" data-bs-placement="right"
+                            title="Currently in the Development Stage"
+                            style="opacity: 0.5; cursor: not-allowed;">
+                            <div data-i18n="Part Inquiry">Part Inquiry</div>
+                        </a>
+                    </li>
                     <li class="menu-item {{ request()->is('unit') || request()->is('unit/*') ? 'active' : '' }}">
                         <a href="{{ route('unit.index') }}" class="menu-link">
                             <div data-i18n="Unit">Unit</div>

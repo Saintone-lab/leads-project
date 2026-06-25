@@ -245,6 +245,50 @@
                 </div>
             </div>
         </div>
+        @if ($partInquiries->isNotEmpty())
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Part Inquiry</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Brand</th>
+                                        <th>Part Number</th>
+                                        <th>Harga Jual</th>
+                                        <th>Jumlah Vendor</th>
+                                        <th>Last Inquiry</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($partInquiries as $pi)
+                                        <tr>
+                                            <td>{{ $pi->brand }}</td>
+                                            <td>{{ $pi->pn }}</td>
+                                            <td>Rp {{ number_format($pi->price, 0, ',', '.') }}</td>
+                                            <td>{{ $pi->sparePartVendorPrices->count() }} vendor</td>
+                                            <td>{{ $pi->sparePartVendorPrices->max('date') ? \Carbon\Carbon::parse($pi->sparePartVendorPrices->max('date'))->format('d M Y') : '-' }}</td>
+                                            <td>
+                                                <a href="{{ route('part-inquiry.show', $pi->id) }}" class="btn btn-sm btn-label-primary">
+                                                    <i class="mdi mdi-eye-outline"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <div class="row">
             <div class="col-12 col-lg-6 mb-3">
                 <div class="card">

@@ -15,11 +15,12 @@ DetailProduct extends Model
         'updated_at'
     ];
     protected $fillable = [
+        'id_product',
         'replacement',
+        'modal',
         'hpp',
         'stock',
         'warehouse_stock',
-        'pending_stock',
     ];
     
     public function unit()

@@ -27,6 +27,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PendingController;
 use App\Http\Controllers\PicController;
 use App\Http\Controllers\POController;
+use App\Http\Controllers\PartInquiryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductInController;
 use App\Http\Controllers\ProductOutController;
@@ -282,6 +283,28 @@ Route::group(["middleware" => "auth"], function () {
     Route::patch('/pic/existing/update/{id}', [PicController::class, 'updateOnCrm'])->name('pic.crm.update');
     Route::post('/pic/existing/{id}', [PicController::class, 'destroyOnCrm'])->name('pic.crm.destroy');
 
+    // Kurs USD/IDR (cache 1 jam)
+    Route::get('/api/exchange-rate/usd-idr', function () {
+        $rate = \Illuminate\Support\Facades\Cache::remember('kurs_usd_idr', 3600, function () {
+            $response = \Illuminate\Support\Facades\Http::timeout(5)
+                ->get('https://open.er-api.com/v6/latest/USD');
+            if ($response->successful()) {
+                return $response->json('rates.IDR');
+            }
+            return null;
+        });
+        return response()->json(['rate' => $rate ? round($rate) : null]);
+    })->name('exchange-rate.usd-idr');
+
+    // Route untuk Part Inquiry
+    Route::get('/part-inquiry', [PartInquiryController::class, 'index'])->name('part-inquiry.index');
+    Route::get('/part-inquiry/create', [PartInquiryController::class, 'create'])->name('part-inquiry.create');
+    Route::post('/part-inquiry', [PartInquiryController::class, 'store'])->name('part-inquiry.store');
+    Route::get('/part-inquiry/{id}', [PartInquiryController::class, 'show'])->name('part-inquiry.show');
+    Route::post('/part-inquiry/{id}/vendor', [PartInquiryController::class, 'storeVendorPrice'])->name('part-inquiry.vendor.store');
+    Route::patch('/part-inquiry/serial/{id}/selling-price', [PartInquiryController::class, 'updateSellingPrice'])->name('part-inquiry.selling-price.update');
+    Route::delete('/part-inquiry/vendor/{id}/delete', [PartInquiryController::class, 'destroyVendorPrice'])->name('part-inquiry.vendor.destroy');
+
     // Route untuk Product
     Route::resource('/product', ProductController::class);
     Route::post('/product/equivalent/store/{id}', [ProductController::class, 'storeEquivalent'])->name('product.equivalent');
@@ -305,6 +328,9 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk Product In
     Route::resource('/product-in', ProductInController::class);
     Route::get('/product-in/print/{id}', [ProductInController::class, 'productIn_print'])->name('productIn.print');
+    Route::get('/product-in/preview/{id}', [ProductInController::class, 'preview'])->name('product-in.preview');
+    Route::post('/product-in/logistic-update/{id}', [ProductInController::class, 'logistic_update'])->name('product-in.logistic-update');
+    Route::delete('/product-in/detail/{id}', [ProductInController::class, 'destroyDetail'])->name('product-in.detail.destroy');
     Route::get('/product-in/replacement/{id}', function ($id) {
         $product = DetailProduct::where('id_product', $id)
             ->join('product as p', 'p.id', '=', 'detail_product.id_product')
@@ -3251,6 +3277,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/audit', function () {
         require_once base_path('app/api/audit/connection.php');
     });
+    Route::get('/db/part-inquiry', function () {
+        require_once base_path('app/api/part-inquiry/connection.php');
+    });
     Route::get('/db/product', function () {
         require_once base_path('app/api/product/connection.php');
     });
@@ -3310,11 +3339,11 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/product/in/logistik', function () {
         $products = DB::table('product_in as p')
-            ->select('p.*', DB::raw('SUM(d.qty) as total_qty'))
+            ->select('p.*', DB::raw('SUM(d.qty) as total_qty'), 'u.name as creator_name')
             ->leftJoin('detail_product_in as d', 'd.id_product_in', '=', 'p.id')
-            // ->where('p.info', 'Lokal')
+            ->leftJoin('users as u', 'u.id', '=', 'p.created_by')
             ->whereNull('p.invoice')
-            ->groupBy('p.id')
+            ->groupBy('p.id', 'u.name')
             ->get();
         return response()->json(['data' => $products]);
     });
