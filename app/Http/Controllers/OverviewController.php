@@ -386,6 +386,68 @@ class OverviewController extends Controller
         return redirect()->route('report.semester', $report->id);
     }
 
+    public function supportReport($semesterId)
+    {
+        $report   = SalesReports::find($semesterId);
+        $semester = SalesReports::all();
+
+        $firstDay = $report->semester == 1 ? "{$report->year}-01-01" : "{$report->year}-07-01";
+        $lastDay  = $report->semester == 1
+            ? date('Y-m-t', strtotime("{$report->year}-06-01"))
+            : date('Y-m-t', strtotime("{$report->year}-12-01"));
+
+        $smktProspectCount = Prospect::whereBetween('date', [$firstDay, $lastDay])->whereNotNull('id_support')->count();
+        $smktQuoteCount    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->count();
+        $smktQuoteTotal    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $smktPoCount       = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->whereNotNull('id_support')->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+        $smktPoTotal       = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->whereNotNull('id_support')->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $smktLossCount     = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereNotNull('id_support')->where('status', '0')->where('level', '1')->where('is_primary', '1')->count();
+        $smktLossTotal     = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereNotNull('id_support')->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
+
+        $smktProspectByStatus = Prospect::whereBetween('date', [$firstDay, $lastDay])
+            ->whereNotNull('id_support')
+            ->selectRaw('
+                SUM(CASE WHEN provide IS NULL THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN provide = "1"  THEN 1 ELSE 0 END) as provided,
+                SUM(CASE WHEN provide = "0"  THEN 1 ELSE 0 END) as no_provide
+            ')
+            ->first();
+
+        $smktPerPerson = Prospect::join('users', 'users.id', '=', 'prospect.id_support')
+            ->whereBetween('prospect.date', [$firstDay, $lastDay])
+            ->whereNotNull('prospect.id_support')
+            ->selectRaw('
+                users.id, users.name, users.image,
+                COUNT(*) as total,
+                SUM(CASE WHEN prospect.provide = "1"  THEN 1 ELSE 0 END) as provided,
+                SUM(CASE WHEN prospect.provide = "0"  THEN 1 ELSE 0 END) as no_provide,
+                SUM(CASE WHEN prospect.provide IS NULL THEN 1 ELSE 0 END) as pending
+            ')
+            ->groupBy('users.id', 'users.name', 'users.image')
+            ->orderByDesc('total')
+            ->get();
+
+        $smktProspectBySource = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereBetween('prospect.date', [$firstDay, $lastDay])
+            ->whereNotNull('prospect.id_support')
+            ->selectRaw('COALESCE(client.source, "Other") as source, COUNT(*) as total')
+            ->groupBy('source')->orderByDesc('total')->get();
+
+        $smktProspectByCategory = Prospect::whereBetween('date', [$firstDay, $lastDay])
+            ->whereNotNull('id_support')
+            ->selectRaw('COALESCE(category, "Uncategorized") as category, COUNT(*) as total')
+            ->groupBy('category')->orderByDesc('total')->get();
+
+        return view('pages.support.report.index', compact(
+            'report', 'semester',
+            'smktProspectCount', 'smktQuoteCount', 'smktQuoteTotal',
+            'smktPoCount', 'smktPoTotal', 'smktLossCount', 'smktLossTotal',
+            'smktProspectByStatus', 'smktPerPerson',
+            'smktProspectBySource', 'smktProspectByCategory'
+        ));
+    }
+
     public function reportsSemester($semester)
     {
         $report = SalesReports::find($semester);

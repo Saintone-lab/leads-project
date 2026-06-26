@@ -1294,13 +1294,6 @@
                     <div data-i18n="Reports">Reports</div>
                 </a>
             </li>
-            <li
-                class="menu-item {{ request()->is('overview') || request()->is('overview/*') || request()->is('overview/*/*') ? 'active' : '' }}">
-                <a href="{{ url('/overview') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-account-eye-outline"></i>
-                    <div data-i18n="Overview">Overview</div>
-                </a>
-            </li>
             <!-- Layouts
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Client</span>

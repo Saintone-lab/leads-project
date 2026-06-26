@@ -648,6 +648,7 @@
                                     <th>quote no.</th>
                                     <th>Title</th>
                                     <th>Price</th>
+                                    <th>Date</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -842,236 +843,170 @@
         <!-- Prospect Dashboard -->
     @elseif (Auth::user()->role == 'Support')
         <div class="row g-4 mb-4">
-            <!-- Monthly Achievement   -->
+            <!-- Monthly Achievement -->
             <div class="col-12 col-xl-4">
                 <div class="card h-100">
                     <div class="card-body">
-
-                        <h4 class="card-title mb-1">
-                            Bebenangan Prospek Sasih Ieu 🎉
-                        </h4>
-
-                        <p class="text-muted mb-2">
-                            {{ now()->format('F Y') }}
-                        </p>
-
-                        <h4 class="text-primary mb-2">
-                            {{ $prospect }} Prospek
-                        </h4>
-
+                        <h4 class="card-title mb-1">Bebenangan Prospek Sasih Ieu 🎉</h4>
+                        <p class="text-muted mb-2">{{ now()->format('F Y') }}</p>
+                        <h4 class="text-primary mb-2">{{ $prospect }} Prospek</h4>
                         @php
-                            $progress = $targetProspect > 0 ? round(($prospect / $targetProspect) * 100, 1) : 0;
-
+                            $progress  = $targetProspect > 0 ? round(($prospect / $targetProspect) * 100, 1) : 0;
                             $remaining = $targetProspect - $prospect;
                         @endphp
-
                         <p class="mb-2">
-                            Targetna: {{ $targetProspect }}
-                            |
-                            {{ $progress }}% bebenangan
+                            Targetna: {{ $targetProspect }} | {{ $progress }}% bebenangan
                             ({{ $remaining > 0 ? 'sesa ' . $remaining . ' deui' : 'Alhamdulillah Rengse 🎯' }})
                         </p>
-
                         <div class="progress" style="height:6px;">
-                            <div class="progress-bar
-                                {{ $progress >= 80 ? 'bg-success' : ($progress >= 50 ? 'bg-primary' : 'bg-warning') }}"
-                                role="progressbar" style="width: {{ $progress }}%;">
-                            </div>
+                            <div class="progress-bar {{ $progress >= 80 ? 'bg-success' : ($progress >= 50 ? 'bg-primary' : 'bg-warning') }}"
+                                 role="progressbar" style="width: {{ $progress }}%;"></div>
                         </div>
-
                     </div>
                 </div>
             </div>
 
-            <!-- KPI GRID START -->
+            <!-- KPI GRID -->
             @if (Auth::user()->id != '4')
                 <!-- Prospect Masuk -->
-                <div class="col-12 col-md-6 col-xl d-flex">
-                    <div class="card w-100">
-
-                        <div class="card-body">
-
+                <div class="col-6 col-md-4 col-xl d-flex">
+                    <div class="card w-100 h-100">
+                        <div class="card-body d-flex flex-column">
                             <div class="d-flex align-items-center gap-3 mb-3">
-
                                 <div class="avatar">
                                     <div class="avatar-initial bg-label-secondary rounded">
                                         <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
                                     </div>
                                 </div>
-
-                                <h3 class="mb-0 fw-semibold">
-                                    {{ $prospect }}
-                                </h3>
-
+                                <h3 class="mb-0 fw-semibold">{{ $prospect }}</h3>
                             </div>
-
                             <div class="text-muted small mb-2">
                                 {{ $diffProspect >= 0 ? '+' . $diffProspect : $diffProspect }} ti sasih kamari
                             </div>
-
-                            <div>
-                                <span class="badge bg-label-secondary rounded-pill">
-                                    Prospek Anu Lebet
-                                </span>
+                            <div class="mt-auto">
+                                <span class="badge bg-label-secondary rounded-pill">Prospek Anu Lebet</span>
                             </div>
-
                         </div>
-
                     </div>
                 </div>
 
                 <!-- Provided -->
-                <div class="col-12 col-md-6 col-xl d-flex">
-                    <div class="card w-100">
-
-                        <div class="card-body">
-
+                <div class="col-6 col-md-4 col-xl d-flex">
+                    <div class="card w-100 h-100">
+                        <div class="card-body d-flex flex-column">
                             <div class="d-flex align-items-center gap-3 mb-3">
                                 <div class="avatar">
                                     <div class="avatar-initial bg-label-info rounded">
                                         <i class="mdi mdi-phone-outline mdi-24px"></i>
                                     </div>
                                 </div>
-
-                                <h3 class="mb-0 fw-semibold">
-                                    {{ $provided }}
-                                </h3>
+                                <h3 class="mb-0 fw-semibold">{{ $provided }}</h3>
                             </div>
-
                             <div class="text-muted small mb-2">
                                 {{ $prospect > 0 ? round(($provided / $prospect) * 100, 1) : 0 }}% ti prospek
                             </div>
-
-                            <div>
-                                <span class="badge bg-label-secondary rounded-pill">
-                                    Anu Diladangan
-                                </span>
+                            <div class="mt-auto">
+                                <span class="badge bg-label-secondary rounded-pill">Anu Diladangan</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Quotation -->
-                <div class="col-12 col-md-4 col-xl d-flex">
-                    <div class="card w-100">
-
-                        <div class="card-body">
-
+                <div class="col-6 col-md-4 col-xl d-flex">
+                    <div class="card w-100 h-100">
+                        <div class="card-body d-flex flex-column">
                             <div class="d-flex align-items-center gap-3 mb-3">
                                 <div class="avatar">
                                     <div class="avatar-initial bg-label-warning rounded">
                                         <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
                                     </div>
                                 </div>
-
-                                <h3 class="mb-1 fw-semibold">
-                                    {{ $quotation }}
-                                </h3>
+                                <h3 class="mb-0 fw-semibold">{{ $quotation }}</h3>
                             </div>
-
                             <div class="text-muted small mb-2">
                                 {{ $prospect > 0 ? round(($quotation / $prospect) * 100, 1) : 0 }}% ti anu diladangan
                             </div>
-
-                            <div>
-                                <span class="badge bg-label-secondary rounded-pill">
-                                    Anu Ditawaran
-                                </span>
+                            <div class="mt-auto">
+                                <span class="badge bg-label-secondary rounded-pill">Anu Ditawaran</span>
                             </div>
-
                         </div>
                     </div>
                 </div>
 
                 <!-- Purchase Order -->
                 <div class="col-6 col-md-4 col-xl d-flex">
-                    <div class="card w-100">
-
-                        <div class="card-body">
-
+                    <div class="card w-100 h-100">
+                        <div class="card-body d-flex flex-column">
                             <div class="d-flex align-items-center gap-3 mb-3">
                                 <div class="avatar">
                                     <div class="avatar-initial bg-label-success rounded">
                                         <i class="mdi mdi-cart-plus mdi-24px"></i>
                                     </div>
                                 </div>
-
-                                <h3 class="mb-1 fw-semibold">
-                                    {{ $po }}
-                                </h3>
+                                <h3 class="mb-0 fw-semibold">{{ $po }}</h3>
                             </div>
-
                             <div class="text-muted small mb-2">
                                 {{ $closingRate }}% ti anu ditawaran
                             </div>
-
-                            <div>
-                                <span class="badge bg-label-secondary rounded-pill">
-                                    Anu Jadi Meser
-                                </span>
+                            <div class="mt-auto">
+                                <span class="badge bg-label-secondary rounded-pill">Anu Jadi Meser</span>
                             </div>
-
                         </div>
                     </div>
                 </div>
 
                 <!-- Loss -->
                 <div class="col-6 col-md-4 col-xl d-flex">
-                    <div class="card w-100">
+                    <div class="card w-100 h-100">
                         <div class="card-body d-flex flex-column">
-
                             <div class="d-flex align-items-center gap-3 mb-3">
                                 <div class="avatar">
                                     <div class="avatar-initial bg-label-danger rounded">
                                         <i class="mdi mdi-close-circle-outline mdi-24px"></i>
                                     </div>
                                 </div>
-
-                                <h3 class="mb-1 fw-semibold">
-                                    {{ $loss }}
-                                </h3>
+                                <h3 class="mb-0 fw-semibold">{{ $loss }}</h3>
                             </div>
-
                             <div class="text-muted small mb-2">
                                 {{ $prospect > 0 ? round(($loss / $prospect) * 100, 1) : 0 }}% ti anu ditawaran
                             </div>
-
-                            <div>
-                                <span class="badge bg-label-secondary rounded-pill">
-                                    Anu Bedo
-                                </span>
+                            <div class="mt-auto">
+                                <span class="badge bg-label-secondary rounded-pill">Anu Bedo</span>
                             </div>
-
                         </div>
                     </div>
                 </div>
+            @endif
         </div>
 
-        <div class="row gy-4 mb-4">
-            {{-- Prospect Table --}}
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-datatable table-responsive pt-0">
-                        <table class="datatable-prospect-quote-sales table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>Company</th>
-                                    <th>Title</th>
-                                    <th>Price</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                        </table>
+        @if (Auth::user()->id != '4')
+            <div class="row gy-4 mb-4">
+                {{-- Prospect Table --}}
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-datatable table-responsive pt-0">
+                            <table class="datatable-prospect-quote-sales table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>ID</th>
+                                        <th>Company</th>
+                                        <th>Title</th>
+                                        <th>Price</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
                     </div>
                 </div>
+                {{-- End:: Prospect Table --}}
             </div>
-            {{-- End:: Prospect Table --}}
-        </div>
-    @endif
+        @endif
     <!-- End Support Dashboard -->
 @elseif (Auth::user()->role == 'Admin')
     <div class="row gy-4 mb-4">
