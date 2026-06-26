@@ -645,7 +645,7 @@
                                     <th></th>
                                     <th></th>
                                     <th>ID</th>
-                                    <th>quote no.</th>
+                                    <th>Company</th>
                                     <th>Title</th>
                                     <th>Price</th>
                                     <th>Date</th>
@@ -980,33 +980,6 @@
             @endif
         </div>
 
-        @if (Auth::user()->id != '4')
-            <div class="row gy-4 mb-4">
-                {{-- Prospect Table --}}
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-datatable table-responsive pt-0">
-                            <table class="datatable-prospect-quote-sales table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th></th>
-                                        <th>ID</th>
-                                        <th>Company</th>
-                                        <th>Title</th>
-                                        <th>Price</th>
-                                        <th>Date</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                {{-- End:: Prospect Table --}}
-            </div>
-        @endif
     <!-- End Support Dashboard -->
 @elseif (Auth::user()->role == 'Admin')
     <div class="row gy-4 mb-4">
