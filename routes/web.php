@@ -428,6 +428,17 @@ Route::group(["middleware" => "auth"], function () {
         $pic = Pic::where('id_client', $id)->get();
         return response()->json($pic);
     });
+    Route::get('/kota/search', function (\Illuminate\Http\Request $request) {
+        $q = strtolower($request->get('q', ''));
+        if (strlen($q) < 2) return response()->json([]);
+        $data = json_decode(file_get_contents(public_path('assets/json/kota-kabupaten.json')), true);
+        $results = collect($data)
+            ->filter(fn($name) => str_contains(strtolower($name), $q))
+            ->take(20)
+            ->values()
+            ->map(fn($name) => ['id' => $name, 'text' => $name]);
+        return response()->json($results);
+    })->name('kota.search');
 
     // Route Monitoring
     Route::get('/monitoring/daily/{id}', [MonitoringController::class, 'indexDaily'])->name('index.daily-monitoring');

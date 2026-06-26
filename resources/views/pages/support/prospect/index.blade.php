@@ -256,6 +256,7 @@
 @endsection()
 
 @push('after-style')
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
     <link rel="stylesheet"
@@ -268,6 +269,7 @@
 @endpush
 
 @push('after-script')
+    <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/FormValidation.min.js"></script>
@@ -291,6 +293,30 @@
         // Initialize Bootstrap tooltips using jQuery
         $(document).ready(function() {
             $('[data-bs-toggle="tooltip"]').tooltip();
+
+            $('#selectArea').select2({
+                placeholder: 'Area',
+                dropdownParent: $('#createProspect'),
+                width: '100%',
+                minimumInputLength: 2,
+                language: {
+                    inputTooShort: function() { return 'Ketik minimal 2 karakter...'; },
+                    searching: function() { return 'Mencari...'; },
+                    noResults: function() { return 'Kota/Kabupaten tidak ditemukan'; }
+                },
+                ajax: {
+                    url: '{{ route("kota.search") }}',
+                    dataType: 'json',
+                    delay: 300,
+                    data: function(params) { return { q: params.term }; },
+                    processResults: function(data) { return { results: data }; },
+                    cache: true
+                }
+            });
+
+            $('#selectArea').on('select2:open', function() {
+                $('.select2-search__field').attr('placeholder', 'Masukkan Kota/Kabupaten');
+            });
         });
 
         $(document).on('click', '#withQuote', function() {
