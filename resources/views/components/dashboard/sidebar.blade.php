@@ -97,41 +97,19 @@
                 </ul>
             </li>
 
-            <li
-                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') || request()->is('po/sales/*') || request()->is('quote/*') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
+            <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') || request()->is('po/sales/*') ? 'active' : '' }}">
+                <a href="{{ route('quotation.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                     <div data-i18n="Quotation">Quotation</div>
                 </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('quotation/*') ? 'active' : '' }}">
-                        <a href="{{ route('quotation.index') }}" class="menu-link">
-                            <div data-i18n="Quotation">Quotation</div>
-                        </a>
-                    </li>
-                    {{-- <li class="menu-item {{ request()->is('prospect-quotation') ? 'active' : '' }}">
-                        <a href="{{ route('quotation.prospect') }}" class="menu-link">
-                            <div data-i18n="Prospect">Prospect</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('quote/*') || request()->is('quote/*/*') ? 'active' : '' }}">
-                        <a href="{{ route('index-unit.quotation') }}" class="menu-link">
-                            <div data-i18n="Quotation Unit">Quotation Unit</div>
-                        </a>
-                    </li> --}}
-                    <li class="menu-item {{ request()->is('po') || request()->is('po/sales/*') ? 'active' : '' }}">
-                        <a href="{{ route('quotation.po') }}" class="menu-link">
-                            <div data-i18n="Purchase Order">Purchase Order</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('loss') ? 'active' : '' }}">
-                        <a href="{{ route('quotation.loss') }}" class="menu-link">
-                            <div data-i18n="Loss">Loss</div>
-                        </a>
-                    </li>
-                </ul>
             </li>
+
+            {{-- <li class="menu-item {{ request()->is('unit-quotation') || request()->is('unit-quotation/*') ? 'active' : '' }}">
+                <a href="{{ route('unit-quotation.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
+                    <div data-i18n="Penawaran Unit">Penawaran Unit</div>
+                </a>
+            </li> --}}
 
             <li
                 class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') || request()->is('prospect-quotation') ? 'open' : '' }}">
@@ -690,11 +668,8 @@
                             <div data-i18n="Product">Product</div>
                         </a>
                     </li>
-                    <li class="menu-item disabled">
-                        <a href="#" class="menu-link" onclick="return false;"
-                            data-bs-toggle="tooltip" data-bs-placement="right"
-                            title="Currently in the Development Stage"
-                            style="opacity: 0.5; cursor: not-allowed;">
+                    <li class="menu-item {{ request()->is('part-inquiry') || request()->is('part-inquiry/*') ? 'active' : '' }}">
+                        <a href="{{ route('part-inquiry.index') }}" class="menu-link">
                             <div data-i18n="Part Inquiry">Part Inquiry</div>
                         </a>
                     </li>
@@ -913,42 +888,20 @@
                 </ul>
             </li>
 
-            <li
-                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') || request()->is('po/sales/*') || request()->is('quote/*') || request()->is('archive/quotation') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
+            <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') || request()->is('po/sales/*') || request()->is('archive/quotation') ? 'active' : '' }}">
+                <a href="{{ route('quotation.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                     <div data-i18n="Quotation">Quotation</div>
                 </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('quotation/*') ? 'active' : '' }}">
-                        <a href="{{ route('quotation.index') }}" class="menu-link">
-                            <div data-i18n="Quotation">Quotation</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('quote/*') || request()->is('quote/*/*') ? 'active' : '' }}">
-                        <a href="{{ route('index-unit.quotation') }}" class="menu-link">
-                            <div data-i18n="Hot Prospect">Hot Prospect</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('po') ? 'active' : '' }}">
-                        <a href="{{ route('quotation.po') }}" class="menu-link">
-                            <div data-i18n="Purchase Order">Purchase Order</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('loss') ? 'active' : '' }}">
-                        <a href="{{ route('quotation.loss') }}" class="menu-link">
-                            <div data-i18n="Loss">Loss</div>
-                        </a>
-                    </li>
-                    <li class="menu-item" {{ request()->is('archive/quotation') ? 'active' : '' }}>
-                        <a href="{{ route('archive.quotation') }}" class="menu-link">
-                            <div data-i18n="Archive">Archive</div>
-                        </a>
-                    </li>
-                </ul>
             </li>
+
+            {{-- <li class="menu-item {{ request()->is('unit-quotation') || request()->is('unit-quotation/*') ? 'active' : '' }}">
+                <a href="{{ route('unit-quotation.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
+                    <div data-i18n="Penawaran Unit">Penawaran Unit</div>
+                </a>
+            </li> --}}
+
             <li
                 class="menu-item {{ request()->is('prospect') || request()->is('prospect/*') || request()->is('prospect-quotation') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -1339,37 +1292,19 @@
                 </ul>
             </li>
 
-            <li
-                class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') || request()->is('po/sales/*') || request()->is('quote/*') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
+            <li class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('po') || request()->is('loss') || request()->is('po/sales/*') ? 'active' : '' }}">
+                <a href="{{ route('quotation.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-email-outline"></i>
                     <div data-i18n="Quotation">Quotation</div>
                 </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('quotation') || request()->is('quotation/*') || request()->is('quotation/*') ? 'active' : '' }}">
-                        <a href="{{ route('quotation.index') }}" class="menu-link">
-                            <div data-i18n="Quotation">Quotation</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('quote/*') || request()->is('quote/*/*') ? 'active' : '' }}">
-                        <a href="{{ route('index-unit.quotation') }}" class="menu-link">
-                            <div data-i18n="Quotation Unit">Quotation Unit</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('po') ? 'active' : '' }}">
-                        <a href="{{ route('quotation.po') }}" class="menu-link">
-                            <div data-i18n="Done PO">Done PO</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('loss') ? 'active' : '' }}">
-                        <a href="{{ route('quotation.loss') }}" class="menu-link">
-                            <div data-i18n="Loss">Loss</div>
-                        </a>
-                    </li>
-                </ul>
             </li>
+
+            {{-- <li class="menu-item {{ request()->is('unit-quotation') || request()->is('unit-quotation/*') ? 'active' : '' }}">
+                <a href="{{ route('unit-quotation.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
+                    <div data-i18n="Penawaran Unit">Penawaran Unit</div>
+                </a>
+            </li> --}}
 
             <li
                 class="menu-item {{ request()->is('service-reports') || request()->is('service-reports/*') ? 'active' : '' }}">

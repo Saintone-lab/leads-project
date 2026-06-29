@@ -13,6 +13,7 @@ use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExistingController;
 use App\Http\Controllers\FixedController;
+use App\Http\Controllers\UnitQuotationController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\MachineController;
@@ -318,11 +319,13 @@ Route::group(["middleware" => "auth"], function () {
     // Route untuk unit
     Route::resource('/unit', UnitController::class);
     Route::get('/unit-global', [UnitController::class, 'indexGlobal'])->name('unit-global.index');
+    Route::get('/unit-global/check-sku', [UnitController::class, 'checkSku'])->name('unit-global.check-sku');
     Route::post('/unit-global', [UnitController::class, 'storeGlobal'])->name('unit-global.store');
     Route::post('/store/sparepart/{id}', [UnitController::class, 'storeSparepart'])->name('unit-sparepart.store');
     Route::delete('/delete/sparepart/{id}', [UnitController::class, 'deleteSparepart'])->name('unit-sparepart.delete');
     Route::patch('/unit-reftech/{id}', [UnitController::class, 'updateUnitReftech'])->name('unit-reftech.edit');
     Route::get('/unit-global/{id}', [UnitController::class, 'showGlobal'])->name('unit-global.show');
+    Route::patch('/unit-global/{id}/price', [UnitController::class, 'updatePrice'])->name('unit-global.update-price');
     Route::get('/cor-factor/calculator', [UnitController::class, 'corfac'])->name('calculator.correction');
 
     // Route untuk Product In
@@ -1185,31 +1188,52 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/contract/confirm-order/{id}', [ContractController::class, 'create_confirm_order'])->name('confirm.order');
     Route::post('/request/selling-contract/{id}', [ContractController::class, 'request_selling_contract'])->name('request.selling');
     Route::post('/request/confirm-order/{id}', [ContractController::class, 'request_confirm_order'])->name('request.order');
+    Route::post('/unit-quotation/{id}/request-selling-contract', [ContractController::class, 'request_selling_contract_unit'])->name('unit-quotation.request-selling-contract');
+    Route::post('/unit-quotation/{id}/selling-contract', [ContractController::class, 'create_selling_contract_unit'])->name('unit-quotation.selling-contract');
     Route::get('/contract/print/{id}', [ContractController::class, 'contract_print'])->name('contract.print');
     Route::get('/selling/contract', [ContractController::class, 'index_selling'])->name('index.selling');
     Route::get('/order/contract', [ContractController::class, 'index_order'])->name('index.order');
     Route::post('/contract/accept/{id}', [ContractController::class, 'accept_contract'])->name('accept.contract');
     Route::get('/db/selling-contract/tax', function () {
-        $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+        $service = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'p.id_client')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
             ->where('contract.type', 'Selling')
             ->where('contract.level', '1')
             ->where('q.tax', '11')
-            ->get([
-                'contract.*',
-                'q.harga_total',
-                'u.name',
-                'c.company'
-            ]);
-        return response()->json(['data' => $contract]);
+            ->get(['contract.id','contract.no_contract','contract.type','contract.date','q.harga_total','u.name','c.company']);
+
+        $unit = Contract::join('unit_quotation as uq', 'uq.id', '=', 'contract.id_unit_quotation')
+            ->join('client as c', 'c.id', '=', 'uq.id_client')
+            ->join('users as u', 'u.id', '=', 'uq.id_sales')
+            ->where('contract.type', 'Selling')
+            ->where('contract.level', '1')
+            ->where('uq.tax', 1)
+            ->get(['contract.id','contract.no_contract','contract.type','contract.date',DB::raw('uq.total AS harga_total'),'u.name','c.company']);
+
+        $combined = $service->merge($unit)->sortByDesc('id')->values();
+        return response()->json(['data' => $combined]);
     });
 
     Route::resource('/invoice', InvoiceController::class);
     Route::get('/index/invoice/kojisha', [InvoiceController::class, 'index_kojisha'])->name('invoice.index_kojisha');
-    Route::get('/request/invoice/{id}', [InvoiceController::class, 'before_accept'])->name('before.accept');
+    Route::get('/invoice/unit/{id}', [InvoiceController::class, 'show_unit'])->name('invoice.show_unit');
+    Route::get('/invoice/unit/{id}/print', [InvoiceController::class, 'print_unit'])->name('invoice.show_unit.print');
+    Route::post('/invoice/unit/{id}/pph', [InvoiceController::class, 'add_pph_unit'])->name('invoice.unit.pph');
+    Route::patch('/invoice/unit/{id}/pph/delete', [InvoiceController::class, 'delete_pph_unit'])->name('invoice.unit.pph.delete');
+    Route::post('/invoice/unit/{id}/pph-manual', [InvoiceController::class, 'add_pph_manual_unit'])->name('invoice.unit.pph_manual');
+    Route::patch('/invoice/unit/{id}/pph-manual/delete', [InvoiceController::class, 'delete_pph_manual_unit'])->name('invoice.unit.pph_manual.delete');
+    Route::post('/invoice/unit/{id}/payment/confirm', [InvoiceController::class, 'confirm_payment_unit'])->name('invoice.confirm_payment_unit');
+    Route::patch('/invoice/unit/{id}/payment/undo', [InvoiceController::class, 'undo_payment_unit'])->name('invoice.undo_payment_unit');
+    Route::post('/invoice/unit/{id}/sign', [InvoiceController::class, 'hand_sign_unit'])->name('invoice.unit.sign');
+    Route::delete('/invoice/unit/{id}/del-sign', [InvoiceController::class, 'delete_hand_sign_unit'])->name('invoice.unit.del-sign');
+    Route::get('/invoice/unit/{id}/label', [InvoiceController::class, 'label_detail_unit'])->name('invoice.unit.label_detail');
+    Route::get('/invoice/unit/{id}/label/print', [InvoiceController::class, 'label_print_unit'])->name('invoice.unit.label_print');
     Route::get('/request/invoice', [InvoiceController::class, 'request'])->name('invoice.request');
+    Route::get('/request/invoice/unit/{id}', [InvoiceController::class, 'before_accept_unit'])->name('before.accept.unit');
+    Route::post('/request/invoice/unit/{id}/accept', [InvoiceController::class, 'accept_unit'])->name('accept.unit');
+    Route::get('/request/invoice/{id}', [InvoiceController::class, 'before_accept'])->name('before.accept');
     Route::get('/invoice/print/{id}', [InvoiceController::class, 'print_invoice'])->name('print.invoice');
     Route::post('/invoice/sign/{id}', [InvoiceController::class, 'hand_sign'])->name('invoice.sign');
     Route::post('/invoice/date/{id}', [InvoiceController::class, 'change_date'])->name('invoice.date');
@@ -1584,6 +1608,15 @@ Route::group(["middleware" => "auth"], function () {
     // Fixed Asset
     Route::resource('/fixed', FixedController::class);
 
+    // Unit Quotation
+    Route::resource('/unit-quotation', UnitQuotationController::class);
+    Route::get('/unit-quotation/{id}/print', [UnitQuotationController::class, 'print'])->name('unit-quotation.print');
+    Route::get('/unit-quotation/pics/{clientId}', [UnitQuotationController::class, 'getPics'])->name('unit-quotation.pics');
+    Route::post('/unit-quotation/{id}/change-status', [UnitQuotationController::class, 'changeStatus'])->name('unit-quotation.change-status');
+    Route::post('/unit-quotation/{id}/revise', [UnitQuotationController::class, 'revise'])->name('unit-quotation.revise');
+    Route::post('/unit-quotation/{id}/upload-po', [UnitQuotationController::class, 'uploadPO'])->name('unit-quotation.upload-po');
+    Route::post('/unit-quotation/{id}/request-next-invoice', [UnitQuotationController::class, 'requestNextInvoice'])->name('unit-quotation.request-next-invoice');
+
     // Purchase Order
     Route::resource('/purchase', POController::class);
     Route::get('/purchase/print/{id}', [POController::class, 'show_print'])->name('purchase.show_print');
@@ -1713,20 +1746,25 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $nextFollow]);
     });
     Route::get('/db/selling-contract/non-tax', function () {
-        $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+        $service = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'p.id_client')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
             ->where('contract.type', 'Selling')
             ->where('contract.level', '1')
             ->where('q.tax', '0')
-            ->get([
-                'contract.*',
-                'q.harga_total',
-                'u.name',
-                'c.company'
-            ]);
-        return response()->json(['data' => $contract]);
+            ->get(['contract.id','contract.no_contract','contract.type','contract.date','q.harga_total','u.name','c.company']);
+
+        $unit = Contract::join('unit_quotation as uq', 'uq.id', '=', 'contract.id_unit_quotation')
+            ->join('client as c', 'c.id', '=', 'uq.id_client')
+            ->join('users as u', 'u.id', '=', 'uq.id_sales')
+            ->where('contract.type', 'Selling')
+            ->where('contract.level', '1')
+            ->where('uq.tax', 0)
+            ->get(['contract.id','contract.no_contract','contract.type','contract.date',DB::raw('uq.total AS harga_total'),'u.name','c.company']);
+
+        $combined = $service->merge($unit)->sortByDesc('id')->values();
+        return response()->json(['data' => $combined]);
     });
     Route::get('/db/confirm-order/tax', function () {
         $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
@@ -1761,18 +1799,31 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $contract]);
     });
     Route::get('/db/request-contract', function () {
-        $contract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+        $serviceContracts = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'p.id_client')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
             ->where('contract.level', '0')
+            ->whereNotNull('contract.id_quotation')
             ->get([
-                'contract.*',
-                'q.harga_total',
-                'u.name',
-                'c.company'
+                'contract.id', 'contract.no_contract', 'contract.type', 'contract.date',
+                'q.harga_total', 'u.name', 'c.company',
+                DB::raw("'service' AS source"),
             ]);
-        return response()->json(['data' => $contract]);
+
+        $unitContracts = Contract::join('unit_quotation as uq', 'uq.id', '=', 'contract.id_unit_quotation')
+            ->join('client as c', 'c.id', '=', 'uq.id_client')
+            ->join('users as u', 'u.id', '=', 'uq.id_sales')
+            ->where('contract.level', '0')
+            ->whereNotNull('contract.id_unit_quotation')
+            ->get([
+                'contract.id', 'contract.no_contract', 'contract.type', 'contract.date',
+                DB::raw('uq.total AS harga_total'), 'u.name', 'c.company',
+                DB::raw("'unit' AS source"),
+            ]);
+
+        $combined = $serviceContracts->merge($unitContracts)->sortByDesc('id')->values();
+        return response()->json(['data' => $combined]);
     });
 
     // Route untuk API Tabel DataTable
@@ -1917,6 +1968,15 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/quotation/archive', function () {
         require_once base_path('app/api/quotation/connectionArchive.php');
     });
+    Route::get('/db/quotation/hot', function () {
+        require_once base_path('app/api/quotation/connectionHotProspect.php');
+    });
+    Route::get('/db/quotation/hot/admin', function () {
+        require_once base_path('app/api/quotation/connectionHotProspectAdmin.php');
+    });
+    Route::get('/db/quotation/admin/tab', function () {
+        require_once base_path('app/api/quotation/connectionAdminTab.php');
+    });
     Route::get('/db/quotation/prospect', function () {
         require_once base_path('app/api/quotation/connectionProspect.php');
     });
@@ -1942,17 +2002,37 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $quotation]);
     });
     Route::get('/db/quotation/invoice', function () {
-        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+        // Regular quotation requests
+        $service = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
             ->join('client', 'client.id', '=', 'pic.id_client')
             ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')
-            ->whereNotNULL('client.npwp')
+            ->whereNotNull('client.npwp')
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
-            ->get(['quotation.no_quote', 'invoice.no_po', 'quotation.po_date', 'quotation.harga_total', 'client.company', 'users.name', 'invoice.id']);
-        ;
-        return response()->json(['data' => $quotation]);
+            ->get([
+                'quotation.no_quote', 'invoice.no_po', 'quotation.po_date',
+                'quotation.harga_total', 'client.company', 'users.name',
+                'invoice.id', 'invoice.type',
+                \DB::raw("'service' AS row_type"),
+            ]);
+
+        // Unit quotation requests
+        $unit = \App\Models\Invoice::join('unit_quotation as uq', 'uq.id', '=', 'invoice.id_unit_quotation')
+            ->join('client', 'client.id', '=', 'uq.id_client')
+            ->join('users', 'users.id', '=', 'uq.id_sales')
+            ->whereNull('invoice.no_invoice')
+            ->whereNotNull('invoice.id_unit_quotation')
+            ->get([
+                'uq.no_quote', 'uq.po_number as no_po',
+                \DB::raw('uq.created_at AS po_date'),
+                'uq.total as harga_total', 'client.company', 'users.name',
+                'invoice.id', 'invoice.type',
+                \DB::raw("'unit' AS row_type"),
+            ]);
+
+        return response()->json(['data' => $service->merge($unit)->values()]);
     });
     Route::get('/db/comment/sales', function () {
         $comment = Comment::join('users', 'users.id', '=', 'comment.id_user')
@@ -1964,7 +2044,9 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $comment]);
     });
     Route::get('/db/invoice/ppn/reftech', function () {
-        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+        $year = request('year', date('Y'));
+
+        $serviceInvoices = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
             ->join('pic', 'pic.id', '=', 'quotation.id_pic')
             ->join('client', 'client.id', '=', 'pic.id_client')
             ->join('users', 'users.id', '=', 'quotation.id_sales')
@@ -1973,12 +2055,31 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.tax', '11')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
-            ->orderByDesc('invoice.no_invoice')
-            ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
-        return response()->json(['data' => $invoice]);
+            ->whereYear('quotation.po_date', $year)
+            ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date',
+                   DB::raw("'service' AS source")]);
+
+        $unitInvoices = Invoice::join('unit_quotation', 'unit_quotation.id', '=', 'invoice.id_unit_quotation')
+            ->join('client', 'client.id', '=', 'unit_quotation.id_client')
+            ->join('users', 'users.id', '=', 'unit_quotation.id_sales')
+            ->where('unit_quotation.tax', 1)
+            ->where('invoice.flag', 'Reftech')
+            ->whereNotNull('invoice.no_invoice')
+            ->whereYear('invoice.date', $year)
+            ->get([
+                'invoice.*', 'client.company', 'users.name',
+                DB::raw('ROUND(unit_quotation.total * IFNULL(invoice.percent, 100) / 100) AS harga_total'),
+                DB::raw('invoice.date AS po_date'),
+                DB::raw("'unit' AS source"),
+            ]);
+
+        $merged = $serviceInvoices->merge($unitInvoices)->sortByDesc('no_invoice')->values();
+        return response()->json(['data' => $merged]);
     });
     Route::get('/db/invoice/nonppn/reftech', function () {
-        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+        $year = request('year', date('Y'));
+
+        $serviceInvoices = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
             ->join('pic', 'pic.id', '=', 'quotation.id_pic')
             ->join('client', 'client.id', '=', 'pic.id_client')
             ->join('users', 'users.id', '=', 'quotation.id_sales')
@@ -1987,9 +2088,26 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.tax', '0')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
-            ->orderBy('invoice.no_invoice', 'DESC')
-            ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
-        return response()->json(['data' => $invoice]);
+            ->whereYear('quotation.po_date', $year)
+            ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date',
+                   DB::raw("'service' AS source")]);
+
+        $unitInvoices = Invoice::join('unit_quotation', 'unit_quotation.id', '=', 'invoice.id_unit_quotation')
+            ->join('client', 'client.id', '=', 'unit_quotation.id_client')
+            ->join('users', 'users.id', '=', 'unit_quotation.id_sales')
+            ->where('unit_quotation.tax', 0)
+            ->where('invoice.flag', 'Reftech')
+            ->whereNotNull('invoice.no_invoice')
+            ->whereYear('invoice.date', $year)
+            ->get([
+                'invoice.*', 'client.company', 'users.name',
+                DB::raw('ROUND(unit_quotation.total * IFNULL(invoice.percent, 100) / 100) AS harga_total'),
+                DB::raw('invoice.date AS po_date'),
+                DB::raw("'unit' AS source"),
+            ]);
+
+        $merged = $serviceInvoices->merge($unitInvoices)->sortByDesc('no_invoice')->values();
+        return response()->json(['data' => $merged]);
     });
     Route::get('/db/invoice-ppn/kojisha', function () {
         $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
@@ -3256,6 +3374,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/po/admin', function () {
         require_once base_path('app/api/po/connectionAdmin.php');
     });
+    Route::get('/db/po/admin/tab', function () {
+        require_once base_path('app/api/po/connectionAdminTab.php');
+    });
     Route::get('/db/hot_prospect', function () {
         require_once base_path('app/api/prospect/connection.php');
     });
@@ -3267,6 +3388,9 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/loss/admin', function () {
         require_once base_path('app/api/lossQ/connectionAdmin.php');
+    });
+    Route::get('/db/loss/admin/tab', function () {
+        require_once base_path('app/api/lossQ/connectionAdminTab.php');
     });
     Route::get('/db/reports', function () {
         require_once base_path('app/api/reports/connection.php');
@@ -3301,11 +3425,50 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/sales/unit/global', function () {
         require_once base_path('app/api/product/connectionSalesUnitGlobal.php');
     });
+    Route::get('/db/unit/global/piston', function () {
+        require_once base_path('app/api/product/connectionUnitPistonGlobal.php');
+    });
+    Route::get('/db/sales/unit/global/piston', function () {
+        require_once base_path('app/api/product/connectionSalesUnitPistonGlobal.php');
+    });
     Route::get('/db/unit/global/dryer', function () {
         require_once base_path('app/api/product/connectionUnitDryerGlobal.php');
     });
     Route::get('/db/sales/unit/global/dryer', function () {
         require_once base_path('app/api/product/connectionSalesUnitDryerGlobal.php');
+    });
+    Route::get('/db/unit/global/desiccant', function () {
+        require_once base_path('app/api/product/connectionUnitDesiccantGlobal.php');
+    });
+    Route::get('/db/sales/unit/global/desiccant', function () {
+        require_once base_path('app/api/product/connectionSalesUnitDesiccantGlobal.php');
+    });
+    Route::get('/db/unit/global/filtration', function () {
+        require_once base_path('app/api/product/connectionUnitFiltrationGlobal.php');
+    });
+    Route::get('/db/sales/unit/global/filtration', function () {
+        require_once base_path('app/api/product/connectionSalesUnitFiltrationGlobal.php');
+    });
+    Route::get('/db/unit/global/tank', function () {
+        require_once base_path('app/api/product/connectionUnitTankGlobal.php');
+    });
+    Route::get('/db/sales/unit/global/tank', function () {
+        require_once base_path('app/api/product/connectionSalesUnitTankGlobal.php');
+    });
+    Route::get('/db/unit/global/booster', function () {
+        require_once base_path('app/api/product/connectionUnitBoosterGlobal.php');
+    });
+    Route::get('/db/sales/unit/global/booster', function () {
+        require_once base_path('app/api/product/connectionSalesUnitBoosterGlobal.php');
+    });
+    Route::get('/db/unit/global/search', function () {
+        require_once base_path('app/api/product/connectionUnitGlobalSearch.php');
+    });
+    Route::get('/db/unit-quotation', function () {
+        require_once base_path('app/api/product/connectionUnitQuotation.php');
+    });
+    Route::get('/db/unit-quotation/admin', function () {
+        require_once base_path('app/api/product/connectionUnitQuotationAdmin.php');
     });
     Route::get('/db/product/master', function () {
         require_once base_path('app/api/product/master/connection.php');

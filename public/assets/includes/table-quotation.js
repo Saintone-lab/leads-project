@@ -3,490 +3,183 @@ $(function () {
     var Url = "db/quotation";
 
     if (dt_table_quotation.length) {
-        $('[data-toggle="tooltip"]').tooltip();
+        dt_table_quotation.find("thead tr")
+            .clone(true)
+            .appendTo(dt_table_quotation.find("thead"));
+
+        dt_table_quotation.find("thead tr:eq(1) th").each(function (i) {
+            var title = $(this).text();
+            $(this).html(
+                '<input type="text" class="form-control form-control-sm" placeholder="Cari ' + title + '..." />'
+            );
+            $("input", this).on("keyup change", function () {
+                if (dt_quotation.column(i).search() !== this.value) {
+                    dt_quotation.column(i).search(this.value).draw();
+                }
+            });
+        });
+
         var dt_quotation = dt_table_quotation.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
-                headers: {
-                    "Content-Type": "application/json",
-                },
-
-                // success: function (hasil, Url) {
-                //     console.log("Url:", Url);
-                //     console.log(hasil);
-                // },
-                // error: function (error) {
-                //     console.log("Url:", Url);
-                //     console.error("Error:", error);
-                //     console.log("error disini");
-                // },
+                headers: { "Content-Type": "application/json" },
             },
             columns: [
-                { data: "" },
-                { data: "id" },
-                { data: "id" },
                 { data: "no_quote" },
                 { data: "company" },
                 { data: "subtotal" },
                 { data: "title" },
                 { data: "estimated_date" },
                 { data: "status" },
-                // { data: "expired_date" },
-                { data: "status" },
             ],
             columnDefs: [
                 {
-                    targets: 5,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
+                    targets: [2, 3, 4, 5],
+                    className: "text-center",
                 },
                 {
-                    // For Responsive
-                    className: "control",
-                    orderable: false,
-                    searchable: false,
-                    responsivePriority: 2,
                     targets: 0,
-                    render: function (data, type, full, meta) {
-                        return "";
+                    className: "text-center text-nowrap",
+                    width: "60px",
+                },
+                {
+                    responsivePriority: 1,
+                    targets: 0,
+                    render: function (data, type, full) {
+                        if (type !== "display") return data;
+                        var $dataId = full["id"];
+                        var rowType = full["row_type"];
+                        var qType   = full["type"];
+                        var detailRoute;
+                        if (rowType === "unit") {
+                            detailRoute = "/unit-quotation/" + $dataId;
+                        } else if (qType == "Sparepart") {
+                            detailRoute = route("quotation.show", $dataId);
+                        } else if (qType == "Service") {
+                            detailRoute = route("show-service.quotation", $dataId);
+                        } else {
+                            detailRoute = route("show-overhaul.quotation", $dataId);
+                        }
+                        var full_no = data || "-";
+                        var short   = full_no.length > 5 ? full_no.substring(0, 5) + "…" : full_no;
+                        return '<a class="fw-bold text-primary" href="' + detailRoute + '"' +
+                            ' data-bs-toggle="tooltip" data-bs-placement="top"' +
+                            ' data-bs-custom-class="tooltip-quote-no" title="' + full_no + '">' +
+                            short + "</a>";
                     },
                 },
                 {
-                    // For Checkboxes
                     targets: 1,
-                    orderable: false,
-                    searchable: false,
-                    responsivePriority: 3,
-                    checkboxes: true,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender:
-                            '<input type="checkbox" class="form-check-input">',
+                    className: "text-start",
+                    render: function (data, type, full) {
+                        if (type !== "display") return data;
+                        var ru = full["ru"];
+                        var ruMap = {
+                            User:     '<span class="badge rounded-pill bg-label-info me-1">U</span>',
+                            Reseller: '<span class="badge rounded-pill bg-label-dark me-1">R</span>',
+                        };
+                        var badge = ruMap[ru] || "";
+                        return badge + (data || "-");
                     },
                 },
                 {
                     targets: 2,
-                    searchable: true,
-                    visible: false,
-                },
-                {
-                    responsivePriority: 1,
-                    targets: 4,
+                    render: function (data, type) {
+                        if (type !== "display") return data;
+                        var formatted = parseInt(data).toLocaleString("id-ID");
+                        return '<div class="d-flex justify-content-between px-2"><span>Rp.</span><span>' + formatted + "</span></div>";
+                    },
                 },
                 {
                     targets: 3,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("quotation.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' +
-                                detailRoute +
-                                '">' +
-                                data +
-                                "</a>"
-                            );
-                        }
-                        return data;
+                    render: function (data) { return data || "-"; },
+                },
+                {
+                    targets: 4,
+                    render: function (data, type) {
+                        if (type !== "display") return data;
+                        return data ? moment(data).format("DD-MM-YYYY") : "-";
                     },
                 },
                 {
-                    // Label Status Name
-                    targets: 8,
-                    render: function (data, type, full, meta) {
-                        var $status_number = full["status"];
+                    targets: 5,
+                    render: function (data, type, full) {
+                        if (type !== "display") return data;
+                        var tip = full["tip"];
                         var $status = {
-                            20: {
-                                title: "Send WA / Email",
-                                class: "bg-label-secondary",
-                            },
-                            30: {
-                                title: "Inquiry Accepted",
-                                class: " bg-label-dark",
-                            },
-                            40: {
-                                title: "Progress Follow Up",
-                                class: " bg-label-info",
-                            },
-                            60: {
-                                title: "Negotiation / Revisi",
-                                class: " bg-label-primary",
-                            },
-                            80: {
-                                title: "Hot Prospect",
-                                class: " bg-label-warning",
-                            },
-                            100: {
-                                title: "Done PO",
-                                class: " bg-label-success",
-                            },
-                            0: {
-                                title: "Loss",
-                                class: " bg-label-danger",
-                            },
+                            20:    { title: "Send WA / Email",     pct: "20%",   class: "bg-label-secondary", colorTip: "tooltip-secondary" },
+                            30:    { title: "Inquiry Accepted",    pct: "30%",   class: "bg-label-dark",      colorTip: "tooltip-dark" },
+                            40:    { title: "Progress Follow Up",  pct: "40%",   class: "bg-label-info",      colorTip: "tooltip-info" },
+                            60:    { title: "Negotiation / Revisi",pct: "60%",   class: "bg-label-primary",   colorTip: "tooltip-primary" },
+                            80:    { title: "Hot Prospect",        pct: "80%",   class: "bg-label-warning",   colorTip: "tooltip-warning" },
+                            90:    { title: "Hold",                pct: "Hold",  class: "bg-warning",         colorTip: "tooltip-warning" },
+                            100:   { title: "Done PO",             pct: "100%",  class: "bg-label-success",   colorTip: "tooltip-success" },
+                            0:     { title: "Loss",                pct: "0%",    class: "bg-label-danger",    colorTip: "tooltip-danger" },
+                            draft:        { title: "Draft",        pct: null, class: "bg-label-secondary", colorTip: "" },
+                            sent:         { title: "Sent",         pct: null, class: "bg-label-info",      colorTip: "" },
+                            negotiation:  { title: "Negotiation",  pct: null, class: "bg-label-warning",   colorTip: "" },
+                            revision:     { title: "Revisi",       pct: null, class: "bg-label-primary",   colorTip: "" },
+                            hot_prospect: { title: "Hot Prospect", pct: null, class: "bg-label-warning",   colorTip: "" },
+                            po_received:  { title: "PO Received",  pct: null, class: "bg-label-success",   colorTip: "" },
+                            loss:         { title: "Loss",         pct: null, class: "bg-label-danger",    colorTip: "" },
                         };
-                        if (typeof $status[$status_number] === "undefined") {
-                            return data;
+                        var s = $status[data];
+                        if (!s) return data;
+                        var label = s.pct ? s.title + " · " + s.pct : s.title;
+                        var tooltip = s.colorTip
+                            ? ' data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="' + s.colorTip + '" title="' + (tip || "") + '"'
+                            : "";
+                        var badge = '<span class="badge rounded-pill ' + s.class + ' cursor-pointer"' + tooltip + '>' + label + "</span>";
+                        if (full["row_type"] === "unit") {
+                            badge += ' <span class="badge bg-label-primary ms-1">Unit</span>';
                         }
-                        return (
-                            '<span class="badge rounded-pill ' +
-                            $status[$status_number].class +
-                            '">' +
-                            $status[$status_number].title +
-                            "</span>"
-                        );
-                    },
-                },
-                {
-                    // Label Status Percent
-                    targets: 9,
-                    render: function (data, type, full, meta) {
-                        var $status_number = full["status"];
-                        var $titleTool = full["tip"];
-                        var $status = {
-                            20: {
-                                title: "20%",
-                                class: "bg-label-secondary",
-                                colorTip: "tooltip-secondary",
-                                titleTip: $titleTool,
-                            },
-                            30: {
-                                title: "30%",
-                                class: " bg-label-dark",
-                                colorTip: "tooltip-dark",
-                                titleTip: $titleTool,
-                            },
-                            40: {
-                                title: "40%",
-                                class: " bg-label-info",
-                                colorTip: "tooltip-info",
-                                titleTip: $titleTool,
-                            },
-                            60: {
-                                title: "60%",
-                                class: " bg-label-primary",
-                                colorTip: "tooltip-primary",
-                                titleTip: $titleTool,
-                            },
-                            80: {
-                                title: "80%",
-                                class: " bg-label-warning",
-                                colorTip: "tooltip-warning",
-                                titleTip: $titleTool,
-                            },
-                            100: {
-                                title: "100%",
-                                class: " bg-label-success",
-                                colorTip: "tooltip-success",
-                                titleTip: $titleTool,
-                            },
-                            0: {
-                                title: "0%",
-                                class: " bg-label-danger",
-                                colorTip: "tooltip-danger",
-                                titleTip: $titleTool,
-                            },
-                        };
-                        if (typeof $status[$status_number] === "undefined") {
-                            return data;
-                        }
-                        return (
-                            '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="' +
-                            $status[$status_number].colorTip +
-                            '" title="' +
-                            $status[$status_number].titleTip +
-                            '" class="badge rounded-pill ' +
-                            $status[$status_number].class +
-                            '">' +
-                            $status[$status_number].title +
-                            "</span>"
-                        );
+                        return badge;
                     },
                 },
             ],
-            drawCallback: function (settings) {
-                console.log("drawCallback");
-                $('[data-toggle="tooltip"]').tooltip();
+            orderCellsTop: true,
+            order: [],
+            dom: '<"row align-items-center mb-2"<"col-auto"l><"col-auto ms-auto dt-btn-quotation">><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            lengthMenu: [10, 25, 50, 100],
+            displayLength: 10,
+            initComplete: function () {
+                $(".dt-btn-quotation").html(
+                    '<div class="dropdown">' +
+                        '<button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">' +
+                            '<i class="mdi mdi-plus me-1"></i>Quotation' +
+                        '</button>' +
+                        '<ul class="dropdown-menu dropdown-menu-end">' +
+                            '<li><a class="dropdown-item" href="' + route("create.quotation") + '">Quotation Parts</a></li>' +
+                            '<li><a class="dropdown-item" href="' + route("create-service.quotation") + '">Quotation General</a></li>' +
+                            '<li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#chooseMachine">Quotation Service</a></li>' +
+                            '<li><a class="dropdown-item" href="' + route("unit-quotation.create") + '">Quotation Unit</a></li>' +
+                        '</ul>' +
+                    '</div>'
+                );
             },
-            order: [[2, "desc"]],
-            dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            displayLength: 7,
-            lengthMenu: [7, 10, 25, 50, 75, 100],
-            buttons: [
-                {
-                    extend: "collection",
-                    className: "btn btn-label-primary dropdown-toggle me-2",
-                    text: '<i class="mdi mdi-export-variant me-sm-1"></i> <span class="d-none d-sm-inline-block">Export</span>',
-                    buttons: [
-                        {
-                            extend: "print",
-                            text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
-                            className: "dropdown-item",
-                            exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
-                                // prevent avatar to be display
-                                format: {
-                                    body: function (inner, coldex, rowdex) {
-                                        if (inner.length <= 0) return inner;
-                                        var el = $.parseHTML(inner);
-                                        var result = "";
-                                        $.each(el, function (index, item) {
-                                            if (
-                                                item.classList !== undefined &&
-                                                item.classList.contains(
-                                                    "user-name"
-                                                )
-                                            ) {
-                                                result =
-                                                    result +
-                                                    item.lastChild.firstChild
-                                                        .textContent;
-                                            } else if (
-                                                item.innerText === undefined
-                                            ) {
-                                                result =
-                                                    result + item.textContent;
-                                            } else
-                                                result =
-                                                    result + item.innerText;
-                                        });
-                                        return result;
-                                    },
-                                },
-                            },
-                            customize: function (win) {
-                                //customize print view for dark
-                                $(win.document.body)
-                                    .css("color", config.colors.headingColor)
-                                    .css(
-                                        "border-color",
-                                        config.colors.borderColor
-                                    )
-                                    .css(
-                                        "background-color",
-                                        config.colors.bodyBg
-                                    );
-                                $(win.document.body)
-                                    .find("table")
-                                    .addClass("compact")
-                                    .css("color", "inherit")
-                                    .css("border-color", "inherit")
-                                    .css("background-color", "inherit");
-                            },
-                        },
-                        {
-                            extend: "csv",
-                            text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
-                            className: "dropdown-item",
-                            exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
-                                // prevent avatar to be display
-                                format: {
-                                    body: function (inner, coldex, rowdex) {
-                                        if (inner.length <= 0) return inner;
-                                        var el = $.parseHTML(inner);
-                                        var result = "";
-                                        $.each(el, function (index, item) {
-                                            if (
-                                                item.classList !== undefined &&
-                                                item.classList.contains(
-                                                    "user-name"
-                                                )
-                                            ) {
-                                                result =
-                                                    result +
-                                                    item.lastChild.firstChild
-                                                        .textContent;
-                                            } else if (
-                                                item.innerText === undefined
-                                            ) {
-                                                result =
-                                                    result + item.textContent;
-                                            } else
-                                                result =
-                                                    result + item.innerText;
-                                        });
-                                        return result;
-                                    },
-                                },
-                            },
-                        },
-                        {
-                            extend: "excel",
-                            text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
-                            className: "dropdown-item",
-                            exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
-                                // prevent avatar to be display
-                                format: {
-                                    body: function (inner, coldex, rowdex) {
-                                        if (inner.length <= 0) return inner;
-                                        var el = $.parseHTML(inner);
-                                        var result = "";
-                                        $.each(el, function (index, item) {
-                                            if (
-                                                item.classList !== undefined &&
-                                                item.classList.contains(
-                                                    "user-name"
-                                                )
-                                            ) {
-                                                result =
-                                                    result +
-                                                    item.lastChild.firstChild
-                                                        .textContent;
-                                            } else if (
-                                                item.innerText === undefined
-                                            ) {
-                                                result =
-                                                    result + item.textContent;
-                                            } else
-                                                result =
-                                                    result + item.innerText;
-                                        });
-                                        return result;
-                                    },
-                                },
-                            },
-                        },
-                        {
-                            extend: "pdf",
-                            text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
-                            className: "dropdown-item",
-                            exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
-                                // prevent avatar to be display
-                                format: {
-                                    body: function (inner, coldex, rowdex) {
-                                        if (inner.length <= 0) return inner;
-                                        var el = $.parseHTML(inner);
-                                        var result = "";
-                                        $.each(el, function (index, item) {
-                                            if (
-                                                item.classList !== undefined &&
-                                                item.classList.contains(
-                                                    "user-name"
-                                                )
-                                            ) {
-                                                result =
-                                                    result +
-                                                    item.lastChild.firstChild
-                                                        .textContent;
-                                            } else if (
-                                                item.innerText === undefined
-                                            ) {
-                                                result =
-                                                    result + item.textContent;
-                                            } else
-                                                result =
-                                                    result + item.innerText;
-                                        });
-                                        return result;
-                                    },
-                                },
-                            },
-                        },
-                        {
-                            extend: "copy",
-                            text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
-                            className: "dropdown-item",
-                            exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
-                                // prevent avatar to be display
-                                format: {
-                                    body: function (inner, coldex, rowdex) {
-                                        if (inner.length <= 0) return inner;
-                                        var el = $.parseHTML(inner);
-                                        var result = "";
-                                        $.each(el, function (index, item) {
-                                            if (
-                                                item.classList !== undefined &&
-                                                item.classList.contains(
-                                                    "user-name"
-                                                )
-                                            ) {
-                                                result =
-                                                    result +
-                                                    item.lastChild.firstChild
-                                                        .textContent;
-                                            } else if (
-                                                item.innerText === undefined
-                                            ) {
-                                                result =
-                                                    result + item.textContent;
-                                            } else
-                                                result =
-                                                    result + item.innerText;
-                                        });
-                                        return result;
-                                    },
-                                },
-                            },
-                        },
-                    ],
-                },
-                {
-                    extend: "collection",
-                    text: '+ Quotation',
-                    className: "btn btn-primary dropdown-toggle",
-                    autoClose: true,
-                    buttons: [
-                        {
-                            text: 'Quotation Sparepart',
-                            className: "dropdown-item",
-                            action: function (e, dt, node, config) {
-                                window.location = route("create.quotation");
-                            },
-                        },
-                        {
-                            text: 'Quotation Service',
-                            className: "dropdown-item",
-                            action: function (e, dt, node, config) {
-                                window.location = route("create-service.quotation");
-                            },
-                        },
-                    ],
-                },
-            ],
             responsive: {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal({
                         header: function (row) {
-                            var data = row.data();
-                            return "Details of " + data["full_name"];
+                            return "Detail: " + row.data()["no_quote"];
                         },
                     }),
                     type: "column",
                     renderer: function (api, rowIdx, columns) {
-                        var data = $.map(columns, function (col, i) {
-                            return col.title !== "" // ? Do not show row in modal popup if title is blank (for check box)
-                                ? '<tr data-dt-row="' +
-                                      col.rowIndex +
-                                      '" data-dt-column="' +
-                                      col.columnIndex +
-                                      '">' +
-                                      "<td>" +
-                                      col.title +
-                                      ":" +
-                                      "</td> " +
-                                      "<td>" +
-                                      col.data +
-                                      "</td>" +
-                                      "</tr>"
+                        var data = $.map(columns, function (col) {
+                            return col.title !== ""
+                                ? "<tr><td>" + col.title + ":</td><td>" + col.data + "</td></tr>"
                                 : "";
                         }).join("");
-
-                        return data
-                            ? $('<table class="table"/><tbody />').append(data)
-                            : false;
+                        return data ? $('<table class="table"/>').append("<tbody>" + data + "</tbody>") : false;
                     },
                 },
             },
         });
-        $("div.hl-1").html('<h5 class="card-title mb-0">Quotations</h5>');
+
+        dt_table_quotation.on("draw.dt", function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
     }
-    dt_table_quotation.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
 });

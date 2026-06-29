@@ -9,160 +9,93 @@
             <div class="card">
                 @if (auth::user()->role == 'Admin' || auth::user()->role == 'Logistic')
                     <div class="card-header pb-0">
-                        <div class="text-end text-muted">
-                            <a type="button" data-bs-toggle="modal" data-bs-target="#updateStock-{{ $product->id }}">
-                                <button type="button" class="btn btn-sm btn-label-success">Edit Stock</button>
-                            </a>
-                            <a type="button" data-bs-toggle="modal" data-bs-target="#updateProduct-{{ $product->id }}">
-                                <button type="button" class="btn btn-sm btn-label-primary">Edit</button>
-                            </a>
-                            <a href="#" data-id="{{ $product->id }}"
-                                class="btn btn-sm btn-label-danger delete-product">Delete
-                            </a>
+                        <div class="d-flex justify-content-between align-items-center">
+                            {{-- Harga Pricelist --}}
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-muted small">Pricelist:</span>
+                                <form action="{{ route('unit-global.update-price', $product->id) }}" method="POST"
+                                    class="d-flex align-items-center gap-1" id="form-price">
+                                    @csrf
+                                    @method('PATCH')
+                                    <div class="input-group input-group-sm" style="width:200px;">
+                                        <span class="input-group-text">Rp</span>
+                                        <input type="text" class="form-control text-end rupiah-price"
+                                            name="price_display"
+                                            value="{{ $product->serial ? number_format($product->serial->first()?->price ?? 0, 0, ',', '.') : '0' }}"
+                                            autocomplete="off">
+                                        <input type="hidden" name="price" id="price-raw"
+                                            value="{{ $product->serial->first()?->price ?? 0 }}">
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-primary">Simpan</button>
+                                </form>
+                            </div>
+                            <div>
+                                <a type="button" data-bs-toggle="modal" data-bs-target="#updateProduct-{{ $product->id }}">
+                                    <button type="button" class="btn btn-sm btn-label-primary">Edit</button>
+                                </a>
+                                <a href="#" data-id="{{ $product->id }}"
+                                    class="btn btn-sm btn-label-danger delete-product">Delete
+                                </a>
+                            </div>
                         </div>
                     </div>
                 @endif
                 <div class="card-body">
-                    <p class="card-text">
+                    @php
+                        $isCompressor = in_array($product->unit, ['PISTON COMPRESSOR', 'AIR COMPRESSOR SCREW']);
+                        $isDryer      = in_array($product->unit, ['REFRIGERANT AIR DRYER', 'DESICANT DRYER']);
+                    @endphp
                     <div class="row mb-1">
+                        {{-- Kolom Kiri: Spec --}}
                         <div class="col-6">
-                            <div class="row">
-                                <div class="col-3">
-                                    SKU
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->sku }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Short Description
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->desc }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Voltage
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->voltage }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Bar
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->bar }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Stock Awal
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->first_stock }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Warehouse Stock
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->warehouse_stock }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Office Stock
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->stock }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    All Stock
-                                </div>
-                                <div class="col-9">
-                                    : {{ $allStock }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Note
-                                </div>
-                                <div class="col-9">
-                                    <pre class="mb-1"
-                                        style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $product->note }}
-                                </pre>
-                                </div>
-                            </div>
+                            @include('components.detail-row', ['label' => 'Kategori', 'value' => $product->unit])
+                            @include('components.detail-row', ['label' => 'SKU',      'value' => $product->sku])
+                            @include('components.detail-row', ['label' => 'Brand',    'value' => $product->brand])
+                            @include('components.detail-row', ['label' => 'Model',    'value' => $product->model])
+
+                            @if ($isCompressor)
+                                @include('components.detail-row', ['label' => 'Type Compressor',       'value' => $product->type_unit])
+                                @include('components.detail-row', ['label' => 'Short Description',     'value' => $product->desc])
+                                @include('components.detail-row', ['label' => 'Max. Working Pressure', 'value' => $product->bar ? $product->bar . ' Bar' : null])
+                                @include('components.detail-row', ['label' => 'Air Capacity',          'value' => $product->air_cap ? $product->air_cap . ' m³/min' : null])
+                                @include('components.detail-row', ['label' => 'Motor Power',           'value' => $product->power])
+                            @elseif ($isDryer)
+                                @include('components.detail-row', ['label' => 'FAD / Air Capacity', 'value' => $product->air_cap ? $product->air_cap . ' m³/min' : null])
+                                @include('components.detail-row', ['label' => 'Refrigerant Type',   'value' => $product->refrigerant_type])
+                                @include('components.detail-row', ['label' => 'PDP',                'value' => $product->pdp])
+                            @else
+                                @include('components.detail-row', ['label' => 'Short Description', 'value' => $product->desc])
+                            @endif
+
+                            <hr class="my-2">
+                            @include('components.detail-row', ['label' => 'Status',     'value' => $product->status])
+                            @include('components.detail-row', ['label' => 'Stock Awal', 'value' => $product->frist_stock])
                         </div>
+
+                        {{-- Kolom Kanan: Spec lanjutan + Note --}}
                         <div class="col-6">
-                            <div class="row">
+                            @if ($isCompressor)
+                                @include('components.detail-row', ['label' => 'Rated Voltage',        'value' => $product->voltage])
+                                @include('components.detail-row', ['label' => 'Drive',                'value' => $product->connect])
+                                @include('components.detail-row', ['label' => 'Cooling Method',       'value' => $product->cooling])
+                                @include('components.detail-row', ['label' => 'Discharge Connection', 'value' => $product->exhaust])
+                            @elseif ($isDryer)
+                                @include('components.detail-row', ['label' => 'Rated Voltage', 'value' => $product->voltage])
+                            @endif
+
+                            @include('components.detail-row', ['label' => 'Dimension', 'value' => $product->dimension])
+                            @include('components.detail-row', ['label' => 'Weight',    'value' => $product->weight ? $product->weight . ' Kg' : null])
+
+                            @if ($product->note)
                                 <div class="row mb-1">
-                                    <div class="col-3">
-                                        Status
-                                    </div>
-                                    <div class="col-9">
-                                        : {{ $product->status }}
+                                    <div class="col-4 text-muted">Note</div>
+                                    <div class="col-8">
+                                        <pre class="mb-0" style="font-family: inherit; white-space: pre-wrap;">: {{ $product->note }}</pre>
                                     </div>
                                 </div>
-                                <div class="row mb-1">
-                                    <div class="col-3">
-                                        Unit
-                                    </div>
-                                    <div class="col-9">
-                                        : {{ $product->unit }}
-                                    </div>
-                                </div>
-                                <div class="row mb-1">
-                                    <div class="col-3">
-                                        Power
-                                    </div>
-                                    <div class="col-9">
-                                        : {{ $product->power }}
-                                    </div>
-                                </div>
-                                <div class="row mb-1">
-                                    <div class="col-3">
-                                        Air Capacity
-                                    </div>
-                                    <div class="col-9">
-                                        : {{ $product->air_cap }}
-                                    </div>
-                                </div>
-                                <div class="row mb-1">
-                                    <div class="col-3">
-                                        Connection
-                                    </div>
-                                    <div class="col-9">
-                                        : {{ $product->connect }}
-                                    </div>
-                                </div>
-                                <div class="row mb-1">
-                                    <div class="col-3">
-                                        Dimension
-                                    </div>
-                                    <div class="col-9">
-                                        : {{ $product->dimension }}
-                                    </div>
-                                </div>
-                                <div class="row mb-1">
-                                    <div class="col-3">
-                                        Weight
-                                    </div>
-                                    <div class="col-9">
-                                        : {{ $product->weight }} Kg
-                                    </div>
-                                </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
-                    </p>
                 </div>
             </div>
         </div>
@@ -471,7 +404,7 @@
         </div> --}}
     </div>
     @include('components.modal.warehouse.unit.form-global')
-    @include('components.modal.warehouse.unit.stock')
+    {{-- @include('components.modal.warehouse.unit.stock') --}}
     @include('components.modal.warehouse.unit.sparepart')
     @include('components.modal.warehouse.replacement.form')
     @include('components.modal.warehouse.equivalent.form-global')
@@ -526,6 +459,13 @@
 @endpush
 @push('script')
     <script>
+        // Rupiah formatter untuk field pricelist
+        $(document).on('input', '.rupiah-price', function () {
+            var raw = $(this).val().replace(/\./g, '').replace(/\D/g, '');
+            $(this).val(raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
+            $('#price-raw').val(raw);
+        });
+
         $(document).on('click', '.delete-product', function() {
             var id = $(this).data('id');
             Swal.fire({

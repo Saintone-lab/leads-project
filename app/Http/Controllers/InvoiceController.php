@@ -15,6 +15,7 @@ use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\SubtitleQuotation;
 use App\Models\Suo;
+use App\Models\UnitQuotation;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
@@ -95,8 +96,13 @@ class InvoiceController extends Controller
             ->whereNull('invoice.no_invoice')
             ->count();
         $invoice = Invoice::find($id);
+
+        // Unit quotation invoice — arahkan ke halaman yang benar
+        if ($invoice && $invoice->id_unit_quotation) {
+            return redirect()->route('invoice.show_unit', $id);
+        }
+
         $totalAmount = 0;
-        $invoice = Invoice::find($id);
         $invoiceOrder = Invoice::where('id_quotation', $invoice->id_quotation)
             ->orderBy('id')
             ->pluck('id')
@@ -763,6 +769,255 @@ class InvoiceController extends Controller
             return 0;
         }
     }
+    public function add_pph_unit(Request $request, $id)
+    {
+        $invoice = Invoice::findOrFail($id);
+        $details = \App\Models\UnitQuotationDetail::where('id_unit_quotation', $invoice->id_unit_quotation)->get();
+        foreach ($details as $i => $detail) {
+            $detail->pph = $request->pph[$i] ?? 0;
+            $detail->save();
+        }
+        return redirect()->route('invoice.show_unit', $id)->with('success', 'PPH 23 berhasil disimpan.');
+    }
+
+    public function delete_pph_unit($id)
+    {
+        $invoice = Invoice::findOrFail($id);
+        \App\Models\UnitQuotationDetail::where('id_unit_quotation', $invoice->id_unit_quotation)
+            ->update(['pph' => 0]);
+        return 1;
+    }
+
+    public function add_pph_manual_unit(Request $request, $id)
+    {
+        $invoice      = Invoice::findOrFail($id);
+        $invoice->pph = $request->pph;
+        $invoice->save();
+        return redirect()->route('invoice.show_unit', $id)->with('success', 'PPH Manual berhasil disimpan.');
+    }
+
+    public function delete_pph_manual_unit($id)
+    {
+        $invoice      = Invoice::findOrFail($id);
+        $invoice->pph = 0;
+        $invoice->save();
+        return 1;
+    }
+
+    public function confirm_payment_unit(Request $request, $id)
+    {
+        $invoice           = Invoice::findOrFail($id);
+        $invoice->status_p = 1;
+        $invoice->save();
+        return redirect()->route('invoice.show_unit', $id)->with('success', 'Pembayaran telah dikonfirmasi.');
+    }
+
+    public function undo_payment_unit($id)
+    {
+        $invoice           = Invoice::findOrFail($id);
+        $invoice->status_p = 0;
+        $invoice->save();
+        return 1;
+    }
+
+    public function hand_sign_unit($id)
+    {
+        $invoice = Invoice::findOrFail($id);
+        $quote   = UnitQuotation::findOrFail($invoice->id_unit_quotation);
+
+        $amount = $quote->total;
+        if ($invoice->flag === 'Reftech') {
+            $invoice->sign = $amount >= 5000000
+                ? 'asset/sign/reftech-m.jpeg'
+                : 'asset/sign/reftech-nm.jpeg';
+        } else {
+            $invoice->sign = $amount >= 5000000
+                ? 'asset/sign/kojisha-m.jpeg'
+                : 'asset/sign/kojisha-nm.jpeg';
+        }
+
+        return $invoice->save() ? 1 : 0;
+    }
+
+    public function delete_hand_sign_unit($id)
+    {
+        $invoice       = Invoice::findOrFail($id);
+        $invoice->sign = null;
+        return $invoice->save() ? 1 : 0;
+    }
+
+    public function label_detail_unit($id)
+    {
+        $invoice = Invoice::findOrFail($id);
+        $quote   = UnitQuotation::with(['client', 'pic'])->findOrFail($invoice->id_unit_quotation);
+        return view('pages.accounting.label.detail-unit', compact('invoice', 'quote'));
+    }
+
+    public function label_print_unit($id)
+    {
+        $invoice = Invoice::findOrFail($id);
+        $quote   = UnitQuotation::with(['client', 'pic'])->findOrFail($invoice->id_unit_quotation);
+        return view('pages.accounting.label.detail-print-unit', compact('invoice', 'quote'));
+    }
+
+    public function show_unit($id)
+    {
+        $invoice = Invoice::findOrFail($id);
+        $quote   = UnitQuotation::with(['client', 'pic', 'sales', 'details.unit'])->findOrFail($invoice->id_unit_quotation);
+
+        $allInvoices = Invoice::where('id_unit_quotation', $quote->id)
+            ->orderByRaw("FIELD(type,'DP','BP','CT')")
+            ->get();
+
+        $percent       = floatval($invoice->percent ?? 100);
+        $invoiceAmount = round($quote->total * $percent / 100);
+
+        $afterDiskon   = $quote->subtotal - ($quote->subtotal * $quote->diskon / 100);
+        $totalPph      = $quote->details->sum(fn($d) => ($d->amount * $d->pph) / 100);
+        $totalPph     += $invoice->pph ?? 0;
+        $totalAfterPph = $invoiceAmount - $totalPph;
+        $terbilang     = $this->terbilang($totalAfterPph);
+
+        $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')->where('contract.level', '0')->count();
+        $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')->whereNotNull('client.npwp')
+            ->whereNotNull('quotation.po_file')->whereNull('invoice.no_invoice')->count();
+        $noSaleProspect = Prospect::whereNull('id_sales')->whereNull('provide')->count();
+
+        return view('pages.accounting.invoice.detail-unit', compact(
+            'invoice', 'quote', 'allInvoices', 'afterDiskon', 'terbilang',
+            'totalPph', 'totalAfterPph', 'invoiceAmount',
+            'requestContract', 'requestInvoice', 'noSaleProspect'
+        ));
+    }
+
+    public function print_unit($id)
+    {
+        $invoice       = Invoice::findOrFail($id);
+        $quote         = UnitQuotation::with(['client', 'pic', 'details.unit'])->findOrFail($invoice->id_unit_quotation);
+
+        $percent       = floatval($invoice->percent ?? 100);
+        $invoiceAmount = round($quote->total * $percent / 100);
+
+        $totalPph      = $quote->details->sum(fn($d) => ($d->amount * $d->pph) / 100);
+        $totalPph     += $invoice->pph ?? 0;
+        $totalAfterPph = $invoiceAmount - $totalPph;
+        $terbilang     = $this->terbilang($totalAfterPph);
+
+        return view('pages.accounting.invoice.detail-print-unit', compact(
+            'invoice', 'quote', 'terbilang', 'totalPph', 'totalAfterPph', 'invoiceAmount'
+        ));
+    }
+
+    public function before_accept_unit($id)
+    {
+        $invoice = Invoice::findOrFail($id);
+        $quote   = UnitQuotation::with(['client', 'pic', 'details.unit', 'sales'])->findOrFail($invoice->id_unit_quotation);
+
+        // Kumpulkan semua invoice untuk unit quotation ini (DP & BP → 2 record)
+        $allInvoices = Invoice::where('id_unit_quotation', $quote->id)
+            ->whereNull('no_invoice')
+            ->orderByRaw("FIELD(type,'DP','BP','CT')")
+            ->get();
+
+        // Auto-generate nomor invoice — ikuti urutan global (sama dengan before_accept biasa)
+        $year       = Carbon::now()->year;
+        $monthCode  = $this->convertToRoman(Carbon::now()->month);
+
+        $lastSuoBookingNo = Suo::whereNotNull('no_invoice_booking')->orderByDesc('id')->value('no_invoice_booking');
+        $lastSuoSeq = 0;
+        if ($lastSuoBookingNo) {
+            preg_match('/^(\d+)\//', $lastSuoBookingNo, $m);
+            $lastSuoSeq = isset($m[1]) ? (int) $m[1] : 0;
+        }
+
+        $lastInvoicePRef = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+            ->leftJoin('payment as p', 'p.id_quotation', '=', 'quotation.id')
+            ->where('quotation.tax', '11')->where('invoice.flag', 'Reftech')
+            ->whereNotNull('no_invoice')->whereYear('invoice.created_at', $year)
+            ->whereNot('p.method', 'Escrow')
+            ->orderBy('invoice.no_invoice', 'desc')
+            ->first(['invoice.*', 'quotation.tax']);
+
+        // Juga pertimbangkan invoice unit quotation yg sudah ada
+        $lastUnitInvoice = Invoice::whereNotNull('id_unit_quotation')
+            ->whereNotNull('no_invoice')
+            ->whereYear('created_at', $year)
+            ->orderBy('no_invoice', 'desc')
+            ->first();
+
+        $lastSeqFromService = 0;
+        if ($lastInvoicePRef) {
+            preg_match('/^(\d+)\//', $lastInvoicePRef->no_invoice, $m);
+            $lastSeqFromService = isset($m[1]) ? (int) $m[1] : 0;
+        }
+        $lastSeqFromUnit = 0;
+        if ($lastUnitInvoice) {
+            preg_match('/^(\d+)\//', $lastUnitInvoice->no_invoice, $m);
+            $lastSeqFromUnit = isset($m[1]) ? (int) $m[1] : 0;
+        }
+
+        $effectiveLast = max($lastSeqFromService, $lastSeqFromUnit, $lastSuoSeq);
+        $nextSeq       = $effectiveLast > 0 ? $effectiveLast + 1 : 1;
+
+        // Format: {seq}/SJ-P/RJO/{month}/{year} (PPN) atau SJ-NP (non-PPN)
+        $sjCode = $quote->tax ? 'SJ-P' : 'SJ-NP';
+
+        // Untuk DP & BP: siapkan 2 nomor berurutan
+        $nextNumbers = [];
+        foreach ($allInvoices as $i => $inv) {
+            $nextNumbers[$inv->id] = str_pad($nextSeq + $i, 3, '0', STR_PAD_LEFT) . '/' . $sjCode . '/RJO/' . $monthCode . '/' . $year;
+        }
+
+        $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')->where('contract.level', '0')->count();
+        $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')->whereNotNull('client.npwp')
+            ->whereNotNull('quotation.po_file')->whereNull('invoice.no_invoice')->count();
+        $noSaleProspect = Prospect::whereNull('id_sales')->whereNull('provide')->count();
+
+        return view('pages.accounting.invoice.before-accept-unit', compact(
+            'invoice', 'quote', 'allInvoices', 'nextNumbers',
+            'requestContract', 'requestInvoice', 'noSaleProspect',
+            'year', 'monthCode'
+        ));
+    }
+
+    public function accept_unit(Request $request, $id)
+    {
+        $invoice = Invoice::findOrFail($id);
+        $quote   = UnitQuotation::findOrFail($invoice->id_unit_quotation);
+
+        $pendingInvoices = Invoice::where('id_unit_quotation', $quote->id)
+            ->whereNull('no_invoice')
+            ->orderByRaw("FIELD(type,'DP','BP','CT')")
+            ->get();
+
+        $invoiceDate = $request->input('invoice_date', now()->toDateString());
+        $term        = $request->input('term', $quote->payment_method);
+
+        foreach ($pendingInvoices as $inv) {
+            $inv->no_invoice = $request->input('no_invoice_' . $inv->id);
+            $inv->date       = $invoiceDate;
+            $inv->invoiceTo  = '1';
+            $inv->term       = $term;
+            $inv->save();
+        }
+
+        $justIssued = $pendingInvoices->first();
+        return redirect()->route('invoice.show_unit', $justIssued->id)
+            ->with('success', 'Invoice berhasil diterbitkan.');
+    }
+
     private function terbilang($number)
     {
         $number = abs($number);

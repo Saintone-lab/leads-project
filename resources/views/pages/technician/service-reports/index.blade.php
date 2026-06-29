@@ -3,7 +3,7 @@
 @section('content')
     @if (Auth::user()->role == 'Technician' || Auth::user()->role == 'Coordinator')
         <h4 class="fw-bold py-3 mb-4">
-            Service Reports
+            <span class="text-muted fw-light">Monitoring /</span> Service Reports
         </h4>
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
@@ -26,27 +26,31 @@
             </div>
         </div>
     @elseif(Auth::user()->role == 'Admin')
+        <h4 class="fw-bold py-3 mb-4">
+            <span class="text-muted fw-light">Monitoring /</span> Service Reports
+        </h4>
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-reports-admin table table-striped">
+                <table class="datatable-reports-admin table table-bordered">
                     <thead>
                         <tr>
-                            <th></th>
-                            <th>ID</th>
-                            <th>No Service</th>
-                            <th>Company</th>
-                            <th>Job Desc</th>
-                            <th>Unit Type</th>
-                            <th>Serial / Tag</th>
-                            <th>Date</th>
-                            <th>Sales</th>
-                            <th>Technician</th>
+                            <th class="text-center">No Service</th>
+                            <th class="text-center">Company</th>
+                            <th class="text-center">Job Desc</th>
+                            <th class="text-center">Brand Type</th>
+                            <th class="text-center">Serial / Tag</th>
+                            <th class="text-center">Date</th>
+                            <th class="text-center">Sales</th>
+                            <th class="text-center">Technician</th>
                         </tr>
                     </thead>
                 </table>
             </div>
         </div>
     @else
+        <h4 class="fw-bold py-3 mb-4">
+            <span class="text-muted fw-light">Monitoring /</span> Service Reports
+        </h4>
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
                 <table class="datatable-reports-sales table table-striped">

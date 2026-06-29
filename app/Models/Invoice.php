@@ -12,9 +12,11 @@ class Invoice extends Model
     protected $table = "invoice";
     protected $fillable = [
         'id_quotation',
+        'id_unit_quotation',
         'term',
         'sign',
         'type',
+        'percent',
         'flag',
         'no_po',
         'no_invoice',
@@ -23,10 +25,14 @@ class Invoice extends Model
         'invoiceTo',
     ];
 
-    
     public function quote()
     {
         return $this->belongsTo('App\Models\Quotation', 'id_quotation', 'id');
+    }
+
+    public function unitQuote()
+    {
+        return $this->belongsTo('App\Models\UnitQuotation', 'id_unit_quotation', 'id');
     }
     public function expense()
     {

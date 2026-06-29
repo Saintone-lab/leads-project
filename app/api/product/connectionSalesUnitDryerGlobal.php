@@ -22,8 +22,9 @@ if (Auth::check()) {
         // Query database for data
         $query = "SELECT u.*, s.*, CONCAT(u.stock, ' - ', u.warehouse_stock ) AS stok, u.id AS id_p FROM unit u
         LEFT JOIN serial_product s on u.id = s.id_product
-        WHERE u.type = 'global' AND u.unit = 'REFRIGERANT AIR DRYER' 
-        GROUP BY u.id";
+        WHERE u.type = 'global' AND u.unit = 'REFRIGERANT AIR DRYER'
+        GROUP BY u.id
+        ORDER BY u.id DESC";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

@@ -8,6 +8,7 @@ use App\Models\Comment;
 use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\Target;
+use App\Models\UnitQuotation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,8 +40,21 @@ class ReportsController extends Controller
         $amountSales = Quotation::whereMonth('po_date', $monthNow)->whereYear('po_date', $yearNow)->where('status', '100')->where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $amountProspect = Quotation::whereMonth('estimated_date', $monthNow)->whereYear('estimated_date', $yearNow)->where('status', '80')->where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->sum('nett');
         $amountQuote = Quotation::whereMonth('estimated_date', $monthNow)->whereYear('estimated_date', $yearNow)->whereIn('status', ['20', '30', '40', '60', '80'])->where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->sum('nett');
-        // dd($dataDc);
         $quotation = Quotation::where('status', '100')->whereMonth('po_date', $monthNow)->whereYear('po_date', $yearNow)->where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->get();
+
+        // Unit quotation PO bulan ini — nominal tanpa PPN = total - tax_amount
+        $unitQuotationPO = UnitQuotation::with(['client', 'statusHistory' => fn($q) => $q->where('status', 'po_received')->latest()])
+            ->where('id_sales', Auth::id())
+            ->where('status', 'po_received')
+            ->where('is_latest', 1)
+            ->whereHas('statusHistory', fn($q) => $q->where('status', 'po_received')
+                ->whereMonth('created_at', $monthNow)
+                ->whereYear('created_at', $yearNow))
+            ->get();
+
+        $amountSalesUnit = $unitQuotationPO->sum(fn($uq) => $uq->total - $uq->tax_amount);
+        $amountSales    += $amountSalesUnit;
+        $totalPO        += $unitQuotationPO->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
@@ -109,7 +123,7 @@ class ReportsController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view("pages.sales.report.index", compact("targetCrm", "noSaleProspect", 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', "quotation", "dataDc", "dataQuote", "dataPo", "dataLeads", "target", "dataCRM", "dataVisit", "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLeads", "amountSales", "amountQuote", "amountProspect"));
+        return view("pages.sales.report.index", compact("targetCrm", "noSaleProspect", 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', "quotation", "unitQuotationPO", "dataDc", "dataQuote", "dataPo", "dataLeads", "target", "dataCRM", "dataVisit", "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLeads", "amountSales", "amountQuote", "amountProspect"));
     }
 
     protected function getWeekDataDC()

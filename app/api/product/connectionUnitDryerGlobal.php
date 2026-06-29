@@ -34,8 +34,8 @@ if (Auth::check()) {
             LEFT JOIN 
                 detail_product dp ON u.id = dp.id_product
             WHERE u.type = 'global' AND u.unit = 'REFRIGERANT AIR DRYER'
-            GROUP BY 
-                u.id";
+            GROUP BY u.id
+            ORDER BY u.id DESC";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

@@ -193,6 +193,11 @@
         }
 
         $chartTargetLine = array_fill(0, 6, $totalTarget);
+
+        $pctByMonth = [];
+        foreach (array_values($combinedTotal) as $total) {
+            $pctByMonth[] = $totalTarget > 0 ? round($total / $totalTarget * 100) : 0;
+        }
     @endphp
     <div class="card mb-4">
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -215,10 +220,49 @@
         </div>
         <div class="card-body">
             <div id="chartPenjualanSemester"></div>
+            <div class="d-flex mt-1" style="padding-left:72px; padding-right:10px;">
+                @foreach($pctByMonth as $pct)
+                    @php
+                        $badgePct = $pct >= 100 ? 'success' : ($pct >= 80 ? 'warning' : 'danger');
+                    @endphp
+                    <div class="flex-fill text-center">
+                        <span class="badge rounded-pill bg-{{ $badgePct }} px-2">{{ $pct }}%</span>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 
-    <div class="row">
+    {{-- ===== TABS: Sales Team / Marketing ===== --}}
+    <div class="card mt-4">
+        <div class="card-header d-flex align-items-center justify-content-between py-3">
+            <div class="d-flex align-items-center gap-2 p-1 rounded"
+                 style="background:rgba(105,108,255,0.08); border:1px solid rgba(105,108,255,0.2);">
+                <button class="btn btn-sm fw-semibold px-4 py-2 active-tab-btn active"
+                        id="tab-sales-btn" data-bs-toggle="tab" data-bs-target="#tab-sales"
+                        type="button" role="tab"
+                        style="border-radius:6px; transition:all .2s;">
+                    <i class="mdi mdi-account-group-outline me-1"></i> Sales Team
+                </button>
+                <button class="btn btn-sm fw-semibold px-4 py-2 active-tab-btn"
+                        id="tab-marketing-btn" data-bs-toggle="tab" data-bs-target="#tab-marketing"
+                        type="button" role="tab"
+                        style="border-radius:6px; transition:all .2s;">
+                    <i class="mdi mdi-handshake-outline me-1"></i> Marketing
+                    @if ($smktProspectCount > 0)
+                        <span class="badge bg-primary ms-1 rounded-pill">{{ $smktProspectCount }}</span>
+                    @endif
+                </button>
+            </div>
+            <small class="text-muted d-none d-md-block">
+                Semester {{ $report->semester }} · {{ $report->year }}
+            </small>
+        </div>
+        <div class="tab-content">
+
+            {{-- ===== TAB: SALES TEAM ===== --}}
+            <div class="tab-pane fade show active p-3" id="tab-sales" role="tabpanel">
+                <div class="row">
         @php
             $bulanMap = [
                 1 => 'January',
@@ -263,8 +307,8 @@
         {{-- @foreach ($sales as $user) --}}
         @foreach ($regularSales as $sale)
             <div class="col-6 col-lg-4 mb-3">
-                <div class="card h-100">
-                    <div class="card-body">
+                <div class="h-100 d-flex flex-column rounded border p-3">
+                    <div class="flex-grow-1">
                         <div class="row mb-4">
                             <div class="col-3 p-0">
                                 <img src="{{ url('') . '/' . $sale['image'] }}" alt="" srcset=""
@@ -324,27 +368,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <a href="{{ route('overview-sales.semester', [$report->id, $sale['id']]) }}"
-                            class="btn btn-primary d-grid w-100">Details</a>
-                    </div>
-
-                    {{-- <div class="row">
-                                    <div class="col-4">
-                                        <img src="{{ url('') . '/' . $user->image }}" alt="" srcset=""
-                                            class="rounded" style="width : 100%; height:100%;">
-                                    </div>
-                                    <div class="col-8 m-auto">
-                                        @php
-                                            $lastDetail = $user->detail->last();
-                                        @endphp
-                                        <h3>{{ $user->name }}</h3>
-                                    </div>
-                                </div> --}}
+                    <a href="{{ route('overview-sales.semester', [$report->id, $sale['id']]) }}"
+                        class="btn btn-primary d-grid w-100 mt-auto">Details</a>
                 </div>
-                {{-- <a href="#" class="text-decoration-none text-black" data-bs-toggle="modal"
-                                data-bs-target="#detailReport{{ $user->id }}">
-                            </a> --}}
             </div>
         @endforeach
         {{-- @endforeach --}}
@@ -352,8 +378,8 @@
         {{-- Team E-Commerce (ID 16 & 23 digabung) --}}
         @if (count($ecommerceMembers) > 0)
             <div class="col-6 col-lg-4 mb-3">
-                <div class="card h-100 border border-warning">
-                    <div class="card-body">
+                <div class="h-100 rounded border border-warning p-3">
+                    <div>
                         <div class="row mb-4">
                             <div class="col-3 p-0">
                                 @php $mainMember = collect($ecommerceMembers)->firstWhere('id', 16); @endphp
@@ -412,8 +438,8 @@
         @endif
 
         <div class="col-6 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
+            <div class="h-100 d-flex flex-column rounded border border-success p-3">
+                <div class="flex-grow-1">
                     <div class="row mb-4">
                         <div class="col-3 p-0">
                             <img src="{{ url('') . '/' . $support->image }}" alt="" srcset="" class="rounded"
@@ -461,13 +487,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-footer">
-                    <a href="{{ route('overview-sales.semester', [$report->id, $support->id]) }}"
-                        class="btn btn-success d-grid w-100">Detail</a>
-                </div>
+                <a href="{{ route('overview-sales.semester', [$report->id, $support->id]) }}"
+                    class="btn btn-success d-grid w-100 mt-auto">Detail</a>
             </div>
         </div>
-    </div>
+                </div>{{-- end .row --}}
+            </div>{{-- end #tab-sales --}}
+
+            {{-- ===== TAB: MARKETING ===== --}}
+            <div class="tab-pane fade p-3" id="tab-marketing" role="tabpanel">
     {{-- ===== MARKETING REPORT SEMESTER ===== --}}
     @php
         $smktProspectToQuote = $smktProspectCount > 0 ? round(($smktQuoteCount / $smktProspectCount) * 100, 1) : 0;
@@ -504,12 +532,11 @@
             'Unit Baru/Second'     => ['icon' => 'mdi-package-variant',      'color' => 'primary'],
         ];
     @endphp
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5 class="mb-0">Marketing Report</h5>
-            <small class="text-muted">Marketing team contribution — Semester {{ $report->semester }} · {{ $report->year }} · Funnel: Prospect → Quotation → PO</small>
-        </div>
-        <div class="card-body">
+    <div>
+        <p class="fw-semibold text-muted mb-4" style="font-size:0.85rem">
+            <i class="mdi mdi-information-outline me-1"></i>
+            Marketing team contribution — Semester {{ $report->semester }} · {{ $report->year }} · Funnel: Prospect → Quotation → PO
+        </p>
 
             {{-- Funnel --}}
             <div class="row g-3 align-items-center justify-content-center">
@@ -809,8 +836,12 @@
                 </div>
             @endif
 
-        </div>
-    </div>
+        </div>{{-- end inner div --}}
+
+            </div>{{-- end #tab-marketing --}}
+
+        </div>{{-- end .tab-content --}}
+    </div>{{-- end wrapper card --}}
 
     @foreach ($data as $sale)
         @include('components.modal.overview.report')
@@ -819,6 +850,23 @@
 
 @push('before-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/apex-charts/apex-charts.css" />
+    <style>
+        .active-tab-btn {
+            color: #6d6b77;
+            background: transparent;
+            border: none;
+        }
+        .active-tab-btn.active,
+        .active-tab-btn:focus {
+            color: #696cff;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(105,108,255,0.2);
+        }
+        .active-tab-btn:hover:not(.active) {
+            background: rgba(255,255,255,0.6);
+            color: #696cff;
+        }
+    </style>
 @endpush
 
 @push('page-script')
@@ -836,15 +884,27 @@
                 return 'Rp ' + val.toLocaleString('id-ID');
             };
 
-            const series      = @json($chartSeries);
+            const salesSeries = @json($chartSeries);
             const targetLine  = @json($chartTargetLine);
             const labels      = @json($chartLabels);
 
-            // Tambahkan target line sebagai series terakhir (type line)
-            const allSeries = [
-                ...series.map(s => ({ ...s, type: 'bar' })),
-                { name: 'Monthly Target', type: 'line', data: targetLine },
+            // Warna khusus untuk tooltip (beda per sales)
+            const tooltipColors = [
+                '#696cff','#03c3ec','#71dd37','#ffab00','#ff3e1d',
+                '#26c6da','#8c57ff','#20c997',
             ];
+
+            const combinedData = @json(array_values($combinedTotal));
+
+            // 1 bar utuh per bulan (total semua sales) + target line
+            const allSeries = [
+                { name: 'Total Penjualan', type: 'bar', data: combinedData },
+                { name: 'Monthly Target',  type: 'line', data: targetLine },
+            ];
+
+            const barPrimary  = '#696cff';
+            const targetColor = '#ff4c51';
+            const chartColors = [barPrimary, targetColor];
 
             const chartEl = document.querySelector('#chartPenjualanSemester');
             if (!chartEl) return;
@@ -853,14 +913,14 @@
                 chart: {
                     type: 'bar',
                     height: 340,
-                    stacked: true,
                     toolbar: { show: false },
                     parentHeightOffset: 0,
                 },
                 series: allSeries,
                 plotOptions: {
-                    bar: { borderRadius: 4, columnWidth: '50%', borderRadiusWhenStacked: 'last' },
+                    bar: { borderRadius: 4, columnWidth: '50%' },
                 },
+                dataLabels: { enabled: false },
                 stroke: {
                     width: allSeries.map((s, i) => i === allSeries.length - 1 ? 2 : 0),
                     curve: 'smooth',
@@ -870,12 +930,9 @@
                     size: allSeries.map((s, i) => i === allSeries.length - 1 ? 4 : 0),
                     strokeWidth: 2,
                     colors: [cardColor],
-                    strokeColors: '#ff4c51',
+                    strokeColors: targetColor,
                 },
-                colors: [
-                    '#696cff','#03c3ec','#71dd37','#ffab00','#ff3e1d',
-                    '#26c6da','#8c57ff','#20c997','#ff4c51'
-                ],
+                colors: chartColors,
                 dataLabels: { enabled: false },
                 legend: {
                     show: true,
@@ -897,48 +954,44 @@
                 grid: {
                     borderColor,
                     strokeDashArray: 5,
-                    padding: { top: -10, bottom: -5 },
+                    padding: { top: 10, bottom: -5 },
                 },
                 tooltip: {
                     shared: true,
                     intersect: false,
-                    custom: function({ series, dataPointIndex, w }) {
-                        const month    = labels[dataPointIndex];
-                        const barCount = allSeries.length - 1; // semua kecuali target line
-                        let rows       = '';
-                        let grandTotal = 0;
+                    custom: function({ series: apexSeries, dataPointIndex, w }) {
+                        const month      = labels[dataPointIndex];
+                        const grandTotal = combinedData[dataPointIndex] || 0;
+                        const targetVal  = targetLine[dataPointIndex]   || 0;
 
-                        for (let i = 0; i < barCount; i++) {
-                            const val   = series[i][dataPointIndex] || 0;
-                            grandTotal += val;
-                            if (val <= 0) continue;
-                            const color = w.globals.colors[i];
-                            const name  = w.globals.seriesNames[i];
+                        // Breakdown per sales dari data original
+                        let rows = '';
+                        salesSeries.forEach((s, i) => {
+                            const val = s.data[dataPointIndex] || 0;
+                            if (val <= 0) return;
+                            const color = tooltipColors[i] ?? '#696cff';
                             rows += `<div style="display:flex;align-items:center;gap:8px;padding:3px 0">
                                         <span style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></span>
-                                        <span style="flex:1;color:#6d6b77;font-size:12px">${name}</span>
+                                        <span style="flex:1;color:#6d6b77;font-size:12px">${s.name}</span>
                                         <span style="font-size:12px">Rp ${val.toLocaleString('id-ID')}</span>
                                      </div>`;
-                        }
+                        });
 
-                        const targetVal   = series[barCount]?.[dataPointIndex] || 0;
-                        const targetColor = w.globals.colors[barCount] ?? '#ff4c51';
-
-                        const pct      = targetVal > 0 ? Math.round((grandTotal / targetVal) * 100) : 0;
+                        const pct      = targetVal > 0 ? Math.round(grandTotal / targetVal * 100) : 0;
                         const pctColor = pct >= 100 ? '#71dd37' : pct >= 80 ? '#ffab00' : '#ff4c51';
 
-                        const totalRow  = `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-top:1px solid #dbdade;margin-top:4px">
-                                               <span style="width:10px;height:10px;border-radius:2px;background:#444;flex-shrink:0"></span>
-                                               <span style="flex:1;font-weight:600;font-size:12px">Total Penjualan</span>
-                                               <span style="font-weight:600;font-size:12px">Rp ${grandTotal.toLocaleString('id-ID')}</span>
-                                               <span style="margin-left:6px;padding:1px 6px;border-radius:10px;background:${pctColor};color:#fff;font-size:11px;font-weight:700">${pct}%</span>
-                                           </div>`;
+                        const totalRow = `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-top:1px solid #dbdade;margin-top:4px">
+                                              <span style="width:10px;height:10px;border-radius:2px;background:#444;flex-shrink:0"></span>
+                                              <span style="flex:1;font-weight:600;font-size:12px">Total Penjualan</span>
+                                              <span style="font-weight:600;font-size:12px">Rp ${grandTotal.toLocaleString('id-ID')}</span>
+                                              <span style="margin-left:6px;padding:1px 6px;border-radius:10px;background:${pctColor};color:#fff;font-size:11px;font-weight:700">${pct}%</span>
+                                          </div>`;
 
-                        const targetRow  = `<div style="display:flex;align-items:center;gap:8px;padding:3px 0">
-                                                <span style="width:10px;height:2px;background:${targetColor};flex-shrink:0;display:inline-block"></span>
-                                                <span style="flex:1;color:#6d6b77;font-size:12px">Target Bulanan</span>
-                                                <span style="font-size:12px">Rp ${targetVal.toLocaleString('id-ID')}</span>
-                                            </div>`;
+                        const targetRow = `<div style="display:flex;align-items:center;gap:8px;padding:3px 0">
+                                               <span style="width:10px;height:2px;background:${targetColor};flex-shrink:0;display:inline-block"></span>
+                                               <span style="flex:1;color:#6d6b77;font-size:12px">Target Bulanan</span>
+                                               <span style="font-size:12px">Rp ${targetVal.toLocaleString('id-ID')}</span>
+                                           </div>`;
 
                         return `<div style="padding:10px 12px;min-width:230px;font-family:inherit">
                                     <div style="font-weight:600;border-bottom:1px solid #dbdade;padding-bottom:6px;margin-bottom:4px">${month}</div>
@@ -950,5 +1003,26 @@
                 },
             }).render();
         })();
+    </script>
+    <script>
+        document.querySelectorAll('.active-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const target = document.querySelector(this.dataset.bsTarget);
+                if (!target) return;
+
+                // hide all panes
+                document.querySelectorAll('.tab-pane').forEach(p => {
+                    p.classList.remove('show', 'active');
+                });
+                // deactivate all btns
+                document.querySelectorAll('.active-tab-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+
+                // activate clicked
+                this.classList.add('active');
+                target.classList.add('show', 'active');
+            });
+        });
     </script>
 @endpush

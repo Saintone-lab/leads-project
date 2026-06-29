@@ -202,10 +202,28 @@
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
             <div class="card mb-3">
                 <div class="card-body">
-                    <a class="btn btn-primary d-grid w-100 mb-3 waves-effect" target="_blank"
-                        href="{{ route('invoice.label_print', $invoice->id) }}">
-                        Download
-                    </a>
+                    <div class="btn-group w-100 mb-3">
+                        <a class="btn btn-primary waves-effect" target="_blank"
+                            href="{{ route('invoice.label_print', $invoice->id) }}">
+                            Download
+                        </a>
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split waves-effect"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{{ route('print.invoice', $invoice->id) }}" target="_blank">
+                                    <i class="mdi mdi-file-document-outline me-1"></i> Invoice
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('invoice.label_print', $invoice->id) }}" target="_blank">
+                                    <i class="mdi mdi-package-variant-closed me-1"></i> Sampul
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                     <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-invoice mb-3"
                         data-id="{{ $quote->id }}">Delete</a>
                     <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">

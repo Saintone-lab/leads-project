@@ -15,6 +15,8 @@ if (Auth::check()) {
   $user = Auth::user();
 
   try {
+    $year = request('year', date('Y'));
+
     // Membuat koneksi PDO
     $pdo = new PDO("mysql:host=$host;dbname=$databaseName;charset=utf8", $users, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -29,11 +31,12 @@ if (Auth::check()) {
           INNER JOIN users s ON s.id = c.id_sales
         INNER JOIN serial_product sp ON sp.id = m.id_unit
         INNER JOIN unit un ON un.id = sp.id_product
+          WHERE YEAR(r.date) = :year
           GROUP BY r.id, un.id
           ORDER BY r.date ASC";
 
     $stmt = $pdo->prepare($query);
-    // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);
+    $stmt->bindValue(':year', $year, PDO::PARAM_INT);
     $stmt->execute();
 
     // Fetch result

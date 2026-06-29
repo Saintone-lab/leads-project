@@ -20,12 +20,17 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT q.*, CONCAT(q.note, ' (', q.status_date, ')') AS tip, c.company, c.ru, u.name FROM quotation q 
-        LEFT JOIN pic p on p.id = q.id_pic
-        LEFT JOIN client c on c.id = p.id_client
-        INNER JOIN users u on u.id = q.id_sales
-        WHERE u.id = $user->id AND q.status IN (20,30,40,60,80) AND q.level = '1' AND q.is_primary = '1' AND q.type != 'Unit'
-        GROUP BY primary_id ORDER BY q.expired_date ASC";
+        $userId = $user->id;
+        $query = "
+        SELECT q.id, q.no_quote, c.company, c.ru, q.subtotal, q.title, q.estimated_date,
+               q.status, CONCAT(q.note, ' (', q.status_date, ')') AS tip, q.type, 'service' AS row_type
+        FROM quotation q
+        LEFT JOIN pic p ON p.id = q.id_pic
+        LEFT JOIN client c ON c.id = p.id_client
+        INNER JOIN users u ON u.id = q.id_sales
+        WHERE u.id = $userId AND q.status IN (20,30,40,60,80) AND q.level = '1' AND q.is_primary = '1' AND q.type != 'Unit'
+        GROUP BY q.primary_id
+        ORDER BY estimated_date ASC";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

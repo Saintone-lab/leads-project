@@ -207,22 +207,43 @@ class UnitController extends Controller
         ];
 
         $this->validate($request, $rule, $message);
-        // dd($request);
         $unit = Unit::find($id);
-        $unit->sku = $request->sku;
-        $unit->status = $request->status;
-        $unit->desc = $request->desc;
-        $unit->voltage = $request->voltage;
-        $unit->bar = $request->bar;
-        $unit->power = $request->power;
-        $unit->connect = $request->connect;
-        $unit->air_cap = $request->air_cap;
-        $unit->dimension = $request->dimension;
-        $unit->weight = $request->weight;
-        $unit->note = $request->note;
-        $unit->unit = $request->unit;
+        $unit->sku              = $request->sku;
+        $unit->brand            = $request->brand;
+        $unit->model            = $request->model;
+        $unit->desc             = $request->desc;
+        $unit->unit             = $request->unit;
+        $unit->voltage          = $request->voltage;
+        $unit->bar              = $request->bar;
+        $unit->power            = $request->power;
+        $unit->air_cap          = $request->air_cap;
+        $unit->connect          = $request->connect;
+        $unit->type_unit        = $request->type_unit;
+        $unit->cooling          = $request->cooling;
+        $unit->exhaust          = $request->exhaust;
+        $unit->refrigerant_type = $request->refrigerant_type;
+        $unit->pdp              = $request->pdp;
+        $unit->dimension        = $request->dimension;
+        $unit->weight           = $request->weight;
+        $unit->note             = $request->note;
+        $unit->status           = $request->status;
         $unitSave = $unit->save();
         if ($unitSave) {
+            SerialProduct::updateOrCreate(
+                ['id_product' => $unit->id],
+                [
+                    'brand'     => $unit->brand ?? '',
+                    'pn'        => $unit->model ?? '',
+                    'bar'       => $unit->bar,
+                    'air_cap'   => $unit->air_cap,
+                    'detail'    => $unit->desc,
+                    'image'     => '',
+                    'fxp_parts' => '',
+                    'rental'    => '0',
+                    'second'    => '0',
+                    'new'       => '0',
+                ]
+            );
             return redirect('/unit-global/' . $unit->id)->with('message', 'data telah di tambahkan');
         }
     }
@@ -244,15 +265,8 @@ class UnitController extends Controller
         // $replacement = DetailProduct::where('id_product', $id)->get();
         // $equivalents = SerialProduct::where('id_product', $id)->get();
 
+        SerialProduct::where('id_product', $id)->delete();
         $delUnit = $unit->delete();
-
-        // foreach ($replacement as $replace) {
-        //     $delReplace = $replace->delete();
-        // }
-
-        // foreach ($equivalents as $equivalent) {
-        //     $delEqui = $equivalent->delete();
-        // }
 
         if ($delUnit) {
             return 1;
@@ -370,55 +384,59 @@ class UnitController extends Controller
         return view('pages.warehouse.unit.index-global');
     }
 
+    public function checkSku(Request $request)
+    {
+        $sku    = trim($request->query('sku', ''));
+        $exists = Unit::where('sku', $sku)->where('type', 'global')->first(['id', 'sku', 'unit', 'brand', 'model']);
+        return response()->json([
+            'exists' => (bool) $exists,
+            'data'   => $exists,
+        ]);
+    }
+
     public function storeGlobal(Request $request)
     {
-        // Rules for validation
         $rule = [
-            'sku' => 'required',
-            'desc' => 'required',
-            'voltage' => 'required',
-            'note' => 'required',
-            'bar' => 'required',
+            'sku'  => 'required',
+            'unit' => 'required',
         ];
-
-        // Custom validation messages
         $message = [
-            'sku.required' => 'Field sku Wajib Diisi',
-            'desc.required' => 'Field description Wajib Diisi',
-            'voltage.required' => 'Field voltage Wajib Diisi',
-            'note.required' => 'Field note Wajib Diisi',
-            'bar.required' => 'Field bar Wajib Diisi',
+            'sku.required'  => 'Field SKU wajib diisi',
+            'unit.required' => 'Kategori unit wajib dipilih',
         ];
-
         $this->validate($request, $rule, $message);
+
         $lastUnit = Unit::orderBy('id', 'desc')->first();
         $lastProduct = Product::orderBy('id', 'desc')->first();
         $unit = new Unit;
         if (@$lastUnit) {
-            if ($lastUnit->id > $lastProduct->id) {
-                $unit->id = $lastUnit->id + 1;
-            } else {
-                $unit->id = $lastProduct->id + 1;
-            }
+            $unit->id = ($lastUnit->id > $lastProduct->id) ? $lastUnit->id + 1 : $lastProduct->id + 1;
         } else {
             $unit->id = $lastProduct->id + 1;
         }
-        $unit->sku = $request->sku;
-        $unit->status = 'global';
-        $unit->desc = $request->desc;
-        $unit->voltage = $request->voltage;
-        $unit->bar = $request->bar;
-        $unit->power = $request->power;
-        $unit->connect = $request->connect;
-        $unit->air_cap = $request->air_cap;
-        $unit->dimension = $request->dimension;
-        $unit->weight = $request->weight;
-        $unit->note = $request->note;
-        $unit->unit = $request->unit;
-        $unit->stock = 0;
-        $unit->first_stock = 0;
-        $unit->warehouse_stock = 0;
-        $unit->type = 'global';
+        $unit->sku              = $request->sku;
+        $unit->brand            = $request->brand;
+        $unit->model            = $request->model;
+        $unit->desc             = $request->desc;
+        $unit->unit             = $request->unit;
+        $unit->voltage          = $request->voltage;
+        $unit->bar              = $request->bar;
+        $unit->power            = $request->power;
+        $unit->air_cap          = $request->air_cap;
+        $unit->connect          = $request->connect;
+        $unit->type_unit        = $request->type_unit;
+        $unit->cooling          = $request->cooling;
+        $unit->exhaust          = $request->exhaust;
+        $unit->refrigerant_type = $request->refrigerant_type;
+        $unit->pdp              = $request->pdp;
+        $unit->dimension        = $request->dimension;
+        $unit->weight           = $request->weight;
+        $unit->note             = $request->note;
+        $unit->stock            = 0;
+        $unit->first_stock      = 0;
+        $unit->warehouse_stock  = 0;
+        $unit->status           = 'global';
+        $unit->type             = 'global';
         // foreach ($request->unit as $key => $value) {
         //     if ($value == 'rental') {
         //         $unit->rental = '1';
@@ -432,6 +450,19 @@ class UnitController extends Controller
         // }
         $unitSave = $unit->save();
         if ($unitSave) {
+            SerialProduct::create([
+                'id_product' => $unit->id,
+                'brand'      => $unit->brand ?? '',
+                'pn'         => $unit->model ?? '',
+                'bar'        => $unit->bar,
+                'air_cap'    => $unit->air_cap,
+                'detail'     => $unit->desc,
+                'image'      => '',
+                'fxp_parts'  => '',
+                'rental'     => '0',
+                'second'     => '0',
+                'new'        => '0',
+            ]);
             return redirect('/unit-global/' . $unit->id)->with('message', 'data telah di tambahkan');
         }
     }
@@ -521,6 +552,15 @@ class UnitController extends Controller
             ->take(5)
             ->get();
         return view('pages.warehouse.unit.detail-global', compact('nonconsumable', 'consumable', 'equivalent', 'product', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
+    }
+
+    public function updatePrice(Request $request, $id)
+    {
+        SerialProduct::where('id_product', $id)
+            ->update(['price' => $request->input('price', 0)]);
+
+        return redirect()->route('unit-global.show', $id)
+            ->with('success', 'Harga pricelist berhasil diperbarui.');
     }
 
     public function corfac()

@@ -66,12 +66,30 @@ $(function () {
                     visible: false,
                 },
                 {
-                    targets: 6,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
-                },
-                {
+                    // No. Quotation + badge Unit jika row_type='unit'
                     responsivePriority: 1,
                     targets: 3,
+                    render: function (data, type, full) {
+                        if (type !== "display") return data;
+                        var badge = full["row_type"] === "unit"
+                            ? ' <span class="badge bg-label-danger ms-1">Unit</span>'
+                            : "";
+                        // Badge tipe invoice
+                        var typeMap = { DP: "bg-warning", BP: "bg-info", CT: "bg-success" };
+                        var typeLabel = { DP: "DP", BP: "BP", CT: "Full" };
+                        var t = full["type"] || "CT";
+                        var typeBadge = '<span class="badge ' + (typeMap[t] || "bg-secondary") + ' ms-1">'
+                            + (typeLabel[t] || t) + "</span>";
+                        return data + badge + typeBadge;
+                    },
+                },
+                {
+                    targets: 6,
+                    render: function (data, type) {
+                        if (type !== "display") return data;
+                        var formatted = parseInt(data).toLocaleString("id-ID");
+                        return '<div class="d-flex justify-content-between"><span>Rp.</span><span>' + formatted + "</span></div>";
+                    },
                 },
                 {
                     // Actions
@@ -81,7 +99,9 @@ $(function () {
                     searchable: false,
                     render: function (data, type, full, meta) {
                         var $dataId = full["id"];
-                        var $detailUrl = route("before.accept", $dataId);
+                        var $detailUrl = full["row_type"] === "unit"
+                            ? "/request/invoice/unit/" + $dataId
+                            : route("before.accept", $dataId);
                         return (
                             '<a href="' + $detailUrl + '" class="btn btn-sm btn-icon btn-outline-info waves-effect waves-light" title="Detail"><i class="mdi mdi-eye-outline"></i></a>'
                         );

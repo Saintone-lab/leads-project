@@ -16,12 +16,13 @@ class ChangeStatus extends Model
     ];
     protected $fillable = [
         'id_quotation',
+        'id_unit_quotation',
         'id_user',
         'id_payment',
         'id_pending',
         'status',
         'note',
-        'date', 
+        'date',
     ];
     
     public function quotation()

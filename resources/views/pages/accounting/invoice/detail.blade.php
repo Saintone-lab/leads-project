@@ -1,11 +1,28 @@
 @extends('layouts.sales.app')
 @section('title', 'Invoice')
 @section('content')
+    <h4 class="fw-bold py-3 mb-4">
+        <span class="text-muted fw-light"><a href="{{ route('invoice.index') }}" class="text-muted">Accounting / Invoice</a> /</span>
+        {{ $invoice->no_invoice ?? '#' . $invoice->id }}
+    </h4>
     <div class="row invoice-preview">
         {{-- Invoice --}}
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
-            <div class="card invoice-preview-card">
-                <div class="card-body">
+            <div class="card invoice-preview-card" style="position: relative; overflow: hidden;">
+                @if (@$lastPayment->level == 1)
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 160px; font-weight: 900; color: rgba(40, 167, 69, 0.10); pointer-events: none; z-index: 0; letter-spacing: 12px; white-space: nowrap; user-select: none;">
+                        PAID
+                    </div>
+                @elseif (@$lastPayment->level == 0 && @$lastPayment->file == null)
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 140px; font-weight: 900; color: rgba(220, 53, 69, 0.10); pointer-events: none; z-index: 0; letter-spacing: 12px; white-space: nowrap; user-select: none;">
+                        UNPAID
+                    </div>
+                @elseif (@$lastPayment->level == 0 && @$lastPayment->file != null)
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 140px; font-weight: 900; color: rgba(255, 193, 7, 0.15); pointer-events: none; z-index: 0; letter-spacing: 12px; white-space: nowrap; user-select: none;">
+                        PENDING
+                    </div>
+                @endif
+                <div class="card-body" style="position: relative; z-index: 1;">
                     @if ($quote->pic->client->info == 'Reftech')
                         <div
                             class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column {{ $quote->tax == 0 ? 'float-end' : '' }}">
@@ -1292,113 +1309,204 @@
             </div>
         </div>
         {{-- End: Invoice --}}
-        {{-- Button Invocie --}}
+        {{-- Button Invoice --}}
         @if (Auth::user()->role != 'Logistic')
             <div class="col-xl-3 col-md-4 col-12 invoice-actions">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <a class="btn btn-primary d-grid w-100 mb-3 waves-effect" target="_blank"
-                            href="{{ route('print.invoice', $invoice->id) }}">
-                            Download
-                        </a>
-                        <a type="button" data-bs-toggle="modal" data-bs-target="#descView"
-                            class="d-grid w-100 waves-effect mb-3">
-                            <button type="button" class="btn btn-outline-primary">
-                                Change Description Product
-                            </button>
-                        </a>
-                        {{-- @if (!isset($return) && Auth::user()->role == 'Sales')
-                            <a class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect"
-                                href="{{ route('return.edit', $invoice->id) }}">
-                                Request Return Invoice
-                            </a>
-                        @elseif(@$return->lvl == '0' && Auth::user()->role == 'Sales')
-                            <button type="button" class="btn btn-outline-primary d-grid w-100 waves-effect mb-3">
-                                Waiting Warehouse Accept
-                            </button>
-                        @elseif(@$return->lvl == '1')
-                            <a class="btn btn-instagram d-grid w-100 mb-3 waves-effect"
-                                href="{{ route('return.show', $return->id) }}">
-                                Return Invoice
-                            </a>
-                        @endif --}}
-                        <a type="button" data-bs-toggle="modal" data-bs-target="#changeDate"
-                            class="d-grid w-100 waves-effect mb-3">
-                            <button type="button" class="btn btn-secondary">
-                                Change Date
-                            </button>
-                        </a>
 
-                        @if (@$lastPayment->type == 'Tempo' && @$lastPayment->due_date == null)
-                            <a type="button" data-bs-toggle="modal" data-bs-target="#dueDate"
-                                class="d-grid w-100 waves-effect mb-3">
-                                <button type="button" class="btn btn-linkedin">
-                                    Isi Due Date
+                {{-- 1. Primary Actions --}}
+                <div class="card mb-3">
+                    <div class="card-body d-grid gap-2">
+                        @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
+                            <div class="btn-group w-100">
+                                <button type="button" class="btn btn-primary w-100 waves-effect dropdown-toggle"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    Download
                                 </button>
-                            </a>
+                                <ul class="dropdown-menu w-100">
+                                    <li>
+                                        <a class="dropdown-item" target="_blank"
+                                            href="{{ route('print.invoice', $invoice->id) }}">
+                                            <i class="mdi mdi-file-document-outline me-1"></i> Invoice
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item"
+                                            href="{{ route('invoice.label_detail', $invoice->id) }}">
+                                            <i class="mdi mdi-printer-outline me-1"></i> Sampul
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        @else
+                            <a class="btn btn-primary w-100 waves-effect" target="_blank"
+                                href="{{ route('print.invoice', $invoice->id) }}">Download</a>
                         @endif
-                        <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-invoice mb-3"
-                            data-id="{{ $quote->id }}">Delete</a>
-                        <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">
-                            Back
-                        </button>
+                        <button class="btn btn-outline-secondary w-100 waves-effect" id="backButton">Back</button>
+                        @php
+                            $viewQuotationUrl = match($quote->type) {
+                                'Service'  => route('show-service.quotation', $quote->id),
+                                'Overhaul' => route('show-overhaul.quotation', $quote->id),
+                                default    => route('quotation.show', $quote->id),
+                            };
+                        @endphp
+                        <a class="btn btn-outline-info w-100 waves-effect"
+                            href="{{ $viewQuotationUrl }}">View Quotation</a>
                     </div>
                 </div>
-                <div class="card mb-3">
-                    <div class="card-body">
-                        @if(Auth::user()->role == 'Admin')
-                            <a type="button" data-bs-toggle="modal" data-bs-target="#editInvoiceModal"
-                                class="d-grid w-100 waves-effect mb-3">
-                                <button type="button" class="btn btn-outline-secondary">
-                                    Edit No Invoice / Term
-                                </button>
-                            </a>
-                        @endif
 
+                {{-- 2. Invoice --}}
+                <div class="card mb-3">
+                    <div class="card-header py-2 px-3">
+                        <small class="text-uppercase text-muted fw-semibold">Invoice</small>
+                    </div>
+                    <div class="card-body d-grid gap-2">
+                        <button type="button" class="btn btn-outline-secondary w-100 waves-effect"
+                            data-bs-toggle="modal" data-bs-target="#descView">Change Description</button>
+                        <button type="button" class="btn btn-outline-secondary w-100 waves-effect"
+                            data-bs-toggle="modal" data-bs-target="#changeDate">Change Date</button>
+                        @if (Auth::user()->role == 'Admin')
+                            <button type="button" class="btn btn-outline-secondary w-100 waves-effect"
+                                data-bs-toggle="modal" data-bs-target="#editInvoiceModal">Edit No Invoice / Term</button>
+                        @endif
+                        @if (@$lastPayment->type == 'Tempo' && @$lastPayment->due_date == null)
+                            <button type="button" class="btn btn-warning w-100 waves-effect"
+                                data-bs-toggle="modal" data-bs-target="#dueDate">Isi Due Date</button>
+                        @endif
+                        <a href="#" class="btn btn-outline-danger w-100 waves-effect delete-invoice"
+                            data-id="{{ $quote->id }}">Delete Invoice</a>
+                    </div>
+                </div>
+
+                {{-- 3. Tax / PPH --}}
+                <div class="card mb-3">
+                    <div class="card-header py-2 px-3">
+                        <small class="text-uppercase text-muted fw-semibold">Tax / PPH</small>
+                    </div>
+                    <div class="card-body d-grid gap-2">
                         @if ($totalPph23 > 0)
                             <a href="#"
-                                class="btn btn-danger d-grid w-100 waves-effect {{ $quote->type == 'Sparepart' ? 'delete-pph' : 'delete-pph-service' }} mb-3"
+                                class="btn btn-danger w-100 waves-effect {{ $quote->type == 'Sparepart' ? 'delete-pph' : 'delete-pph-service' }}"
                                 data-id="{{ $invoice->id }}">Delete PPH 23</a>
                         @else
-                            <a type="button" data-bs-toggle="modal" data-bs-target="#addPph"
-                                class="d-grid w-100 waves-effect mb-3">
-                                <button type="button" class="btn btn-info">
-                                    Input PPH 23
-                                </button>
-                            </a>
+                            <button type="button" class="btn btn-outline-info w-100 waves-effect"
+                                data-bs-toggle="modal" data-bs-target="#addPph">Input PPH 23</button>
                         @endif
-
                         @if ($invoice->pph > 0)
-                            <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-pph-manual mb-3"
+                            <a href="#" class="btn btn-danger w-100 waves-effect delete-pph-manual"
                                 data-id="{{ $invoice->id }}">Delete PPH Manual</a>
                         @else
-                            <a type="button" data-bs-toggle="modal" data-bs-target="#addPphManual"
-                                class="d-grid w-100 waves-effect mb-3">
-                                <button type="button" class="btn btn-twitter">
-                                    Input PPH Manual
-                                </button>
-                            </a>
+                            <button type="button" class="btn btn-outline-secondary w-100 waves-effect"
+                                data-bs-toggle="modal" data-bs-target="#addPphManual">Input PPH Manual</button>
                         @endif
+                    </div>
+                </div>
+
+                {{-- 4. Hand Sign --}}
+                <div class="card mb-3">
+                    <div class="card-header py-2 px-3">
+                        <small class="text-uppercase text-muted fw-semibold">Hand Sign</small>
+                    </div>
+                    <div class="card-body">
+                        @if (isset($invoice->sign))
+                            <a href="#" class="btn btn-danger w-100 waves-effect delete-hand-sign"
+                                data-id="{{ $invoice->id }}">Delete Hand Sign</a>
+                        @else
+                            <a href="#" class="btn btn-outline-secondary w-100 waves-effect input-hand-sign"
+                                data-id="{{ $invoice->id }}">Input Hand Sign</a>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- 5. Payment --}}
+                <div class="card mb-3">
+                    <div class="card-header py-2 px-3">
+                        <small class="text-uppercase text-muted fw-semibold">Payment</small>
+                    </div>
+                    <div class="card-body d-grid gap-2">
+                        <div class="d-flex justify-content-between align-items-center px-1">
+                            <span class="text-muted small">Remaining</span>
+                            <span class="fw-semibold">Rp {{ number_format($remaining, 0, '.', ',') }}</span>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary w-100 waves-effect waves-light"
+                            data-bs-toggle="modal" data-bs-target="#detailPayment">Detail Payment</button>
                         @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
-                            <a type="button" data-bs-toggle="modal" data-bs-target="#addExpense"
-                                class="d-grid w-100 waves-effect mb-3">
-                                <button type="button" class="btn btn-linkedin">
-                                    Input Expense
-                                </button>
-                            </a>
-                            @if (@$expense)
-                                <a type="button" data-bs-toggle="modal" data-bs-target="#detailExpense"
-                                    class="d-grid w-100 waves-effect mb-3">
-                                    <button type="button" class="btn btn-facebook">
-                                        detail Expense
-                                    </button>
-                                </a>
+                            @if ($invoice->status_p == 0)
+                                <button type="button" class="btn btn-primary w-100 waves-effect waves-light"
+                                    data-bs-toggle="modal" data-bs-target="#confirmPayment">Confirm Payment</button>
+                            @else
+                                <a href="#" class="btn btn-danger w-100 waves-effect undo-payment"
+                                    data-id="{{ $invoice->id }}">Undo Confirm Payment</a>
+                            @endif
+                            <button type="button" class="btn btn-outline-secondary w-100 waves-effect"
+                                data-bs-toggle="modal" data-bs-target="#addExpense">Input Expense</button>
+                            @if ($expense->isNotEmpty())
+                                <button type="button" class="btn btn-outline-secondary w-100 waves-effect"
+                                    data-bs-toggle="modal" data-bs-target="#detailExpense">Detail Expense</button>
                             @endif
                         @endif
                     </div>
                 </div>
 
-                <!-- Edit Invoice Modal -->
+                {{-- 6. Delivery Order (Admin / Accounting only) --}}
+                @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
+                    <div class="card mb-3">
+                        <div class="card-header py-2 px-3">
+                            <small class="text-uppercase text-muted fw-semibold">Delivery Order</small>
+                        </div>
+                        <div class="card-body d-grid gap-2">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-outline-success w-100 btn-sm waves-effect"
+                                        data-bs-toggle="modal" data-bs-target="#doTeknisi">DO Teknisi</button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-outline-success w-100 btn-sm waves-effect"
+                                        data-bs-toggle="modal" data-bs-target="#doEkspedisi">DO Ekspedisi</button>
+                                </div>
+                                <div class="col-6">
+                                    <a href="{{ route('delivery.create_manual_teknisi', $invoice->id) }}"
+                                        class="btn btn-outline-secondary w-100 btn-sm waves-effect">DO Manual Teknisi</a>
+                                </div>
+                                <div class="col-6">
+                                    <a href="{{ route('delivery.create_manual_ekspedisi', $invoice->id) }}"
+                                        class="btn btn-outline-secondary w-100 btn-sm waves-effect">DO Manual Ekspedisi</a>
+                                </div>
+                            </div>
+                            @php $eks = 0; $tek = 0; @endphp
+                            @if ($doTek->count() >= 1 || $doEks->count() >= 1)
+                                <hr class="my-1">
+                                <small class="text-muted d-block">Existing DO</small>
+                                @foreach ($doTek as $teknisi)
+                                    @php $tek++; @endphp
+                                    <a class="btn btn-outline-success btn-sm w-100 waves-effect"
+                                        href="{{ route('delivery.show', $teknisi->id) }}">DO Teknisi ({{ $tek }})</a>
+                                @endforeach
+                                @foreach ($doEks as $ekspedisi)
+                                    @php $eks++; @endphp
+                                    <a class="btn btn-outline-success btn-sm w-100 waves-effect"
+                                        href="{{ route('delivery.show', $ekspedisi->id) }}">DO Ekspedisi ({{ $eks }})</a>
+                                @endforeach
+                            @endif
+                            @php $eksMan = 0; $tekMan = 0; @endphp
+                            @if ($doTekMan->count() >= 1 || $doEksMan->count() >= 1)
+                                <hr class="my-1">
+                                <small class="text-muted d-block">Existing DO Manual</small>
+                                @foreach ($doTekMan as $tekMannisi)
+                                    @php $tekMan++; @endphp
+                                    <a class="btn btn-outline-secondary btn-sm w-100 waves-effect"
+                                        href="{{ route('delivery.show_manual', $tekMannisi->id) }}">DO Manual Teknisi ({{ $tekMan }})</a>
+                                @endforeach
+                                @foreach ($doEksMan as $eksManpedisi)
+                                    @php $eksMan++; @endphp
+                                    <a class="btn btn-outline-secondary btn-sm w-100 waves-effect"
+                                        href="{{ route('delivery.show_manual', $eksManpedisi->id) }}">DO Manual Ekspedisi ({{ $eksMan }})</a>
+                                @endforeach
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Edit Invoice Modal --}}
                 <div class="modal fade" id="editInvoiceModal" tabindex="-1" aria-labelledby="editInvoiceModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
@@ -1427,135 +1535,7 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="card mb-3">
-                    <div class="card-body">
-                        @if (isset($invoice->sign))
-                            <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-hand-sign mb-3"
-                                data-id="{{ $invoice->id }}">Delete Hand Sign</a>
-                        @else
-                            <a href="#" class="btn btn-secondary d-grid w-100 waves-effect input-hand-sign mb-3"
-                                data-id="{{ $invoice->id }}">Input Hand Sign</a>
-                        @endif
-                    </div>
-                </div>
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <button type="button" class="btn btn-secondary w-100 waves-effect waves-light mb-3"
-                            data-bs-toggle="modal" data-bs-target="#detailPayment"> Detail Payment </button>
-                        <h5>Remaining : Rp {{ number_format($remaining, 0, '.', ',') }}</h5>
-                    </div>
-                </div>
-                @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            @if ($invoice->status_p == 0)
-                                <button type="button" class="btn btn-primary w-100 waves-effect waves-light mb-3"
-                                    data-bs-toggle="modal" data-bs-target="#confirmPayment"> Confirm Payment </button>
-                            @else
-                                <a href="#" class="btn btn-danger d-grid w-100 waves-effect undo-payment mb-3"
-                                    data-id="{{ $invoice->id }}">Undo Confirm Payment</a>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <a type="button" data-bs-toggle="modal" data-bs-target="#doTeknisi"
-                                class="d-grid w-100 waves-effect mb-3">
-                                <button type="button" class="btn btn-success">
-                                    Create Delivery Order Teknisi
-                                </button>
-                            </a>
-                            <a type="button" data-bs-toggle="modal" data-bs-target="#doEkspedisi"
-                                class="d-grid w-100 waves-effect mb-3">
-                                <button type="button" class="btn btn-whatsapp">
-                                    Create Delivery Order Ekspedisi
-                                </button>
-                            </a>
-                            {{-- <a class="btn btn-whatsapp d-grid w-100 mb-3 waves-effect"
-                        href="{{ route('invoice.do_ekspedisi', $invoice->id) }}">
-                        Delivery Order Ekspedisi
-                    </a> --}}
-                        </div>
-                    </div>
-                    @php
-                        $eks = 0;
-                        $tek = 0;
-                    @endphp
-                    @if ($doTek->count() >= 1 || $doEks->count() >= 1)
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                @foreach ($doTek as $teknisi)
-                                    @php
-                                        $tek++;
-                                    @endphp
-                                    <a class="btn btn-whatsapp d-grid w-100 mb-3 waves-effect"
-                                        href="{{ route('delivery.show', $teknisi->id) }}">
-                                        Delivery Order Teknisi ({{ $tek }})
-                                    </a>
-                                @endforeach
-                                @foreach ($doEks as $ekspedisi)
-                                    @php
-                                        $eks++;
-                                    @endphp
-                                    <a class="btn btn-whatsapp d-grid w-100 mb-3 waves-effect"
-                                        href="{{ route('delivery.show', $ekspedisi->id) }}">
-                                        Delivery Order Ekspedisi ({{ $eks }})
-                                    </a>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <a href="{{ route('delivery.create_manual_teknisi', $invoice->id) }}" type="button"
-                                class="btn btn-instagram d-grid w-100 waves-effect mb-3">
-                                Create Delivery Order Manual Teknisi
-                            </a>
-                            <a href="{{ route('delivery.create_manual_ekspedisi', $invoice->id) }}" type="button"
-                                class="btn btn-pinterest d-grid w-100 waves-effect mb-3">
-                                Create Delivery Order Manual Ekspedisi
-                            </a>
-                        </div>
-                    </div>
-                    @php
-                        $eksMan = 0;
-                        $tekMan = 0;
-                    @endphp
-                    @if ($doTekMan->count() >= 1 || $doEksMan->count() >= 1)
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                @foreach ($doTekMan as $tekMannisi)
-                                    @php
-                                        $tekMan++;
-                                    @endphp
-                                    <a class="btn btn-instagram d-grid w-100 mb-3 waves-effect"
-                                        href="{{ route('delivery.show_manual', $tekMannisi->id) }}">
-                                        Delivery Order Teknisi ({{ $tekMan }})
-                                    </a>
-                                @endforeach
-                                @foreach ($doEksMan as $eksManpedisi)
-                                    @php
-                                        $eksMan++;
-                                    @endphp
-                                    <a class="btn btn-pinterest d-grid w-100 mb-3 waves-effect"
-                                        href="{{ route('delivery.show_manual', $eksManpedisi->id) }}">
-                                        Delivery Order Ekspedisi ({{ $eksMan }})
-                                    </a>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <a class="btn btn-primary d-grid w-100 mb-3 waves-effect"
-                                href="{{ route('invoice.label_detail', $invoice->id) }}">
-                                Cetak Sampul Surat
-                            </a>
-                        </div>
-                    </div>
-                @endif
-                {{-- End : Button Invoice --}}
+                {{-- End: Button Invoice --}}
             </div>
         @else
             <div class="col-xl-3 col-md-4 col-12 invoice-actions">

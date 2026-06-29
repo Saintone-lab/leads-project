@@ -2,24 +2,20 @@
 @section('title', 'Invoice Reftech')
 @section('content')
     <h4 class="fw-bold py-3 mb-4">
-        Invoice Reftech
+        <span class="text-muted fw-light">Accounting /</span> Invoice Reftech
     </h4>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-invoice-ppn table table-striped">
+            <table class="datatable-invoice-ppn table table-bordered">
                 <thead>
                     <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Invoice No.</th>
-                        <th>No PO.</th>
-                        <th>Company</th>
-                        <th>type</th>
-                        <th>Total Price</th>
-                        <th>Date</th>
-                        <th>Sales</th>
-                        {{-- <th>Action</th> --}}
+                        <th class="text-center">Invoice No.</th>
+                        <th class="text-center">No PO</th>
+                        <th class="text-center">Company</th>
+                        <th class="text-end">Type</th>
+                        <th class="text-center">Total Invoice</th>
+                        <th class="text-end">Date</th>
+                        <th class="text-end">Sales</th>
                     </tr>
                 </thead>
             </table>
@@ -27,20 +23,16 @@
     </div>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-invoice-nonppn table table-striped">
+            <table class="datatable-invoice-nonppn table table-bordered">
                 <thead>
                     <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Invoice No.</th>
-                        <th>No PO.</th>
-                        <th>Company</th>
-                        <th>type</th>
-                        <th>Total Price</th>
-                        <th>Date</th>
-                        <th>Sales</th>
-                        {{-- <th>Action</th> --}}
+                        <th class="text-center">Invoice No.</th>
+                        <th class="text-center">No PO</th>
+                        <th class="text-center">Company</th>
+                        <th class="text-end">Type</th>
+                        <th class="text-center">Total Invoice</th>
+                        <th class="text-end">Date</th>
+                        <th class="text-end">Sales</th>
                     </tr>
                 </thead>
             </table>

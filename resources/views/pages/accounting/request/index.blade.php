@@ -24,35 +24,32 @@
         </div>
     </div>
     @foreach ($contracts as $contract)
-        @php
-            // Inisialisasi variabel
-            $sellingContract = null;
-            $orderContract = null;
-            $requestedSellingContract = null;
-            $requestedOrderContract = null;
-            $result = '';
-
-            // Loop untuk menemukan kontrak dengan tipe Selling dan Order
-            if ($contract->type == 'Selling' && $contract->quotation->tax == '0') {
-                $sellingNonTax = $contract;
-            } elseif ($contract->type == 'Selling' && $contract->quotation->tax == '11') {
-                $sellingTax = $contract;
-            } elseif ($contract->type == 'Order' && $contract->quotation->tax == '0') {
-                $orderNonTax = $contract;
-            } elseif ($contract->type == 'Order' && $contract->quotation->tax == '11') {
-                $orderTax = $contract;
-            }
-            if (isset($sellingTax)) {
-                $result = $formattedNumberSP;
-            } elseif (isset($sellingNonTax)) {
-                $result = $formattedNumberSNP;
-            } elseif (isset($orderTax)) {
-                $result = $formattedNumberCP;
-            } elseif (isset($orderNonTax)) {
-                $result = $formattedNumberCNP;
-            }
-        @endphp
-        @include('components.modal.accounting.accept-contract')
+        @if ($contract->id_unit_quotation)
+            {{-- Unit quotation contract --}}
+            @php
+                $result = $formattedNumberSC ?? str_pad(1, 3, '0', STR_PAD_LEFT);
+            @endphp
+            @include('components.modal.accounting.accept-contract-unit')
+        @else
+            {{-- Service / sparepart contract --}}
+            @php
+                $result = '';
+                if ($contract->type == 'Selling' && $contract->quotation?->tax == '0') {
+                    $sellingNonTax = $contract;
+                } elseif ($contract->type == 'Selling' && $contract->quotation?->tax == '11') {
+                    $sellingTax = $contract;
+                } elseif ($contract->type == 'Order' && $contract->quotation?->tax == '0') {
+                    $orderNonTax = $contract;
+                } elseif ($contract->type == 'Order' && $contract->quotation?->tax == '11') {
+                    $orderTax = $contract;
+                }
+                if (isset($sellingTax)) $result = $formattedNumberSP;
+                elseif (isset($sellingNonTax)) $result = $formattedNumberSNP;
+                elseif (isset($orderTax)) $result = $formattedNumberCP;
+                elseif (isset($orderNonTax)) $result = $formattedNumberCNP;
+            @endphp
+            @include('components.modal.accounting.accept-contract')
+        @endif
     @endforeach
 @endsection()
 

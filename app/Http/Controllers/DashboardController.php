@@ -52,17 +52,19 @@ class DashboardController extends Controller
         $teamTotalPO = 0;
         $teamTotalTarget = 0;
 
+        $poPerSales = Quotation::whereYear('po_date', $yearNow)
+            ->whereMonth('po_date', $monthNow)
+            ->where('status', '100')
+            ->where('level', '1')
+            ->where('is_primary', '1')
+            ->groupBy('id_sales')
+            ->selectRaw('id_sales, SUM(nett) as total_nett')
+            ->pluck('total_nett', 'id_sales');
+
         foreach ($sales as $sale) {
 
             $targetPerSales = $sale->latestTarget->total ?? 0;
-
-            $poTotalPricePerSales = Quotation::whereYear('po_date', $yearNow)
-                ->whereMonth("po_date", $monthNow)
-                ->where("id_sales", $sale->id)
-                ->where("status", "100")
-                ->where('level', '1')
-                ->where('is_primary', '1')
-                ->sum('nett');
+            $poTotalPricePerSales = $poPerSales->get($sale->id, 0);
 
             // 🔥 kalau termasuk team ecommerce
             if (in_array($sale->id, $teamIds)) {
@@ -175,61 +177,52 @@ class DashboardController extends Controller
                 ->select(['p.id as idP', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'comment.type', 'c.company', 'u.name', 'u.image']);
 
             // Menggabungkan kedua query menggunakan union
-            $comment = $quotationComment->union($prospectComment)
+            $comment = (clone $quotationComment)->union(clone $prospectComment)
                 ->orderBy('date', 'DESC')
                 ->take(5)
                 ->get();
-            $unreadComment = $quotationComment->union($prospectComment)
+            $unreadComment = (clone $quotationComment)->union(clone $prospectComment)
                 ->orderBy('date', 'DESC')
                 ->where('o.level', '1')
                 ->take(5)
                 ->get();
 
             // Sales Online
-            $akurasi = SalesOnline::where('id_sales', Auth::user()->id)
-                ->where('type', 'Akurasi')
-                ->whereYear('date', Carbon::now()->year)
-                ->whereRaw('WEEK(date, 1) = ?', [Carbon::now()->weekOfYear])
-                ->first();
-            $delivery = SalesOnline::where('id_sales', Auth::user()->id)
-                ->where('type', 'Delivery')
-                ->whereYear('date', Carbon::now()->year)
-                ->whereRaw('WEEK(date, 1) = ?', [Carbon::now()->weekOfYear])
-                ->first();
-            $response = SalesOnline::where('id_sales', Auth::user()->id)
-                ->where('type', 'Response')
-                ->whereYear('date', Carbon::now()->year)
-                ->whereRaw('WEEK(date, 1) = ?', [Carbon::now()->weekOfYear])
-                ->first();
-            $rating = SalesOnline::where('id_sales', Auth::user()->id)
-                ->where('type', 'Rating')
-                ->whereYear('date', Carbon::now()->year)
-                ->whereRaw('WEEK(date, 1) = ?', [Carbon::now()->weekOfYear])
-                ->first();
-            $customer = SalesOnline::where('id_sales', Auth::user()->id)
-                ->where('type', 'Customer')
-                ->whereYear('date', Carbon::now()->year)
-                ->whereRaw('WEEK(date, 1) = ?', [Carbon::now()->weekOfYear])
-                ->first();
-            $video = SalesOnline::where('id_sales', Auth::user()->id)
-                ->where('type', 'Video')
-                ->whereDate('date', Carbon::now())->first();
-            $sw = SalesOnline::where('id_sales', Auth::user()->id)
-                ->where('type', 'SW')
-                ->whereDate('date', Carbon::now())->first();
-            $product = SalesOnline::where('id_sales', Auth::user()->id)
-                ->where('type', 'product')
-                ->whereDate('date', Carbon::now())->get();
-            // dd($delivery);
-            // dd($sales);
-            $akurasiCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Akurasi')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
-            $deliveryCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Delivery')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
-            $responseCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Response')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
-            $ratingCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Rating')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
-            $customerCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Customer')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
-            $videoCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Video')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
-            $SWCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'SW')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->get();
-            $productCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Product')->whereMonth('date', Carbon::now())->whereYear('date', Carbon::now())->count();
+            $weeklyOnline = SalesOnline::where('id_sales', Auth::user()->id)
+                ->whereIn('type', ['Akurasi', 'Delivery', 'Response', 'Rating', 'Customer'])
+                ->whereYear('date', $yearNow)
+                ->whereRaw('WEEK(date, 1) = ?', [$dateNow->weekOfYear])
+                ->get()->keyBy('type');
+
+            $akurasi = $weeklyOnline->get('Akurasi');
+            $delivery = $weeklyOnline->get('Delivery');
+            $response = $weeklyOnline->get('Response');
+            $rating = $weeklyOnline->get('Rating');
+            $customer = $weeklyOnline->get('Customer');
+
+            $todayOnline = SalesOnline::where('id_sales', Auth::user()->id)
+                ->whereIn('type', ['Video', 'SW', 'product'])
+                ->whereDate('date', $dateNow)
+                ->get()->groupBy('type');
+
+            $video = $todayOnline->get('Video', collect())->first();
+            $sw = $todayOnline->get('SW', collect())->first();
+            $product = $todayOnline->get('product', collect());
+
+            $monthlyOnline = SalesOnline::where('id_sales', Auth::user()->id)
+                ->whereIn('type', ['Akurasi', 'Delivery', 'Response', 'Rating', 'Customer', 'Video', 'SW'])
+                ->whereMonth('date', $monthNow)
+                ->whereYear('date', $yearNow)
+                ->get()->groupBy('type');
+
+            $akurasiCount = $monthlyOnline->get('Akurasi', collect());
+            $deliveryCount = $monthlyOnline->get('Delivery', collect());
+            $responseCount = $monthlyOnline->get('Response', collect());
+            $ratingCount = $monthlyOnline->get('Rating', collect());
+            $customerCount = $monthlyOnline->get('Customer', collect());
+            $videoCount = $monthlyOnline->get('Video', collect());
+            $SWCount = $monthlyOnline->get('SW', collect());
+            $productCount = SalesOnline::where('id_sales', Auth::user()->id)->where('type', 'Product')->whereMonth('date', $monthNow)->whereYear('date', $yearNow)->count();
             $POCount = Quotation::where('id_sales', Auth::user()->id)->where('is_primary', '1')->where('status', '100')->where('level', '1')->whereMonth('po_date', Carbon::now())->whereYear('po_date', Carbon::now())->count();
 
             $jumlahCustomer = Client::join(DB::raw('(SELECT id_client, status FROM crm_status WHERE id IN (SELECT MAX(id) FROM crm_status GROUP BY id_client)) as cs'), 'client.id', '=', 'cs.id_client')->where('role', 'Customers')->where('id_sales', Auth::user()->id)->where('cs.status', '2')->count();
@@ -1856,8 +1849,6 @@ class DashboardController extends Controller
     }
     protected function getWeekDataDC()
     {
-        $sales = User::where('role', 'sales')->get();
-
         $dateNow = Carbon::now();
         $yearNow = $dateNow->year;
         $monthNow = $dateNow->month;
@@ -1869,45 +1860,36 @@ class DashboardController extends Controller
         $endWeek = date('W', strtotime($lastDayOfMonth));
         $weekStart = $firstDayOfWeek > 1 ? $weekEnd + 1 : $weekEnd;
 
-        foreach ($sales as $sales) {
-            // Mengambil ID sales
-            $salesId = $sales->id;
+        $sales = User::where('role', 'sales')->get();
 
-            // Inisialisasi array untuk menyimpan data aktivitas per minggu
+        $allData = Activities::select('c.id_sales', DB::raw('WEEK(date, 4) as week_num'), DB::raw('COUNT(*) as total'))
+            ->join('client as c', 'activities.id_client', '=', 'c.id')
+            ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->whereIn('activities.name', ['Daily Call', 'Follow Up'])
+            ->where('status', 'Responded')
+            ->groupBy('c.id_sales', DB::raw('WEEK(date, 4)'))
+            ->get()
+            ->groupBy('id_sales')
+            ->map(fn($items) => $items->pluck('total', 'week_num'));
+
+        $fullMonthData = [];
+        foreach ($sales as $sale) {
             $weeklyData = [];
+            $salesData = $allData->get($sale->id, collect());
 
-            // Loop melalui setiap minggu dalam sebulan
             for ($week = $weekStart; $week <= $endWeek; $week++) {
                 $weekKey = "{$week}";
-
-                $weekDays = date('t', strtotime("{$yearNow}-W{$weekKey}")); // Jumlah hari dalam minggu
+                $weekDays = date('t', strtotime("{$yearNow}-W{$weekKey}"));
                 if ($weekDays >= 4) {
-                    // Mengambil data aktivitas untuk sales tertentu dan minggu tertentu
-                    $dCallPerWeek = Activities::select(DB::raw('COUNT(*) as total'))
-                        ->join('client as c', 'activities.id_client', '=', 'c.id')
-                        ->where('c.id_sales', $salesId) // Filter berdasarkan ID sales
-                        ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
-                        ->where(DB::raw('WEEK(date, 4)'), $weekKey)
-                        ->whereIn('activities.name', ['Daily Call', 'Follow Up']) // Menggunakan whereIn untuk memeriksa beberapa nilai
-                        ->where('status', 'Responded')
-                        ->distinct('c.id')
-                        ->pluck('total')
-                        ->first(); // Mengambil total aktivitas
-
-                    // Menambahkan data aktivitas per minggu ke dalam array $weeklyData
-                    $weeklyData[$weekKey] = $dCallPerWeek;
+                    $weeklyData[$weekKey] = $salesData->get($week, 0);
                 }
             }
-
-            // Menambahkan data aktivitas per sales ke dalam array $fullMonthData
-            $fullMonthData[$sales->name] = $weeklyData;
+            $fullMonthData[$sale->name] = $weeklyData;
         }
         return $fullMonthData;
     }
     protected function getWeekDataCRM()
     {
-        $sales = User::where('role', 'sales')->get();
-
         $dateNow = Carbon::now();
         $yearNow = $dateNow->year;
         $monthNow = $dateNow->month;
@@ -1919,45 +1901,36 @@ class DashboardController extends Controller
         $endWeek = date('W', strtotime($lastDayOfMonth));
         $weekStart = $firstDayOfWeek > 1 ? $weekEnd + 1 : $weekEnd;
 
-        foreach ($sales as $sales) {
-            // Mengambil ID sales
-            $salesId = $sales->id;
+        $sales = User::where('role', 'sales')->get();
 
-            // Inisialisasi array untuk menyimpan data aktivitas per minggu
+        $allData = Activities::select('c.id_sales', DB::raw('WEEK(date, 4) as week_num'), DB::raw('COUNT(*) as total'))
+            ->join('client as c', 'activities.id_client', '=', 'c.id')
+            ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->where('activities.name', 'Crm')
+            ->where('status', 'Responded')
+            ->groupBy('c.id_sales', DB::raw('WEEK(date, 4)'))
+            ->get()
+            ->groupBy('id_sales')
+            ->map(fn($items) => $items->pluck('total', 'week_num'));
+
+        $fullMonthData = [];
+        foreach ($sales as $sale) {
             $weeklyData = [];
+            $salesData = $allData->get($sale->id, collect());
 
-            // Loop melalui setiap minggu dalam sebulan
             for ($week = $weekStart; $week <= $endWeek; $week++) {
                 $weekKey = "{$week}";
-
-                $weekDays = date('t', strtotime("{$yearNow}-W{$weekKey}")); // Jumlah hari dalam minggu
+                $weekDays = date('t', strtotime("{$yearNow}-W{$weekKey}"));
                 if ($weekDays >= 4) {
-                    // Mengambil data aktivitas untuk sales tertentu dan minggu tertentu
-                    $dCallPerWeek = Activities::select(DB::raw('COUNT(*) as total'))
-                        ->join('client as c', 'activities.id_client', '=', 'c.id')
-                        ->where('c.id_sales', $salesId) // Filter berdasarkan ID sales
-                        ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
-                        ->where(DB::raw('WEEK(date, 4)'), $weekKey)
-                        ->where('activities.name', 'Crm') // Menggunakan whereIn untuk memeriksa beberapa nilai
-                        ->where('status', 'Responded')
-                        ->distinct('c.id')
-                        ->pluck('total')
-                        ->first(); // Mengambil total aktivitas
-
-                    // Menambahkan data aktivitas per minggu ke dalam array $weeklyData
-                    $weeklyData[$weekKey] = $dCallPerWeek;
+                    $weeklyData[$weekKey] = $salesData->get($week, 0);
                 }
             }
-
-            // Menambahkan data aktivitas per sales ke dalam array $fullMonthData
-            $fullMonthData[$sales->name] = $weeklyData;
+            $fullMonthData[$sale->name] = $weeklyData;
         }
         return $fullMonthData;
     }
     protected function getWeekDataVisit()
     {
-        $sales = User::where('role', 'sales')->get();
-
         $dateNow = Carbon::now();
         $yearNow = $dateNow->year;
         $monthNow = $dateNow->month;
@@ -1969,44 +1942,36 @@ class DashboardController extends Controller
         $endWeek = date('W', strtotime($lastDayOfMonth));
         $weekStart = $firstDayOfWeek > 1 ? $weekEnd + 1 : $weekEnd;
 
-        foreach ($sales as $sales) {
-            // Mengambil ID sales
-            $salesId = $sales->id;
+        $sales = User::where('role', 'sales')->get();
 
-            // Inisialisasi array untuk menyimpan data aktivitas per minggu
+        $allData = Activities::select('c.id_sales', DB::raw('WEEK(date, 4) as week_num'), DB::raw('COUNT(*) as total'))
+            ->join('client as c', 'activities.id_client', '=', 'c.id')
+            ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->where('activities.name', 'Visit')
+            ->where('status', 'Responded')
+            ->groupBy('c.id_sales', DB::raw('WEEK(date, 4)'))
+            ->get()
+            ->groupBy('id_sales')
+            ->map(fn($items) => $items->pluck('total', 'week_num'));
+
+        $fullMonthData = [];
+        foreach ($sales as $sale) {
             $weeklyData = [];
+            $salesData = $allData->get($sale->id, collect());
 
-            // Loop melalui setiap minggu dalam sebulan
             for ($week = $weekStart; $week <= $endWeek; $week++) {
                 $weekKey = "{$week}";
-
-                $weekDays = date('t', strtotime("{$yearNow}-W{$weekKey}")); // Jumlah hari dalam minggu
+                $weekDays = date('t', strtotime("{$yearNow}-W{$weekKey}"));
                 if ($weekDays >= 4) {
-                    // Mengambil data aktivitas untuk sales tertentu dan minggu tertentu
-                    $dCallPerWeek = Activities::select(DB::raw('COUNT(*) as total'))
-                        ->join('client as c', 'activities.id_client', '=', 'c.id')
-                        ->where('c.id_sales', $salesId) // Filter berdasarkan ID sales
-                        ->whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
-                        ->where(DB::raw('WEEK(date, 4)'), $weekKey)
-                        ->where('activities.name', 'Visit') // Menggunakan whereIn untuk memeriksa beberapa nilai
-                        ->where('status', 'Responded')
-                        ->pluck('total')
-                        ->first(); // Mengambil total aktivitas
-
-                    // Menambahkan data aktivitas per minggu ke dalam array $weeklyData
-                    $weeklyData[$weekKey] = $dCallPerWeek;
+                    $weeklyData[$weekKey] = $salesData->get($week, 0);
                 }
             }
-
-            // Menambahkan data aktivitas per sales ke dalam array $fullMonthData
-            $fullMonthData[$sales->name] = $weeklyData;
+            $fullMonthData[$sale->name] = $weeklyData;
         }
         return $fullMonthData;
     }
     protected function getWeekDataQuote()
     {
-        $sales = User::where('role', 'sales')->get();
-
         $dateNow = Carbon::now();
         $yearNow = $dateNow->year;
         $monthNow = $dateNow->month;
@@ -2018,43 +1983,35 @@ class DashboardController extends Controller
         $endWeek = date('W', strtotime($lastDayOfMonth));
         $weekStart = $firstDayOfWeek > 1 ? $weekEnd + 1 : $weekEnd;
 
-        foreach ($sales as $sales) {
-            // Mengambil ID sales
-            $salesId = $sales->id;
+        $sales = User::where('role', 'sales')->get();
 
-            // Inisialisasi array untuk menyimpan data aktivitas per minggu
+        $allData = Quotation::select('id_sales', DB::raw('WEEK(estimated_date, 4) as week_num'), DB::raw('COUNT(*) as total'))
+            ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->where('level', '1')
+            ->where('is_primary', '1')
+            ->groupBy('id_sales', DB::raw('WEEK(estimated_date, 4)'))
+            ->get()
+            ->groupBy('id_sales')
+            ->map(fn($items) => $items->pluck('total', 'week_num'));
+
+        $fullMonthData = [];
+        foreach ($sales as $sale) {
             $weeklyData = [];
+            $salesData = $allData->get($sale->id, collect());
 
-            // Loop melalui setiap minggu dalam sebulan
             for ($week = $weekStart; $week <= $endWeek; $week++) {
                 $weekKey = "{$week}";
-
-                $weekDays = date('t', strtotime("{$yearNow}-W{$weekKey}")); // Jumlah hari dalam minggu
+                $weekDays = date('t', strtotime("{$yearNow}-W{$weekKey}"));
                 if ($weekDays >= 4) {
-                    // Mengambil data aktivitas untuk sales tertentu dan minggu tertentu
-                    $dCallPerWeek = Quotation::select(DB::raw('COUNT(*) as total'))
-                        ->whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])
-                        ->where(DB::raw('WEEK(estimated_date, 4)'), $weekKey)
-                        ->where('id_sales', $salesId)
-                        ->pluck('total')
-                        ->where('level', '1')
-                        ->where('is_primary', '1')
-                        ->first(); // Mengambil total aktivitas
-
-                    // Menambahkan data aktivitas per minggu ke dalam array $weeklyData
-                    $weeklyData[$weekKey] = $dCallPerWeek;
+                    $weeklyData[$weekKey] = $salesData->get($week, 0);
                 }
             }
-
-            // Menambahkan data aktivitas per sales ke dalam array $fullMonthData
-            $fullMonthData[$sales->name] = $weeklyData;
+            $fullMonthData[$sale->name] = $weeklyData;
         }
         return $fullMonthData;
     }
     protected function getWeekDataPO()
     {
-        $sales = User::where('role', 'sales')->get();
-
         $dateNow = Carbon::now();
         $yearNow = $dateNow->year;
         $monthNow = $dateNow->month;
@@ -2066,44 +2023,36 @@ class DashboardController extends Controller
         $endWeek = date('W', strtotime($lastDayOfMonth));
         $weekStart = $firstDayOfWeek > 1 ? $weekEnd + 1 : $weekEnd;
 
-        foreach ($sales as $sales) {
-            // Mengambil ID sales
-            $salesId = $sales->id;
+        $sales = User::where('role', 'sales')->get();
 
-            // Inisialisasi array untuk menyimpan data aktivitas per minggu
+        $allData = Quotation::select('id_sales', DB::raw('WEEK(po_date, 4) as week_num'), DB::raw('COUNT(*) as total'))
+            ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->where('status', '100')
+            ->where('level', '1')
+            ->where('is_primary', '1')
+            ->groupBy('id_sales', DB::raw('WEEK(po_date, 4)'))
+            ->get()
+            ->groupBy('id_sales')
+            ->map(fn($items) => $items->pluck('total', 'week_num'));
+
+        $fullMonthData = [];
+        foreach ($sales as $sale) {
             $weeklyData = [];
+            $salesData = $allData->get($sale->id, collect());
 
-            // Loop melalui setiap minggu dalam sebulan
             for ($week = $weekStart; $week <= $endWeek; $week++) {
                 $weekKey = "{$week}";
-
-                $weekDays = date('t', strtotime("{$yearNow}-W{$weekKey}")); // Jumlah hari dalam minggu
+                $weekDays = date('t', strtotime("{$yearNow}-W{$weekKey}"));
                 if ($weekDays >= 4) {
-                    // Mengambil data aktivitas untuk sales tertentu dan minggu tertentu
-                    $dCallPerWeek = Quotation::select(DB::raw('COUNT(*) as total'))
-                        ->whereBetween('po_date', [$firstDayOfMonth, $lastDayOfMonth])
-                        ->where(DB::raw('WEEK(po_date, 4)'), $weekKey)
-                        ->where('status', '100')
-                        ->where('level', '1')
-                        ->where('is_primary', '1')
-                        ->where('id_sales', $salesId)
-                        ->pluck('total')
-                        ->first(); // Mengambil total aktivitas
-
-                    // Menambahkan data aktivitas per minggu ke dalam array $weeklyData
-                    $weeklyData[$weekKey] = $dCallPerWeek;
+                    $weeklyData[$weekKey] = $salesData->get($week, 0);
                 }
             }
-
-            // Menambahkan data aktivitas per sales ke dalam array $fullMonthData
-            $fullMonthData[$sales->name] = $weeklyData;
+            $fullMonthData[$sale->name] = $weeklyData;
         }
         return $fullMonthData;
     }
     protected function getWeekDataLeads()
     {
-        $sales = User::where('role', 'sales')->get();
-
         $dateNow = Carbon::now();
         $yearNow = $dateNow->year;
         $monthNow = $dateNow->month;
@@ -2115,34 +2064,28 @@ class DashboardController extends Controller
         $endWeek = date('W', strtotime($lastDayOfMonth));
         $weekStart = $firstDayOfWeek > 1 ? $weekEnd + 1 : $weekEnd;
 
-        foreach ($sales as $sales) {
-            // Mengambil ID sales
-            $salesId = $sales->id;
+        $sales = User::where('role', 'sales')->get();
 
-            // Inisialisasi array untuk menyimpan data aktivitas per minggu
+        $allData = Client::select('id_sales', DB::raw('WEEK(created_at, 4) as week_num'), DB::raw('COUNT(*) as total'))
+            ->whereBetween('created_at', [$firstDayOfMonth, $lastDayOfMonth])
+            ->groupBy('id_sales', DB::raw('WEEK(created_at, 4)'))
+            ->get()
+            ->groupBy('id_sales')
+            ->map(fn($items) => $items->pluck('total', 'week_num'));
+
+        $fullMonthData = [];
+        foreach ($sales as $sale) {
             $weeklyData = [];
+            $salesData = $allData->get($sale->id, collect());
 
-            // Loop melalui setiap minggu dalam sebulan
             for ($week = $weekStart; $week <= $endWeek; $week++) {
                 $weekKey = "{$week}";
-
-                $weekDays = date('t', strtotime("{$yearNow}-W{$weekKey}")); // Jumlah hari dalam minggu
+                $weekDays = date('t', strtotime("{$yearNow}-W{$weekKey}"));
                 if ($weekDays >= 4) {
-                    // Mengambil data aktivitas untuk sales tertentu dan minggu tertentu
-                    $dCallPerWeek = Client::select(DB::raw('COUNT(*) as total'))
-                        ->whereBetween('created_at', [$firstDayOfMonth, $lastDayOfMonth])
-                        ->where(DB::raw('WEEK(created_at, 4)'), $weekKey)
-                        ->where('id_sales', $salesId)
-                        ->pluck('total')
-                        ->first(); // Mengambil total aktivitas
-
-                    // Menambahkan data aktivitas per minggu ke dalam array $weeklyData
-                    $weeklyData[$weekKey] = $dCallPerWeek;
+                    $weeklyData[$weekKey] = $salesData->get($week, 0);
                 }
             }
-
-            // Menambahkan data aktivitas per sales ke dalam array $fullMonthData
-            $fullMonthData[$sales->name] = $weeklyData;
+            $fullMonthData[$sale->name] = $weeklyData;
         }
         return $fullMonthData;
     }

@@ -82,38 +82,339 @@
             </div>
         </div>
     </div>
-    <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0">
-            <table
-                class="datatable{{ Auth::user()->role == 'Admin' ? '-quotation-admin' : '-quotation' }} table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Quote No.</th>
-                        <th>Company</th>
-                        <th>RU</th>
-                        <th>Total Price</th>
-                        <th>Description</th>
-                        <th>Date Quotation</th>
-                        {{-- <th>Date Expired</th> --}}
-                        @if (Auth::user()->role == 'Sales')
-                            <th>Status</th>
-                        @endif
-                        <th>Stats</th>
-                        @if (Auth::user()->role == 'Admin')
-                            <th>Assign</th>
-                        @endif
-                    </tr>
-                </thead>
-            </table>
+    @if (Auth::user()->role !== 'Admin')
+    {{-- ── SALES: Tabbed view ─────────────────────────────────────── --}}
+    <div class="card">
+        <div class="card-header py-2">
+            <ul class="nav nav-tabs card-header-tabs border-0 m-0" id="quotation-tab-nav" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-quotation" type="button">
+                        <i class="mdi mdi-file-document-outline me-1"></i>Quotation
+                        <span class="badge rounded-pill bg-danger ms-1" id="badge-quotation">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-unit-quotation" type="button">
+                        <i class="mdi mdi-file-document-outline me-1"></i>Quotation Unit
+                        <span class="badge rounded-pill bg-danger ms-1" id="badge-unit-quotation">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-hot" type="button">
+                        <i class="mdi mdi-fire me-1"></i>Hot Prospect
+                        <span class="badge rounded-pill bg-danger ms-1" id="badge-hot">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-po" type="button">
+                        <i class="mdi mdi-cart-check me-1"></i>Purchase Order
+                        <span class="badge rounded-pill bg-danger ms-1" id="badge-po">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-loss" type="button">
+                        <i class="mdi mdi-close-circle-outline me-1"></i>Loss
+                        <span class="badge rounded-pill bg-danger ms-1" id="badge-loss">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-archive" type="button">
+                        <i class="mdi mdi-archive-outline me-1"></i>Archive
+                        <span class="badge rounded-pill bg-danger ms-1" id="badge-archive">-</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="tab-content">
+
+                {{-- Tab 1: Quotation --}}
+                <div class="tab-pane fade show active" id="tab-quotation">
+                    <div class="table-responsive">
+                        <table class="datatable-quotation table table-bordered" data-badge="badge-quotation">
+                            <thead>
+                                <tr>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Total Price</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Tab 2: Hot Prospect --}}
+                <div class="tab-pane fade" id="tab-hot">
+                    <div class="table-responsive">
+                        <table class="datatable-hot-prospect table table-bordered" data-badge="badge-hot">
+                            <thead>
+                                <tr>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Total Price</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Tab 3: Purchase Order --}}
+                <div class="tab-pane fade" id="tab-po">
+                    <div class="table-responsive">
+                        <table class="datatable-po-quote table table-bordered" data-badge="badge-po">
+                            <thead>
+                                <tr>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Total Price</th>
+                                    <th>Description</th>
+                                    <th>Date PO</th>
+                                    <th>PO Number</th>
+                                    <th>Invoice Number</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Tab 4: Loss --}}
+                <div class="tab-pane fade" id="tab-loss">
+                    <div class="table-responsive">
+                        <table class="datatable-loss-quote table table-bordered" data-badge="badge-loss">
+                            <thead>
+                                <tr>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Total Price</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Tab 5: Archive --}}
+                <div class="tab-pane fade" id="tab-archive">
+                    <div class="table-responsive">
+                        <table class="datatable-quotation-archive table table-bordered" data-badge="badge-archive">
+                            <thead>
+                                <tr>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Total Price</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Tab 6: Penawaran Unit --}}
+                <div class="tab-pane fade" id="tab-unit-quotation">
+                    <div class="table-responsive">
+                        <table class="datatable-unit-quotation table table-bordered" data-badge="badge-unit-quotation">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">No. Quotation</th>
+                                    <th>Client</th>
+                                    <th>Description</th>
+                                    <th class="text-center">Date</th>
+                                    <th class="text-center">Total</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+            </div>{{-- /tab-content --}}
         </div>
     </div>
+
+    @else
+    {{-- ── ADMIN: Tabbed view ──────────────────────────────────────── --}}
+    <div class="d-flex align-items-center justify-content-end mb-3 gap-2">
+        <label class="form-label mb-0 text-muted" style="white-space:nowrap;">Filter Sales:</label>
+        <select class="form-select form-select-sm" id="admin-sales-filter" style="max-width:220px;">
+            <option value="">Semua Sales</option>
+            @foreach ($salesList as $s)
+                <option value="{{ $s->id }}">{{ $s->name }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="card">
+        <div class="card-header py-2">
+            <ul class="nav nav-tabs card-header-tabs border-0 m-0" id="quotation-admin-tab-nav" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#admin-tab-quotation" type="button">
+                        <i class="mdi mdi-file-document-outline me-1"></i>Quotation
+                        <span class="badge rounded-pill bg-primary ms-1" id="admin-badge-quotation">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#admin-tab-unit-quotation" type="button">
+                        <i class="mdi mdi-file-document-outline me-1"></i>Quotation Unit
+                        <span class="badge rounded-pill bg-primary ms-1" id="admin-badge-unit-quotation">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#admin-tab-hot" type="button">
+                        <i class="mdi mdi-fire me-1"></i>Hot Prospect
+                        <span class="badge rounded-pill bg-danger ms-1" id="admin-badge-hot">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#admin-tab-po" type="button">
+                        <i class="mdi mdi-cart-check me-1"></i>Purchase Order
+                        <span class="badge rounded-pill bg-success ms-1" id="admin-badge-po">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#admin-tab-loss" type="button">
+                        <i class="mdi mdi-close-circle-outline me-1"></i>Loss
+                        <span class="badge rounded-pill bg-secondary ms-1" id="admin-badge-loss">-</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="tab-content">
+
+                {{-- Admin Tab 1: Quotation --}}
+                <div class="tab-pane fade show active" id="admin-tab-quotation">
+                    <div class="table-responsive">
+                        <table class="datatable-quotation-admin-tab table table-bordered" data-badge="admin-badge-quotation">
+                            <thead>
+                                <tr>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Total Price</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th class="text-center" style="width:48px;"></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Admin Tab 2: Quotation Unit --}}
+                <div class="tab-pane fade" id="admin-tab-unit-quotation">
+                    <div class="table-responsive">
+                        <table class="datatable-unit-quotation-admin table table-bordered" data-badge="admin-badge-unit-quotation">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">No. Quotation</th>
+                                    <th>Client</th>
+                                    <th>Description</th>
+                                    <th class="text-center">Date</th>
+                                    <th class="text-center">Total</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center" style="width:48px;"></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Admin Tab 3: Hot Prospect --}}
+                <div class="tab-pane fade" id="admin-tab-hot">
+                    <div class="table-responsive">
+                        <table class="datatable-hot-prospect-admin table table-bordered" data-badge="admin-badge-hot">
+                            <thead>
+                                <tr>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Total Price</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th class="text-center" style="width:48px;"></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Admin Tab 4: Purchase Order --}}
+                <div class="tab-pane fade" id="admin-tab-po">
+                    <div class="table-responsive">
+                        <table class="datatable-po-quote-admin-tab table table-bordered" data-badge="admin-badge-po">
+                            <thead>
+                                <tr>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Total Price</th>
+                                    <th>Date PO</th>
+                                    <th>PO Number</th>
+                                    <th>Invoice Number</th>
+                                    <th class="text-center" style="width:48px;"></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Admin Tab 5: Loss --}}
+                <div class="tab-pane fade" id="admin-tab-loss">
+                    <div class="table-responsive">
+                        <table class="datatable-loss-quote-admin-tab table table-bordered" data-badge="admin-badge-loss">
+                            <thead>
+                                <tr>
+                                    <th>Quote No.</th>
+                                    <th>Company</th>
+                                    <th>Total Price</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th class="text-center" style="width:48px;"></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+            </div>{{-- /tab-content --}}
+        </div>
+    </div>
+    @endif
+
     @include('components.modal.quotation.overhaul.form')
 @endsection()
 
 @push('after-style')
+    <style>
+        .tooltip-quote-no .tooltip-inner {
+            max-width: 320px;
+            font-size: 13px;
+            padding: 6px 12px;
+            letter-spacing: 0.3px;
+        }
+        table.datatable-quotation td, table.datatable-quotation th,
+        table.datatable-unit-quotation td, table.datatable-unit-quotation th,
+        table.datatable-hot-prospect td, table.datatable-hot-prospect th,
+        table.datatable-po-quote td, table.datatable-po-quote th,
+        table.datatable-loss-quote td, table.datatable-loss-quote th,
+        table.datatable-quotation-archive td, table.datatable-quotation-archive th,
+        table.datatable-quotation-admin-tab td, table.datatable-quotation-admin-tab th,
+        table.datatable-unit-quotation-admin td, table.datatable-unit-quotation-admin th,
+        table.datatable-hot-prospect-admin td, table.datatable-hot-prospect-admin th,
+        table.datatable-po-quote-admin-tab td, table.datatable-po-quote-admin-tab th,
+        table.datatable-loss-quote-admin-tab td, table.datatable-loss-quote-admin-tab th { font-size: 14px; }
+    </style>
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
     <link rel="stylesheet"
@@ -143,13 +444,45 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-quotation.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-quotation-admin.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-hot-prospect.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-po.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-loss.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-quotation-archive.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-unit-quotation.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-quotation-admin-tab.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-unit-quotation-admin.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-hot-prospect-admin.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-po-admin-tab.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-loss-admin-tab.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush
 
 @push('script')
     <script>
-        // Initialize Bootstrap tooltips using jQuery
+        $('#quotation-tab-nav button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+            $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust().responsive.recalc();
+        });
+        $('#quotation-admin-tab-nav button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+            $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust().responsive.recalc();
+        });
+
+        $(document).on('draw.dt', function (e) {
+            var $tbl    = $(e.target);
+            var badgeId = $tbl.data('badge');
+            if (!badgeId) return;
+            var api   = $tbl.DataTable();
+            var count = api.page.info().recordsTotal;
+            $('#' + badgeId).text(count);
+        });
+
+        window.adminSalesFilter = '';
+        $('#admin-sales-filter').on('change', function () {
+            window.adminSalesFilter = $(this).val();
+            ['dtAdminQuotation', 'dtAdminUnitQuotation', 'dtAdminHot', 'dtAdminPo', 'dtAdminLoss'].forEach(function (key) {
+                if (window[key]) window[key].ajax.reload();
+            });
+        });
+
         $(document).ready(function() {
             $('[data-bs-toggle="tooltip"]').tooltip();
         });

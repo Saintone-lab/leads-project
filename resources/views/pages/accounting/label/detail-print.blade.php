@@ -64,7 +64,11 @@
                         <p class="mb-0 fw-semibold p-4 py-0">ALAMAT</p>
                     </div>
                     <div class="col-8">
-                        <p class="mb-0 ">: {{ $quote->pic->client->address }}</p>
+                        @if ($invoice->invoiceTo == '1')
+                            <p class="mb-0 ">: {{ $quote->pic->client->address }}</p>
+                        @else
+                            <p class="mb-0 ">: {{ $quote->pic->client->subAddress }}</p>
+                        @endif
                     </div>
                     <div class="col-4 px-0">
                         <p class="mb-0 fw-semibold p-4 py-0">Attn.</p>
@@ -131,7 +135,11 @@
                         <p class="mb-0 fw-semibold p-4 py-0">ALAMAT</p>
                     </div>
                     <div class="col-8">
-                        <p class="mb-0 ">: {{ $quote->pic->client->address }}</p>
+                        @if ($invoice->invoiceTo == '1')
+                            <p class="mb-0 ">: {{ $quote->pic->client->address }}</p>
+                        @else
+                            <p class="mb-0 ">: {{ $quote->pic->client->subAddress }}</p>
+                        @endif
                     </div>
                     <div class="col-4 px-0">
                         <p class="mb-0 fw-semibold p-4 py-0">Attn.</p>

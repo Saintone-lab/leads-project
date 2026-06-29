@@ -1,27 +1,24 @@
 @extends('layouts.sales.app')
 @section('title', 'Service report Monitoring')
 @section('content')
+    <h4 class="fw-bold py-3 mb-4">
+        <span class="text-muted fw-light">Monitoring /</span> Service Reports
+    </h4>
     <div class="card mb-3">
-        <div class="card-body">
-            <h5> Service Reports </h5>
-            <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-reports-fajar table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>No Service</th>
-                            <th>Brand Type</th>
-                            <th>Tag</th>
-                            <th>Location</th>
-                            <th>Job Desc</th>
-                            <th>Date</th>
-                            <th>Technician</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
+        <div class="card-datatable table-responsive pt-0">
+            <table class="datatable-reports-fajar table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="text-center">No Service</th>
+                        <th class="text-center">Brand Type</th>
+                        <th class="text-center">Tag</th>
+                        <th class="text-center">Location</th>
+                        <th class="text-center">Job Desc</th>
+                        <th class="text-center">Date</th>
+                        <th class="text-center">Technician</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
     </div>
 @endsection()
@@ -47,8 +44,6 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-coordinator-compressor.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-status-client-monitoring.js"></script>
     <script src="{{ asset('assets') }}/includes/table-reports-fp.js"></script>
 @endpush
 

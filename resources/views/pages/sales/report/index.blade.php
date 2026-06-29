@@ -396,6 +396,25 @@
                                 <td class="text-end">Rp {{ number_format($quote->nett, 0, '', '.') }}</td>
                             </tr>
                         @endforeach
+                        @foreach ($unitQuotationPO as $uq)
+                            @php
+                                $uqNett  = $uq->total - $uq->tax_amount;
+                                $totalP += $uqNett;
+                                $uqDate  = $uq->statusHistory->first()?->created_at;
+                            @endphp
+                            <tr>
+                                <td>
+                                    <a href="{{ route('unit-quotation.show', $uq->id) }}" class="fw-bold">
+                                        {{ $uq->no_quote }}
+                                    </a>
+                                    <span class="badge bg-label-danger ms-1">Unit</span>
+                                </td>
+                                <td>{{ $uq->client?->company ?? '-' }}</td>
+                                <td>{{ $uq->title ?? '-' }}</td>
+                                <td>{{ $uqDate ? \Carbon\Carbon::parse($uqDate)->format('d-m-Y') : '-' }}</td>
+                                <td class="text-end">Rp {{ number_format($uqNett, 0, '', '.') }}</td>
+                            </tr>
+                        @endforeach
                         <tr class="bg-label-secondary">
                             <td colspan="3">
                             </td>
