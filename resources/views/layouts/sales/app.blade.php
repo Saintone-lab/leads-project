@@ -97,29 +97,6 @@
     </script>
 
     @routes
-    @if (Auth::check() && Auth::id() === 22)
-        <style>
-            body::before {
-                content: "";
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-image: url('{{ asset('asset/bg-shandy.gif') }}');
-                background-size: cover;
-                background-repeat: no-repeat;
-                background-position: center;
-                filter: blur(8px);
-                opacity: 0.9;
-                z-index: -1;
-            }
-
-            body {
-                cursor: url('{{ asset('asset/cursor-sandy.ico') }}'), auto;
-            }
-        </style>
-    @endif
     @if ((Auth::check() && Auth::id() === 23) || Auth::id() === 16 || Auth::id() === 18)
         <style>
             body::before {

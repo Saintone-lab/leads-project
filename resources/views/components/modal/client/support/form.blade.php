@@ -139,15 +139,16 @@
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col mb-2">
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="text" id="areaAnimation" class="form-control"
-                                            placeholder="Contoh: Bandung" name="area"
-                                            value="{{ old('area', @$leads->area ?? '') }}">
-                                        <label for="areaAnimation">Area</label>
-                                    </div>
+                                    <select id="selectArea" class="form-select" name="area" style="width:100%">
+                                        <option value=""></option>
+                                        @php $selectedArea = old('area', @$leads->area ?? ''); @endphp
+                                        @if($selectedArea)
+                                            <option value="{{ $selectedArea }}" selected>{{ $selectedArea }}</option>
+                                        @endif
+                                    </select>
                                 </div>
                             </div>
-                            <div class="row g-2 mb-3">
+                            <div class="row g-2 mb-3"> 
                                 <div class="col mb-2">
                                     <div class="form-floating form-floating-outline mb-4">
                                         <textarea class="form-control h-px-100" name="address" id="addressTextarea1"
