@@ -1818,32 +1818,83 @@ Route::group(["middleware" => "auth"], function () {
             ]);
         return response()->json(['data' => $contract]);
     });
-    Route::get('/db/request-contract', function () {
-        $serviceContracts = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+    Route::get('/db/request-contract', function (Request $request) {
+        $year = $request->query('year');
+
+        $serviceQuery = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
             ->join('pic as p', 'p.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'p.id_client')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
             ->where('contract.level', '0')
-            ->whereNotNull('contract.id_quotation')
-            ->get([
-                'contract.id', 'contract.no_contract', 'contract.type', 'contract.date',
-                'q.harga_total', 'u.name', 'c.company',
-                DB::raw("'service' AS source"),
-            ]);
+            ->whereNotNull('contract.id_quotation');
+        if ($year && $year !== 'all') $serviceQuery->whereYear('contract.date', $year);
+        $serviceContracts = $serviceQuery->get([
+            'contract.id', 'contract.no_contract', 'contract.type', 'contract.date',
+            'q.harga_total', 'u.name', 'c.company',
+            DB::raw("'service' AS source"),
+        ]);
 
-        $unitContracts = Contract::join('unit_quotation as uq', 'uq.id', '=', 'contract.id_unit_quotation')
+        $unitQuery = Contract::join('unit_quotation as uq', 'uq.id', '=', 'contract.id_unit_quotation')
             ->join('client as c', 'c.id', '=', 'uq.id_client')
             ->join('users as u', 'u.id', '=', 'uq.id_sales')
             ->where('contract.level', '0')
-            ->whereNotNull('contract.id_unit_quotation')
-            ->get([
-                'contract.id', 'contract.no_contract', 'contract.type', 'contract.date',
-                DB::raw('uq.total AS harga_total'), 'u.name', 'c.company',
-                DB::raw("'unit' AS source"),
-            ]);
+            ->whereNotNull('contract.id_unit_quotation');
+        if ($year && $year !== 'all') $unitQuery->whereYear('contract.date', $year);
+        $unitContracts = $unitQuery->get([
+            'contract.id', 'contract.no_contract', 'contract.type', 'contract.date',
+            DB::raw('uq.total AS harga_total'), 'u.name', 'c.company',
+            DB::raw("'unit' AS source"),
+        ]);
 
         $combined = $serviceContracts->merge($unitContracts)->sortByDesc('id')->values();
         return response()->json(['data' => $combined]);
+    });
+
+    Route::get('/db/selling-contract', function (Request $request) {
+        $year = $request->query('year');
+        $tax  = $request->query('tax', 'all');
+
+        $serviceQuery = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.type', 'Selling')
+            ->where('contract.level', '1');
+        if ($year && $year !== 'all') $serviceQuery->whereYear('contract.date', $year);
+        if ($tax === 'ppn')     $serviceQuery->where('q.tax', '11');
+        elseif ($tax === 'non-ppn') $serviceQuery->where('q.tax', '0');
+        $service = $serviceQuery->get(['contract.id','contract.no_contract','contract.type','contract.date','q.harga_total','u.name','c.company']);
+
+        $unitQuery = Contract::join('unit_quotation as uq', 'uq.id', '=', 'contract.id_unit_quotation')
+            ->join('client as c', 'c.id', '=', 'uq.id_client')
+            ->join('users as u', 'u.id', '=', 'uq.id_sales')
+            ->where('contract.type', 'Selling')
+            ->where('contract.level', '1');
+        if ($year && $year !== 'all') $unitQuery->whereYear('contract.date', $year);
+        if ($tax === 'ppn')     $unitQuery->where('uq.tax', 1);
+        elseif ($tax === 'non-ppn') $unitQuery->where('uq.tax', 0);
+        $unit = $unitQuery->get(['contract.id','contract.no_contract','contract.type','contract.date',DB::raw('uq.total AS harga_total'),'u.name','c.company']);
+
+        $combined = $service->merge($unit)->sortByDesc('id')->values();
+        return response()->json(['data' => $combined]);
+    });
+
+    Route::get('/db/confirm-order', function (Request $request) {
+        $year = $request->query('year');
+        $tax  = $request->query('tax', 'all');
+
+        $query = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('contract.type', 'Order')
+            ->where('contract.level', '1');
+        if ($year && $year !== 'all') $query->whereYear('contract.date', $year);
+        if ($tax === 'ppn')     $query->where('q.tax', '11');
+        elseif ($tax === 'non-ppn') $query->where('q.tax', '0');
+
+        $contract = $query->get(['contract.id','contract.no_contract','contract.type','contract.date','q.harga_total','u.name','c.company']);
+        return response()->json(['data' => $contract]);
     });
 
     // Route untuk API Tabel DataTable

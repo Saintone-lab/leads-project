@@ -381,35 +381,14 @@
                 <li class="menu-header fw-light mt-4">
                     <span class="menu-header-text">Accounting</span>
                 </li>
-                <li
-                    class="menu-item {{ request()->is('contract') || request()->is('selling/contract') || request()->is('order/contract') ? 'open' : '' }}">
-                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <li class="menu-item {{ request()->is('contract') || request()->is('selling/contract') || request()->is('order/contract') ? 'active' : '' }}">
+                    <a href="{{ route('contract.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
-                        <div data-i18n="SC/CO">SC/CO</div>
+                        <div data-i18n="Selling Contract">Selling Contract</div>
                         @if (@$requestContract >= 1)
                             <div class="badge bg-danger rounded-pill ms-auto">{{ $requestContract }}</div>
                         @endif
                     </a>
-                    <ul class="menu-sub">
-                        <li class="menu-item {{ request()->is('contract') ? 'active' : '' }}">
-                            <a href="{{ route('contract.index') }}" class="menu-link">
-                                <div data-i18n="Request">Request</div>
-                                @if (@$requestInvoice >= 1)
-                                    <div class="badge bg-danger rounded-pill ms-auto">{{ $requestContract }}</div>
-                                @endif
-                            </a>
-                        </li>
-                        <li class="menu-item {{ request()->is('selling/contract') ? 'active' : '' }}">
-                            <a href="{{ route('index.selling') }}" class="menu-link">
-                                <div data-i18n="Selling Contract">Selling Contract</div>
-                            </a>
-                        </li>
-                        <li class="menu-item {{ request()->is('order/contract') ? 'active' : '' }}">
-                            <a href="{{ route('index.order') }}" class="menu-link">
-                                <div data-i18n="Confirm Order">Confirm Order</div>
-                            </a>
-                        </li>
-                    </ul>
                 </li>
                 <li
                     class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') || request()->is('request/invoice') || request()->is('request/invoice/*') || request()->is('index/invoice/kojisha') ? 'open' : '' }}">
