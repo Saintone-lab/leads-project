@@ -16,5 +16,6 @@ class SalesReports extends Model
     protected $fillable = [
         'semester',
         'year',
+        'target',
     ];
 }

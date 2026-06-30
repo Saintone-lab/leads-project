@@ -15,6 +15,7 @@ use App\Models\MonitoringActivities;
 use App\Models\Notulen;
 use App\Models\Payment;
 use App\Models\PendingPO;
+use App\Models\PurchaseRequest;
 use App\Models\Product;
 use App\Models\Prospect;
 use App\Models\Quotation;
@@ -354,6 +355,8 @@ class DashboardController extends Controller
             );
 
         } elseif (Auth::user()->role == 'Admin') {
+            $prCount = PurchaseRequest::where('status', '0')->count();
+
             $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
                 ->join('pic as p', 'p.id', '=', 'q.id_pic')
                 ->join('client as c', 'c.id', '=', 'p.id_client')
@@ -510,6 +513,7 @@ class DashboardController extends Controller
                     'unreadCommentAdmin',
                     'targett',
                     'targetAllSales',
+                    'prCount',
                 )
             );
         } elseif (Auth::user()->role == 'Accounting') {

@@ -472,7 +472,7 @@ class OverviewController extends Controller
         $quoteTotal = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->whereIn('status', ['20', '40', '60', '80', '90'])->where('level', '1')->where('is_primary', '1')->sum('nett');
         $quoteOnTotal = Quotation::whereBetween('estimated_date', [$firstDayOfMonth, $lastDayOfMonth])->where('level', '1')->where('is_primary', '1')->sum('nett');
         $sales = User::where('role', 'Sales')->where('active', '1')->get();
-        $totalTarget = Target::whereIn('id_sales', $sales->pluck('id'))->sum('total');
+        $totalTarget = $report->target ? intval($report->target / 6) : 0;
         $support = User::find('22');
         $dataSupport = DB::table('quotation')
             ->selectRaw('MONTH(po_date) as bulan, SUM(nett) as total')
@@ -614,11 +614,11 @@ class OverviewController extends Controller
         $quoteTotal   = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereIn('status', ['20', '40', '60', '80', '90'])->where('level', '1')->where('is_primary', '1')->sum('nett');
         $quoteOnTotal = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('level', '1')->where('is_primary', '1')->sum('nett');
 
-        $sales       = User::where('role', 'Sales')->where('active', '1')->get();
-        $totalTarget = Target::whereIn('id_sales', $sales->pluck('id'))->sum('total');
-        $support     = User::find('22');
-        $reportS1    = SalesReports::where('year', $year)->where('semester', 1)->first();
-        $reportS2    = SalesReports::where('year', $year)->where('semester', 2)->first();
+        $sales    = User::where('role', 'Sales')->where('active', '1')->get();
+        $support  = User::find('22');
+        $reportS1 = SalesReports::where('year', $year)->where('semester', 1)->first();
+        $reportS2 = SalesReports::where('year', $year)->where('semester', 2)->first();
+        $totalTarget = intval((($reportS1->target ?? 0) + ($reportS2->target ?? 0)) / 12);
 
         $dataSupportRaw = DB::table('quotation')
             ->selectRaw('MONTH(po_date) as bulan, SUM(nett) as total')

@@ -87,6 +87,27 @@
                             </option>
                         @endforeach
                     </select>
+
+                    <div id="equivalentList" class="mt-3" style="display:none;">
+                        <p class="text-muted small mb-1">Equivalent yang sudah ada:</p>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Brand</th>
+                                        <th>Part Number</th>
+                                        <th>Harga Jual</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="equivalentRows"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="equivalentEmpty" class="mt-2 text-muted small" style="display:none;">
+                        Belum ada equivalent untuk produk ini.
+                    </div>
                 </div>
             </div>
         </div>
@@ -172,8 +193,9 @@
                                         placeholder="16000" step="1" min="0">
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control vendor-modal" readonly
-                                        placeholder="0" tabindex="-1">
+                                    <input type="text" class="form-control vendor-modal-display"
+                                        placeholder="0" inputmode="numeric">
+                                    <input type="hidden" class="vendor-modal" name="vendors[0][price_idr]">
                                 </td>
                                 <td>
                                     <input type="date" class="form-control" name="vendors[0][date]"
@@ -198,6 +220,44 @@
             <a href="{{ route('part-inquiry.index') }}" class="btn btn-label-secondary">Batal</a>
         </div>
     </form>
+
+    {{-- Modal: Edit Equivalent --}}
+    <div class="modal fade" id="editEquivalentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Equivalent</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editEqId">
+                    <div class="mb-3">
+                        <label class="form-label">Brand <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editEqBrand" placeholder="Mann">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Part Number (PN) <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editEqPn" placeholder="HU718/5x">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Harga Jual (IDR) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="text" class="form-control" id="editEqPriceDisplay" placeholder="0" inputmode="numeric">
+                            <input type="hidden" id="editEqPrice">
+                        </div>
+                    </div>
+                    <div id="editEqError" class="alert alert-danger d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="saveEditEquivalent">
+                        <i class="mdi mdi-content-save-outline me-1"></i> Simpan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('after-style')
@@ -252,14 +312,30 @@
 
     initSupplierSelect2($('.select2-supplier'));
 
-    function formatRupiah(num) {
-        return 'Rp ' + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    function initVendorModalCleave($displayInput) {
+        var $hidden = $displayInput.siblings('.vendor-modal');
+        var cleave = new Cleave($displayInput[0], {
+            numeral: true,
+            numeralThousandsGroupStyle: 'thousand',
+            delimiter: '.',
+            numeralDecimalMark: ',',
+            numeralDecimalScale: 0,
+            onValueChanged: function (e) {
+                $hidden.val(e.target.rawValue);
+            }
+        });
+        $displayInput.data('cleave', cleave);
+        return cleave;
     }
+
+    initVendorModalCleave($('.vendor-modal-display'));
 
     function recalcModal($row) {
         var usd  = parseFloat($row.find('.vendor-usd').val()) || 0;
         var kurs = parseFloat($row.find('.vendor-kurs').val()) || 0;
-        $row.find('.vendor-modal').val(usd > 0 && kurs > 0 ? formatRupiah(usd * kurs) : '');
+        var cleave = $row.find('.vendor-modal-display').data('cleave');
+        if (!cleave) return;
+        cleave.setRawValue(usd > 0 && kurs > 0 ? Math.round(usd * kurs) : '');
     }
 
     $(document).on('input', '.vendor-usd, .vendor-kurs', function () {
@@ -288,11 +364,15 @@
         $row.append($('<td>').append($select));
         $row.append('<td><input type="number" class="form-control vendor-usd" name="vendors[' + vendorIndex + '][price_usd]" placeholder="0.00" step="0.01" min="0"></td>');
         $row.append('<td><input type="number" class="form-control vendor-kurs" name="vendors[' + vendorIndex + '][kurs_usd]" placeholder="16000" step="1" min="0"></td>');
-        $row.append('<td><input type="text" class="form-control vendor-modal" readonly placeholder="0" tabindex="-1"></td>');
+        var $modalTd = $('<td>');
+        $modalTd.append('<input type="text" class="form-control vendor-modal-display" placeholder="0" inputmode="numeric">');
+        $modalTd.append('<input type="hidden" class="vendor-modal" name="vendors[' + vendorIndex + '][price_idr]">');
+        $row.append($modalTd);
         $row.append('<td><input type="date" class="form-control" name="vendors[' + vendorIndex + '][date]" value="{{ now()->toDateString() }}"></td>');
         $row.append('<td><button type="button" class="btn btn-sm btn-label-danger remove-vendor-row"><i class="mdi mdi-delete-outline"></i></button></td>');
         $('#vendorRows').append($row);
         initSupplierSelect2($select);
+        initVendorModalCleave($row.find('.vendor-modal-display'));
         vendorIndex++;
     });
 
@@ -327,7 +407,97 @@
             $('#existingProductFields').hide();
             $('#newProductFields input, #newProductFields select, #newProductFields textarea').prop('disabled', false);
             $('#id_product').prop('disabled', true).trigger('change');
+            $('#equivalentList, #equivalentEmpty').hide();
         }
+    });
+
+    function formatRupiahSimple(num) {
+        return 'Rp ' + parseInt(num || 0).toLocaleString('id-ID');
+    }
+
+    $('#id_product').on('change', function () {
+        var id = $(this).val();
+        $('#equivalentList, #equivalentEmpty').hide();
+        $('#equivalentRows').empty();
+
+        if (!id) return;
+
+        $.get('{{ route("part-inquiry.product.equivalents", ":id") }}'.replace(':id', id), function (data) {
+            if (data.length === 0) {
+                $('#equivalentEmpty').show();
+                return;
+            }
+            $.each(data, function (i, row) {
+                $('#equivalentRows').append(
+                    '<tr data-id="' + row.id + '">' +
+                    '<td>' + (i + 1) + '</td>' +
+                    '<td class="eq-brand">' + (row.brand || '-') + '</td>' +
+                    '<td class="eq-pn">' + (row.pn || '-') + '</td>' +
+                    '<td class="eq-price">' + formatRupiahSimple(row.price) + '</td>' +
+                    '<td><button type="button" class="btn btn-sm btn-label-warning btn-edit-equivalent" ' +
+                        'data-id="' + row.id + '" data-brand="' + (row.brand || '') + '" ' +
+                        'data-pn="' + (row.pn || '') + '" data-price="' + (row.price || 0) + '">' +
+                        '<i class="mdi mdi-pencil-outline"></i>' +
+                    '</button></td>' +
+                    '</tr>'
+                );
+            });
+            $('#equivalentList').show();
+        });
+    });
+
+    var cleaveEditPrice = new Cleave('#editEqPriceDisplay', {
+        numeral: true,
+        numeralThousandsGroupStyle: 'thousand',
+        delimiter: '.',
+        numeralDecimalMark: ',',
+        numeralDecimalScale: 0,
+    });
+
+    $(document).on('click', '.btn-edit-equivalent', function () {
+        var $btn = $(this);
+        $('#editEqId').val($btn.data('id'));
+        $('#editEqBrand').val($btn.data('brand'));
+        $('#editEqPn').val($btn.data('pn'));
+        cleaveEditPrice.setRawValue($btn.data('price'));
+        $('#editEqError').addClass('d-none').text('');
+        $('#editEquivalentModal').modal('show');
+    });
+
+    $('#saveEditEquivalent').on('click', function () {
+        var id    = $('#editEqId').val();
+        var brand = $('#editEqBrand').val().trim();
+        var pn    = $('#editEqPn').val().trim();
+        var price = cleaveEditPrice.getRawValue();
+
+        if (!brand || !pn || price === '') {
+            $('#editEqError').removeClass('d-none').text('Semua field wajib diisi.');
+            return;
+        }
+
+        $.ajax({
+            url: '/part-inquiry/serial/' + id + '/equivalent',
+            type: 'PATCH',
+            data: { _token: '{{ csrf_token() }}', brand: brand, pn: pn, price: price },
+            success: function (res) {
+                if (res.success) {
+                    var $row = $('#equivalentRows tr[data-id="' + id + '"]');
+                    $row.find('.eq-brand').text(res.data.brand);
+                    $row.find('.eq-pn').text(res.data.pn);
+                    $row.find('.eq-price').text(formatRupiahSimple(res.data.price));
+                    $row.find('.btn-edit-equivalent')
+                        .data('brand', res.data.brand)
+                        .data('pn', res.data.pn)
+                        .data('price', res.data.price);
+                    $('#editEquivalentModal').modal('hide');
+                }
+            },
+            error: function (xhr) {
+                var msg = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message : 'Gagal menyimpan, coba lagi.';
+                $('#editEqError').removeClass('d-none').text(msg);
+            }
+        });
     });
 </script>
 @endpush

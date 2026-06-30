@@ -44,6 +44,7 @@ use App\Http\Controllers\ServiceReportsController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UnitController;
+use App\Http\Controllers\SalesTargetController;
 use App\Http\Controllers\SuoController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WatermarkController;
@@ -271,6 +272,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/report/year/{year}', [OverviewController::class, 'reportsByYear'])->name('report.year');
     Route::get('/report/current', [OverviewController::class, 'reportCurrent'])->name('report.current');
     Route::get('/report/{semester}', [OverviewController::class, 'reportsSemester'])->name('report.semester');
+    Route::get('/sales-target', [SalesTargetController::class, 'index'])->name('sales-target.index');
+    Route::post('/sales-target/add-year', [SalesTargetController::class, 'addYear'])->name('sales-target.add-year');
+    Route::post('/sales-target/{year}/save', [SalesTargetController::class, 'saveYearTargets'])->name('sales-target.save-year');
+    Route::post('/sales-target/{year}/aggregate', [SalesTargetController::class, 'saveAggregateTarget'])->name('sales-target.save-aggregate');
     // Route untuk PO
     // Route::get('/pending-po', function () {
     //     return view('pages.sales.po.pending.index');
@@ -303,9 +308,11 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/part-inquiry', [PartInquiryController::class, 'index'])->name('part-inquiry.index');
     Route::get('/part-inquiry/create', [PartInquiryController::class, 'create'])->name('part-inquiry.create');
     Route::post('/part-inquiry', [PartInquiryController::class, 'store'])->name('part-inquiry.store');
+    Route::get('/part-inquiry/product/{id}/equivalents', [PartInquiryController::class, 'getEquivalents'])->name('part-inquiry.product.equivalents');
     Route::get('/part-inquiry/{id}', [PartInquiryController::class, 'show'])->name('part-inquiry.show');
     Route::post('/part-inquiry/{id}/vendor', [PartInquiryController::class, 'storeVendorPrice'])->name('part-inquiry.vendor.store');
     Route::patch('/part-inquiry/serial/{id}/selling-price', [PartInquiryController::class, 'updateSellingPrice'])->name('part-inquiry.selling-price.update');
+    Route::patch('/part-inquiry/serial/{id}/equivalent', [PartInquiryController::class, 'updateEquivalent'])->name('part-inquiry.equivalent.update');
     Route::delete('/part-inquiry/vendor/{id}/delete', [PartInquiryController::class, 'destroyVendorPrice'])->name('part-inquiry.vendor.destroy');
 
     // Route untuk Product

@@ -82,7 +82,9 @@ class PartInquiryController extends Controller
                     if (!empty($vendor['id_supplier']) && isset($vendor['price_usd'])) {
                         $kurs     = floatval($vendor['kurs_usd'] ?? 0);
                         $priceUsd = floatval($vendor['price_usd']);
-                        $priceIdr = $priceUsd * $kurs;
+                        $priceIdr = isset($vendor['price_idr']) && $vendor['price_idr'] !== ''
+                            ? floatval($vendor['price_idr'])
+                            : $priceUsd * $kurs;
                         SparePartVendorPrice::create([
                             'id_serial_product' => $serial->id,
                             'id_supplier'       => $vendor['id_supplier'],
@@ -112,6 +114,15 @@ class PartInquiryController extends Controller
         });
 
         return redirect()->route('part-inquiry.index')->with('success', 'Part Inquiry berhasil disimpan!');
+    }
+
+    public function getEquivalents($id)
+    {
+        $serials = SerialProduct::where('id_product', $id)
+            ->orderBy('brand')
+            ->get(['id', 'brand', 'pn', 'price']);
+
+        return response()->json($serials);
     }
 
     public function show($id)
@@ -147,6 +158,24 @@ class PartInquiryController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Harga vendor berhasil ditambahkan!');
+    }
+
+    public function updateEquivalent(Request $request, $id)
+    {
+        $request->validate([
+            'brand' => 'required|string',
+            'pn'    => 'required|string',
+            'price' => 'required|numeric|min:0',
+        ]);
+
+        $serial = SerialProduct::findOrFail($id);
+        $serial->update([
+            'brand' => $request->brand,
+            'pn'    => $request->pn,
+            'price' => $request->price,
+        ]);
+
+        return response()->json(['success' => true, 'data' => $serial->only('id', 'brand', 'pn', 'price')]);
     }
 
     public function updateSellingPrice(Request $request, $id)
