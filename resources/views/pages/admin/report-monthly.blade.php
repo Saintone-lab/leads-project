@@ -624,6 +624,17 @@
                                             <div class="progress" style="height:6px">
                                                 <div class="progress-bar bg-{{ $s['color'] }}" style="width:{{ $pct }}%"></div>
                                             </div>
+                                            @if ($src->source === 'Website' && isset($mktWebsiteByDomain) && $mktWebsiteByDomain->isNotEmpty())
+                                                <div class="mt-2 d-flex flex-column gap-1">
+                                                    @foreach ($mktWebsiteByDomain as $dom)
+                                                        @php $domPct = $src->total > 0 ? round(($dom->total / $src->total) * 100, 1) : 0; @endphp
+                                                        <div class="d-flex justify-content-between text-muted ps-2" style="font-size:0.78rem">
+                                                            <span>↳ {{ $dom->domain }}</span>
+                                                            <span>{{ $dom->total }} <small>({{ $domPct }}%)</small></span>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 @endforeach

@@ -391,10 +391,21 @@ class OverviewController extends Controller
         $report   = SalesReports::find($semesterId);
         $semester = SalesReports::all();
 
-        $firstDay = $report->semester == 1 ? "{$report->year}-01-01" : "{$report->year}-07-01";
-        $lastDay  = $report->semester == 1
-            ? date('Y-m-t', strtotime("{$report->year}-06-01"))
-            : date('Y-m-t', strtotime("{$report->year}-12-01"));
+        $semesterMonths = $report->semester == 1 ? [1, 2, 3, 4, 5, 6] : [7, 8, 9, 10, 11, 12];
+        $selectedMonth  = request()->has('month') ? (int) request('month') : null;
+        if ($selectedMonth && !in_array($selectedMonth, $semesterMonths)) {
+            $selectedMonth = null;
+        }
+
+        if ($selectedMonth) {
+            $firstDay = Carbon::create($report->year, $selectedMonth, 1)->startOfMonth()->toDateString();
+            $lastDay  = Carbon::create($report->year, $selectedMonth, 1)->endOfMonth()->toDateString();
+        } else {
+            $firstDay = $report->semester == 1 ? "{$report->year}-01-01" : "{$report->year}-07-01";
+            $lastDay  = $report->semester == 1
+                ? date('Y-m-t', strtotime("{$report->year}-06-01"))
+                : date('Y-m-t', strtotime("{$report->year}-12-01"));
+        }
 
         $smktProspectCount = Prospect::whereBetween('date', [$firstDay, $lastDay])->whereNotNull('id_support')->count();
         $smktQuoteCount    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->count();
@@ -434,6 +445,14 @@ class OverviewController extends Controller
             ->selectRaw('COALESCE(client.source, "Other") as source, COUNT(*) as total')
             ->groupBy('source')->orderByDesc('total')->get();
 
+        $smktWebsiteByDomain = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereBetween('prospect.date', [$firstDay, $lastDay])
+            ->whereNotNull('prospect.id_support')
+            ->where('client.source', 'Website')
+            ->selectRaw('COALESCE(NULLIF(client.source_detail, ""), "Unknown") as domain, COUNT(*) as total')
+            ->groupBy('domain')->orderByDesc('total')->get();
+
         $smktProspectByCategory = Prospect::whereBetween('date', [$firstDay, $lastDay])
             ->whereNotNull('id_support')
             ->selectRaw('COALESCE(category, "Uncategorized") as category, COUNT(*) as total')
@@ -444,7 +463,8 @@ class OverviewController extends Controller
             'smktProspectCount', 'smktQuoteCount', 'smktQuoteTotal',
             'smktPoCount', 'smktPoTotal', 'smktLossCount', 'smktLossTotal',
             'smktProspectByStatus', 'smktPerPerson',
-            'smktProspectBySource', 'smktProspectByCategory'
+            'smktProspectBySource', 'smktWebsiteByDomain', 'smktProspectByCategory',
+            'selectedMonth', 'semesterMonths'
         ));
     }
 
@@ -526,6 +546,14 @@ class OverviewController extends Controller
             ->selectRaw('COALESCE(client.source, "Other") as source, COUNT(*) as total')
             ->groupBy('source')->orderByDesc('total')->get();
 
+        $smktWebsiteByDomain = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereBetween('prospect.date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->whereNotNull('prospect.id_support')
+            ->where('client.source', 'Website')
+            ->selectRaw('COALESCE(NULLIF(client.source_detail, ""), "Unknown") as domain, COUNT(*) as total')
+            ->groupBy('domain')->orderByDesc('total')->get();
+
         $smktProspectByCategory = Prospect::whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
             ->whereNotNull('id_support')
             ->selectRaw('COALESCE(category, "Uncategorized") as category, COUNT(*) as total')
@@ -594,7 +622,7 @@ class OverviewController extends Controller
             'smktProspectCount', 'smktQuoteCount', 'smktQuoteTotal',
             'smktPoCount', 'smktPoTotal', 'smktLossCount', 'smktLossTotal',
             'smktProspectByStatus', 'smktPerPerson',
-            'smktProspectBySource', 'smktProspectByCategory'
+            'smktProspectBySource', 'smktWebsiteByDomain', 'smktProspectByCategory'
         ));
     }
 
@@ -767,6 +795,17 @@ class OverviewController extends Controller
             ->orderByDesc('total')
             ->get();
 
+        $mktWebsiteByDomain = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereMonth('prospect.date', $month)
+            ->whereYear('prospect.date', $year)
+            ->whereNotNull('prospect.id_support')
+            ->where('client.source', 'Website')
+            ->selectRaw('COALESCE(NULLIF(client.source_detail, ""), "Unknown") as domain, COUNT(*) as total')
+            ->groupBy('domain')
+            ->orderByDesc('total')
+            ->get();
+
         $mktProspectByCategory = Prospect::whereMonth('date', $month)
             ->whereYear('date', $year)
             ->whereNotNull('id_support')
@@ -823,7 +862,7 @@ class OverviewController extends Controller
             'lossCount', 'lossTotal',
             'quoteOnCount', 'totalTarget',
             'mktProspectCount', 'mktQuoteCount', 'mktQuoteTotal',
-            'mktPoCount', 'mktPoTotal', 'mktProspectBySource', 'mktProspectByCategory', 'mktProspectByArea',
+            'mktPoCount', 'mktPoTotal', 'mktProspectBySource', 'mktWebsiteByDomain', 'mktProspectByCategory', 'mktProspectByArea',
             'mktProspectByStatus', 'mktPerPerson', 'mktLossCount', 'mktLossTotal'
         ));
     }

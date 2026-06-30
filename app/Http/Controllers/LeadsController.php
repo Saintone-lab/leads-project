@@ -140,6 +140,12 @@ class LeadsController extends Controller
             'source' =>
                 'required',
 
+            'source_detail' =>
+                'nullable|string|max:100',
+
+            'source_detail_other' =>
+                'nullable|string|max:100',
+
             'mobile' =>
                 'required',
 
@@ -196,6 +202,13 @@ class LeadsController extends Controller
         $leads->unit = $request->unit;
         $leads->image = 'profile.jpg';
         $leads->source = $request->source;
+        if ($request->source === 'Website') {
+            $leads->source_detail = $request->source_detail === 'Other'
+                ? $request->source_detail_other
+                : $request->source_detail;
+        } else {
+            $leads->source_detail = null;
+        }
         $leads->created_date = Carbon::today()->toDateString();
         $leads->role = 'Leads';
         if ($request->npwp != NULL) {
@@ -393,6 +406,13 @@ class LeadsController extends Controller
         $leads->ru = $request->ru;
         $leads->unit = $request->unit;
         $leads->source = $request->source;
+        if ($request->source === 'Website') {
+            $leads->source_detail = $request->source_detail === 'Other'
+                ? $request->source_detail_other
+                : $request->source_detail;
+        } else {
+            $leads->source_detail = null;
+        }
         $leads->npwp = $request->npwp;
         $leads->mobile = $request->mobile;
         if (Auth::user()->id == 1 || Auth::user()->id == 16) {
