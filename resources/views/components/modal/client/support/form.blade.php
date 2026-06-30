@@ -88,8 +88,7 @@
                                             aria-label="Default select example" name="source">
                                             <option disabled>----- Choose Source -----</option>
                                             <option value="IG"
-                                                {{ old('source', @$leads->source) == 'IG' ? 'selected' : '' }}>
-                                                Instagram
+                                                {{ old('source', @$leads->source) == 'IG' ? 'selected' : '' }}>Instagram
                                             </option>
                                             <option value="WhatsApp"
                                                 {{ old('source', @$leads->source) == 'WhatsApp' ? 'selected' : '' }}>
@@ -135,39 +134,6 @@
                                             </option>
                                         </select>
                                         <label for="selectSource">Source</label>
-                                    </div>
-                                </div>
-                            </div>
-                            {{-- Domain detail (muncul hanya ketika source = Website) --}}
-                            @php
-                                $wsPredefined = ['reftech.id', 'rentalkompresor.com', 'hvac.co.id', 'chiller.co.id'];
-                                $wsStored = old('source_detail', @$leads->source_detail ?? '');
-                                $wsOther  = old('source_detail_other', '');
-                                if ($wsStored && !in_array($wsStored, $wsPredefined)) {
-                                    $wsOther  = $wsStored;
-                                    $wsStored = 'Other';
-                                }
-                            @endphp
-                            <div class="row g-2 mb-3" id="divSourceDetail" style="display:none">
-                                <div class="col-6 mb-2">
-                                    <div class="form-floating form-floating-outline">
-                                        <select class="form-select" id="selectSourceDetail" name="source_detail">
-                                            <option value="" disabled {{ $wsStored == '' ? 'selected' : '' }}>----- Pilih Domain -----</option>
-                                            <option value="reftech.id" {{ $wsStored == 'reftech.id' ? 'selected' : '' }}>reftech.id</option>
-                                            <option value="rentalkompresor.com" {{ $wsStored == 'rentalkompresor.com' ? 'selected' : '' }}>rentalkompresor.com</option>
-                                            <option value="hvac.co.id" {{ $wsStored == 'hvac.co.id' ? 'selected' : '' }}>hvac.co.id</option>
-                                            <option value="chiller.co.id" {{ $wsStored == 'chiller.co.id' ? 'selected' : '' }}>chiller.co.id</option>
-                                            <option value="Other" {{ $wsStored == 'Other' ? 'selected' : '' }}>Other</option>
-                                        </select>
-                                        <label>Domain Website</label>
-                                    </div>
-                                </div>
-                                <div class="col-6 mb-2" id="divSourceDetailOther" style="display:none">
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="text" class="form-control" id="inputSourceDetailOther"
-                                               name="source_detail_other" placeholder="Ketik domain..."
-                                               value="{{ $wsOther }}">
-                                        <label>Domain Lainnya</label>
                                     </div>
                                 </div>
                             </div>
@@ -347,32 +313,3 @@
         </div>
     </div>
 </form>
-@push('page-script')
-<script>
-$(function () {
-    function syncSourceDetail() {
-        var src = $('#selectSource').val();
-        if (src === 'Website') {
-            $('#divSourceDetail').show();
-            if ($('#selectSourceDetail').val() === 'Other') {
-                $('#divSourceDetailOther').show();
-            }
-        }
-    }
-    syncSourceDetail();
-
-    $('#selectSource').on('change', function () {
-        var isWebsite = $(this).val() === 'Website';
-        $('#divSourceDetail').toggle(isWebsite);
-        if (!isWebsite) {
-            $('#selectSourceDetail').val('');
-            $('#divSourceDetailOther').hide();
-        }
-    });
-
-    $('#selectSourceDetail').on('change', function () {
-        $('#divSourceDetailOther').toggle($(this).val() === 'Other');
-    });
-});
-</script>
-@endpush

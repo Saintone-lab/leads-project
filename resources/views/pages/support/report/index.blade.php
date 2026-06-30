@@ -98,41 +98,9 @@
     @endphp
 
     <div class="card mt-4">
-        <div class="card-header d-flex align-items-start justify-content-between flex-wrap gap-2">
-            <div>
-                <h5 class="mb-0">Marketing Report</h5>
-                <small class="text-muted">
-                    Marketing team contribution —
-                    @if ($selectedMonth)
-                        {{ \Carbon\Carbon::create($report->year, $selectedMonth)->format('F') }} · {{ $report->year }}
-                    @else
-                        Semester {{ $report->semester }} · {{ $report->year }}
-                    @endif
-                    · Funnel: Prospect → Quotation → PO
-                </small>
-            </div>
-            <div class="btn-group">
-                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle waves-effect"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="mdi mdi-calendar-month me-1"></i>
-                    {{ $selectedMonth ? \Carbon\Carbon::create($report->year, $selectedMonth)->format('F') : 'Semua Bulan' }}
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a class="dropdown-item waves-effect {{ !$selectedMonth ? 'active' : '' }}"
-                           href="{{ route('reports.support.semester', $report->id) }}">Semua Bulan</a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    @foreach ($semesterMonths as $mn)
-                        <li>
-                            <a class="dropdown-item waves-effect {{ $selectedMonth == $mn ? 'active' : '' }}"
-                               href="{{ route('reports.support.semester', $report->id) }}?month={{ $mn }}">
-                                {{ \Carbon\Carbon::create($report->year, $mn)->format('F') }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
+        <div class="card-header">
+            <h5 class="mb-0">Marketing Report</h5>
+            <small class="text-muted">Marketing team contribution — Semester {{ $report->semester }} · {{ $report->year }} · Funnel: Prospect → Quotation → PO</small>
         </div>
         <div class="card-body">
 
@@ -374,17 +342,6 @@
                                                             <div class="progress" style="height:6px">
                                                                 <div class="progress-bar bg-{{ $si['color'] }}" style="width:{{ $pct }}%"></div>
                                                             </div>
-                                                            @if ($src->source === 'Website' && isset($smktWebsiteByDomain) && $smktWebsiteByDomain->isNotEmpty())
-                                                                <div class="mt-2 d-flex flex-column gap-1">
-                                                                    @foreach ($smktWebsiteByDomain as $dom)
-                                                                        @php $domPct = $src->total > 0 ? round(($dom->total / $src->total) * 100, 1) : 0; @endphp
-                                                                        <div class="d-flex justify-content-between text-muted ps-2" style="font-size:0.78rem">
-                                                                            <span>↳ {{ $dom->domain }}</span>
-                                                                            <span>{{ $dom->total }} <small>({{ $domPct }}%)</small></span>
-                                                                        </div>
-                                                                    @endforeach
-                                                                </div>
-                                                            @endif
                                                         </div>
                                                     </div>
                                                 @endforeach
