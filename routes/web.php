@@ -89,6 +89,7 @@ use App\Models\Supplier;
 use App\Models\User;
 use Carbon\Carbon;
 use FontLib\Table\Type\post;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadsController;
 use App\Http\Controllers\QuotationController;

@@ -2105,17 +2105,16 @@
         <div class="col-12">
             <div class="card mb-3">
                 <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-prospect-quote table table-striped">
+                    <table class="datatable-prospect-quote table table-bordered">
                         <thead>
                             <tr>
-                                <th></th>
-                                {{-- <th></th> --}}
-                                <th class="text-center">ID</th>
-                                <th class="text-center">Quote No.</th>
-                                <th class="text-center">Company</th>
-                                <th class="text-center">Value</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Sales</th>
+                                <th>Quote No.</th>
+                                <th>Company</th>
+                                <th>Total Price</th>
+                                <th>Description</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th class="text-center" style="width:48px;"></th>
                             </tr>
                         </thead>
                     </table>
@@ -3363,6 +3362,9 @@
         <script src="{{ asset('assets') }}/includes/table-req-visit-service.js"></script>
     @endif
     <script src="{{ asset('assets') }}/includes/table-hot-prospect.js"></script>
+    @if (Auth::user()->role == 'Admin')
+        <script src="{{ asset('assets') }}/includes/table-hot-prospect-dashboard.js"></script>
+    @endif
 
     <script src="{{ asset('assets') }}/includes/table-product-sales.js"></script>
     {{-- <script src="{{ asset('assets') }}/includes/table-product.js"></script> --}}
