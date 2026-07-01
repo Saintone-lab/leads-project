@@ -41,9 +41,23 @@
     {{-- Year Tabs --}}
     <div class="d-flex flex-wrap gap-2 mb-4">
         @foreach ($years as $y)
+            @php
+                $growth      = $yearGrowth[$y] ?? null;
+                $isActive    = $y == $currentYear;
+                $growthColor = $growth === null ? '' : ($growth >= 0 ? 'text-success' : 'text-danger');
+                $growthIcon  = $growth === null ? '' : ($growth > 0 ? '↑' : ($growth < 0 ? '↓' : '→'));
+            @endphp
             <a href="{{ route('sales-target.index', ['year' => $y]) }}"
-               class="btn btn-sm btn-outline-secondary year-tab {{ $y == $currentYear ? 'active' : '' }}">
-                {{ $y }}
+               class="btn btn-sm btn-outline-secondary year-tab {{ $isActive ? 'active' : '' }}"
+               style="line-height:1.2; padding-top:6px; padding-bottom:6px;">
+                <div>{{ $y }}</div>
+                @if ($growth !== null)
+                    <div class="small {{ $isActive ? 'text-white opacity-75' : $growthColor }}" style="font-size:.7rem">
+                        {{ $growthIcon }} {{ $growth > 0 ? '+' : '' }}{{ $growth }}%
+                    </div>
+                @else
+                    <div class="small text-muted" style="font-size:.7rem">—</div>
+                @endif
             </a>
         @endforeach
     </div>

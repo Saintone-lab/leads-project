@@ -37,17 +37,44 @@ class SalesTargetController extends Controller
             ->get()
             ->groupBy('user_id');
 
-        // Total target tim per tahun (untuk hitung % kontribusi di histori)
+        // Total target tim per tahun dari history (untuk hitung % kontribusi)
         $teamTargetByYear = SalesTargetHistory::selectRaw('year, SUM(target_annual) as total')
             ->groupBy('year')
-            ->pluck('total', 'year');
+            ->pluck('total', 'year')
+            ->toArray();
 
-        $teamTargetThisYear = $teamTargetByYear[$currentYear] ?? 0;
+        // Total dari sales_reports aggregate (fallback untuk tahun tanpa history per-sales)
+        $reportAnnualByYear = SalesReports::selectRaw('year, SUM(target) as total')
+            ->whereNotNull('target')
+            ->groupBy('year')
+            ->pluck('total', 'year')
+            ->toArray();
+
+        // Gabungkan: prefer history, fallback ke aggregate
+        $annualByYear = [];
+        foreach ($years as $y) {
+            $annualByYear[$y] = $teamTargetByYear[$y] ?? ($reportAnnualByYear[$y] ?? 0);
+        }
+
+        $teamTargetThisYear = $annualByYear[$currentYear] ?? 0;
+
+        // Hitung % perubahan vs tahun sebelumnya per tab
+        $yearGrowth = [];
+        foreach ($years as $y) {
+            $prev = $annualByYear[$y - 1] ?? 0;
+            $curr = $annualByYear[$y] ?? 0;
+            if ($prev > 0 && $curr > 0) {
+                $yearGrowth[$y] = round(($curr - $prev) / $prev * 100, 1);
+            } else {
+                $yearGrowth[$y] = null;
+            }
+        }
 
         return view('pages.admin.sales-target', compact(
             'years', 'currentYear', 'salesUsers',
             'yearTargets', 'allHistories',
             'teamTargetThisYear', 'teamTargetByYear',
+            'annualByYear', 'yearGrowth',
             'semesterRecords'
         ));
     }
