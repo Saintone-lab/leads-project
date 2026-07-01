@@ -228,13 +228,17 @@ $(function () {
             minimumInputLength: 1,
             templateResult: function (item) {
                 if (!item.id) return item.text;
-                return $('<span>' + (item.label || item.text) + '</span>');
+                var u     = item.unit;
+                var price = u && u.price && parseFloat(u.price) > 0
+                    ? ' <span style="color:#696cff;font-size:10px;">Rp ' + formatRupiah(Math.round(u.price)) + '</span>'
+                    : '';
+                return $('<span>' + (item.label || item.text) + price + '</span>');
             },
             templateSelection: function (item) {
                 return item.text;
             },
             ajax: {
-                url: '/db/unit/global/search',
+                url: '/db/catalog/search',
                 dataType: 'json',
                 delay: 300,
                 data: function (params) { return { q: params.term }; },
@@ -257,12 +261,13 @@ $(function () {
             var unit = e.params.data.unit;
             $row.find('.field-id-unit').val(unit.id);
 
-            // Auto-fill title with brand + model, but allow user to override
-            var $labelField = $row.find('.field-label');
-            $labelField.val((unit.brand || '') + ' ' + (unit.model || unit.sku || ''));
+            // Auto-fill title: brand + model + short desc from unit global
+            var desc = (unit.desc && unit.desc !== '-') ? ' ' + unit.desc : '';
+            $row.find('.field-label').val((unit.brand || '') + ' ' + (unit.model || unit.sku || '') + desc);
 
+            // Auto-fill price from catalog (latest price_idr)
             if (unit.price && parseFloat(unit.price) > 0) {
-                $row.find('.field-price').val(formatRupiah(unit.price));
+                $row.find('.field-price').val(formatRupiah(Math.round(unit.price)));
             }
 
             buildSpecPreview($row, unit);

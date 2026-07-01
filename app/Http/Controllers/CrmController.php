@@ -551,6 +551,14 @@ class CrmController extends Controller
      */
     public function destroy($id)
     {
+        $hasCompletedQuote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->where('pic.id_client', $id)
+            ->where(function ($q) {
+                $q->where('quotation.status', '100')->orWhereNotNull('quotation.po_file');
+            })
+            ->exists();
+        if ($hasCompletedQuote) return 0;
+
         $existingD = Client::find($id);
         $picD = Pic::where('id_client', $id)->get();
         $activitiesD = Activities::where('id_client', $id)->get();

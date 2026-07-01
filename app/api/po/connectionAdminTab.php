@@ -24,7 +24,7 @@ try {
     $query = "
     SELECT q.id, q.no_quote, c.company, c.ru, q.nett, q.title, q.po_date,
            inv.id AS invoice_id, inv.no_po, inv.no_invoice,
-           'service' AS row_type, u.name AS sales_name, u.image AS sales_image
+           'quote' AS row_type, q.type, u.name AS sales_name, u.image AS sales_image
     FROM quotation q
     LEFT JOIN pic p ON p.id = q.id_pic
     LEFT JOIN client c ON c.id = p.id_client
@@ -47,7 +47,7 @@ try {
            NULL AS invoice_id,
            uq.po_number AS no_po,
            NULL AS no_invoice,
-           'unit' AS row_type,
+           'unit' AS row_type, NULL AS type,
            u2.name AS sales_name, u2.image AS sales_image
     FROM unit_quotation uq
     LEFT JOIN client cl ON cl.id = NULLIF(uq.id_client,'')

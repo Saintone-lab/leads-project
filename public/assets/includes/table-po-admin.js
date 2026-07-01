@@ -148,7 +148,15 @@ $(function () {
                     searchable: false,
                     render: function (data, type, full, meta) {
                         var $dataId = full["id"];
-                        var $detailQUrl = route("quotation.show", $dataId);
+                        var $qType = full["type"];
+                        var $detailQUrl;
+                        if ($qType === "Service") {
+                            $detailQUrl = route("show-service.quotation", $dataId);
+                        } else if ($qType === "Overhaul") {
+                            $detailQUrl = route("show-overhaul.quotation", $dataId);
+                        } else {
+                            $detailQUrl = route("quotation.show", $dataId);
+                        }
                         return (
                             '<div class="d-inline-block">' +
                             '<a href="javascript:;" class="btn btn-sm btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></a>' +

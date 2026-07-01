@@ -90,13 +90,13 @@
                 <li class="nav-item">
                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-quotation" type="button">
                         <i class="mdi mdi-file-document-outline me-1"></i>Quotation
-                        <span class="badge rounded-pill bg-danger ms-1" id="badge-quotation">-</span>
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-quotation">-</span>
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-unit-quotation" type="button">
                         <i class="mdi mdi-file-document-outline me-1"></i>Quotation Unit
-                        <span class="badge rounded-pill bg-danger ms-1" id="badge-unit-quotation">-</span>
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-unit-quotation">-</span>
                     </button>
                 </li>
                 <li class="nav-item">
@@ -108,19 +108,19 @@
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-po" type="button">
                         <i class="mdi mdi-cart-check me-1"></i>Purchase Order
-                        <span class="badge rounded-pill bg-danger ms-1" id="badge-po">-</span>
+                        <span class="badge rounded-pill bg-success ms-1" id="badge-po">-</span>
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-loss" type="button">
                         <i class="mdi mdi-close-circle-outline me-1"></i>Loss
-                        <span class="badge rounded-pill bg-danger ms-1" id="badge-loss">-</span>
+                        <span class="badge rounded-pill bg-secondary ms-1" id="badge-loss">-</span>
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-archive" type="button">
                         <i class="mdi mdi-archive-outline me-1"></i>Archive
-                        <span class="badge rounded-pill bg-danger ms-1" id="badge-archive">-</span>
+                        <span class="badge rounded-pill bg-secondary ms-1" id="badge-archive">-</span>
                     </button>
                 </li>
             </ul>

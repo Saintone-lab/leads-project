@@ -92,7 +92,7 @@
                     <div class="mt-1">
                         <span
                             class="text-muted">{{ $quote->status == '25' ? 'DRAFT' : ($quote->status == '50' ? 'SEND' : ($quote->status == '75' ? 'NEGOTIATION' : ($quote->status == '100' ? 'DONE PO' : ($quote->status == '0' ? 'LOSS' : '')))) }}</span>
-                    </div> 
+                    </div>
                     <div class="mt-1">
                         <span
                             class="text-muted">{{ Carbon\Carbon::parse($quote->estimated_date)->format('d-m-Y') }}</span>
@@ -173,86 +173,92 @@
                             <td class="align-top text-end">{{ number_format($product->amount, 0, '', '.') }}</td>
                         </tr>
                     @endforeach
-                    <tr class="" style="height: 10px !important;">
-                        <td colspan="6" class="align-top" style="font-size: 1px;"> </td>
-                    </tr>
-                    <tr class="">
-                        <td colspan="2"rowspan="2" class="align-top note">
-                            <pre style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap; font-size: 12px;"
-                                class="fw-semibold mb-0">Note : {{ $quote->termncon[0]->note }}</pre>
-                        </td>
-                        <td colspan="2" class="text-end py-0">
-                            <p class="mb-2">Subtotal :</p>
-                            @if ($quote->diskon != 0)
-                                <p class="mb-2">Discount:</p>
-                                <p class="mb-2">Subtotal After Discount:</p>
-                                @endif
-                                {{-- <p class="mb-2">DPP On VAT:</p> --}}
-                            <p class="mb-2">Tax :</p>
-                            @if ($quote->shipping != 0)
-                                <p class="mb-2">Shipping Cost:</p>
-                            @endif
-                        </td>
-                        <td colspan="2" class=py-0">
-                            <p class="fw-semibold mb-2 text-end">Rp
-                                {{ number_format($quote->subtotal, 0, '', '.') }}</p>
-                            @if ($quote->diskon != 0)
-                                <p class="fw-semibold mb-2 text-end">Rp
-                                    {{ number_format($quote->diskon, 0, '', '.') }}</p>
-                                <p class="fw-semibold mb-2 text-end">Rp
-                                    {{ number_format($afterDisc, 0, '', '.') }}</p>
-                            @endif
-                            @php
-                                $dpp = $afterDisc * 11 / 12;
-                            @endphp
-                            {{-- <p class="fw-semibold mb-2 text-end">RP
-                                {{ number_format($dpp, 0, '', '.') }}
-                            </p> --}}
-                            <p class="fw-semibold mb-2 text-end">
-                                {{ $tax == '0' ? '0' : 'RP ' . number_format($tax, 0, '', '.') }}</p>
-                            @if ($quote->shipping != 0)
-                                <p class="fw-semibold mb-2 text-end">Rp
-                                    {{ number_format($quote->shipping, 0, '', '.') }}</p>
-                            @endif
-                        </td>
-                    </tr>
-                    <tr style="font-size: 14px;">
-                        <td colspan="2" class="total" style="background-color: #E7FF00">
-                            <p class="fw-bold mb-0 text-end">TOTAL PRICE :</p>
-                        </td>
-                        <td colspan="2" class="total" style="background-color: #E7FF00">
-                            <p class="fw-bold mb-0 text-end">Rp
-                                {{ number_format($quote->harga_total, 0, '', '.') }}</p>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="mb-4">
-            <h5 class="mt-4 mb-3">Term & Condition</h5>
-            <div class="row">
-                <div class="col-3 fw-medium termc p-3">
-                    <p class="mb-1">Validity Of Quotation</p>
-                    <p class="mb-1">Price </p>
-                    <p class="mb-1">Delivery Process </p>
-                    <p class="mb-1">Payment </p>
-                </div>
-                <div class="col termc p-3">
-                    <p class="mb-1">: {{ $quote->termncon[0]->validity }}</p>
-                    <p class="mb-1">: {{ $quote->termncon[0]->pricing }}</p>
-                    <p class="mb-1">: {{ $quote->termncon[0]->delivery_process }}</p>
-                    <p class="mb-1">: {{ $quote->termncon[0]->payment }}</p>
-                </div>
+        <div class="d-flex justify-content-between align-items-start mt-3 mb-4" style="gap:16px;">
+            <div style="flex:1; font-size:12px;">
+                @if ($quote->termncon[0]->note)
+                    <p class="mb-1 fw-semibold" style="font-size:11px; color:#888; text-transform:uppercase; letter-spacing:.4px;">Note</p>
+                    <p class="mb-0" style="white-space:pre-wrap; color:#333;">{{ $quote->termncon[0]->note }}</p>
+                @endif
+            </div>
+            <div style="min-width:240px; font-size:12px;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <tr>
+                        <td style="padding:3px 8px 3px 0; color:#555;">Subtotal</td>
+                        <td style="padding:3px 0; text-align:right; font-weight:500;">Rp {{ number_format($quote->subtotal, 0, '', '.') }}</td>
+                    </tr>
+                    @if ($quote->diskon != 0)
+                        <tr>
+                            <td style="padding:3px 8px 3px 0; color:#555;">Discount</td>
+                            <td style="padding:3px 0; text-align:right; font-weight:500;">- Rp {{ number_format($quote->diskon, 0, '', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:3px 8px 3px 0; color:#555;">After Discount</td>
+                            <td style="padding:3px 0; text-align:right; font-weight:500;">Rp {{ number_format($afterDisc, 0, '', '.') }}</td>
+                        </tr>
+                    @endif
+                    @if ($quote->tax != 0)
+                        <tr>
+                            <td style="padding:3px 8px 3px 0; color:#555;">Tax</td>
+                            <td style="padding:3px 0; text-align:right; font-weight:500;">Rp {{ number_format($tax, 0, '', '.') }}</td>
+                        </tr>
+                    @endif
+                    @if ($quote->shipping != 0)
+                        <tr>
+                            <td style="padding:3px 8px 3px 0; color:#555;">Shipping Cost</td>
+                            <td style="padding:3px 0; text-align:right; font-weight:500;">Rp {{ number_format($quote->shipping, 0, '', '.') }}</td>
+                        </tr>
+                    @endif
+                    <tr>
+                        <td colspan="2" style="padding:4px 0 0;"><hr style="margin:0; border-color:#ccc;"></td>
+                    </tr>
+                    <tr style="background:#FFF9C4;">
+                        <td style="padding:6px 8px 6px 6px; font-weight:700; font-size:13px; color:#333;">TOTAL PRICE</td>
+                        <td style="padding:6px 6px 6px 0; text-align:right; font-weight:700; font-size:13px; color:#333;">Rp {{ number_format($quote->harga_total, 0, '', '.') }}</td>
+                    </tr>
+                </table>
             </div>
         </div>
-        <div class="mb-0">
-            <p class="text-center mb-0">if you have any questions about this quotation, please contact :</p>
-            @if ($quote->pic->client->info == 'Reftech')
-                <p class="text-center">{{ $quote->sales->name }} {{ $quote->sales->phone }}</p>
-            @else
-                <p class="text-center">+62 812-1000-0997</p>
-            @endif
+
+        <div class="mb-4" style="font-size:12px;">
+            <p class="mb-2 fw-semibold" style="font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:#888;">Term & Condition</p>
+            <table style="width:100%; border-collapse:collapse;">
+                <tr>
+                    <td style="width:160px; padding:2px 0; color:#555; vertical-align:top;">Validity of Quotation</td>
+                    <td style="padding:2px 0; vertical-align:top;">: {{ $quote->termncon[0]->validity }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:2px 0; color:#555; vertical-align:top;">Price</td>
+                    <td style="padding:2px 0; vertical-align:top;">: {{ $quote->termncon[0]->pricing }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:2px 0; color:#555; vertical-align:top;">Delivery Process</td>
+                    <td style="padding:2px 0; vertical-align:top;">: {{ $quote->termncon[0]->delivery_process }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:2px 0; color:#555; vertical-align:top;">Payment</td>
+                    <td style="padding:2px 0; vertical-align:top;">: {{ $quote->termncon[0]->payment }}</td>
+                </tr>
+            </table>
+        </div>
+        <hr class="my-3">
+        <div class="d-flex justify-content-between align-items-center" style="font-size:12px; color:#555;">
+            <div>
+                <p class="mb-0">For further inquiries, please contact:</p>
+                @if ($quote->pic->client->info == 'Reftech')
+                    <p class="mb-0 fw-semibold" style="color:#333;">{{ $quote->sales->name }}</p>
+                    <p class="mb-0">{{ $quote->sales->phone }}</p>
+                @else
+                    <p class="mb-0 fw-semibold" style="color:#333;">+62 812-1000-0997</p>
+                @endif
+            </div>
+            <div class="text-end" style="font-size:11px; color:#aaa;">
+                <p class="mb-0">{{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}</p>
+                <p class="mb-0">{{ Carbon\Carbon::parse($quote->estimated_date)->format('d F Y') }}</p>
+            </div>
         </div>
     </div>
 </div>

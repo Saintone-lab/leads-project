@@ -374,7 +374,7 @@ class UnitQuotationController extends Controller
                 'id_unit'           => ($item['type'] === 'unit') ? ($item['id_unit'] ?? null) : null,
                 'spec_visible'      => ($item['type'] === 'unit') ? ($item['spec_visible'] ?? null) : null,
                 'label'             => $item['label'] ?? null,
-                'description'       => ($item['type'] === 'custom') ? ($item['description'] ?? null) : null,
+                'description'       => $item['description'] ?? null,
                 'qty'               => $qty,
                 'info_qty'          => $item['info_qty'] ?? null,
                 'price'             => $price,

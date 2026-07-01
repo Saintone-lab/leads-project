@@ -44,9 +44,16 @@ $(function () {
                     responsivePriority: 1,
                     render: function (data, type, full) {
                         if (type !== "display") return data;
-                        var url = full["row_type"] === "unit"
-                            ? "/unit-quotation/" + full["id"]
-                            : route("quotation.show", full["id"]);
+                        var url;
+                        if (full["row_type"] === "unit") {
+                            url = "/unit-quotation/" + full["id"];
+                        } else if (full["type"] === "Service") {
+                            url = route("show-service.quotation", full["id"]);
+                        } else if (full["type"] === "Overhaul") {
+                            url = route("show-overhaul.quotation", full["id"]);
+                        } else {
+                            url = route("quotation.show", full["id"]);
+                        }
                         var unitBadge = full["row_type"] === "unit"
                             ? ' <span class="badge bg-label-danger ms-1">Unit</span>'
                             : "";

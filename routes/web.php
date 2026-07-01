@@ -44,6 +44,7 @@ use App\Http\Controllers\ServiceReportsController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UnitController;
+use App\Http\Controllers\CatalogUnitController;
 use App\Http\Controllers\SalesTargetController;
 use App\Http\Controllers\SuoController;
 use App\Http\Controllers\WarehouseController;
@@ -336,6 +337,14 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/unit-global/{id}', [UnitController::class, 'showGlobal'])->name('unit-global.show');
     Route::patch('/unit-global/{id}/price', [UnitController::class, 'updatePrice'])->name('unit-global.update-price');
     Route::get('/cor-factor/calculator', [UnitController::class, 'corfac'])->name('calculator.correction');
+
+    // Catalog Unit
+    Route::get('/catalog-unit', [CatalogUnitController::class, 'index'])->name('catalog-unit.index');
+    Route::post('/catalog-unit', [CatalogUnitController::class, 'store'])->name('catalog-unit.store');
+    Route::get('/catalog-unit/search/unit', [CatalogUnitController::class, 'search'])->name('catalog-unit.search');
+    Route::get('/catalog-unit/{id}', [CatalogUnitController::class, 'show'])->name('catalog-unit.show');
+    Route::patch('/catalog-unit/{id}', [CatalogUnitController::class, 'update'])->name('catalog-unit.update');
+    Route::delete('/catalog-unit/{id}', [CatalogUnitController::class, 'destroy'])->name('catalog-unit.destroy');
 
     // Route untuk Product In
     Route::resource('/product-in', ProductInController::class);
@@ -3540,6 +3549,12 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/unit-quotation/admin', function () {
         require_once base_path('app/api/product/connectionUnitQuotationAdmin.php');
+    });
+    Route::get('/db/catalog-unit', function () {
+        require_once base_path('app/api/catalog/connectionCatalogUnit.php');
+    });
+    Route::get('/db/catalog/search', function () {
+        require_once base_path('app/api/catalog/connectionCatalogSearch.php');
     });
     Route::get('/db/product/master', function () {
         require_once base_path('app/api/product/master/connection.php');

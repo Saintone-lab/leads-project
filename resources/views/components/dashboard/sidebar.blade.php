@@ -786,6 +786,13 @@
                     <div data-i18n="Unit Global">Unit Global</div>
                 </a>
             </li>
+            <li
+                class="menu-item {{ request()->is('catalog-unit') || request()->is('catalog-unit/*') ? 'active' : '' }}">
+                <a href="{{ route('catalog-unit.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-tag-text-outline"></i>
+                    <div data-i18n="Catalog Unit">Catalog Unit</div>
+                </a>
+            </li>
 
             {{-- <li class="menu-item">
                 <a href="{{ url('pending-po') }}" class="menu-link">
@@ -1207,6 +1214,13 @@
                 <a href="{{ route('unit-global.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-desktop-tower"></i>
                     <div data-i18n="Unit Global">Unit Global</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('catalog-unit') || request()->is('catalog-unit/*') ? 'active' : '' }}">
+                <a href="{{ route('catalog-unit.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-tag-text-outline"></i>
+                    <div data-i18n="Catalog Unit">Catalog Unit</div>
                 </a>
             </li>
             <li class="menu-header fw-light mt-4">
