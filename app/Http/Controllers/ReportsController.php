@@ -19,12 +19,7 @@ class ReportsController extends Controller
     public function index()
     {
         if (Auth::user()->role == 'Support') {
-            $now = \Carbon\Carbon::now();
-            $sem = $now->month > 6 ? 2 : 1;
-            $report = \App\Models\SalesReports::where('semester', $sem)
-                ->where('year', $now->year)->first()
-                ?? \App\Models\SalesReports::orderBy('year', 'desc')->orderBy('semester', 'desc')->first();
-            return redirect()->route('reports.support.semester', $report->id);
+            return redirect()->route('reports.support', ['year' => now()->year, 'month' => now()->month]);
         }
 
         $dataDc = $this->getWeekDataDC();
