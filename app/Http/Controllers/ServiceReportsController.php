@@ -312,7 +312,7 @@ class ServiceReportsController extends Controller
         // Masukan Data ke Service Reports
         $reports = Reports::find($id);
         // $reports->id_technician = $request->technician;
-        // $reports->id_pic = $request->id_pic;
+        $reports->id_pic = $request->id_pic;
         $reports->type = $request->type;
         $reports->id_machine = $request->machine;
         // $reports->no_service = $request->no_service;
@@ -341,8 +341,10 @@ class ServiceReportsController extends Controller
         $pic = ReportsPict::where('id_reports', $id)->get();
 
         $delService = $service->delete();
+
+        $delPict = true;
         foreach ($pic as $pict) {
-            $delPict = $pict->delete();
+            $delPict = $pict->delete() && $delPict;
         }
 
         if ($delService && $delPict) {
@@ -439,12 +441,104 @@ class ServiceReportsController extends Controller
         }
     }
 
+    public function inputImageV2(Request $request, $id)
+    {
+        $images = $request->file('image', []);
+        $descriptions = $request->input('description', []);
+
+        $status = false;
+        foreach ($images as $item => $foto) {
+            $photo = new ReportsPict();
+            $photo->id_reports = $id;
+            $photo->keterangan = $descriptions[$item] ?? '';
+
+            $image_ext = $foto->getClientOriginalExtension();
+            $image_name = Str::random(8);
+
+            $upload_path = 'asset/reports';
+            $imagename = $upload_path . '/' . $image_name . '.' . $image_ext;
+
+            // Crop otomatis jadi square, portrait/landscape apapun mengikuti
+            $img = Image::make($foto->path());
+            $img->fit(600, 600);
+            $img->save($imagename);
+
+            $photo->picture = $imagename;
+            $status = $photo->save();
+        }
+
+        if ($status) {
+            return redirect('service-reports/' . $id)->with('success', 'Data Has been created');
+        }
+    }
+
     public function deleteImage($id)
     {
         $photos = ReportsPict::where('id_reports', $id)->get();
+
+        $status = true;
         foreach ($photos as $picture) {
-            $status = $picture->delete();
+            $status = $picture->delete() && $status;
         }
+
+        if ($status) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public function deleteImageItem($picture_id)
+    {
+        $picture = ReportsPict::find($picture_id);
+        if (!$picture) {
+            return 0;
+        }
+
+        File::delete($picture->picture);
+        $status = $picture->delete();
+
+        if ($status) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public function updateImageItem(Request $request, $picture_id)
+    {
+        $this->validate($request, ['keterangan' => 'required']);
+
+        $picture = ReportsPict::find($picture_id);
+        if (!$picture) {
+            return 0;
+        }
+
+        $picture->keterangan = $request->keterangan;
+        $status = $picture->save();
+
+        if ($status) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public function updateField(Request $request, $id)
+    {
+        $this->validate($request, [
+            'field' => 'required|in:desc,recomendation,jobdesc',
+            'value' => 'required',
+        ]);
+
+        $reports = Reports::find($id);
+        if (!$reports) {
+            return 0;
+        }
+
+        $reports->{$request->field} = $request->value;
+        $status = $reports->save();
+
         if ($status) {
             return 1;
         } else {

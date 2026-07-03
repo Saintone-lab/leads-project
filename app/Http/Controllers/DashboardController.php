@@ -35,6 +35,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        if (Auth::user()->role == 'Technician') {
+            return redirect()->route('service-reports.index');
+        }
+
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;

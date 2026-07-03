@@ -50,6 +50,7 @@ class Unit extends Model
         'outlet_cap',
         'status',
         'type',
+        'generation',
     ];
     
     public function detail()

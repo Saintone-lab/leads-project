@@ -157,9 +157,14 @@
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Harga Vendor</h5>
-                <button type="button" class="btn btn-sm btn-primary" id="addVendorRow">
-                    <i class="mdi mdi-plus me-1"></i> Tambah Supplier
-                </button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-label-secondary" data-bs-toggle="modal" data-bs-target="#quickAddSupplierModal">
+                        <i class="mdi mdi-domain me-1"></i> Supplier Baru
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary" id="addVendorRow">
+                        <i class="mdi mdi-plus me-1"></i> Tambah Supplier
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -252,6 +257,43 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
                     <button type="button" class="btn btn-primary" id="saveEditEquivalent">
+                        <i class="mdi mdi-content-save-outline me-1"></i> Simpan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal: Quick Add Supplier --}}
+    <div class="modal fade" id="quickAddSupplierModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Supplier Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Code <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="qsCode" placeholder="SUP001">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Supplier Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="qsName" placeholder="PT Contoh Jaya">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Info <span class="text-danger">*</span></label>
+                        <select class="form-select" id="qsInfo">
+                            <option value="" disabled selected>-- Pilih --</option>
+                            <option value="Lokal">Lokal</option>
+                            <option value="Import">Import</option>
+                        </select>
+                    </div>
+                    <div id="qsError" class="alert alert-danger d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="saveQuickAddSupplier">
                         <i class="mdi mdi-content-save-outline me-1"></i> Simpan
                     </button>
                 </div>
@@ -380,6 +422,47 @@
         if ($('.vendor-row').length > 1) {
             $(this).closest('tr').remove();
         }
+    });
+
+    // Quick Add Supplier (AJAX, tanpa reload)
+    $('#saveQuickAddSupplier').on('click', function () {
+        var code = $('#qsCode').val().trim();
+        var name = $('#qsName').val().trim();
+        var info = $('#qsInfo').val();
+
+        if (!code || !name || !info) {
+            $('#qsError').removeClass('d-none').text('Semua field wajib diisi.');
+            return;
+        }
+
+        $.ajax({
+            url: '{{ route("supplier.quick-store") }}',
+            type: 'POST',
+            data: { _token: '{{ csrf_token() }}', code: code, supplier: name, info: info },
+            success: function (res) {
+                if (res.success) {
+                    var newSupplier = res.data;
+                    suppliers.push(newSupplier);
+
+                    $('.select2-supplier').each(function () {
+                        var $select = $(this);
+                        var option = new Option(newSupplier.supplier, newSupplier.id, false, false);
+                        $select.append(option).trigger('change');
+                    });
+
+                    $('#qsCode').val('');
+                    $('#qsName').val('');
+                    $('#qsInfo').val('');
+                    $('#qsError').addClass('d-none').text('');
+                    $('#quickAddSupplierModal').modal('hide');
+                }
+            },
+            error: function (xhr) {
+                var msg = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message : 'Gagal menyimpan, coba lagi.';
+                $('#qsError').removeClass('d-none').text(msg);
+            }
+        });
     });
 
     // Auto-fill PN dari SKU

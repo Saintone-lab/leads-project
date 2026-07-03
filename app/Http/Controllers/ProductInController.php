@@ -562,6 +562,26 @@ class ProductInController extends Controller
             return redirect()->back()->with('success', 'Supplier berhasil ditambahkan!');
         }
     }
+    public function quickStoreSupplier(Request $request)
+    {
+        $request->validate([
+            'code'     => 'required|string|max:255',
+            'supplier' => 'required|string|max:255',
+            'info'     => 'required|in:Lokal,Import',
+        ]);
+
+        $supplier = new Supplier();
+        $supplier->code = $request->code;
+        $supplier->supplier = $request->supplier;
+        $supplier->info = $request->info;
+        $supplier->save();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $supplier->only('id', 'code', 'supplier', 'info'),
+        ]);
+    }
+
     public function deleteSupplier($id)
     {
         $supplier = Supplier::find($id);

@@ -5,7 +5,7 @@
         <h4 class="fw-bold mb-0">
             <span class="text-muted fw-light">Warehouse /</span> Unit Global
         </h4>
-        @if (Auth::user()->role == 'Admin')
+        @if (in_array(Auth::user()->role, ['Admin', 'Logistic']))
             <a data-bs-toggle="modal" data-bs-target="#createProduct">
                 <button class="btn btn-primary btn-sm">
                     <i class="mdi mdi-plus me-1"></i> Add Unit
@@ -112,9 +112,9 @@
                             <tr>
                                 <th class="text-center">SKU</th>
                                 <th class="text-center">Brand</th>
+                                <th class="text-center">Model</th>
                                 <th class="text-center">FAD / Air Cap</th>
                                 <th class="text-center">Refrigerant Type</th>
-                                <th class="text-center">PDP</th>
                                 <th class="text-center">Voltage</th>
                                 <th class="text-center">Connection</th>
                             </tr>

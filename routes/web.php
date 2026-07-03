@@ -255,8 +255,12 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/service-reports/unit/{id_unit}/machine/{id_machine}', [ServiceReportsController::class, 'createByUnitMachine'])->name('service-reports.unit.machine');
     Route::post('/service-reports/sign/{id}', [ServiceReportsController::class, 'hand_sign'])->name('service-reports.sign');
     Route::post('/service-reports/image/{id}', [ServiceReportsController::class, 'inputImage'])->name('service-reports.image');
+    Route::post('/service-reports/image-v2/{id}', [ServiceReportsController::class, 'inputImageV2'])->name('service-reports.image-v2');
     Route::delete('/service-reports/del-sign/{id}', [ServiceReportsController::class, 'delete_hand_sign'])->name('service-reports.del-sign');
     Route::delete('/service-reports/del-image/{id}', [ServiceReportsController::class, 'deleteImage'])->name('service-reports.del-image');
+    Route::delete('/service-reports/image-item/{picture_id}', [ServiceReportsController::class, 'deleteImageItem'])->name('service-reports.image-item.delete');
+    Route::patch('/service-reports/image-item/{picture_id}', [ServiceReportsController::class, 'updateImageItem'])->name('service-reports.image-item.update');
+    Route::patch('/service-reports/field/{id}', [ServiceReportsController::class, 'updateField'])->name('service-reports.field.update');
     Route::post('/service-reports-viewed', [ServiceReportsController::class, 'markViewed']);
     Route::get('/service-reports-servicem', [ServiceReportsController::class, 'serviceMer'])->name('service-reports.manager');
 
@@ -376,6 +380,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/supplier', [ProductInController::class, 'indexSupplier'])->name('supplier.index');
     Route::get('/supplier/{id}', [ProductInController::class, 'detailSupplier'])->name('supplier.detail');
     Route::post('/supplier', [ProductInController::class, 'storeSupplier'])->name('supplier.store');
+    Route::post('/supplier/quick-store', [ProductInController::class, 'quickStoreSupplier'])->name('supplier.quick-store');
     Route::patch('/supplier/{id}', [ProductInController::class, 'updateSupplier'])->name('supplier.update');
     Route::delete('/supplier/{id}', [ProductInController::class, 'deleteSupplier'])->name('supplier.delete');
 

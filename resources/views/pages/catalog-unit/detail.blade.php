@@ -14,7 +14,7 @@
             </span>
             {{ $u->sku }}
         </h4>
-        @if (Auth::user()->role == 'Admin')
+        @if (in_array(Auth::user()->role, ['Admin', 'Sales']))
             <div class="d-flex gap-2">
                 <button type="button" class="btn btn-primary btn-sm"
                     data-bs-toggle="modal" data-bs-target="#modalEditPrice">

@@ -188,43 +188,41 @@ class UnitController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Rules for validation
         $rule = [
-            'sku' => 'required',
-            'desc' => 'required',
-            'voltage' => 'required',
-            'note' => 'required',
-            'bar' => 'required',
+            'sku'  => 'required',
+            'unit' => 'required',
         ];
-
-        // Custom validation messages
         $message = [
-            'sku.required' => 'Field sku Wajib Diisi',
-            'desc.required' => 'Field description Wajib Diisi',
-            'voltage.required' => 'Field Voltage Wajib Diisi',
-            'note.required' => 'Field note Wajib Diisi',
-            'bar.required' => 'Field bar Wajib Diisi',
+            'sku.required'  => 'Field SKU wajib diisi',
+            'unit.required' => 'Kategori unit wajib dipilih',
         ];
 
         $this->validate($request, $rule, $message);
         $unit = Unit::find($id);
         $unit->sku              = $request->sku;
-        $unit->brand            = $request->brand;
-        $unit->model            = $request->model;
-        $unit->desc             = $request->desc;
+        $unit->brand            = $request->brand ?? '';
+        $unit->model            = $request->model ?? '';
+        $unit->desc             = $request->desc ?? $unit->desc;
         $unit->unit             = $request->unit;
-        $unit->voltage          = $request->voltage;
-        $unit->bar              = $request->bar;
-        $unit->power            = $request->power;
-        $unit->air_cap          = $request->air_cap;
-        $unit->connect          = $request->connect;
-        $unit->type_unit        = $request->type_unit;
-        $unit->cooling          = $request->cooling;
-        $unit->exhaust          = $request->exhaust;
-        $unit->refrigerant_type = $request->refrigerant_type;
-        $unit->pdp              = $request->pdp;
-        $unit->dimension        = $request->dimension;
-        $unit->weight           = $request->weight;
+        $unit->voltage          = $request->voltage ?? '';
+        $unit->bar              = $request->bar ?: null;
+        $unit->power            = $request->power ?? '';
+        $unit->air_cap          = $request->air_cap ?: null;
+        $unit->connect          = $request->connect ?? '';
+        $unit->type_unit        = $request->type_unit ?? '';
+        $unit->generation       = $request->generation ?: null;
+        $unit->cooling          = $request->cooling ?? '';
+        $unit->exhaust          = $request->exhaust ?? '';
+        $unit->refrigerant_type = $request->refrigerant_type ?? '';
+        $unit->pdp              = $request->pdp ?? '';
+        $unit->dimension        = $request->dimension ?? '';
+        $unit->weight           = $request->weight ?: null;
+        $unit->filtration       = $request->filtration ?? '';
+        $unit->oil_content      = $request->oil_content ?? '';
+        $unit->grade            = $request->grade ?? '';
+        $unit->material         = $request->material ?? '';
+        $unit->capacity         = $request->capacity ?: null;
+        $unit->test_pressure    = $request->test_pressure ?: null;
         $unit->note             = $request->note;
         $unit->status           = $request->status;
         $unitSave = $unit->save();
@@ -415,22 +413,29 @@ class UnitController extends Controller
             $unit->id = $lastProduct->id + 1;
         }
         $unit->sku              = $request->sku;
-        $unit->brand            = $request->brand;
-        $unit->model            = $request->model;
-        $unit->desc             = $request->desc;
+        $unit->brand            = $request->brand ?? '';
+        $unit->model            = $request->model ?? '';
+        $unit->desc             = $request->desc ?? '';
         $unit->unit             = $request->unit;
-        $unit->voltage          = $request->voltage;
-        $unit->bar              = $request->bar;
-        $unit->power            = $request->power;
-        $unit->air_cap          = $request->air_cap;
-        $unit->connect          = $request->connect;
-        $unit->type_unit        = $request->type_unit;
-        $unit->cooling          = $request->cooling;
-        $unit->exhaust          = $request->exhaust;
-        $unit->refrigerant_type = $request->refrigerant_type;
-        $unit->pdp              = $request->pdp;
-        $unit->dimension        = $request->dimension;
-        $unit->weight           = $request->weight;
+        $unit->voltage          = $request->voltage ?? '';
+        $unit->bar              = $request->bar ?: null;
+        $unit->power            = $request->power ?? '';
+        $unit->air_cap          = $request->air_cap ?: null;
+        $unit->connect          = $request->connect ?? '';
+        $unit->type_unit        = $request->type_unit ?? '';
+        $unit->generation       = $request->generation ?: null;
+        $unit->cooling          = $request->cooling ?? '';
+        $unit->exhaust          = $request->exhaust ?? '';
+        $unit->refrigerant_type = $request->refrigerant_type ?? '';
+        $unit->pdp              = $request->pdp ?? '';
+        $unit->dimension        = $request->dimension ?? '';
+        $unit->weight           = $request->weight ?: null;
+        $unit->filtration       = $request->filtration ?? '';
+        $unit->oil_content      = $request->oil_content ?? '';
+        $unit->grade            = $request->grade ?? '';
+        $unit->material         = $request->material ?? '';
+        $unit->capacity         = $request->capacity ?: null;
+        $unit->test_pressure    = $request->test_pressure ?: null;
         $unit->note             = $request->note;
         $unit->stock            = 0;
         $unit->first_stock      = 0;

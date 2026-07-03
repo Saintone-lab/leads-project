@@ -28,9 +28,9 @@ $(function () {
             columns: [
                 { data: "sku" },
                 { data: "brand" },
+                { data: "model" },
                 { data: "air_cap" },
                 { data: "refrigerant_type" },
-                { data: "pdp" },
                 { data: "voltage" },
                 { data: "exhaust" },
             ],
@@ -49,14 +49,14 @@ $(function () {
                     },
                 },
                 {
-                    targets: 2,
+                    targets: 3,
                     render: function (data, type) {
                         if (type !== "display") return data;
                         return data ? data + " m³/min" : "-";
                     },
                 },
                 {
-                    targets: [1, 3, 4, 5, 6],
+                    targets: [1, 2, 4, 5, 6],
                     render: function (data) {
                         return data || "-";
                     },
