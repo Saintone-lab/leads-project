@@ -604,27 +604,68 @@
                             <div class="d-flex flex-column gap-3">
                                 @foreach ($mktProspectBySource as $src)
                                     @php
-                                        $s       = $sourceIcons[$src->source] ?? $sourceIcons['Other'];
-                                        $pct     = $maxSrc > 0 ? round(($src->total / $maxSrc) * 100) : 0;
-                                        $ofTotal = $mktProspectCount > 0 ? round(($src->total / $mktProspectCount) * 100, 1) : 0;
+                                        $s        = $sourceIcons[$src->source] ?? $sourceIcons['Other'];
+                                        $pct      = $maxSrc > 0 ? round(($src->total / $maxSrc) * 100) : 0;
+                                        $ofTotal  = $mktProspectCount > 0 ? round(($src->total / $mktProspectCount) * 100, 1) : 0;
+                                        $isWebDom = $src->source === 'Website' && $mktProspectByDomain->isNotEmpty();
                                     @endphp
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="avatar avatar-sm flex-shrink-0">
-                                            <div class="avatar-initial bg-label-{{ $s['color'] }} rounded">
-                                                <i class="mdi {{ $s['icon'] }}"></i>
+                                    <div>
+                                        <div class="d-flex align-items-center gap-3"
+                                             @if ($isWebDom)
+                                                 role="button" data-bs-toggle="collapse"
+                                                 data-bs-target="#collapseWebsiteDomainMonthly"
+                                                 aria-expanded="false" aria-controls="collapseWebsiteDomainMonthly"
+                                                 style="cursor:pointer"
+                                             @endif>
+                                            <div class="avatar avatar-sm flex-shrink-0">
+                                                <div class="avatar-initial bg-label-{{ $s['color'] }} rounded">
+                                                    <i class="mdi {{ $s['icon'] }}"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span class="fw-semibold" style="font-size:0.85rem">
+                                                        {{ $src->source }}
+                                                        @if ($isWebDom)
+                                                            <i class="mdi mdi-chevron-down toggle-chevron text-muted" style="font-size:0.9rem"></i>
+                                                        @endif
+                                                    </span>
+                                                    <span class="text-muted" style="font-size:0.82rem">
+                                                        {{ $src->total }} <small>({{ $ofTotal }}%)</small>
+                                                    </span>
+                                                </div>
+                                                <div class="progress" style="height:6px">
+                                                    <div class="progress-bar bg-{{ $s['color'] }}" style="width:{{ $pct }}%"></div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between mb-1">
-                                                <span class="fw-semibold" style="font-size:0.85rem">{{ $src->source }}</span>
-                                                <span class="text-muted" style="font-size:0.82rem">
-                                                    {{ $src->total }} <small>({{ $ofTotal }}%)</small>
-                                                </span>
+                                        @if ($isWebDom)
+                                            @php
+                                                $maxDomain   = $mktProspectByDomain->max('total');
+                                                $domainTotal = $mktProspectByDomain->sum('total');
+                                            @endphp
+                                            <div class="collapse" id="collapseWebsiteDomainMonthly">
+                                                <div class="d-flex flex-column gap-2 mt-2 ps-5">
+                                                    @foreach ($mktProspectByDomain as $dom)
+                                                        @php
+                                                            $dPct = $maxDomain > 0 ? round(($dom->total / $maxDomain) * 100) : 0;
+                                                            $dOfT = $domainTotal > 0 ? round(($dom->total / $domainTotal) * 100, 1) : 0;
+                                                        @endphp
+                                                        <div>
+                                                            <div class="d-flex justify-content-between mb-1">
+                                                                <span class="text-muted" style="font-size:0.76rem">{{ $dom->domain }}</span>
+                                                                <span class="text-muted" style="font-size:0.72rem">
+                                                                    {{ $dom->total }} <small>({{ $dOfT }}%)</small>
+                                                                </span>
+                                                            </div>
+                                                            <div class="progress" style="height:4px">
+                                                                <div class="progress-bar bg-primary" style="width:{{ $dPct }}%"></div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
                                             </div>
-                                            <div class="progress" style="height:6px">
-                                                <div class="progress-bar bg-{{ $s['color'] }}" style="width:{{ $pct }}%"></div>
-                                            </div>
-                                        </div>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
@@ -718,6 +759,12 @@
 
         </div>
     </div>
+@push('before-style')
+<style>
+    [data-bs-toggle="collapse"] .toggle-chevron { transition: transform .2s; }
+    [data-bs-toggle="collapse"]:not(.collapsed) .toggle-chevron { transform: rotate(180deg); }
+</style>
+@endpush
 @push('after-script')
 <script>
     document.getElementById('btn-load-more-area')?.addEventListener('click', function () {

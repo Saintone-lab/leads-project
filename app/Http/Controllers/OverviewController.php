@@ -434,6 +434,16 @@ class OverviewController extends Controller
             ->selectRaw('COALESCE(client.source, "Other") as source, COUNT(*) as total')
             ->groupBy('source')->orderByDesc('total')->get();
 
+        $smktProspectByDomain = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereBetween('prospect.date', [$firstDay, $lastDay])
+            ->whereNotNull('prospect.id_support')
+            ->where('client.source', 'Website')
+            ->whereNotNull('client.source_detail')
+            ->where('client.source_detail', '!=', '')
+            ->selectRaw('client.source_detail as domain, COUNT(*) as total')
+            ->groupBy('domain')->orderByDesc('total')->get();
+
         $smktProspectByCategory = Prospect::whereBetween('date', [$firstDay, $lastDay])
             ->whereNotNull('id_support')
             ->selectRaw('COALESCE(category, "Uncategorized") as category, COUNT(*) as total')
@@ -444,7 +454,7 @@ class OverviewController extends Controller
             'smktProspectCount', 'smktQuoteCount', 'smktQuoteTotal',
             'smktPoCount', 'smktPoTotal', 'smktLossCount', 'smktLossTotal',
             'smktProspectByStatus', 'smktPerPerson',
-            'smktProspectBySource', 'smktProspectByCategory'
+            'smktProspectBySource', 'smktProspectByDomain', 'smktProspectByCategory'
         ));
     }
 
@@ -526,6 +536,16 @@ class OverviewController extends Controller
             ->selectRaw('COALESCE(client.source, "Other") as source, COUNT(*) as total')
             ->groupBy('source')->orderByDesc('total')->get();
 
+        $smktProspectByDomain = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereBetween('prospect.date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->whereNotNull('prospect.id_support')
+            ->where('client.source', 'Website')
+            ->whereNotNull('client.source_detail')
+            ->where('client.source_detail', '!=', '')
+            ->selectRaw('client.source_detail as domain, COUNT(*) as total')
+            ->groupBy('domain')->orderByDesc('total')->get();
+
         $smktProspectByCategory = Prospect::whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
             ->whereNotNull('id_support')
             ->selectRaw('COALESCE(category, "Uncategorized") as category, COUNT(*) as total')
@@ -594,7 +614,7 @@ class OverviewController extends Controller
             'smktProspectCount', 'smktQuoteCount', 'smktQuoteTotal',
             'smktPoCount', 'smktPoTotal', 'smktLossCount', 'smktLossTotal',
             'smktProspectByStatus', 'smktPerPerson',
-            'smktProspectBySource', 'smktProspectByCategory'
+            'smktProspectBySource', 'smktProspectByDomain', 'smktProspectByCategory'
         ));
     }
 
@@ -785,6 +805,19 @@ class OverviewController extends Controller
             ->orderByDesc('total')
             ->get();
 
+        $mktProspectByDomain = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereMonth('prospect.date', $month)
+            ->whereYear('prospect.date', $year)
+            ->whereNotNull('prospect.id_support')
+            ->where('client.source', 'Website')
+            ->whereNotNull('client.source_detail')
+            ->where('client.source_detail', '!=', '')
+            ->selectRaw('client.source_detail as domain, COUNT(*) as total')
+            ->groupBy('domain')
+            ->orderByDesc('total')
+            ->get();
+
         // Status prospect (pending / provided / no provide)
         $mktProspectByStatus = Prospect::whereMonth('date', $month)
             ->whereYear('date', $year)
@@ -824,6 +857,7 @@ class OverviewController extends Controller
             'quoteOnCount', 'totalTarget',
             'mktProspectCount', 'mktQuoteCount', 'mktQuoteTotal',
             'mktPoCount', 'mktPoTotal', 'mktProspectBySource', 'mktProspectByCategory', 'mktProspectByArea',
+            'mktProspectByDomain',
             'mktProspectByStatus', 'mktPerPerson', 'mktLossCount', 'mktLossTotal'
         ));
     }

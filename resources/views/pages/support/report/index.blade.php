@@ -324,25 +324,64 @@
                                             <div class="d-flex flex-column gap-3">
                                                 @foreach ($smktProspectBySource as $src)
                                                     @php
-                                                        $si  = $smktSourceIcons[$src->source] ?? ['icon' => 'mdi-dots-horizontal', 'color' => 'secondary'];
-                                                        $pct = $smktMaxSource > 0 ? round(($src->total / $smktMaxSource) * 100) : 0;
-                                                        $ofT = $smktProspectCount > 0 ? round(($src->total / $smktProspectCount) * 100, 1) : 0;
+                                                        $si       = $smktSourceIcons[$src->source] ?? ['icon' => 'mdi-dots-horizontal', 'color' => 'secondary'];
+                                                        $pct      = $smktMaxSource > 0 ? round(($src->total / $smktMaxSource) * 100) : 0;
+                                                        $ofT      = $smktProspectCount > 0 ? round(($src->total / $smktProspectCount) * 100, 1) : 0;
+                                                        $isWebDom = $src->source === 'Website' && $smktProspectByDomain->isNotEmpty();
                                                     @endphp
-                                                    <div class="d-flex align-items-center gap-3">
-                                                        <div class="avatar avatar-sm flex-shrink-0">
-                                                            <div class="avatar-initial bg-label-{{ $si['color'] }} rounded">
-                                                                <i class="mdi {{ $si['icon'] }}"></i>
+                                                    <div>
+                                                        <div class="d-flex align-items-center gap-3"
+                                                             @if ($isWebDom)
+                                                                 role="button" data-bs-toggle="collapse"
+                                                                 data-bs-target="#collapseWebsiteDomainSupport"
+                                                                 aria-expanded="false" aria-controls="collapseWebsiteDomainSupport"
+                                                                 style="cursor:pointer"
+                                                             @endif>
+                                                            <div class="avatar avatar-sm flex-shrink-0">
+                                                                <div class="avatar-initial bg-label-{{ $si['color'] }} rounded">
+                                                                    <i class="mdi {{ $si['icon'] }}"></i>
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex-grow-1">
+                                                                <div class="d-flex justify-content-between mb-1">
+                                                                    <span class="fw-semibold" style="font-size:0.85rem">
+                                                                        {{ $src->source }}
+                                                                        @if ($isWebDom)
+                                                                            <i class="mdi mdi-chevron-down toggle-chevron text-muted" style="font-size:0.9rem"></i>
+                                                                        @endif
+                                                                    </span>
+                                                                    <span class="text-muted" style="font-size:0.82rem">{{ $src->total }} <small>({{ $ofT }}%)</small></span>
+                                                                </div>
+                                                                <div class="progress" style="height:6px">
+                                                                    <div class="progress-bar bg-{{ $si['color'] }}" style="width:{{ $pct }}%"></div>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div class="flex-grow-1">
-                                                            <div class="d-flex justify-content-between mb-1">
-                                                                <span class="fw-semibold" style="font-size:0.85rem">{{ $src->source }}</span>
-                                                                <span class="text-muted" style="font-size:0.82rem">{{ $src->total }} <small>({{ $ofT }}%)</small></span>
+                                                        @if ($isWebDom)
+                                                            @php
+                                                                $smktMaxDomain   = $smktProspectByDomain->max('total');
+                                                                $smktDomainTotal = $smktProspectByDomain->sum('total');
+                                                            @endphp
+                                                            <div class="collapse" id="collapseWebsiteDomainSupport">
+                                                                <div class="d-flex flex-column gap-2 mt-2 ps-5">
+                                                                    @foreach ($smktProspectByDomain as $dom)
+                                                                        @php
+                                                                            $dPct = $smktMaxDomain > 0 ? round(($dom->total / $smktMaxDomain) * 100) : 0;
+                                                                            $dOfT = $smktDomainTotal > 0 ? round(($dom->total / $smktDomainTotal) * 100, 1) : 0;
+                                                                        @endphp
+                                                                        <div>
+                                                                            <div class="d-flex justify-content-between mb-1">
+                                                                                <span class="text-muted" style="font-size:0.76rem">{{ $dom->domain }}</span>
+                                                                                <span class="text-muted" style="font-size:0.72rem">{{ $dom->total }} <small>({{ $dOfT }}%)</small></span>
+                                                                            </div>
+                                                                            <div class="progress" style="height:4px">
+                                                                                <div class="progress-bar bg-primary" style="width:{{ $dPct }}%"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
                                                             </div>
-                                                            <div class="progress" style="height:6px">
-                                                                <div class="progress-bar bg-{{ $si['color'] }}" style="width:{{ $pct }}%"></div>
-                                                            </div>
-                                                        </div>
+                                                        @endif
                                                     </div>
                                                 @endforeach
                                             </div>
@@ -405,3 +444,10 @@
         </div>
     </div>
 @endsection
+
+@push('before-style')
+<style>
+    [data-bs-toggle="collapse"] .toggle-chevron { transition: transform .2s; }
+    [data-bs-toggle="collapse"]:not(.collapsed) .toggle-chevron { transform: rotate(180deg); }
+</style>
+@endpush
