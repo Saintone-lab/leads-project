@@ -2,7 +2,7 @@
 @section('title', 'Create Service Reports')
 @section('content')
     <form action="{{ @$report ? route('service-reports.update', @$report->id) : route('service-reports.store') }}"
-        method="post" enctype="multipart/form-data" id="serviceReports" name="service-reports">
+        method="post" id="serviceReports" name="service-reports">
         @csrf
         @if (@$report)
             @method('PATCH')
@@ -170,14 +170,14 @@
                     <div class="col-12 mb-3">
                         <div class="form-floating form-floating-outline">
                             <textarea class="form-control" id="description" name="desc" placeholder="Description here..."
-                                style="min-height: 100px;" value="{{ old('desc') }}">{{ @$report->desc ?? '' }}</textarea>
+                                style="min-height: 100px;">{{ old('desc', @$report->desc ?? '') }}</textarea>
                             <label for="description">Description</label>
                         </div>
                     </div>
                     <div class="col-12 mb-3">
                         <div class="form-floating form-floating-outline">
                             <textarea class="form-control" id="recomendation" name="recomendation" placeholder="Recomendation here..."
-                                style="min-height: 100px;" value="{{ old('recomendation') }}">{{ @$report->recomendation ?? '' }}</textarea>
+                                style="min-height: 100px;">{{ old('recomendation', @$report->recomendation ?? '') }}</textarea>
                             <label for="recomendation">Recomendation</label>
                         </div>
                     </div>
@@ -194,6 +194,7 @@
 @endsection
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
     <style>
         #image-preview img {
             max-width: 150px;
@@ -203,6 +204,8 @@
 @endpush
 @push('after-script')
     <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
 @endpush
 @push('page-script')
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
@@ -365,6 +368,28 @@
             if (selectedSalesId) {
                 $('#selectSales').trigger('change');
             }
+
+            $('#serviceReports').on('submit', function(e) {
+                e.preventDefault();
+                var form = this;
+
+                Swal.fire({
+                    title: 'Apakah kamu sudah benar dalam pembuatan service report ini?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Simpan',
+                    cancelButtonText: 'Batal',
+                    customClass: {
+                        confirmButton: 'btn btn-primary me-3 waves-effect waves-light',
+                        cancelButton: 'btn btn-label-secondary waves-effect',
+                    },
+                    buttonsStyling: false,
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
 
         });
     </script>

@@ -6,33 +6,35 @@ $(function () {
     var SPEC_LABELS = {
         brand:            'Brand',
         model:            'Model',
+        capacity:         'Capacity',
         type_unit:        'Type',
         bar:              'Max Pressure',
+        test_pressure:    'Test Pressure',
         air_cap:          'Air Capacity',
         power:            'Motor Power',
         voltage:          'Voltage',
         connect:          'Drive',
-        cooling:          'Cooling Method',
         exhaust:          'Connection',
         refrigerant_type: 'Refrigerant Type',
         pdp:              'PDP',
         filtration:       'Filtration',
         oil_content:      'Oil Content',
-        grade:            'Grade',
-        capacity:         'Capacity',
         material:         'Material',
-        test_pressure:    'Test Pressure',
         inlet_pressure:   'Inlet Pressure',
         outlet_pressure:  'Outlet Pressure',
         inlet_cap:        'Inlet Capacity (LP)',
         outlet_cap:       'Outlet Capacity (HP)',
+        grade:            'Grade',
         dimension:        'Dimension',
         weight:           'Weight',
+        cooling:          'Cooling Method',
     };
 
     var SPEC_UNITS = {
         bar:            ' Bar',
         air_cap:        ' m³/min',
+        filtration:     ' µm',
+        oil_content:    ' ppm',
         test_pressure:  ' Bar',
         inlet_pressure: ' Bar',
         outlet_pressure:' Bar',
@@ -91,20 +93,42 @@ $(function () {
         $('#empty-state').toggle(count === 0);
     }
 
+    // ── Category-specific label overrides ────────────────────────────────
+    var SPEC_LABELS_OVERRIDE = {
+        'AIR RECEIVER TANK': {
+            bar:     'Max. Pressure',
+            grade:   'T Plate',
+            cooling: 'Certification',
+        },
+        'FILTRATION SYSTEM': {
+            air_cap:  'Flowrate',
+            material: 'Element',
+            connect:  'Drain',
+        },
+    };
+
+    // ── Category-specific field order ─────────────────────────────────────
+    var SPEC_ORDER = {
+        'FILTRATION SYSTEM': ['brand', 'model', 'grade', 'air_cap', 'bar', 'filtration', 'oil_content', 'material', 'exhaust', 'connect'],
+    };
+
     // ── Build spec preview rows (all specs) ───────────────────────────────
     function buildSpecPreview($row, unit) {
         var $specRows = $row.find('.spec-rows').empty();
         $row.find('.spec-preview').show();
         var visible = [];
+        var catOverrides = SPEC_LABELS_OVERRIDE[unit.unit] || {};
+        var fieldList    = SPEC_ORDER[unit.unit] || Object.keys(SPEC_LABELS);
 
-        $.each(SPEC_LABELS, function (field, label) {
+        $.each(fieldList, function (i, field) {
             var val = unit[field];
             if (!val || val === '' || val === '0' || val === 0) return;
 
+            var displayLabel = catOverrides[field] || SPEC_LABELS[field] || field;
             var displayVal = val + (SPEC_UNITS[field] || '');
             var $line = $('<div class="d-flex align-items-center spec-line py-0" data-field="' + field + '" ' +
                 'style="font-size:12px; padding:2px 0;">' +
-                '<span class="text-muted" style="min-width:110px; font-size:11px;">' + label + '</span>' +
+                '<span class="text-muted" style="min-width:110px; font-size:11px;">' + displayLabel + '</span>' +
                 '<span style="font-size:11px;">: ' + displayVal + '</span>' +
                 '<button type="button" class="btn btn-xs btn-icon ms-auto btn-remove-spec text-danger" ' +
                     'style="line-height:1; padding:0 4px; font-size:11px;" title="Sembunyikan">' +
@@ -122,11 +146,12 @@ $(function () {
         if (!unit || !visibleFields || visibleFields.length === 0) return;
         var $specRows = $row.find('.spec-rows').empty();
         $row.find('.spec-preview').show();
+        var catOverrides = SPEC_LABELS_OVERRIDE[unit.unit] || {};
 
         $.each(visibleFields, function (i, field) {
             var val = unit[field];
             if (!val) return;
-            var label      = SPEC_LABELS[field] || field;
+            var label      = catOverrides[field] || SPEC_LABELS[field] || field;
             var displayVal = val + (SPEC_UNITS[field] || '');
             var $line = $('<div class="d-flex align-items-center spec-line py-0" data-field="' + field + '" ' +
                 'style="font-size:12px; padding:2px 0;">' +
@@ -248,7 +273,7 @@ $(function () {
                             return {
                                 id:    u.id,
                                 text:  (u.brand || '') + ' — ' + (u.model || u.sku || ''),
-                                label: (u.brand || '') + ' | ' + (u.sku || '') + (u.model ? ' / ' + u.model : ''),
+                                label: (u.brand || '') + ' — ' + (u.model || u.sku || ''),
                                 unit:  u,
                             };
                         })
@@ -263,7 +288,8 @@ $(function () {
 
             // Auto-fill title: brand + model + short desc from unit global
             var desc = (unit.desc && unit.desc !== '-') ? ' ' + unit.desc : '';
-            $row.find('.field-label').val((unit.brand || '') + ' ' + (unit.model || unit.sku || '') + desc);
+            var prefix = (unit.unit === 'AIR RECEIVER TANK') ? 'AIR RECEIVER TANK ' : '';
+            $row.find('.field-label').val(prefix + (unit.brand || '') + ' ' + (unit.model || unit.sku || '') + desc);
 
             // Auto-fill price from catalog (latest price_idr)
             if (unit.price && parseFloat(unit.price) > 0) {

@@ -1418,6 +1418,13 @@
                     <div data-i18n="Unit Global">Unit Global</div>
                 </a>
             </li>
+            <li
+                class="menu-item {{ request()->is('catalog-unit') || request()->is('catalog-unit/*') ? 'active' : '' }}">
+                <a href="{{ route('catalog-unit.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-tag-text-outline"></i>
+                    <div data-i18n="Catalog Unit">Catalog Unit</div>
+                </a>
+            </li>
             <li class="menu-item {{ request()->is('product-in') || request()->is('product-in/*') ? 'active' : '' }}">
                 <a href="{{ route('product-in.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package-variant-plus"></i>

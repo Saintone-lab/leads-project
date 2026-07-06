@@ -24,7 +24,6 @@ $(function () {
             columns: [
                 { data: "" },
                 { data: "id" },
-                { data: "id" },
                 { data: "no_service" },
                 { data: "company" },
                 { data: "jobdesc" },
@@ -46,40 +45,18 @@ $(function () {
                     },
                 },
                 {
-                    // For Checkboxes
                     targets: 1,
-                    orderable: false,
-                    searchable: false,
-                    responsivePriority: 3,
-                    checkboxes: true,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender:
-                            '<input type="checkbox" class="form-check-input">',
-                    },
-                },
-                {
-                    targets: 2,
                     searchable: true,
                     visible: false,
                 },
                 {
-                    targets: 3,
+                    targets: 2,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var view = full["viewed"];
-                            var warna;
-                            if (view === 0) {
-                                warna = "text-danger";
-                            } else {
-                                warna = "text-dark";
-                            }
                             // var detailRoute = route("service-reports.show", $dataId);
                             return (
-                                '<p class="cursor-pointer '+ warna +' view-report" data-id="'+ $dataId +'">' + data + "</p>"
+                                '<p class="cursor-pointer text-primary fw-semibold view-report" data-id="'+ $dataId +'">' + data + "</p>"
                             );
                         }
                         return data;
@@ -87,10 +64,10 @@ $(function () {
                 },
                 {
                     responsivePriority: 2,
-                    targets: [3,4],
+                    targets: [2,3],
                 },
             ],
-            order: [[2, "desc"]],
+            order: [[1, "desc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label hl-1 text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
@@ -105,7 +82,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                columns: [2, 3, 4, 5, 6],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -161,7 +138,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                columns: [2, 3, 4, 5, 6],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -198,7 +175,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                columns: [2, 3, 4, 5, 6],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -235,7 +212,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                columns: [2, 3, 4, 5, 6],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -272,7 +249,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7],
+                                columns: [2, 3, 4, 5, 6],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {

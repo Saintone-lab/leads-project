@@ -89,16 +89,8 @@
 
         {{-- LINE ITEMS --}}
         <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center py-3">
+            <div class="card-header py-3">
                 <h6 class="mb-0 fw-bold">Quotation Items</h6>
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-primary" id="btn-add-unit">
-                        <i class="mdi mdi-plus me-1"></i> Add Unit
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-add-custom">
-                        <i class="mdi mdi-format-list-bulleted me-1"></i> Add Custom Item
-                    </button>
-                </div>
             </div>
             <div class="card-body p-0">
                 <div id="line-items-container">
@@ -107,6 +99,14 @@
                 <div id="empty-state" class="text-center text-muted py-5">
                     <i class="mdi mdi-package-variant-closed mdi-48px d-block mb-2"></i>
                     No items yet. Click "Add Unit" or "Add Custom Item".
+                </div>
+                <div class="d-flex gap-2 p-3 border-top">
+                    <button type="button" class="btn btn-sm btn-primary" id="btn-add-unit">
+                        <i class="mdi mdi-plus me-1"></i> Add Unit
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-add-custom">
+                        <i class="mdi mdi-format-list-bulleted me-1"></i> Add Custom Item
+                    </button>
                 </div>
             </div>
         </div>

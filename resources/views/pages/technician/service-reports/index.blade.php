@@ -3,14 +3,13 @@
 @section('content')
     @if (Auth::user()->role == 'Technician' || Auth::user()->role == 'Coordinator')
         <h4 class="fw-bold py-3 mb-4">
-            <span class="text-muted fw-light">Monitoring /</span> Service Reports
+            <span class="text-muted fw-light">Service Departement /</span> Service Reports
         </h4>
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
                 <table class="datatable-reports table table-striped">
                     <thead>
                         <tr>
-                            <th></th>
                             <th></th>
                             <th>ID</th>
                             <th>No Service</th>
@@ -19,7 +18,6 @@
                             <th>Unit Type</th>
                             <th>Serial / Tag</th>
                             <th>Date</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                 </table>
@@ -27,7 +25,7 @@
         </div>
     @elseif(Auth::user()->role == 'Admin')
         <h4 class="fw-bold py-3 mb-4">
-            <span class="text-muted fw-light">Monitoring /</span> Service Reports
+            <span class="text-muted fw-light">Service Department /</span> Service Reports
         </h4>
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
@@ -49,14 +47,13 @@
         </div>
     @else
         <h4 class="fw-bold py-3 mb-4">
-            <span class="text-muted fw-light">Monitoring /</span> Service Reports
+            <span class="text-muted fw-light">Service Department /</span> Service Reports
         </h4>
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
                 <table class="datatable-reports-sales table table-striped">
                     <thead>
                         <tr>
-                            <th></th>
                             <th></th>
                             <th>ID</th>
                             <th>No Service</th>

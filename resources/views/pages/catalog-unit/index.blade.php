@@ -39,22 +39,219 @@
         </div>
     @endif
 
-    <div class="card">
-        <div class="card-datatable table-responsive">
-            <table class="datatable-catalog-unit table table-bordered">
-                <thead>
-                    <tr>
-                        <th>SKU</th>
-                        <th>Brand</th>
-                        <th>Model</th>
-                        <th class="text-center">IDR Price</th>
-                        <th class="text-center">Air Capacity</th>
-                        <th class="text-center">Pressure</th>
-                        <th class="text-center">Motor Power</th>
-                        <th class="text-center">Status</th>
-                    </tr>
-                </thead>
-            </table>
+    <div class="card mb-4">
+        {{-- ── Top-level category tabs ─────────────────────────────────── --}}
+        <div class="card-header p-0 border-bottom">
+            <ul class="nav nav-tabs px-3 pt-2" id="catalogMainTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active px-3 py-3" data-bs-toggle="tab"
+                        data-bs-target="#tab-main-compressor" type="button" role="tab">
+                        <i class="mdi mdi-air-conditioner me-1"></i>Air Compressor
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-3 py-3" id="tab-main-dryer-btn" data-bs-toggle="tab"
+                        data-bs-target="#tab-main-dryer" type="button" role="tab">
+                        <i class="mdi mdi-snowflake me-1"></i>Dryer
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-3 py-3" id="tab-main-filtration-btn" data-bs-toggle="tab"
+                        data-bs-target="#tab-main-filtration" type="button" role="tab">
+                        <i class="mdi mdi-filter me-1"></i>Filtration System
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-3 py-3" id="tab-main-tank-btn" data-bs-toggle="tab"
+                        data-bs-target="#tab-main-tank" type="button" role="tab">
+                        <i class="mdi mdi-propane-tank me-1"></i>Air Receiver Tank
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content">
+
+            {{-- ── Tab: Air Compressor ─────────────────────────────────── --}}
+            <div class="tab-pane fade show active p-0" id="tab-main-compressor" role="tabpanel">
+                <ul class="nav nav-tabs px-3 pt-2" id="compressorTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="tab-oil-injected-btn"
+                            data-bs-toggle="tab" data-bs-target="#tab-oil-injected"
+                            type="button" role="tab">
+                            <i class="mdi mdi-water me-1"></i>Oil-Injected
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab-oil-free-btn"
+                            data-bs-toggle="tab" data-bs-target="#tab-oil-free"
+                            type="button" role="tab">
+                            <i class="mdi mdi-water-off me-1"></i>Oil-Free
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab-compact-btn"
+                            data-bs-toggle="tab" data-bs-target="#tab-compact"
+                            type="button" role="tab">
+                            <i class="mdi mdi-package-variant me-1"></i>Compact
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    {{-- Tab: Oil-Injected --}}
+                    <div class="tab-pane fade show active p-3" id="tab-oil-injected" role="tabpanel">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <small class="text-muted me-1">Generation:</small>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-primary active btn-gen-filter" data-gen="">All</button>
+                                <button type="button" class="btn btn-outline-primary btn-gen-filter" data-gen="old">Old Model</button>
+                                <button type="button" class="btn btn-outline-primary btn-gen-filter" data-gen="new">New Model</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="table-oil-injected">
+                                <thead>
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Brand</th>
+                                        <th>Model</th>
+                                        <th class="text-center">Generation</th>
+                                        <th class="text-center">IDR Price</th>
+                                        <th class="text-center">Air Capacity</th>
+                                        <th class="text-center">Pressure</th>
+                                        <th class="text-center">Motor Power</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+
+                    {{-- Tab: Oil-Free --}}
+                    <div class="tab-pane fade p-3" id="tab-oil-free" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="table-oil-free">
+                                <thead>
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Brand</th>
+                                        <th>Model</th>
+                                        <th class="text-center">IDR Price</th>
+                                        <th class="text-center">Air Capacity</th>
+                                        <th class="text-center">Pressure</th>
+                                        <th class="text-center">Motor Power</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+
+                    {{-- Tab: Compact --}}
+                    <div class="tab-pane fade p-5 text-center" id="tab-compact" role="tabpanel">
+                        <i class="mdi mdi-package-variant-closed mdi-48px text-muted d-block mb-2"></i>
+                        <p class="text-muted mb-0">Compact compressor data not available yet.</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- ── Tab: Dryer ──────────────────────────────────────────── --}}
+            <div class="tab-pane fade p-0" id="tab-main-dryer" role="tabpanel">
+                <div class="px-3 pt-3 pb-1 border-bottom">
+                    <ul class="nav nav-pills gap-1" id="dryerSubTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active btn-sm" id="tab-ref-dryer-btn"
+                                data-bs-toggle="pill" data-bs-target="#tab-ref-dryer"
+                                type="button" role="tab">
+                                <i class="mdi mdi-coolant-temperature me-1"></i>Refrigerant
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link btn-sm" id="tab-desiccant-btn"
+                                data-bs-toggle="pill" data-bs-target="#tab-desiccant"
+                                type="button" role="tab">
+                                <i class="mdi mdi-water-remove me-1"></i>Desiccant
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tab-content p-3">
+                    {{-- Sub-tab: Refrigerant --}}
+                    <div class="tab-pane fade show active" id="tab-ref-dryer" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="table-ref-dryer">
+                                <thead>
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Brand</th>
+                                        <th>Model</th>
+                                        <th class="text-center">IDR Price</th>
+                                        <th class="text-center">FAD</th>
+                                        <th class="text-center">Voltage</th>
+                                        <th class="text-center">Connection</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                    {{-- Sub-tab: Desiccant --}}
+                    <div class="tab-pane fade" id="tab-desiccant" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="table-desiccant">
+                                <thead>
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Brand</th>
+                                        <th>Model</th>
+                                        <th class="text-center">IDR Price</th>
+                                        <th class="text-center">FAD</th>
+                                        <th class="text-center">Voltage</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- ── Tab: Filtration System ──────────────────────────────── --}}
+            <div class="tab-pane fade p-3" id="tab-main-filtration" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="table-filtration">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Brand</th>
+                                <th>Model</th>
+                                <th class="text-center">IDR Price</th>
+                                <th class="text-center">Connection</th>
+                                <th class="text-center">Filtration</th>
+                                <th class="text-center">Oil Content</th>
+                                <th class="text-center">Grade</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
+            {{-- ── Tab: Air Receiver Tank ──────────────────────────────── --}}
+            <div class="tab-pane fade p-3" id="tab-main-tank" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="table-tank">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Brand</th>
+                                <th>Model</th>
+                                <th class="text-center">IDR Price</th>
+                                <th class="text-center">Capacity</th>
+                                <th class="text-center">Pressure</th>
+                                <th class="text-center">Type</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -212,7 +409,7 @@
 
         document.querySelector('.rupiah-input')?.addEventListener('input', function () {
             var raw = this.value.replace(/\D/g, '');
-            this.value = raw ? parseInt(raw).toLocaleString('id-ID') : '';
+            this.value = raw ? String(parseInt(raw)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
             document.getElementById('price-idr-raw').value = raw || 0;
         });
     </script>

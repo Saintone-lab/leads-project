@@ -1,5 +1,5 @@
 @extends('layouts.sales.app')
-@section('title', 'My Quotation')
+@section('title', 'Quotation')
 @section('content')
     <div class="card mb-4">
         <div class="card-widget-separator-wrapper">

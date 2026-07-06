@@ -73,7 +73,7 @@
                             </div>
                             <div class="col-6">
                                 <div class="form-floating form-floating-outline">
-                                    <select class="form-select" name="type_unit">
+                                    <select class="form-select" id="select-type-unit" name="type_unit">
                                         <option value="" disabled selected>-- Type Compressor --</option>
                                         <option value="Oil-injected"
                                             {{ @$product->type_unit == 'Oil-injected' ? 'selected' : '' }}>Oil-injected</option>
@@ -81,6 +81,22 @@
                                             {{ @$product->type_unit == 'Oil-free Compressor' ? 'selected' : '' }}>Oil-free Compressor</option>
                                     </select>
                                     <label>Type Compressor</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Generation: muncul hanya untuk Oil-injected + AIR COMPRESSOR SCREW --}}
+                        <div class="row g-2 mb-3" id="field-generation" style="display:none;">
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <select class="form-select" name="generation" id="select-generation">
+                                        <option value="">-- Model Generation --</option>
+                                        <option value="old"
+                                            {{ @$product->generation == 'old' ? 'selected' : '' }}>Old Model</option>
+                                        <option value="new"
+                                            {{ @$product->generation == 'new' ? 'selected' : '' }}>New Model</option>
+                                    </select>
+                                    <label>Model Generation</label>
                                 </div>
                             </div>
                         </div>
@@ -335,8 +351,8 @@
                         </div>
                     </div>
 
-                    {{-- FIELD GRUP: DRYER (Refrigerant & Desiccant) --}}
-                    <div class="fields-dryer" style="display:none;">
+                    {{-- FIELD GRUP: REFRIGERANT AIR DRYER --}}
+                    <div class="fields-ref-dryer" style="display:none;">
                         <div class="row g-2 mb-3">
                             <div class="col-6">
                                 <div class="form-floating form-floating-outline">
@@ -354,6 +370,15 @@
                             </div>
                         </div>
                         <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" name="desc"
+                                        placeholder="Short Description" value="{{ old('desc', @$product->desc ?? '') }}">
+                                    <label>Short Description</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
                             <div class="col-4">
                                 <div class="form-floating form-floating-outline">
                                     <input type="text" class="form-control" name="air_cap"
@@ -363,41 +388,202 @@
                             </div>
                             <div class="col-4">
                                 <div class="form-floating form-floating-outline">
-                                    <input type="text" class="form-control" name="voltage"
-                                        placeholder="Rated Voltage" value="{{ old('voltage', @$product->voltage ?? '') }}">
+                                    <select class="form-select" name="voltage">
+                                        <option value="" disabled {{ !@$product->voltage ? 'selected' : '' }}>-- Rated Voltage --</option>
+                                        <option value="220v/50Hz/1phase" {{ @$product->voltage == '220v/50Hz/1phase' ? 'selected' : '' }}>220v/50Hz/1phase</option>
+                                        <option value="380v/50Hz/3phase" {{ @$product->voltage == '380v/50Hz/3phase' ? 'selected' : '' }}>380v/50Hz/3phase</option>
+                                    </select>
                                     <label>Rated Voltage</label>
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="form-floating form-floating-outline">
-                                    <input type="text" class="form-control" name="refrigerant_type"
-                                        placeholder="Refrigerant Type" value="{{ old('refrigerant_type', @$product->refrigerant_type ?? '') }}">
-                                    <label>Refrigerant Type</label>
+                                <div class="form-floating form-floating-outline input-group">
+                                    <input type="text" class="form-control" name="power"
+                                        placeholder="Consumption Power" value="{{ old('power', @$product->power ?? '') }}">
+                                    <span class="input-group-text">kW</span>
                                 </div>
                             </div>
                         </div>
                         <div class="row g-2 mb-3">
                             <div class="col-4">
+                                <div class="form-floating form-floating-outline input-group">
+                                    <input type="text" class="form-control" name="bar"
+                                        placeholder="Pressure" value="{{ old('bar', @$product->bar ?? '') }}">
+                                    <span class="input-group-text">Bar</span>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" name="refrigerant_type"
+                                        placeholder="Refrigerant Type" value="{{ old('refrigerant_type', @$product->refrigerant_type ?? 'R410') }}">
+                                    <label>Refrigerant Type</label>
+                                </div>
+                            </div>
+                            <div class="col-4">
                                 <div class="form-floating form-floating-outline">
                                     <input type="text" class="form-control" name="pdp"
-                                        placeholder="PDP" value="{{ old('pdp', @$product->pdp ?? '') }}">
+                                        placeholder="PDP" value="{{ old('pdp', @$product->pdp ?? '3 °C') }}">
                                     <label>PDP</label>
                                 </div>
                             </div>
-                            <div class="col-4">
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
                                 <div class="form-floating form-floating-outline">
-                                    <input type="text" class="form-control" name="dimension"
-                                        placeholder="Dimension" value="{{ old('dimension', @$product->dimension ?? '') }}">
-                                    <label>Dimension</label>
+                                    <input type="text" class="form-control" name="exhaust"
+                                        placeholder="Connection" value="{{ old('exhaust', @$product->exhaust ?? '') }}">
+                                    <label>Connection</label>
                                 </div>
                             </div>
-                            <div class="col-4">
+                            <div class="col-6">
                                 <div class="form-floating form-floating-outline input-group">
                                     <input type="text" class="form-control" name="weight"
                                         placeholder="Weight" value="{{ old('weight', @$product->weight ?? '') }}">
                                     <span class="input-group-text">Kg</span>
                                 </div>
                             </div>
+                        </div>
+                        @php
+                            $dimPartsDry = array_map('trim', explode('x', @$product->dimension ?? ''));
+                        @endphp
+                        <div class="row g-2 mb-3">
+                            <div class="col-12">
+                                <label class="form-label text-muted small mb-1">Dimension (mm) — L × W × H</label>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control dim-input-dry" id="dim_l_dry"
+                                        placeholder="Length" value="{{ old('dim_l_dry', $dimPartsDry[0] ?? '') }}">
+                                    <label>Length (L)</label>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control dim-input-dry" id="dim_w_dry"
+                                        placeholder="Width" value="{{ old('dim_w_dry', $dimPartsDry[1] ?? '') }}">
+                                    <label>Width (W)</label>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control dim-input-dry" id="dim_h_dry"
+                                        placeholder="Height" value="{{ old('dim_h_dry', $dimPartsDry[2] ?? '') }}">
+                                    <label>Height (H)</label>
+                                </div>
+                            </div>
+                            <input type="hidden" name="dimension" id="dim_combined_dry"
+                                value="{{ old('dimension', @$product->dimension ?? '') }}">
+                        </div>
+                    </div>
+
+                    {{-- FIELD GRUP: DESICCANT DRYER --}}
+                    <div class="fields-desiccant" style="display:none;">
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" name="brand"
+                                        placeholder="Brand" value="{{ old('brand', @$product->brand ?? '') }}">
+                                    <label>Brand</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" name="model"
+                                        placeholder="Model" value="{{ old('model', @$product->model ?? '') }}">
+                                    <label>Model</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" name="desc"
+                                        placeholder="Short Description" value="{{ old('desc', @$product->desc ?? 'MODULAR DESICCANT DRYER') }}">
+                                    <label>Short Description</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" name="air_cap"
+                                        placeholder="FAD / Air Capacity" value="{{ old('air_cap', @$product->air_cap ?? '') }}">
+                                    <label>FAD / Air Capacity</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <select class="form-select" name="voltage">
+                                        <option value="" disabled {{ !@$product->voltage ? 'selected' : '' }}>-- Rated Voltage --</option>
+                                        <option value="220v/50Hz/1phase" {{ (@$product->voltage ?? '220v/50Hz/1phase') == '220v/50Hz/1phase' ? 'selected' : '' }}>220v/50Hz/1phase</option>
+                                        <option value="380v/50Hz/3phase" {{ @$product->voltage == '380v/50Hz/3phase' ? 'selected' : '' }}>380v/50Hz/3phase</option>
+                                    </select>
+                                    <label>Rated Voltage</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline input-group">
+                                    <input type="text" class="form-control" name="bar"
+                                        placeholder="Pressure" value="{{ old('bar', @$product->bar ?? '') }}">
+                                    <span class="input-group-text">Bar</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" name="pdp"
+                                        placeholder="PDP" value="{{ old('pdp', @$product->pdp ?? '-40 °C') }}">
+                                    <label>PDP</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" name="exhaust"
+                                        placeholder="Connection" value="{{ old('exhaust', @$product->exhaust ?? '') }}">
+                                    <label>Connection</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline input-group">
+                                    <input type="text" class="form-control" name="weight"
+                                        placeholder="Weight" value="{{ old('weight', @$product->weight ?? '') }}">
+                                    <span class="input-group-text">Kg</span>
+                                </div>
+                            </div>
+                        </div>
+                        @php
+                            $dimPartsDes = array_map('trim', explode('x', @$product->dimension ?? ''));
+                        @endphp
+                        <div class="row g-2 mb-3">
+                            <div class="col-12">
+                                <label class="form-label text-muted small mb-1">Dimension (mm) — L × W × H</label>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control dim-input-des" id="dim_l_des"
+                                        placeholder="Length" value="{{ old('dim_l_des', $dimPartsDes[0] ?? '') }}">
+                                    <label>Length (L)</label>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control dim-input-des" id="dim_w_des"
+                                        placeholder="Width" value="{{ old('dim_w_des', $dimPartsDes[1] ?? '') }}">
+                                    <label>Width (W)</label>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control dim-input-des" id="dim_h_des"
+                                        placeholder="Height" value="{{ old('dim_h_des', $dimPartsDes[2] ?? '') }}">
+                                    <label>Height (H)</label>
+                                </div>
+                            </div>
+                            <input type="hidden" name="dimension" id="dim_combined_des"
+                                value="{{ old('dimension', @$product->dimension ?? '') }}">
                         </div>
                     </div>
 
@@ -421,13 +607,36 @@
                         </div>
                         <div class="row g-2 mb-3">
                             <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" name="material"
+                                        placeholder="Element Model" value="{{ old('material', @$product->material ?? '') }}">
+                                    <label>Element Model</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" name="desc"
+                                        placeholder="Short Description" value="{{ old('desc', @$product->desc ?? 'COMPRESSED FILTRATION SYSTEM') }}">
+                                    <label>Short Description</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-4">
                                 <div class="form-floating form-floating-outline input-group">
                                     <input type="text" class="form-control" name="air_cap"
                                         placeholder="FAD" value="{{ old('air_cap', @$product->air_cap ?? '') }}">
                                     <span class="input-group-text">m³/min</span>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div class="col-4">
+                                <div class="form-floating form-floating-outline input-group">
+                                    <input type="text" class="form-control" name="bar"
+                                        placeholder="Pressure" value="{{ old('bar', @$product->bar ?? '') }}">
+                                    <span class="input-group-text">Bar</span>
+                                </div>
+                            </div>
+                            <div class="col-4">
                                 <div class="form-floating form-floating-outline">
                                     <input type="text" class="form-control" name="exhaust"
                                         placeholder="Connection" value="{{ old('exhaust', @$product->exhaust ?? '') }}">
@@ -437,17 +646,17 @@
                         </div>
                         <div class="row g-2 mb-3">
                             <div class="col-6">
-                                <div class="form-floating form-floating-outline">
+                                <div class="form-floating form-floating-outline input-group">
                                     <input type="text" class="form-control" name="filtration"
                                         placeholder="Filtration" value="{{ old('filtration', @$product->filtration ?? '') }}">
-                                    <label>Filtration</label>
+                                    <span class="input-group-text">µm</span>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="form-floating form-floating-outline">
+                                <div class="form-floating form-floating-outline input-group">
                                     <input type="text" class="form-control" name="oil_content"
                                         placeholder="Oil Content" value="{{ old('oil_content', @$product->oil_content ?? '') }}">
-                                    <label>Oil Content</label>
+                                    <span class="input-group-text">ppm</span>
                                 </div>
                             </div>
                         </div>
@@ -462,6 +671,15 @@
                                         <option value="Activated-Carbon"   {{ @$product->grade == 'Activated-Carbon'   ? 'selected' : '' }}>Activated-Carbon</option>
                                     </select>
                                     <label>Grade</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <select class="form-select" name="connect">
+                                        <option value="Integrated" {{ (@$product->connect ?? 'Integrated') == 'Integrated' ? 'selected' : '' }}>Integrated</option>
+                                        <option value="Not Include" {{ @$product->connect == 'Not Include' ? 'selected' : '' }}>Not Include</option>
+                                    </select>
+                                    <label>Drain</label>
                                 </div>
                             </div>
                         </div>
@@ -508,15 +726,33 @@
                             <div class="col-6">
                                 <div class="form-floating form-floating-outline input-group">
                                     <input type="text" class="form-control" name="bar"
-                                        placeholder="Working Pressure" value="{{ old('bar', @$product->bar ?? '') }}">
+                                        placeholder="Working Pressure" value="{{ old('bar', @$product->bar ?? '10') }}">
                                     <span class="input-group-text">Bar</span>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="form-floating form-floating-outline input-group">
                                     <input type="text" class="form-control" name="test_pressure"
-                                        placeholder="Test Pressure" value="{{ old('test_pressure', @$product->test_pressure ?? '') }}">
+                                        placeholder="Test Pressure" value="{{ old('test_pressure', @$product->test_pressure ?? '15') }}">
                                     <span class="input-group-text">Bar</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" name="grade"
+                                        placeholder="T Plate" value="{{ old('grade', @$product->grade ?? '') }}">
+                                    <label>T Plate</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-floating form-floating-outline">
+                                    <select class="form-select" name="cooling">
+                                        <option value="Disnaker" {{ (@$product->cooling ?? 'Disnaker') == 'Disnaker' ? 'selected' : '' }}>Disnaker</option>
+                                        <option value="No" {{ @$product->cooling == 'No' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                    <label>Certification</label>
                                 </div>
                             </div>
                         </div>
@@ -547,21 +783,24 @@
 <script>
 (function () {
     var COMPRESSOR  = ['PISTON COMPRESSOR', 'AIR COMPRESSOR SCREW'];
-    var DRYER       = ['REFRIGERANT AIR DRYER', 'DESICANT DRYER'];
     var FILTRATION  = ['FILTRATION SYSTEM'];
     var TANK        = ['AIR RECEIVER TANK'];
     var BOOSTER     = ['BOOSTER COMPRESSOR'];
 
     function showFields(category) {
-        $('.fields-compressor, .fields-booster, .fields-dryer, .fields-filtration, .fields-tank, .fields-all').hide();
+        $('.fields-compressor, .fields-booster, .fields-ref-dryer, .fields-desiccant, .fields-filtration, .fields-tank, .fields-all').hide();
+        $('#field-generation').hide();
         if (category === '') return;
         $('.fields-all').show();
         if (COMPRESSOR.includes(category)) {
             $('.fields-compressor').show();
+            updateGenerationVisibility(category);
         } else if (BOOSTER.includes(category)) {
             $('.fields-booster').show();
-        } else if (DRYER.includes(category)) {
-            $('.fields-dryer').show();
+        } else if (category === 'REFRIGERANT AIR DRYER') {
+            $('.fields-ref-dryer').show();
+        } else if (category === 'DESICANT DRYER') {
+            $('.fields-desiccant').show();
         } else if (FILTRATION.includes(category)) {
             $('.fields-filtration').show();
         } else if (TANK.includes(category)) {
@@ -569,8 +808,23 @@
         }
     }
 
+    function updateGenerationVisibility(category) {
+        var typeUnit = $('#select-type-unit').val();
+        if (category === 'AIR COMPRESSOR SCREW' && typeUnit === 'Oil-injected') {
+            $('#field-generation').show();
+        } else {
+            $('#field-generation').hide();
+            $('#select-generation').val('');
+        }
+    }
+
     $(document).on('change', '#unit-category', function () {
         showFields($(this).val());
+    });
+
+    $(document).on('change', '#select-type-unit', function () {
+        var category = $('#unit-category').val();
+        updateGenerationVisibility(category);
     });
 
     // Live check SKU
@@ -609,11 +863,15 @@
     // Sebelum submit: disable input di section yang hidden + gabung dimension
     $(document).on('submit', 'form', function () {
         // Disable semua input dalam section yang sedang disembunyikan
-        $('.fields-compressor, .fields-booster, .fields-dryer, .fields-filtration, .fields-tank').each(function () {
+        $('.fields-compressor, .fields-booster, .fields-ref-dryer, .fields-desiccant, .fields-filtration, .fields-tank').each(function () {
             if ($(this).is(':hidden')) {
                 $(this).find('input, select, textarea').prop('disabled', true);
             }
         });
+
+        if ($('#field-generation').is(':hidden')) {
+            $('#select-generation').prop('disabled', true);
+        }
 
         // Gabungkan L x W x H ke field dimension (compressor)
         var l = $('#dim_l').val().trim();
@@ -630,11 +888,33 @@
         if (lb || wb || hb) {
             $('#dim_combined_bst').val(lb + ' x ' + wb + ' x ' + hb + ' mm');
         }
+
+        // Gabungkan L x W x H ke field dimension (ref dryer)
+        var ld = $('#dim_l_dry').val().trim();
+        var wd = $('#dim_w_dry').val().trim();
+        var hd = $('#dim_h_dry').val().trim();
+        if (ld || wd || hd) {
+            $('#dim_combined_dry').val(ld + ' x ' + wd + ' x ' + hd + ' mm');
+        }
+
+        // Gabungkan L x W x H ke field dimension (desiccant)
+        var ldes = $('#dim_l_des').val().trim();
+        var wdes = $('#dim_w_des').val().trim();
+        var hdes = $('#dim_h_des').val().trim();
+        if (ldes || wdes || hdes) {
+            $('#dim_combined_des').val(ldes + ' x ' + wdes + ' x ' + hdes + ' mm');
+        }
     });
 
     // Saat edit — tampilkan field sesuai data yang sudah ada
     @if (@$product)
         showFields('{{ @$product->unit }}');
+        @if (@$product->unit == 'AIR COMPRESSOR SCREW' && @$product->type_unit == 'Oil-injected')
+            $('#field-generation').show();
+        @endif
+        @if (@$product->unit == 'DESICANT DRYER')
+            // voltage default '220v/50Hz/1phase' already pre-selected via PHP; nothing extra needed
+        @endif
     @endif
 })();
 </script>

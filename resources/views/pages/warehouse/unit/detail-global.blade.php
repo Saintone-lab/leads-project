@@ -7,7 +7,7 @@
     <div class="row mb-3">
         <div class="col-12 mb-4">
             <div class="card">
-                @if (auth::user()->role == 'Admin' || auth::user()->role == 'Logistic')
+                @if (in_array(auth::user()->role, ['Admin', 'Sales', 'Logistic']))
                     <div class="card-header pb-0">
                         <div class="d-flex justify-content-between align-items-center">
                             {{-- Harga Pricelist --}}
@@ -99,7 +99,7 @@
                 </div>
             </div>
         </div>
-        @if (auth::user()->role == 'Admin' || auth::user()->role == 'Logistic')
+        @if (in_array(auth::user()->role, ['Admin', 'Sales', 'Logistic']))
             <div class="row">
                 <div class="col-md-6 col-12 ">
                     <div class="d-flex justify-content-between mb-2">
