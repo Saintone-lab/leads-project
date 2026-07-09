@@ -9,6 +9,7 @@ use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\SalesOnline;
 use App\Models\SalesReports;
+use App\Models\SalesTargetHistory;
 use App\Models\Target;
 use App\Models\User;
 use Carbon\Carbon;
@@ -526,6 +527,17 @@ class OverviewController extends Controller
             ->selectRaw('COALESCE(client.source, "Other") as source, COUNT(*) as total')
             ->groupBy('source')->orderByDesc('total')->get();
 
+        $smktProspectByDomain = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereBetween('prospect.date', [$firstDayOfMonth, $lastDayOfMonth])
+            ->whereNotNull('prospect.id_support')
+            ->where('client.source', 'Website')
+            ->whereNotNull('client.web')
+            ->where('client.web', '!=', '')
+            ->where('client.web', '!=', '-')
+            ->selectRaw('client.web as domain, COUNT(*) as total')
+            ->groupBy('domain')->orderByDesc('total')->get();
+
         $smktProspectByCategory = Prospect::whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
             ->whereNotNull('id_support')
             ->selectRaw('COALESCE(category, "Uncategorized") as category, COUNT(*) as total')
@@ -594,7 +606,7 @@ class OverviewController extends Controller
             'smktProspectCount', 'smktQuoteCount', 'smktQuoteTotal',
             'smktPoCount', 'smktPoTotal', 'smktLossCount', 'smktLossTotal',
             'smktProspectByStatus', 'smktPerPerson',
-            'smktProspectBySource', 'smktProspectByCategory'
+            'smktProspectBySource', 'smktProspectByCategory', 'smktProspectByDomain'
         ));
     }
 
@@ -785,6 +797,20 @@ class OverviewController extends Controller
             ->orderByDesc('total')
             ->get();
 
+        $mktProspectByDomain = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereMonth('prospect.date', $month)
+            ->whereYear('prospect.date', $year)
+            ->whereNotNull('prospect.id_support')
+            ->where('client.source', 'Website')
+            ->whereNotNull('client.web')
+            ->where('client.web', '!=', '')
+            ->where('client.web', '!=', '-')
+            ->selectRaw('client.web as domain, COUNT(*) as total')
+            ->groupBy('domain')
+            ->orderByDesc('total')
+            ->get();
+
         // Status prospect (pending / provided / no provide)
         $mktProspectByStatus = Prospect::whereMonth('date', $month)
             ->whereYear('date', $year)
@@ -824,7 +850,59 @@ class OverviewController extends Controller
             'quoteOnCount', 'totalTarget',
             'mktProspectCount', 'mktQuoteCount', 'mktQuoteTotal',
             'mktPoCount', 'mktPoTotal', 'mktProspectBySource', 'mktProspectByCategory', 'mktProspectByArea',
+            'mktProspectByDomain',
             'mktProspectByStatus', 'mktPerPerson', 'mktLossCount', 'mktLossTotal'
+        ));
+    }
+
+    public function reportFinance($year = null, $month = null)
+    {
+        $now   = Carbon::now();
+        $year  = (int) ($year  ?? $now->year);
+        $month = (int) ($month ?? $now->month);
+
+        $firstDay = Carbon::create($year, $month, 1)->startOfMonth()->toDateString();
+        $lastDay  = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
+
+        $sales = User::where('role', 'Sales')->where('active', '1')->get();
+
+        $poCount      = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+        $poTotal      = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $quoteCount   = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereIn('status', ['20', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->count();
+        $quoteTotal   = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereIn('status', ['20', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $lossCount    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('status', '0')->where('level', '1')->where('is_primary', '1')->count();
+        $lossTotal    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $quoteOnCount = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('level', '1')->where('is_primary', '1')->count();
+
+        // Target dari fitur Sales Target (sales_target_histories): target tahunan per tahun terpilih, dibagi rata 12 bulan
+        $totalTarget  = SalesTargetHistory::where('year', $year)->sum('target_annual');
+        $monthlyTarget = $totalTarget > 0 ? (int) round($totalTarget / 12) : 0;
+
+        $winRate           = $quoteOnCount > 0 ? round(($poCount / $quoteOnCount) * 100, 1) : 0;
+        $lossRate          = $quoteOnCount > 0 ? round(($lossCount / $quoteOnCount) * 100, 1) : 0;
+        $targetAchievement = $monthlyTarget > 0 ? round(($poTotal / $monthlyTarget) * 100, 1) : 0;
+
+        // Trend PO Total per bulan (Jan-Des) untuk tahun terpilih, dibandingkan target rata-rata per bulan
+        $trendLabels  = [];
+        $trendPoTotal = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $mStart = Carbon::create($year, $m, 1)->startOfMonth()->toDateString();
+            $mEnd   = Carbon::create($year, $m, 1)->endOfMonth()->toDateString();
+            $trendLabels[]  = Carbon::create($year, $m, 1)->translatedFormat('M');
+            $trendPoTotal[] = (int) Quotation::whereBetween('po_date', [$mStart, $mEnd])->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        }
+        $trendMonthlyTarget = $monthlyTarget;
+
+        $yearList = SalesReports::select('year')->distinct()->orderBy('year', 'desc')->pluck('year');
+
+        return view('pages.finance.reports.index', compact(
+            'year', 'month', 'yearList',
+            'poCount', 'poTotal',
+            'quoteCount', 'quoteTotal',
+            'lossCount', 'lossTotal',
+            'quoteOnCount', 'totalTarget', 'monthlyTarget',
+            'winRate', 'lossRate', 'targetAchievement',
+            'trendLabels', 'trendPoTotal', 'trendMonthlyTarget'
         ));
     }
 
