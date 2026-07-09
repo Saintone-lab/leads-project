@@ -317,6 +317,16 @@
             $('#selectArea').on('select2:open', function() {
                 $('.select2-search__field').attr('placeholder', 'Masukkan Kota/Kabupaten');
             });
+
+            function toggleDomainField() {
+                var isWebsite = $('#selectSource').val() === 'Website';
+                $('#domainWrapper').toggle(isWebsite);
+                if (!isWebsite) {
+                    $('#domainInput').val('');
+                }
+            }
+            toggleDomainField();
+            $('#selectSource').on('change', toggleDomainField);
         });
 
         $(document).on('click', '#withQuote', function() {

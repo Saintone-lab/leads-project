@@ -1260,7 +1260,7 @@
                     <div data-i18n="Activities">Activities</div>
                 </a>
             </li> --}}
-            <li class="menu-item {{ request()->is('reports') ? 'active' : '' }}">
+            <li class="menu-item {{ request()->is('reports') || request()->is('reports/*') ? 'active' : '' }}">
                 <a href="{{ url('/reports') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-finance"></i>
                     <div data-i18n="Reports">Reports</div>

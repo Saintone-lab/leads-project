@@ -27,6 +27,7 @@ class Client extends Model
         'web',
         'image',
         'source',
+        'source_detail',
         'role',
         'mobile',
         'address',

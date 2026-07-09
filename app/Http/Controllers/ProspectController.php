@@ -146,6 +146,13 @@ class ProspectController extends Controller
             }])
             ->get();
 
+        $domainList = Client::where('source', 'Website')
+            ->whereNotNull('source_detail')
+            ->where('source_detail', '!=', '')
+            ->distinct()
+            ->orderBy('source_detail')
+            ->pluck('source_detail');
+
         return view('pages.support.prospect.index', compact(
             'prospects',
             'comment',
@@ -166,7 +173,8 @@ class ProspectController extends Controller
             'lossAdmin',
             'salesLeads',
             'availableWeeks',
-            'selectedWeekNum'
+            'selectedWeekNum',
+            'domainList'
         ));
     }
 
@@ -208,6 +216,8 @@ class ProspectController extends Controller
 
             'area' => 'required',
 
+            'source_detail' => 'nullable|string|max:100',
+
             // 'namePic' =>
             //     'required',
 
@@ -232,6 +242,7 @@ class ProspectController extends Controller
             'subAddress.required' => 'Field Sub Address Wajib Diisi',
             'unit.required' => 'Field Unit Wajib Diisi',
             'area.required' => 'Field Area Wajib Diisi',
+            'source_detail.max' => 'Domain maksimal 100 karakter',
             // 'namePic.required'=> 'Field Nama PIC Wajib Diisi',
             // 'emailPic.required'=> 'Field Email PIC Wajib Diisi',
             // 'phonePic.required'=> 'Field Nomor PIC Wajib Diisi',
@@ -250,6 +261,7 @@ class ProspectController extends Controller
         $client->phone = $request->phone;
         $client->ru = $request->ru;
         $client->web = '-';
+        $client->source_detail = $request->filled('source_detail') ? strtolower(trim($request->source_detail)) : null;
         $client->unit = $request->unit; // Menyimpan Unit
         $client->image = 'profile.jpg';
         $client->source = $request->source;

@@ -387,26 +387,90 @@ class OverviewController extends Controller
         return redirect()->route('report.semester', $report->id);
     }
 
-    public function supportReport($semesterId)
+    public function supportReport(Request $request, $year = null, $month = null)
     {
-        $report   = SalesReports::find($semesterId);
-        $semester = SalesReports::all();
+        $now   = Carbon::now();
+        $year  = (int) ($year  ?? $now->year);
+        $month = (int) ($month ?? $now->month);
 
-        $firstDay = $report->semester == 1 ? "{$report->year}-01-01" : "{$report->year}-07-01";
-        $lastDay  = $report->semester == 1
-            ? date('Y-m-t', strtotime("{$report->year}-06-01"))
-            : date('Y-m-t', strtotime("{$report->year}-12-01"));
+        if ($year < 2000 || $year > $now->year + 1) {
+            $year = $now->year;
+        }
+        if ($month < 1 || $month > 12) {
+            $month = $now->month;
+        }
 
-        $smktProspectCount = Prospect::whereBetween('date', [$firstDay, $lastDay])->whereNotNull('id_support')->count();
-        $smktQuoteCount    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->count();
-        $smktQuoteTotal    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereNotNull('id_support')->where('level', '1')->where('is_primary', '1')->sum('nett');
-        $smktPoCount       = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->whereNotNull('id_support')->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
-        $smktPoTotal       = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->whereNotNull('id_support')->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
-        $smktLossCount     = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereNotNull('id_support')->where('status', '0')->where('level', '1')->where('is_primary', '1')->count();
-        $smktLossTotal     = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->whereNotNull('id_support')->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $semesterParam = $request->query('semester');
+        $mode          = $semesterParam ? 'semester' : 'monthly';
+        $semester      = $semesterParam ? (int) $semesterParam : null;
+        if ($semester && !in_array($semester, [1, 2])) {
+            $semester = 1;
+        }
 
-        $smktProspectByStatus = Prospect::whereBetween('date', [$firstDay, $lastDay])
-            ->whereNotNull('id_support')
+        if ($mode === 'semester') {
+            $firstDay = $semester == 1 ? "{$year}-01-01" : "{$year}-07-01";
+            $lastDay  = $semester == 1
+                ? date('Y-m-t', strtotime("{$year}-06-01"))
+                : date('Y-m-t', strtotime("{$year}-12-01"));
+        } else {
+            $firstDay = Carbon::create($year, $month, 1)->startOfMonth()->toDateString();
+            $lastDay  = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
+        }
+
+        $supportId = Auth::id();
+
+        $yearList = SalesReports::select('year')->distinct()->orderBy('year', 'desc')->pluck('year');
+        if (!$yearList->contains($year)) {
+            $yearList = $yearList->push($year)->sortDesc()->values();
+        }
+
+        // 5 summary cards — scoped to this support/marketing user only
+        $poCount      = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->where('id_support', $supportId)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+        $poTotal      = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->where('id_support', $supportId)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $quoteCount   = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_support', $supportId)->whereIn('status', ['20', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->count();
+        $quoteTotal   = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_support', $supportId)->whereIn('status', ['20', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $lossCount    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_support', $supportId)->where('status', '0')->where('level', '1')->where('is_primary', '1')->count();
+        $lossTotal    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_support', $supportId)->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $quoteOnCount = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_support', $supportId)->where('level', '1')->where('is_primary', '1')->count();
+
+        // Marketing Report funnel — same support-scoped filter
+        $mktProspectCount = Prospect::whereBetween('date', [$firstDay, $lastDay])->where('id_support', $supportId)->count();
+        $mktQuoteCount    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_support', $supportId)->where('level', '1')->where('is_primary', '1')->count();
+        $mktQuoteTotal    = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_support', $supportId)->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $mktPoCount       = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->where('id_support', $supportId)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+        $mktPoTotal       = Quotation::whereBetween('po_date', [$firstDay, $lastDay])->where('id_support', $supportId)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+
+        $mktProspectBySource = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereBetween('prospect.date', [$firstDay, $lastDay])
+            ->where('prospect.id_support', $supportId)
+            ->selectRaw('COALESCE(client.source, "Other") as source, COUNT(*) as total')
+            ->groupBy('source')->orderByDesc('total')->get();
+
+        $mktProspectByCategory = Prospect::whereBetween('date', [$firstDay, $lastDay])
+            ->where('id_support', $supportId)
+            ->selectRaw('COALESCE(category, "Uncategorized") as category, COUNT(*) as total')
+            ->groupBy('category')->orderByDesc('total')->get();
+
+        $mktProspectByArea = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereBetween('prospect.date', [$firstDay, $lastDay])
+            ->where('prospect.id_support', $supportId)
+            ->selectRaw('COALESCE(NULLIF(client.area, ""), "Unknown") as area, COUNT(*) as total')
+            ->groupBy('area')->orderByDesc('total')->get();
+
+        $mktProspectByDomain = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereBetween('prospect.date', [$firstDay, $lastDay])
+            ->where('prospect.id_support', $supportId)
+            ->where('client.source', 'Website')
+            ->whereNotNull('client.source_detail')
+            ->where('client.source_detail', '!=', '')
+            ->selectRaw('client.source_detail as domain, COUNT(*) as total')
+            ->groupBy('domain')->orderByDesc('total')->get();
+
+        $mktProspectByStatus = Prospect::whereBetween('date', [$firstDay, $lastDay])
+            ->where('id_support', $supportId)
             ->selectRaw('
                 SUM(CASE WHEN provide IS NULL THEN 1 ELSE 0 END) as pending,
                 SUM(CASE WHEN provide = "1"  THEN 1 ELSE 0 END) as provided,
@@ -414,9 +478,9 @@ class OverviewController extends Controller
             ')
             ->first();
 
-        $smktPerPerson = Prospect::join('users', 'users.id', '=', 'prospect.id_support')
+        $mktPerPerson = Prospect::join('users', 'users.id', '=', 'prospect.id_support')
             ->whereBetween('prospect.date', [$firstDay, $lastDay])
-            ->whereNotNull('prospect.id_support')
+            ->where('prospect.id_support', $supportId)
             ->selectRaw('
                 users.id, users.name, users.image,
                 COUNT(*) as total,
@@ -428,24 +492,17 @@ class OverviewController extends Controller
             ->orderByDesc('total')
             ->get();
 
-        $smktProspectBySource = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
-            ->join('client', 'client.id', '=', 'pic.id_client')
-            ->whereBetween('prospect.date', [$firstDay, $lastDay])
-            ->whereNotNull('prospect.id_support')
-            ->selectRaw('COALESCE(client.source, "Other") as source, COUNT(*) as total')
-            ->groupBy('source')->orderByDesc('total')->get();
-
-        $smktProspectByCategory = Prospect::whereBetween('date', [$firstDay, $lastDay])
-            ->whereNotNull('id_support')
-            ->selectRaw('COALESCE(category, "Uncategorized") as category, COUNT(*) as total')
-            ->groupBy('category')->orderByDesc('total')->get();
+        $mktLossCount = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_support', $supportId)->where('status', '0')->where('level', '1')->where('is_primary', '1')->count();
+        $mktLossTotal = Quotation::whereBetween('estimated_date', [$firstDay, $lastDay])->where('id_support', $supportId)->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
 
         return view('pages.support.report.index', compact(
-            'report', 'semester',
-            'smktProspectCount', 'smktQuoteCount', 'smktQuoteTotal',
-            'smktPoCount', 'smktPoTotal', 'smktLossCount', 'smktLossTotal',
-            'smktProspectByStatus', 'smktPerPerson',
-            'smktProspectBySource', 'smktProspectByCategory'
+            'mode', 'year', 'month', 'yearList', 'semester',
+            'poCount', 'poTotal', 'quoteCount', 'quoteTotal',
+            'lossCount', 'lossTotal', 'quoteOnCount',
+            'mktProspectCount', 'mktQuoteCount', 'mktQuoteTotal',
+            'mktPoCount', 'mktPoTotal',
+            'mktProspectBySource', 'mktProspectByCategory', 'mktProspectByArea', 'mktProspectByDomain',
+            'mktProspectByStatus', 'mktPerPerson', 'mktLossCount', 'mktLossTotal'
         ));
     }
 
@@ -527,17 +584,6 @@ class OverviewController extends Controller
             ->selectRaw('COALESCE(client.source, "Other") as source, COUNT(*) as total')
             ->groupBy('source')->orderByDesc('total')->get();
 
-        $smktProspectByDomain = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
-            ->join('client', 'client.id', '=', 'pic.id_client')
-            ->whereBetween('prospect.date', [$firstDayOfMonth, $lastDayOfMonth])
-            ->whereNotNull('prospect.id_support')
-            ->where('client.source', 'Website')
-            ->whereNotNull('client.web')
-            ->where('client.web', '!=', '')
-            ->where('client.web', '!=', '-')
-            ->selectRaw('client.web as domain, COUNT(*) as total')
-            ->groupBy('domain')->orderByDesc('total')->get();
-
         $smktProspectByCategory = Prospect::whereBetween('date', [$firstDayOfMonth, $lastDayOfMonth])
             ->whereNotNull('id_support')
             ->selectRaw('COALESCE(category, "Uncategorized") as category, COUNT(*) as total')
@@ -606,7 +652,7 @@ class OverviewController extends Controller
             'smktProspectCount', 'smktQuoteCount', 'smktQuoteTotal',
             'smktPoCount', 'smktPoTotal', 'smktLossCount', 'smktLossTotal',
             'smktProspectByStatus', 'smktPerPerson',
-            'smktProspectBySource', 'smktProspectByCategory', 'smktProspectByDomain'
+            'smktProspectBySource', 'smktProspectByCategory'
         ));
     }
 
@@ -794,20 +840,6 @@ class OverviewController extends Controller
             ->whereNotNull('prospect.id_support')
             ->selectRaw('COALESCE(NULLIF(client.area, ""), "Unknown") as area, COUNT(*) as total')
             ->groupBy('area')
-            ->orderByDesc('total')
-            ->get();
-
-        $mktProspectByDomain = Prospect::join('pic', 'pic.id', '=', 'prospect.id_pic')
-            ->join('client', 'client.id', '=', 'pic.id_client')
-            ->whereMonth('prospect.date', $month)
-            ->whereYear('prospect.date', $year)
-            ->whereNotNull('prospect.id_support')
-            ->where('client.source', 'Website')
-            ->whereNotNull('client.web')
-            ->where('client.web', '!=', '')
-            ->where('client.web', '!=', '-')
-            ->selectRaw('client.web as domain, COUNT(*) as total')
-            ->groupBy('domain')
             ->orderByDesc('total')
             ->get();
 

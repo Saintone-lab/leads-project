@@ -148,7 +148,7 @@ Route::group(["middleware" => "auth"], function () {
 
     // Route Reports
     Route::get('/reports', [ReportsController::class, 'index']);
-    Route::get('/reports/support/{semester}', [OverviewController::class, 'supportReport'])->name('reports.support.semester');
+    Route::get('/reports/support/{year?}/{month?}', [OverviewController::class, 'supportReport'])->name('reports.support');
 
     // Route Overview
     // Route::get('/overview', [DashboardController::class, 'overviewIndex']);
