@@ -20,6 +20,7 @@ $(function(){
                 var info = $(this).find(".invoice-item-info");
                 var amount = $(this).find(".invoice-item-amount");
                 var amountLabel = $(this).find(".amount-label");
+                var detailId = $(this).find(".invoice-item-detail-id");
                 var fromControl = $(this).find(".form-control, .form-select");
                 var stock = $(this).find(".info-stock-label");
                 var weight = $(this).find(".info-weight-label");
@@ -61,6 +62,7 @@ $(function(){
                     $(amount[i]).attr("data-id", row);
                     $(stock[i]).attr("id", idStock);
                     $(weight[i]).attr("id", idWeight);
+                    $(detailId[i]).val('');
                     col++;
                 });
     

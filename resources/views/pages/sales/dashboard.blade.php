@@ -3285,6 +3285,8 @@
             </table>
         </div>
     </div>
+@elseif (Auth::user()->role == 'Finance Manager')
+    @include('pages.finance.dashboard._content')
     @endif
     @foreach ($notulens as $notulen)
         @include('components.modal.notulen.detail')

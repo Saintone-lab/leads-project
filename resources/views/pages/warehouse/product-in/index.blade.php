@@ -4,7 +4,7 @@
     <h4 class="fw-bold py-3 mb-4">
         Product In
     </h4>
-    @if (Auth::user()->role == 'Admin')
+    @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
         <div class="row">
             <div class="col-12 col-md-6">
                 <div class="card mb-3">

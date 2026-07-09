@@ -27,7 +27,25 @@ class POController extends Controller
     public function create()
     {
         $suppliers = Supplier::all();
-        return view('pages.accounting.purchase.form', compact('suppliers'));
+        $previewNoPo = $this->generateNoPo();
+        return view('pages.accounting.purchase.form', compact('suppliers', 'previewNoPo'));
+    }
+
+    private function generateNoPo(): string
+    {
+        $year = now()->format('Y');
+        $romanMonths = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+        $roman = $romanMonths[(int) now()->format('n') - 1];
+        $suffix = "-P/RJO/{$roman}/{$year}";
+
+        $last = PurchaseOrder::where('no_po', 'like', '%' . $suffix)
+            ->orderByDesc('no_po')
+            ->value('no_po');
+
+        $lastSeq = $last ? (int) substr($last, 0, 3) : 0;
+        $nextSeq = str_pad($lastSeq + 1, 3, '0', STR_PAD_LEFT);
+
+        return $nextSeq . $suffix;
     }
 
     /**
@@ -39,6 +57,9 @@ class POController extends Controller
     public function store(Request $request)
     {
         // dd($request->all());
+        $this->validate($request, [
+            'no_po' => 'required|string|unique:purchase_order,no_po',
+        ]);
         $supplier = Supplier::find($request->supplier);
         $purchase = new PurchaseOrder();
         $purchase->id_supplier = $request->supplier;
@@ -52,12 +73,13 @@ class POController extends Controller
         $purchase->phone = $supplier->phone ?? '-';
         $purchase->address = $supplier->address ?? '-';
         $purchase->payment = $request->payment;
-        $purchase->note = $request->note;
+        $purchase->note = $request->note ?? '';
         $purchase->subtotal = $request->subtotal;
         $purchase->vat = $request->tax;
         $purchase->diskon = $request->diskon;
         $purchase->total = $request->harga_total;
         $purchaseSave = $purchase->save();
+        $dPurchaseSave = true;
         if ($purchaseSave) {
             foreach ($request->product as $key => $value) {
                 $dPurchase = new DetailPurchaseOrder();
@@ -118,6 +140,9 @@ class POController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $this->validate($request, [
+            'no_po' => 'required|string|unique:purchase_order,no_po,' . $id,
+        ]);
         $supplier = Supplier::find($request->supplier);
         $purchase = PurchaseOrder::find($id);
         $purchase->id_supplier = $request->supplier;
@@ -131,24 +156,34 @@ class POController extends Controller
         $purchase->phone = $supplier->phone ?? '-';
         $purchase->address = $supplier->address ?? '-';
         $purchase->payment = $request->payment;
-        $purchase->note = $request->note;
+        $purchase->note = $request->note ?? '';
         $purchase->subtotal = $request->subtotal;
         $purchase->vat = $request->tax;
         $purchase->diskon = $request->diskon;
         $purchase->total = $request->harga_total;
         $purchaseSave = $purchase->save();
+        $dPurchaseSave = true;
         if ($purchaseSave) {
-            $dPurchase = DetailPurchaseOrder::where('id_purchase_order', $id)->get();
-            foreach ($dPurchase as $key => $value) {
-                // $dPurchase->id_purchase_order = $purchase->id;
-                $value->product = $request->product[$key];
-                $value->qty = $request->qty[$key];
-                $value->info_qty = $request->info_qty[$key];
-                $value->price = $request->price[$key];
-                $value->disc = $request->disc[$key];
-                $value->amount = $request->amount[$key];
-                $dPurchaseSave = $value->save();
+            $submittedIds = [];
+            foreach ($request->product as $key => $value) {
+                $detailId = $request->detail_id[$key] ?? null;
+                $dPurchase = $detailId ? DetailPurchaseOrder::find($detailId) : null;
+                if (!$dPurchase) {
+                    $dPurchase = new DetailPurchaseOrder();
+                    $dPurchase->id_purchase_order = $purchase->id;
+                }
+                $dPurchase->product = $value;
+                $dPurchase->qty = $request->qty[$key];
+                $dPurchase->info_qty = $request->info_qty[$key];
+                $dPurchase->price = $request->price[$key];
+                $dPurchase->disc = $request->disc[$key];
+                $dPurchase->amount = $request->amount[$key];
+                $dPurchaseSave = $dPurchase->save();
+                $submittedIds[] = $dPurchase->id;
             }
+            DetailPurchaseOrder::where('id_purchase_order', $purchase->id)
+                ->whereNotIn('id', $submittedIds)
+                ->delete();
         }
         if ($purchaseSave && $dPurchaseSave) {
             return redirect('purchase/'. $id)->with('success', 'data berhasil ditambahkan');

@@ -24,6 +24,16 @@ class FixedAsset extends Model
         'qty',
         'status',
         'total',
+        'id_unit',
+        'serial_number',
+        'kondisi',
+        'qc_status',
+        'status_unit',
+        'harga_jual',
+        'id_machine',
+        'confirmed_by',
+        'confirmed_at',
+        'mulai_penyusutan',
     ];
     public function aktiva()
     {
@@ -44,5 +54,21 @@ class FixedAsset extends Model
     public function supplier()
     {
         return $this->belongsTo('App\Models\Supplier', 'id_supplier', 'id');
+    }
+    public function unit()
+    {
+        return $this->belongsTo('App\Models\Unit', 'id_unit', 'id');
+    }
+    public function confirmedBy()
+    {
+        return $this->belongsTo('App\Models\User', 'confirmed_by', 'id');
+    }
+    public function services()
+    {
+        return $this->hasMany('App\Models\FixedAssetService', 'id_fixed_asset');
+    }
+    public function machine()
+    {
+        return $this->belongsTo('App\Models\Machine', 'id_machine', 'id');
     }
 }

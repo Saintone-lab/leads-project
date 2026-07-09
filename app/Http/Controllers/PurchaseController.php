@@ -28,7 +28,12 @@ class PurchaseController extends Controller
 {
     public function index()
     {
-        return view('pages.warehouse.purchase.index');
+        $newCount = PurchaseRequest::where('status', '0')->count();
+        $accCount = PurchaseRequest::where('status', '1')->count();
+        $deliveryCount = PurchaseRequest::where('status', '2')->count();
+        $doneCount = PurchaseRequest::where('status', '3')->count();
+
+        return view('pages.warehouse.purchase.index', compact('newCount', 'accCount', 'deliveryCount', 'doneCount'));
     }
     public function store(Request $request, $id)
     {
@@ -44,7 +49,9 @@ class PurchaseController extends Controller
             if ($value != 0) {
 
                 $purchase = new PurchaseRequest();
+                $purchase->no_pr = $this->generateNoPr();
                 $purchase->id_pending = $id;
+                $purchase->id_user = Auth::id();
                 $purchase->id_equivalent = $dQuote[$key]->id_equivalent;
                 $purchase->qty = $request->qty[$key];   // perbaikan
                 $purchase->note = $request->note[$key]; // perbaikan
@@ -67,7 +74,9 @@ class PurchaseController extends Controller
         $success = false;
 
         $purchase = new PurchaseRequest();
+        $purchase->no_pr = $this->generateNoPr();
         $purchase->id_pending = $id;
+        $purchase->id_user = Auth::id();
         $purchase->id_equivalent = $request->id_equivalent;
         $purchase->qty = $request->qty;
         $purchase->note = $request->note;
@@ -81,6 +90,21 @@ class PurchaseController extends Controller
         if ($success) {
             return redirect('pending-po/' . $id)->with('success', 'Purchase Request telah dibuat');
         }
+    }
+    private function generateNoPr(): string
+    {
+        $year = now()->format('Y');
+        $month = now()->format('m');
+        $prefix = "PR/{$year}/{$month}/";
+
+        $last = PurchaseRequest::where('no_pr', 'like', $prefix . '%')
+            ->orderByDesc('no_pr')
+            ->value('no_pr');
+
+        $lastSeq = $last ? (int) substr($last, -3) : 0;
+        $nextSeq = str_pad($lastSeq + 1, 3, '0', STR_PAD_LEFT);
+
+        return $prefix . $nextSeq;
     }
     public function show($id)
     {
@@ -232,10 +256,22 @@ class PurchaseController extends Controller
             return 0;
         }
     }
-    public function delivery($id)
+    public function delivery(Request $request, $id)
     {
+        $rule = [
+            'purchase_type' => 'required|in:Lokal,Impor',
+            'cargo' => 'required|string|max:255',
+            'no_resi' => 'nullable|string|max:255',
+            'purchase_date' => 'required|date',
+        ];
+        $this->validate($request, $rule);
+
         $purchase = PurchaseRequest::find($id);
         $purchase->status = '2';
+        $purchase->purchase_type = $request->purchase_type;
+        $purchase->cargo = $request->cargo;
+        $purchase->no_resi = $request->no_resi;
+        $purchase->purchase_date = $request->purchase_date;
         $purchaseSave = $purchase->save();
         if ($purchaseSave) {
             return 1;
@@ -243,13 +279,47 @@ class PurchaseController extends Controller
             return 0;
         }
     }
-    public function delivery_all($id)
+    public function delivery_all(Request $request, $id)
     {
+        $rule = [
+            'purchase_type' => 'required|in:Lokal,Impor',
+            'cargo' => 'required|string|max:255',
+            'no_resi' => 'nullable|string|max:255',
+            'purchase_date' => 'required|date',
+        ];
+        $this->validate($request, $rule);
+
         $purchases = PurchaseRequest::where('id_pending', $id)->get();
         foreach ($purchases as $purchase) {
             $purchase->status = '2';
+            $purchase->purchase_type = $request->purchase_type;
+            $purchase->cargo = $request->cargo;
+            $purchase->no_resi = $request->no_resi;
+            $purchase->purchase_date = $request->purchase_date;
             $purchaseSave = $purchase->save();
         }
+        if ($purchaseSave) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    public function updateDeliveryInfo(Request $request, $id)
+    {
+        $rule = [
+            'purchase_type' => 'required|in:Lokal,Impor',
+            'cargo' => 'required|string|max:255',
+            'no_resi' => 'nullable|string|max:255',
+            'purchase_date' => 'required|date',
+        ];
+        $this->validate($request, $rule);
+
+        $purchase = PurchaseRequest::find($id);
+        $purchase->purchase_type = $request->purchase_type;
+        $purchase->cargo = $request->cargo;
+        $purchase->no_resi = $request->no_resi;
+        $purchase->purchase_date = $request->purchase_date;
+        $purchaseSave = $purchase->save();
         if ($purchaseSave) {
             return 1;
         } else {

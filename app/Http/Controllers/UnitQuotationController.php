@@ -114,14 +114,20 @@ class UnitQuotationController extends Controller
 
     public function edit($id)
     {
-        $quote   = UnitQuotation::with(['client', 'pic', 'details.unit'])->findOrFail($id);
+        $quote   = UnitQuotation::with(['client', 'pic', 'details.unit', 'details.fixedAsset'])->findOrFail($id);
         $clients = Client::where('id_sales', Auth::id())->orderBy('company')->get();
 
         $editItems = $quote->details->map(function ($d) {
             return [
-                'type'        => $d->type,
-                'id_unit'     => $d->id_unit,
-                'unit'        => $d->unit ? $d->unit->toArray() : null,
+                'type'          => $d->type,
+                'id_unit'       => $d->id_unit,
+                'id_fixed_asset'=> $d->id_fixed_asset,
+                'unit'          => $d->unit ? $d->unit->toArray() : null,
+                'fixed_asset'   => $d->fixedAsset ? [
+                    'id'            => $d->fixedAsset->id,
+                    'code'          => $d->fixedAsset->code,
+                    'serial_number' => $d->fixedAsset->serial_number,
+                ] : null,
                 'spec_visible'=> $d->getSpecVisibleArray(),
                 'label'       => $d->label,
                 'description' => $d->description,
@@ -232,6 +238,7 @@ class UnitQuotationController extends Controller
                 'id_unit_quotation' => $newQuote->id,
                 'type'              => $d->type,
                 'id_unit'           => $d->id_unit,
+                'id_fixed_asset'    => $d->id_fixed_asset,
                 'spec_visible'      => $d->spec_visible,
                 'label'             => $d->label,
                 'description'       => $d->description,
@@ -372,6 +379,7 @@ class UnitQuotationController extends Controller
                 'id_unit_quotation' => $quoteId,
                 'type'              => $item['type'],
                 'id_unit'           => ($item['type'] === 'unit') ? ($item['id_unit'] ?? null) : null,
+                'id_fixed_asset'    => ($item['type'] === 'unit') ? ($item['id_fixed_asset'] ?? null) : null,
                 'spec_visible'      => ($item['type'] === 'unit') ? ($item['spec_visible'] ?? null) : null,
                 'label'             => $item['label'] ?? null,
                 'description'       => $item['description'] ?? null,

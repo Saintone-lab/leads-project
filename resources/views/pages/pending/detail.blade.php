@@ -334,6 +334,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
+                            <th>No PR</th>
                             <th>Item</th>
                             <th>Qty</th>
                             <th>Note</th>
@@ -368,6 +369,7 @@
                             @endphp
                             <tr>
                                 <td>{{ $no }}</td>
+                                <td>{{ $pr->no_pr ?? '-' }}</td>
                                 <td>
                                     @if ($pr->id_equivalent == '0')
                                         -
@@ -379,7 +381,7 @@
                                     <pre class="mb-0"
                                         style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $item->detail_product }}</pre>
                                 </td> --}}
-                                <td>{{ $pr->qty }} {{ $pr->equivalent->product->unit }}</td>
+                                <td>{{ $pr->qty }} {{ $pr->equivalent->product->unit ?? '' }}</td>
                                 {{-- <td>{{ $pr->qty }}</td> --}}
                                 <td>{{ $pr->note }}</td>
                                 <td class="{{ $color_pr }}">{{ $status_pr }}</td>
@@ -408,7 +410,7 @@
                             @endphp
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center">Tidak Ada Purchase Request</td>
+                                <td colspan="7" class="text-center">Tidak Ada Purchase Request</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -508,6 +510,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
+                            <th>No PR</th>
                             <th>Item</th>
                             <th>Qty</th>
                             <th>Note</th>
@@ -538,6 +541,7 @@
                             @endphp
                             <tr>
                                 <td>{{ $no }}</td>
+                                <td>{{ $pr->no_pr ?? '-' }}</td>
                                 <td>
                                     @if ($pr->id_equivalent == '0')
                                         -
@@ -549,7 +553,7 @@
                                     <pre class="mb-0"
                                         style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $item->detail_product }}</pre>
                                 </td> --}}
-                                <td>{{ $pr->qty }} {{ $pr->equivalent->product->unit }}</td>
+                                <td>{{ $pr->qty }} {{ $pr->equivalent->product->unit ?? '' }}</td>
                                 {{-- <td>{{ $pr->qty }}</td> --}}
                                 <td>{{ $pr->note }}</td>
                                 <td>{{ $status_pr }}</td>
@@ -578,7 +582,7 @@
                             @endphp
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center">Tidak Ada Purchase Request</td>
+                                <td colspan="7" class="text-center">Tidak Ada Purchase Request</td>
                             </tr>
                         @endforelse
                     </tbody>

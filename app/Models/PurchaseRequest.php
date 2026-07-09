@@ -15,10 +15,16 @@ class PurchaseRequest extends Model
         'updated_at'
     ];
     protected $fillable = [
+        'no_pr',
         'id_pending',
+        'id_user',
         'id_equivalent',
         'qty',
         'status',
+        'purchase_type',
+        'cargo',
+        'no_resi',
+        'purchase_date',
     ];
     public function pending()
     {
@@ -27,5 +33,9 @@ class PurchaseRequest extends Model
     public function equivalent()
     {
         return $this->belongsTo('App\Models\SerialProduct', 'id_equivalent', 'id');
+    }
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User', 'id_user', 'id');
     }
 }

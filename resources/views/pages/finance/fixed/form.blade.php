@@ -1,9 +1,13 @@
 @extends('layouts.sales.app')
-@section('title', 'Create Fixed Asset')
+@section('title', isset($fixed) ? 'Edit Fixed Asset' : 'Create Fixed Asset')
 @section('content')
-    <form id="formAuthentication" class="mb-3 fv-plugins-bootstrap5 fv-plugins-framework" action="{{ route('fixed.store') }}"
-        method="post" enctype="multipart/form-data">
+    <form id="formAuthentication" class="mb-3 fv-plugins-bootstrap5 fv-plugins-framework"
+        action="{{ isset($fixed) ? route('fixed.update', $fixed->id) : route('fixed.store') }}" method="post"
+        enctype="multipart/form-data">
         @csrf
+        @if (isset($fixed))
+            @method('PATCH')
+        @endif
         <div class="card mb-3">
             <div class="card-body">
                 <div class="form-invoice-repeater source-item">
@@ -11,40 +15,47 @@
                         <div class="col-4">
                             <div class="form-floating form-floating-outline mb-2">
                                 <input class="form-control" type="text" placeholder="Put Code Here ...."
-                                    id="no-code-input" name="code" value="{{ old('code') }}">
+                                    id="no-code-input" name="code" value="{{ old('code', $fixed->code ?? '') }}">
                                 <label for="no-code-input">Code</label>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="form-floating form-floating-outline">
                                 <select class="form-select invoice-item-type" id="type" data-id="1"
-                                    aria-label="Default select example" name="type">
+                                    aria-label="Default select example" name="type"
+                                    {{ isset($fixed) ? 'disabled' : '' }}>
                                     <option>---Type Penyusutan---</option>
-                                    <option value="Tanah">Tanah
+                                    <option value="Tanah" {{ ($fixed->type ?? '') == 'Tanah' ? 'selected' : '' }}>Tanah
                                     </option>
-                                    <option value="Bangunan">Bangunan
+                                    <option value="Bangunan" {{ ($fixed->type ?? '') == 'Bangunan' ? 'selected' : '' }}>Bangunan
                                     </option>
-                                    <option value="Kendaraan">Kendaraan
+                                    <option value="Kendaraan" {{ ($fixed->type ?? '') == 'Kendaraan' ? 'selected' : '' }}>Kendaraan
                                     </option>
-                                    <option value="Mesin">Mesin
+                                    <option value="Mesin" {{ ($fixed->type ?? '') == 'Mesin' ? 'selected' : '' }}>Mesin
                                     </option>
-                                    <option value="Peralatan Kantor">Peralatan Kantor
+                                    <option value="Peralatan Kantor" {{ ($fixed->type ?? '') == 'Peralatan Kantor' ? 'selected' : '' }}>Peralatan Kantor
                                     </option>
-                                    <option value="Tools">Tools
+                                    <option value="Tools" {{ ($fixed->type ?? '') == 'Tools' ? 'selected' : '' }}>Tools
                                     </option>
                                 </select>
                                 <label for="type">Code</label>
                             </div>
+                            @if (isset($fixed))
+                                <input type="hidden" name="type" value="{{ $fixed->type }}">
+                                <small class="text-muted">Kategori tidak bisa diubah lewat edit.</small>
+                            @endif
                         </div>
                         <div class="col-2">
                             <div class="form-floating form-floating-outline mb-4">
-                                <input class="form-control" type="date" id="Date" name="date">
+                                <input class="form-control" type="date" id="Date" name="date"
+                                    value="{{ old('date', $fixed->bayar ?? '') }}">
                                 <label for="Date">Tanggal Beli</label>
                             </div>
                         </div>
                         <div class="col-2">
                             <div class="form-floating form-floating-outline mb-4">
-                                <input class="form-control" type="date" id="pakai" name="pakai">
+                                <input class="form-control" type="date" id="pakai" name="pakai"
+                                    value="{{ old('pakai', $fixed->pakai ?? '') }}">
                                 <label for="pakai">Tanggal Pakai</label>
                             </div>
                         </div>
@@ -57,7 +68,8 @@
                                 data-allow-clear="true" name="supplier" data-id="1">
                                 <option selected>Pilih Supplier...</option>
                                 @foreach ($suppliers as $supp)
-                                    <option value="{{ $supp->id }}" data-info="{{ $supp->info }}">
+                                    <option value="{{ $supp->id }}" data-info="{{ $supp->info }}"
+                                        {{ ($fixed->id_supplier ?? null) == $supp->id ? 'selected' : '' }}>
                                         {{ $supp->supplier }}
                                     </option>
                                 @endforeach
@@ -68,25 +80,74 @@
                     <div class="col-12 col-md-6">
                         <div class="form-floating form-floating-outline mb-2">
                             <input class="form-control" type="text" placeholder="Put No Voucher Here ...."
-                                id="no-voucher-input" name="no_invoice" value="{{ old('no_invoice') }}">
+                                id="no-voucher-input" name="no_invoice" value="{{ old('no_invoice', $fixed->no_invoice ?? '') }}">
                             <label for="no-voucher-input">No Invoice</label>
                         </div>
                     </div>
                 </div>
                 <div class="d-flex border rounded position-relative pe-0 mb-3">
                     <div class="row w-100 p-3">
+                        @php
+                            $isMesin = ($fixed->type ?? old('type')) == 'Mesin';
+                        @endphp
                         <div class="col-md-6 col-12 mb-md-0">
                             <label for="Keterangan" class="mb-2">Keterangan</label>
-                            <div class="form-floating form-floating-outline mb-2">
+                            <div class="form-floating form-floating-outline mb-2" id="desc-text-wrapper"
+                                style="{{ $isMesin ? 'display:none;' : '' }}">
                                 <input class="form-control" type="text" placeholder="Put Keterangan Here ...."
-                                    id="desc-input" name="desc" value="{{ old('desc') }}">
+                                    id="desc-input" name="desc" value="{{ old('desc', $fixed->desc ?? '') }}">
                             </div>
+                            <div class="form-floating form-floating-outline mb-2" id="desc-unit-wrapper"
+                                style="{{ $isMesin ? '' : 'display:none;' }}">
+                                <select id="unit-dropdown" class="select2 form-select" data-allow-clear="true"
+                                    name="id_unit">
+                                    <option></option>
+                                    @foreach ($units as $u)
+                                        @php
+                                            $unitLabel = collect([$u->unit, $u->brand, $u->model, $u->sku])
+                                                ->filter()
+                                                ->join(' - ');
+                                        @endphp
+                                        <option value="{{ $u->id }}" data-label="{{ $unitLabel }}"
+                                            {{ ($fixed->id_unit ?? null) == $u->id ? 'selected' : '' }}>
+                                            {{ $unitLabel }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="unit-dropdown">Cari Unit (Unit Global)</label>
+                            </div>
+                            <div class="form-floating form-floating-outline mb-2" id="serial-number-wrapper"
+                                style="{{ $isMesin ? '' : 'display:none;' }}">
+                                <input class="form-control" type="text" placeholder="Put Serial Number Here ...."
+                                    id="serial-number-input" name="serial_number"
+                                    value="{{ old('serial_number', $fixed->serial_number ?? '') }}">
+                                <label for="serial-number-input">Serial Number Mesin</label>
+                            </div>
+                            <div class="mb-2" id="kondisi-wrapper" style="{{ $isMesin ? '' : 'display:none;' }}">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="kondisi" id="kondisi-second"
+                                        value="Second"
+                                        {{ (!isset($fixed) && old('kondisi', 'Second') == 'Second') || ($fixed->kondisi ?? '') == 'Second' ? 'checked' : '' }}
+                                        {{ isset($fixed) ? 'disabled' : '' }}>
+                                    <label class="form-check-label" for="kondisi-second">Unit Second (perlu dicek dulu)</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="kondisi" id="kondisi-baru"
+                                        value="Baru" {{ ($fixed->kondisi ?? old('kondisi')) == 'Baru' ? 'checked' : '' }}
+                                        {{ isset($fixed) ? 'disabled' : '' }}>
+                                    <label class="form-check-label" for="kondisi-baru">Unit Baru (langsung siap)</label>
+                                </div>
+                            </div>
+                            @if (isset($fixed) && $isMesin)
+                                <input type="hidden" name="kondisi" value="{{ $fixed->kondisi }}">
+                                <small class="text-muted d-block">Kondisi unit tidak bisa diubah lewat edit.</small>
+                            @endif
                         </div>
                         <div class="col-md-2 col-12 mb-md-0 mb-3">
                             <p class="mb-2 repeater-title">Qty</p>
                             <div class="form-floating form-floating-outline mb-2">
                                 <input type="number" class="form-control mb-3 invoice-item-qty" placeholder="Min 1"
-                                    name="qty" id="qty-1" data-id="1" min="1" value="{{ old('qty') }}">
+                                    name="qty" id="qty-1" data-id="1" min="1" value="{{ old('qty', $fixed->qty ?? '') }}">
                             </div>
                         </div>
                         <div class="col-md-4 col-12 mb-md-0 mb-3">
@@ -97,11 +158,12 @@
                                     <input type="text" class="form-control invoice-item-amount-label" id="totalLabel-1"
                                         data-id="1" name="harga" placeholder="Put total Here" data-type="currency"
                                         min="0" pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                        @blur="focused = false" value="{{ old('total') }}">
+                                        @blur="focused = false"
+                                        value="{{ old('total', isset($fixed) ? number_format($fixed->total, 0, ',', '.') : '') }}">
                                 </div>
                             </div>
                             <input class="form-control invoice-item-amount" type="number" name="total"
-                                id="amount-1" value="{{ old('total') }}" hidden>
+                                id="amount-1" value="{{ old('total', $fixed->total ?? '') }}" hidden>
                         </div>
                     </div>
                 </div>
@@ -128,7 +190,7 @@
                                 <div class="form-floating form-floating-outline">
                                     <input type="number" class="form-control invoice-item-umur" placeholder="Min 1"
                                         name="umur" id="umur" data-id="1" min="1"
-                                        value="{{ old('umur') }}">
+                                        value="{{ old('umur', $fixed->umur ?? '') }}">
                                     <label for="umur">Umur Bulan Aktiva</label>
                                 </div>
                             </div>
@@ -137,9 +199,9 @@
                                     <select class="form-select invoice-item-metode" id="metode-1" data-id="1"
                                         aria-label="Default select example" name="metode">
                                         <option>---Metode Penyusutan---</option>
-                                        <option value="Metode Garis Lurus">Metode Garis Lurus
+                                        <option value="Metode Garis Lurus" {{ ($fixed->metode ?? '') == 'Metode Garis Lurus' ? 'selected' : '' }}>Metode Garis Lurus
                                         </option>
-                                        <option value="Metode Saldo Menurun">Metode Saldo Menurun
+                                        <option value="Metode Saldo Menurun" {{ ($fixed->metode ?? '') == 'Metode Saldo Menurun' ? 'selected' : '' }}>Metode Saldo Menurun
                                         </option>
                                     </select>
                                 </div>
@@ -150,7 +212,8 @@
                                         data-allow-clear="true" name="aktiva" data-id="1">
                                         <option> ---- Choose Account Here ---- </option>
                                         @foreach ($account as $accounts)
-                                            <option value="{{ $accounts->id }}" data-memo="{{ $accounts->category }}">
+                                            <option value="{{ $accounts->id }}" data-memo="{{ $accounts->category }}"
+                                                {{ ($fixed->id_aktiva ?? null) == $accounts->id ? 'selected' : '' }}>
                                                 {{ $accounts->code }} - {{ $accounts->name }}
                                             </option>
                                         @endforeach
@@ -164,7 +227,8 @@
                                         data-allow-clear="true" name="penyusutan" data-id="1">
                                         <option> ---- Choose Account Here ---- </option>
                                         @foreach ($account as $accounts)
-                                            <option value="{{ $accounts->id }}" data-memo="{{ $accounts->category }}">
+                                            <option value="{{ $accounts->id }}" data-memo="{{ $accounts->category }}"
+                                                {{ ($fixed->id_penyusutan ?? null) == $accounts->id ? 'selected' : '' }}>
                                                 {{ $accounts->code }} - {{ $accounts->name }}
                                             </option>
                                         @endforeach
@@ -178,7 +242,8 @@
                                         data-allow-clear="true" name="beban" data-id="1">
                                         <option> ---- Choose Account Here ---- </option>
                                         @foreach ($account as $accounts)
-                                            <option value="{{ $accounts->id }}" data-memo="{{ $accounts->category }}">
+                                            <option value="{{ $accounts->id }}" data-memo="{{ $accounts->category }}"
+                                                {{ ($fixed->id_beban ?? null) == $accounts->id ? 'selected' : '' }}>
                                                 {{ $accounts->code }} - {{ $accounts->name }}
                                             </option>
                                         @endforeach
@@ -196,7 +261,8 @@
                                         data-allow-clear="true" name="bank" data-id="1">
                                         <option> ---- Choose Account Here ---- </option>
                                         @foreach ($account as $accounts)
-                                            <option value="{{ $accounts->id }}" data-memo="{{ $accounts->category }}">
+                                            <option value="{{ $accounts->id }}" data-memo="{{ $accounts->category }}"
+                                                {{ ($fixed->id_pengeluaran ?? null) == $accounts->id ? 'selected' : '' }}>
                                                 {{ $accounts->code }} - {{ $accounts->name }}
                                             </option>
                                         @endforeach
@@ -206,7 +272,8 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-floating form-floating-outline mb-4">
-                                    <input class="form-control" type="date" id="pay" name="pay">
+                                    <input class="form-control" type="date" id="pay" name="pay"
+                                        value="{{ old('pay', $fixed->beli ?? '') }}">
                                     <label for="pay">Tanggal Pay</label>
                                 </div>
                             </div>
@@ -215,9 +282,9 @@
                                     <select class="form-select invoice-item-status" id="status-1" data-id="1"
                                         aria-label="Default select example" name="status">
                                         <option>---Status Payment---</option>
-                                        <option value="1">Sudah dibayar
+                                        <option value="1" {{ (string) ($fixed->status ?? '') === '1' ? 'selected' : '' }}>Sudah dibayar
                                         </option>
-                                        <option value="0">Belum Dibayar
+                                        <option value="0" {{ isset($fixed) && (string) $fixed->status === '0' ? 'selected' : '' }}>Belum Dibayar
                                         </option>
                                     </select>
                                 </div>
@@ -226,11 +293,12 @@
                     </div>
                 </div>
                 <div class="float-end">
-                    <a href="{{ route('quotation.index') }}" type="button" class="btn btn-lg btn-outline-secondary">
+                    <a href="{{ isset($fixed) ? route('fixed.show', $fixed->id) : route('fixed.index') }}" type="button"
+                        class="btn btn-lg btn-outline-secondary">
                         Back
                     </a>
                     <button :disabled="focused" type="submit" class="btn btn-lg btn-primary">
-                        Save
+                        {{ isset($fixed) ? 'Update' : 'Save' }}
                     </button>
                 </div>
             </div>
@@ -352,6 +420,32 @@
             // Initialize Bootstrap tooltips using jQuery
             $(document).ready(function() {
                 $('[data-bs-toggle="tooltip"]').tooltip();
+
+                $('#unit-dropdown').select2({
+                    placeholder: ' ---- Cari Unit (Unit Global) ---- ',
+                    allowClear: true,
+                    width: '100%',
+                });
+
+                $('#type').on('change', function() {
+                    if ($(this).val() === 'Mesin') {
+                        $('#desc-text-wrapper').hide();
+                        $('#desc-unit-wrapper').show();
+                        $('#serial-number-wrapper').show();
+                        $('#kondisi-wrapper').show();
+                        $('#desc-input').val('');
+                    } else {
+                        $('#desc-unit-wrapper').hide();
+                        $('#serial-number-wrapper').hide();
+                        $('#kondisi-wrapper').hide();
+                        $('#desc-text-wrapper').show();
+                    }
+                });
+
+                $('#unit-dropdown').on('change', function() {
+                    var label = $(this).find(':selected').data('label') || '';
+                    $('#desc-input').val(label);
+                });
 
                 // Panggil fungsi inisialisasi saat halaman dimuat
                 initializeSelect2Account();

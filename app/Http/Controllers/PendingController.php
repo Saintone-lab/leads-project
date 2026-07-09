@@ -608,6 +608,8 @@ class PendingController extends Controller
         // dd($request->all());
         $invoice = Invoice::find($id);
         $resi = new Expanse();
+        $resi->image = '';
+
         if ($request->hasFile('file')) {
             $foto = $request->file('file');
 
@@ -631,20 +633,22 @@ class PendingController extends Controller
 
             // simpan di DB
             $resi->image = 'asset/resi/' . $file_name;
-            $resi->id_pending = $id;
-            $resi->kurir = $request->kurir;
-            $resi->no_track = $request->no_track;
-            $resi->charged = $request->charged;
-            $resi->cost = $request->cost;
-            $resi->type = "Resi";
-            $resi->date = $request->date;
-            $resiSave = $resi->save();
-            if ($resiSave) {
-                return redirect('/pending-po/' . $id)->with('message', 'data telah di tambahkan');
-            }
-        } else {
-            return response()->json(['error' => 'No file uploaded.'], 400);
         }
+
+        $resi->id_pending = $id;
+        $resi->kurir = $request->kurir;
+        $resi->no_track = $request->no_track;
+        $resi->charged = $request->charged;
+        $resi->cost = $request->cost;
+        $resi->type = "Resi";
+        $resi->date = $request->date;
+        $resi->status = $request->charged == 1 ? 'pending' : null;
+        $resiSave = $resi->save();
+        if ($resiSave) {
+            return redirect('/pending-po/' . $id)->with('message', 'data telah di tambahkan');
+        }
+
+        return redirect('/pending-po/' . $id)->with('error', 'Gagal menyimpan data resi');
     }
     public function delete_resi($id)
     {

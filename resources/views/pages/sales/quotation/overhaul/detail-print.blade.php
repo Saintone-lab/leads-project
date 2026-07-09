@@ -192,13 +192,13 @@
                                     <p class="mb-0">{{ $product->qty }} {{ $product->info_qty }}</p>
                                 </td>
                                 <td class="align-top py-1 text-end" style="border-bottom:none !important;">
-                                    <p class="mb-0">{{ number_format($product->price, 0, '', '.') }}</p>
+                                    <p class="mb-0">{{ $product->price == 0 ? 'SBO' : number_format($product->price, 0, '', '.') }}</p>
                                 </td>
                                 <td class="align-top py-1" style="border-bottom:none !important;">
                                     <p class="mb-0">{{ $product->disc }} %</p>
                                 </td>
                                 <td class="align-top py-1 text-end" style="border-bottom:none !important;">
-                                    <p class="mb-0">{{ number_format($product->amount, 0, '', '.') }}</p>
+                                    <p class="mb-0">{{ $product->price == 0 ? 'SBO' : number_format($product->amount, 0, '', '.') }}</p>
                                 </td>
                             </tr>
                         @endforeach

@@ -3,91 +3,81 @@ $(function () {
     var Url = "/db/purchase-order";
 
     if (dt_table_purchase_order.length) {
-        $('[data-toggle="tooltip"]').tooltip();
-        // Setup - add a text input to each footer cell
-        $(".datatable-purchase-order thead tr")
+        dt_table_purchase_order.find("thead tr")
             .clone(true)
-            .appendTo(".datatable-purchase-order thead");
-        $(".datatable-purchase-order thead tr:eq(1) th").each(function (i) {
+            .appendTo(dt_table_purchase_order.find("thead"));
+
+        dt_table_purchase_order.find("thead tr:eq(1) th").each(function (i) {
             var title = $(this).text();
             $(this).html(
-                '<input type="text" class="form-control" placeholder="Search ' +
-                    title +
-                    '" />'
+                '<input type="text" class="form-control form-control-sm" placeholder="Search ' + title + '..." />'
             );
-
             $("input", this).on("keyup change", function () {
-                if (dt_filter.column(i).search() !== this.value) {
-                    dt_filter.column(i).search(this.value).draw();
+                if (dt_purchase_order.column(i).search() !== this.value) {
+                    dt_purchase_order.column(i).search(this.value).draw();
                 }
             });
         });
 
-        var dt_filter = dt_table_purchase_order.DataTable({
+        var dt_purchase_order = dt_table_purchase_order.DataTable({
             ajax: {
                 type: "GET",
                 url: Url,
-                headers: {
-                    "Content-Type": "application/json",
-                },
-
-                // success: function (hasil, Url) {
-                //     console.log("Url:", Url);
-                //     console.log(hasil);
-                // },
-                // error: function (error) {
-                //     console.log("Url:", Url);
-                //     console.error("Error:", error);
-                //     console.log("error disini");
-                // },
+                headers: { "Content-Type": "application/json" },
             },
             columns: [
-                { data: "tanggal" },
-                {
-                    data: "no_po",
-                },
+                { data: "no_po" },
                 { data: "company" },
                 { data: "attn" },
                 { data: "total" },
+                { data: "date" },
                 { data: "payment" },
             ],
             columnDefs: [
                 {
-                    targets: 1,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var id = full["id"];
-                            detailRoute = route("purchase.show", id);
-                            return (
-                                '<a class="text-black" href="' +
-                                detailRoute +
-                                '">' +
-                                data +
-                                "</a>"
-                            );
-                        }
-                        return data;
+                    targets: 0,
+                    className: "text-nowrap",
+                    render: function (data, type, full) {
+                        if (type !== "display") return data;
+                        var detailRoute = route("purchase.show", full["id"]);
+                        return '<a class="fw-semibold text-primary" href="' + detailRoute + '">' + (data || "-") + "</a>";
+                    },
+                },
+                {
+                    targets: [3, 4, 5],
+                    className: "text-center",
+                },
+                {
+                    targets: 3,
+                    render: function (data, type) {
+                        if (type !== "display") return data;
+                        var formatted = parseInt(data || 0).toLocaleString("id-ID");
+                        return '<div class="d-flex justify-content-between px-2"><span>Rp.</span><span>' + formatted + "</span></div>";
                     },
                 },
                 {
                     targets: 4,
-                    render: $.fn.dataTable.render.number(".", "", 0, "Rp "),
-                },
-            ],
-            order: [[1, "desc"]],
-            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            button: [
-                {
-                    text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">New Fixed Asset</span>',
-                    className: "btn btn-primary btn-new",
-                    action: function (e, dt, node, config) {
-                        window.location = route("purchase-order.create");
+                    render: function (data, type) {
+                        if (type !== "display") return data;
+                        return data ? moment(data).format("DD-MM-YYYY") : "-";
                     },
                 },
             ],
+            orderCellsTop: true,
+            order: [[4, "desc"]],
+            dom: '<"row align-items-center mb-2"<"col-auto"l><"col-auto ms-auto dt-btn-po">><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            lengthMenu: [10, 25, 50, 100],
+            displayLength: 10,
+            initComplete: function () {
+                $(".dt-btn-po").html(
+                    '<a href="' + route("purchase.create") + '" class="btn btn-primary btn-sm">' +
+                        '<i class="mdi mdi-plus me-1"></i>New Purchase Order</a>'
+                );
+            },
+        });
+
+        dt_table_purchase_order.on("draw.dt", function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
         });
     }
-    dt_table_purchase_order.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
 });

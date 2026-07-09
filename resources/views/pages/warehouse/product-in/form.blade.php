@@ -10,7 +10,7 @@
             <label for="noProductInPreview">No. Product In <span class="badge bg-label-secondary ms-1">Auto</span></label>
             <span class="form-floating-focused"></span>
         </div>
-        @if (Auth::user()->role == 'Admin')
+        @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
             <div class="form-floating mb-3">
                 <input type="text" class="form-control form-control-lg fw-bold fs-3" id="floatingInputFilled"
                     placeholder="xxx/xx/xx/xxxx xxxx" aria-describedby="floatingInputFilledHelp" name="invoice">
@@ -115,7 +115,7 @@
                             <div class="d-flex border rounded position-relative pe-0">
                                 <div class="row w-100 p-3">
                                     <div
-                                        class="{{ Auth::user()->role == 'Admin' ? 'col-md-4' : 'col-md-6' }} col-12 mb-md-0 mb-3">
+                                        class="{{ Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting' ? 'col-md-4' : 'col-md-6' }} col-12 mb-md-0 mb-3">
                                         <label for="product" class="mb-2">Product</label>
                                         <div class="form-floating form-floating-outline mb-2">
                                             <select id="replacement-dropdown-1"
@@ -154,7 +154,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    @if (Auth::user()->role == 'Admin')
+                                    @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
                                         <div class="col-md-2 col-12 mb-md-0 mb-3">
                                             <p class="mb-2 repeater-title">Price</p>
                                             <div class="input-group" data-price="1">
@@ -209,7 +209,7 @@
                             </button>
                         </div>
                     </div>
-                    @if (Auth::user()->role == 'Admin')
+                    @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
                         <div class="row mb-1">
                             <div class="col-lg-8"></div>
                             <div class="col-lg-4 col-12">

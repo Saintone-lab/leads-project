@@ -90,6 +90,17 @@
 
                     <div id="equivalentList" class="mt-3" style="display:none;">
                         <p class="text-muted small mb-1">Equivalent yang sudah ada:</p>
+                        <div class="input-group input-group-sm mb-2">
+                            <span class="input-group-text">Rp</span>
+                            <input type="text" class="form-control" id="bulkPriceDisplay"
+                                placeholder="Set harga jual untuk semua equivalent" inputmode="numeric">
+                            <input type="hidden" id="bulkPrice">
+                            <button type="button" class="btn btn-outline-primary" id="applyBulkPrice">
+                                Set ke Semua
+                            </button>
+                        </div>
+                        <div id="bulkPriceSuccess" class="alert alert-success alert-sm py-1 px-2 d-none small"></div>
+                        <div id="bulkPriceError" class="alert alert-danger alert-sm py-1 px-2 d-none small"></div>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered mb-0">
                                 <thead class="table-light">
@@ -526,6 +537,55 @@
                 );
             });
             $('#equivalentList').show();
+        });
+    });
+
+    var cleaveBulkPrice = new Cleave('#bulkPriceDisplay', {
+        numeral: true,
+        numeralThousandsGroupStyle: 'thousand',
+        delimiter: '.',
+        numeralDecimalMark: ',',
+        numeralDecimalScale: 0,
+        onValueChanged: function (e) {
+            $('#bulkPrice').val(e.target.rawValue);
+        }
+    });
+
+    $('#applyBulkPrice').on('click', function () {
+        var idProduct = $('#id_product').val();
+        var price = $('#bulkPrice').val();
+
+        if (!idProduct) return;
+        if (price === '' || price === undefined) {
+            $('#bulkPriceSuccess').addClass('d-none');
+            $('#bulkPriceError').removeClass('d-none').text('Isi harga terlebih dahulu.');
+            return;
+        }
+
+        $.ajax({
+            url: '{{ route("part-inquiry.product.equivalents.bulk-price", ":id") }}'.replace(':id', idProduct),
+            type: 'PATCH',
+            data: { _token: '{{ csrf_token() }}', selling_price: price },
+            success: function (res) {
+                if (res.success) {
+                    $('#equivalentRows .eq-price').text(formatRupiahSimple(price));
+                    $('#equivalentRows .btn-edit-equivalent').each(function () {
+                        $(this).data('price', price);
+                    });
+                    $('#bulkPriceError').addClass('d-none').text('');
+                    $('#bulkPriceSuccess').removeClass('d-none')
+                        .text('Harga jual berhasil diupdate untuk ' + res.updated + ' equivalent!');
+                    setTimeout(function () {
+                        $('#bulkPriceSuccess').addClass('d-none');
+                    }, 3000);
+                }
+            },
+            error: function (xhr) {
+                $('#bulkPriceSuccess').addClass('d-none');
+                var msg = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message : 'Gagal menyimpan, coba lagi.';
+                $('#bulkPriceError').removeClass('d-none').text(msg);
+            }
         });
     });
 

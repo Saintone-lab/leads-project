@@ -1,23 +1,22 @@
 @extends('layouts.sales.app')
-@section('title', 'expense')
+@section('title', 'Purchase Order')
 @section('content')
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-style1">
+            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Purchase Order</li>
+        </ol>
+    </nav>
     <div class="card mb-3">
-        <div class="card-body">
-            <div class="d-flex justify-content-end">
-                <a href="{{ route('purchase.create') }}" class="btn btn-primary waves-effect mb-3">
-                    New Purhcase Order
-                </a>
-            </div>
-        </div>
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-purchase-order table table-striped">
+            <table class="datatable-purchase-order table table-bordered">
                 <thead>
                     <tr>
-                        <th>Date</th>
                         <th>No PO</th>
-                        <th>Company</th>
-                        <th>Attn</th>
+                        <th>Company / Vendor</th>
+                        <th>ATTN</th>
                         <th>Total</th>
+                        <th>Date</th>
                         <th>Payment</th>
                     </tr>
                 </thead>

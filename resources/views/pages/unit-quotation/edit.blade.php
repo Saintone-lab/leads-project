@@ -216,13 +216,34 @@
         <div class="unit-row border-bottom p-3" data-type="unit">
             <input type="hidden" name="items[__IDX__][type]" value="unit">
             <input type="hidden" name="items[__IDX__][id_unit]" class="field-id-unit">
+            <input type="hidden" name="items[__IDX__][id_fixed_asset]" class="field-id-fixed-asset">
             <input type="hidden" name="items[__IDX__][spec_visible]" class="field-spec-visible">
+
+            <div class="mb-2">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input unit-source-radio" type="radio" name="unit_source___IDX__"
+                        value="catalog" checked>
+                    <label class="form-check-label small">Catalog Unit</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input unit-source-radio" type="radio" name="unit_source___IDX__"
+                        value="fixed_asset">
+                    <label class="form-check-label small">Unit Second (dari Fixed Asset)</label>
+                </div>
+            </div>
 
             <div class="row g-2 align-items-start">
                 <div class="col-md-4">
-                    <select class="select2-unit-search form-select form-select-sm" style="width:100%">
-                        <option value="">Search unit (SKU / Brand / Model)...</option>
-                    </select>
+                    <div class="unit-source-catalog">
+                        <select class="select2-unit-search form-select form-select-sm" style="width:100%">
+                            <option value="">Search unit (SKU / Brand / Model)...</option>
+                        </select>
+                    </div>
+                    <div class="unit-source-fixed-asset" style="display:none;">
+                        <select class="select2-fixed-asset-search form-select form-select-sm" style="width:100%">
+                            <option value="">Search Unit Second (SKU / Brand / Serial Number)...</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="col-md-1">
                     <input type="number" class="form-control form-control-sm text-center field-qty"

@@ -30,9 +30,10 @@ class UnitController extends Controller
      */
     public function index()
     {
-        $unit = SerialProduct::whereNotNull('detail')->get();
-        $units = Machine::where('id_client', 5387)->get();
-        return view('pages.warehouse.unit.index', compact('unit', 'units'));
+        // Halaman "unit siap ditawarkan" — datanya dimuat via AJAX per tab (lihat
+        // table-unit-ready.js), sumbernya fixed_asset (qc_status='ok') join unit.
+        // Versi lama berbasis Machine ada di index-legacy.blade.php (tidak dipakai lagi).
+        return view('pages.warehouse.unit.index');
     }
 
     /**

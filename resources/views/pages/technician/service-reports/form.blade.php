@@ -37,61 +37,74 @@
                             <span class="form-floating-focused"></span>
                         </div>
                     </div>
-                    <div class="col-12 col-md-3 mb-3">
-                        {{-- <div class="form-floating form-floating-outline">
-                            <select class="select2 form-select form-select-lg invoice-item-pic" data-allow-clear="true"
-                                name="id_pic" id="selectPic">
-                                <option selected>----- Select Company | Pic || Sales -----</option>
-                                @foreach ($pic as $charge)
-                                    <option data-id="{{ $charge->client->id }}" value="{{ $charge->id }}"
-                                        {{ @$report->id_pic == $charge->id ? 'selected' : '' }}>
-                                        {{ $charge->client->company }} | {{ $charge->name_pic }} ||
-                                        {{ $charge->client->sales->name }}</option>
-                                @endforeach
-                            </select>
-                            <label for="select2Basic">Client</label>
-                        </div> --}}
-                        <div class="form-floating form-floating-outline">
-                            <select class="select2 form-select form-select-lg invoice-item-sales" data-allow-clear="true"
-                                name="id_sales" id="selectSales" {{ @$reports ? 'disabled' : '' }}>
-                                <option selected>----- Select Company Sales -----</option>
-                                @foreach ($sales as $sale)
-                                    <option data-id="{{ $sale->id }}" value="{{ $sale->id }}"
-                                        {{ (isset($selectedSalesId) && $selectedSalesId == $sale->id) || (@$report && @$report->pic->client->sales->id == $sale->id) ? 'selected' : '' }}>
-                                        {{ $sale->name }}</option>
-                                @endforeach
-                            </select>
-                            <label for="select2Basic">Sales</label>
+                    @if (isset($isInternalStock) && $isInternalStock)
+                        <div class="col-12 mb-3">
+                            <div class="alert alert-info mb-0 py-2">
+                                Unit internal Reftech (belum ada customer) — Sales/Client/PIC dilewati, langsung pakai
+                                Machine yang sudah dipilih.
+                            </div>
                         </div>
-                        <input type="text" name="technician" id="" value="{{ Auth::user()->id }}" hidden>
-                    </div>
-                    <div class="col-12 col-md-3 mb-3">
-                        <div class="form-floating form-floating-outline mb-2">
-                            <select id="client-dropdown" class="select2 form-select invoice-item-client" data-id="1"
-                                data-allow-clear="true" name="client" disabled>
-                                <option> ---- Choose Client Here ---- </option>
-                                @if (@$report)
-                                    <option data-id="{{ $report->pic->client->id }}" value="{{ $report->pic->client->id }}"
-                                        selected>
-                                        {{ $report->pic->client->company }}</option>
-                                @endif
-                            </select>
-                            <label for="client-dropdown">Client</label>
+                        <input type="hidden" name="id_sales" value="">
+                        <input type="hidden" name="client" value="">
+                        <input type="hidden" name="id_pic" value="{{ $selectedPICId }}">
+                        <input type="text" name="technician" value="{{ Auth::user()->id }}" hidden>
+                    @else
+                        <div class="col-12 col-md-3 mb-3">
+                            {{-- <div class="form-floating form-floating-outline">
+                                <select class="select2 form-select form-select-lg invoice-item-pic" data-allow-clear="true"
+                                    name="id_pic" id="selectPic">
+                                    <option selected>----- Select Company | Pic || Sales -----</option>
+                                    @foreach ($pic as $charge)
+                                        <option data-id="{{ $charge->client->id }}" value="{{ $charge->id }}"
+                                            {{ @$report->id_pic == $charge->id ? 'selected' : '' }}>
+                                            {{ $charge->client->company }} | {{ $charge->name_pic }} ||
+                                            {{ $charge->client->sales->name }}</option>
+                                    @endforeach
+                                </select>
+                                <label for="select2Basic">Client</label>
+                            </div> --}}
+                            <div class="form-floating form-floating-outline">
+                                <select class="select2 form-select form-select-lg invoice-item-sales" data-allow-clear="true"
+                                    name="id_sales" id="selectSales" {{ @$reports ? 'disabled' : '' }}>
+                                    <option selected>----- Select Company Sales -----</option>
+                                    @foreach ($sales as $sale)
+                                        <option data-id="{{ $sale->id }}" value="{{ $sale->id }}"
+                                            {{ (isset($selectedSalesId) && $selectedSalesId == $sale->id) || (@$report && @$report->pic->client->sales->id == $sale->id) ? 'selected' : '' }}>
+                                            {{ $sale->name }}</option>
+                                    @endforeach
+                                </select>
+                                <label for="select2Basic">Sales</label>
+                            </div>
+                            <input type="text" name="technician" id="" value="{{ Auth::user()->id }}" hidden>
                         </div>
-                    </div>
-                    <div class="col-12 col-md-3 mb-3">
-                        <div class="form-floating form-floating-outline mb-2">
-                            <select id="pic-dropdown" class="select2 form-select invoice-item-pic" data-id="1"
-                                data-allow-clear="true" name="id_pic" disabled>
-                                <option> ---- Choose PIC Here ---- </option>
-                                @if (@$report)
-                                    <option data-id="{{ $report->pic->id }}" value="{{ $report->pic->id }}" selected>
-                                        {{ $report->pic->name_pic }}</option>
-                                @endif
-                            </select>
-                            <label for="pic-dropdown">PIC</label>
+                        <div class="col-12 col-md-3 mb-3">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <select id="client-dropdown" class="select2 form-select invoice-item-client" data-id="1"
+                                    data-allow-clear="true" name="client" disabled>
+                                    <option> ---- Choose Client Here ---- </option>
+                                    @if (@$report)
+                                        <option data-id="{{ $report->pic->client->id }}" value="{{ $report->pic->client->id }}"
+                                            selected>
+                                            {{ $report->pic->client->company }}</option>
+                                    @endif
+                                </select>
+                                <label for="client-dropdown">Client</label>
+                            </div>
                         </div>
-                    </div>
+                        <div class="col-12 col-md-3 mb-3">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <select id="pic-dropdown" class="select2 form-select invoice-item-pic" data-id="1"
+                                    data-allow-clear="true" name="id_pic" disabled>
+                                    <option> ---- Choose PIC Here ---- </option>
+                                    @if (@$report)
+                                        <option data-id="{{ $report->pic->id }}" value="{{ $report->pic->id }}" selected>
+                                            {{ $report->pic->name_pic }}</option>
+                                    @endif
+                                </select>
+                                <label for="pic-dropdown">PIC</label>
+                            </div>
+                        </div>
+                    @endif
                     <div class="col-12 col-md mb-3">
                         <div class="form-floating form-floating-outline">
                             <select class="form-select" id="exampleFormControlSelect1" aria-label="Default select example"
@@ -105,6 +118,8 @@
                                 <option value="Rental" {{ @$report->type == 'Rental' ? 'Selected' : '' }}>Rental</option>
                                 <option value="Cleaning" {{ @$report->type == 'Cleaning' ? 'Selected' : '' }}>Cleaning
                                 </option>
+                                <option value="Commissioning" {{ @$report->type == 'Commissioning' ? 'Selected' : '' }}>
+                                    Commissioning</option>
                             </select>
                             <label for="exampleFormControlSelect1">Service Type</label>
                         </div>
@@ -121,9 +136,15 @@
                     <div class="col-12 col-md-6 mb-3">
                         <div class="form-floating form-floating-outline mb-2">
                             <select id="machine-dropdown" class="select2 form-select invoice-item-machine" data-id="1"
-                                data-allow-clear="true" name="machine" disabled>
+                                data-allow-clear="true" name="machine"
+                                {{ isset($isInternalStock) && $isInternalStock ? '' : 'disabled' }}>
                                 <option> ---- Choose Machine Here ---- </option>
-                                @if (@$report)
+                                @if (isset($isInternalStock) && $isInternalStock && isset($machine))
+                                    <option value="{{ $machine->id }}" selected>
+                                        {{ $machine->unit->brand ?? '-' }} {{ $machine->unit->pn ?? '' }} ||
+                                        {{ $machine->location }} - {{ $machine->tag }} - {{ $machine->serial }}
+                                    </option>
+                                @elseif (@$report)
                                     <option data-id="{{ $report->machine->id }}" value="{{ $report->machine->id }}"
                                         selected>
                                         {{ $report->machine->unit->brand }} {{ $report->machine->unit->pn }} ||
@@ -226,6 +247,7 @@
             var selectedSalesId = '{{ $selectedSalesId ?? $report->pic->client->id_sales ?? '' }}';
             var selectedClientId = '{{ $selectedClientId ?? $report->pic->id_client ?? '' }}';
             var selectedPICId = '{{ $selectedPICId ?? $report->id_pic ?? '' }}';
+            var isInternalStock = {{ isset($isInternalStock) && $isInternalStock ? 'true' : 'false' }};
             initNumericInput();
             $('#formFileMultiple').on('change', function() {
                 var files = this.files;
@@ -365,7 +387,8 @@
             });
 
             // Trigger change event to pre-select dependent dropdowns in order
-            if (selectedSalesId) {
+            // (dilewati untuk unit internal Reftech — Machine sudah langsung dipilih dari server)
+            if (selectedSalesId && !isInternalStock) {
                 $('#selectSales').trigger('change');
             }
 

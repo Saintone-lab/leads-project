@@ -175,6 +175,8 @@ $(function () {
         $('#line-items-container').append($row);
         toggleEmptyState();
         initUnitRowSelect2($row);
+        initFixedAssetRowSelect2($row);
+        bindUnitSourceToggle($row);
         bindRowEvents($row);
     }
 
@@ -187,9 +189,27 @@ $(function () {
         toggleEmptyState();
 
         var $sel = initUnitRowSelect2($row);
+        var $selFixedAsset = initFixedAssetRowSelect2($row);
+        bindUnitSourceToggle($row);
 
-        // Pre-select unit in Select2
-        if (item.id_unit && item.unit) {
+        if (item.id_fixed_asset && item.fixed_asset) {
+            // Sumbernya Unit Second (Fixed Asset) — tampilkan blok pencarian itu
+            $row.find('.unit-source-radio[value="fixed_asset"]').prop('checked', true);
+            $row.find('.unit-source-catalog').hide();
+            $row.find('.unit-source-fixed-asset').show();
+
+            var fa = item.fixed_asset;
+            var sn = fa.serial_number ? (' — SN: ' + fa.serial_number) : '';
+            var faText = (item.unit ? (item.unit.brand || '') + ' — ' + (item.unit.model || item.unit.sku || '') : '') +
+                sn + ' (' + fa.code + ')';
+            var faOption = new Option(faText, item.id_fixed_asset, true, true);
+            $selFixedAsset.empty().append(faOption).trigger('change.select2');
+
+            $row.find('.field-id-unit').val(item.id_unit);
+            $row.find('.field-id-fixed-asset').val(item.id_fixed_asset);
+            if (item.unit) buildSpecPreviewFiltered($row, item.unit, item.spec_visible);
+        } else if (item.id_unit && item.unit) {
+            // Pre-select unit in Select2 (Catalog Unit)
             var unitText = (item.unit.brand || '') + ' — ' + (item.unit.model || item.unit.sku || '');
             var option   = new Option(unitText, item.id_unit, true, true);
             $sel.empty().append(option).trigger('change.select2');
@@ -285,6 +305,7 @@ $(function () {
         $sel.on('select2:select', function (e) {
             var unit = e.params.data.unit;
             $row.find('.field-id-unit').val(unit.id);
+            $row.find('.field-id-fixed-asset').val('');
 
             // Auto-fill title: brand + model + short desc from unit global
             var desc = (unit.desc && unit.desc !== '-') ? ' ' + unit.desc : '';
@@ -301,6 +322,83 @@ $(function () {
         });
 
         return $sel;
+    }
+
+    // ── Init Select2 AJAX for unit row — sumber Fixed Asset (Unit Second) ──
+    function initFixedAssetRowSelect2($row) {
+        var $sel = $row.find('.select2-fixed-asset-search');
+        $sel.select2({
+            placeholder: 'Search Unit Second (SKU / Brand / Serial Number)...',
+            minimumInputLength: 1,
+            templateResult: function (item) {
+                if (!item.id) return item.text;
+                var u     = item.unit;
+                var price = u && u.price && parseFloat(u.price) > 0
+                    ? ' <span style="color:#696cff;font-size:10px;">Rp ' + formatRupiah(Math.round(u.price)) + '</span>'
+                    : '';
+                return $('<span>' + (item.label || item.text) + price + '</span>');
+            },
+            templateSelection: function (item) {
+                return item.text;
+            },
+            ajax: {
+                url: '/db/fixed-asset/search',
+                dataType: 'json',
+                delay: 300,
+                data: function (params) { return { q: params.term }; },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (u) {
+                            var sn = u.serial_number ? (' — SN: ' + u.serial_number) : '';
+                            var text = (u.brand || '') + ' — ' + (u.model || u.sku || '') + sn + ' (' + u.code + ')';
+                            return {
+                                id:    u.id_fixed_asset,
+                                text:  text,
+                                label: text,
+                                unit:  u,
+                            };
+                        })
+                    };
+                },
+            },
+        });
+
+        $sel.on('select2:select', function (e) {
+            var unit = e.params.data.unit;
+            $row.find('.field-id-unit').val(unit.id);
+            $row.find('.field-id-fixed-asset').val(unit.id_fixed_asset);
+
+            var desc = (unit.desc && unit.desc !== '-') ? ' ' + unit.desc : '';
+            var sn   = unit.serial_number ? (' — SN: ' + unit.serial_number) : '';
+            $row.find('.field-label').val((unit.brand || '') + ' ' + (unit.model || unit.sku || '') + sn + desc);
+
+            // Auto-fill price from catalog kalau spek-nya sudah punya harga (bisa diedit manual)
+            if (unit.price && parseFloat(unit.price) > 0) {
+                $row.find('.field-price').val(formatRupiah(Math.round(unit.price)));
+            }
+
+            buildSpecPreview($row, unit);
+            updateRowAmount($row);
+        });
+
+        return $sel;
+    }
+
+    // ── Toggle sumber unit (Catalog Unit / Unit Second dari Fixed Asset) ──
+    function bindUnitSourceToggle($row) {
+        $row.find('.unit-source-radio').on('change', function () {
+            var source = $row.find('.unit-source-radio:checked').val();
+            if (source === 'fixed_asset') {
+                $row.find('.unit-source-catalog').hide();
+                $row.find('.unit-source-fixed-asset').show();
+            } else {
+                $row.find('.unit-source-fixed-asset').hide();
+                $row.find('.unit-source-catalog').show();
+            }
+            // Reset pilihan supaya tidak ada data campur dari sumber sebelumnya
+            $row.find('.field-id-unit').val('');
+            $row.find('.field-id-fixed-asset').val('');
+        });
     }
 
     // ── Bind events per row ───────────────────────────────────────────────

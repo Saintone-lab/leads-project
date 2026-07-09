@@ -7,6 +7,7 @@ use App\Models\Bank;
 use App\Models\DetailExpense;
 use App\Models\DetailInventoryAdj;
 use App\Models\DetailProduct;
+use App\Models\Expanse;
 use App\Models\Expense;
 use App\Models\FixedAsset;
 use App\Models\LabaRugi;
@@ -172,6 +173,49 @@ class Expensecontroller extends Controller
         $expenseDel = $expense->delete();
 
         return $expenseDel ? 1 : 0;
+    }
+
+    public function indexOngkir()
+    {
+        $bank = Bank::all();
+        $account = Account::all();
+        return view('pages.finance.expense.index-ongkir', compact('bank', 'account'));
+    }
+
+    public function postOngkir(Request $request, $id)
+    {
+        $expanse = Expanse::find($id);
+        if (!$expanse || $expanse->status !== 'pending') {
+            return response()->json(['error' => 'Data ongkir tidak ditemukan atau sudah diposting'], 404);
+        }
+
+        $bank = Bank::find($request->id_bank);
+        $bank->saldo -= $expanse->cost;
+        $bank->save();
+
+        $expense = new Expense;
+        $expense->id_bank = $bank->id;
+        $expense->no_expense = $this->generateNoExpense();
+        $expense->no_invoice = $expanse->no_track;
+        $expense->memo = $request->memo ?? ('Ongkir Pending PO #' . $expanse->id_pending . ' (' . $expanse->kurir . ')');
+        $expense->date = Carbon::today();
+        $expense->amount = $expanse->cost;
+        $expenseSave = $expense->save();
+
+        if ($expenseSave) {
+            $dExpense = new DetailExpense();
+            $dExpense->id_Expense = $expense->id;
+            $dExpense->id_account = $request->id_account;
+            $dExpense->memo = $expense->memo;
+            $dExpense->amount = $expanse->cost;
+            $dExpense->save();
+
+            $expanse->status = 'posted';
+            $expanse->id_expense = $expense->id;
+            $expanse->save();
+        }
+
+        return redirect()->back()->with('success', 'Ongkir berhasil diposting ke Finance');
     }
 
     public function createExpense()

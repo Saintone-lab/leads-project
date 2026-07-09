@@ -3,10 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\DetailProduct;
 use App\Models\FixedAsset;
+use App\Models\FixedAssetService;
+use App\Models\Machine;
+use App\Models\Product;
+use App\Models\SerialProduct;
 use App\Models\Supplier;
+use App\Models\Unit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FixedController extends Controller
 {
@@ -29,7 +36,8 @@ class FixedController extends Controller
     {
         $account = Account::all();
         $suppliers = Supplier::all();
-        return view('pages.finance.fixed.form', compact('account', 'suppliers'));
+        $units = Unit::where('type', 'global')->orderBy('brand')->get();
+        return view('pages.finance.fixed.form', compact('account', 'suppliers', 'units'));
     }
 
     /**
@@ -40,6 +48,14 @@ class FixedController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->type == 'Mesin') {
+            $request->validate([
+                'serial_number' => 'required',
+            ], [
+                'serial_number.required' => 'Serial Number mesin wajib diisi.',
+            ]);
+        }
+
         // dd($request->all());
         $fixed = new FixedAsset;
         $fixed->id_aktiva = $request->aktiva;
@@ -59,8 +75,36 @@ class FixedController extends Controller
         $fixed->qty = $request->qty;
         $fixed->total = $request->total;
         $fixed->status = $request->status ?? 0;
+
+        if ($request->type == 'Mesin') {
+            $fixed->id_unit = $request->id_unit;
+            $fixed->serial_number = $request->serial_number;
+            $fixed->kondisi = $request->kondisi == 'Baru' ? 'Baru' : 'Second';
+
+            if ($fixed->kondisi == 'Baru') {
+                // Unit baru tidak perlu dicek/dikonfirmasi Admin — langsung siap ditawarkan.
+                $fixed->qc_status = 'ok';
+                $fixed->status_unit = 'OK';
+                $fixed->mulai_penyusutan = $fixed->beli;
+            } else {
+                $fixed->qc_status = 'checking';
+                $fixed->mulai_penyusutan = null;
+            }
+        } else {
+            $fixed->mulai_penyusutan = $fixed->beli;
+        }
+
         $fixedSave = $fixed->save();
         if ($fixedSave) {
+            if ($fixed->type == 'Mesin' && $fixed->qc_status == 'ok') {
+                $this->linkMachine($fixed);
+            }
+            if ($request->type == 'Mesin') {
+                $message = $fixed->kondisi == 'Baru'
+                    ? 'Unit baru berhasil didaftarkan dan langsung siap ditawarkan'
+                    : 'Unit berhasil didaftarkan, menunggu pengecekan';
+                return redirect('/unit-acquisition')->with('success', $message);
+            }
             return redirect('fixed')->with('success', 'data telah di tambahkan');
         }
     }
@@ -74,15 +118,24 @@ class FixedController extends Controller
     public function show($id)
     {
         $fixed = FixedAsset::find($id);
-        $startDate = Carbon::parse($fixed->beli);
-        $endDate = Carbon::now();
-        $diffMonth = $startDate->diffInMonths($endDate);
-        $umurAktiva = $fixed->umur;
-        $bulanPenyusutan = min($diffMonth, $umurAktiva);
-        $penyusutanPerBulan = ($fixed->total * 0.25) / 12;
-        $totalPenyusutan = $penyusutanPerBulan * $bulanPenyusutan;
-        $nilaiBuku = $fixed->total - $totalPenyusutan;
-        return view('pages.finance.fixed.detail', compact('fixed', 'totalPenyusutan', 'nilaiBuku'));
+        $services = FixedAssetService::where('id_fixed_asset', $id)->with('detailProduct.product')->get();
+
+        $totalPenyusutan = 0;
+        $nilaiBuku = $fixed->total;
+
+        // Unit yang masih "Dalam Pengecekan" belum boleh disusutkan sama sekali.
+        if ($fixed->qc_status !== 'checking') {
+            $startDate = Carbon::parse($fixed->mulai_penyusutan ?? $fixed->beli);
+            $endDate = Carbon::now();
+            $diffMonth = $startDate->greaterThan($endDate) ? 0 : $startDate->diffInMonths($endDate);
+            $umurAktiva = $fixed->umur;
+            $bulanPenyusutan = min($diffMonth, $umurAktiva);
+            $penyusutanPerBulan = ($fixed->total * 0.25) / 12;
+            $totalPenyusutan = $penyusutanPerBulan * $bulanPenyusutan;
+            $nilaiBuku = $fixed->total - $totalPenyusutan;
+        }
+
+        return view('pages.finance.fixed.detail', compact('fixed', 'totalPenyusutan', 'nilaiBuku', 'services'));
     }
 
     /**
@@ -93,11 +146,20 @@ class FixedController extends Controller
      */
     public function edit($id)
     {
-        //
+        $fixed = FixedAsset::find($id);
+        $account = Account::all();
+        $suppliers = Supplier::all();
+        $units = Unit::where('type', 'global')->orderBy('brand')->get();
+        return view('pages.finance.fixed.form', compact('fixed', 'account', 'suppliers', 'units'));
     }
 
     /**
      * Update the specified resource in storage.
+     *
+     * Kategori (type) dan kondisi (Second/Baru) sengaja tidak diubah di sini —
+     * dua field itu menentukan alur QC/penyusutan dan dikirim sebagai hidden
+     * input read-only dari form. Edit ini cuma untuk membetulkan data yang
+     * salah input (kode, tanggal, harga, akun, dst), bukan mengubah alur.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
@@ -105,7 +167,32 @@ class FixedController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $fixed = FixedAsset::find($id);
+        $fixed->id_aktiva = $request->aktiva;
+        $fixed->id_penyusutan = $request->penyusutan;
+        $fixed->id_beban = $request->beban;
+        $fixed->id_supplier = $request->supplier;
+        $fixed->id_pengeluaran = $request->bank;
+        $fixed->code = $request->code;
+        $fixed->no_invoice = $request->no_invoice;
+        $fixed->beli = $request->pay;
+        $fixed->pakai = $request->pakai;
+        $fixed->bayar = $request->date;
+        $fixed->metode = $request->metode;
+        $fixed->desc = $request->desc;
+        $fixed->umur = $request->umur;
+        $fixed->qty = $request->qty;
+        $fixed->total = $request->total;
+        $fixed->status = $request->status ?? 0;
+
+        if ($fixed->type == 'Mesin') {
+            $fixed->id_unit = $request->id_unit;
+            $fixed->serial_number = $request->serial_number;
+        }
+
+        $fixed->save();
+
+        return redirect('/fixed/' . $id)->with('success', 'Data berhasil diupdate');
     }
 
     /**
@@ -123,5 +210,242 @@ class FixedController extends Controller
         } else {
             return 0;
         }
+    }
+
+    /**
+     * Konfirmasi unit lolos QC (OK) atau ditolak (Reject) — khusus Admin.
+     * Penyusutan baru mulai dihitung sejak titik konfirmasi OK, bukan dari tanggal beli.
+     */
+    public function confirm(Request $request, $id)
+    {
+        if (Auth::user()->role != 'Admin') {
+            abort(403, 'Hanya Admin yang bisa konfirmasi unit ini.');
+        }
+
+        $fixed = FixedAsset::find($id);
+        if (!$fixed || $fixed->qc_status !== 'checking') {
+            return response()->json(['error' => 'Unit tidak ditemukan atau sudah dikonfirmasi'], 404);
+        }
+
+        $decision = $request->decision == 'ok' ? 'ok' : 'reject';
+        $fixed->qc_status = $decision;
+        $fixed->confirmed_by = Auth::user()->id;
+        $fixed->confirmed_at = now();
+        if ($decision == 'ok') {
+            $fixed->mulai_penyusutan = now();
+            $fixed->status_unit = 'OK';
+        }
+        $fixed->save();
+
+        if ($decision == 'ok') {
+            $this->linkMachine($fixed);
+        }
+
+        return redirect('/unit-acquisition/' . $id)->with('success', 'Unit berhasil dikonfirmasi: ' . strtoupper($decision));
+    }
+
+    /**
+     * Bikin (atau pakai yang sudah ada) Machine yang mewakili unit ini, supaya
+     * bisa nyambung ke modul Service Report yang sudah ada (Reports.id_machine).
+     * SerialProduct di-reuse per Unit (1 SerialProduct = 1 spek Unit Global,
+     * dipakai bersama banyak Machine) — pola yang sama seperti UnitController.
+     * Machine LAMA tidak pernah disentuh; ini cuma nambah baris baru.
+     */
+    private function linkMachine(FixedAsset $fixed): void
+    {
+        if ($fixed->id_machine || !$fixed->id_unit) {
+            return;
+        }
+
+        $unit = Unit::find($fixed->id_unit);
+        if (!$unit) {
+            return;
+        }
+
+        $serialProduct = SerialProduct::firstOrCreate(
+            ['id_product' => $unit->id],
+            [
+                'fxp_parts' => '-',
+                'brand' => $unit->brand ?: ($unit->unit ?: '-'),
+                'pn' => $unit->sku ?: '-',
+                'image' => '-',
+                'air_cap' => $unit->air_cap,
+                'bar' => $unit->bar,
+            ]
+        );
+
+        $machine = Machine::create([
+            'id_client' => 5387,
+            'id_unit' => $serialProduct->id,
+            'serial' => $fixed->serial_number ?: $fixed->code,
+            'desc' => $fixed->desc ?: '-',
+            'status' => 'Ready',
+        ]);
+
+        $fixed->id_machine = $machine->id;
+        $fixed->save();
+    }
+
+    /**
+     * Ubah status ketersediaan unit (OK/Service/Rental/Sold) — khusus Admin.
+     * Ini terpisah dari qc_status (yang soal lolos-tidaknya QC awal).
+     */
+    public function updateStatusUnit(Request $request, $id)
+    {
+        if (Auth::user()->role != 'Admin') {
+            abort(403, 'Hanya Admin yang bisa mengubah status unit ini.');
+        }
+
+        $fixed = FixedAsset::find($id);
+        if (!$fixed) {
+            return response()->json(['error' => 'Unit tidak ditemukan'], 404);
+        }
+
+        $allowed = ['OK', 'Service', 'Rental', 'Sold'];
+        if (!in_array($request->status_unit, $allowed)) {
+            return redirect()->back()->with('error', 'Status tidak valid');
+        }
+
+        $fixed->status_unit = $request->status_unit;
+        $fixed->save();
+
+        $message = 'Status unit diperbarui menjadi ' . $request->status_unit;
+        if ($request->status_unit == 'Rental') {
+            $message .= ' — jangan lupa buat Service Report (pengecekan sebelum disewakan).';
+        }
+
+        return redirect('/unit-acquisition/' . $id)->with('success', $message);
+    }
+
+    /**
+     * Set/ubah harga jual unit second — khusus Admin. Harga ini yang dipakai
+     * sebagai sumber utama harga saat unit ditawarkan di /unit maupun dipilih
+     * di form Quotation Unit (lihat /db/fixed-asset/search), menggantikan
+     * fallback ke Catalog Unit yang sifatnya per-spek (bukan per-unit fisik).
+     */
+    public function updateHargaJual(Request $request, $id)
+    {
+        if (Auth::user()->role != 'Admin') {
+            abort(403, 'Hanya Admin yang bisa mengubah harga jual unit ini.');
+        }
+
+        $request->validate([
+            'harga_jual' => 'required|numeric|min:0',
+        ]);
+
+        $fixed = FixedAsset::find($id);
+        if (!$fixed) {
+            return response()->json(['error' => 'Unit tidak ditemukan'], 404);
+        }
+
+        $fixed->harga_jual = $request->harga_jual;
+        $fixed->save();
+
+        return redirect('/unit-acquisition/' . $id)->with('success', 'Harga jual unit berhasil diperbarui');
+    }
+
+    /**
+     * Form input pemakaian spare part untuk servis unit (hanya selama masih Dalam Pengecekan —
+     * biayanya numpuk ke harga pokok unit / total. Servis setelah lolos QC sebaiknya
+     * dicatat sebagai Beban Pemeliharaan lewat menu Expense, bukan di sini.
+     */
+    /**
+     * Unit Second cuma boleh nambah biaya (numpuk ke harga pokok) selama masih
+     * "Dalam Pengecekan". Unit Baru tidak pernah lewat status checking sama sekali
+     * (langsung ok), jadi pintu biayanya sengaja dibiarkan terbuka terus.
+     */
+    private function canCapitalizeService(FixedAsset $fixed): bool
+    {
+        if ($fixed->kondisi == 'Baru') {
+            return true;
+        }
+        return $fixed->qc_status === 'checking';
+    }
+
+    public function createService($id)
+    {
+        $fixed = FixedAsset::find($id);
+        if (!$fixed || !$this->canCapitalizeService($fixed)) {
+            return redirect('/unit-acquisition/' . $id)->with('error', 'Unit ini sudah lolos QC — servis lanjutan dicatat sebagai Beban Pemeliharaan lewat menu Expense, bukan di sini.');
+        }
+        $product = SerialProduct::join('product', 'serial_product.id_product', '=', 'product.id')->get('serial_product.*');
+        return view('pages.warehouse.unit-acquisition.form-service', compact('fixed', 'product'));
+    }
+
+    public function storeService(Request $request, $id)
+    {
+        $fixed = FixedAsset::find($id);
+        if (!$fixed || !$this->canCapitalizeService($fixed)) {
+            return redirect('/unit-acquisition/' . $id)->with('error', 'Unit ini sudah lolos QC — servis lanjutan dicatat sebagai Beban Pemeliharaan lewat menu Expense, bukan di sini.');
+        }
+
+        foreach ($request->equivalent as $item => $value) {
+            $productD = DetailProduct::findOrFail($request->replacement[$item]);
+
+            if ($request->warehouse[$item] == 'BDG') {
+                $productD->stock -= $request->qty[$item];
+            } else {
+                $productD->warehouse_stock -= $request->qty[$item];
+            }
+            $productD->save();
+
+            $product = Product::find($productD->id_product);
+            if ($product) {
+                if ($request->warehouse[$item] == 'BDG') {
+                    $product->stock -= $request->qty[$item];
+                } else {
+                    $product->warehouse_stock -= $request->qty[$item];
+                }
+                $product->save();
+            }
+
+            $service = new FixedAssetService();
+            $service->id_fixed_asset = $id;
+            $service->id_detail_product = $request->replacement[$item];
+            $service->warehouse = $request->warehouse[$item];
+            $service->qty = $request->qty[$item];
+            $service->price = $request->price[$item];
+            $service->amount = $request->amount[$item];
+            $service->note = $request->note;
+            $service->date = $request->date;
+            $service->created_by = Auth::user()->id;
+            $service->save();
+
+            $fixed->total = $fixed->total + $request->amount[$item];
+        }
+        $fixed->save();
+
+        return redirect('/unit-acquisition/' . $id)->with('success', 'Biaya servis berhasil ditambahkan ke harga pokok unit');
+    }
+
+    /**
+     * Unit Acquisition (E-Stock) — daftar semua akuisisi unit second (kategori "Mesin"),
+     * apapun status QC-nya.
+     */
+    public function indexUnitAcquisition()
+    {
+        return view('pages.warehouse.unit-acquisition.index');
+    }
+
+    public function showUnitAcquisition($id)
+    {
+        $fixed = FixedAsset::find($id);
+        $services = FixedAssetService::where('id_fixed_asset', $id)->with('detailProduct.product')->get();
+
+        $totalPenyusutan = 0;
+        $nilaiBuku = $fixed->total;
+
+        if ($fixed->qc_status !== 'checking') {
+            $startDate = Carbon::parse($fixed->mulai_penyusutan ?? $fixed->beli);
+            $endDate = Carbon::now();
+            $diffMonth = $startDate->greaterThan($endDate) ? 0 : $startDate->diffInMonths($endDate);
+            $umurAktiva = $fixed->umur;
+            $bulanPenyusutan = min($diffMonth, $umurAktiva);
+            $penyusutanPerBulan = ($fixed->total * 0.25) / 12;
+            $totalPenyusutan = $penyusutanPerBulan * $bulanPenyusutan;
+            $nilaiBuku = $fixed->total - $totalPenyusutan;
+        }
+
+        return view('pages.warehouse.unit-acquisition.show', compact('fixed', 'totalPenyusutan', 'nilaiBuku', 'services'));
     }
 }

@@ -8,12 +8,6 @@
             @if (@$purchase)
                 @method('patch')
             @endif
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control fw-bold fs-3" id="floatingInputFilled"
-                    aria-describedby="floatingInputFilledHelp" name="no_po" value="{{ old('no_po', @$purchase->no_po) }}">
-                <label for="floatingInputFilled">No PO</label>
-                <span class="form-floating-focused"></span>
-            </div>
             @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul>
@@ -26,67 +20,76 @@
             <div class="card">
                 <div class="card-body">
                     <div class="form-invoice-repeater source-item">
-                        <div class="row mb-3">
-                            <div class="col-12 col-lg-6">
+                        <div class="row mb-3 align-items-end">
+                            <div class="col-12 col-lg-3">
                                 <div class="form-floating form-floating-outline mb-2">
-                                    <select id="supplier-dropdown" class="select2 form-select invoice-item-supplier"
-                                        data-allow-clear="true" name="supplier" data-id="1"
-                                        {{ Auth::user()->role == 'Logistic' ? 'disabled' : '' }}>
-                                        <option>Pilih Supplier...</option>
-                                        @foreach ($suppliers as $supp)
-                                            <option value="{{ $supp->id }}" data-info="{{ $supp->info }}"
-                                                {{ @$purchase->id_supplier == $supp->id ? 'selected' : '' }}>
-                                                {{ $supp->supplier }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <label for="supplier-dropdown">Supplier</label>
+                                    <input type="text" class="form-control fw-bold text-primary border-primary"
+                                        id="no_po_display" name="no_po" required
+                                        value="{{ old('no_po', @$purchase->no_po ?? $previewNoPo ?? '') }}">
+                                    <label for="no_po_display">No PO</label>
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-2">
-                                <div class="form-floating form-floating-outline">
+                            <div class="col-6 col-lg-3">
+                                <div class="form-floating form-floating-outline mb-2">
+                                    <input class="form-control" type="date" id="date" name="date" required
+                                        value="{{ old('date', @$purchase->date ?? \Carbon\Carbon::today()->format('Y-m-d')) }}">
+                                    <label for="date">Date</label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="form-floating form-floating-outline mb-2 flex-grow-1">
+                                        <select id="supplier-dropdown" class="select2 form-select invoice-item-supplier"
+                                            data-allow-clear="true" name="supplier" data-id="1" required
+                                            {{ Auth::user()->role == 'Logistic' ? 'disabled' : '' }}>
+                                            <option value="">Pilih Supplier...</option>
+                                            @foreach ($suppliers as $supp)
+                                                <option value="{{ $supp->id }}" data-info="{{ $supp->info }}"
+                                                    data-code="{{ $supp->code }}"
+                                                    {{ @$purchase->id_supplier == $supp->id ? 'selected' : '' }}>
+                                                    {{ $supp->supplier }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <label for="supplier-dropdown">Supplier</label>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-label-secondary mb-2"
+                                        data-bs-toggle="modal" data-bs-target="#quickAddSupplierModal"
+                                        {{ Auth::user()->role == 'Logistic' ? 'disabled' : '' }}>
+                                        <i class="mdi mdi-domain me-1"></i>Supplier Baru
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12 col-lg-3">
+                                <div class="form-floating form-floating-outline mb-2">
                                     <input class="form-control" type="text" placeholder="Put Mobile Here ...."
                                         id="mobile" name="mobile" value="{{ old('mobile', @$purchase->mobile ?? '') }}">
                                     <label for="mobile">Mobile</label>
                                 </div>
                             </div>
-                            <div class="col-6 col-lg-2">
-                                <div class="form-floating form-floating-outline">
+                            <div class="col-12 col-lg-3">
+                                <div class="form-floating form-floating-outline mb-2">
                                     <input class="form-control" type="text" placeholder="Put Delivery Time Here ...."
                                         id="delivery" name="delivery"
                                         value="{{ old('delivery', @$purchase->delivery ?? '') }}">
                                     <label for="delivery">Delivery Time</label>
                                 </div>
                             </div>
-                            <div class="col-6 col-lg-2">
-                                <div class="form-floating form-floating-outline">
-                                    <input class="form-control" type="date" id="date" name="date"
-                                        value="{{ old('date', @$quotation->date ?? \Carbon\Carbon::today()->format('Y-m-d')) }}">
-                                    <label for="date">Date</label>
-                                </div>
-                            </div>
-                            <div class="col-lg-2">
-                                <button type="button" class="btn btn-primary waves-effect waves-light"
-                                    data-bs-toggle="modal" data-bs-target="#createSupplier"
-                                    {{ Auth::user()->role == 'Logistic' ? 'disabled' : '' }}>
-                                    + Supplier
-                                </button>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-12 col-lg-6">
+                            <div class="col-12 col-lg-3">
                                 <div class="form-floating form-floating-outline mb-2">
                                     <input class="form-control" type="text" placeholder="Put ATTN Quotation Here ...."
                                         id="attn" name="attn" value="{{ old('attn', @$purchase->attn ?? '') }}">
-                                    <label for="pic-dropdown">ATTN</label>
+                                    <label for="attn">ATTN</label>
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-6">
-                                <div class="form-floating form-floating-outline">
+                            <div class="col-12 col-lg-3">
+                                <div class="form-floating form-floating-outline mb-2">
                                     <input class="form-control" type="text" placeholder="text Payment Here ...."
                                         id="payment" name="payment"
                                         value="{{ old('payment', @$purchase->payment ?? '') }}">
-                                    <label for="select2Basic">Payment</label>
+                                    <label for="payment">Payment</label>
                                 </div>
                             </div>
                         </div>
@@ -99,9 +102,11 @@
                                     <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
                                         <div class="d-flex border rounded position-relative pe-0">
                                             <div class="row w-100 p-3">
+                                                <input type="hidden" class="invoice-item-detail-id" name="detail_id[]"
+                                                    value="{{ $item->id }}">
                                                 <div class="col-md col-12 mb-md-0">
                                                     <label for="product" class="mb-2">Product</label>
-                                                    <textarea class="form-control invoice-item-detail-product" rows="{{ $no }}"
+                                                    <textarea class="form-control invoice-item-detail-product" rows="2"
                                                         id="detailProduct-{{ $no }}" placeholder="Detail Product. Example: Kaeser ASD" name="product[]">{{ $item->product }}</textarea>
                                                 </div>
                                                 <div class="col-md-3 col-12 mb-md-0 mb-3">
@@ -113,7 +118,6 @@
                                                             data-id="{{ $no }}" name="harga"
                                                             placeholder="Put Price Here" data-type="currency"
                                                             min="0" pattern="^[0-9]\d{0,2}(\.\d{3})*$"
-                                                            @focus="focused = true" @blur="focused = false"
                                                             value="{{ number_format($item->price, '0', ',', '.') }}">
                                                         <input class="form-control invoice-item-price" type="number"
                                                             name="price[]" id="price-{{ $no }}"
@@ -209,6 +213,8 @@
                                 <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
                                     <div class="d-flex border rounded position-relative pe-0">
                                         <div class="row w-100 p-3">
+                                            <input type="hidden" class="invoice-item-detail-id" name="detail_id[]"
+                                                value="">
                                             <div class="col-md col-12 mb-md-0">
                                                 <label for="product" class="mb-2">Product</label>
                                                 <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-1"
@@ -221,8 +227,8 @@
                                                     <input type="text" class="form-control invoice-item-price-label"
                                                         id="priceLabel-1" data-id="1" name="harga"
                                                         placeholder="Put Price Here" data-type="currency" min="0"
-                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                                        @blur="focused = false" value="{{ old('price[]') }}">
+                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$"
+                                                        value="{{ old('price[]') }}">
                                                     <input class="form-control invoice-item-price" type="number"
                                                         name="price[]" id="price-1" value="{{ old('price[]') }}"
                                                         hidden>
@@ -304,94 +310,67 @@
                             </div>
                             <div class="col-lg-2"></div>
                             <div class="col-lg-4">
-                                <div class="card shadow-none bg-light text-secondary border border-secondary mt-5 mb-3">
-                                    <div class="card-body ">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-start"
-                                                for="collapsible-pincode">Sub
-                                                Total :</label>
-                                            <div class="col-sm-8">
-                                                {{-- @if (@$dquotation)
-                                                    <input type="number" id="subtotal" class="form-control"
-                                                        name="subtotal"
-                                                        value="{{ old('subtotal', @$quotation->subtotal ?? '') }}">
-                                                @else --}}
-                                                <p class="mb-0 subtotal-label" id="subtotal-label" data-id="1">
-                                                    {{ old('subtotal', @$purchase->subtotal ? 'RP ' . number_format(@$purchase->subtotal, 0, '', '.') : '') }}
-                                                </p>
-                                                <input type="number" id="subtotal" class="form-control"
-                                                    name="subtotal"
-                                                    value="{{ old('subtotal', @$purchase->subtotal ?? '') }}" hidden>
-                                                {{-- @endif --}}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
+                                <div class="card border mt-5 mb-3">
                                     <div class="card-body">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-start" for="collapsible-tax">Tax
-                                                :</label>
-                                            <div class="col-sm-8">
-                                                <select id="tax" class="form-select form-select-lg"
-                                                    style="background: none; border: none;" name="tax">
-                                                    <option disabled>-----Select Tax-----</option>
-                                                    <option value="0" {{ @$purchase->vat == '0' ? 'selected' : '' }}>
-                                                        Without Tax</option>
-                                                    <option value="11"
-                                                        {{ @$purchase->vat == '11' ? 'selected' : '' }}>
-                                                        <span> With PPN <small class="text-muted"> 12%</small> </span>
-                                                    </option>
-                                                </select>
+                                        <div class="d-flex justify-content-between align-items-center py-2">
+                                            <span class="text-muted">Sub Total</span>
+                                            <div class="text-end">
+                                                <span class="fw-semibold subtotal-label" id="subtotal-label"
+                                                    data-id="1">
+                                                    {{ old('subtotal', @$purchase->subtotal ? 'RP ' . number_format(@$purchase->subtotal, 0, '', '.') : 'RP 0') }}
+                                                </span>
+                                                <input type="number" id="subtotal" name="subtotal"
+                                                    value="{{ old('subtotal', @$purchase->subtotal ?? '') }}" hidden>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
-                                    <div class="card-body ">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-start"
-                                                for="collapsible-pincode">Discount :</label>
-                                            <div class="col-sm-8">
-                                                <div class="input-group">
-                                                    <span class="input-group-text"
-                                                        style="background: none; border: none;">Rp.
-                                                    </span>
-                                                    <input type="text" id="diskon-label" class="form-control"
-                                                        placeholder="Discount Here....." data-type="currency"
-                                                        style="background: none; border: none;"
-                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$"
-                                                        value="{{ old('diskon', @$purchase->diskon ? number_format(@$purchase->diskon, 0, '', '.') : '0') }}">
-                                                    <input type="number" name="diskon" id="diskon"
-                                                        value="{{ old('diskon', @$purchase->diskon ?? '0') }}" hidden>
+                                        <div class="d-flex justify-content-between align-items-center py-2 border-top">
+                                            <span class="text-muted">Discount</span>
+                                            <div class="input-group input-group-sm w-auto">
+                                                <span class="input-group-text">Rp</span>
+                                                <input type="text" id="diskon-label" class="form-control text-end"
+                                                    placeholder="0" data-type="currency"
+                                                    pattern="^[0-9]\d{0,2}(\.\d{3})*$"
+                                                    value="{{ old('diskon', @$purchase->diskon ? number_format(@$purchase->diskon, 0, '', '.') : '0') }}">
+                                                <input type="number" name="diskon" id="diskon"
+                                                    value="{{ old('diskon', @$purchase->diskon ?? '0') }}" hidden>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center py-2 border-top">
+                                            <span class="text-muted">Tax (PPN 12%)</span>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="fw-semibold tax-amount-label" id="taxAmountLabel">
+                                                    @if (@$purchase && $purchase->vat == '11')
+                                                        {{ 'RP ' . number_format(($purchase->subtotal - $purchase->diskon) * $purchase->vat / 100, 0, '', '.') }}
+                                                    @endif
+                                                </span>
+                                                <div class="form-check form-switch mb-0">
+                                                    <input class="form-check-input" type="checkbox" role="switch"
+                                                        id="taxSwitch" {{ @$purchase->vat == '11' ? 'checked' : '' }}>
                                                 </div>
                                             </div>
+                                            <input type="hidden" id="tax" name="tax"
+                                                value="{{ old('tax', @$purchase->vat ?? '0') }}">
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
-                                    <div class="card-body ">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-start"
-                                                for="collapsible-pincode">Total
-                                                :</label>
-                                            <div class="col-sm-8">
-                                                <p class="mb-0 harga-total-label" id="hargaTotalLabel" data-id="1">
-                                                    {{ old('harga_total', @$purchase->total ? 'RP ' . number_format(@$purchase->total, 0, '', '.') : '') }}
-                                                </p>
-                                                <input type="number" id="hargaTotal" class="form-control"
-                                                    name="harga_total"
+                                        <hr class="my-2">
+                                        <div class="d-flex justify-content-between align-items-center py-1">
+                                            <span class="fw-bold">Total</span>
+                                            <div class="text-end">
+                                                <span class="fw-bold fs-4 text-primary harga-total-label"
+                                                    id="hargaTotalLabel" data-id="1">
+                                                    {{ old('harga_total', @$purchase->total ? 'RP ' . number_format(@$purchase->total, 0, '', '.') : 'RP 0') }}
+                                                </span>
+                                                <input type="number" id="hargaTotal" name="harga_total"
                                                     value="{{ old('harga_total', @$purchase->total ?? '') }}" hidden>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="float-end">
-                                    <a href="{{ route('quotation.index') }}" type="button"
+                                    <a href="{{ route('purchase.index') }}" type="button"
                                         class="btn btn-lg btn-outline-secondary">
                                         Back
                                     </a>
-                                    <button :disabled="focused" type="submit" class="btn btn-lg btn-primary">
+                                    <button type="submit" class="btn btn-lg btn-primary">
                                         Save
                                     </button>
                                 </div>
@@ -401,7 +380,41 @@
                 </div>
             </div>
         </form>
-        @include('components.modal.warehouse.supplier.form')
+        <div class="modal fade" id="quickAddSupplierModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Supplier Baru</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Code <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="qsCode" placeholder="SUP001">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Supplier Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="qsName" placeholder="PT Contoh Jaya">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Info <span class="text-danger">*</span></label>
+                            <select class="form-select" id="qsInfo">
+                                <option value="" disabled selected>-- Pilih --</option>
+                                <option value="Lokal">Lokal</option>
+                                <option value="Import">Import</option>
+                            </select>
+                        </div>
+                        <div id="qsError" class="alert alert-danger d-none"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-primary" id="saveQuickAddSupplier">
+                            <i class="mdi mdi-content-save-outline me-1"></i> Simpan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endsection
     @push('after-style')
         <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
@@ -428,152 +441,87 @@
                     currency: 'IDR'
                 });
 
-                function initializeSelect2Product() {
-                    $('.invoice-item-product').select2({
-                        placeholder: ' ---- Choose Part Number Here ---- ',
-                        allowClear: true,
-                        width: '100%',
-                    });
-                }
-                $(document).ready(function() {
-                    // Panggil fungsi inisialisasi saat halaman dimuat
-                    initializeSelect2Product();
-
-                    // Jika ada elemen dinamis yang ditambahkan, gunakan event listener
-                    $(document).on('repeater:added', function() {
-                        initializeSelect2Product();
-                    });
-                });
-
-                function initFormValidation() {
-                    const fv = FormValidation.formValidation(formAuthentication, {
-                        fields: {
-                            title: {
-                                validators: {
-                                    notEmpty: {
-                                        message: "Please enter title",
-                                    },
-                                    stringLength: {
-                                        min: 6,
-                                        message: "Name must be more than 6 characters",
-                                    },
-                                },
-                            },
-                            "detail_product[]": {
-                                selector: '[name="detail_product[]"]',
-                                validators: {
-                                    notEmpty: {
-                                        message: "Please enter detail product",
-                                    },
-                                    stringLength: {
-                                        min: 3,
-                                        message: "Area must be more than 3 characters (detail product)",
-                                    },
-                                },
-                            },
-                            harga: {
-                                validators: {
-                                    notEmpty: {
-                                        message: "Please enter price",
-                                    },
-                                    numericInput: {
-                                        number: "Please enter a valid number.",
-                                    },
-                                },
-                            },
-                            "qty[]": {
-                                validators: {
-                                    notEmpty: {
-                                        message: "Please enter Quantity",
-                                    },
-                                    numericInput: {
-                                        number: "Please enter a valid number.",
-                                    },
-                                },
-                            },
-                        },
-                        plugins: {
-                            trigger: new FormValidation.plugins.Trigger(),
-                            bootstrap5: new FormValidation.plugins.Bootstrap5({
-                                eleValidClass: "",
-                                rowSelector: ".mb-3",
-                            }),
-                            submitButton: new FormValidation.plugins.SubmitButton(),
-
-                            defaultSubmit: new FormValidation.plugins.DefaultSubmit(),
-                            autoFocus: new FormValidation.plugins.AutoFocus(),
-                        },
-                        init: (instance) => {
-                            instance.on("plugins.message.placed", function(e) {
-                                if (
-                                    e.element.parentElement.classList.contains(
-                                        "input-group"
-                                    )
-                                ) {
-                                    e.element.parentElement.insertAdjacentElement(
-                                        "afterend",
-                                        e.messageElement
-                                    );
-                                }
-                            });
-                        },
-                    });
-                }
-
-                // Jquery Dependency
-                // formatting  shipping
-                $("#shipping-label").on({
-                    keyup: function() {
-                        formatCurrencyShipping($(this));
+                // Tampilkan Badge - Code - Nama Supplier
+                function renderSupplierOption(option) {
+                    if (!option.id) {
+                        return option.text;
                     }
-                });
-                // Formatting Discount Quotation
-                $("#diskon-label").on({
-                    keyup: function() {
-                        formatCurrencyDiscount($(this));
+                    var info = $(option.element).data('info');
+                    var code = $(option.element).data('code');
+                    var $wrapper = $('<span></span>');
+                    if (info) {
+                        var badgeClass = info === 'Lokal' ? 'bg-label-info' : 'bg-label-primary';
+                        $wrapper.append($('<span></span>').addClass('badge ' + badgeClass).text(info));
+                        $wrapper.append(' ');
+                    }
+                    if (code) {
+                        $wrapper.append($('<span></span>').addClass('text-muted').text(code));
+                        $wrapper.append(' ');
+                    }
+                    $wrapper.append(document.createTextNode(option.text));
+                    return $wrapper;
+                }
+                var $supplierDropdown = $('#supplier-dropdown');
+                if ($supplierDropdown.data('select2')) {
+                    $supplierDropdown.select2('destroy');
+                }
+                $supplierDropdown.select2({
+                    placeholder: 'Pilih Supplier...',
+                    allowClear: true,
+                    width: '100%',
+                    dropdownParent: $supplierDropdown.parent(),
+                    templateResult: renderSupplierOption,
+                    templateSelection: renderSupplierOption,
+                    escapeMarkup: function(m) {
+                        return m;
                     }
                 });
 
-                function initializeSelect2Address() {
-                    $('.invoice-item-destination').select2({
-                        placeholder: ' ---- Choose Destination Here ---- ',
-                        allowClear: true,
-                        width: '100%',
-                    });
-                }
+                // Quick Add Supplier (AJAX, tanpa reload)
+                $('#saveQuickAddSupplier').on('click', function() {
+                    var code = $('#qsCode').val().trim();
+                    var name = $('#qsName').val().trim();
+                    var info = $('#qsInfo').val();
 
-                function initializeSelect2PIC() {
-                    $('.invoice-item-pic').select2({
-                        placeholder: ' ---- Choose PIC Here ---- ',
-                        allowClear: true,
-                        width: '100%',
-                    });
-                }
-
-                function formatNumber(n) {
-                    return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-                }
-
-                function formatCurrencyShipping(input) {
-                    var input_val = input.val();
-
-                    // don't validate empty input
-                    if (input_val === "") {
+                    if (!code || !name || !info) {
+                        $('#qsError').removeClass('d-none').text('Semua field wajib diisi.');
                         return;
                     }
 
-                    // original length
-                    var original_len = input_val.length;
+                    $.ajax({
+                        url: '{{ route('supplier.quick-store') }}',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            code: code,
+                            supplier: name,
+                            info: info
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                var newSupplier = res.data;
+                                var option = new Option(newSupplier.supplier, newSupplier.id, true, true);
+                                $(option).attr('data-info', newSupplier.info);
+                                $(option).attr('data-code', newSupplier.code);
+                                $supplierDropdown.append(option).trigger('change');
 
-                    // add commas to number
-                    // remove all non-digits
-                    input_val = formatNumber(input_val);
-                    input_val = input_val;
+                                $('#qsCode').val('');
+                                $('#qsName').val('');
+                                $('#qsInfo').val('');
+                                $('#qsError').addClass('d-none').text('');
+                                $('#quickAddSupplierModal').modal('hide');
+                            }
+                        },
+                        error: function(xhr) {
+                            var msg = xhr.responseJSON && xhr.responseJSON.message ?
+                                xhr.responseJSON.message : 'Gagal menyimpan, coba lagi.';
+                            $('#qsError').removeClass('d-none').text(msg);
+                        }
+                    });
+                });
 
-                    // send updated string to input
-                    input.val(input_val);
-                    var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
-                    $('#shipping').val(nomorInt);
+                function formatNumber(n) {
+                    return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
                 }
 
                 function formatCurrencyDiscount(input) {
@@ -584,13 +532,9 @@
                         return;
                     }
 
-                    // original length
-                    var original_len = input_val.length;
-
                     // add commas to number
                     // remove all non-digits
                     input_val = formatNumber(input_val);
-                    input_val = input_val;
 
                     // send updated string to input
                     input.val(input_val);
@@ -598,138 +542,17 @@
                     $('#diskon').val(nomorInt);
                 }
 
-                function formatPrice(num) {
-                    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-                }
-
-                $(`.invoice-item-client`).on('change', function(ev) {
-                    var clientId = $(this).val();
-                    console.log(clientId);
-
-                    $.ajax({
-                        url: '/quotation/client/' + clientId,
-                        type: 'GET',
-                        success: function(response) {
-                            console.log(response);
-
-                            // Mengosongkan dropdown detail produk
-                            $(`.invoice-item-destination`).empty();
-                            // Mengisi dropdown detail produk dengan hasil yang diterima
-                            // $.each(response, function(key, value) {
-                            $(`.invoice-item-destination`).append(
-                                '<option value="' +
-                                1 + '">' + response.address +
-                                '</option>' +
-                                '<option value="' +
-                                2 + '">' + response.subAddress +
-                                '</option>'
-                            );
-                            // Mengaktifkan dropdown detail produk
-                            $(`.invoice-item-destination`).prop('disabled', false);
-                        }
-                    });
-                    $.ajax({
-                        url: '/quotation/pic/' + clientId,
-                        type: 'GET',
-                        success: function(response) {
-                            console.log(response);
-
-                            // Mengosongkan dropdown detail produk
-                            $(`.invoice-item-pic`).empty();
-                            // Mengisi dropdown detail produk dengan hasil yang diterima
-                            $.each(response, function(key, value) {
-                                $(`.invoice-item-pic`).append(
-                                    '<option value="' +
-                                    value.id + '">' + value.name_pic +
-                                    '</option>'
-                                );
-                            });
-                            // Mengaktifkan dropdown detail produk
-                            $(`.invoice-item-pic`).prop('disabled', false);
-                        }
-                    });
+                // Formatting Discount Quotation (delegated: works for existing + future rows)
+                $(document).on('keyup', '#diskon-label', function() {
+                    formatCurrencyDiscount($(this));
                 });
 
-                $('.invoice-item-product').on('change', function(ev) {
-                    var replacementId = $(this).find(':selected').data('replacement');
-                    var Url = '/quotation/sparepart/' + replacementId;
-                    var commodity = $(this).find(':selected').data('commodity');
-                    var id = $(this).data('id');
-                    // console.log('Replacement ID:', replacementId);
-                    // console.log('URL:', Url);
-                    // console.log('Textarea ID:', id);
-
-                    $.ajax({
-                        url: '/product-in/replacement/' + commodity,
-                        type: 'GET',
-                        success: function(response) {
-                            // console.log('AJAX Response:', response);
-                            $(`#info-stock-${id}`).text(response[0].stock);
-                            $(`#info-weight-${id}`).text(response[0].weight);
-
-                            var weightTotal = 0;
-
-                            $('.info-weight-label').each(() => {
-                                weightTotal += parseInt($(`#info-weight-${id}`).text());
-                            });
-                            console.log('Weight Total : ', weightTotal);
-                            $(`.info-weight-total-label`).val(weightTotal + ' g');
-                        }
-                    });
-
-                    $.ajax({
-                        url: Url,
-                        type: 'GET',
-                        success: function(response) {
-                            console.log('Replacement Id : ', replacementId);
-                            console.log('URL: ', Url);
-
-                            console.log('AJAX Response:', response);
-                            $(`#detailProduct-${id}`).val(response[0].detail);
-                            $(`#priceLabel-${id}`).val(formatPrice(response[0].price));
-                            $(`#price-${id}`).val(response[0].price);
-                            var sTotal = 0,
-                                row = 0,
-                                amount = 0,
-                                hasil = 0,
-                                harga = response[0].price,
-                                disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(
-                                    `#disc-${id}`).val()),
-                                diskon = isNaN(parseInt($(`#diskon`).val())) ? 0 : parseInt($(
-                                    `#diskon`).val());
-                            $(`#qty-${id}`).val(1);
-                            // menghitung hasil
-                            hasil = harga * $(`#qty-${id}`).val();
-                            // menghitung amount
-                            amount = (hasil - (hasil * disc / 100));
-                            // memasukan data amount dan subtotal
-                            $(`#amount-${id}`).val(amount);
-                            $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
-                            $('.amount-label').each(() => {
-                                row++;
-                                sTotal += parseInt($(`#amount-${row}`).val())
-                            });
-                            $('#subtotal-label').html(`${formatter.format(sTotal)}`);
-                            $('#subtotal').val(sTotal);
-
-                            var noTax = 0;
-                            var hTotal = 0;
-                            var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax')
-                                .val());
-                            hTotal = parseInt(sTotal - diskon + (sTotal * tax / 100));
-                            noTax = parseInt(sTotal - diskon)
-                            $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
-                            $('#hargaTotal').val(hTotal);
-                            $('#totalNoTax').val(noTax);
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Error:', error);
-                        }
-                    });
+                // Toggle Tax (PPN 12%) on/off
+                $(document).on('change', '#taxSwitch', function() {
+                    $('#tax').val($(this).is(':checked') ? 11 : 0).trigger('change');
                 });
 
-
-                $(".invoice-item-price-label").on('keyup', function() {
+                $(document).on('keyup', '.invoice-item-price-label', function() {
                     var input = $(this)
                     var id = input.data('id');
                     var input_val = input.val();
@@ -737,233 +560,70 @@
                     // original length
                     var original_len = input_val.length;
 
+                    // initial caret position
+                    var caret_pos = input.prop("selectionStart");
+
                     // add commas to number
                     // remove all non-digits
                     input_val = formatNumber(input_val);
-                    input_val = input_val;
 
                     // send updated string to input
                     input.val(input_val);
                     var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
-                    console.log(id);
                     $(`#price-${id}`).val(nomorInt);
+
+                    // put caret back in the right position
+                    var updated_len = input_val.length;
+                    caret_pos = updated_len - original_len + caret_pos;
+                    input[0].setSelectionRange(caret_pos, caret_pos);
                 });
 
                 // Logic amount + Subtotal
-                $('.invoice-item-price-label, .invoice-item-qty, .invoice-item-disc').on('keyup change click', function(
-                    ev) {
-                    // mengambil ID
-                    var id = $(this).data('id');
-                    // prepare data
-                    var sTotal = 0,
-                        row = 0,
-                        amount = 0,
-                        hasil = 0,
-                        valHarga = $(`#price-${id}`).val(),
-                        harga = Number(valHarga),
-                        disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val());
-                    // menghitung hasil
-                    console.log(valHarga);
-                    hasil = harga * $(`#qty-${id}`).val();
-                    // menghitung amount
-                    amount = (hasil - (hasil * disc / 100));
-                    // memasukan data amount dan subtotal
-                    $(`#amount-${id}`).val(amount);
-                    $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
-                    $('.amount-label').each(() => {
-                        row++;
-                        sTotal += parseInt($(`#amount-${row}`).val())
+                $(document).on('keyup change click', '.invoice-item-price-label, .invoice-item-qty, .invoice-item-disc',
+                    function(ev) {
+                        // mengambil ID
+                        var id = $(this).data('id');
+                        // prepare data
+                        var sTotal = 0,
+                            row = 0,
+                            amount = 0,
+                            hasil = 0,
+                            valHarga = $(`#price-${id}`).val(),
+                            harga = Number(valHarga),
+                            disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val());
+                        // menghitung hasil
+                        hasil = harga * $(`#qty-${id}`).val();
+                        // menghitung amount
+                        amount = (hasil - (hasil * disc / 100));
+                        // memasukan data amount dan subtotal
+                        $(`#amount-${id}`).val(amount);
+                        $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
+                        $('.amount-label').each(() => {
+                            row++;
+                            sTotal += parseInt($(`#amount-${row}`).val())
+                        });
+                        $('#subtotal-label').html(`${formatter.format(sTotal)}`);
+                        $('#subtotal').val(sTotal);
                     });
-                    $('#subtotal-label').html(`${formatter.format(sTotal)}`);
-                    $('#subtotal').val(sTotal);
-                });
 
                 // Logic Harga Total
-                $('#subtotal, #tax, #shipping-label, #diskon-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-disc')
-                    .on('keyup change',
-                        () => {
-                            var noTax = 0;
-                            var hTotal = 0;
-                            var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
-                            var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
-                            var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon').val());
-                            var dTotal = sTotal - discount,
-                                diskon = isNaN(parseInt($(`#diskon`).val())) ? 0 : parseInt($(
-                                    `#diskon`).val());
-                            var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                            hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
-                            noTax = parseInt(dTotal + shipping);
-                            console.log(hTotal);
-                            $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
-                            $('#hargaTotal').val(hTotal);
-                            $('#totalNoTax').val(noTax);
-                        });
-                // Logic Subtotal dan Amount Setelah Tambah Product
-                $('.btn-add').on('click', () => {
-
-                    $('.invoice-item-product').on('change', function(ev) {
-                        var replacementId = $(this).find(':selected').data('replacement');
-                        var Url = '/quotation/sparepart/' + replacementId;
-                        var commodity = $(this).find(':selected').data('commodity');
-                        var id = $(this).data('id');
-                        // console.log('Replacement ID:', replacementId);
-                        // console.log('URL:', Url);
-                        console.log('Textarea ID:', id);
-
-                        $.ajax({
-                            url: '/product-in/replacement/' + commodity,
-                            type: 'GET',
-                            success: function(response) {
-                                console.log('AJAX Response:', response);
-                                $(`#info-stock-${id}`).text(response[0].stock);
-                                $(`#info-weight-${id}`).text(response[0].weight);
-
-                                var row = 0,
-                                    weightTotal = 0;
-
-                                $('.info-weight-label').each(() => {
-                                    row++;
-                                    weightTotal += parseInt($(`#info-weight-${row}`)
-                                        .text());
-                                });
-                                console.log('Weight Total : ', weightTotal);
-                                $(`.info-weight-total-label`).val(weightTotal + ' g');
-                            }
-                        });
-                        $.ajax({
-                            url: Url,
-                            type: 'GET',
-
-                            success: function(response) {
-                                console.log('AJAX Response:', response);
-                                $(`#detailProduct-${id}`).val(response[0].detail);
-                                $(`#priceLabel-${id}`).val(formatPrice(response[0].price));
-                                $(`#price-${id}`).val(response[0].price);
-                                var sTotal = 0,
-                                    row = 0,
-                                    amount = 0,
-                                    hasil = 0,
-                                    harga = response[0].price,
-                                    disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 :
-                                    parseInt($(
-                                        `#disc-${id}`).val()),
-                                    diskon = isNaN(parseInt($(`#diskon`).val())) ? 0 :
-                                    parseInt($(
-                                        `#diskon`).val());
-                                $(`#qty-${id}`).val(1);
-                                // menghitung hasil
-                                hasil = harga * $(`#qty-${id}`).val();
-                                // menghitung amount
-                                amount = (hasil - (hasil * disc / 100));
-                                // memasukan data amount dan subtotal
-                                $(`#amount-${id}`).val(amount);
-                                $(`#amount-label-${id}`).html(
-                                    `${formatter.format(amount)}`);
-                                $('.amount-label').each(() => {
-                                    row++;
-                                    sTotal += parseInt($(`#amount-${row}`).val())
-                                });
-                                $('#subtotal-label').html(`${formatter.format(sTotal)}`);
-                                $('#subtotal').val(sTotal);
-
-                                var noTax = 0;
-                                var hTotal = 0;
-                                var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($(
-                                        '#tax')
-                                    .val());
-                                hTotal = parseInt(sTotal - diskon + (sTotal * tax / 100));
-                                noTax = parseInt(sTotal - diskon)
-                                $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
-                                $('#hargaTotal').val(hTotal);
-                                $('#totalNoTax').val(noTax);
-                            },
-                            error: function(xhr, status, error) {
-                                console.error('Error:', error);
-                            }
-                        });
+                $(document).on('keyup change',
+                    '#subtotal, #tax, #diskon-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-disc',
+                    () => {
+                        var noTax = 0;
+                        var hTotal = 0;
+                        var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
+                        var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon').val());
+                        var dTotal = sTotal - discount;
+                        var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
+                        var taxAmount = parseInt(dTotal * tax / 100);
+                        hTotal = parseInt(dTotal + taxAmount);
+                        noTax = parseInt(dTotal);
+                        $('#taxAmountLabel').html(tax > 0 ? formatter.format(taxAmount) : '');
+                        $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
+                        $('#hargaTotal').val(hTotal);
+                        $('#totalNoTax').val(noTax);
                     });
-                    $(".invoice-item-price-label").on('keyup', function() {
-                        var input = $(this)
-                        var id = input.data('id');
-                        var input_val = input.val();
-
-                        // don't validate empty input
-                        if (input_val === "") {
-                            return;
-                        }
-
-                        // original length
-                        var original_len = input_val.length;
-
-                        // initial caret position 
-                        var caret_pos = input.prop("selectionStart");
-
-                        // add commas to number
-                        // remove all non-digits
-                        input_val = formatNumber(input_val);
-                        input_val = input_val;
-
-                        // send updated string to input
-                        input.val(input_val);
-                        var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
-                        console.log(id);
-                        $(`#price-${id}`).val(nomorInt);
-
-                        // put caret back in the right position
-                        var updated_len = input_val.length;
-                        caret_pos = updated_len - original_len + caret_pos;
-                        input[0].setSelectionRange(caret_pos, caret_pos);
-                    });
-                    $('.invoice-item-price-label, .invoice-item-qty, .invoice-item-disc').on(
-                        'keyup change click',
-                        function(ev) {
-                            var id = $(this).data('id');
-                            var sTotal = 0,
-                                row = 0;
-                            var amount = 0,
-                                hasil = 0,
-                                disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(
-                                    `#disc-${id}`).val());
-                            hasil = $(`#price-${id}`).val() * $(`#qty-${id}`).val();
-                            amount = (hasil - (hasil * disc / 100));
-                            $(`#amount-${id}`).val(amount);
-                            $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
-                            $('.amount-label').each(() => {
-                                row++;
-                                sTotal += parseInt($(`#amount-${row}`).val())
-                            })
-                            console.log(sTotal + "<total row>" + row);
-                            console.log("Anda Sedang berada di Id : " + id);
-                            $('#subtotal-label').html(`${formatter.format(sTotal)}`);
-                            $('#subtotal').val(sTotal);
-                        });
-
-                    // Logic Harga Total
-                    $('#subtotal, #tax, #shipping-label, #diskon-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-disc')
-                        .on('keyup change',
-                            () => {
-                                var noTax = 0;
-                                var hTotal = 0;
-                                var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal')
-                                    .val());
-                                var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($(
-                                    '#shipping').val());
-                                var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon')
-                                    .val());
-                                var dTotal = sTotal - discount,
-                                    diskon = isNaN(parseInt($(`#diskon`).val())) ? 0 : parseInt($(
-                                        `#diskon`).val());
-                                var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                                hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
-                                noTax = parseInt(dTotal + shipping);
-                                console.log(hTotal);
-                                $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
-                                $('#hargaTotal').val(hTotal);
-                                $('#totalNoTax').val(noTax);
-                            });
-                    initializeSelect2Product();
-                });
-
             })
         </script>
     @endpush

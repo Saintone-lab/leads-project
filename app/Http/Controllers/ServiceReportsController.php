@@ -112,7 +112,7 @@ class ServiceReportsController extends Controller
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->select('pic.*')->get();
 
-        $machine = \App\Models\Machine::find($id_machine);
+        $machine = \App\Models\Machine::with('unit')->find($id_machine);
         if (!$machine) {
             abort(404);
         }
@@ -121,6 +121,12 @@ class ServiceReportsController extends Controller
         if ($machine->id_unit != $id_unit) {
             $id_unit = $machine->id_unit;
         }
+
+        // Unit internal Reftech (belum ada customer nyata) — 5387 dipakai di
+        // seluruh app sebagai placeholder "belum ada client" (lihat UnitController,
+        // FixedController). Untuk kasus ini, Sales/Client/PIC dilewati karena
+        // memang belum ada, cukup pilih Machine-nya langsung.
+        $isInternalStock = $machine->id_client == 5387;
 
         $selectedClientId = $machine->id_client ?? 5568;
         $selectedSalesId = optional(Client::find($selectedClientId))->id_sales ?? 23;
@@ -136,7 +142,9 @@ class ServiceReportsController extends Controller
             'selectedSalesId',
             'selectedClientId',
             'selectedPICId',
-            'selectedMachineId'
+            'selectedMachineId',
+            'isInternalStock',
+            'machine'
         ));
     }
 

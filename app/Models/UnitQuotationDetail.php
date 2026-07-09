@@ -12,6 +12,7 @@ class UnitQuotationDetail extends Model
         'id_unit_quotation',
         'type',
         'id_unit',
+        'id_fixed_asset',
         'spec_visible',
         'label',
         'description',
@@ -27,6 +28,11 @@ class UnitQuotationDetail extends Model
     public function unit()
     {
         return $this->belongsTo(Unit::class, 'id_unit');
+    }
+
+    public function fixedAsset()
+    {
+        return $this->belongsTo(FixedAsset::class, 'id_fixed_asset');
     }
 
     public function getSpecVisibleArray(): array

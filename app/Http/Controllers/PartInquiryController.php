@@ -125,6 +125,16 @@ class PartInquiryController extends Controller
         return response()->json($serials);
     }
 
+    public function bulkUpdateSellingPrice(Request $request, $id)
+    {
+        $request->validate(['selling_price' => 'required|numeric|min:0']);
+
+        $updated = SerialProduct::where('id_product', $id)
+            ->update(['price' => $request->selling_price]);
+
+        return response()->json(['success' => true, 'updated' => $updated]);
+    }
+
     public function show($id)
     {
         $serial = SerialProduct::with('product')->findOrFail($id);

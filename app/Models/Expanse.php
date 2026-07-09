@@ -20,10 +20,16 @@ class Expanse extends Model
         'charged',
         'cost',
         'no_track',
-        'type'
+        'type',
+        'status',
+        'id_expense',
     ];
     public function pending()
     {
-        return $this->hasMany('App\Model\PendingPO', 'id_pending');
+        return $this->belongsTo('App\Models\PendingPO', 'id_pending', 'id');
+    }
+    public function expense()
+    {
+        return $this->belongsTo('App\Models\Expense', 'id_expense', 'id');
     }
 }

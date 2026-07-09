@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\PrDiscussionMention;
+use App\Models\PurchaseRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -27,6 +28,15 @@ class AppServiceProvider extends ServiceProvider
                     ->take(10)
                     ->get();
                 $view->with('prMentions', $prMentions);
+            }
+        });
+
+        // Inject $prCount ke sidebar agar badge "Purchase Request" (New Purchase)
+        // muncul di semua halaman untuk role Admin/Accounting, bukan cuma di Dashboard.
+        View::composer('components.dashboard.sidebar', function ($view) {
+            if (Auth::check() && in_array(Auth::user()->role, ['Admin', 'Accounting'])) {
+                $prCount = PurchaseRequest::where('status', '0')->count();
+                $view->with('prCount', $prCount);
             }
         });
     }

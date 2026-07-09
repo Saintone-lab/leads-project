@@ -3,113 +3,127 @@
 @section('content')
     <div class="container-fluid p-0" style="width: calc(100% - 10px); margin-right:5px;margin-left:5px;">
         <h4 class="fw-bold py-3 mb-4"> <span class="text-muted fw-normal">Request Purchase</h4>
-        <div class="nav-align-top mb-4">
-            <ul class="nav nav-pills mb-3" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link waves-effect waves-light active" role="tab"
-                        data-bs-toggle="tab" data-bs-target="#navs-pills-top-new" aria-controls="navs-pills-top-new"
-                        aria-selected="true">
-                        New Purchase
-                        @if (@$newCount >= 1)
-                            <div class="badge bg-danger rounded-pill ms-auto">{{ $newCount }}</div>
-                        @endif
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
-                        data-bs-target="#navs-pills-top-acc" aria-controls="navs-pills-top-acc" aria-selected="true">
-                        Acc
-                        @if (@$accCount >= 1)
-                            <div class="badge bg-danger rounded-pill ms-auto">{{ $accCount }}</div>
-                        @endif
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
-                        data-bs-target="#navs-pills-top-delivery" aria-controls="navs-pills-top-delivery"
-                        aria-selected="false" tabindex="-1">
-                        On Delivery
-                        @if (@$deliveryCount >= 1)
-                            <div class="badge bg-danger rounded-pill ms-auto">{{ $deliveryCount }}</div>
-                        @endif
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button type="button"
-                        class="nav-link {{ auth::user()->role == 'ServiceM' ? 'active' : '' }} waves-effect waves-light"
-                        role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-top-done"
-                        aria-controls="navs-pills-top-done" aria-selected="false" tabindex="-1">
-                        Done Purchase
-                        @if (@$doneCount >= 1)
-                            <div class="badge bg-danger rounded-pill ms-auto">{{ $doneCount }}</div>
-                        @endif
-                    </button>
-                </li>
-            </ul>
+
+        <div class="card mb-4">
+            {{-- ── Top-level status tabs ─────────────────────────────────── --}}
+            <div class="card-header p-0 border-bottom">
+                <ul class="nav nav-tabs px-3 pt-2" id="purchaseRequestTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button type="button" class="nav-link active px-3 py-3" role="tab" data-bs-toggle="tab"
+                            data-bs-target="#navs-pills-top-new" aria-controls="navs-pills-top-new"
+                            aria-selected="true">
+                            <i class="mdi mdi-file-plus-outline me-1"></i>New Purchase
+                            @if (@$newCount >= 1)
+                                <span class="badge bg-danger rounded-pill ms-1">{{ $newCount }}</span>
+                            @endif
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button type="button" class="nav-link px-3 py-3" role="tab" data-bs-toggle="tab"
+                            data-bs-target="#navs-pills-top-acc" aria-controls="navs-pills-top-acc"
+                            aria-selected="false">
+                            <i class="mdi mdi-clipboard-check-outline me-1"></i>Approved
+                            @if (@$accCount >= 1)
+                                <span class="badge bg-warning rounded-pill ms-1">{{ $accCount }}</span>
+                            @endif
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button type="button" class="nav-link px-3 py-3" role="tab" data-bs-toggle="tab"
+                            data-bs-target="#navs-pills-top-delivery" aria-controls="navs-pills-top-delivery"
+                            aria-selected="false">
+                            <i class="mdi mdi-truck-delivery-outline me-1"></i>On Delivery
+                            @if (@$deliveryCount >= 1)
+                                <span class="badge bg-info rounded-pill ms-1">{{ $deliveryCount }}</span>
+                            @endif
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button type="button"
+                            class="nav-link px-3 py-3 {{ auth::user()->role == 'ServiceM' ? 'active' : '' }}"
+                            role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-top-done"
+                            aria-controls="navs-pills-top-done" aria-selected="false">
+                            <i class="mdi mdi-check-all me-1"></i>Done Purchase
+                            @if (@$doneCount >= 1)
+                                <span class="badge bg-success rounded-pill ms-1">{{ $doneCount }}</span>
+                            @endif
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
             <div class="tab-content">
-                <div class="tab-pane fade active show" id="navs-pills-top-new" role="tabpanel">
-                    <div class="card-datatable pt-0">
-                        <table class="datatable-purchase-request-new table table-striped">
+                <div class="tab-pane fade active show p-3" id="navs-pills-top-new" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="datatable-purchase-request-new table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
+                                    <th>No PR</th>
                                     <th>No PO</th>
                                     <th>No SO</th>
-                                    <th>Item</th>
                                     <th>Customer</th>
+                                    <th>Item</th>
                                     <th>Qty</th>
-                                    <th>Note</th>
+                                    <th>Date</th>
+                                    <th class="text-center">Sign</th>
                                 </tr>
                             </thead>
                         </table>
                     </div>
                 </div>
-                <div class="tab-pane fade" id="navs-pills-top-acc" role="tabpanel">
-                    <div class="card-datatable pt-0">
-                        <table class="datatable-purchase-request-acc table table-striped">
+                <div class="tab-pane fade p-3" id="navs-pills-top-acc" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="datatable-purchase-request-acc table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
+                                    <th>No PR</th>
                                     <th>No PO</th>
                                     <th>No SO</th>
-                                    <th>Item</th>
                                     <th>Customer</th>
+                                    <th>Item</th>
                                     <th>Qty</th>
-                                    <th>Note</th>
+                                    <th>Date</th>
+                                    <th class="text-center">Sign</th>
                                 </tr>
                             </thead>
                         </table>
                     </div>
                 </div>
-                <div class="tab-pane fade" id="navs-pills-top-delivery" role="tabpanel">
-                    <div class="card-datatable pt-0">
-                        <table class="datatable-purchase-request-delivery table table-striped">
+                <div class="tab-pane fade p-3" id="navs-pills-top-delivery" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="datatable-purchase-request-delivery table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
+                                    <th>No PR</th>
                                     <th>No PO</th>
                                     <th>No SO</th>
-                                    <th>Item</th>
                                     <th>Customer</th>
+                                    <th>Item</th>
                                     <th>Qty</th>
-                                    <th>Note</th>
+                                    <th>Date</th>
+                                    <th class="text-center">Sign</th>
+                                    <th>Tipe Pembelian</th>
+                                    <th>Cargo</th>
+                                    <th>No Resi</th>
+                                    <th>Tgl Pembelian</th>
                                 </tr>
                             </thead>
                         </table>
                     </div>
                 </div>
-                <div class="tab-pane fade" id="navs-pills-top-done" role="tabpanel">
-                    <div class="card-datatable pt-0">
-                        <table class="datatable-purchase-request-done table table-striped">
+                <div class="tab-pane fade p-3" id="navs-pills-top-done" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="datatable-purchase-request-done table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
+                                    <th>No PR</th>
                                     <th>No PO</th>
                                     <th>No SO</th>
-                                    <th>Item</th>
                                     <th>Customer</th>
+                                    <th>Item</th>
                                     <th>Qty</th>
-                                    <th>Note</th>
+                                    <th>Date</th>
+                                    <th class="text-center">Sign</th>
                                 </tr>
                             </thead>
                         </table>
@@ -117,7 +131,6 @@
                 </div>
             </div>
         </div>
-        {{-- Bataasss --}}
     </div>
 @endsection()
 
@@ -146,10 +159,7 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
     <script src="{{ asset('assets') }}/js/tables-datatables-advanced.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-purchase-request-new.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-purchase-request-acc.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-purchase-request-delivery.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-purchase-request-done.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-purchase-request.js"></script>
 @endpush
 
 @push('script')

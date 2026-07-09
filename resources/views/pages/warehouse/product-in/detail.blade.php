@@ -195,11 +195,11 @@
                     {{-- <a href="javascript{0}" type="button" class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">
                         Download
                     </a> --}}
-                    @if (Auth::user()->role == 'Admin')
-                        <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
-                            data-bs-toggle="modal" data-bs-target="#editPrice-{{ $product->id }}">
+                    @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
+                        <a href="{{ route('product-in.edit', $product->id) }}"
+                            class="btn btn-secondary d-grid w-100 waves-effect mb-3">
                             Edit Price
-                        </button>
+                        </a>
                     @endif
                     <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-invoice"
                         data-id="{{ $product->id }}">Delete</a>
@@ -208,7 +208,6 @@
         </div>
         {{-- End : Button Invoice --}}
     </div>
-    @include('components.modal.product.edit-price')
 
 @endsection
 @push('after-style')
@@ -224,33 +223,6 @@
 @endpush
 @push('script')
     <script>
-        function formatNumber(n) {
-            return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-        }
-
-
-        $(".invoice-item-modal-label").on('keyup', function() {
-            var input = $(this)
-            var id = input.data('id');
-            var input_val = input.val();
-
-            // original length
-            var original_len = input_val.length;
-
-            // add commas to number
-            // remove all non-digits
-            input_val = formatNumber(input_val);
-            input_val = input_val;
-
-            // send updated string to input
-            input.val(input_val);
-            var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
-            // console.log(id);
-            $(`#modal-${id}`).val(nomorInt);
-            var modal = $(`#modal-${id}`).val();
-            console.log(modal);
-        });
-
         $(document).on('click', '.delete-invoice', function() {
             var id = $(this).data('id');
             Swal.fire({

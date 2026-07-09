@@ -126,9 +126,11 @@
                         <thead>
                             <tr>
                                 <th>No</th>
+                                <th>No PR</th>
                                 <th>Item</th>
                                 <th>Qty</th>
                                 <th>Note</th>
+                                <th>Info Pengiriman</th>
                                 @if (Auth::user()->role != 'Logistic')
                                     <th>Action</th>
                                 @endif
@@ -166,31 +168,83 @@
                                 @endphp
                                 <tr>
                                     <td>{{ $no }}</td>
+                                    <td>{{ $pr->no_pr ?? '-' }}</td>
                                     <td>
                                         @if ($pr->id_equivalent == '0')
                                             -
                                         @else
+                                            @php
+                                                $detPrice = $detQuotation->firstWhere('id_equivalent', $pr->id_equivalent);
+                                            @endphp
                                             {{ $pr->equivalent->brand }} {{ $pr->equivalent->pn }}
+                                            @if ($pr->equivalent->product)
+                                                <span
+                                                    class="badge {{ $pr->equivalent->product->go == 'Genuine' ? 'bg-label-success' : 'bg-label-warning' }}">
+                                                    {{ $pr->equivalent->product->go }}
+                                                </span>
+                                            @endif
+                                            <div class="mt-1">
+                                                <span class="badge bg-success">
+                                                    <i class="mdi mdi-tag-outline me-1"></i>{{ $detPrice ? 'RP ' . number_format($detPrice->price, 0, '', '.') : '-' }}
+                                                </span>
+                                            </div>
                                         @endif
                                     </td>
                                     {{-- <td>
                                     <pre class="mb-0"
                                         style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $item->detail_product }}</pre>
                                 </td> --}}
-                                    <td>{{ $pr->qty }} {{ $pr->equivalent->product->unit }}</td>
-                                    <td>{{ $pr->note }}</td>
-                                    @if (Auth::user()->role != 'Logistic')
-                                        <td>
-                                            @if ($pr->status == 0)
-                                                <a href="#"
-                                                    class="btn btn-info d-grid w-100 waves-effect acc-purchase"
+                                    <td>{{ $pr->qty }} {{ $pr->equivalent->product->unit ?? '' }}</td>
+                                    <td style="max-width: 220px;">
+                                        @if ($pr->note && $pr->note != '-')
+                                            <span class="text-muted fst-italic small">
+                                                <i class="mdi mdi-note-text-outline me-1"></i>{{ $pr->note }}
+                                            </span>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($pr->status >= 2 && $pr->purchase_type)
+                                            <div class="d-flex align-items-start gap-2">
+                                                <div class="d-flex flex-column gap-1" style="font-size: 0.8rem;">
+                                                    <span
+                                                        class="badge {{ $pr->purchase_type == 'Lokal' ? 'bg-label-info' : 'bg-label-primary' }}">
+                                                        {{ $pr->purchase_type }}
+                                                    </span>
+                                                    <span><i class="mdi mdi-truck-outline me-1"></i>{{ $pr->cargo }}</span>
+                                                    <span><i class="mdi mdi-barcode me-1"></i>{{ $pr->no_resi ?: 'Belum ada resi' }}</span>
+                                                    <span><i class="mdi mdi-calendar-outline me-1"></i>{{ \Carbon\Carbon::parse($pr->purchase_date)->format('d-m-Y') }}</span>
+                                                </div>
+                                                <a href="#" data-bs-toggle="tooltip" title="Edit Info Pengiriman"
+                                                    class="btn btn-sm btn-icon btn-label-secondary waves-effect edit-delivery-info"
                                                     data-id="{{ $pr->id }}"
-                                                    data-pending="{{ $pending->id }}">ACC</a>
+                                                    data-purchase-type="{{ $pr->purchase_type }}"
+                                                    data-cargo="{{ $pr->cargo }}"
+                                                    data-no-resi="{{ $pr->no_resi }}"
+                                                    data-purchase-date="{{ $pr->purchase_date }}">
+                                                    <i class="menu-icon tf-icons mdi mdi-16px mdi-pencil-outline m-0"></i>
+                                                </a>
+                                            </div>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    @if (Auth::user()->role != 'Logistic')
+                                        <td class="text-center">
+                                            @if ($pr->status == 0)
+                                                <a href="#" data-bs-toggle="tooltip" title="ACC"
+                                                    class="btn btn-sm btn-icon btn-label-info waves-effect acc-purchase"
+                                                    data-id="{{ $pr->id }}"
+                                                    data-pending="{{ $pending->id }}">
+                                                    <i class="menu-icon tf-icons mdi mdi-18px mdi-check-circle-outline m-0"></i>
+                                                </a>
                                             @elseif($pr->status == 1)
-                                                <a href="#"
-                                                    class="btn btn-twitter d-grid w-100 waves-effect delivery-purchase"
-                                                    data-id="{{ $pr->id }}" data-pending="{{ $pending->id }}">On
-                                                    Delivery</a>
+                                                <a href="#" data-bs-toggle="tooltip" title="On Delivery"
+                                                    class="btn btn-sm btn-icon btn-label-primary waves-effect delivery-purchase"
+                                                    data-id="{{ $pr->id }}" data-pending="{{ $pending->id }}">
+                                                    <i class="menu-icon tf-icons mdi mdi-18px mdi-truck-delivery-outline m-0"></i>
+                                                </a>
                                             @endif
                                         </td>
                                     @endif
@@ -200,7 +254,7 @@
                                 @endphp
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center">Tidak Ada Purchase Request</td>
+                                    <td colspan="7" class="text-center">Tidak Ada Purchase Request</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -325,6 +379,53 @@
     </div>
     {{-- End : Button Invoice --}}
     </div>
+
+    {{-- Modal: Info Pengiriman (On Delivery) --}}
+    <div class="modal fade" id="modalDeliveryInfo" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form id="deliveryInfoForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deliveryInfoModalTitle">Info Pengiriman</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label d-block">Tipe Pembelian</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="purchase_type" id="purchaseTypeLokal"
+                                    value="Lokal" required>
+                                <label class="form-check-label" for="purchaseTypeLokal">Lokal</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="purchase_type" id="purchaseTypeImpor"
+                                    value="Impor" required>
+                                <label class="form-check-label" for="purchaseTypeImpor">Impor</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tanggal Pembelian</label>
+                            <input type="date" class="form-control" name="purchase_date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cargo / Ekspedisi</label>
+                            <input type="text" class="form-control" name="cargo" placeholder="Contoh: JNE, SiCepat, DHL"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">No Resi <span class="text-muted fw-normal">(opsional, bisa diisi belakangan)</span></label>
+                            <input type="text" class="form-control" name="no_resi" placeholder="Nomor resi">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-twitter" id="deliveryInfoSubmitBtn">On Delivery</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {{-- End: Modal Info Pengiriman --}}
 @endsection
 @push('after-style')
     <!-- Page CSS -->
@@ -590,117 +691,107 @@
                 }
             });
         });
+        var deliveryModalEl = document.getElementById('modalDeliveryInfo');
+        var deliveryModal = new bootstrap.Modal(deliveryModalEl);
+        var deliveryContext = {};
+
         $(document).on('click', '.delivery-purchase', function() {
-            var id = $(this).data('id');
-            var pending = $(this).data('pending');
-            Swal.fire({
-                title: "Are you sure?",
-                text: "You won't be able to deliverry this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Yes, delivery it!",
-                customClass: {
-                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
-                    cancelButton: "btn btn-label-secondary waves-effect",
-                },
-                buttonsStyling: false,
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        'url': '{{ url('purchase-request') }}/delivery/' + id,
-                        'type': 'POST',
-                        'data': {
-                            '_method': 'PATCH',
-                            '_token': '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response == 1) {
-                                Swal.fire({
-                                    icon: "success",
-                                    title: "Delivery succed!",
-                                    text: "Your file has been deliveried.",
-                                    customClass: {
-                                        confirmButton: "btn btn-success waves-effect",
-                                    },
-                                })
-                                window.setTimeout(function() {
-                                    window.location.href = '/purchase-request/' +
-                                        pending;
-                                }, 2000);
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops...',
-                                    text: 'Data Failed to Derlivery!'
-                                });
-                            }
-                        }
-                    });
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    Swal.fire({
-                        title: "Cancelled",
-                        text: "Your imaginary file is safe :)",
-                        icon: "error",
-                        customClass: {
-                            confirmButton: "btn btn-success waves-effect",
-                        },
-                    });
-                }
-            });
+            deliveryContext = {
+                mode: 'single',
+                id: $(this).data('id'),
+                pending: $(this).data('pending'),
+            };
+            $('#deliveryInfoForm')[0].reset();
+            $('#deliveryInfoModalTitle').text('Info Pengiriman');
+            $('#deliveryInfoSubmitBtn').text('On Delivery');
+            deliveryModal.show();
         });
         $(document).on('click', '.delivery-all-purchase', function() {
-            var id = $(this).data('id');
-            Swal.fire({
-                title: "Are you sure?",
-                text: "You won't be able to delivery this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Yes, Delivery it!",
-                customClass: {
-                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
-                    cancelButton: "btn btn-label-secondary waves-effect",
+            deliveryContext = {
+                mode: 'all',
+                id: $(this).data('id'),
+            };
+            $('#deliveryInfoForm')[0].reset();
+            $('#deliveryInfoModalTitle').text('Info Pengiriman');
+            $('#deliveryInfoSubmitBtn').text('On Delivery');
+            deliveryModal.show();
+        });
+        $(document).on('click', '.edit-delivery-info', function() {
+            deliveryContext = {
+                mode: 'edit',
+                id: $(this).data('id'),
+            };
+            $('#deliveryInfoForm')[0].reset();
+            var $form = $('#deliveryInfoForm');
+            $('[name="purchase_type"][value="' + $(this).data('purchase-type') + '"]', $form).prop('checked', true);
+            $('[name="cargo"]', $form).val($(this).data('cargo'));
+            $('[name="no_resi"]', $form).val($(this).data('no-resi'));
+            $('[name="purchase_date"]', $form).val($(this).data('purchase-date'));
+            $('#deliveryInfoModalTitle').text('Edit Info Pengiriman');
+            $('#deliveryInfoSubmitBtn').text('Simpan');
+            deliveryModal.show();
+        });
+
+        $('#deliveryInfoForm').on('submit', function(e) {
+            e.preventDefault();
+            var purchaseType = $('[name="purchase_type"]:checked', this).val();
+            var cargo = $('[name="cargo"]', this).val();
+            var noResi = $('[name="no_resi"]', this).val();
+            var purchaseDate = $('[name="purchase_date"]', this).val();
+
+            var urlMap = {
+                all: '{{ url('purchase-request') }}/delivery-all/' + deliveryContext.id,
+                edit: '{{ url('purchase-request') }}/delivery-info/' + deliveryContext.id,
+                single: '{{ url('purchase-request') }}/delivery/' + deliveryContext.id,
+            };
+            var url = urlMap[deliveryContext.mode] || urlMap.single;
+            var redirectId = deliveryContext.mode === 'all' ? deliveryContext.id :
+                (deliveryContext.mode === 'edit' ? '{{ $pending->id }}' : deliveryContext.pending);
+            var successText = deliveryContext.mode === 'edit' ?
+                'Info pengiriman berhasil diperbarui.' : 'Your file has been deliveried.';
+
+            $.ajax({
+                'url': url,
+                'type': 'POST',
+                'data': {
+                    '_method': 'PATCH',
+                    '_token': '{{ csrf_token() }}',
+                    'purchase_type': purchaseType,
+                    'cargo': cargo,
+                    'no_resi': noResi,
+                    'purchase_date': purchaseDate,
                 },
-                buttonsStyling: false,
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        'url': '{{ url(path: 'purchase-request') }}/delivery-all/' + id,
-                        'type': 'POST',
-                        'data': {
-                            '_method': 'PATCH',
-                            '_token': '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response == 1) {
-                                Swal.fire({
-                                    icon: "success",
-                                    title: "Delivery succed!",
-                                    text: "Your file has been delivery.",
-                                    customClass: {
-                                        confirmButton: "btn btn-success waves-effect",
-                                    },
-                                })
-                                window.setTimeout(function() {
-                                    window.location.href = '/purchase-request/' +
-                                        id;
-                                }, 2000);
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops...',
-                                    text: 'Data Failed to Delivery!'
-                                });
-                            }
-                        }
-                    });
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                success: function(response) {
+                    if (response == 1) {
+                        deliveryModal.hide();
+                        Swal.fire({
+                            icon: "success",
+                            title: "Delivery succed!",
+                            text: successText,
+                            customClass: {
+                                confirmButton: "btn btn-success waves-effect",
+                            },
+                        })
+                        window.setTimeout(function() {
+                            window.location.href = '/purchase-request/' + redirectId;
+                        }, 2000);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Data Failed to Delivery!'
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    var message = 'Data Failed to Delivery!';
+                    if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                        message = Object.values(xhr.responseJSON.errors).flat().join('\n');
+                    }
                     Swal.fire({
-                        title: "Cancelled",
-                        text: "Your imaginary file is safe :)",
-                        icon: "error",
-                        customClass: {
-                            confirmButton: "btn btn-success waves-effect",
-                        },
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: message
                     });
                 }
             });

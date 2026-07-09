@@ -17,7 +17,10 @@ class DetailPurchaseOrder extends Model
         'product',
         'qty',
         'info_qty',
+        'price',
+        'disc',
         'amount',
+        'pph',
     ];
     public function purchase()
     {

@@ -68,6 +68,7 @@ use App\Models\Mainlog;
 use App\Models\Monitoring;
 use App\Models\MonitoringWeekly;
 use App\Models\Notulen;
+use App\Models\Expanse;
 use App\Models\Expense;
 use App\Models\Payment;
 use App\Models\PendingPO;
@@ -274,6 +275,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/detail-overview/{sales}/{date}', [OverviewController::class, 'detailSemesterOverview'])->name('detail-overview.semester');
     Route::get('/overview/{semester}/{sales}', [OverviewController::class, 'overviewAdmin'])->name('overview-sales.semester');
     Route::get('/report/monthly/{year?}/{month?}', [OverviewController::class, 'reportMonthly'])->name('report.monthly');
+    Route::get('/report/finance/{year?}/{month?}', [OverviewController::class, 'reportFinance'])->name('report.finance');
     Route::get('/report/year/{year}', [OverviewController::class, 'reportsByYear'])->name('report.year');
     Route::get('/report/current', [OverviewController::class, 'reportCurrent'])->name('report.current');
     Route::get('/report/{semester}', [OverviewController::class, 'reportsSemester'])->name('report.semester');
@@ -314,6 +316,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/part-inquiry/create', [PartInquiryController::class, 'create'])->name('part-inquiry.create');
     Route::post('/part-inquiry', [PartInquiryController::class, 'store'])->name('part-inquiry.store');
     Route::get('/part-inquiry/product/{id}/equivalents', [PartInquiryController::class, 'getEquivalents'])->name('part-inquiry.product.equivalents');
+    Route::patch('/part-inquiry/product/{id}/equivalents/bulk-price', [PartInquiryController::class, 'bulkUpdateSellingPrice'])->name('part-inquiry.product.equivalents.bulk-price');
     Route::get('/part-inquiry/{id}', [PartInquiryController::class, 'show'])->name('part-inquiry.show');
     Route::post('/part-inquiry/{id}/vendor', [PartInquiryController::class, 'storeVendorPrice'])->name('part-inquiry.vendor.store');
     Route::patch('/part-inquiry/serial/{id}/selling-price', [PartInquiryController::class, 'updateSellingPrice'])->name('part-inquiry.selling-price.update');
@@ -1527,6 +1530,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/expense-inventory', [ExpenseController::class, 'storeExpenseInventory'])->name('expense-inventory.store');
     Route::delete('/expense-inventory/{id}', [ExpenseController::class, 'deleteExpenseInventory'])->name('expense-inventory.delete');
 
+    Route::get('/expense-ongkir', [ExpenseController::class, 'indexOngkir'])->name('expense-ongkir.index');
+    Route::post('/expense-ongkir/{id}', [ExpenseController::class, 'postOngkir'])->name('expense-ongkir.post');
+
     Route::get('/income', [ExpenseController::class, 'indexIncome'])->name('expense-income.index');
     Route::post('/income', [ExpenseController::class, 'storeIncome'])->name('expense-income.store');
     Route::get('/income-print/{mounth}/{year}', [ExpenseController::class, 'printBulan'])->name('expense-income.print-bulan');
@@ -1554,6 +1560,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::patch('/purchase-request/acc-all/{id}', [PurchaseController::class, 'acc_all'])->name('purchase-request.acc-all');
     Route::patch('/purchase-request/delivery/{id}', [PurchaseController::class, 'delivery'])->name('purchase-request.delivery');
     Route::patch('/purchase-request/delivery-all/{id}', [PurchaseController::class, 'delivery_all'])->name('purchase-request.delivery-all');
+    Route::patch('/purchase-request/delivery-info/{id}', [PurchaseController::class, 'updateDeliveryInfo'])->name('purchase-request.update-delivery-info');
     Route::get('/purchase-request/done-all/{id}', [PurchaseController::class, 'done_all'])->name('purchase-request.done-all');
     Route::post('/purchase-request/store-done-all/{id}', [PurchaseController::class, 'store_done_all'])->name('purchase-request.store-done-all');
     Route::post('/purchase-request/store-done-all-logistic/{id}', [PurchaseController::class, 'store_done_all_logistic'])->name('purchase-request.store-done-all-logistic');
@@ -1641,6 +1648,17 @@ Route::group(["middleware" => "auth"], function () {
 
     // Fixed Asset
     Route::resource('/fixed', FixedController::class);
+
+    // Unit Acquisition (E-Stock) — servis & konfirmasi QC. Pembuatan data barunya
+    // tetap lewat Finance > Fixed Asset (kategori "Mesin"), data intinya sama-sama
+    // tabel fixed_asset, cuma menu kelolanya dipisah dari Fixed Asset yang read-only.
+    Route::get('/unit-acquisition', [FixedController::class, 'indexUnitAcquisition'])->name('unit-acquisition.index');
+    Route::get('/unit-acquisition/{id}', [FixedController::class, 'showUnitAcquisition'])->name('unit-acquisition.show');
+    Route::post('/unit-acquisition/{id}/confirm', [FixedController::class, 'confirm'])->name('unit-acquisition.confirm');
+    Route::get('/unit-acquisition/{id}/service/create', [FixedController::class, 'createService'])->name('unit-acquisition.service.create');
+    Route::post('/unit-acquisition/{id}/service', [FixedController::class, 'storeService'])->name('unit-acquisition.service.store');
+    Route::post('/unit-acquisition/{id}/status', [FixedController::class, 'updateStatusUnit'])->name('unit-acquisition.status');
+    Route::post('/unit-acquisition/{id}/harga-jual', [FixedController::class, 'updateHargaJual'])->name('unit-acquisition.harga-jual');
 
     // Unit Quotation
     Route::resource('/unit-quotation', UnitQuotationController::class);
@@ -3495,6 +3513,46 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/db/unit', function () {
         require_once base_path('app/api/product/connectionUnit.php');
     });
+    Route::get('/db/unit/ready', function () {
+        $category = request()->get('category', '');
+        $typeUnit = request()->get('type_unit', '');
+        $generation = request()->get('generation', '');
+
+        $data = FixedAsset::join('unit as u', 'u.id', '=', 'fixed_asset.id_unit')
+            ->where('fixed_asset.type', 'Mesin')
+            ->where('fixed_asset.qc_status', 'ok')
+            ->when($category !== '', fn($q) => $q->where('u.unit', $category))
+            ->when($typeUnit !== '', fn($q) => $q->where('u.type_unit', $typeUnit))
+            ->when($generation !== '', fn($q) => $q->where('u.generation', $generation))
+            ->select(
+                'fixed_asset.id',
+                'fixed_asset.code',
+                'fixed_asset.kondisi',
+                'fixed_asset.status_unit',
+                'fixed_asset.serial_number',
+                'fixed_asset.harga_jual',
+                'u.sku',
+                'u.brand',
+                'u.model',
+                'u.generation',
+                'u.type_unit',
+                'u.power',
+                'u.air_cap',
+                'u.bar',
+                'u.voltage',
+                'u.exhaust',
+                'u.filtration',
+                'u.oil_content',
+                'u.grade',
+                'u.capacity',
+                'u.dimension',
+                'u.weight'
+            )
+            ->orderBy('u.brand')
+            ->get();
+
+        return response()->json(['data' => $data]);
+    });
     Route::get('/db/unit/second', function () {
         require_once base_path('app/api/product/connectionUnitSecond.php');
     });
@@ -3560,6 +3618,69 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/catalog/search', function () {
         require_once base_path('app/api/catalog/connectionCatalogSearch.php');
+    });
+    Route::get('/db/fixed-asset/search', function () {
+        $q = trim(request()->get('q', ''));
+        $like = '%' . $q . '%';
+
+        $results = FixedAsset::join('unit as u', 'u.id', '=', 'fixed_asset.id_unit')
+            ->leftJoin('catalog_unit as cu', 'cu.id_unit', '=', 'u.id')
+            ->where('fixed_asset.type', 'Mesin')
+            ->where('fixed_asset.qc_status', 'ok')
+            ->where(function ($query) use ($like) {
+                $query->where('u.sku', 'like', $like)
+                    ->orWhere('u.brand', 'like', $like)
+                    ->orWhere('u.model', 'like', $like)
+                    ->orWhere('u.unit', 'like', $like)
+                    ->orWhere('fixed_asset.serial_number', 'like', $like)
+                    ->orWhere('fixed_asset.code', 'like', $like);
+            })
+            ->select(
+                'fixed_asset.id as id_fixed_asset',
+                'fixed_asset.code',
+                'fixed_asset.serial_number',
+                'fixed_asset.kondisi',
+                'fixed_asset.status_unit',
+                'u.id',
+                'u.sku',
+                'u.brand',
+                'u.model',
+                'u.unit',
+                'u.type_unit',
+                'u.bar',
+                'u.air_cap',
+                'u.power',
+                'u.voltage',
+                'u.exhaust',
+                'u.connect',
+                'u.cooling',
+                'u.refrigerant_type',
+                'u.pdp',
+                'u.filtration',
+                'u.oil_content',
+                'u.grade',
+                'u.capacity',
+                'u.material',
+                'u.test_pressure',
+                'u.inlet_pressure',
+                'u.outlet_pressure',
+                'u.inlet_cap',
+                'u.outlet_cap',
+                'u.dimension',
+                'u.weight',
+                'u.desc',
+                'fixed_asset.harga_jual',
+                'cu.price_idr as catalog_price'
+            )
+            ->orderBy('u.brand')
+            ->limit(30)
+            ->get()
+            ->map(function ($row) {
+                $row->price = $row->harga_jual ?? $row->catalog_price;
+                return $row;
+            });
+
+        return response()->json($results);
     });
     Route::get('/db/product/master', function () {
         require_once base_path('app/api/product/master/connection.php');
@@ -5311,6 +5432,15 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->get();
         return response()->json(['data' => $expense]);
     });
+    Route::get('/db/expense/ongkir', function () {
+        $expanse = Expanse::join('pending_po as p', 'p.id', '=', 'expanse.id_pending')
+            ->where('expanse.type', 'Resi')
+            ->where('expanse.charged', '1')
+            ->select('expanse.*', 'p.no_pending', 'p.title')
+            ->orderByDesc('expanse.id')
+            ->get();
+        return response()->json(['data' => $expanse]);
+    });
     Route::get('/db/purchase-request/new', function () {
         $purchase = PurchaseRequest::join('pending_po as p', 'purchase_request.id_pending', '=', 'p.id')
             ->join('serial_product as s', 'purchase_request.id_equivalent', '=', 's.id')
@@ -5319,14 +5449,18 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->leftJoin('invoice as i', 'i.id_quotation', '=', 'q.id')
             ->join('pic as pi', 'pi.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->leftJoin('users as u', 'u.id', '=', 'q.id_sales')
             ->where('purchase_request.status', '0')
             ->select(
                 'p.id',
+                'purchase_request.no_pr',
                 'purchase_request.date',
                 'p.no_pending',
                 'i.no_po',
                 'c.company',
                 'purchase_request.note',
+                'u.image as user_image',
+                'u.name as user_name',
                 DB::raw("CONCAT(purchase_request.qty, ' ', pr.unit) as qty_full"),
                 DB::raw("CONCAT(s.brand, ' ', s.pn, ' (', SUBSTRING(pr.go, 1, 1) , ')') as item")
             )->get();
@@ -5340,14 +5474,18 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
             ->join('pic as pi', 'pi.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->leftJoin('users as u', 'u.id', '=', 'q.id_sales')
             ->where('purchase_request.status', '1')
             ->select(
                 'p.id',
+                'purchase_request.no_pr',
                 'purchase_request.date',
                 'p.no_pending',
                 'i.no_po',
                 'c.company',
                 'purchase_request.note',
+                'u.image as user_image',
+                'u.name as user_name',
                 DB::raw("CONCAT(purchase_request.qty, ' ', pr.unit) as qty_full"),
                 DB::raw("CONCAT(s.brand, ' ', s.pn, ' (', SUBSTRING(pr.go, 1, 1) , ')') as item")
             )->get();
@@ -5361,14 +5499,22 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
             ->join('pic as pi', 'pi.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->leftJoin('users as u', 'u.id', '=', 'q.id_sales')
             ->where('purchase_request.status', '2')
             ->select(
                 'p.id',
+                'purchase_request.no_pr',
                 'purchase_request.date',
                 'p.no_pending',
                 'i.no_po',
                 'c.company',
                 'purchase_request.note',
+                'u.image as user_image',
+                'u.name as user_name',
+                'purchase_request.purchase_type',
+                'purchase_request.cargo',
+                'purchase_request.no_resi',
+                'purchase_request.purchase_date',
                 DB::raw("CONCAT(purchase_request.qty, ' ', pr.unit) as qty_full"),
                 DB::raw("CONCAT(s.brand, ' ', s.pn, ' (', SUBSTRING(pr.go, 1, 1) , ')') as item")
             )->get();
@@ -5382,14 +5528,18 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
             ->join('pic as pi', 'pi.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->leftJoin('users as u', 'u.id', '=', 'q.id_sales')
             ->where('purchase_request.status', '3')
             ->select(
                 'p.id',
+                'purchase_request.no_pr',
                 'purchase_request.date',
                 'p.no_pending',
                 'i.no_po',
                 'c.company',
                 'purchase_request.note',
+                'u.image as user_image',
+                'u.name as user_name',
                 DB::raw("CONCAT(purchase_request.qty, ' ', pr.unit) as qty_full"),
                 DB::raw("CONCAT(s.brand, ' ', s.pn, ' (', SUBSTRING(pr.go, 1, 1) , ')') as item")
             )->get();
@@ -5564,6 +5714,21 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             DB::raw("DATE_FORMAT(fixed_asset.beli, '%d-%m-%Y') as tanggal_beli"),
             DB::raw("DATE_FORMAT(fixed_asset.pakai, '%d-%m-%Y') as tanggal_pakai")
         )->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/unit-acquisition', function () {
+        $data = FixedAsset::leftJoin('unit as u', 'u.id', '=', 'fixed_asset.id_unit')
+            ->leftJoin('supplier as sup', 'sup.id', '=', 'fixed_asset.id_supplier')
+            ->where('fixed_asset.type', 'Mesin')
+            ->select(
+                'fixed_asset.*',
+                'u.brand as unit_brand',
+                'u.model as unit_model',
+                'sup.supplier as supplier_name',
+                DB::raw("DATE_FORMAT(fixed_asset.beli, '%d-%m-%Y') as tanggal_beli")
+            )
+            ->orderByDesc('fixed_asset.id')
+            ->get();
         return response()->json(['data' => $data]);
     });
     Route::get('/db/purchase-order', function () {
