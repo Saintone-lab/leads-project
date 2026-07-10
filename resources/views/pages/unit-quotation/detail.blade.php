@@ -297,113 +297,132 @@
                 @endif
             </div>
         </div>
+
     </div>
     {{-- END LEFT --}}
 
     {{-- ── RIGHT: Action Sidebar ── --}}
     <div class="col-xl-3 col-md-4 col-12 invoice-actions">
 
-        {{-- Print --}}
+        {{-- Action Card --}}
+        @php
+            $sellingContract          = $contracts->where('type', 'Selling')->where('level', '1')->first();
+            $requestedSellingContract = $contracts->where('type', 'Selling')->where('level', '0')->first();
+            $issuedInvoices  = $invoices->filter(fn($i) => !is_null($i->no_invoice));
+            $pendingInvoices = $invoices->filter(fn($i) => is_null($i->no_invoice));
+            $issuedTotal     = $issuedInvoices->sum(fn($i) => round($quote->total * floatval($i->percent ?? 100) / 100));
+            $remaining       = $quote->total - $issuedTotal;
+        @endphp
         <div class="card mb-3">
-            <div class="card-body">
+            <div class="card-body pb-2">
+
+                {{-- Download --}}
                 <a href="{{ route('unit-quotation.print', $quote->id) }}" target="_blank"
-                   class="btn btn-primary d-grid w-100 mb-3 waves-effect">
-                    <i class="mdi mdi-printer me-1"></i> Download / Print
+                   class="btn btn-primary d-grid w-100 waves-effect mb-2">
+                    <i class="mdi mdi-download me-1"></i> Download / Print
                 </a>
 
-                @if (Auth::user()->role === 'Sales' || Auth::user()->role === 'Admin')
-                    <a href="{{ route('unit-quotation.edit', $quote->id) }}"
-                       class="btn btn-outline-secondary d-grid w-100 waves-effect mb-3">
-                        <i class="mdi mdi-pencil-outline me-1"></i> Edit
-                    </a>
+                {{-- Edit & Revisi (side by side) — hidden when po_received --}}
+                @if (($quote->status !== 'po_received') && (Auth::user()->role === 'Sales' || Auth::user()->role === 'Admin'))
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <a href="{{ route('unit-quotation.edit', $quote->id) }}"
+                           class="btn btn-outline-secondary w-100 waves-effect">
+                            <i class="mdi mdi-pencil-outline"></i> Edit
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        @if (Auth::user()->role === 'Sales')
+                            <form action="{{ route('unit-quotation.revise', $quote->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-info w-100 waves-effect"
+                                    onclick="return confirm('Buat revisi dari quotation ini?')">
+                                    <i class="mdi mdi-file-replace-outline"></i> Revisi
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
                 @endif
 
-                @if (Auth::user()->role === 'Sales')
-                    <form action="{{ route('unit-quotation.revise', $quote->id) }}" method="POST" class="d-grid mb-3">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-info waves-effect"
-                            onclick="return confirm('Buat revisi dari quotation ini?')">
-                            <i class="mdi mdi-file-replace-outline me-1"></i> Buat Revisi
-                        </button>
-                    </form>
+                <hr class="my-2">
+
+                {{-- PO --}}
+                @if (Auth::user()->role === 'Sales' && $quote->status !== 'po_received')
+                    <button type="button" class="btn btn-outline-success d-grid w-100 waves-effect mb-2"
+                        data-bs-toggle="modal" data-bs-target="#modalUploadPO">
+                        <i class="mdi mdi-upload me-1"></i> Upload PO
+                    </button>
+                @endif
+                @if ($quote->po_file)
+                    <a href="{{ Storage::url($quote->po_file) }}" target="_blank"
+                       class="btn btn-outline-secondary d-grid w-100 waves-effect mb-2">
+                        <i class="mdi mdi-file-pdf-box me-1"></i> Lihat File PO
+                    </a>
                 @endif
 
                 {{-- Selling Contract --}}
-                @php
-                    $sellingContract          = $contracts->where('type', 'Selling')->where('level', '1')->first();
-                    $requestedSellingContract = $contracts->where('type', 'Selling')->where('level', '0')->first();
-                @endphp
                 @if ($sellingContract)
-                    <a class="btn btn-facebook d-grid w-100 waves-effect mb-3"
-                        href="{{ route('contract.show', $sellingContract->id) }}">
-                        <i class="mdi mdi-file-sign me-1"></i> Lihat Selling Contract
-                    </a>
-                    <a class="btn btn-outline-primary d-grid w-100 waves-effect mb-3" target="_blank"
-                        href="{{ route('contract.print', $sellingContract->id) }}">
-                        <i class="mdi mdi-download me-1"></i> Download Selling Contract
-                    </a>
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <a class="btn btn-facebook w-100 waves-effect"
+                                href="{{ route('contract.show', $sellingContract->id) }}">
+                                <i class="mdi mdi-file-sign"></i> Kontrak
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a class="btn btn-outline-primary w-100 waves-effect" target="_blank"
+                                href="{{ route('contract.print', $sellingContract->id) }}">
+                                <i class="mdi mdi-download"></i> Unduh
+                            </a>
+                        </div>
+                    </div>
                 @elseif ($requestedSellingContract)
-                    <button type="button" class="btn btn-outline-primary d-grid w-100 waves-effect mb-3" disabled>
-                        <i class="mdi mdi-clock-outline me-1"></i> Waiting Accounting Apply
-                    </button>
-                @elseif (Auth::user()->role === 'Sales')
+                    <div class="d-flex align-items-center gap-2 mb-2 px-1">
+                        <i class="mdi mdi-clock-outline text-warning"></i>
+                        <small class="text-muted">Menunggu Accounting buat kontrak</small>
+                    </div>
+                @elseif (Auth::user()->role === 'Sales' && $quote->status !== 'po_received')
                     <a href="#" data-id="{{ $quote->id }}"
-                        class="btn btn-outline-dark d-grid w-100 waves-effect mb-3 request-selling-unit">
+                        class="btn btn-outline-dark d-grid w-100 waves-effect mb-2 request-selling-unit">
                         <i class="mdi mdi-file-sign me-1"></i> Request Selling Contract
                     </a>
                 @elseif (Auth::user()->role === 'Admin' || Auth::user()->role === 'Accounting')
-                    <button type="button" class="btn btn-facebook d-grid w-100 waves-effect mb-3"
+                    <button type="button" class="btn btn-outline-primary d-grid w-100 waves-effect mb-2"
                         data-bs-toggle="modal" data-bs-target="#modalSellingContractUnit">
                         <i class="mdi mdi-file-sign me-1"></i> Create Selling Contract
                     </button>
                 @endif
 
-                @if (Auth::user()->role === 'Sales' && $quote->status !== 'po_received')
-                    <button type="button" class="btn btn-success d-grid w-100 waves-effect mb-3"
-                        data-bs-toggle="modal" data-bs-target="#modalUploadPO">
-                        <i class="mdi mdi-upload me-1"></i> Upload PO
-                    </button>
-                @endif
+                <hr class="my-2">
 
-                @if ($quote->po_file)
-                    <a href="{{ Storage::url($quote->po_file) }}" target="_blank"
-                       class="btn btn-outline-success d-grid w-100 waves-effect mb-3">
-                        <i class="mdi mdi-file-pdf-box me-1"></i> Lihat File PO
-                    </a>
-                @endif
-
+                {{-- Invoice --}}
                 @if ($invoices->isNotEmpty())
-                    @php
-                        $issuedInvoices  = $invoices->filter(fn($i) => !is_null($i->no_invoice));
-                        $pendingInvoices = $invoices->filter(fn($i) => is_null($i->no_invoice));
-                        $issuedTotal     = $issuedInvoices->sum(fn($i) => round($quote->total * floatval($i->percent ?? 100) / 100));
-                        $remaining       = $quote->total - $issuedTotal;
-                    @endphp
-
                     @if ($issuedInvoices->isNotEmpty())
                         @foreach ($issuedInvoices as $inv)
                             <a href="{{ route('invoice.show_unit', $inv->id) }}"
-                               class="btn btn-primary d-grid w-100 waves-effect mb-2">
-                                <i class="mdi mdi-file-document-outline me-1"></i>
-                                Lihat Invoice
+                               class="btn btn-outline-primary d-grid w-100 waves-effect mb-2">
+                                <i class="mdi mdi-file-document-outline me-1"></i> Invoice
                                 @if ($inv->type !== 'CT')
-                                    <span class="badge bg-white text-dark ms-1">{{ $inv->type }}</span>
+                                    <span class="badge bg-primary ms-1">{{ $inv->type }}</span>
                                 @endif
                             </a>
                         @endforeach
                     @else
-                        <button class="btn btn-warning d-grid w-100 waves-effect mb-3" disabled>
-                            <i class="mdi mdi-clock-outline me-1"></i> Waiting Invoice
-                        </button>
+                        <div class="d-flex align-items-center gap-2 mb-2 px-1">
+                            <i class="mdi mdi-clock-outline text-warning"></i>
+                            <small class="text-muted">Menunggu invoice diterbitkan</small>
+                        </div>
                     @endif
 
                     @if ($pendingInvoices->isNotEmpty())
-                        <button class="btn btn-outline-warning d-grid w-100 waves-effect mb-2" disabled>
-                            <i class="mdi mdi-clock-outline me-1"></i> Menunggu Invoice Diterbitkan
-                        </button>
+                        <div class="d-flex align-items-center gap-2 mb-2 px-1">
+                            <i class="mdi mdi-clock-outline text-warning"></i>
+                            <small class="text-muted">{{ $pendingInvoices->count() }} invoice menunggu terbit</small>
+                        </div>
                     @endif
 
-                    @if ($quote->payment_method === 'DP & BP' && $issuedInvoices->isNotEmpty() && $pendingInvoices->isEmpty() && $remaining > 0)
+                    @if ($issuedInvoices->isNotEmpty() && $pendingInvoices->isEmpty() && $remaining > 0)
                         @if (Auth::user()->role === 'Sales' || Auth::user()->role === 'Admin')
                             <button type="button" class="btn btn-outline-success d-grid w-100 waves-effect mb-2"
                                 data-bs-toggle="modal" data-bs-target="#modalRequestNextInvoice">
@@ -413,21 +432,144 @@
                     @endif
                 @endif
 
+                {{-- Change Status --}}
                 @if (Auth::user()->role === 'Sales' && $quote->status !== 'po_received')
-                    <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
+                    <button type="button" class="btn btn-outline-secondary d-grid w-100 waves-effect mb-2"
                         data-bs-toggle="modal" data-bs-target="#modalChangeStatus">
-                        Change Status
+                        <i class="mdi mdi-swap-horizontal me-1"></i> Change Status
                     </button>
                 @endif
 
-                @if (Auth::user()->role === 'Sales' || Auth::user()->role === 'Admin')
+            </div>
+
+            {{-- Delete / Cancel PO --}}
+            @if (Auth::user()->role === 'Sales' || Auth::user()->role === 'Admin' || Auth::user()->role === 'Accounting')
+            <div class="card-footer pt-0 pb-3 px-3 border-0">
+                @if ($quote->status === 'po_received')
+                    @if ($quote->cancel_request)
+                        {{-- Pending approval state --}}
+                        @if (Auth::user()->role === 'Accounting' || Auth::user()->role === 'Admin')
+                            <p class="text-muted small mb-2 text-center">
+                                <i class="mdi mdi-alert-circle-outline text-warning me-1"></i>
+                                Sales mengajukan pembatalan PO
+                            </p>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <form action="{{ route('unit-quotation.approve-cancel', $quote->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success w-100 waves-effect"
+                                            onclick="return confirm('Setujui pembatalan PO ini?')">
+                                            <i class="mdi mdi-check"></i> Setuju
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="col-6">
+                                    <form action="{{ route('unit-quotation.reject-cancel', $quote->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn btn-outline-danger w-100 waves-effect">
+                                            <i class="mdi mdi-close"></i> Tolak
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @else
+                            <div class="d-flex align-items-center gap-2 px-1">
+                                <i class="mdi mdi-clock-outline text-warning"></i>
+                                <small class="text-muted">Menunggu persetujuan Accounting</small>
+                            </div>
+                        @endif
+                    @else
+                        {{-- Cancel PO button for Sales/Admin --}}
+                        @if (Auth::user()->role === 'Sales' || Auth::user()->role === 'Admin')
+                            <form action="{{ route('unit-quotation.cancel-po', $quote->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-danger d-grid w-100 waves-effect"
+                                    onclick="return confirm('Batalkan PO untuk penawaran ini? Tindakan ini tidak bisa dibatalkan.')">
+                                    <i class="mdi mdi-cancel me-1"></i> Cancel PO
+                                </button>
+                            </form>
+                        @endif
+                    @endif
+                @else
+                    @if (Auth::user()->role === 'Sales' || Auth::user()->role === 'Admin')
                     <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-quote"
                         data-id="{{ $quote->id }}">
-                        Delete
+                        <i class="mdi mdi-trash-can-outline me-1"></i> Delete
                     </a>
+                    @endif
                 @endif
             </div>
+            @endif
         </div>
+
+        {{-- Payment Card --}}
+        @if ($payments->isNotEmpty() || $quote->status === 'po_received')
+        <div class="card mb-3">
+            <div class="card-header d-flex align-items-center justify-content-between py-3">
+                <h5 class="mb-0">Payment</h5>
+                @php $paidTotal = $payments->sum('amount'); @endphp
+                @if ($payments->isNotEmpty())
+                    <span class="badge bg-label-success">Rp {{ number_format($paidTotal, 0, '', '.') }}</span>
+                @endif
+            </div>
+            @if ($payments->isNotEmpty())
+            <div class="card-body p-0">
+                @foreach ($payments as $pay)
+                <div class="d-flex align-items-start justify-content-between px-3 py-2 border-bottom" id="pay-row-{{ $pay->id }}">
+                    <div>
+                        <p class="mb-0 fw-semibold small">Rp {{ number_format($pay->amount, 0, '', '.') }}
+                            @if ($pay->percent)
+                                <span class="text-muted small">({{ $pay->percent }}%)</span>
+                            @endif
+                            @if ($pay->type)
+                                <span class="badge bg-label-primary ms-1 small">{{ $pay->type }}</span>
+                            @endif
+                        </p>
+                        @if ($pay->method)
+                            <p class="mb-0 text-muted small">{{ $pay->method }}</p>
+                        @endif
+                        @if ($pay->note)
+                            <p class="mb-0 text-muted small">{{ $pay->note }}</p>
+                        @endif
+                        <div class="mt-1">
+                            @if ($pay->file)
+                                <a href="{{ asset($pay->file) }}" target="_blank"
+                                   class="badge bg-label-success text-decoration-none me-1">
+                                    <i class="mdi mdi-file-check-outline"></i> Bukti Transfer
+                                </a>
+                            @else
+                                <span class="badge bg-label-warning">Belum ada bukti</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="d-flex gap-1 ms-2">
+                        @if (!$pay->file)
+                            <button type="button" class="btn btn-sm btn-icon btn-outline-success btn-upload-proof"
+                                data-id="{{ $pay->id }}" title="Upload Bukti Transfer">
+                                <i class="mdi mdi-upload"></i>
+                            </button>
+                        @endif
+                        @if (Auth::user()->role === 'Admin' || Auth::user()->role === 'Accounting')
+                            <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-delete-payment"
+                                data-id="{{ $pay->id }}" title="Hapus">
+                                <i class="mdi mdi-delete-outline"></i>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @endif
+            @if ($quote->status === 'po_received' && Auth::user()->role === 'Sales')
+            <div class="card-footer p-3">
+                <button type="button" class="btn btn-outline-success d-grid w-100 waves-effect"
+                    data-bs-toggle="modal" data-bs-target="#modalAddPayment">
+                    <i class="mdi mdi-cash-plus me-1"></i> Tambah Payment
+                </button>
+            </div>
+            @endif
+        </div>
+        @endif
 
         {{-- Info Card --}}
         <div class="card mb-3">
@@ -475,23 +617,21 @@
                                value="{{ old('po_number', $quote->po_number) }}" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Payment Method <span class="text-danger">*</span></label>
-                        <select class="form-select" name="payment_method" id="select-payment-method" required>
-                            <option value="" disabled selected>-- Pilih Payment Method --</option>
-                            <option value="Cash Before Delivery">Cash Before Delivery</option>
-                            <option value="DP & BP">DP & BP (Down Payment & Balance Payment)</option>
-                            <option value="TOP 7">TOP 7 (Terms of Payment 7 hari)</option>
-                            <option value="TOP 14">TOP 14 (Terms of Payment 14 hari)</option>
-                            <option value="TOP 30">TOP 30 (Terms of Payment 30 hari)</option>
-                            <option value="TOP 60">TOP 60 (Terms of Payment 60 hari)</option>
-                            <option value="TOP 90">TOP 90 (Terms of Payment 90 hari)</option>
-                            <option value="__custom__">Isi Sendiri...</option>
+                        <label class="form-label fw-semibold">Keterangan Payment <span class="text-muted small">(untuk T&C quotation)</span></label>
+                        <input type="text" class="form-control" name="payment_method"
+                               placeholder="misal: CBD, DP 50% & Pelunasan NET 30, Tempo 30 Hari..."
+                               maxlength="100">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tipe Invoice Pertama <span class="text-danger">*</span></label>
+                        <select class="form-select" name="invoice_type" id="select-invoice-type" required>
+                            <option value="" disabled selected>-- Pilih --</option>
+                            <option value="DP">Down Payment (DP)</option>
+                            <option value="CT">Full Payment</option>
                         </select>
-                        <input type="text" class="form-control mt-2 d-none" id="input-payment-custom"
-                               placeholder="Tulis payment method..." maxlength="100">
                     </div>
                     <div class="mb-3 d-none" id="dp-percent-group">
-                        <label class="form-label fw-semibold">Persentase Down Payment <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold">Persentase DP <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <input type="number" class="form-control" name="dp_percent" id="dp-percent-input"
                                    min="1" max="99" value="50" placeholder="50">
@@ -552,7 +692,7 @@
 @endif
 
 {{-- Modal Ajukan Invoice Selanjutnya --}}
-@if ($quote->payment_method === 'DP & BP' && isset($issuedInvoices) && $issuedInvoices->isNotEmpty() && isset($remaining) && $remaining > 0)
+@if (isset($issuedInvoices) && $issuedInvoices->isNotEmpty() && isset($remaining) && $remaining > 0)
 <div class="modal fade" id="modalRequestNextInvoice" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -568,6 +708,18 @@
                         <div class="form-control bg-light fw-bold">Rp {{ number_format($remaining, 0, ',', '.') }}</div>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label fw-semibold">Keterangan Invoice <span class="text-danger">*</span></label>
+                        <select class="form-select" name="label" id="next-inv-label" required>
+                            <option value="Balance Payment">Balance Payment</option>
+                            <option value="Down Payment 2">Down Payment 2</option>
+                            <option value="Down Payment 3">Down Payment 3</option>
+                            <option value="Pelunasan">Pelunasan</option>
+                            <option value="__custom__">Lainnya (isi sendiri)...</option>
+                        </select>
+                        <input type="text" class="form-control mt-2 d-none" id="next-inv-label-custom"
+                               placeholder="Tulis keterangan invoice..." maxlength="50">
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label fw-semibold">Persentase dari sisa <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <input type="number" class="form-control" name="percent" id="next-inv-percent"
@@ -577,10 +729,6 @@
                         <div class="form-text" id="next-inv-amount">
                             = Rp {{ number_format($remaining, 0, ',', '.') }}
                         </div>
-                    </div>
-                    <div class="alert alert-info py-2 mb-0">
-                        <i class="mdi mdi-information-outline me-1"></i>
-                        Invoice BP akan diajukan ke accounting untuk diterbitkan.
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -594,6 +742,105 @@
     </div>
 </div>
 @endif
+
+{{-- Modal Add Payment --}}
+<div class="modal fade" id="modalAddPayment" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="mdi mdi-cash-plus me-1"></i> Tambah Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('unit-quotation.add-payment', $quote->id) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tipe Payment <span class="text-danger">*</span></label>
+                        <select class="form-select" name="type" id="add-payment-type" required>
+                            <option value="">-- Pilih Tipe --</option>
+                            <option value="DP">DP (Down Payment)</option>
+                            <option value="BP">BP (Balance Payment)</option>
+                            <option value="CBD">CBD (Cash Before Delivery)</option>
+                            <option value="COD">COD (Cash On Delivery)</option>
+                            <option value="Tempo">Tempo</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="tempo-group" style="display:none;">
+                        <label class="form-label fw-semibold">Jangka Tempo (hari) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="tempo" min="1" placeholder="misal: 30">
+                            <span class="input-group-text">hari</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Metode Pembayaran <span class="text-danger">*</span></label>
+                        <select class="form-select" name="method" required>
+                            <option value="">-- Pilih Metode --</option>
+                            <option value="Transfer">Transfer</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Giro">Giro</option>
+                            <option value="Escrow">Escrow</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Jumlah (IDR) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="number" class="form-control" name="amount"
+                                   min="1" step="1" placeholder="Masukkan jumlah yang diterima" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Persentase <span class="text-muted small">(opsional)</span></label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="percent"
+                                   min="1" max="100" placeholder="misal 50">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Catatan <span class="text-muted small">(opsional)</span></label>
+                        <input type="text" class="form-control" name="note"
+                               placeholder="misal: Down Payment, Pelunasan...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="mdi mdi-check me-1"></i> Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Modal Upload Proof (hidden, shown via JS) --}}
+<div class="modal fade" id="modalUploadProof" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="mdi mdi-upload me-1"></i> Upload Bukti Transfer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">File Bukti <span class="text-danger">*</span></label>
+                    <input type="file" class="form-control" id="proof-file-input"
+                           accept=".pdf,.jpg,.jpeg,.png">
+                    <div class="form-text">PDF / JPG / PNG, maks 5MB</div>
+                </div>
+                <div id="proof-upload-msg"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-success" id="btn-do-upload-proof">
+                    <i class="mdi mdi-upload me-1"></i> Upload
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 {{-- Modal Change Status --}}
 <div class="modal fade" id="modalChangeStatus" tabindex="-1">
@@ -655,20 +902,20 @@
         );
     }
 
-    // Payment method custom input toggle + DP% toggle
-    $('#select-payment-method').on('change', function () {
-        var $custom   = $('#input-payment-custom');
-        var $dpGroup  = $('#dp-percent-group');
-        var $dpInput  = $('#dp-percent-input');
-        var val = $(this).val();
-
-        if (val === '__custom__') {
-            $custom.removeClass('d-none').prop('required', true);
+    // Add Payment modal — show Tempo field only when type=Tempo
+    $('#add-payment-type').on('change', function () {
+        if ($(this).val() === 'Tempo') {
+            $('#tempo-group').show().find('input').prop('required', true);
         } else {
-            $custom.addClass('d-none').prop('required', false).val('');
+            $('#tempo-group').hide().find('input').prop('required', false).val('');
         }
+    });
 
-        if (val === 'DP & BP') {
+    // Invoice type toggle — show DP% only when DP selected
+    $('#select-invoice-type').on('change', function () {
+        var $dpGroup = $('#dp-percent-group');
+        var $dpInput = $('#dp-percent-input');
+        if ($(this).val() === 'DP') {
             $dpGroup.removeClass('d-none');
             $dpInput.prop('required', true);
             updateDpPreview();
@@ -680,15 +927,22 @@
 
     $('#dp-percent-input').on('input', updateDpPreview);
 
-    // Before submit: swap __custom__ value with text input value
-    $('#modalUploadPO form').on('submit', function () {
-        var $sel = $('#select-payment-method');
+    // Next invoice — label custom toggle
+    $('#next-inv-label').on('change', function () {
+        var $custom = $('#next-inv-label-custom');
+        if ($(this).val() === '__custom__') {
+            $custom.removeClass('d-none').prop('required', true);
+        } else {
+            $custom.addClass('d-none').prop('required', false).val('');
+        }
+    });
+
+    // Before submit next invoice: swap __custom__ label
+    $('#modalRequestNextInvoice form').on('submit', function () {
+        var $sel = $('#next-inv-label');
         if ($sel.val() === '__custom__') {
-            var custom = $('#input-payment-custom').val().trim();
-            if (!custom) {
-                $('#input-payment-custom').focus();
-                return false;
-            }
+            var custom = $('#next-inv-label-custom').val().trim();
+            if (!custom) { $('#next-inv-label-custom').focus(); return false; }
             $sel.append('<option value="' + custom + '" selected></option>');
             $sel.val(custom);
         }
@@ -729,7 +983,7 @@
     });
 
     // Next invoice modal — live amount preview
-    @if ($quote->payment_method === 'DP & BP' && isset($remaining))
+    @if (isset($remaining) && $remaining > 0)
     var remainingAmount = {{ $remaining }};
     $('#next-inv-percent').on('input', function () {
         var pct = parseFloat($(this).val()) || 100;
@@ -738,6 +992,72 @@
         $('#next-inv-amount').text('= Rp ' + amt.toLocaleString('id-ID'));
     });
     @endif
+
+    // Upload Proof Payment
+    var currentProofPaymentId = null;
+    $(document).on('click', '.btn-upload-proof', function () {
+        currentProofPaymentId = $(this).data('id');
+        $('#proof-file-input').val('');
+        $('#proof-upload-msg').html('');
+        new bootstrap.Modal(document.getElementById('modalUploadProof')).show();
+    });
+
+    $('#btn-do-upload-proof').on('click', function () {
+        var file = $('#proof-file-input')[0].files[0];
+        if (!file) {
+            $('#proof-upload-msg').html('<div class="alert alert-warning py-2">Pilih file terlebih dahulu.</div>');
+            return;
+        }
+        var fd = new FormData();
+        fd.append('file', file);
+        fd.append('_token', '{{ csrf_token() }}');
+        $(this).prop('disabled', true).text('Uploading...');
+        $.ajax({
+            url: '/unit-quotation/payment/' + currentProofPaymentId + '/proof',
+            type: 'POST',
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                $('#proof-upload-msg').html('<div class="alert alert-success py-2">Berhasil diupload!</div>');
+                setTimeout(function () { location.reload(); }, 1000);
+            },
+            error: function () {
+                $('#proof-upload-msg').html('<div class="alert alert-danger py-2">Gagal upload. Cek ukuran/format file.</div>');
+                $('#btn-do-upload-proof').prop('disabled', false).text('Upload');
+            }
+        });
+    });
+
+    // Delete Payment
+    $(document).on('click', '.btn-delete-payment', function () {
+        var id = $(this).data('id');
+        Swal.fire({
+            title: 'Hapus payment ini?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal',
+            customClass: {
+                confirmButton: 'btn btn-danger me-3 waves-effect',
+                cancelButton: 'btn btn-label-secondary waves-effect',
+            },
+            buttonsStyling: false,
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/unit-quotation/payment/' + id,
+                    type: 'POST',
+                    data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
+                    success: function (res) {
+                        if (res == 1) {
+                            $('#pay-row-' + id).fadeOut(300, function () { $(this).remove(); });
+                        }
+                    }
+                });
+            }
+        });
+    });
 
     $(document).on('click', '.delete-quote', function () {
         var id = $(this).data('id');

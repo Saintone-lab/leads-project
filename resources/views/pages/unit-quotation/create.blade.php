@@ -216,7 +216,12 @@
                 <div class="form-check form-check-inline">
                     <input class="form-check-input unit-source-radio" type="radio" name="unit_source___IDX__"
                         value="fixed_asset">
-                    <label class="form-check-label small">Unit Second (dari Fixed Asset)</label>
+                    <label class="form-check-label small">Unit Second</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input unit-source-radio" type="radio" name="unit_source___IDX__"
+                        value="rental">
+                    <label class="form-check-label small">Rental</label>
                 </div>
             </div>
 

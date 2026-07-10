@@ -1,6 +1,5 @@
 @extends('layouts.sales.app')
 @section('title', $quote->no_quote)
-
 <div class="invoice-print p-4">
     <div class="container-fluid flex-grow-1 container-p-y">
 
@@ -71,10 +70,23 @@
                 'dimension'=>'Dimension','weight'=>'Weight',
             ];
             $specUnits = [
-                'bar'=>' Bar','air_cap'=>' m³/min','test_pressure'=>' Bar',
-                'inlet_pressure'=>' Bar','outlet_pressure'=>' Bar',
+                'bar'=>' Bar','air_cap'=>' m³/min',
+                'filtration'=>' µm','oil_content'=>' ppm',
+                'test_pressure'=>' Bar','inlet_pressure'=>' Bar','outlet_pressure'=>' Bar',
                 'inlet_cap'=>' m³/min','outlet_cap'=>' m³/min',
                 'weight'=>' Kg','capacity'=>' Liter',
+            ];
+            $specLabelsOverride = [
+                'AIR RECEIVER TANK' => [
+                    'bar'     => 'Max. Pressure',
+                    'grade'   => 'T Plate',
+                    'cooling' => 'Certification',
+                ],
+                'FILTRATION SYSTEM' => [
+                    'air_cap'  => 'Flowrate',
+                    'material' => 'Element',
+                    'connect'  => 'Drain',
+                ],
             ];
             $hasDisc = $quote->details->where('disc', '>', 0)->count() > 0;
         @endphp
@@ -101,15 +113,22 @@
                                 <p class="mb-1 fw-semibold" style="font-size:12px;">
                                     {{ $item->label ?: ($item->unit->brand . ' ' . $item->unit->sku . ($item->unit->model ? ' — ' . $item->unit->model : '')) }}
                                 </p>
-                                @php $specs = $item->getSpecVisibleArray(); @endphp
+                                @php
+                                    $specs = $item->getSpecVisibleArray();
+                                    $category = $item->unit->unit ?? '';
+                                    $catOverride = $specLabelsOverride[$category] ?? [];
+                                @endphp
                                 @if (!empty($specs))
                                     <div style="font-size:10px; color:#555; margin-top:3px;">
                                         @foreach ($specs as $field)
                                             @if ($field === 'unit') @continue @endif
-                                            @php $val = $item->unit->$field ?? null; @endphp
+                                            @php
+                                                $val = $item->unit->$field ?? null;
+                                                $label = $catOverride[$field] ?? $specLabels[$field] ?? $field;
+                                            @endphp
                                             @if ($val && isset($specLabels[$field]))
                                                 <div style="display:flex; padding:1px 0;">
-                                                    <span style="color:#888; min-width:110px; flex-shrink:0;">{{ $specLabels[$field] }}</span>
+                                                    <span style="color:#888; min-width:110px; flex-shrink:0;">{{ $label }}</span>
                                                     <span>: {{ $val }}{{ $specUnits[$field] ?? '' }}</span>
                                                 </div>
                                             @endif

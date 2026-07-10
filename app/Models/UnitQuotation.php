@@ -33,8 +33,10 @@ class UnitQuotation extends Model
         'delivery_process',
         'payment',
         'status',
+        'cancel_request',
         'po_number',
         'po_file',
+        'po_received',
         'payment_method',
     ];
 
@@ -73,9 +75,19 @@ class UnitQuotation extends Model
         return $this->hasMany(Invoice::class, 'id_unit_quotation');
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'id_unit_quotation');
+    }
+
     public function contracts()
     {
         return $this->hasMany(Contract::class, 'id_unit_quotation');
+    }
+
+    public function getHargaTotalAttribute()
+    {
+        return $this->total;
     }
 
     /** All revisions in the same group (including original) */

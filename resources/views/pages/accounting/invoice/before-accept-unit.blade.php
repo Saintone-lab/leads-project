@@ -189,14 +189,8 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold small">Term of Payment</label>
-                            <select name="term" class="form-select form-select-sm">
-                                <option value="Cash" {{ $quote->payment_method === 'Cash Before Delivery' ? 'selected' : '' }}>Cash</option>
-                                <option value="NET 7">NET 7</option>
-                                <option value="NET 14">NET 14</option>
-                                <option value="NET 30" {{ $quote->payment_method === 'TOP 30' ? 'selected' : '' }}>NET 30</option>
-                                <option value="NET 60" {{ $quote->payment_method === 'TOP 60' ? 'selected' : '' }}>NET 60</option>
-                                <option value="NET 90" {{ $quote->payment_method === 'TOP 90' ? 'selected' : '' }}>NET 90</option>
-                            </select>
+                            <input type="text" name="term" class="form-control form-control-sm"
+                                   placeholder="misal: Cash, NET 30, NET 60..." required>
                         </div>
 
                         @foreach ($allInvoices as $inv)

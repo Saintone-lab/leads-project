@@ -138,7 +138,9 @@
 
                             <div class="col">
                                 <div
-                                    class="d-flex align-items-center justify-content-between p-3 rounded-3 border h-100 transition-hover">
+                                    class="d-flex align-items-center justify-content-between p-3 rounded-3 border h-100 transition-hover sales-lead-card"
+                                    data-sales-id="{{ $sales->id }}" data-sales-name="{{ $sales->name }}"
+                                    style="cursor: pointer;">
 
                                     <!-- Left -->
                                     <div class="d-flex align-items-center">
@@ -188,6 +190,39 @@
                 </div>
             </div>
         @endif
+
+        <div class="modal animate__animated animate__fadeIn" id="salesLeadsModal" tabindex="-1" style="display: none;"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document" style="max-width: 90%;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="salesLeadsModalTitle">Prospect List</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Company</th>
+                                        <th>Category</th>
+                                        <th>Kebutuhan</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="salesLeadsModalBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="card mb-3">
             <div class="card-datatable table-responsive pt-0">
@@ -327,6 +362,57 @@
             }
             toggleDomainField();
             $('#selectSource').on('change', toggleDomainField);
+        });
+
+        $(document).on('click', '.sales-lead-card', function() {
+            var salesId = $(this).data('sales-id');
+            var salesName = $(this).data('sales-name');
+            var modalEl = document.getElementById('salesLeadsModal');
+            var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            var statusLabel = {
+                20: { title: 'Send WA / Email', class: 'bg-label-secondary' },
+                30: { title: 'Inquiry Accepted', class: 'bg-label-dark' },
+                40: { title: 'Progress Follow Up', class: 'bg-label-info' },
+                60: { title: 'Negotiation / Revisi', class: 'bg-label-primary' },
+                80: { title: 'Hot Prospect', class: 'bg-label-warning' },
+                100: { title: 'Done PO', class: 'bg-label-success' },
+                0: { title: 'Loss', class: 'bg-label-danger' },
+            };
+
+            $('#salesLeadsModalTitle').text('Prospect Bulan Ini - ' + salesName);
+            $('#salesLeadsModalBody').html('<tr><td colspan="6" class="text-center">Loading...</td></tr>');
+            modal.show();
+
+            $.ajax({
+                url: '{{ url('prospect/monthly-leads') }}/' + salesId,
+                type: 'GET',
+                success: function(response) {
+                    var rows = '';
+                    if (response.data && response.data.length > 0) {
+                        $.each(response.data, function(i, item) {
+                            var status = statusLabel[item.status];
+                            var statusHtml = status ?
+                                '<span class="badge rounded-pill ' + status.class + '">' + status.title + '</span>' :
+                                '-';
+                            var value = item.nett ? 'Rp ' + Number(item.nett).toLocaleString('id-ID') : '-';
+                            rows += '<tr>' +
+                                '<td>' + (item.company ?? '-') + '</td>' +
+                                '<td>' + (item.category ?? '-') + '</td>' +
+                                '<td>' + (item.kebutuhan ?? '-') + '</td>' +
+                                '<td>' + (item.date ?? '-') + '</td>' +
+                                '<td>' + statusHtml + '</td>' +
+                                '<td>' + value + '</td>' +
+                                '</tr>';
+                        });
+                    } else {
+                        rows = '<tr><td colspan="6" class="text-center">Belum ada prospect bulan ini</td></tr>';
+                    }
+                    $('#salesLeadsModalBody').html(rows);
+                },
+                error: function() {
+                    $('#salesLeadsModalBody').html('<tr><td colspan="6" class="text-center">Gagal memuat data</td></tr>');
+                }
+            });
         });
 
         $(document).on('click', '#withQuote', function() {

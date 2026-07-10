@@ -179,6 +179,43 @@ class ProspectController extends Controller
     }
 
     /**
+     * List of prospects created by a given sales in the current month,
+     * used by the "Monthly Leads Distribution" modal on prospect index.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function monthlyLeads($sales)
+    {
+        $now = Carbon::now();
+        $startOfMonth = $now->copy()->startOfMonth();
+        $endOfMonth = $now->copy()->endOfMonth();
+
+        $salesUser = User::findOrFail($sales);
+
+        $prospects = Prospect::with(['pic.client', 'quotation'])
+            ->where('id_sales', $sales)
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'company' => $p->pic->client->company ?? '-',
+                    'category' => $p->category,
+                    'kebutuhan' => $p->kebutuhan,
+                    'date' => $p->date ? Carbon::parse($p->date)->format('d-m-Y') : '-',
+                    'status' => $p->quotation->status ?? null,
+                    'nett' => $p->quotation->nett ?? null,
+                ];
+            });
+
+        return response()->json([
+            'name' => $salesUser->name,
+            'data' => $prospects,
+        ]);
+    }
+
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response

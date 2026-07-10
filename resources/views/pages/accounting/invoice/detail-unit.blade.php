@@ -69,11 +69,16 @@
                                 <span class="text-black">{{ $invoice->date ? \Carbon\Carbon::parse($invoice->date)->format('d-m-Y') : '-' }}</span>
                             </div>
                             @php
-                                $warna = 'bg-label-dark text-dark';
-                                $text  = 'Waiting Payment';
+                                $hasProof = $payments->whereNotNull('file')->where('level', 0)->isNotEmpty();
                                 if ($invoice->status_p) {
                                     $warna = 'bg-label-success text-success';
                                     $text  = 'Verified';
+                                } elseif ($hasProof) {
+                                    $warna = 'bg-label-warning text-warning';
+                                    $text  = 'Awaiting Verification';
+                                } else {
+                                    $warna = 'bg-label-dark text-dark';
+                                    $text  = 'Waiting Payment';
                                 }
                             @endphp
                             <h6 class="mt-1 badge {{ $warna }} rounded">{{ $text }}</h6>
@@ -166,6 +171,30 @@
                                 <th style="width: 20%">Amount</th>
                             </tr>
                         </thead>
+                        @php
+                            $specLabels = [
+                                'brand'=>'Brand','model'=>'Model','type_unit'=>'Type',
+                                'bar'=>'Max Pressure','air_cap'=>'Air Capacity','power'=>'Motor Power',
+                                'voltage'=>'Voltage','connect'=>'Drive','cooling'=>'Cooling Method',
+                                'exhaust'=>'Connection','refrigerant_type'=>'Refrigerant Type','pdp'=>'PDP',
+                                'filtration'=>'Filtration','oil_content'=>'Oil Content','grade'=>'Grade',
+                                'capacity'=>'Capacity','material'=>'Material','test_pressure'=>'Test Pressure',
+                                'inlet_pressure'=>'Inlet Pressure','outlet_pressure'=>'Outlet Pressure',
+                                'inlet_cap'=>'Inlet Capacity (LP)','outlet_cap'=>'Outlet Capacity (HP)',
+                                'dimension'=>'Dimension','weight'=>'Weight',
+                            ];
+                            $specUnits = [
+                                'bar'=>' Bar','air_cap'=>' m³/min',
+                                'filtration'=>' µm','oil_content'=>' ppm',
+                                'test_pressure'=>' Bar','inlet_pressure'=>' Bar','outlet_pressure'=>' Bar',
+                                'inlet_cap'=>' m³/min','outlet_cap'=>' m³/min',
+                                'weight'=>' Kg','capacity'=>' Liter',
+                            ];
+                            $specLabelsOverride = [
+                                'AIR RECEIVER TANK' => ['bar'=>'Max. Pressure','grade'=>'T Plate','cooling'=>'Certification'],
+                                'FILTRATION SYSTEM'  => ['air_cap'=>'Flowrate','material'=>'Element','connect'=>'Drain'],
+                            ];
+                        @endphp
                         <tbody>
                             @foreach ($quote->details as $i => $detail)
                                 @php
@@ -173,12 +202,30 @@
                                 @endphp
                                 <tr style="font-size: 13px">
                                     <td class="align-top">{{ $i + 1 }}</td>
-                                    <td class="text-nowrap align-top">
+                                    <td class="align-top">
                                         @if ($detail->type === 'unit' && $detail->unit)
-                                            <p class="mb-0 fw-medium" style="font-size: 12px">
+                                            <p class="mb-1 fw-medium" style="font-size: 12px">
                                                 {{ $detail->label ?: ($detail->unit->brand . ' ' . $detail->unit->model) }}
                                             </p>
-                                            <small class="text-muted">{{ $detail->unit->type }}</small>
+                                            @php
+                                                $specs      = $detail->getSpecVisibleArray();
+                                                $category   = $detail->unit->unit ?? '';
+                                                $catOverride = $specLabelsOverride[$category] ?? [];
+                                            @endphp
+                                            @if (!empty($specs))
+                                                <div class="spec-detail-rows" style="font-size:11px; color:#888; margin-top:3px; {{ $invoice->show_spec ? '' : 'display:none;' }}">
+                                                    @foreach ($specs as $field)
+                                                        @if ($field === 'unit') @continue @endif
+                                                        @php $val = $detail->unit->$field ?? null; @endphp
+                                                        @if ($val && isset($specLabels[$field]))
+                                                            <div style="display:flex; padding:1px 0;">
+                                                                <span style="min-width:110px; flex-shrink:0;">{{ $catOverride[$field] ?? $specLabels[$field] }}</span>
+                                                                <span>: {{ $val }}{{ $specUnits[$field] ?? '' }}</span>
+                                                            </div>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            @endif
                                         @else
                                             <p class="mb-0 fw-medium" style="font-size: 12px">{{ $detail->label }}</p>
                                             @if ($detail->description)
@@ -365,6 +412,16 @@
                             </li>
                         </ul>
                     </div>
+                    <div class="d-flex align-items-center gap-2 px-1">
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="toggle-spec"
+                                data-id="{{ $invoice->id }}"
+                                {{ $invoice->show_spec ? 'checked' : '' }}>
+                        </div>
+                        <label class="form-check-label text-muted small mb-0" for="toggle-spec">
+                            Tampilkan Spesifikasi
+                        </label>
+                    </div>
                     <button class="btn btn-outline-secondary w-100 waves-effect" id="backButton">Back</button>
                     <a href="{{ route('unit-quotation.show', $quote->id) }}"
                        class="btn btn-outline-info w-100 waves-effect">
@@ -456,12 +513,108 @@
 
             {{-- 5. Payment --}}
             <div class="card mb-3">
-                <div class="card-header py-2 px-3">
+                <div class="card-header py-2 px-3 d-flex align-items-center justify-content-between">
                     <small class="text-uppercase text-muted fw-semibold">Payment</small>
+                    @if ($payments->isNotEmpty())
+                        <span class="badge bg-label-success small">Rp {{ number_format($payments->sum('amount'), 0, '', '.') }}</span>
+                    @endif
                 </div>
-                <div class="card-body d-grid gap-2">
-                    <button type="button" class="btn btn-outline-secondary w-100 waves-effect"
-                        data-bs-toggle="modal" data-bs-target="#modalDetailPayment">Detail Payment</button>
+
+                {{-- Invoice Summary --}}
+                <div class="card-body p-0">
+                    @foreach ($allInvoices as $inv)
+                        @php
+                            $invTotal = $quote->total;
+                            if ($inv->type === 'DP' && $inv->term) {
+                                $pct      = floatval(filter_var($inv->term, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION));
+                                $invTotal = round($quote->total * $pct / 100);
+                            } elseif ($inv->type === 'BP') {
+                                $dpInv    = $allInvoices->firstWhere('type', 'DP');
+                                $pct      = $dpInv?->term ? floatval(filter_var($dpInv->term, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)) : 0;
+                                $invTotal = $quote->total - round($quote->total * $pct / 100);
+                            }
+                        @endphp
+                        <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+                            <div>
+                                <p class="mb-0 small fw-semibold">
+                                    <span class="badge {{ $inv->type === 'DP' ? 'bg-warning' : ($inv->type === 'BP' ? 'bg-info' : 'bg-primary') }} me-1" style="font-size:10px">{{ $inv->type }}</span>
+                                    Rp {{ number_format($invTotal, 0, '', '.') }}
+                                </p>
+                                <p class="mb-0 text-muted" style="font-size:11px">{{ $inv->no_invoice ?? 'Belum diterbitkan' }}</p>
+                            </div>
+                            @if ($inv->status_p)
+                                <span class="badge bg-label-success" style="font-size:10px">Verified</span>
+                            @else
+                                <span class="badge bg-label-warning" style="font-size:10px">Unpaid</span>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+
+                {{-- Payment Records --}}
+                @if ($payments->isNotEmpty())
+                <div class="border-top">
+                    <div class="px-3 pt-2 pb-1">
+                        <small class="text-uppercase text-muted fw-semibold" style="font-size:10px">Payment Received</small>
+                    </div>
+                    @foreach ($payments as $pay)
+                    <div class="d-flex align-items-start justify-content-between px-3 py-2 border-bottom" id="pay-row-{{ $pay->id }}">
+                        <div>
+                            <p class="mb-0 fw-semibold small">
+                                Rp {{ number_format($pay->amount, 0, '', '.') }}
+                                @if ($pay->type)
+                                    <span class="badge bg-label-primary ms-1" style="font-size:10px">{{ $pay->type }}</span>
+                                @endif
+                            </p>
+                            @if ($pay->method)
+                                <p class="mb-0 text-muted" style="font-size:11px">{{ $pay->method }}</p>
+                            @endif
+                            @if ($pay->note)
+                                <p class="mb-0 text-muted" style="font-size:11px">{{ $pay->note }}</p>
+                            @endif
+                            <div class="mt-1 d-flex flex-wrap gap-1">
+                                @if ($pay->file)
+                                    <a href="{{ asset($pay->file) }}" target="_blank"
+                                       class="badge bg-label-success text-decoration-none" style="font-size:10px">
+                                        <i class="mdi mdi-file-check-outline"></i> Bukti Transfer
+                                    </a>
+                                @else
+                                    <span class="badge bg-label-warning" style="font-size:10px">Belum ada bukti</span>
+                                @endif
+                                @if ($pay->level == 1)
+                                    <span class="badge bg-label-success" style="font-size:10px">
+                                        <i class="mdi mdi-check-circle-outline"></i> Paid
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="d-flex gap-1 ms-2">
+                        @if (!$pay->file && Auth::user()->role === 'Sales')
+                            <button type="button" class="btn btn-sm btn-icon btn-outline-success btn-upload-proof-inv"
+                                data-id="{{ $pay->id }}" title="Upload Bukti">
+                                <i class="mdi mdi-upload"></i>
+                            </button>
+                        @endif
+                        @if ($pay->file && $pay->level == 0 && Auth::user()->role === 'Sales')
+                            <button type="button" class="btn btn-sm btn-icon btn-outline-danger btn-delete-proof"
+                                data-id="{{ $pay->id }}" title="Hapus Bukti Transfer">
+                                <i class="mdi mdi-file-remove-outline"></i>
+                            </button>
+                        @endif
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @endif
+
+                {{-- Actions --}}
+                <div class="card-footer p-3 d-grid gap-2">
+                    @if ($quote->status === 'po_received' && Auth::user()->role === 'Sales')
+                        <button type="button" class="btn btn-outline-success w-100 waves-effect"
+                            data-bs-toggle="modal" data-bs-target="#modalAddPayment">
+                            <i class="mdi mdi-cash-plus me-1"></i> Tambah Payment
+                        </button>
+                    @endif
                     @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
                         @if (!$invoice->status_p)
                             <button type="button" class="btn btn-primary w-100 waves-effect"
@@ -577,73 +730,82 @@
         </div>
     </div>
 
-    {{-- Modal Detail Payment --}}
-    <div class="modal modal-lg fade" id="modalDetailPayment" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
+    {{-- Modal Add Payment --}}
+    <div class="modal fade" id="modalAddPayment" tabindex="-1">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Detail Payment — {{ $quote->no_quote }}</h5>
+                    <h5 class="modal-title"><i class="mdi mdi-cash-plus me-1"></i> Tambah Payment</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <p class="fw-semibold mb-1">{{ $quote->client?->company }}</p>
-                    <p class="text-muted small mb-3">Payment Method: {{ $quote->payment_method }}</p>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>No. Invoice</th>
-                                    <th>Type</th>
-                                    <th>Term</th>
-                                    <th class="text-end">Total</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($allInvoices as $inv)
-                                    @php
-                                        $invTotal = $quote->total;
-                                        if ($inv->type === 'DP' && $inv->term) {
-                                            $pct = floatval(filter_var($inv->term, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION));
-                                            $invTotal = round($quote->total * $pct / 100);
-                                        } elseif ($inv->type === 'BP') {
-                                            $dpInv = $allInvoices->firstWhere('type', 'DP');
-                                            $pct = $dpInv?->term ? floatval(filter_var($dpInv->term, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)) : 0;
-                                            $invTotal = $quote->total - round($quote->total * $pct / 100);
-                                        }
-                                    @endphp
-                                    <tr>
-                                        <td>{{ $inv->no_invoice ?? '-' }}</td>
-                                        <td>
-                                            <span class="badge {{ $inv->type === 'DP' ? 'bg-warning' : ($inv->type === 'BP' ? 'bg-info' : 'bg-primary') }}">
-                                                {{ $inv->type }}
-                                            </span>
-                                        </td>
-                                        <td>{{ $inv->term ?? '-' }}</td>
-                                        <td class="text-end">Rp {{ number_format($invTotal, 0, ',', '.') }}</td>
-                                        <td>
-                                            @if ($inv->status_p)
-                                                <span class="badge bg-success">Verified</span>
-                                            @else
-                                                <span class="badge bg-danger">Waiting Payment</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                            <tfoot>
-                                <tr class="fw-bold">
-                                    <td colspan="3" class="text-end">Grand Total</td>
-                                    <td class="text-end">Rp {{ number_format($quote->total, 0, ',', '.') }}</td>
-                                    <td></td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                <form action="{{ route('unit-quotation.add-payment', $quote->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Tipe Payment <span class="text-danger">*</span></label>
+                            <select class="form-select" name="type" id="inv-add-payment-type" required>
+                                <option value="">-- Pilih Tipe --</option>
+                                <option value="DP">DP (Down Payment)</option>
+                                <option value="BP">BP (Balance Payment)</option>
+                                <option value="CBD">CBD</option>
+                                <option value="COD">COD</option>
+                                <option value="Tempo">Tempo</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="inv-tempo-group" style="display:none">
+                            <label class="form-label fw-semibold">Tempo (hari)</label>
+                            <input type="number" class="form-control" name="tempo" min="1" placeholder="misal: 30">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Metode <span class="text-danger">*</span></label>
+                            <select class="form-select" name="method" required>
+                                <option value="">-- Pilih Metode --</option>
+                                <option value="Transfer">Transfer</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Giro">Giro</option>
+                                <option value="Escrow">Escrow</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Jumlah (Rp) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" name="amount" required min="1" placeholder="Masukkan jumlah yang diterima">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Persentase (%)</label>
+                            <input type="number" class="form-control" name="percent" min="1" max="100" placeholder="opsional, misal: 50">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Catatan</label>
+                            <input type="text" class="form-control" name="note" placeholder="opsional">
+                        </div>
                     </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Upload Bukti Payment --}}
+    <div class="modal fade" id="modalUploadBukti" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload Bukti Transfer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Tutup</button>
-                </div>
+                <form id="formUploadBuktiInv" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <input type="file" class="form-control" name="file" accept="image/*,.pdf" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success">Upload</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -662,6 +824,20 @@
 @push('script')
 <script>
     $('#backButton').click(function () { window.history.back(); });
+
+    // Toggle spesifikasi
+    $('#toggle-spec').on('change', function () {
+        var id      = $(this).data('id');
+        var showing = $(this).is(':checked');
+
+        $.post('/invoice/unit/' + id + '/toggle-spec', { _token: '{{ csrf_token() }}' });
+
+        if (showing) {
+            $('.spec-detail-rows').show();
+        } else {
+            $('.spec-detail-rows').hide();
+        }
+    });
 
     // PPH Manual format
     $(".invoice-item-pph-manual-label").on('keyup', function () {
@@ -774,6 +950,101 @@
                     },
                 });
             }
+        });
+    });
+
+    // Add Payment — toggle Tempo field
+    $('#inv-add-payment-type').on('change', function () {
+        if ($(this).val() === 'Tempo') {
+            $('#inv-tempo-group').show().find('input').prop('required', true);
+        } else {
+            $('#inv-tempo-group').hide().find('input').prop('required', false).val('');
+        }
+    });
+
+    // Upload Bukti — set action URL dinamis lalu buka modal
+    var $uploadBtn = null;
+    $(document).on('click', '.btn-upload-proof-inv', function () {
+        var id = $(this).data('id');
+        $uploadBtn = $(this);
+        $('#formUploadBuktiInv').data('payment-id', id).attr('action', '/unit-quotation/payment/' + id + '/proof');
+        $('#modalUploadBukti').modal('show');
+    });
+
+    // Intercept submit → AJAX (biar response JSON tidak tampil di browser)
+    $('#formUploadBuktiInv').on('submit', function (e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        var url      = $(this).attr('action');
+        var payId    = $(this).data('payment-id');
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                $('#modalUploadBukti').modal('hide');
+                $('#formUploadBuktiInv')[0].reset();
+                if (res.success) {
+                    var $row = $('#pay-row-' + payId);
+                    $row.find('.badge.bg-label-warning').replaceWith(
+                        '<a href="' + res.file_url + '" target="_blank" class="badge bg-label-success text-decoration-none" style="font-size:10px">' +
+                        '<i class="mdi mdi-file-check-outline"></i> Bukti Transfer</a>'
+                    );
+                    if ($uploadBtn) $uploadBtn.remove();
+                    $row.find('.d-flex.gap-1.ms-2').append(
+                        '<button type="button" class="btn btn-sm btn-icon btn-outline-danger btn-delete-proof" data-id="' + payId + '" title="Hapus Bukti Transfer"><i class="mdi mdi-file-remove-outline"></i></button>'
+                    );
+                    Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Bukti transfer berhasil diupload.', timer: 1500, showConfirmButton: false })
+                        .then(function () { window.location.reload(); });
+                }
+            },
+            error: function () {
+                $('#modalUploadBukti').modal('hide');
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal upload. Cek format dan ukuran file.' });
+            }
+        });
+    });
+
+    // Hapus Bukti Transfer
+    $(document).on('click', '.btn-delete-proof', function () {
+        var id   = $(this).data('id');
+        var $btn = $(this);
+        Swal.fire({
+            title: 'Hapus bukti transfer?',
+            text: 'File bukti transfer akan dihapus, payment tetap ada.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus',
+            cancelButtonText: 'Batal',
+            customClass: {
+                confirmButton: 'btn btn-danger me-2 waves-effect',
+                cancelButton: 'btn btn-label-secondary waves-effect',
+            },
+            buttonsStyling: false,
+        }).then(function (result) {
+            if (!result.isConfirmed) return;
+            $.ajax({
+                url: '/unit-quotation/payment/' + id + '/proof',
+                type: 'POST',
+                data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
+                success: function (res) {
+                    if (res.success) {
+                        var $row = $btn.closest('[id^="pay-row-"]');
+                        $row.find('.badge.bg-label-success')
+                            .replaceWith('<span class="badge bg-label-warning" style="font-size:10px">Belum ada bukti</span>');
+                        $btn.remove();
+                        $row.find('.d-flex.gap-1.ms-2').prepend(
+                            '<button type="button" class="btn btn-sm btn-icon btn-outline-success btn-upload-proof-inv" data-id="' + id + '" title="Upload Bukti"><i class="mdi mdi-upload"></i></button>'
+                        );
+                        Swal.fire({ icon: 'success', title: 'Dihapus', text: 'Bukti transfer berhasil dihapus.', timer: 1500, showConfirmButton: false });
+                    }
+                },
+                error: function () {
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan.' });
+                }
+            });
         });
     });
 

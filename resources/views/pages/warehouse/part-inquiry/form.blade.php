@@ -47,6 +47,12 @@
                                     placeholder="W001" value="{{ old('commodity') }}">
                                 <label for="commodity">SKU / Commodity <span class="text-danger">*</span></label>
                             </div>
+                            <div class="form-check mt-1">
+                                <input class="form-check-input" type="checkbox" id="pnAvailable" checked>
+                                <label class="form-check-label small" for="pnAvailable">
+                                    Ada Data PN (auto-fill PN dari SKU)
+                                </label>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating form-floating-outline">
@@ -144,8 +150,9 @@
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control" id="pn" name="pn"
                                 placeholder="HU718/5x" value="{{ old('pn') }}">
-                            <label for="pn">Part Number (PN) <span class="text-danger">*</span></label>
+                            <label for="pn">Part Number (PN)</label>
                         </div>
+                        <small class="text-muted">Kosongkan jika PN belum didapat dari vendor</small>
                     </div>
                     <div class="col-12">
                         <div class="input-group">
@@ -183,8 +190,6 @@
                         <thead>
                             <tr>
                                 <th>Supplier</th>
-                                <th>Harga USD ($)</th>
-                                <th>Kurs (IDR/$)</th>
                                 <th>Harga Modal (IDR)</th>
                                 <th>Tanggal Inquiry</th>
                                 <th></th>
@@ -196,21 +201,16 @@
                                     <select class="form-select select2-supplier" name="vendors[0][id_supplier]" style="width:100%">
                                         <option value="">-- Cari Supplier --</option>
                                         @foreach ($suppliers as $supplier)
-                                            <option value="{{ $supplier->id }}">{{ $supplier->supplier }}</option>
+                                            <option value="{{ $supplier->id }}">{{ $supplier->info ?: '-' }} | {{ $supplier->code ?: '-' }} | {{ $supplier->supplier }}</option>
                                         @endforeach
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="number" class="form-control vendor-usd" name="vendors[0][price_usd]"
-                                        placeholder="0.00" step="0.01" min="0">
-                                </td>
-                                <td>
-                                    <input type="number" class="form-control vendor-kurs" name="vendors[0][kurs_usd]"
-                                        placeholder="16000" step="1" min="0">
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control vendor-modal-display"
-                                        placeholder="0" inputmode="numeric">
+                                    <div class="input-group">
+                                        <span class="input-group-text">Rp</span>
+                                        <input type="text" class="form-control vendor-modal-display"
+                                            placeholder="0" inputmode="numeric">
+                                    </div>
                                     <input type="hidden" class="vendor-modal" name="vendors[0][price_idr]">
                                 </td>
                                 <td>
@@ -252,8 +252,9 @@
                         <input type="text" class="form-control" id="editEqBrand" placeholder="Mann">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Part Number (PN) <span class="text-danger">*</span></label>
+                        <label class="form-label">Part Number (PN)</label>
                         <input type="text" class="form-control" id="editEqPn" placeholder="HU718/5x">
+                        <small class="text-muted">Kosongkan jika PN belum didapat dari vendor</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Harga Jual (IDR) <span class="text-danger">*</span></label>
@@ -345,14 +346,27 @@
     var vendorIndex = 1;
     var suppliers = @json($suppliers);
 
+    function formatSupplierLabel(s) {
+        return (s.info || '-') + ' | ' + (s.code || '-') + ' | ' + s.supplier;
+    }
+
     function buildSupplierSelect(index) {
         var $select = $('<select class="form-select select2-supplier" style="width:100%">');
         $select.attr('name', 'vendors[' + index + '][id_supplier]');
         $select.append('<option value="">-- Cari Supplier --</option>');
         suppliers.forEach(function(s) {
-            $select.append($('<option>').val(s.id).text(s.supplier));
+            $select.append($('<option>').val(s.id).text(formatSupplierLabel(s)));
         });
         return $select;
+    }
+
+    function formatSupplierOption(state) {
+        if (!state.id) return state.text;
+        var parts = state.text.split(' | ');
+        var info = parts[0] || '-';
+        var rest = parts.slice(1).join(' | ');
+        var badgeColor = info === 'Lokal' ? 'success' : (info === 'Import' ? 'info' : 'secondary');
+        return $('<span><span class="badge bg-label-' + badgeColor + ' me-1">' + info + '</span>' + rest + '</span>');
     }
 
     function initSupplierSelect2($el) {
@@ -360,13 +374,15 @@
             placeholder: '-- Cari Supplier --',
             allowClear: true,
             width: '100%',
+            templateResult: formatSupplierOption,
+            templateSelection: formatSupplierOption,
         });
     }
 
     initSupplierSelect2($('.select2-supplier'));
 
     function initVendorModalCleave($displayInput) {
-        var $hidden = $displayInput.siblings('.vendor-modal');
+        var $hidden = $displayInput.closest('td').find('.vendor-modal');
         var cleave = new Cleave($displayInput[0], {
             numeral: true,
             numeralThousandsGroupStyle: 'thousand',
@@ -383,42 +399,12 @@
 
     initVendorModalCleave($('.vendor-modal-display'));
 
-    function recalcModal($row) {
-        var usd  = parseFloat($row.find('.vendor-usd').val()) || 0;
-        var kurs = parseFloat($row.find('.vendor-kurs').val()) || 0;
-        var cleave = $row.find('.vendor-modal-display').data('cleave');
-        if (!cleave) return;
-        cleave.setRawValue(usd > 0 && kurs > 0 ? Math.round(usd * kurs) : '');
-    }
-
-    $(document).on('input', '.vendor-usd, .vendor-kurs', function () {
-        recalcModal($(this).closest('tr'));
-    });
-
-    // Auto-fetch kurs USD/IDR
-    var $kursInfo = $('<small class="text-muted ms-2" id="kursInfo"></small>');
-    $('#vendorTable thead tr th:nth-child(3)').append($kursInfo);
-
-    $.get('{{ route("exchange-rate.usd-idr") }}', function (res) {
-        if (res.rate) {
-            $('.vendor-kurs').val(res.rate);
-            $kursInfo.text('(auto: Rp ' + res.rate.toLocaleString('id-ID') + ')');
-            $('.vendor-row').each(function () { recalcModal($(this)); });
-        } else {
-            $kursInfo.text('(gagal fetch, isi manual)').addClass('text-warning');
-        }
-    }).fail(function () {
-        $kursInfo.text('(gagal fetch, isi manual)').addClass('text-warning');
-    });
-
     $('#addVendorRow').on('click', function () {
         var $select = buildSupplierSelect(vendorIndex);
         var $row = $('<tr class="vendor-row">');
         $row.append($('<td>').append($select));
-        $row.append('<td><input type="number" class="form-control vendor-usd" name="vendors[' + vendorIndex + '][price_usd]" placeholder="0.00" step="0.01" min="0"></td>');
-        $row.append('<td><input type="number" class="form-control vendor-kurs" name="vendors[' + vendorIndex + '][kurs_usd]" placeholder="16000" step="1" min="0"></td>');
         var $modalTd = $('<td>');
-        $modalTd.append('<input type="text" class="form-control vendor-modal-display" placeholder="0" inputmode="numeric">');
+        $modalTd.append('<div class="input-group"><span class="input-group-text">Rp</span><input type="text" class="form-control vendor-modal-display" placeholder="0" inputmode="numeric"></div>');
         $modalTd.append('<input type="hidden" class="vendor-modal" name="vendors[' + vendorIndex + '][price_idr]">');
         $row.append($modalTd);
         $row.append('<td><input type="date" class="form-control" name="vendors[' + vendorIndex + '][date]" value="{{ now()->toDateString() }}"></td>');
@@ -457,7 +443,7 @@
 
                     $('.select2-supplier').each(function () {
                         var $select = $(this);
-                        var option = new Option(newSupplier.supplier, newSupplier.id, false, false);
+                        var option = new Option(formatSupplierLabel(newSupplier), newSupplier.id, false, false);
                         $select.append(option).trigger('change');
                     });
 
@@ -476,9 +462,19 @@
         });
     });
 
-    // Auto-fill PN dari SKU
+    // Auto-fill PN dari SKU (bisa dimatikan kalau PN belum didapat dari vendor)
     $('#commodity').on('input', function () {
-        $('#pn').val($(this).val());
+        if ($('#pnAvailable').is(':checked')) {
+            $('#pn').val($(this).val());
+        }
+    });
+
+    $('#pnAvailable').on('change', function () {
+        if ($(this).is(':checked')) {
+            $('#pn').val($('#commodity').val());
+        } else {
+            $('#pn').val('');
+        }
     });
 
     // Auto-fill Brand dari Genuine/Replacement
@@ -613,8 +609,8 @@
         var pn    = $('#editEqPn').val().trim();
         var price = cleaveEditPrice.getRawValue();
 
-        if (!brand || !pn || price === '') {
-            $('#editEqError').removeClass('d-none').text('Semua field wajib diisi.');
+        if (!brand || price === '') {
+            $('#editEqError').removeClass('d-none').text('Brand dan Harga Jual wajib diisi.');
             return;
         }
 

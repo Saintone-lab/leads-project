@@ -364,13 +364,17 @@ $(function () {
         });
 
         $sel.on('select2:select', function (e) {
-            var unit = e.params.data.unit;
+            var unit   = e.params.data.unit;
+            var source = $row.find('.unit-source-radio:checked').val();
             $row.find('.field-id-unit').val(unit.id);
             $row.find('.field-id-fixed-asset').val(unit.id_fixed_asset);
 
-            var desc = (unit.desc && unit.desc !== '-') ? ' ' + unit.desc : '';
-            var sn   = unit.serial_number ? (' — SN: ' + unit.serial_number) : '';
-            $row.find('.field-label').val((unit.brand || '') + ' ' + (unit.model || unit.sku || '') + sn + desc);
+            var brand = unit.brand || '';
+            var model = unit.model || unit.sku || '';
+            var label = source === 'rental'
+                ? 'RENTAL SCREW AIR COMPRESSOR ' + brand + ' ' + model
+                : 'SCREW AIR COMPRESSOR ' + brand + ' ' + model + ' SECOND';
+            $row.find('.field-label').val(label);
 
             // Auto-fill price from catalog kalau spek-nya sudah punya harga (bisa diedit manual)
             if (unit.price && parseFloat(unit.price) > 0) {
@@ -384,11 +388,11 @@ $(function () {
         return $sel;
     }
 
-    // ── Toggle sumber unit (Catalog Unit / Unit Second dari Fixed Asset) ──
+    // ── Toggle sumber unit (Catalog Unit / Unit Second / Rental) ──────────
     function bindUnitSourceToggle($row) {
         $row.find('.unit-source-radio').on('change', function () {
             var source = $row.find('.unit-source-radio:checked').val();
-            if (source === 'fixed_asset') {
+            if (source === 'fixed_asset' || source === 'rental') {
                 $row.find('.unit-source-catalog').hide();
                 $row.find('.unit-source-fixed-asset').show();
             } else {
@@ -398,6 +402,7 @@ $(function () {
             // Reset pilihan supaya tidak ada data campur dari sumber sebelumnya
             $row.find('.field-id-unit').val('');
             $row.find('.field-id-fixed-asset').val('');
+            $row.find('.field-label').val('');
         });
     }
 

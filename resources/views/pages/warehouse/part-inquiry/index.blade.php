@@ -28,7 +28,7 @@
                         <th>Part Number</th>
                         <th>Harga Jual</th>
                         <th>Vendor</th>
-                        <th>Harga USD</th>
+                        <th>Harga Modal Termurah</th>
                         <th>Last Inquiry</th>
                     </tr>
                 </thead>

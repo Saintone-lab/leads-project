@@ -27,11 +27,11 @@ if (Auth::check()) {
                     s.pn,
                     s.price AS selling_price,
                     COUNT(DISTINCT spvp.id_supplier) AS vendor_count,
-                    MIN(spvp.price_usd) AS min_price_usd,
+                    MIN(spvp.price_idr) AS min_price_idr,
                     (SELECT sup2.supplier FROM spare_part_vendor_prices spvp2
                         JOIN supplier sup2 ON sup2.id = spvp2.id_supplier
                         WHERE spvp2.id_serial_product = s.id
-                        ORDER BY spvp2.price_usd ASC LIMIT 1) AS cheapest_vendor,
+                        ORDER BY spvp2.price_idr ASC LIMIT 1) AS cheapest_vendor,
                     MAX(spvp.date) AS last_inquiry
                 FROM serial_product s
                 INNER JOIN product p ON p.id = s.id_product

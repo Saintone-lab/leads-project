@@ -319,7 +319,6 @@ Route::group(["middleware" => "auth"], function () {
     Route::patch('/part-inquiry/product/{id}/equivalents/bulk-price', [PartInquiryController::class, 'bulkUpdateSellingPrice'])->name('part-inquiry.product.equivalents.bulk-price');
     Route::get('/part-inquiry/{id}', [PartInquiryController::class, 'show'])->name('part-inquiry.show');
     Route::post('/part-inquiry/{id}/vendor', [PartInquiryController::class, 'storeVendorPrice'])->name('part-inquiry.vendor.store');
-    Route::patch('/part-inquiry/serial/{id}/selling-price', [PartInquiryController::class, 'updateSellingPrice'])->name('part-inquiry.selling-price.update');
     Route::patch('/part-inquiry/serial/{id}/equivalent', [PartInquiryController::class, 'updateEquivalent'])->name('part-inquiry.equivalent.update');
     Route::delete('/part-inquiry/vendor/{id}/delete', [PartInquiryController::class, 'destroyVendorPrice'])->name('part-inquiry.vendor.destroy');
 
@@ -1261,6 +1260,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::patch('/invoice/unit/{id}/pph/delete', [InvoiceController::class, 'delete_pph_unit'])->name('invoice.unit.pph.delete');
     Route::post('/invoice/unit/{id}/pph-manual', [InvoiceController::class, 'add_pph_manual_unit'])->name('invoice.unit.pph_manual');
     Route::patch('/invoice/unit/{id}/pph-manual/delete', [InvoiceController::class, 'delete_pph_manual_unit'])->name('invoice.unit.pph_manual.delete');
+    Route::post('/invoice/unit/{id}/toggle-spec', [InvoiceController::class, 'toggleSpec'])->name('invoice.unit.toggle-spec');
     Route::post('/invoice/unit/{id}/payment/confirm', [InvoiceController::class, 'confirm_payment_unit'])->name('invoice.confirm_payment_unit');
     Route::patch('/invoice/unit/{id}/payment/undo', [InvoiceController::class, 'undo_payment_unit'])->name('invoice.undo_payment_unit');
     Route::post('/invoice/unit/{id}/sign', [InvoiceController::class, 'hand_sign_unit'])->name('invoice.unit.sign');
@@ -1446,6 +1446,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/prospect/choose_quotation/{id}', [ProspectController::class, 'choose_quotation'])->name('choose_quotation.prospect');
     Route::post('/prospect/add_comment/{id}', [ProspectController::class, 'add_comment'])->name('add_comment.prospect');
     Route::post('/prospect/{id}/view_comment', [ProspectController::class, 'view_comment'])->name('view_comment.prospect');
+    Route::get('/prospect/monthly-leads/{sales}', [ProspectController::class, 'monthlyLeads'])->name('monthly_leads.prospect');
 
     Route::resource('/library', LibraryController::class);
     Route::get('/library/index/marktool', [LibraryController::class, 'index_marktool'])->name(name: 'marktool.index');
@@ -1668,6 +1669,13 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/unit-quotation/{id}/revise', [UnitQuotationController::class, 'revise'])->name('unit-quotation.revise');
     Route::post('/unit-quotation/{id}/upload-po', [UnitQuotationController::class, 'uploadPO'])->name('unit-quotation.upload-po');
     Route::post('/unit-quotation/{id}/request-next-invoice', [UnitQuotationController::class, 'requestNextInvoice'])->name('unit-quotation.request-next-invoice');
+    Route::post('/unit-quotation/{id}/add-payment', [UnitQuotationController::class, 'addPayment'])->name('unit-quotation.add-payment');
+    Route::post('/unit-quotation/payment/{id}/proof', [UnitQuotationController::class, 'proofPayment'])->name('unit-quotation.proof-payment');
+    Route::delete('/unit-quotation/payment/{id}/proof', [UnitQuotationController::class, 'deleteProof'])->name('unit-quotation.delete-proof');
+    Route::delete('/unit-quotation/payment/{id}', [UnitQuotationController::class, 'deletePayment'])->name('unit-quotation.delete-payment');
+    Route::post('/unit-quotation/{id}/cancel-po', [UnitQuotationController::class, 'cancelPO'])->name('unit-quotation.cancel-po');
+    Route::post('/unit-quotation/{id}/approve-cancel', [UnitQuotationController::class, 'approveCancelPO'])->name('unit-quotation.approve-cancel');
+    Route::post('/unit-quotation/{id}/reject-cancel', [UnitQuotationController::class, 'rejectCancelPO'])->name('unit-quotation.reject-cancel');
 
     // Purchase Order
     Route::resource('/purchase', POController::class);
@@ -2409,6 +2417,89 @@ Route::group(["middleware" => "auth"], function () {
             ")
             ])
             ->get();
+
+        // Unit quotation AR — payment subs keyed by id_unit_quotation
+        $uqLastPaymentSub = DB::table('payment as p1')
+            ->select('p1.id', 'p1.id_unit_quotation', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.overdue', 'p1.method', 'p1.created_at')
+            ->join(DB::raw('(SELECT id_unit_quotation AS uq_id, MAX(id) as max_id FROM payment WHERE id_unit_quotation IS NOT NULL GROUP BY id_unit_quotation) as p2'), 'p1.id', '=', 'p2.max_id');
+        $uqLastDP = DB::table('payment as p1')
+            ->select('p1.id_unit_quotation', 'p1.id', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(DB::raw('(SELECT id_unit_quotation AS uq_id, MAX(id) as max_id FROM payment WHERE type="DP" AND id_unit_quotation IS NOT NULL GROUP BY id_unit_quotation) as p2'), 'p1.id', '=', 'p2.max_id');
+        $uqLastBP = DB::table('payment as p1')
+            ->select('p1.id_unit_quotation', 'p1.id', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(DB::raw('(SELECT id_unit_quotation AS uq_id, MAX(id) as max_id FROM payment WHERE type="BP" AND id_unit_quotation IS NOT NULL GROUP BY id_unit_quotation) as p2'), 'p1.id', '=', 'p2.max_id');
+        $uqLastOther = DB::table('payment as p1')
+            ->select('p1.id_unit_quotation', 'p1.id', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.method', 'p1.created_at')
+            ->join(DB::raw('(SELECT id_unit_quotation AS uq_id, MAX(id) as max_id FROM payment WHERE type NOT IN ("DP","BP") AND id_unit_quotation IS NOT NULL GROUP BY id_unit_quotation) as p2'), 'p1.id', '=', 'p2.max_id');
+        $uqSumDP = DB::table('payment')->select('id_unit_quotation', DB::raw('SUM(amount) as total_dp'))
+            ->where('type', 'DP')->where('level', 1)->whereNotNull('id_unit_quotation')->groupBy('id_unit_quotation');
+        $uqSumBP = DB::table('payment')->select('id_unit_quotation', DB::raw('SUM(amount) as total_bp'))
+            ->where('type', 'BP')->where('level', 1)->whereNotNull('id_unit_quotation')->groupBy('id_unit_quotation');
+        $uqSumPaymentLvl1 = DB::table('payment')->select('id_unit_quotation', DB::raw('SUM(amount) as total_payment_level1'))
+            ->where('level', 1)->whereNotNull('id_unit_quotation')->groupBy('id_unit_quotation');
+        $uqPaymentCountSub = DB::table('payment')->select('id_unit_quotation', DB::raw('COUNT(*) as payment_count'))
+            ->whereNotNull('id_unit_quotation')->groupBy('id_unit_quotation');
+
+        $unitInvoice = Invoice::join('unit_quotation', 'unit_quotation.id', '=', 'invoice.id_unit_quotation')
+            ->join('client', 'client.id', '=', 'unit_quotation.id_client')
+            ->join('users', 'users.id', '=', 'unit_quotation.id_sales')
+            ->leftJoinSub($uqLastPaymentSub, 'pay', fn($j) => $j->on('invoice.id_unit_quotation', '=', 'pay.id_unit_quotation'))
+            ->leftJoinSub($uqLastDP, 'dp_last', fn($j) => $j->on('invoice.id_unit_quotation', '=', 'dp_last.id_unit_quotation'))
+            ->leftJoinSub($uqLastBP, 'bp_last', fn($j) => $j->on('invoice.id_unit_quotation', '=', 'bp_last.id_unit_quotation'))
+            ->leftJoinSub($uqLastOther, 'other_last', fn($j) => $j->on('invoice.id_unit_quotation', '=', 'other_last.id_unit_quotation'))
+            ->leftJoinSub($uqSumDP, 'dp_sum', fn($j) => $j->on('invoice.id_unit_quotation', '=', 'dp_sum.id_unit_quotation'))
+            ->leftJoinSub($uqSumBP, 'bp_sum', fn($j) => $j->on('invoice.id_unit_quotation', '=', 'bp_sum.id_unit_quotation'))
+            ->leftJoinSub($uqSumPaymentLvl1, 'pay_sum_lvl1', fn($j) => $j->on('invoice.id_unit_quotation', '=', 'pay_sum_lvl1.id_unit_quotation'))
+            ->leftJoinSub($uqPaymentCountSub, 'pay_count', fn($j) => $j->on('invoice.id_unit_quotation', '=', 'pay_count.id_unit_quotation'))
+            ->where('invoice.flag', 'Reftech')
+            ->whereNotNull('invoice.no_invoice')
+            ->whereNotNull('invoice.id_unit_quotation')
+            ->orderByDesc('invoice.date')
+            ->select([
+                'invoice.*',
+                DB::raw("SUBSTRING(invoice.no_invoice, 1, 12) as short_invoice"),
+                DB::raw("SUBSTRING(invoice.no_po, 1, 10) as short_po"),
+                'client.company', 'client.info as bendera', 'users.name as name',
+                DB::raw("DATE_FORMAT(invoice.date, '%d-%m-%Y') as tanggal"),
+                DB::raw('unit_quotation.total as harga_total'),
+                DB::raw('unit_quotation.created_at as po_date'),
+                DB::raw('IF(unit_quotation.tax=1,"11","0") as tax'),
+                DB::raw('IFNULL(pay.amount,0) as last_payment_amount'),
+                DB::raw('pay.type as last_payment_type'),
+                DB::raw('pay.level as last_payment_level'),
+                DB::raw('pay.due_date as last_due_date'),
+                DB::raw('pay.overdue as last_overdue'),
+                DB::raw('IFNULL(dp_last.amount,0) as dp_amount'), DB::raw('dp_last.level as dp_level'),
+                DB::raw('IFNULL(bp_last.amount,0) as bp_amount'), DB::raw('bp_last.level as bp_level'),
+                DB::raw('IFNULL(other_last.amount,0) as other_amount'), DB::raw('other_last.type as other_type'), DB::raw('other_last.level as other_level'),
+                DB::raw('IFNULL(dp_sum.total_dp,0) as total_dp'),
+                DB::raw('IFNULL(bp_sum.total_bp,0) as total_bp'),
+                DB::raw('IFNULL(pay_sum_lvl1.total_payment_level1,0) as total_payment_level1'),
+                DB::raw('IFNULL(pay_count.payment_count,0) as payment_count'),
+                DB::raw("
+                    CASE
+                        WHEN IFNULL(pay_count.payment_count,0) = 1 THEN (
+                            CASE
+                                WHEN pay.method = 'DP' THEN
+                                    CASE WHEN IFNULL(pay.level,0) = 0 THEN unit_quotation.total ELSE unit_quotation.total - IFNULL(pay.amount,0) END
+                                ELSE CASE WHEN IFNULL(pay.level,0) = 0 THEN unit_quotation.total ELSE 0 END
+                            END
+                        )
+                        WHEN IFNULL(pay_count.payment_count,0) > 1 THEN (
+                            CASE
+                                WHEN IFNULL(dp_sum.total_dp,0) = 0 AND IFNULL(bp_sum.total_bp,0) = 0 THEN unit_quotation.total
+                                WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) = 0 THEN unit_quotation.total - IFNULL(dp_sum.total_dp,0)
+                                WHEN IFNULL(dp_sum.total_dp,0) > 0 AND IFNULL(bp_sum.total_bp,0) > 0 THEN 0
+                                ELSE unit_quotation.total
+                            END
+                        )
+                        ELSE unit_quotation.total
+                    END as outstanding
+                "),
+            ])
+            ->get();
+
+        $invoice = $invoice->merge($unitInvoice);
         return response()->json(['data' => $invoice]);
     });
     Route::get('/db/sales/invoice/reftech', function () {
@@ -3126,7 +3217,13 @@ Route::group(["middleware" => "auth"], function () {
             'quotation.invoice' => function ($i) {
                 $i->orderBy('id');
             },
-            'quotation.pic.client'
+            'quotation.pic.client',
+            'unitQuotation.client',
+            'unitQuotation.sales',
+            'unitQuotation.payments',
+            'unitQuotation.invoices' => function ($i) {
+                $i->orderBy('id');
+            },
         ])
             // ->whereYear('payment.created_at', Carbon::now()->year)
             ->orderByRaw("
@@ -3141,82 +3238,115 @@ Route::group(["middleware" => "auth"], function () {
             ->get();
 
         $payment = $payment->map(function ($pay) {
-            $totalPayment = $pay->quotation?->payment->sum('amount') ?? 0;
+            $isUnitQuotation = !is_null($pay->id_unit_quotation);
 
-            if ($pay->type === 'BP') {
-                $invoice = $pay->quotation?->invoice->where('type', 'BP')->first();
+            if ($isUnitQuotation) {
+                $uq           = $pay->unitQuotation;
+                $totalPayment = $uq?->payments->sum('amount') ?? 0;
+                $hargaTotal   = $uq?->total ?? 0;
+                $invoice      = $uq?->invoices->first();
+                $company      = $uq?->client?->company ?? '-';
+                $flag         = $uq?->client?->info ?? '-';
+                $name         = $uq?->sales?->name ?? '-';
             } else {
-                $invoice = $pay->quotation?->invoice->first();
+                $totalPayment = $pay->quotation?->payment->sum('amount') ?? 0;
+                $hargaTotal   = $pay->quotation?->harga_total ?? 0;
+
+                if ($pay->type === 'BP') {
+                    $invoice = $pay->quotation?->invoice->where('type', 'BP')->first();
+                } else {
+                    $invoice = $pay->quotation?->invoice->first();
+                }
+
+                $company = $pay->quotation?->pic?->client?->company ?? '-';
+                $flag    = $pay->quotation?->pic?->client?->info ?? '-';
+                $name    = $pay->quotation?->sales?->name ?? '-';
             }
 
-            $title = (($pay->quotation?->harga_total ?? 0) - $totalPayment === 0)
-                ? 'Full paid'
-                : 'Partial';
+            $title = ($hargaTotal - $totalPayment === 0) ? 'Full paid' : 'Partial';
 
             return [
-                'id' => $pay->id,
-                'no_receipt' => '#RCPT-' . $pay->id,
-                'date' => $pay->created_at?->format('d-m-Y'),
-                'no_invoice' => substr($invoice?->no_invoice, 0, 3) ?? '-',
-                'company' => $pay->quotation?->pic?->client?->company ?? '-',
-                'flag' => $pay->quotation?->pic?->client?->info ?? '-',
-                'name' => $pay->quotation?->sales?->name ?? '-',
-                'amount' => $pay->amount,
-                'level' => $pay->level,
+                'id'          => $pay->id,
+                'no_receipt'  => '#RCPT-' . $pay->id,
+                'date'        => $pay->created_at?->format('d-m-Y'),
+                'no_invoice'  => substr($invoice?->no_invoice, 0, 3) ?? '-',
+                'company'     => $company,
+                'flag'        => $flag,
+                'name'        => $name,
+                'amount'      => $pay->amount,
+                'level'       => $pay->level,
                 'total_payment' => $totalPayment,
-                'sisa' => ($pay->quotation?->harga_total ?? 0) - $totalPayment,
-                'method' => $pay->method,
+                'sisa'        => $hargaTotal - $totalPayment,
+                'method'      => $pay->method,
                 'date_confirm' => $pay->date_confirm,
-                'type' => $pay->type,
-                'file' => $pay->file,
-                'title' => $title,
+                'type'        => $pay->type,
+                'file'        => $pay->file,
+                'title'       => $title,
             ];
         });
 
         return response()->json(['data' => $payment]);
     });
     Route::get('/db/aging/report/ar', function () {
-        $payment = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+        $reminderSub = DB::raw('(
+            SELECT r1.*
+            FROM reminder r1
+            INNER JOIN (
+                SELECT id_payment, MAX(created_at) AS last_reminder
+                FROM reminder
+                GROUP BY id_payment
+            ) r2 ON r1.id_payment = r2.id_payment AND r1.created_at = r2.last_reminder
+        ) as r');
+
+        // Sparepart quotation Tempo payments
+        $spPayment = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
             ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
-            // join subquery reminder terakhir
-            ->leftJoin(DB::raw('(
-        SELECT r1.*
-        FROM reminder r1
-        INNER JOIN (
-            SELECT id_payment, MAX(created_at) AS last_reminder
-            FROM reminder
-            GROUP BY id_payment
-        ) r2 ON r1.id_payment = r2.id_payment AND r1.created_at = r2.last_reminder
-    ) as r'), 'r.id_payment', '=', 'payment.id')
+            ->leftJoin($reminderSub, 'r.id_payment', '=', 'payment.id')
             ->where('payment.type', 'Tempo')
             ->whereNot('payment.level', 1)
-            ->orderByRaw('payment.due_date IS NULL, payment.due_date ASC')
             ->groupBy('payment.id')
             ->select(
-                'payment.id',
-                'payment.amount',
-                'payment.overdue',
+                'payment.id', 'payment.amount', 'payment.overdue',
                 DB::raw("DATE_FORMAT(payment.due_date, '%d-%m-%Y') as due_date"),
                 'i.no_invoice',
                 DB::raw("SUBSTRING(i.no_invoice, 1, 12) as short_invoice"),
                 DB::raw("SUBSTRING(i.no_po, 1, 10) as short_po"),
-                'u.name',
-                DB::raw("DATE_FORMAT(i.date, '%d-%m-%Y') as date"),
-                'i.no_po',
-                'c.company',
-                'c.info',
-                'q.harga_total',
-                'q.tax',
-                // ambil kolom dari reminder terakhir
-                // 'r.date as reminder_date',
+                'u.name', DB::raw("DATE_FORMAT(i.date, '%d-%m-%Y') as date"),
+                'i.no_po', 'c.company', 'c.info', 'q.harga_total', 'q.tax',
                 DB::raw("DATE_FORMAT(r.date, '%d-%m-%Y') as reminder_date"),
-                'r.status as reminder_status',
-                'r.reminder as reminder_note'
-            )
-            ->get()
+                'r.status as reminder_status', 'r.reminder as reminder_note'
+            )->get();
+
+        // Unit quotation Tempo payments
+        $uqPayment = Payment::join('unit_quotation as uq', 'uq.id', '=', 'payment.id_unit_quotation')
+            ->join('users as u', 'uq.id_sales', '=', 'u.id')
+            ->join('invoice as i', 'i.id_unit_quotation', '=', 'uq.id')
+            ->join('client as c', 'c.id', '=', 'uq.id_client')
+            ->leftJoin($reminderSub, 'r.id_payment', '=', 'payment.id')
+            ->where('payment.type', 'Tempo')
+            ->whereNot('payment.level', 1)
+            ->whereNotNull('i.no_invoice')
+            ->groupBy('payment.id')
+            ->select(
+                'payment.id', 'payment.amount', 'payment.overdue',
+                DB::raw("DATE_FORMAT(payment.due_date, '%d-%m-%Y') as due_date"),
+                'i.no_invoice',
+                DB::raw("SUBSTRING(i.no_invoice, 1, 12) as short_invoice"),
+                DB::raw("SUBSTRING(i.no_po, 1, 10) as short_po"),
+                'u.name', DB::raw("DATE_FORMAT(i.date, '%d-%m-%Y') as date"),
+                'i.no_po', 'c.company', 'c.info',
+                DB::raw('uq.total as harga_total'),
+                DB::raw('IF(uq.tax=1,"11","0") as tax'),
+                DB::raw("DATE_FORMAT(r.date, '%d-%m-%Y') as reminder_date"),
+                'r.status as reminder_status', 'r.reminder as reminder_note'
+            )->get();
+
+        $payment = $spPayment->merge($uqPayment)
+            ->sortBy(fn($row) => $row->due_date === null ? '9999-12-31' : $row->due_date)
+            ->values()
             ->map(function ($row) {
                 $due = Carbon::parse($row->due_date);
                 $today = Carbon::today();
@@ -3231,7 +3361,6 @@ Route::group(["middleware" => "auth"], function () {
                 }
                 return $row;
             });
-
 
         return response()->json(['data' => $payment]);
     });

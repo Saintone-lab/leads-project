@@ -25,12 +25,44 @@
     <ul class="menu-inner py-1">
         @if (auth::user()?->role == 'Admin' || auth::user()?->role == 'Accounting')
             <!-- Dashboards -->
-            <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
-                <a href="{{ url('/') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
-                    <div data-i18n="Dashboards">Dashboards</div>
-                </a>
-            </li>
+            @if (auth::user()->role == 'Admin')
+                @php $currentDashView = request()->is('/') ? request('view', 'sales') : null; @endphp
+                <li class="menu-item {{ request()->is('/') ? 'open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
+                        <div data-i18n="Dashboards">Dashboards</div>
+                    </a>
+                    <ul class="menu-sub">
+                        <li class="menu-item {{ $currentDashView == 'sales' ? 'active' : '' }}">
+                            <a href="{{ url('/') }}?view=sales" class="menu-link">
+                                <div data-i18n="Sales">Sales</div>
+                            </a>
+                        </li>
+                        <li class="menu-item {{ $currentDashView == 'accounting' ? 'active' : '' }}">
+                            <a href="{{ url('/') }}?view=accounting" class="menu-link">
+                                <div data-i18n="Accounting">Accounting</div>
+                            </a>
+                        </li>
+                        <li class="menu-item {{ $currentDashView == 'finance' ? 'active' : '' }}">
+                            <a href="{{ url('/') }}?view=finance" class="menu-link">
+                                <div data-i18n="Finance">Finance</div>
+                            </a>
+                        </li>
+                        <li class="menu-item {{ $currentDashView == 'logistic' ? 'active' : '' }}">
+                            <a href="{{ url('/') }}?view=logistic" class="menu-link">
+                                <div data-i18n="Logistic">Logistic</div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            @else
+                <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
+                    <a href="{{ url('/') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
+                        <div data-i18n="Dashboards">Dashboards</div>
+                    </a>
+                </li>
+            @endif
             {{-- <li class="menu-item">
                 <a href="#" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-phone-incoming-outgoing-outline"></i>
@@ -1403,14 +1435,20 @@
 
 
         @elseif(auth::user()?->role == 'Logistic')
+            <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
+                <a href="{{ url('/') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
+                    <div data-i18n="Dashboard">Dashboard</div>
+                </a>
+            </li>
             <li class="menu-item {{ request()->is('master/product') ? 'active' : '' }}">
                 <a href="{{ route('master.product') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package"></i>
                     <div data-i18n="Master">Master</div>
                 </a>
             </li>
-            <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
-                <a href="{{ url('/') }}" class="menu-link">
+            <li class="menu-item {{ request()->is('product') || request()->is('product/*') ? 'active' : '' }}">
+                <a href="{{ route('product.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-package-variant"></i>
                     <div data-i18n="Product">Product</div>
                 </a>

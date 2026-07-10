@@ -32,7 +32,7 @@ $(function () {
                 { data: "pn" },
                 { data: "selling_price" },
                 { data: "cheapest_vendor" },
-                { data: "min_price_usd" },
+                { data: "min_price_idr" },
                 { data: "last_inquiry" },
             ],
             columnDefs: [
@@ -42,6 +42,16 @@ $(function () {
                     render: function (data, type, full) {
                         if (type === "display") {
                             return '<a href="/part-inquiry/' + full.serial_id + '">' + data + '</a>';
+                        }
+                        return data;
+                    },
+                },
+                {
+                    targets: 2,
+                    render: function (data, type) {
+                        if (type !== 'display') return data;
+                        if (!data || data === '-') {
+                            return '<span class="badge bg-label-warning">PN Pending</span>';
                         }
                         return data;
                     },
@@ -68,8 +78,8 @@ $(function () {
                     searchable: false,
                     render: function (data, type, full) {
                         if (!full.vendor_count || full.vendor_count == 0) return '<span class="text-muted">-</span>';
-                        var price = parseFloat(data || 0).toFixed(2);
-                        return 'from $' + price + ' <span class="badge bg-label-primary ms-1">' + full.vendor_count + ' vendor</span>';
+                        var price = new Intl.NumberFormat("id-ID").format(data || 0);
+                        return 'Rp ' + price + ' <span class="badge bg-label-primary ms-1">' + full.vendor_count + ' vendor</span>';
                     },
                 },
                 {

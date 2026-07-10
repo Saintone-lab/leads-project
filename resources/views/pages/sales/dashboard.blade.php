@@ -463,201 +463,211 @@
                 </div>
             </div>
             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-                <div class="card">
-                    <div class="card-body text-nowrap">
-                        <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
-                            Rise to the Top! <strong>{{ Auth::user()->name }}</strong>🎉
-                        </h4>
-                        <p class="pb-0">Keep closing and lead the leaderboard.</p>
-                        <h4 class="text-primary mb-1">Rp. {{ $formattedTotalPrice }}</h4>
+                <div class="card h-100">
+                    <div class="card-body">
                         @php
-                            $jumlah_target = 0;
                             $jumlah_target = ($target?->total > 0) ? ($poTotalPrice / $target->total) * 100 : 0;
-                            $formatted_jumlah_target = number_format($jumlah_target, 3);
+                            $formatted_jumlah_target = number_format($jumlah_target, 1);
+                            $achColor = $jumlah_target >= 100 ? 'success' : ($jumlah_target >= 70 ? 'warning' : 'danger');
                         @endphp
-                        <p class="mb-2 pb-1">{{ $formatted_jumlah_target }}% of target 🚀</p>
-                        <a href="https://reftech.my.id/reports" class="btn btn-sm btn-primary waves-effect waves-light">View Sales</a>
+                        <div class="row align-items-center gy-3">
+                            <div class="col-md-7">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-label-primary">
+                                        <i class="mdi mdi-trophy-outline"></i> Pencapaian Bulan Ini
+                                    </span>
+                                    <small class="text-muted">{{ now()->locale('id')->translatedFormat('F Y') }}</small>
+                                </div>
+                                <h4 class="card-title mb-1 d-flex gap-2 flex-wrap">
+                                    Rise to the Top! <strong>{{ Auth::user()->name }}</strong>🎉
+                                </h4>
+                                <p class="text-muted mb-2">Keep closing and lead the leaderboard.</p>
+                                <h3 class="text-primary fw-bold mb-0">Rp {{ $formattedTotalPrice }}</h3>
+                                <small class="text-muted">Target: Rp {{ number_format($target?->total ?? 0, 0, ',', '.') }}</small>
+                                <div class="mt-3">
+                                    <a href="https://reftech.my.id/reports"
+                                        class="btn btn-sm btn-primary waves-effect waves-light">
+                                        <i class="mdi mdi-chart-areaspline me-1"></i> View Sales
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-5 text-center">
+                                <div id="salesAchievementGauge" data-value="{{ $jumlah_target }}"
+                                    data-color="{{ $achColor }}"></div>
+                            </div>
+                        </div>
                     </div>
-                    <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
-                        class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
-                </div>
 
-                        <h4 class="card-title mb-1 d-flex gap-2 flex-wrap text-primary" style="margin-top:25px">
-                            <b>Key Performance Indicator</b>
-                        </h4>
-
-
-                @if (Auth::user()->id != 16 || Auth::user()->id != 23)
-            <div class="row gy-4 mb-4" style="margin-top:1px">
-                @if (Auth::user()->id != '4')
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                    <div class="avatar">
-                                        <div class="avatar-initial bg-label-secondary rounded">
-                                            <i class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
+                    @if (Auth::user()->id != 16 || Auth::user()->id != 23)
+                        <hr class="m-0">
+                        <div class="card-body">
+                            <h6 class="text-uppercase text-muted mb-3" style="letter-spacing:.5px;font-size:.75rem;">
+                                <i class="mdi mdi-speedometer me-1"></i> Key Performance Indicator
+                            </h6>
+                            @php
+                                $kpiPct = function ($value, $target) {
+                                    $pct = $target > 0 ? round(($value / $target) * 100, 1) : 0;
+                                    $color = $pct >= 100 ? 'success' : ($pct >= 70 ? 'warning' : 'danger');
+                                    return [$pct, $color];
+                                };
+                            @endphp
+                            <div class="row g-4">
+                                @if (Auth::user()->id != '4')
+                                    @php
+                                        [$pctLeads, $colorLeads] = $kpiPct($leads->count(), $target?->leads ?? 0);
+                                    @endphp
+                                    <div class="col-6 col-md-4 col-xl">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <div class="avatar avatar-sm">
+                                                <div class="avatar-initial bg-label-secondary rounded">
+                                                    <i class="mdi mdi-account-multiple-plus-outline"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ $leads->count() }}
+                                                    <small class="text-muted fs-tiny">/ {{ $target?->leads ?? 0 }}</small>
+                                                </h6>
+                                                <small class="text-muted">New Leads</small>
+                                            </div>
+                                        </div>
+                                        <div class="progress" style="height:4px;border-radius:4px;">
+                                            <div class="progress-bar bg-{{ $colorLeads }}"
+                                                style="width:{{ min($pctLeads, 100) }}%;border-radius:4px;"></div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="card-info mt-4 pt-1">
-                                    <h4 class="mb-2">
-                                        {{ $leads->count() }}
+                                @endif
 
-                                        <small class="text-muted fs-tiny">/
-                                            {{-- @if ($jumlahData > 4)
-                                        {{ round($target->leads + $target->leads / 4) }}
-                                    @elseif($jumlahData == 4)
-                                        {{ round(num: $target->leads) }}
-                                    @endif --}}
-
-                                            {{ $target?->leads ?? 0 }}
-                                        </small>
-                                    </h4>
-                                    <div class="badge bg-label-secondary rounded-pill">+New Leads</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-                <!--/ Total New Leads chart -->
-                <!-- Total Leads -->
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                <div class="avatar">
-                                    <div class="avatar-initial bg-label-info rounded">
-                                        <i class="mdi mdi-phone-outline mdi-24px"></i>
+                                @php
+                                    [$pctDc, $colorDc] = $kpiPct($dailyCall, $target?->dc ?? 0);
+                                @endphp
+                                <div class="col-6 col-md-4 col-xl">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <div class="avatar avatar-sm">
+                                            <div class="avatar-initial bg-label-info rounded">
+                                                <i class="mdi mdi-phone-outline"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">{{ $dailyCall }}
+                                                @if (Auth::user()->id != 3 && Auth::user()->id != 4)
+                                                    <small class="text-muted fs-tiny">/ {{ $target?->dc ?? 0 }}</small>
+                                                @endif
+                                            </h6>
+                                            <small class="text-muted">Daily Call</small>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">
-                                    {{ $dailyCall }}
                                     @if (Auth::user()->id != 3 && Auth::user()->id != 4)
-                                        <small class="text-muted fs-tiny">/
-                                            {{ $target?->dc ?? 0 }}
-                                            @php
-                                                if (is_array($weekPerMonth)) {
-                                                    $jumlahData = count($weekPerMonth);
-                                                }
-                                            @endphp
-                                        </small>
+                                        <div class="progress" style="height:4px;border-radius:4px;">
+                                            <div class="progress-bar bg-{{ $colorDc }}"
+                                                style="width:{{ min($pctDc, 100) }}%;border-radius:4px;"></div>
+                                        </div>
                                     @endif
-                                </h4>
-                                <div class="badge bg-label-secondary rounded-pill">Daily Call</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--/ Total Leads -->
-                <!-- Total Expenses -->
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                <div class="avatar">
-                                    <div class="avatar-initial bg-label-primary rounded">
-                                        <i class="mdi mdi-account-multiple-outline mdi-24px"></i>
-                                    </div>
                                 </div>
-                            </div>
-                            <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">
-                                    {{ $customers }}
-                                    <small class="text-muted fs-tiny">/
-                                        {{ $jumlahCustomer }}
-                                        {{-- @if ($jumlahData > 4)
-                                        {{ round($target->crm + $target->crm / 4) }}
-                                    @elseif($jumlahData == 4)
-                                        {{ round($target->crm) }}
-                                    @endif --}}
-                                    </small>
-                                </h4>
-                                <div class="badge bg-label-secondary rounded-pill">CRM Existing</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--/ Total Expenses -->
-                <!-- Total Profit chart -->
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                <div class="avatar">
-                                    <div class="avatar-initial bg-label-warning rounded">
-                                        <i class="mdi mdi-email-multiple-outline mdi-24px"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">
-                                    {{ $quotation->count() }}
-                                    {{-- <small class="text-muted fs-tiny">/
-                                        {{ $target->quote }}
-                                    </small> --}}
-                                </h4>
-                                <div class="badge bg-label-secondary rounded-pill">Quotation</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                <div class="avatar">
-                                    <div class="avatar-initial bg-label-success rounded">
-                                        <i class="mdi mdi-cart-plus mdi-24px"></i>
+                                @php
+                                    [$pctCrm, $colorCrm] = $kpiPct($customers, $jumlahCustomer ?? 0);
+                                @endphp
+                                <div class="col-6 col-md-4 col-xl">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <div class="avatar avatar-sm">
+                                            <div class="avatar-initial bg-label-primary rounded">
+                                                <i class="mdi mdi-account-multiple-outline"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">{{ $customers }}
+                                                <small class="text-muted fs-tiny">/ {{ $jumlahCustomer }}</small>
+                                            </h6>
+                                            <small class="text-muted">CRM Existing</small>
+                                        </div>
+                                    </div>
+                                    <div class="progress" style="height:4px;border-radius:4px;">
+                                        <div class="progress-bar bg-{{ $colorCrm }}"
+                                            style="width:{{ min($pctCrm, 100) }}%;border-radius:4px;"></div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="card-info mt-4 pt-1">
-                                <h4 class="mb-2">
-                                    {{ $po->count() }}
-                                </h4>
-                                <div class="badge bg-label-secondary rounded-pill">Purchase Order</div>
+
+                                @php
+                                    [$pctQuote, $colorQuote] = $kpiPct($quotation->count(), $target?->quote ?? 0);
+                                @endphp
+                                <div class="col-6 col-md-4 col-xl">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <div class="avatar avatar-sm">
+                                            <div class="avatar-initial bg-label-warning rounded">
+                                                <i class="mdi mdi-email-multiple-outline"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">{{ $quotation->count() }}
+                                                @if ($target?->quote)
+                                                    <small class="text-muted fs-tiny">/ {{ $target->quote }}</small>
+                                                @endif
+                                            </h6>
+                                            <small class="text-muted">Quotation</small>
+                                        </div>
+                                    </div>
+                                    @if ($target?->quote)
+                                        <div class="progress" style="height:4px;border-radius:4px;">
+                                            <div class="progress-bar bg-{{ $colorQuote }}"
+                                                style="width:{{ min($pctQuote, 100) }}%;border-radius:4px;"></div>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="col-6 col-md-4 col-xl">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <div class="avatar avatar-sm">
+                                            <div class="avatar-initial bg-label-success rounded">
+                                                <i class="mdi mdi-cart-plus"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">{{ $po->count() }}</h6>
+                                            <small class="text-muted">Purchase Order</small>
+                                        </div>
+                                    </div>
+                                    <div class="progress" style="height:4px;border-radius:4px;">
+                                        <div class="progress-bar bg-{{ $achColor }}"
+                                            style="width:{{ min($jumlah_target, 100) }}%;border-radius:4px;"></div>
+                                    </div>
+                                    <small class="text-muted fs-tiny">{{ $formatted_jumlah_target }}% target Rp</small>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
-                <!--/ Total Profit chart -->
-                {{-- @endif --}}
-            </div>
-                @endif
             </div>
 
             <!--/ Congratulations card -->
             <!-- Total New Leads chart -->
         </div>
 
+        @include('pages.sales.dashboard._charts')
+
         <div class="row gy-4 mb-4">
-            {{-- Prospect Table --}}
+            {{-- Hot Prospect Table --}}
             <div class="col-12">
                 <div class="card">
-                    <div class="card-datatable table-responsive pt-0">
-                        <table class="datatable-prospect-quote-sales table table-striped">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0"><i class="mdi mdi-fire text-danger me-1"></i> Hot Prospect</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="datatable-hot-prospect table table-bordered">
                             <thead>
                                 <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>ID</th>
+                                    <th>Quote No.</th>
                                     <th>Company</th>
-                                    <th>Title</th>
-                                    <th>Price</th>
+                                    <th>Total Price</th>
+                                    <th>Description</th>
                                     <th>Date</th>
                                     <th>Status</th>
-                                    <th>Actions</th>
                                 </tr>
                             </thead>
                         </table>
                     </div>
                 </div>
             </div>
-            {{-- End:: Prospect Table --}}
+            {{-- End:: Hot Prospect Table --}}
         </div>
 
         {{-- <div class="card mb-4">
@@ -982,6 +992,16 @@
 
     <!-- End Support Dashboard -->
 @elseif (Auth::user()->role == 'Admin')
+    @php
+        $adminView = $adminView ?? 'sales';
+    @endphp
+    @if ($adminView === 'accounting')
+        @include('pages.accounting.dashboard._content')
+    @elseif ($adminView === 'finance')
+        @include('pages.finance.dashboard._content')
+    @elseif ($adminView === 'logistic')
+        @include('pages.logistic.dashboard._content')
+    @else
     <div class="row gy-4 mb-4">
         <div class="col-12 col-lg-4">
 
@@ -2145,120 +2165,9 @@
     @foreach ($dataOverview as $overview)
         @include('components.modal.overview')
     @endforeach
+    @endif
 @elseif(Auth::user()->role == 'Logistic')
-    <h4 class="fw-bold py-3 mb-4">
-        Product
-    </h4>
-    <div class="card mb-4">
-        <div class="card-widget-separator-wrapper">
-            <div class="card-body card-widget-separator">
-                <div class="row gy-4 gy-sm-1">
-                    <div class="col-sm-6 col-lg-3">
-                        <div
-                            class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
-                            <div>
-                                <p class="mb-2">Comodity</p>
-                                <h4 class="mb-2">{{ $commodity }}</h4>
-                                <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
-                            </div>
-                            <div class="avatar me-sm-4">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="mdi mdi-home-outline mdi-24px"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <hr class="d-none d-sm-block d-lg-none me-4">
-                    </div>
-                    <div class="col-sm-6 col-lg-3">
-                        <div
-                            class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
-                            <div>
-                                <p class="mb-2">Equivalent</p>
-                                <h4 class="mb-2">{{ $sproduct }}</h4>
-                                <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
-                            </div>
-                            <div class="avatar me-lg-4">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="mdi mdi-laptop mdi-24px"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <hr class="d-none d-sm-block d-lg-none">
-                    </div>
-                    <div class="col-sm-6 col-lg-3">
-                        <div
-                            class="d-flex justify-content-between align-items-start border-end pb-3 pb-sm-0 card-widget-3">
-                            <div>
-                                <p class="mb-2">Pruchase Order</p>
-                                <h4 class="mb-2">1</h4>
-                                <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
-                            </div>
-                            <div class="avatar me-sm-4">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="mdi mdi-wallet-giftcard mdi-24px"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="mb-2">Loss Order</p>
-                                <h4 class="mb-2">2</h4>
-                                <p class="mb-0"><span class="badge rounded-pill bg-label-danger"></span></p>
-                            </div>
-                            <div class="avatar">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="mdi mdi-currency-usd mdi-24px"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-product table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>SKU</th>
-                        <th>Part Number</th>
-                        {{-- <th>Brand</th> --}}
-                        {{-- <th>Price</th> --}}
-                        <th>Desc</th>
-                        <th>Dimension</th>
-                        <th>G/O</th>
-                        <th>Stock BDG</th>
-                        <th>Stock BKS</th>
-                        <th>stock Pending</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
-    <div class="card mb-4">
-        <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-notulen table table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Desc</th>
-                        <th>Level</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
-    @include('components.modal.warehouse.product.form')
+    @include('pages.logistic.dashboard._content')
 @elseif(Auth::user()->role == 'Coordinator')
     <h4 class="fw-3">Request Visit</h4>
     <div class="card mb-3">
@@ -2566,725 +2475,7 @@
         </div>
     </div>
 @elseif(Auth::user()->role == 'Accounting')
-    <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Dashboard /</span> Overview</h4>
-
-    <div class="nav-align-top mb-4">
-        <ul class="nav nav-pills mb-3" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button type="button" class="nav-link active waves-effect waves-light" role="tab"
-                    data-bs-toggle="tab" data-bs-target="#navs-pills-top-1" aria-controls="navs-pills-top-1"
-                    aria-selected="true">
-                    Semester 1
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
-                    data-bs-target="#navs-pills-top-2" aria-controls="navs-pills-top-2" aria-selected="false"
-                    tabindex="-1">
-                    Semester 2
-                </button>
-            </li>
-        </ul>
-        <div class="tab-content">
-            <div class="tab-pane fade show active" id="navs-pills-top-1" role="tabpanel">
-                <div class="row mb-3">
-                    <!-- General Statistics -->
-                    <div class="col-lg-6 col-xl-4 mb-4 ">
-                        <div class="card h-100">
-                            <div class="card-header d-flex align-items-center justify-content-between">
-                                <div class="ms-2">
-                                    <h4 class="mb-0">All Companies</h4>
-                                    <small class="text-muted">Invoice & AR Summary</small>
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn p-0" type="button" id="generalStatistics"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
-                                        <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body pb-3">
-                                <div class="mb-4 mt-2">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-md">
-                                            <div class="avatar-initial bg-label-primary rounded">
-                                                <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
-                                                    class="w-px-30" />
-                                            </div>
-                                        </div>
-                                        <div class="ms-3">
-                                            <h3 class="mb-0">Rp.
-                                                {{ number_format($allInvoice1->sum('harga_total'), 0, ',', '.') }}</h3>
-                                            <small class="text-muted">October</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="table-responsive text-nowrap">
-                                    <table class="table">
-                                        <tbody class="table-border-bottom-0">
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-success me-2"></span>
-                                                    <span class="text-heading">PAID</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($paidInvoice1->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-primary me-2"></span><span
-                                                        class="text-heading">UNPAID</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($unpaidGeneral1, 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-warning me-2"></span><span
-                                                        class="text-heading">OUTSTANDING</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($outstandingInvoice1->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-danger me-2"></span><span
-                                                        class="text-heading">OVERDUE</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($overdueInvoice1->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--/ General Statistics -->
-                    <!-- General Statistics -->
-                    <div class="col-lg-6 col-xl-4 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header d-flex align-items-center justify-content-between">
-                                <div class="ms-2">
-                                    <h4 class="mb-0">Reftech</h4>
-                                    <small class="text-muted">Invoice & AR Summary</small>
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn p-0" type="button" id="generalStatistics"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
-                                        <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body pb-3">
-                                <div class="mb-4 mt-2">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-md">
-                                            <div class="avatar-initial bg-label-primary rounded">
-                                                <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
-                                                    class="w-px-30" />
-                                            </div>
-                                        </div>
-                                        <div class="ms-3">
-                                            <h3 class="mb-0">Rp.
-                                                {{ number_format($allInvoice1->where('info', 'Reftech')->sum('harga_total'), 0, ',', '.') }}
-                                            </h3>
-                                            <small class="text-muted">October</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="table-responsive text-nowrap">
-                                    <table class="table">
-                                        <tbody class="table-border-bottom-0">
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-success me-2"></span>
-                                                    <span class="text-heading">PAID</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($paidInvoice1->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-primary me-2"></span><span
-                                                        class="text-heading">UNPAID</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($unpaidReftech1, 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-warning me-2"></span><span
-                                                        class="text-heading">OUTSTANDING</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($outstandingInvoice1->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-danger me-2"></span><span
-                                                        class="text-heading">OVERDUE</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($overdueInvoice1->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--/ General Statistics -->
-                    <!-- General Statistics -->
-                    <div class="col-lg-6 col-xl-4 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header d-flex align-items-center justify-content-between">
-                                <div class="ms-2">
-                                    <h4 class="mb-0">Kojisha</h4>
-                                    <small class="text-muted">Invoice & AR Summary</small>
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn p-0" type="button" id="generalStatistics"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
-                                        <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body pb-3">
-                                <div class="mb-4 mt-2">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-md">
-                                            <div class="avatar-initial bg-label-primary rounded">
-                                                <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
-                                                    class="w-px-30" />
-                                            </div>
-                                        </div>
-                                        <div class="ms-3">
-                                            <h3 class="mb-0">Rp.
-                                                {{ number_format($allInvoice1->where('info', 'Kojisha')->sum('harga_total'), 0, ',', '.') }}
-                                            </h3>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="table-responsive text-nowrap">
-                                    <table class="table">
-                                        <tbody class="table-border-bottom-0">
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-success me-2"></span>
-                                                    <span class="text-heading">PAID</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($paidInvoice1->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-primary me-2"></span><span
-                                                        class="text-heading">UNPAID</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($unpaidKojisha1, 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-warning me-2"></span><span
-                                                        class="text-heading">OUTSTANDING</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($outstandingInvoice1->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-danger me-2"></span><span
-                                                        class="text-heading">OVERDUE</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($overdueInvoice1->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--/ General Statistics -->
-                </div>
-            </div>
-            <div class="tab-pane fade" id="navs-pills-top-2" role="tabpanel">
-                <div class="row mb-3">
-                    <!-- General Statistics -->
-                    <div class="col-lg-6 col-xl-4 mb-4 ">
-                        <div class="card h-100">
-                            <div class="card-header d-flex align-items-center justify-content-between">
-                                <div class="ms-2">
-                                    <h4 class="mb-0">All Companies</h4>
-                                    <small class="text-muted">Invoice & AR Summary</small>
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn p-0" type="button" id="generalStatistics"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
-                                        <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body pb-3">
-                                <div class="mb-4 mt-2">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-md">
-                                            <div class="avatar-initial bg-label-primary rounded">
-                                                <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
-                                                    class="w-px-30" />
-                                            </div>
-                                        </div>
-                                        <div class="ms-3">
-                                            <h3 class="mb-0">Rp.
-                                                {{ number_format($allInvoice2->sum('harga_total'), 0, ',', '.') }}
-                                            </h3>
-                                            <small class="text-muted">October</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="table-responsive text-nowrap">
-                                    <table class="table">
-                                        <tbody class="table-border-bottom-0">
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-success me-2"></span>
-                                                    <span class="text-heading">PAID</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($paidInvoice2->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-primary me-2"></span><span
-                                                        class="text-heading">UNPAID</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($unpaidGeneral2, 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-warning me-2"></span><span
-                                                        class="text-heading">OUTSTANDING</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($outstandingInvoice2->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-danger me-2"></span><span
-                                                        class="text-heading">OVERDUE</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($overdueInvoice2->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--/ General Statistics -->
-                    <!-- General Statistics -->
-                    <div class="col-lg-6 col-xl-4 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header d-flex align-items-center justify-content-between">
-                                <div class="ms-2">
-                                    <h4 class="mb-0">Reftech</h4>
-                                    <small class="text-muted">Invoice & AR Summary</small>
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn p-0" type="button" id="generalStatistics"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
-                                        <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body pb-3">
-                                <div class="mb-4 mt-2">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-md">
-                                            <div class="avatar-initial bg-label-primary rounded">
-                                                <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
-                                                    class="w-px-30" />
-                                            </div>
-                                        </div>
-                                        <div class="ms-3">
-                                            <h3 class="mb-0">Rp.
-                                                {{ number_format($allInvoice2->where('info', 'Reftech')->sum('harga_total'), 0, ',', '.') }}
-                                            </h3>
-                                            <small class="text-muted">October</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="table-responsive text-nowrap">
-                                    <table class="table">
-                                        <tbody class="table-border-bottom-0">
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-success me-2"></span>
-                                                    <span class="text-heading">PAID</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($paidInvoice2->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-primary me-2"></span><span
-                                                        class="text-heading">UNPAID</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($unpaidReftech2, 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-warning me-2"></span><span
-                                                        class="text-heading">OUTSTANDING</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($outstandingInvoice2->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-danger me-2"></span><span
-                                                        class="text-heading">OVERDUE</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($overdueInvoice2->where('info', 'Reftech')->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--/ General Statistics -->
-                    <!-- General Statistics -->
-                    <div class="col-lg-6 col-xl-4 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header d-flex align-items-center justify-content-between">
-                                <div class="ms-2">
-                                    <h4 class="mb-0">Kojisha</h4>
-                                    <small class="text-muted">Invoice & AR Summary</small>
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn p-0" type="button" id="generalStatistics"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="mdi mdi-dots-vertical mdi-24px"></i>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generalStatistics">
-                                        <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body pb-3">
-                                <div class="mb-4 mt-2">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-md">
-                                            <div class="avatar-initial bg-label-primary rounded">
-                                                <img src="../../assets//svg/icons/credit-card.svg" alt="credit-card"
-                                                    class="w-px-30" />
-                                            </div>
-                                        </div>
-                                        <div class="ms-3">
-                                            <h3 class="mb-0">Rp.
-                                                {{ number_format($allInvoice2->where('info', 'Kojisha')->sum('harga_total'), 0, ',', '.') }}
-                                            </h3>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="table-responsive text-nowrap">
-                                    <table class="table">
-                                        <tbody class="table-border-bottom-0">
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-success me-2"></span>
-                                                    <span class="text-heading">PAID</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($paidInvoice2->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-primary me-2"></span><span
-                                                        class="text-heading">UNPAID</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($unpaidKojisha2, 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-warning me-2"></span><span
-                                                        class="text-heading">OUTSTANDING</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($outstandingInvoice2->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-0 pe-5">
-                                                    <span class="badge badge-dot bg-danger me-2"></span><span
-                                                        class="text-heading">OVERDUE</span>
-                                                </td>
-                                                <td class="ps-5 d-flex justify-content-end">
-                                                    <span class="text-heading fw-semibold">Rp.
-                                                        {{ number_format($overdueInvoice2->where('info', 'Kojisha')->sum('amount'), 0, ',', '.') }}</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--/ General Statistics -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card app-calendar-wrapper">
-        <div class="row gy-4">
-            <!-- Calendar Sidebar -->
-            <div class="col app-calendar-sidebar pt-1" id="app-calendar-sidebar">
-                {{-- <div class="p-3 pb-2 my-sm-0 mb-3">
-                        <div class="d-grid">
-                            <button class="btn btn-primary btn-toggle-sidebar" data-bs-toggle="offcanvas"
-                                data-bs-target="#addEventSidebar" aria-controls="addEventSidebar">
-                                <i class="mdi mdi-plus me-1"></i>
-                                <span class="align-middle">Add Event</span>
-                            </button>
-                        </div>
-                    </div> --}}
-                <div class="p-4">
-                    <!-- inline calendar (flatpicker) -->
-                    <div class="inline-calendar"></div>
-
-                    <hr class="container-m-nx my-4" />
-
-                    <!-- Filter -->
-                    <div class="mb-4">
-                        <small class="text-small text-muted text-uppercase align-middle">Filter</small>
-                    </div>
-
-                    <div class="form-check form-check-secondary mb-3">
-                        <input class="form-check-input select-all" type="checkbox" id="selectAll" data-value="all"
-                            checked />
-                        <label class="form-check-label" for="selectAll">View All</label>
-                    </div>
-
-                    <div class="app-calendar-events-filter">
-                        <div class="form-check form-check-danger mb-3">
-                            <input class="form-check-input input-filter" type="checkbox" id="select-business"
-                                data-value="Business" checked />
-                            <label class="form-check-label" for="select-business">Due Date</label>
-                        </div>
-                        <div class="form-check form-check-primary mb-3">
-                            <input class="form-check-input input-filter" type="checkbox" id="select-holiday"
-                                data-value="Holiday" checked />
-                            <label class="form-check-label" for="select-holiday">Reftech</label>
-                        </div>
-                        <div class="form-check form-check-secondary mb-3">
-                            <input class="form-check-input input-filter" type="checkbox" id="select-personal"
-                                data-value="Personal" checked />
-                            <label class="form-check-label" for="select-personal">Kojisha</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- /Calendar Sidebar -->
-
-            <!-- Calendar & Modal -->
-            <div class="col app-calendar-content">
-                <div class="card shadow-none border-0 border-start rounded-0">
-                    <div class="card-body pb-0">
-                        <!-- FullCalendar -->
-                        <div id="calendar"></div>
-                    </div>
-                </div>
-                <div class="app-overlay"></div>
-                <!-- FullCalendar Offcanvas -->
-                <div class="offcanvas offcanvas-end event-sidebar" tabindex="-1" id="addEventSidebar"
-                    aria-labelledby="addEventSidebarLabel">
-                    <div class="offcanvas-header">
-                        <h5 class="offcanvas-title" id="addEventSidebarLabel">Add Event</h5>
-                        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="offcanvas-body">
-                        <form class="event-form pt-0" id="eventForm" onsubmit="return false">
-                            {{-- <div class="form-floating form-floating-outline mb-4">
-                                    <input type="text" class="form-control" id="eventTitle" name="eventTitle"
-                                        placeholder="Event Title" />
-                                    <label for="eventTitle">Client</label>
-                                </div> --}}
-                            <div class="form-floating form-floating-outline mb-4">
-                                <input type="text" class="form-control" id="eventEndDate" name="eventEndDate"
-                                    placeholder="End Date" />
-                                <label for="eventEndDate">Follow Up Date</label>
-                            </div>
-                            <div class="form-floating form-floating-outline mb-4">
-                                <textarea class="form-control" name="eventNote" id="eventNote"></textarea>
-                                <label for="eventNote">Reminder Note</label>
-                            </div>
-                            <input class="form-control" type="text" name="eventComp" id="eventComp"
-                                value="" hidden>
-                            <div class="form-floating mb-4">
-                                <p id="eventNoteBefore"></p>
-                            </div>
-                            <div class="mb-3 d-flex justify-content-sm-between justify-content-start my-4 gap-2">
-                                <div class="d-flex">
-                                    <button type="submit"
-                                        class="btn btn-primary btn-add-event me-sm-2 me-1">Add</button>
-                                    <button type="reset" class="btn btn-label-secondary btn-cancel me-sm-0 me-1"
-                                        data-bs-dismiss="offcanvas">
-                                        Cancel
-                                    </button>
-                                </div>
-                                {{-- <button class="btn btn-label-danger btn-delete-event d-none">Delete</button> --}}
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <!-- /Calendar & Modal -->
-        </div>
-
-    </div>
-
-    <h5>Request</h5>
-    <div class="card mb-3">
-        <div class="table-responsive text-nowrap">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Invoice</th>
-                        <th>Customer</th>
-                        <th>Nominal</th>
-                        <th>Date</th>
-                        <th>Follow Up</th>
-                        <th>Reminder</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($reminder as $item)
-                        <tr>
-                            <td>{{ $item->no_invoice }}</td>
-                            <td>{{ $item->company }}</td>
-                            <td>Rp. {{ number_format($item->amount, 0, ',', '.') }}</td>
-                            <td>{{ $item->date }}</td>
-                            <td>{{ $item->date_fu }}</td>
-                            <td>{{ $item->reminder }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5">Kamu Belum Melakukan Reminder.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <h5>Recent Invoice</h5>
-    <div class="card mb-3">
-        <div class="table-responsive text-nowrap">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>No. Invoice</th>
-                        <th>Customer</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Flag</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Selling Contract</td>
-                        <td>PT. XYZ</td>
-                        <td>Rp. 1.000.000</td>
-                        <td>xx-xx-xxxx</td>
-                        <td>Full Paid</td>
-                        <td>RJO</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    @include("pages.accounting.dashboard._content")
 @elseif (Auth::user()->role == 'Finance Manager')
     @include('pages.finance.dashboard._content')
     @endif
@@ -3293,6 +2484,15 @@
     @endforeach
 @endsection
 @push('after-style')
+    <style>
+        .tooltip-quote-no .tooltip-inner {
+            max-width: 320px;
+            font-size: 13px;
+            padding: 6px 12px;
+            letter-spacing: 0.3px;
+        }
+        table.datatable-hot-prospect td, table.datatable-hot-prospect th { font-size: 14px; }
+    </style>
     {{-- All --}}
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
     <link rel="stylesheet"
@@ -3352,7 +2552,6 @@
         <script src="{{ asset('assets') }}/js/app-calendar.js"></script>
         <script src="{{ asset('assets') }}/includes/chart/card-monthly.js"></script>
         <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
-        <script src="{{ asset('assets') }}/includes/table-hot-prospect-sales.js"></script>
         <script src="{{ asset('assets') }}/includes/table-req-visit-sales.js"></script>
     @endif
 

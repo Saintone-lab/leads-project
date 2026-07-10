@@ -95,9 +95,8 @@
         };
     })();
     </script>
-
     @routes
-    @if ((Auth::check() && Auth::id() === 23) || Auth::id() === 16 || Auth::id() === 18)
+    {{-- @if ((Auth::check() && Auth::id() === 23) || Auth::id() === 16 || Auth::id() === 18)
         <style>
             body::before {
                 content: "";
@@ -115,15 +114,15 @@
                 z-index: -1;
             }
         </style>
-    @endif
+    @endif --}}
 </head>
 
 <body>
-    @if (Auth::check() && Auth::id() === 16)
+    {{-- @if (Auth::check() && Auth::id() === 16)
         <audio id="bgm" autoplay loop style="display: none;">
             <source src="{{ asset('asset/sound-ari.mp3') }}" type="audio/mpeg">
         </audio>
-    @endif
+    @endif --}}
     <!--  Layout wrapper  -->
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
@@ -253,7 +252,7 @@
 
             var id = $(this).data('id');
             var idQ = $(this).data('quotation');
-            var href = $(this).attr('href'); // Ambil URL tujuan    
+            var href = $(this).attr('href'); // Ambil URL tujuan
 
             $.ajax({
                 url: '{{ url('prospect') }}/' + id + '/view_comment',

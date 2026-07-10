@@ -23,6 +23,7 @@ class Invoice extends Model
         'date',
         'pph',
         'invoiceTo',
+        'show_spec',
     ];
 
     public function quote()

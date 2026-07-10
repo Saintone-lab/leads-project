@@ -17,7 +17,7 @@
                         <div class="col-6 mb-3">
                             <div class="card">
                                 <div class="card-body">
-                                    : <a href="{{ route('invoice.show', $invoice->id) }}" class="text-black"
+                                    : <a href="{{ $isUnitQuotation ? route('invoice.show_unit', $invoice->id) : route('invoice.show', $invoice->id) }}" class="text-black"
                                         target="_blank">
                                         {{ $invoice->no_invoice }}
                                     </a>
@@ -34,7 +34,7 @@
                         <div class="col-6 mb-3">
                             <div class="card">
                                 <div class="card-body">
-                                    : {{ $quote->pic->client->company }}
+                                    : {{ $isUnitQuotation ? $quote->client->company : $quote->pic->client->company }}
                                 </div>
                             </div>
                         </div>
@@ -48,7 +48,7 @@
                         <div class="col-6 mb-3">
                             <div class="card">
                                 <div class="card-body">
-                                    : {{ $quote->pic->client->npwp }}
+                                    : {{ $isUnitQuotation ? $quote->client->npwp : $quote->pic->client->npwp }}
                                 </div>
                             </div>
                         </div>
@@ -62,14 +62,15 @@
                         <div class="col-6 mb-3">
                             <div class="card">
                                 <div class="card-body">
-                                    : {{ $quote->pic->client->address }}
+                                    : {{ $isUnitQuotation ? $quote->client->address : $quote->pic->client->address }}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-6 mb-3">
-                    @if ($quote->pic->client->info == 'Reftech')
+                    @php $clientInfo = $isUnitQuotation ? $quote->client->info : $quote->pic->client->info; @endphp
+                    @if ($clientInfo == 'Reftech')
                         <div class="mb-xl-0 pb-1">
                             <div class="svg-illustration align-items-center gap-2 mb-4">
                                 <span class="app-brand-logo demo">

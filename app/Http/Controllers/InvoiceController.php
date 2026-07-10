@@ -737,9 +737,12 @@ class InvoiceController extends Controller
     public function due_date(Request $request, $id)
     {
         $invoice = Invoice::find($id);
-        $quote = Quotation::find($invoice->id_quotation);
-        // dd($request->all());
-        $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
+        if ($invoice->id_unit_quotation) {
+            $lastPayment = Payment::where('id_unit_quotation', $invoice->id_unit_quotation)->orderByDesc('id')->first();
+        } else {
+            $quote = Quotation::find($invoice->id_quotation);
+            $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
+        }
         $lastPayment->overdue = $request->due_date;
         $lastPayment->due_date = Carbon::parse($request->date)->addDays($request->due_date);
         $paymentSave = $lastPayment->save();
@@ -809,7 +812,20 @@ class InvoiceController extends Controller
         $invoice           = Invoice::findOrFail($id);
         $invoice->status_p = 1;
         $invoice->save();
+
+        Payment::where('id_unit_quotation', $invoice->id_unit_quotation)
+            ->where('level', 0)
+            ->update(['level' => 1, 'date_confirm' => now()]);
+
         return redirect()->route('invoice.show_unit', $id)->with('success', 'Pembayaran telah dikonfirmasi.');
+    }
+
+    public function toggleSpec($id)
+    {
+        $invoice           = Invoice::findOrFail($id);
+        $invoice->show_spec = $invoice->show_spec ? 0 : 1;
+        $invoice->save();
+        return response()->json(['show_spec' => $invoice->show_spec]);
     }
 
     public function undo_payment_unit($id)
@@ -817,6 +833,11 @@ class InvoiceController extends Controller
         $invoice           = Invoice::findOrFail($id);
         $invoice->status_p = 0;
         $invoice->save();
+
+        Payment::where('id_unit_quotation', $invoice->id_unit_quotation)
+            ->where('level', 1)
+            ->update(['level' => 0, 'date_confirm' => null]);
+
         return 1;
     }
 
@@ -869,6 +890,8 @@ class InvoiceController extends Controller
             ->orderByRaw("FIELD(type,'DP','BP','CT')")
             ->get();
 
+        $payments = Payment::where('id_unit_quotation', $quote->id)->orderBy('id')->get();
+
         $percent       = floatval($invoice->percent ?? 100);
         $invoiceAmount = round($quote->total * $percent / 100);
 
@@ -890,7 +913,7 @@ class InvoiceController extends Controller
         $noSaleProspect = Prospect::whereNull('id_sales')->whereNull('provide')->count();
 
         return view('pages.accounting.invoice.detail-unit', compact(
-            'invoice', 'quote', 'allInvoices', 'afterDiskon', 'terbilang',
+            'invoice', 'quote', 'allInvoices', 'payments', 'afterDiskon', 'terbilang',
             'totalPph', 'totalAfterPph', 'invoiceAmount',
             'requestContract', 'requestInvoice', 'noSaleProspect'
         ));
@@ -1003,7 +1026,7 @@ class InvoiceController extends Controller
             ->get();
 
         $invoiceDate = $request->input('invoice_date', now()->toDateString());
-        $term        = $request->input('term', $quote->payment_method);
+        $term        = $request->input('term');
 
         foreach ($pendingInvoices as $inv) {
             $inv->no_invoice = $request->input('no_invoice_' . $inv->id);

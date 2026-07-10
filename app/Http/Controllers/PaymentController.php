@@ -19,24 +19,40 @@ class PaymentController extends Controller
 {
     public function index_invoice()
     {
+        // Sparepart quotation
         $fullInvoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
-            ->where('status', '100')
+            ->where('quotation.status', '100')
             ->where('invoice.flag', 'Reftech')
             ->where('quotation.tax', '11')
-            ->sum('harga_total');
+            ->whereNotNull('invoice.no_invoice')
+            ->sum('quotation.harga_total');
         $fullPayment = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
             ->leftJoin(
-                DB::raw('(SELECT id_quotation, SUM(amount) as total_payment 
-                  FROM payment 
-                  GROUP BY id_quotation) as pay'),
-                'quotation.id',
-                '=',
-                'pay.id_quotation'
+                DB::raw('(SELECT id_quotation, SUM(amount) as total_payment FROM payment GROUP BY id_quotation) as pay'),
+                'quotation.id', '=', 'pay.id_quotation'
             )
-            ->where('status', '100')
+            ->where('quotation.status', '100')
             ->where('invoice.flag', 'Reftech')
             ->where('quotation.tax', '11')
+            ->whereNotNull('invoice.no_invoice')
             ->sum(DB::raw('IFNULL(pay.total_payment, 0)'));
+
+        // Unit quotation
+        $uqFullInvoice = Invoice::join('unit_quotation', 'unit_quotation.id', '=', 'invoice.id_unit_quotation')
+            ->where('invoice.flag', 'Reftech')
+            ->where('unit_quotation.tax', 1)
+            ->whereNotNull('invoice.no_invoice')
+            ->sum(DB::raw('ROUND(unit_quotation.total * IFNULL(invoice.percent, 100) / 100)'));
+        $uqFullPayment = Payment::whereNotNull('payment.id_unit_quotation')
+            ->join('invoice', 'invoice.id_unit_quotation', '=', 'payment.id_unit_quotation')
+            ->join('unit_quotation', 'unit_quotation.id', '=', 'payment.id_unit_quotation')
+            ->where('invoice.flag', 'Reftech')
+            ->where('unit_quotation.tax', 1)
+            ->whereNotNull('invoice.no_invoice')
+            ->sum('payment.amount');
+
+        $fullInvoice += $uqFullInvoice;
+        $fullPayment += $uqFullPayment;
         $sisa = $fullInvoice - $fullPayment;
 
         $lastPaymentSub = DB::table('payment as p1')
@@ -110,10 +126,14 @@ class PaymentController extends Controller
     public function detail_invoice($id)
     {
         $invoice = Invoice::find($id);
+
+        if ($invoice->id_unit_quotation) {
+            return redirect()->route('invoice.show_unit', $id);
+        }
+
         $quote = Quotation::find($invoice->id_quotation);
         $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $payment = Payment::where('id_quotation', $quote->id)->get();
-        // dd($payment);
         return view('pages.accounting.payment.detail-invoice', compact('invoice', 'quote', 'dQuote', 'payment'));
     }
     public function index_payment()
@@ -125,86 +145,127 @@ class PaymentController extends Controller
     }
     public function detail_payment($id)
     {
-        $payment = Payment::find($id);
-        $quote = Quotation::find($payment->id_quotation);
+        $payment  = Payment::find($id);
         $activity = ChangeStatus::where('id_payment', $id)->get();
+
+        if ($payment->id_unit_quotation) {
+            $quote   = \App\Models\UnitQuotation::with('client')->find($payment->id_unit_quotation);
+            $invoice = Invoice::where('id_unit_quotation', $payment->id_unit_quotation)
+                ->whereNotNull('no_invoice')->first();
+            return view('pages.accounting.payment.detail-payment',
+                compact('activity', 'invoice', 'quote', 'payment'))
+                ->with('isUnitQuotation', true);
+        }
+
+        $quote = Quotation::find($payment->id_quotation);
 
         if ($payment->type === 'BP') {
             $invoice = Invoice::where('id_quotation', $quote->id)->where('type', 'BP')->first();
         } else {
             $invoice = Invoice::where('id_quotation', $quote->id)->first();
         }
-        return view('pages.accounting.payment.detail-payment', compact('activity', 'invoice', 'quote', 'payment'));
+        return view('pages.accounting.payment.detail-payment',
+            compact('activity', 'invoice', 'quote', 'payment'))
+            ->with('isUnitQuotation', false);
     }
     public function index_aging()
     {
-        $invoice = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
-            ->join('users as u', 'u.id', '=', 'q.id_sales')
-            ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
-            ->where('payment.type', 'Tempo')
-            ->where('payment.level', 0)
-            ->whereNotNULL('payment.due_date')
-            ->groupBy('payment.id')
-            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales') // ambil kolom penting
-            ->get();
-        $confirm = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
-            ->join('users as u', 'u.id', '=', 'q.id_sales')
-            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
-            ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
-            ->where('payment.type', 'Tempo')
-            ->where('payment.level', 1)
-            ->groupBy('payment.id')->get('payment.amount');
-        $unconfirm = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
-            ->join('users as u', 'u.id', '=', 'q.id_sales')
-            ->join('invoice as i', 'i.id_quotation', '=', 'q.id')
-            ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
-            ->where('payment.type', 'Tempo')
-            ->where('payment.level', 0)
-            ->groupBy('payment.id')
-            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales') // ambil kolom penting
-            ->get();
-        $overdue = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+        // Sparepart quotation aging
+        $spBase = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
-            ->where('payment.type', 'Tempo')
+            ->where('payment.type', 'Tempo');
+
+        // Unit quotation aging
+        $uqBase = Payment::join('unit_quotation as uq', 'uq.id', '=', 'payment.id_unit_quotation')
+            ->join('users as u', 'u.id', '=', 'uq.id_sales')
+            ->join('client as c', 'c.id', '=', 'uq.id_client')
+            ->where('payment.type', 'Tempo');
+
+        $invoice = $spBase->clone()
+            ->where('payment.level', 0)->whereNotNull('payment.due_date')
+            ->groupBy('payment.id')
+            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales')->get()
+            ->merge(
+                $uqBase->clone()
+                    ->where('payment.level', 0)->whereNotNull('payment.due_date')
+                    ->groupBy('payment.id')
+                    ->select('payment.*', 'uq.total as harga_total', 'c.info', 'u.id as id_sales')->get()
+            );
+
+        $confirm = Payment::where('type', 'Tempo')->where('level', 1)->get();
+
+        $unconfirm = $spBase->clone()
             ->where('payment.level', 0)
-            ->whereNotNULL('payment.due_date')
+            ->groupBy('payment.id')
+            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales')->get()
+            ->merge(
+                $uqBase->clone()
+                    ->where('payment.level', 0)
+                    ->groupBy('payment.id')
+                    ->select('payment.*', 'uq.total as harga_total', 'c.info', 'u.id as id_sales')->get()
+            );
+
+        $overdue = $spBase->clone()
+            ->where('payment.level', 0)->whereNotNull('payment.due_date')
             ->whereDate('payment.due_date', '<=', Carbon::today())
             ->groupBy('payment.id')
-            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales') // ambil kolom penting
-            ->get();
-        $ondue = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
-            ->join('users as u', 'u.id', '=', 'q.id_sales')
-            ->join('pic as p', 'q.id_pic', '=', 'p.id')
-            ->join('client as c', 'p.id_client', '=', 'c.id')
-            ->where('payment.type', 'Tempo')
-            ->where('payment.level', 0)
-            ->whereNotNULL('payment.due_date')
+            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales')->get()
+            ->merge(
+                $uqBase->clone()
+                    ->where('payment.level', 0)->whereNotNull('payment.due_date')
+                    ->whereDate('payment.due_date', '<=', Carbon::today())
+                    ->groupBy('payment.id')
+                    ->select('payment.*', 'uq.total as harga_total', 'c.info', 'u.id as id_sales')->get()
+            );
+
+        $ondue = $spBase->clone()
+            ->where('payment.level', 0)->whereNotNull('payment.due_date')
             ->whereDate('payment.due_date', '>', Carbon::today())
             ->groupBy('payment.id')
-            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales') // ambil kolom penting
-            ->get();
+            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales')->get()
+            ->merge(
+                $uqBase->clone()
+                    ->where('payment.level', 0)->whereNotNull('payment.due_date')
+                    ->whereDate('payment.due_date', '>', Carbon::today())
+                    ->groupBy('payment.id')
+                    ->select('payment.*', 'uq.total as harga_total', 'c.info', 'u.id as id_sales')->get()
+            );
+
         $nodueCount = Payment::where('type', 'Tempo')->whereNull('due_date')->count();
+
         return view('pages.accounting.payment.index-aging', compact('invoice', 'confirm', 'nodueCount', 'unconfirm', 'overdue', 'ondue'));
     }
     public function detail_aging($id)
     {
         $payment = Payment::find($id);
-        $quote = Quotation::find($payment->id_quotation);
-        $invoice = Invoice::where('id_quotation', $quote->id)->first();
         $today = Carbon::today();
         $diffDue = $today->diffInDays($payment->due_date, false);
         $reminder = Reminder::where('id_payment', $id)->get();
-        // dd($diffDue);
-        return view('pages.accounting.payment.detail-aging', compact('reminder', 'diffDue', 'invoice', 'payment', 'quote'));
 
+        if ($payment->id_unit_quotation) {
+            $quote = $payment->unitQuotation;
+            $invoice = Invoice::where('id_unit_quotation', $payment->id_unit_quotation)->whereNotNull('no_invoice')->first();
+        } else {
+            $quote = Quotation::find($payment->id_quotation);
+            $invoice = Invoice::where('id_quotation', $quote->id)->first();
+        }
+
+        return view('pages.accounting.payment.detail-aging', compact('reminder', 'diffDue', 'invoice', 'payment', 'quote'));
     }
     public function confirm_payment($id)
     {
         $payment = Payment::find($id);
         $payment->level = 1;
+        $payment->date_confirm = Carbon::now()->toDateString();
         $paymentSave = $payment->save();
+
+        if ($payment->id_unit_quotation) {
+            Invoice::where('id_unit_quotation', $payment->id_unit_quotation)
+                ->whereNotNull('no_invoice')
+                ->update(['status_p' => 1]);
+        }
 
         $activity = new ChangeStatus();
         $activity->id_user = Auth::user()->id;
@@ -223,7 +284,14 @@ class PaymentController extends Controller
     {
         $payment = Payment::find($id);
         $payment->level = 0;
+        $payment->date_confirm = null;
         $paymentSave = $payment->save();
+
+        if ($payment->id_unit_quotation) {
+            Invoice::where('id_unit_quotation', $payment->id_unit_quotation)
+                ->whereNotNull('no_invoice')
+                ->update(['status_p' => 0]);
+        }
 
         $activity = new ChangeStatus();
         $activity->id_user = Auth::user()->id;

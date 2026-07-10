@@ -10,6 +10,7 @@ use App\Models\DetailExpense;
 use App\Models\DetailProduct;
 use App\Models\DetailUser;
 use App\Models\Expense;
+use App\Models\FixedAsset;
 use App\Models\Invoice;
 use App\Models\Issues;
 use App\Models\LabaRugi;
@@ -18,6 +19,8 @@ use App\Models\MonitoringActivities;
 use App\Models\Notulen;
 use App\Models\Payment;
 use App\Models\PendingPO;
+use App\Models\ProductIn;
+use App\Models\ProductOut;
 use App\Models\PurchaseRequest;
 use App\Models\Product;
 use App\Models\Prospect;
@@ -28,6 +31,7 @@ use App\Models\ReqVisit;
 use App\Models\SalesOnline;
 use App\Models\SalesTargetHistory;
 use App\Models\SerialProduct;
+use App\Models\Suo;
 use App\Models\Target;
 use App\Models\User;
 use Carbon\Carbon;
@@ -241,9 +245,11 @@ class DashboardController extends Controller
                 ->where('u.id', Auth::user()->id)
                 ->where('reports.viewed', 0)->count();
 
+            $salesCharts = $this->getSalesDashboardCharts(Auth::id(), $leads->count(), $quotation->count(), $po->count());
+
             return view(
                 "pages.sales.dashboard",
-                compact(
+                array_merge(compact(
                     'sorted',
                     'reportsCount',
                     'sales',
@@ -282,7 +288,7 @@ class DashboardController extends Controller
                     'customers',
                     'unreadComment',
                     'comment',
-                )
+                ), $salesCharts)
             );
         } elseif (Auth::user()->role == 'Support') {
             // Prospect Monthly (By Support - Sandhy)
@@ -478,50 +484,67 @@ class DashboardController extends Controller
                 ->where('type', 'Non Project')
                 ->count();
 
+            // Admin bisa berpindah antar dashboard divisi lewat dropdown menu (Sales/Accounting/Finance/Logistic)
+            $adminView = request()->query('view', 'sales');
+            if (!in_array($adminView, ['sales', 'accounting', 'finance', 'logistic'], true)) {
+                $adminView = 'sales';
+            }
+
+            $adminExtraData = match ($adminView) {
+                'accounting' => $this->getAccountingDashboardData(),
+                'finance' => $this->getFinanceDashboardData(),
+                'logistic' => $this->getLogisticDashboardData(),
+                default => [],
+            };
+
             return view(
                 "pages.sales.dashboard",
-                compact(
-                    'sorted',
-                    'requestContract',
-                    'requestInvoice',
-                    'newCount',
-                    'listCount',
-                    'deliveryCount',
-                    'dataOverview',
-                    'noSaleProspect',
-                    'notulens',
-                    'totalProspectSupport',
-                    'totalForecast',
-                    'targetSales',
-                    'targetCrm',
-                    'sales',
-                    'totalPO',
-                    'filteredLeads',
-                    'filteredPO',
-                    'filteredCRM',
-                    'filteredVisit',
-                    'filteredDC',
-                    'filteredQuote',
-                    'filteredProspect',
-                    'allProspect',
-                    'poTotalPriceAdmin',
-                    'formattedTotalPriceAdmin',
-                    'totalQuotation',
-                    'totalProspect',
-                    'totalHotProspect',
-                    'totalLoss',
-                    'totalPO',
-                    'dataQuote',
-                    'dataLeads',
-                    'dataPO',
-                    'dataDc',
-                    'dataCRM',
-                    'dataVisit',
-                    'commentAdmin',
-                    'unreadCommentAdmin',
-                    'targett',
-                    'targetAllSales',
-                    'prCount',
+                array_merge(
+                    compact(
+                        'sorted',
+                        'requestContract',
+                        'requestInvoice',
+                        'newCount',
+                        'listCount',
+                        'deliveryCount',
+                        'dataOverview',
+                        'noSaleProspect',
+                        'notulens',
+                        'totalProspectSupport',
+                        'totalForecast',
+                        'targetSales',
+                        'targetCrm',
+                        'sales',
+                        'totalPO',
+                        'filteredLeads',
+                        'filteredPO',
+                        'filteredCRM',
+                        'filteredVisit',
+                        'filteredDC',
+                        'filteredQuote',
+                        'filteredProspect',
+                        'allProspect',
+                        'poTotalPriceAdmin',
+                        'formattedTotalPriceAdmin',
+                        'totalQuotation',
+                        'totalProspect',
+                        'totalHotProspect',
+                        'totalLoss',
+                        'totalPO',
+                        'dataQuote',
+                        'dataLeads',
+                        'dataPO',
+                        'dataDc',
+                        'dataCRM',
+                        'dataVisit',
+                        'commentAdmin',
+                        'unreadCommentAdmin',
+                        'targett',
+                        'targetAllSales',
+                        'prCount',
+                        'adminView',
+                    ),
+                    $adminExtraData
                 )
             );
         } elseif (Auth::user()->role == 'Accounting') {
@@ -782,6 +805,9 @@ class DashboardController extends Controller
 
             $nodueCount = Payment::where('type', 'Tempo')->whereNull('due_date')->count();
 
+            // ==== Accounting Dashboard widgets ====
+            extract($this->getAccountingDashboardData());
+
             return view(
                 "pages.sales.dashboard",
                 compact(
@@ -810,100 +836,34 @@ class DashboardController extends Controller
                     'overdueInvoice1',
                     'overdueInvoice2',
                     'reminder',
+                    'acctInvoiceBelumDibuatCount',
+                    'acctInvoiceBelumDibuatTotal',
+                    'acctApUnpaidCount',
+                    'acctApUnpaidTotal',
+                    'acctApSupplierCount',
+                    'acctApPaidMonthCount',
+                    'acctApPaidMonthTotal',
+                    'acctApTotalAll',
+                    'acctApPaidTotalAll',
+                    'acctFixedAssetMonthCount',
+                    'acctFixedAssetMonthTotal',
+                    'acctArAgingBuckets',
+                    'acctArOutstanding',
+                    'acctArCustomerCount',
+                    'acctTempoPayments',
+                    'acctExpenseMonth',
+                    'acctExpenseChangePct',
+                    'acctCogsMonth',
+                    'acctCogsChangePct',
+                    'acctExpenseByAccount',
+                    'acctRecentSupplierBill',
+                    'acctRecentCustomerInvoice',
+                    'acctRecentExpense',
+                    'acctRecentFixedAsset',
                 )
             );
         } elseif (Auth::user()->role == 'Finance Manager') {
-            $startYear = Carbon::create($yearNow, 1, 1)->startOfYear();
-            $startMonth = Carbon::create($yearNow, $monthNow, 1)->startOfMonth();
-            $endMonth = Carbon::create($yearNow, $monthNow, 1)->endOfMonth();
-
-            // Aging Receivable: payment Tempo yang belum lunas (level=0) dengan due_date
-            $tempoPayments = Payment::where('type', 'Tempo')
-                ->where('level', 0)
-                ->whereNotNull('due_date')
-                ->get(['amount', 'due_date']);
-
-            $financeAgingBuckets = ['current' => 0, '1_30' => 0, '31_60' => 0, 'over_60' => 0];
-            $todayDate = Carbon::today();
-            foreach ($tempoPayments as $tp) {
-                $diff = $todayDate->diffInDays(Carbon::parse($tp->due_date), false);
-                if ($diff > 0) {
-                    $financeAgingBuckets['current'] += $tp->amount;
-                } elseif ($diff >= -30) {
-                    $financeAgingBuckets['1_30'] += $tp->amount;
-                } elseif ($diff >= -60) {
-                    $financeAgingBuckets['31_60'] += $tp->amount;
-                } else {
-                    $financeAgingBuckets['over_60'] += $tp->amount;
-                }
-            }
-            $financeOutstandingAR = array_sum($financeAgingBuckets);
-
-            // Revenue / COGS / Expense bulan berjalan
-            $financeRevenueMonth = Quotation::whereBetween('po_date', [$startMonth->toDateString(), $endMonth->toDateString()])
-                ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
-            $financeExpenseMonth = DetailExpense::join('expense as e', 'e.id', '=', 'detail_expense.id_expense')
-                ->whereBetween('e.date', [$startMonth->toDateString(), $endMonth->toDateString()])
-                ->sum('detail_expense.amount');
-
-            // Revenue / COGS / Expense YTD (untuk Profit Summary & Net Profit KPI)
-            $financeRevenueYTD = Quotation::whereBetween('po_date', [$startYear->toDateString(), $dateNow->toDateString()])
-                ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
-            $financeCOGSYTD = Quotation::join('detail_quotation', 'quotation.id', '=', 'detail_quotation.id_quotation')
-                ->join('serial_product', 'detail_quotation.id_equivalent', '=', 'serial_product.id')
-                ->whereBetween('quotation.po_date', [$startYear->toDateString(), $dateNow->toDateString()])
-                ->where('quotation.status', '100')->where('quotation.level', '1')->where('quotation.is_primary', '1')
-                ->sum('serial_product.price');
-            $financeExpenseYTD = DetailExpense::join('expense as e', 'e.id', '=', 'detail_expense.id_expense')
-                ->whereBetween('e.date', [$startYear->toDateString(), $dateNow->toDateString()])
-                ->sum('detail_expense.amount');
-            $financeOtherIncomeYTD = LabaRugi::whereBetween('date', [$startYear->toDateString(), $dateNow->toDateString()])
-                ->where('type', 'Pendapatan Lain')->sum('amount');
-            $financeOtherChargeYTD = LabaRugi::whereBetween('date', [$startYear->toDateString(), $dateNow->toDateString()])
-                ->where('type', 'Beban Lain')->sum('amount');
-
-            $financeGrossProfitYTD = $financeRevenueYTD - $financeCOGSYTD;
-            $financeNetProfitYTD = $financeGrossProfitYTD - $financeExpenseYTD + $financeOtherIncomeYTD - $financeOtherChargeYTD;
-            $financeMarginYTD = $financeRevenueYTD > 0 ? round($financeNetProfitYTD / $financeRevenueYTD * 100, 1) : 0;
-
-            // Revenue Target: dari fitur Sales Target (sales_target_histories), target tahunan dibagi rata 12 bulan
-            $financeAnnualTarget  = SalesTargetHistory::where('year', $yearNow)->sum('target_annual');
-            $financeMonthlyTarget = $financeAnnualTarget > 0 ? (int) round($financeAnnualTarget / 12) : 0;
-            $financeRevenueAchievement = $financeMonthlyTarget > 0 ? round($financeRevenueMonth / $financeMonthlyTarget * 100, 1) : 0;
-
-            // Revenue & Expense per bulan (Jan..bulan berjalan) untuk line chart
-            $financeMonthlyLabels = [];
-            $financeMonthlyRevenue = [];
-            $financeMonthlyExpense = [];
-            $financeMonthlyTargetSeries = [];
-            for ($m = 1; $m <= $monthNow; $m++) {
-                $mStart = Carbon::create($yearNow, $m, 1)->startOfMonth()->toDateString();
-                $mEnd = Carbon::create($yearNow, $m, 1)->endOfMonth()->toDateString();
-                $financeMonthlyLabels[] = Carbon::create($yearNow, $m, 1)->translatedFormat('M');
-                $financeMonthlyRevenue[] = (int) Quotation::whereBetween('po_date', [$mStart, $mEnd])
-                    ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
-                $financeMonthlyExpense[] = (int) DetailExpense::join('expense as e', 'e.id', '=', 'detail_expense.id_expense')
-                    ->whereBetween('e.date', [$mStart, $mEnd])->sum('detail_expense.amount');
-                $financeMonthlyTargetSeries[] = $financeMonthlyTarget;
-            }
-
-            // Recent activity: gabungan Invoice, Payment, Expense terbaru
-            $financeRecentInvoice = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
-                ->orderBy('invoice.date', 'desc')
-                ->limit(5)
-                ->get(['invoice.no_invoice as ref', 'invoice.date as tanggal', 'q.nett as nominal', DB::raw("'Invoice' as tipe")]);
-            $financeRecentPayment = Payment::orderBy('date', 'desc')
-                ->limit(5)
-                ->get([DB::raw("CONCAT('PAY-', payment.id) as ref"), 'date as tanggal', 'amount as nominal', DB::raw("'Payment' as tipe")]);
-            $financeRecentExpense = Expense::orderBy('date', 'desc')
-                ->limit(5)
-                ->get(['no_expense as ref', 'date as tanggal', 'amount as nominal', DB::raw("'Expense' as tipe")]);
-            $financeRecentActivity = $financeRecentInvoice
-                ->concat($financeRecentPayment)
-                ->concat($financeRecentExpense)
-                ->sortByDesc('tanggal')
-                ->take(10)
-                ->values();
+            extract($this->getFinanceDashboardData());
 
             return view(
                 "pages.sales.dashboard",
@@ -926,6 +886,31 @@ class DashboardController extends Controller
                     'financeMonthlyExpense',
                     'financeMonthlyTargetSeries',
                     'financeRecentActivity',
+                    'notulens',
+                )
+            );
+        } elseif (Auth::user()->role == 'Logistic') {
+            extract($this->getLogisticDashboardData());
+
+            return view(
+                "pages.sales.dashboard",
+                compact(
+                    'logSoBaruCount',
+                    'logPrPendingCount',
+                    'logSuoPendingCount',
+                    'logIncomingPendingCount',
+                    'logLowStockCount',
+                    'logSoNewCount',
+                    'logSoListCount',
+                    'logSoDeliveryCount',
+                    'logSoDoneCount',
+                    'logSoStatusSeries',
+                    'logPrFromSo',
+                    'logIncomingPending',
+                    'logLowStock',
+                    'logReceivingLabels',
+                    'logReceivingSeries',
+                    'logRecentActivity',
                     'notulens',
                 )
             );
@@ -970,6 +955,436 @@ class DashboardController extends Controller
         }
 
         // dd($leveledProspect);
+    }
+
+    private function getSalesDashboardCharts(int $salesId, int $leadsCount, int $quotationCount, int $poCount): array
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+
+        // Funnel: New Leads -> Quotation -> PO Won (bulan berjalan)
+        $salesFunnelLabels = ['New Leads', 'Quotation', 'PO Won'];
+        $salesFunnelSeries = [$leadsCount, $quotationCount, $poCount];
+        $salesWinRate = $quotationCount > 0 ? round(($poCount / $quotationCount) * 100, 1) : 0;
+
+        // Quotation by status (bulan berjalan)
+        $statusCounts = Quotation::where('id_sales', $salesId)
+            ->where('level', '1')
+            ->where('is_primary', '1')
+            ->whereYear('estimated_date', $yearNow)
+            ->whereMonth('estimated_date', $monthNow)
+            ->select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $inProgress = 0;
+        $hotProspect = 0;
+        foreach (['20', '30', '40', '60'] as $s) {
+            $inProgress += $statusCounts->get($s, 0);
+        }
+        foreach (['80', '90'] as $s) {
+            $hotProspect += $statusCounts->get($s, 0);
+        }
+
+        $salesStatusLabels = ['Loss', 'In Progress', 'Hot Prospect', 'PO Won'];
+        $salesStatusSeries = [
+            $statusCounts->get('0', 0),
+            $inProgress,
+            $hotProspect,
+            $statusCounts->get('100', 0),
+        ];
+
+        // Trend 6 bulan terakhir: Quotation vs PO
+        $salesMonthlyLabels = [];
+        $salesMonthlyQuote = [];
+        $salesMonthlyPO = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $m = Carbon::now()->subMonths($i);
+            $salesMonthlyLabels[] = $m->locale('id')->translatedFormat('M Y');
+            $salesMonthlyQuote[] = Quotation::where('id_sales', $salesId)
+                ->where('level', '1')->where('is_primary', '1')
+                ->whereYear('estimated_date', $m->year)
+                ->whereMonth('estimated_date', $m->month)
+                ->count();
+            $salesMonthlyPO[] = Quotation::where('id_sales', $salesId)
+                ->where('level', '1')->where('is_primary', '1')
+                ->where('status', '100')
+                ->whereYear('po_date', $m->year)
+                ->whereMonth('po_date', $m->month)
+                ->count();
+        }
+
+        // Prospect / Leads by source (all time, scoped ke sales ini)
+        $sourceData = Client::where('id_sales', $salesId)
+            ->select(DB::raw("COALESCE(NULLIF(source, ''), 'Lainnya') as source"), DB::raw('count(*) as total'))
+            ->groupBy('source')
+            ->orderByDesc('total')
+            ->limit(6)
+            ->get();
+
+        return compact(
+            'salesFunnelLabels',
+            'salesFunnelSeries',
+            'salesWinRate',
+            'salesStatusLabels',
+            'salesStatusSeries',
+            'salesMonthlyLabels',
+            'salesMonthlyQuote',
+            'salesMonthlyPO',
+            'sourceData',
+        );
+    }
+
+    private function getAccountingDashboardData(): array
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+
+        $requestInvoice = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->join('users', 'users.id', '=', 'quotation.id_sales')
+            ->where('status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->whereNull('invoice.no_invoice')
+            ->count();
+
+        $acctMonthStart = Carbon::create($yearNow, $monthNow, 1)->startOfMonth();
+        $acctMonthEnd = Carbon::create($yearNow, $monthNow, 1)->endOfMonth();
+        $acctPrevMonth = Carbon::create($yearNow, $monthNow, 1)->subMonth();
+        $acctPrevMonthStart = $acctPrevMonth->copy()->startOfMonth();
+        $acctPrevMonthEnd = $acctPrevMonth->copy()->endOfMonth();
+
+        // Customer Invoice - PO approved, belum dibuatkan invoice
+        $acctInvoiceBelumDibuatCount = $requestInvoice;
+        $acctInvoiceBelumDibuatTotal = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->where('status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->whereNull('invoice.no_invoice')
+            ->sum('quotation.harga_total');
+
+        // Supplier Bill (Product In) - AP
+        $acctApUnpaidCount = ProductIn::where('accept', '0')->count();
+        $acctApUnpaidTotal = ProductIn::where('accept', '0')->sum('total');
+        $acctApSupplierCount = ProductIn::where('accept', '0')->distinct('supplier')->count('supplier');
+        $acctApPaidMonthCount = ProductIn::where('accept', '1')
+            ->whereBetween('date', [$acctMonthStart, $acctMonthEnd])->count();
+        $acctApPaidMonthTotal = ProductIn::where('accept', '1')
+            ->whereBetween('date', [$acctMonthStart, $acctMonthEnd])->sum('total');
+        $acctApTotalAll = ProductIn::count();
+        $acctApPaidTotalAll = ProductIn::where('accept', '1')->count();
+
+        // Fixed Asset baru bulan ini
+        $acctFixedAssetMonthCount = FixedAsset::whereBetween('created_at', [$acctMonthStart, $acctMonthEnd])->count();
+        $acctFixedAssetMonthTotal = FixedAsset::whereBetween('created_at', [$acctMonthStart, $acctMonthEnd])->sum('total');
+
+        // Account Receivable - outstanding & aging (payment Tempo belum lunas)
+        $acctTempoPayments = Payment::where('type', 'Tempo')->where('level', 0)->whereNotNull('due_date')->get(['amount', 'due_date']);
+        $acctArAgingBuckets = ['current' => 0, '1_30' => 0, '31_60' => 0, 'over_60' => 0];
+        $acctToday = Carbon::today();
+        foreach ($acctTempoPayments as $tp) {
+            $diff = $acctToday->diffInDays(Carbon::parse($tp->due_date), false);
+            if ($diff > 0) {
+                $acctArAgingBuckets['current'] += $tp->amount;
+            } elseif ($diff >= -30) {
+                $acctArAgingBuckets['1_30'] += $tp->amount;
+            } elseif ($diff >= -60) {
+                $acctArAgingBuckets['31_60'] += $tp->amount;
+            } else {
+                $acctArAgingBuckets['over_60'] += $tp->amount;
+            }
+        }
+        $acctArOutstanding = array_sum($acctArAgingBuckets);
+        $acctArCustomerCount = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->where('payment.type', 'Tempo')
+            ->where('payment.level', 0)
+            ->distinct('p.id_client')
+            ->count('p.id_client');
+
+        // Expense & COGS bulan ini vs bulan lalu
+        $acctExpenseMonth = DetailExpense::join('expense as e', 'e.id', '=', 'detail_expense.id_expense')
+            ->whereBetween('e.date', [$acctMonthStart, $acctMonthEnd])->sum('detail_expense.amount');
+        $acctExpensePrevMonth = DetailExpense::join('expense as e', 'e.id', '=', 'detail_expense.id_expense')
+            ->whereBetween('e.date', [$acctPrevMonthStart, $acctPrevMonthEnd])->sum('detail_expense.amount');
+        $acctExpenseChangePct = $acctExpensePrevMonth > 0
+            ? round((($acctExpenseMonth - $acctExpensePrevMonth) / $acctExpensePrevMonth) * 100, 1)
+            : 0;
+
+        $acctCogsMonth = Quotation::join('detail_quotation', 'quotation.id', '=', 'detail_quotation.id_quotation')
+            ->join('serial_product', 'detail_quotation.id_equivalent', '=', 'serial_product.id')
+            ->whereBetween('quotation.po_date', [$acctMonthStart->toDateString(), $acctMonthEnd->toDateString()])
+            ->where('quotation.status', '100')->where('quotation.level', '1')->where('quotation.is_primary', '1')
+            ->sum('serial_product.price');
+        $acctCogsPrevMonth = Quotation::join('detail_quotation', 'quotation.id', '=', 'detail_quotation.id_quotation')
+            ->join('serial_product', 'detail_quotation.id_equivalent', '=', 'serial_product.id')
+            ->whereBetween('quotation.po_date', [$acctPrevMonthStart->toDateString(), $acctPrevMonthEnd->toDateString()])
+            ->where('quotation.status', '100')->where('quotation.level', '1')->where('quotation.is_primary', '1')
+            ->sum('serial_product.price');
+        $acctCogsChangePct = $acctCogsPrevMonth > 0
+            ? round((($acctCogsMonth - $acctCogsPrevMonth) / $acctCogsPrevMonth) * 100, 1)
+            : 0;
+
+        // Beban per akun bulan ini
+        $acctExpenseByAccount = DetailExpense::join('expense as e', 'e.id', '=', 'detail_expense.id_expense')
+            ->join('account as a', 'a.id', '=', 'detail_expense.id_account')
+            ->whereBetween('e.date', [$acctMonthStart, $acctMonthEnd])
+            ->select('a.name', DB::raw('SUM(detail_expense.amount) as total'))
+            ->groupBy('a.name')
+            ->orderByDesc('total')
+            ->limit(6)
+            ->get();
+
+        // Dokumen terbaru
+        $acctRecentSupplierBill = ProductIn::orderByDesc('date')->limit(5)
+            ->get(['no_product_in', 'supplier', 'total', 'date', 'accept']);
+        $acctRecentCustomerInvoice = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
+            ->join('pic as p', 'p.id', '=', 'q.id_pic')
+            ->join('client as c', 'c.id', '=', 'p.id_client')
+            ->orderByDesc('invoice.date')
+            ->limit(5)
+            ->get(['invoice.no_invoice', 'invoice.date', 'q.harga_total', 'c.company']);
+        $acctRecentExpense = Expense::orderByDesc('date')->limit(5)->get(['no_expense', 'date', 'amount', 'memo']);
+        $acctRecentFixedAsset = FixedAsset::orderByDesc('created_at')->limit(5)->get(['code', 'desc', 'total', 'created_at']);
+
+        return compact(
+            'acctInvoiceBelumDibuatCount',
+            'acctInvoiceBelumDibuatTotal',
+            'acctApUnpaidCount',
+            'acctApUnpaidTotal',
+            'acctApSupplierCount',
+            'acctApPaidMonthCount',
+            'acctApPaidMonthTotal',
+            'acctApTotalAll',
+            'acctApPaidTotalAll',
+            'acctFixedAssetMonthCount',
+            'acctFixedAssetMonthTotal',
+            'acctArAgingBuckets',
+            'acctArOutstanding',
+            'acctArCustomerCount',
+            'acctTempoPayments',
+            'acctExpenseMonth',
+            'acctExpenseChangePct',
+            'acctCogsMonth',
+            'acctCogsChangePct',
+            'acctExpenseByAccount',
+            'acctRecentSupplierBill',
+            'acctRecentCustomerInvoice',
+            'acctRecentExpense',
+            'acctRecentFixedAsset',
+        );
+    }
+
+    private function getFinanceDashboardData(): array
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+
+        $startYear = Carbon::create($yearNow, 1, 1)->startOfYear();
+        $startMonth = Carbon::create($yearNow, $monthNow, 1)->startOfMonth();
+        $endMonth = Carbon::create($yearNow, $monthNow, 1)->endOfMonth();
+
+        // Aging Receivable: payment Tempo yang belum lunas (level=0) dengan due_date
+        $tempoPayments = Payment::where('type', 'Tempo')
+            ->where('level', 0)
+            ->whereNotNull('due_date')
+            ->get(['amount', 'due_date']);
+
+        $financeAgingBuckets = ['current' => 0, '1_30' => 0, '31_60' => 0, 'over_60' => 0];
+        $todayDate = Carbon::today();
+        foreach ($tempoPayments as $tp) {
+            $diff = $todayDate->diffInDays(Carbon::parse($tp->due_date), false);
+            if ($diff > 0) {
+                $financeAgingBuckets['current'] += $tp->amount;
+            } elseif ($diff >= -30) {
+                $financeAgingBuckets['1_30'] += $tp->amount;
+            } elseif ($diff >= -60) {
+                $financeAgingBuckets['31_60'] += $tp->amount;
+            } else {
+                $financeAgingBuckets['over_60'] += $tp->amount;
+            }
+        }
+        $financeOutstandingAR = array_sum($financeAgingBuckets);
+
+        // Revenue / COGS / Expense bulan berjalan
+        $financeRevenueMonth = Quotation::whereBetween('po_date', [$startMonth->toDateString(), $endMonth->toDateString()])
+            ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $financeExpenseMonth = DetailExpense::join('expense as e', 'e.id', '=', 'detail_expense.id_expense')
+            ->whereBetween('e.date', [$startMonth->toDateString(), $endMonth->toDateString()])
+            ->sum('detail_expense.amount');
+
+        // Revenue / COGS / Expense YTD (untuk Profit Summary & Net Profit KPI)
+        $financeRevenueYTD = Quotation::whereBetween('po_date', [$startYear->toDateString(), $dateNow->toDateString()])
+            ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $financeCOGSYTD = Quotation::join('detail_quotation', 'quotation.id', '=', 'detail_quotation.id_quotation')
+            ->join('serial_product', 'detail_quotation.id_equivalent', '=', 'serial_product.id')
+            ->whereBetween('quotation.po_date', [$startYear->toDateString(), $dateNow->toDateString()])
+            ->where('quotation.status', '100')->where('quotation.level', '1')->where('quotation.is_primary', '1')
+            ->sum('serial_product.price');
+        $financeExpenseYTD = DetailExpense::join('expense as e', 'e.id', '=', 'detail_expense.id_expense')
+            ->whereBetween('e.date', [$startYear->toDateString(), $dateNow->toDateString()])
+            ->sum('detail_expense.amount');
+        $financeOtherIncomeYTD = LabaRugi::whereBetween('date', [$startYear->toDateString(), $dateNow->toDateString()])
+            ->where('type', 'Pendapatan Lain')->sum('amount');
+        $financeOtherChargeYTD = LabaRugi::whereBetween('date', [$startYear->toDateString(), $dateNow->toDateString()])
+            ->where('type', 'Beban Lain')->sum('amount');
+
+        $financeGrossProfitYTD = $financeRevenueYTD - $financeCOGSYTD;
+        $financeNetProfitYTD = $financeGrossProfitYTD - $financeExpenseYTD + $financeOtherIncomeYTD - $financeOtherChargeYTD;
+        $financeMarginYTD = $financeRevenueYTD > 0 ? round($financeNetProfitYTD / $financeRevenueYTD * 100, 1) : 0;
+
+        // Revenue Target: dari fitur Sales Target (sales_target_histories), target tahunan dibagi rata 12 bulan
+        $financeAnnualTarget  = SalesTargetHistory::where('year', $yearNow)->sum('target_annual');
+        $financeMonthlyTarget = $financeAnnualTarget > 0 ? (int) round($financeAnnualTarget / 12) : 0;
+        $financeRevenueAchievement = $financeMonthlyTarget > 0 ? round($financeRevenueMonth / $financeMonthlyTarget * 100, 1) : 0;
+
+        // Revenue & Expense per bulan (Jan..bulan berjalan) untuk line chart
+        $financeMonthlyLabels = [];
+        $financeMonthlyRevenue = [];
+        $financeMonthlyExpense = [];
+        $financeMonthlyTargetSeries = [];
+        for ($m = 1; $m <= $monthNow; $m++) {
+            $mStart = Carbon::create($yearNow, $m, 1)->startOfMonth()->toDateString();
+            $mEnd = Carbon::create($yearNow, $m, 1)->endOfMonth()->toDateString();
+            $financeMonthlyLabels[] = Carbon::create($yearNow, $m, 1)->translatedFormat('M');
+            $financeMonthlyRevenue[] = (int) Quotation::whereBetween('po_date', [$mStart, $mEnd])
+                ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $financeMonthlyExpense[] = (int) DetailExpense::join('expense as e', 'e.id', '=', 'detail_expense.id_expense')
+                ->whereBetween('e.date', [$mStart, $mEnd])->sum('detail_expense.amount');
+            $financeMonthlyTargetSeries[] = $financeMonthlyTarget;
+        }
+
+        // Recent activity: gabungan Invoice, Payment, Expense terbaru
+        $financeRecentInvoice = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
+            ->orderBy('invoice.date', 'desc')
+            ->limit(5)
+            ->get(['invoice.no_invoice as ref', 'invoice.date as tanggal', 'q.nett as nominal', DB::raw("'Invoice' as tipe")]);
+        $financeRecentPayment = Payment::orderBy('date', 'desc')
+            ->limit(5)
+            ->get([DB::raw("CONCAT('PAY-', payment.id) as ref"), 'date as tanggal', 'amount as nominal', DB::raw("'Payment' as tipe")]);
+        $financeRecentExpense = Expense::orderBy('date', 'desc')
+            ->limit(5)
+            ->get(['no_expense as ref', 'date as tanggal', 'amount as nominal', DB::raw("'Expense' as tipe")]);
+        $financeRecentActivity = $financeRecentInvoice
+            ->concat($financeRecentPayment)
+            ->concat($financeRecentExpense)
+            ->sortByDesc('tanggal')
+            ->take(10)
+            ->values();
+
+        return compact(
+            'financeAgingBuckets',
+            'financeOutstandingAR',
+            'financeRevenueMonth',
+            'financeExpenseMonth',
+            'financeRevenueYTD',
+            'financeCOGSYTD',
+            'financeExpenseYTD',
+            'financeGrossProfitYTD',
+            'financeNetProfitYTD',
+            'financeMarginYTD',
+            'financeAnnualTarget',
+            'financeMonthlyTarget',
+            'financeRevenueAchievement',
+            'financeMonthlyLabels',
+            'financeMonthlyRevenue',
+            'financeMonthlyExpense',
+            'financeMonthlyTargetSeries',
+            'financeRecentActivity',
+        );
+    }
+
+    private function getLogisticDashboardData(): array
+    {
+        $lowStockThreshold = 5;
+
+        // KPI cards
+        $logSoBaruCount = PendingPO::where('status', 0)->where('type', 'Non Project')->count();
+        $logPrPendingCount = PurchaseRequest::where('status', '0')->count();
+        $logSuoPendingCount = Suo::where('status', 'submitted')->count();
+        $logIncomingPendingCount = ProductIn::where('accept', '0')->count();
+        $logLowStockCount = DetailProduct::whereRaw('(stock + warehouse_stock) > 0 AND (stock + warehouse_stock) < ?', [$lowStockThreshold])->count();
+
+        // Status Sales Order (Non Project) breakdown - sama dengan pola Admin/Accounting
+        $logSoNewCount = $logSoBaruCount;
+        $logSoListCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])->where('type', 'Non Project')->count();
+        $logSoDeliveryCount = PendingPO::where('pending_po.status', 5)->where('type', 'Non Project')->count();
+        $logSoDoneCount = PendingPO::where('pending_po.status', 6)->where('type', 'Non Project')->count();
+        $logSoStatusSeries = [$logSoNewCount, $logSoListCount, $logSoDeliveryCount, $logSoDoneCount];
+
+        // PR otomatis dari Sales Order (stok tidak cukup)
+        $logPrFromSo = PurchaseRequest::whereNotNull('id_pending')
+            ->where('status', '0')
+            ->with(['pending', 'equivalent.product'])
+            ->orderByDesc('date')
+            ->take(6)
+            ->get();
+
+        // Incoming Goods - Pending Receipt
+        $logIncomingPending = ProductIn::where('accept', '0')
+            ->with('supp')
+            ->orderByDesc('date')
+            ->take(6)
+            ->get();
+
+        // Stok Hampir Habis (masih ada stok, tapi di bawah ambang batas)
+        $logLowStock = DetailProduct::selectRaw('detail_product.*, (stock + warehouse_stock) as total_stock')
+            ->with('product')
+            ->havingRaw('total_stock > 0 AND total_stock < ?', [$lowStockThreshold])
+            ->orderBy('total_stock')
+            ->take(6)
+            ->get();
+
+        // Penerimaan Barang 7 hari terakhir
+        $logReceivingLabels = [];
+        $logReceivingSeries = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $day = Carbon::now()->subDays($i);
+            $logReceivingLabels[] = $day->format('d/m');
+            $logReceivingSeries[] = ProductIn::where('accept', '1')->whereDate('updated_at', $day->toDateString())->count();
+        }
+
+        // Aktivitas terbaru: gabungan PR dibuat, barang diterima, barang dikirim
+        $logRecentPr = PurchaseRequest::orderByDesc('created_at')
+            ->limit(5)
+            ->get(['no_pr as ref', 'created_at as tanggal', 'qty as ket', DB::raw("'PR Dibuat' as tipe")]);
+        $logRecentIncoming = ProductIn::where('accept', '1')
+            ->orderByDesc('updated_at')
+            ->limit(5)
+            ->get(['no_do as ref', 'updated_at as tanggal', 'supplier as ket', DB::raw("'Barang Diterima' as tipe")]);
+        $logRecentOutgoing = ProductOut::orderByDesc('created_at')
+            ->limit(5)
+            ->get([DB::raw("CONCAT('DO-', id) as ref"), 'created_at as tanggal', 'detail_client as ket', DB::raw("'Barang Dikirim' as tipe")]);
+        $logRecentActivity = $logRecentPr
+            ->concat($logRecentIncoming)
+            ->concat($logRecentOutgoing)
+            ->sortByDesc('tanggal')
+            ->take(8)
+            ->values();
+
+        return compact(
+            'logSoBaruCount',
+            'logPrPendingCount',
+            'logSuoPendingCount',
+            'logIncomingPendingCount',
+            'logLowStockCount',
+            'logSoNewCount',
+            'logSoListCount',
+            'logSoDeliveryCount',
+            'logSoDoneCount',
+            'logSoStatusSeries',
+            'logPrFromSo',
+            'logIncomingPending',
+            'logLowStock',
+            'logReceivingLabels',
+            'logReceivingSeries',
+            'logRecentActivity',
+        );
     }
 
     public function overviewIndex()

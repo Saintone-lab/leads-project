@@ -29,7 +29,7 @@ class PartInquiryController extends Controller
     {
         $request->validate([
             'brand'         => 'required|string',
-            'pn'            => 'required|string',
+            'pn'            => 'nullable|string',
             'selling_price' => 'required|numeric|min:0',
         ]);
 
@@ -66,7 +66,7 @@ class PartInquiryController extends Controller
             $serial = SerialProduct::create([
                 'id_product' => $productId,
                 'brand'      => $request->brand,
-                'pn'         => $request->pn,
+                'pn'         => $request->pn ?: '-',
                 'fxp_parts'  => '-',
                 'image'      => '',
                 'price'      => $request->selling_price,
@@ -79,17 +79,13 @@ class PartInquiryController extends Controller
             if ($request->has('vendors')) {
                 $idrs = [];
                 foreach ($request->vendors as $vendor) {
-                    if (!empty($vendor['id_supplier']) && isset($vendor['price_usd'])) {
-                        $kurs     = floatval($vendor['kurs_usd'] ?? 0);
-                        $priceUsd = floatval($vendor['price_usd']);
-                        $priceIdr = isset($vendor['price_idr']) && $vendor['price_idr'] !== ''
-                            ? floatval($vendor['price_idr'])
-                            : $priceUsd * $kurs;
+                    if (!empty($vendor['id_supplier']) && isset($vendor['price_idr']) && $vendor['price_idr'] !== '') {
+                        $priceIdr = floatval($vendor['price_idr']);
                         SparePartVendorPrice::create([
                             'id_serial_product' => $serial->id,
                             'id_supplier'       => $vendor['id_supplier'],
-                            'price_usd'         => $priceUsd,
-                            'kurs_usd'          => $kurs,
+                            'price_usd'         => 0,
+                            'kurs_usd'          => 0,
                             'price_idr'         => $priceIdr,
                             'date'              => $vendor['date'] ?? now()->toDateString(),
                         ]);
@@ -150,20 +146,16 @@ class PartInquiryController extends Controller
     {
         $request->validate([
             'id_supplier' => 'required|exists:supplier,id',
-            'price_usd'   => 'required|numeric|min:0',
-            'kurs_usd'    => 'required|numeric|min:0',
+            'price_idr'   => 'required|numeric|min:0',
             'date'        => 'required|date',
         ]);
-
-        $kurs     = floatval($request->kurs_usd);
-        $priceUsd = floatval($request->price_usd);
 
         SparePartVendorPrice::create([
             'id_serial_product' => $id,
             'id_supplier'       => $request->id_supplier,
-            'price_usd'         => $priceUsd,
-            'kurs_usd'          => $kurs,
-            'price_idr'         => $priceUsd * $kurs,
+            'price_usd'         => 0,
+            'kurs_usd'          => 0,
+            'price_idr'         => floatval($request->price_idr),
             'date'              => $request->date,
         ]);
 
@@ -174,27 +166,18 @@ class PartInquiryController extends Controller
     {
         $request->validate([
             'brand' => 'required|string',
-            'pn'    => 'required|string',
+            'pn'    => 'nullable|string',
             'price' => 'required|numeric|min:0',
         ]);
 
         $serial = SerialProduct::findOrFail($id);
         $serial->update([
             'brand' => $request->brand,
-            'pn'    => $request->pn,
+            'pn'    => $request->pn ?: '-',
             'price' => $request->price,
         ]);
 
         return response()->json(['success' => true, 'data' => $serial->only('id', 'brand', 'pn', 'price')]);
-    }
-
-    public function updateSellingPrice(Request $request, $id)
-    {
-        $request->validate(['selling_price' => 'required|numeric|min:0']);
-        $serial = SerialProduct::findOrFail($id);
-        $serial->price = $request->selling_price;
-        $serial->save();
-        return redirect()->back()->with('success', 'Harga jual berhasil diupdate!');
     }
 
     public function destroyVendorPrice($id)

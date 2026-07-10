@@ -108,17 +108,24 @@ $(function () {
                 {
                     targets: 7,
                     render: function (data, type, full, row) {
-                        var type = full["last_payment_type"];
-                        var overdue = full["last_overdue"] ?? "No";
-                        var paytot = full["total_payment"];
+                        var payType  = full["last_payment_type"];
+                        var payLevel = full["last_payment_level"];
+                        var payCount = full["payment_count"];
+                        var overdue  = full["last_overdue"] ?? "No";
                         var title, label;
-                        if (type == "CBD" || type == "COD" || type == "BP") {
+                        if (!payType || payCount == 0) {
+                            title = "Unpaid";
+                            label = "bg-label-danger";
+                        } else if (payLevel == 0) {
+                            title = "Belum Dikonfirmasi";
+                            label = "bg-label-secondary";
+                        } else if (payType == "CBD" || payType == "COD" || payType == "BP") {
                             title = "Full Paid";
                             label = "bg-label-success";
-                        } else if (type == "DP") {
+                        } else if (payType == "DP") {
                             title = "Partial";
                             label = "bg-label-warning";
-                        } else if (type == "Tempo") {
+                        } else if (payType == "Tempo") {
                             title = "Credit " + overdue + " Days";
                             label = "bg-label-primary";
                         } else {

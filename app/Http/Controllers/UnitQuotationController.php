@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Contract;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Pic;
 use App\Models\Unit;
 use App\Models\UnitQuotation;
@@ -109,7 +110,9 @@ class UnitQuotationController extends Controller
             $formattedNumberSC = '001';
         }
 
-        return view('pages.unit-quotation.detail', compact('quote', 'allVersions', 'invoices', 'contracts', 'thisYear', 'formattedNumberSC'));
+        $payments = Payment::where('id_unit_quotation', $quote->id)->orderBy('id')->get();
+
+        return view('pages.unit-quotation.detail', compact('quote', 'allVersions', 'invoices', 'contracts', 'payments', 'thisYear', 'formattedNumberSC'));
     }
 
     public function edit($id)
@@ -278,10 +281,10 @@ class UnitQuotationController extends Controller
     public function uploadPO(Request $request, $id)
     {
         $request->validate([
-            'po_number'      => 'required|string|max:100',
-            'po_file'        => 'required|file|mimes:pdf|max:5120',
-            'payment_method' => 'required|string',
-            'dp_percent'     => 'nullable|numeric|min:1|max:99',
+            'po_number'    => 'required|string|max:100',
+            'po_file'      => 'required|file|mimes:pdf|max:5120',
+            'invoice_type' => 'required|in:DP,CT',
+            'dp_percent'   => 'nullable|numeric|min:1|max:99',
         ]);
 
         $quote = UnitQuotation::findOrFail($id);
@@ -301,7 +304,7 @@ class UnitQuotationController extends Controller
             'note'   => 'PO No. ' . $request->po_number,
         ]);
 
-        $this->createInvoiceRecords($quote, $request->dp_percent);
+        $this->createInvoiceRecords($quote, $request->invoice_type, $request->dp_percent);
 
         return redirect()->route('unit-quotation.show', $id)
             ->with('success', 'PO berhasil diupload. Status diubah ke PO Received.');
@@ -309,7 +312,10 @@ class UnitQuotationController extends Controller
 
     public function requestNextInvoice(Request $request, $id)
     {
-        $request->validate(['percent' => 'required|numeric|min:1|max:100']);
+        $request->validate([
+            'percent' => 'required|numeric|min:1|max:100',
+            'label'   => 'required|string|max:50',
+        ]);
 
         $quote = UnitQuotation::findOrFail($id);
 
@@ -325,13 +331,16 @@ class UnitQuotationController extends Controller
             return back()->with('error', 'Semua tagihan sudah 100% diterbitkan.');
         }
 
+        $remainingPercent = 100 - $issuedPercent;
+        $percentOfTotal   = round($remainingPercent * floatval($request->percent) / 100, 2);
+
         Invoice::create([
             'id_unit_quotation' => $quote->id,
             'no_po'             => $quote->po_number,
             'flag'              => 'Reftech',
             'pph'               => 0,
-            'type'              => 'BP',
-            'percent'           => $request->percent,
+            'type'              => $request->label,
+            'percent'           => $percentOfTotal,
         ]);
 
         return redirect()->route('unit-quotation.show', $id)
@@ -345,26 +354,159 @@ class UnitQuotationController extends Controller
         return response()->json(1);
     }
 
-    private function createInvoiceRecords(UnitQuotation $quote, $dpPercent = null): void
+    public function addPayment(Request $request, $id)
     {
-        $base = [
+        UnitQuotation::findOrFail($id);
+
+        $payment                    = new Payment();
+        $payment->id_unit_quotation = $id;
+        $payment->amount            = $request->amount;
+        $payment->percent           = $request->percent;
+        $payment->note              = $request->note;
+        $payment->type              = $request->type;
+        $payment->method            = $request->method;
+        $isEscrow                   = ($request->method === 'Escrow');
+        $payment->level             = $isEscrow ? 1 : 0;
+        $payment->date              = now()->toDateString();
+        if ($isEscrow) {
+            $payment->date_confirm = now()->toDateString();
+        }
+        if ($request->type === 'Tempo') {
+            $payment->tempo = $request->tempo;
+        }
+        $payment->save();
+
+        if ($isEscrow) {
+            Invoice::where('id_unit_quotation', $id)
+                ->whereNotNull('no_invoice')
+                ->update(['status_p' => 1]);
+        }
+
+        return redirect()->route('unit-quotation.show', $id)->with('success', 'Payment berhasil ditambahkan.');
+    }
+
+    public function proofPayment(Request $request, $id)
+    {
+        $payment = Payment::findOrFail($id);
+        $quote   = UnitQuotation::findOrFail($payment->id_unit_quotation);
+
+        $request->validate(['file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120']);
+
+        $foto       = $request->file('file');
+        $ext        = $foto->getClientOriginalExtension();
+        $safeName   = preg_replace('/[^A-Za-z0-9\-]/', '_', $quote->no_quote);
+        $payCount   = Payment::where('id_unit_quotation', $quote->id)->count();
+        $fileName   = $safeName . '-' . $payCount . '.' . $ext;
+        $subDir     = 'asset/payment/' . now()->format('Y/m');
+        $uploadPath = public_path($subDir);
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0755, true);
+        }
+        $foto->move($uploadPath, $fileName);
+
+        $payment->file = $subDir . '/' . $fileName;
+        $payment->save();
+
+        return response()->json([
+            'success'    => true,
+            'file_url'   => asset($payment->file),
+            'payment_id' => $payment->id,
+        ]);
+    }
+
+    public function deleteProof($id)
+    {
+        $payment = Payment::findOrFail($id);
+
+        if ($payment->file && file_exists(public_path($payment->file))) {
+            unlink(public_path($payment->file));
+        }
+
+        $payment->file = null;
+        $payment->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function deletePayment($id)
+    {
+        $payment = Payment::findOrFail($id);
+        $payment->delete();
+        return response()->json(1);
+    }
+
+    public function cancelPO(Request $request, $id)
+    {
+        $quote = UnitQuotation::findOrFail($id);
+
+        $hasIssuedInvoice = Invoice::where('id_unit_quotation', $id)
+            ->whereNotNull('no_invoice')
+            ->exists();
+
+        if ($hasIssuedInvoice) {
+            // Needs Accounting approval
+            $quote->cancel_request = 1;
+            $quote->save();
+            return redirect()->route('unit-quotation.show', $id)
+                ->with('info', 'Permintaan cancel PO dikirim ke Accounting untuk persetujuan.');
+        }
+
+        // No invoice yet — cancel directly
+        $quote->status         = 'negotiation';
+        $quote->cancel_request = 0;
+        $quote->po_number      = null;
+        $quote->po_file        = null;
+        $quote->po_received    = null;
+        $quote->save();
+
+        $quote->statusHistory()->create([
+            'status' => 'negotiation',
+            'note'   => 'PO dibatalkan oleh ' . Auth::user()->name,
+        ]);
+
+        return redirect()->route('unit-quotation.show', $id)
+            ->with('success', 'PO berhasil dibatalkan.');
+    }
+
+    public function approveCancelPO($id)
+    {
+        $quote = UnitQuotation::findOrFail($id);
+        $quote->status         = 'negotiation';
+        $quote->cancel_request = 0;
+        $quote->po_number      = null;
+        $quote->po_file        = null;
+        $quote->po_received    = null;
+        $quote->save();
+
+        $quote->statusHistory()->create([
+            'status' => 'negotiation',
+            'note'   => 'Cancel PO disetujui Accounting oleh ' . Auth::user()->name,
+        ]);
+
+        return redirect()->route('unit-quotation.show', $id)
+            ->with('success', 'Cancel PO disetujui. Status kembali ke Negotiation.');
+    }
+
+    public function rejectCancelPO($id)
+    {
+        $quote = UnitQuotation::findOrFail($id);
+        $quote->cancel_request = 0;
+        $quote->save();
+
+        return redirect()->route('unit-quotation.show', $id)
+            ->with('warning', 'Permintaan cancel PO ditolak.');
+    }
+
+    private function createInvoiceRecords(UnitQuotation $quote, string $invoiceType = 'CT', $dpPercent = null): void
+    {
+        Invoice::create([
             'id_unit_quotation' => $quote->id,
             'no_po'             => $quote->po_number,
             'flag'              => 'Reftech',
             'pph'               => 0,
-        ];
-
-        if ($quote->payment_method === 'DP & BP') {
-            Invoice::create(array_merge($base, [
-                'type'    => 'DP',
-                'percent' => floatval($dpPercent ?? 50),
-            ]));
-        } else {
-            Invoice::create(array_merge($base, [
-                'type'    => 'CT',
-                'percent' => 100,
-            ]));
-        }
+            'type'              => $invoiceType,
+            'percent'           => $invoiceType === 'DP' ? floatval($dpPercent ?? 50) : 100,
+        ]);
     }
 
     private function saveDetails(int $quoteId, array $items): void
