@@ -156,7 +156,9 @@ $(function () {
         if (initialized[tabId]) return;
         var cfg = TAB_CONFIG[tabId];
         if (!cfg) return;
-        initialized[tabId] = makeTable(cfg.selector, cfg.endpoint, cfg.columns, cfg.defs, null, [SIGN_COL_INDEX]) || true;
+        var noSearchCols = cfg.noSearchCols || [SIGN_COL_INDEX];
+        var dt = makeTable(cfg.selector, cfg.endpoint, cfg.columns, cfg.defs, null, noSearchCols);
+        initialized[tabId] = dt || true;
     }
 
     // Init whichever tab-pane is active on first load (role-dependent default tab)

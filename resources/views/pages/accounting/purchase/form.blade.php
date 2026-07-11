@@ -64,13 +64,6 @@
                         <div class="row mb-3">
                             <div class="col-12 col-lg-3">
                                 <div class="form-floating form-floating-outline mb-2">
-                                    <input class="form-control" type="text" placeholder="Put Mobile Here ...."
-                                        id="mobile" name="mobile" value="{{ old('mobile', @$purchase->mobile ?? '') }}">
-                                    <label for="mobile">Mobile</label>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg-3">
-                                <div class="form-floating form-floating-outline mb-2">
                                     <input class="form-control" type="text" placeholder="Put Delivery Time Here ...."
                                         id="delivery" name="delivery"
                                         value="{{ old('delivery', @$purchase->delivery ?? '') }}">
@@ -82,6 +75,13 @@
                                     <input class="form-control" type="text" placeholder="Put ATTN Quotation Here ...."
                                         id="attn" name="attn" value="{{ old('attn', @$purchase->attn ?? '') }}">
                                     <label for="attn">ATTN</label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-3">
+                                <div class="form-floating form-floating-outline mb-2">
+                                    <input class="form-control" type="text" placeholder="Put Mobile Here ...."
+                                        id="mobile" name="mobile" value="{{ old('mobile', @$purchase->mobile ?? '') }}">
+                                    <label for="mobile">Mobile</label>
                                 </div>
                             </div>
                             <div class="col-12 col-lg-3">

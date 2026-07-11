@@ -56,17 +56,18 @@ class POController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
-        $this->validate($request, [
+        $rule = [
             'no_po' => 'required|string|unique:purchase_order,no_po',
-        ]);
+        ];
+        $this->validate($request, $rule);
+
         $supplier = Supplier::find($request->supplier);
         $purchase = new PurchaseOrder();
         $purchase->id_supplier = $request->supplier;
         $purchase->no_po = $request->no_po;
         $purchase->company = $supplier->supplier;
         $purchase->attn = $request->attn;
-        $purchase->mobile = $request->mobile;
+        $purchase->mobile = $request->mobile ?? '';
         $purchase->delivery = $request->delivery;
         $purchase->date = $request->date;
         $purchase->email = $supplier->email ?? '-';
@@ -149,7 +150,7 @@ class POController extends Controller
         $purchase->no_po = $request->no_po;
         $purchase->company = $supplier->supplier;
         $purchase->attn = $request->attn;
-        $purchase->mobile = $request->mobile;
+        $purchase->mobile = $request->mobile ?? '';
         $purchase->delivery = $request->delivery;
         $purchase->date = $request->date;
         $purchase->email = $supplier->email ?? '-';

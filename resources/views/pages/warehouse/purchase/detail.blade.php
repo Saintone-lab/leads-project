@@ -111,7 +111,7 @@
                         <h4 class="fw-medium card-title mb-3">
                             Purchase Request
                         </h4>
-                        <div class="tombol">
+                        <div class="tombol d-flex gap-2">
                             @if ($purchase->where('status', 0)->count() > 0)
                                 <a href="#" class="btn btn-info d-grid w-100 waves-effect acc-all-purchase"
                                     data-id="{{ $pending->id }}">ACC All</a>

@@ -108,8 +108,7 @@ class ProductInController extends Controller
                 $dProductIn->disc = $request->disc[$item];
                 $dProductIn->amount = $request->amount[$item];
                 $dProductIn->warehouse = $request->warehouse[$item];
-                $productD = DetailProduct::where('id', $request->replacement[$item])->first();
-                // dd($productD);
+                $productD = DetailProduct::find($request->replacement[$item]);
                 $productD->modal = ((($productD->stock + $productD->warehouse_stock) * $productD->modal) + ($request->qty[$item] * $request->price[$item])) / (($productD->stock + $productD->warehouse_stock) + $request->qty[$item]);
                 if ($request->warehouse[$item] == 'BDG') {
                     $productD->stock = $productD->stock + $request->qty[$item];
@@ -117,13 +116,12 @@ class ProductInController extends Controller
                     $productD->warehouse_stock = $productD->warehouse_stock + $request->qty[$item];
                 }
                 $productD->save();
-                $product = Product::where('id', $productD->id_product)->first();
+                $product = Product::find($productD->id_product);
                 if ($request->warehouse[$item] == 'BDG') {
                     $product->stock = $product->stock + $request->qty[$item];
                 } else {
                     $product->warehouse_stock = $product->warehouse_stock + $request->qty[$item];
                 }
-                // dd($product);
                 $product->save();
                 $dProductSave = $dProductIn->save();
             }
@@ -286,21 +284,19 @@ class ProductInController extends Controller
                 $dProductIn->modal = null;
                 $dProductIn->amount = null;
                 $dProductIn->warehouse = $request->warehouse[$item];
-                $productD = DetailProduct::where('id', $request->replacement[$item])->first();
-                // $productD->modal = ((($productD->stock + $productD->warehouse_stock) * $productD->modal) + ($request->qty[$item] * $request->price[$item])) / (($productD->stock + $productD->warehouse_stock) + $request->qty[$item]);
+                $productD = DetailProduct::find($request->replacement[$item]);
                 if ($request->warehouse[$item] == 'BDG') {
                     $productD->stock = $productD->stock + $request->qty[$item];
                 } else {
                     $productD->warehouse_stock = $productD->warehouse_stock + $request->qty[$item];
                 }
                 $productD->save();
-                $product = Product::where('id', $productD->id_product)->first();
+                $product = Product::find($productD->id_product);
                 if ($request->warehouse[$item] == 'BDG') {
                     $product->stock = $product->stock + $request->qty[$item];
                 } else {
                     $product->warehouse_stock = $product->warehouse_stock + $request->qty[$item];
                 }
-                // dd($product);
                 $product->save();
                 $dProductSave = $dProductIn->save();
             }

@@ -137,6 +137,7 @@ class PendingController extends Controller
         // $allEquiv = SerialProduct::all();
         // $detProduct = DetailProductOut::where('id_product_out', $allproductOut[0]->id)->get();
         $purchase = PurchaseRequest::where('id_pending', $id)->get();
+
         // dd($detail);
         // dd($status->count());
         return view('pages.pending.detail', compact('purchase', 'serial', 'return', 'detProduct', 'activity', 'allproductOut', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation', 'resi', 'product'));

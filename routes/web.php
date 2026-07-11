@@ -2154,7 +2154,7 @@ Route::group(["middleware" => "auth"], function () {
             ->get(['comment.*', 'quotation.no_quote', 'users.name', 'quotation.id as id_q', 'change_status.status']);
         return response()->json(['data' => $comment]);
     });
-    Route::get('/db/invoice/ppn/reftech', function () {
+    Route::get('/db/invoice/reftech', function () {
         $year = request('year', date('Y'));
 
         $serviceInvoices = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
@@ -2163,17 +2163,16 @@ Route::group(["middleware" => "auth"], function () {
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')
             ->where('invoice.flag', 'Reftech')
-            ->where('quotation.tax', '11')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
             ->whereYear('quotation.po_date', $year)
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date',
-                   DB::raw("'service' AS source")]);
+                   DB::raw("'service' AS source"),
+                   DB::raw("IF(quotation.tax = '11', 'PPN', 'Non PPN') AS ppn")]);
 
         $unitInvoices = Invoice::join('unit_quotation', 'unit_quotation.id', '=', 'invoice.id_unit_quotation')
             ->join('client', 'client.id', '=', 'unit_quotation.id_client')
             ->join('users', 'users.id', '=', 'unit_quotation.id_sales')
-            ->where('unit_quotation.tax', 1)
             ->where('invoice.flag', 'Reftech')
             ->whereNotNull('invoice.no_invoice')
             ->whereYear('invoice.date', $year)
@@ -2182,70 +2181,24 @@ Route::group(["middleware" => "auth"], function () {
                 DB::raw('ROUND(unit_quotation.total * IFNULL(invoice.percent, 100) / 100) AS harga_total'),
                 DB::raw('invoice.date AS po_date'),
                 DB::raw("'unit' AS source"),
+                DB::raw("IF(unit_quotation.tax = 1, 'PPN', 'Non PPN') AS ppn"),
             ]);
 
         $merged = $serviceInvoices->merge($unitInvoices)->sortByDesc('no_invoice')->values();
         return response()->json(['data' => $merged]);
     });
-    Route::get('/db/invoice/nonppn/reftech', function () {
-        $year = request('year', date('Y'));
-
-        $serviceInvoices = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
+    Route::get('/db/invoice/kojisha', function () {
+        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
             ->join('pic', 'pic.id', '=', 'quotation.id_pic')
             ->join('client', 'client.id', '=', 'pic.id_client')
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')
-            ->where('invoice.flag', 'Reftech')
-            ->where('quotation.tax', '0')
+            ->where('invoice.flag', 'Kojisha')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
-            ->whereYear('quotation.po_date', $year)
+            ->orderByDesc('invoice.no_invoice')
             ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date',
-                   DB::raw("'service' AS source")]);
-
-        $unitInvoices = Invoice::join('unit_quotation', 'unit_quotation.id', '=', 'invoice.id_unit_quotation')
-            ->join('client', 'client.id', '=', 'unit_quotation.id_client')
-            ->join('users', 'users.id', '=', 'unit_quotation.id_sales')
-            ->where('unit_quotation.tax', 0)
-            ->where('invoice.flag', 'Reftech')
-            ->whereNotNull('invoice.no_invoice')
-            ->whereYear('invoice.date', $year)
-            ->get([
-                'invoice.*', 'client.company', 'users.name',
-                DB::raw('ROUND(unit_quotation.total * IFNULL(invoice.percent, 100) / 100) AS harga_total'),
-                DB::raw('invoice.date AS po_date'),
-                DB::raw("'unit' AS source"),
-            ]);
-
-        $merged = $serviceInvoices->merge($unitInvoices)->sortByDesc('no_invoice')->values();
-        return response()->json(['data' => $merged]);
-    });
-    Route::get('/db/invoice-ppn/kojisha', function () {
-        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
-            ->join('pic', 'pic.id', '=', 'quotation.id_pic')
-            ->join('client', 'client.id', '=', 'pic.id_client')
-            ->join('users', 'users.id', '=', 'quotation.id_sales')
-            ->where('status', '100')
-            ->where('invoice.flag', 'Kojisha')
-            ->where('quotation.tax', '11')
-            ->whereNotNull('quotation.po_file')
-            ->whereNotNull('invoice.no_invoice')
-            ->orderByDesc('invoice.no_invoice')
-            ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
-        return response()->json(['data' => $invoice]);
-    });
-    Route::get('/db/invoice-nonppn/kojisha', function () {
-        $invoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
-            ->join('pic', 'pic.id', '=', 'quotation.id_pic')
-            ->join('client', 'client.id', '=', 'pic.id_client')
-            ->join('users', 'users.id', '=', 'quotation.id_sales')
-            ->where('status', '100')
-            ->where('invoice.flag', 'Kojisha')
-            ->where('quotation.tax', '0')
-            ->whereNotNull('quotation.po_file')
-            ->whereNotNull('invoice.no_invoice')
-            ->orderByDesc('invoice.no_invoice')
-            ->get(['invoice.*', 'client.company', 'users.name', 'quotation.harga_total', 'quotation.po_date']);
+                   DB::raw("IF(quotation.tax = '11', 'PPN', 'Non PPN') AS ppn")]);
         return response()->json(['data' => $invoice]);
     });
 

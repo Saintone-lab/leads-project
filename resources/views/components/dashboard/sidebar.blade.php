@@ -433,36 +433,14 @@
                     </a>
                 </li>
                 <li
-                    class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') || request()->is('request/invoice') || request()->is('request/invoice/*') || request()->is('index/invoice/kojisha') ? 'open' : '' }}">
-                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') || request()->is('request/invoice') || request()->is('request/invoice/*') || request()->is('index/invoice/kojisha') ? 'active' : '' }}">
+                    <a href="{{ route('invoice.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons mdi mdi-file-document-check-outline"></i>
                         <div data-i18n="Invoice">Invoice</div>
                         @if (@$requestInvoice >= 1)
                             <div class="badge bg-danger rounded-pill ms-auto">{{ $requestInvoice }}</div>
                         @endif
                     </a>
-                    <ul class="menu-sub">
-                        <li
-                            class="menu-item {{ request()->is('request/invoice') || request()->is('request/invoice/*') ? 'active' : '' }}">
-                            <a href="{{ route('invoice.request') }}" class="menu-link">
-                                <div data-i18n="Request">Request</div>
-                                @if (@$requestInvoice >= 1)
-                                    <div class="badge bg-danger rounded-pill ms-auto">{{ $requestInvoice }}</div>
-                                @endif
-                            </a>
-                        </li>
-                        <li
-                            class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') ? 'active' : '' }}">
-                            <a href="{{ route('invoice.index') }}" class="menu-link">
-                                <div data-i18n="Invoice Reftech">Invoice Reftech</div>
-                            </a>
-                        </li>
-                        <li class="menu-item {{ request()->is('index/invoice/kojisha') ? 'active' : '' }}">
-                            <a href="{{ route('invoice.index_kojisha') }}" class="menu-link">
-                                <div data-i18n="Invoice Kojisha">Invoice Kojisha</div>
-                            </a>
-                        </li>
-                    </ul>
                 </li>
                 <li
                     class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-index/payment') || request()->is('payment-index/aging') || request()->is('payment-detail/invoice/*') || request()->is('payment-detail/payment/*') || request()->is('payment-detail/aging/*') ? 'open' : '' }}">

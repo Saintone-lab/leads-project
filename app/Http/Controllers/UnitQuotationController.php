@@ -297,6 +297,7 @@ class UnitQuotationController extends Controller
             'po_file'        => $path,
             'payment_method' => $request->payment_method,
             'status'         => 'po_received',
+            'po_received'    => now()->toDateString(),
         ]);
 
         $quote->statusHistory()->create([

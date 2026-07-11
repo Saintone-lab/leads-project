@@ -35,6 +35,7 @@ use App\Models\SalesTargetHistory;
 use App\Models\SerialProduct;
 use App\Models\Suo;
 use App\Models\Target;
+use App\Models\UnitQuotation;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -76,10 +77,17 @@ class DashboardController extends Controller
             ->selectRaw('id_sales, SUM(nett) as total_nett')
             ->pluck('total_nett', 'id_sales');
 
+        $unitPoPerSales = UnitQuotation::where('status', 'po_received')
+            ->whereYear('po_received', $yearNow)
+            ->whereMonth('po_received', $monthNow)
+            ->groupBy('id_sales')
+            ->selectRaw('id_sales, SUM(total) as total_nett')
+            ->pluck('total_nett', 'id_sales');
+
         foreach ($sales as $sale) {
 
             $targetPerSales = $sale->latestTarget->total ?? 0;
-            $poTotalPricePerSales = $poPerSales->get($sale->id, 0);
+            $poTotalPricePerSales = $poPerSales->get($sale->id, 0) + $unitPoPerSales->get($sale->id, 0);
 
             // 🔥 kalau termasuk team ecommerce
             if (in_array($sale->id, $teamIds)) {
@@ -129,7 +137,8 @@ class DashboardController extends Controller
             $po = $this->getPoSales();
             $leads = $this->getLeadsSales();
             $visit = $this->getVisitSales();
-            $poTotalPrice = Quotation::whereYear('po_date', $yearNow)->whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $poTotalPrice = Quotation::whereYear('po_date', $yearNow)->whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->where('level', '1')->where('is_primary', '1')->sum('nett')
+                + UnitQuotation::where('status', 'po_received')->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->where('id_sales', Auth::user()->id)->sum('total');
             // $noPayment = DB::table('quotation as q')
             //     ->whereYear('q.po_date', $yearNow)
             //     ->whereMonth('q.po_date', $monthNow)
@@ -393,7 +402,11 @@ class DashboardController extends Controller
                 ->where('status', '100')
                 ->where('level', '1')
                 ->where('is_primary', '1')
-                ->sum('nett');
+                ->sum('nett')
+                + UnitQuotation::where('status', 'po_received')
+                    ->whereYear('po_received', $yearNow)
+                    ->whereMonth('po_received', $monthNow)
+                    ->sum('total');
             $formattedTotalPriceAdmin = $this->formatNumber($poTotalPriceAdmin);
             $sales = User::whereIn('role', ['Sales', 'Support'])->where('active', '1')->orderByDesc('id')->get();
             $firstSales = User::find(1);
@@ -1571,10 +1584,12 @@ class DashboardController extends Controller
             ->sum('target.total');
 
         $smActualMonth = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)
-            ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+            ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett')
+            + UnitQuotation::where('status', 'po_received')->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->sum('total');
 
         $smActualPrevMonth = Quotation::whereYear('po_date', $prevMonth->year)->whereMonth('po_date', $prevMonth->month)
-            ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+            ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett')
+            + UnitQuotation::where('status', 'po_received')->whereYear('po_received', $prevMonth->year)->whereMonth('po_received', $prevMonth->month)->sum('total');
 
         $smAchievement = $smTargetMonth > 0 ? round($smActualMonth / $smTargetMonth * 100, 1) : 0;
         $smVsLastMonthPct = $smActualPrevMonth > 0
@@ -1585,7 +1600,8 @@ class DashboardController extends Controller
             ->where('level', '1')->where('is_primary', '1')->count();
 
         $smSoTotal = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)
-            ->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+            ->where('status', '100')->where('level', '1')->where('is_primary', '1')->count()
+            + UnitQuotation::where('status', 'po_received')->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->count();
 
         $smInvoiceTotal = Invoice::whereYear('date', $yearNow)->whereMonth('date', $monthNow)->count();
 
@@ -1626,6 +1642,11 @@ class DashboardController extends Controller
             ->groupBy('id_sales')->selectRaw('id_sales, SUM(nett) as total_nett, COUNT(*) as total_count')
             ->get()->keyBy('id_sales');
 
+        $smUnitPoPerSales = UnitQuotation::where('status', 'po_received')
+            ->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)
+            ->groupBy('id_sales')->selectRaw('id_sales, SUM(total) as total_nett, COUNT(*) as total_count')
+            ->get()->keyBy('id_sales');
+
         $smQuotePerSales = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)
             ->where('level', '1')->where('is_primary', '1')
             ->groupBy('id_sales')->selectRaw('id_sales, COUNT(*) as total_count')
@@ -1662,9 +1683,10 @@ class DashboardController extends Controller
         $smTeamActivity = [];
         foreach ($activeSales as $sale) {
             $target = $sale->latestTarget->total ?? 0;
-            $actualRow = $smPoPerSales->get($sale->id);
-            $actual = $actualRow->total_nett ?? 0;
-            $poCount = $actualRow->total_count ?? 0;
+            $actualRow     = $smPoPerSales->get($sale->id);
+            $unitActualRow = $smUnitPoPerSales->get($sale->id);
+            $actual   = ($actualRow->total_nett ?? 0) + ($unitActualRow->total_nett ?? 0);
+            $poCount  = ($actualRow->total_count ?? 0) + ($unitActualRow->total_count ?? 0);
             $quotationCount = (int) $smQuotePerSales->get($sale->id, 0);
             $outstanding = (float) $smOutstandingPerSales->get($sale->id, 0);
             $forecast = (float) $smForecastPerSales->get($sale->id, 0);
@@ -2354,7 +2376,12 @@ class DashboardController extends Controller
             ->where('status', '100')
             ->where('level', '1')
             ->where('is_primary', '1')
-            ->sum('nett');
+            ->sum('nett')
+            + UnitQuotation::where('status', 'po_received')
+                ->whereYear('po_received', $yearNow)
+                ->whereMonth('po_received', $monthNow)
+                ->where('id_sales', $sales)
+                ->sum('total');
 
         return $totalPO;
     }
@@ -2370,7 +2397,12 @@ class DashboardController extends Controller
             ->where('status', '100')
             ->where('level', '1')
             ->where('is_primary', '1')
-            ->sum('nett');
+            ->sum('nett')
+            + UnitQuotation::where('status', 'po_received')
+                ->whereYear('po_received', $yearNow)
+                ->whereMonth('po_received', $monthNow)
+                ->where('id_sales', $sales)
+                ->sum('total');
 
         $target = Target::where('id_sales', $sales)->first('total');
 
@@ -2384,7 +2416,8 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $filteredPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $sales)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+        $filteredPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $sales)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count()
+            + UnitQuotation::where('status', 'po_received')->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->where('id_sales', $sales)->count();
         return $filteredPO;
     }
     // Ajax Kiri Sales
@@ -3134,8 +3167,9 @@ class DashboardController extends Controller
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
         $po = Quotation::whereYear('po_date', $yearNow)->whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->where('level', '1')->where('is_primary', '1')->get();
+        $unitPo = UnitQuotation::where('status', 'po_received')->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->where('id_sales', Auth::user()->id)->get();
 
-        return $po;
+        return $po->concat($unitPo);
     }
     protected function getLeadsSales()
     {
