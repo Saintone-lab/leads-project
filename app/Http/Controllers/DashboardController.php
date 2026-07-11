@@ -8,6 +8,7 @@ use App\Models\Comment;
 use App\Models\Contract;
 use App\Models\DetailExpense;
 use App\Models\DetailProduct;
+use App\Models\DetailQuotation;
 use App\Models\DetailUser;
 use App\Models\Expense;
 use App\Models\FixedAsset;
@@ -28,6 +29,7 @@ use App\Models\Quotation;
 use App\Models\Reminder;
 use App\Models\Reports;
 use App\Models\ReqVisit;
+use App\Models\RevQuote;
 use App\Models\SalesOnline;
 use App\Models\SalesTargetHistory;
 use App\Models\SerialProduct;
@@ -484,16 +486,18 @@ class DashboardController extends Controller
                 ->where('type', 'Non Project')
                 ->count();
 
-            // Admin bisa berpindah antar dashboard divisi lewat dropdown menu (Sales/Accounting/Finance/Logistic)
+            // Admin bisa berpindah antar dashboard divisi lewat dropdown menu (Sales/Sales Manager/Accounting/Finance/Logistic/Workshop)
             $adminView = request()->query('view', 'sales');
-            if (!in_array($adminView, ['sales', 'accounting', 'finance', 'logistic'], true)) {
+            if (!in_array($adminView, ['sales', 'salesmanager', 'accounting', 'finance', 'logistic', 'workshop'], true)) {
                 $adminView = 'sales';
             }
 
             $adminExtraData = match ($adminView) {
+                'salesmanager' => $this->getSalesManagerDashboardData(),
                 'accounting' => $this->getAccountingDashboardData(),
                 'finance' => $this->getFinanceDashboardData(),
                 'logistic' => $this->getLogisticDashboardData(),
+                'workshop' => $this->getWorkshopDashboardData(),
                 default => [],
             };
 
@@ -887,6 +891,42 @@ class DashboardController extends Controller
                     'financeMonthlyTargetSeries',
                     'financeRecentActivity',
                     'notulens',
+                )
+            );
+        } elseif (Auth::user()->role == 'Sales Manager') {
+            extract($this->getSalesManagerDashboardData());
+
+            return view(
+                "pages.sales.dashboard",
+                compact(
+                    'sorted',
+                    'sales',
+                    'notulens',
+                    'smTargetMonth',
+                    'smActualMonth',
+                    'smAchievement',
+                    'smVsLastMonthPct',
+                    'smQuotationTotal',
+                    'smSoTotal',
+                    'smInvoiceTotal',
+                    'smPipelineLabels',
+                    'smPipelineSeries',
+                    'smPipelineTotal',
+                    'smRevenueStatusLabels',
+                    'smRevenueStatusSeries',
+                    'smTeamPerformance',
+                    'smTeamActivity',
+                    'smDiscountOver10',
+                    'smRevisionCount',
+                    'smExpiredCount',
+                    'smPoBelumMasukCount',
+                    'smInvoiceBelumDibuatCount',
+                    'smOverdueInvoiceCount',
+                    'smVisitToday',
+                    'smFollowUpToday',
+                    'smRecentPoWon',
+                    'smForecastLabels',
+                    'smForecastSeries',
                 )
             );
         } elseif (Auth::user()->role == 'Logistic') {
@@ -1384,6 +1424,419 @@ class DashboardController extends Controller
             'logReceivingLabels',
             'logReceivingSeries',
             'logRecentActivity',
+        );
+    }
+
+    private function getWorkshopDashboardData(): array
+    {
+        // Scope: unit Fixed Asset kategori "Mesin" (unit workshop/heavy equipment).
+        // "Kendaraan Kantor" sengaja tidak dihitung di sini — beda konteks (fleet kantor, bukan unit workshop).
+        $workshopUnits = FixedAsset::where('type', 'Mesin')->with('unit')->get();
+        $workshopTotalUnit = $workshopUnits->count();
+
+        $statusLabels = ['OK', 'Rental', 'Service', 'Breakdown', 'Reserved'];
+        $workshopStatusCounts = [];
+        foreach ($statusLabels as $label) {
+            $workshopStatusCounts[$label] = $workshopUnits->where('status_unit', $label)->count();
+        }
+        // Unit yang statusnya belum diklasifikasi Admin (null) atau sudah Sold, dikelompokkan terpisah
+        // supaya tidak "hilang" dari total tapi juga tidak mengotori 5 kategori utama mockup.
+        $workshopStatusOther = $workshopUnits->whereNotIn('status_unit', $statusLabels)->count();
+
+        $workshopKondisiBaru = $workshopUnits->where('kondisi', 'Baru')->count();
+        $workshopKondisiSecond = $workshopUnits->where('kondisi', 'Second')->count();
+
+        $workshopQcChecking = $workshopUnits->where('qc_status', 'checking')->count();
+        $workshopQcOk = $workshopUnits->where('qc_status', 'ok')->count();
+        $workshopQcReject = $workshopUnits->where('qc_status', 'reject')->count();
+
+        $workshopTotalNilaiAset = $workshopUnits->sum('total');
+
+        // Unit yang perlu perhatian: sedang Service atau Breakdown
+        $workshopAttentionUnits = $workshopUnits
+            ->whereIn('status_unit', ['Service', 'Breakdown'])
+            ->sortByDesc('updated_at')
+            ->take(10)
+            ->values();
+
+        // Unit yang baru masuk (acquisition terbaru)
+        $workshopRecentUnits = $workshopUnits
+            ->sortByDesc('created_at')
+            ->take(6)
+            ->values();
+
+        // --- Vehicle Maintenance (DATA DUMMY) ---
+        // Belum ada modul Vehicle Maintenance (tidak ada tabel/model khusus kendaraan).
+        // Data di bawah ini sengaja di-hardcode sebagai placeholder atas permintaan user,
+        // supaya layout dashboard sudah bisa dipreview sebelum modulnya benar-benar dibangun.
+        // TODO: ganti dengan query tabel Vehicle sungguhan begitu modulnya ada.
+        $today = Carbon::now();
+        $statusFromDays = function (?int $days) {
+            if ($days === null) {
+                return ['label' => '-', 'color' => 'secondary'];
+            }
+            if ($days < 0) {
+                return ['label' => 'Overdue', 'color' => 'danger'];
+            }
+            if ($days <= 14) {
+                return ['label' => 'Due Soon', 'color' => 'warning'];
+            }
+            return ['label' => 'OK', 'color' => 'success'];
+        };
+
+        $workshopVehicleSeed = [
+            ['plat' => 'B 1234 XYZ', 'jenis' => 'Toyota Avanza', 'servis_terakhir_days_ago' => 80, 'servis_due_days' => 10, 'pajak_due_days' => 45, 'ganti_kaleng_due_days' => 730],
+            ['plat' => 'B 5678 ABC', 'jenis' => 'Daihatsu Xenia', 'servis_terakhir_days_ago' => 120, 'servis_due_days' => -5, 'pajak_due_days' => 20, 'ganti_kaleng_due_days' => 400],
+            ['plat' => 'B 9012 DEF', 'jenis' => 'Mitsubishi L300', 'servis_terakhir_days_ago' => 40, 'servis_due_days' => 30, 'pajak_due_days' => -3, 'ganti_kaleng_due_days' => 1460],
+            ['plat' => 'B 3456 GHI', 'jenis' => 'Toyota Hilux', 'servis_terakhir_days_ago' => 15, 'servis_due_days' => 60, 'pajak_due_days' => 90, 'ganti_kaleng_due_days' => -15],
+            ['plat' => 'B 7890 JKL', 'jenis' => 'Honda Brio', 'servis_terakhir_days_ago' => 95, 'servis_due_days' => 3, 'pajak_due_days' => 15, 'ganti_kaleng_due_days' => 1100],
+        ];
+
+        $workshopVehicles = collect($workshopVehicleSeed)->map(function ($v) use ($today, $statusFromDays) {
+            $servisStatus = $statusFromDays($v['servis_due_days']);
+            $pajakStatus = $statusFromDays($v['pajak_due_days']);
+            $kalengStatus = $statusFromDays($v['ganti_kaleng_due_days']);
+            // Status keseluruhan = yang paling genting di antara ketiganya
+            $rank = ['danger' => 3, 'warning' => 2, 'success' => 1, 'secondary' => 0];
+            $overall = collect([$servisStatus, $pajakStatus, $kalengStatus])->sortByDesc(fn ($s) => $rank[$s['color']])->first();
+
+            return (object) [
+                'plat' => $v['plat'],
+                'jenis' => $v['jenis'],
+                'servis_terakhir' => $today->copy()->subDays($v['servis_terakhir_days_ago']),
+                'servis_berikutnya' => $today->copy()->addDays($v['servis_due_days']),
+                'servis_status' => $servisStatus,
+                'pajak_due' => $today->copy()->addDays($v['pajak_due_days']),
+                'pajak_status' => $pajakStatus,
+                'ganti_kaleng_due' => $today->copy()->addDays($v['ganti_kaleng_due_days']),
+                'ganti_kaleng_status' => $kalengStatus,
+                'overall_status' => $overall,
+            ];
+        });
+
+        $workshopVehicleTotal = $workshopVehicles->count();
+        $workshopVehicleServisDue = $workshopVehicles->filter(fn ($v) => $v->servis_status['color'] !== 'success')->count();
+        $workshopVehiclePajakDue = $workshopVehicles->filter(fn ($v) => $v->pajak_status['color'] !== 'success')->count();
+        $workshopVehicleKalengDue = $workshopVehicles->filter(fn ($v) => $v->ganti_kaleng_status['color'] !== 'success')->count();
+        $workshopVehicleOverdueCount = $workshopVehicles->filter(fn ($v) => $v->overall_status['color'] === 'danger')->count();
+
+        // Klasifikasi 1 kendaraan = 1 kategori paling genting, buat donut Overview (total harus pas = $workshopVehicleTotal)
+        $rank = ['danger' => 3, 'warning' => 2, 'success' => 1];
+        $workshopVehicleOverviewCounts = ['Ready' => 0, 'Servis Due' => 0, 'STNK/Pajak Due' => 0, 'Ganti Kaleng Due' => 0];
+        foreach ($workshopVehicles as $v) {
+            $candidates = [
+                'Servis Due' => $v->servis_status,
+                'STNK/Pajak Due' => $v->pajak_status,
+                'Ganti Kaleng Due' => $v->ganti_kaleng_status,
+            ];
+            $mostUrgentKey = collect($candidates)->sortByDesc(fn ($s) => $rank[$s['color']])->keys()->first();
+            $mostUrgent = $candidates[$mostUrgentKey];
+            $workshopVehicleOverviewCounts[$mostUrgent['color'] === 'success' ? 'Ready' : $mostUrgentKey]++;
+        }
+
+        return compact(
+            'workshopTotalUnit',
+            'workshopStatusCounts',
+            'workshopStatusOther',
+            'workshopKondisiBaru',
+            'workshopKondisiSecond',
+            'workshopQcChecking',
+            'workshopQcOk',
+            'workshopQcReject',
+            'workshopTotalNilaiAset',
+            'workshopAttentionUnits',
+            'workshopVehicles',
+            'workshopVehicleTotal',
+            'workshopVehicleServisDue',
+            'workshopVehiclePajakDue',
+            'workshopVehicleKalengDue',
+            'workshopVehicleOverdueCount',
+            'workshopVehicleOverviewCounts',
+            'workshopRecentUnits',
+        );
+    }
+
+    private function getSalesManagerDashboardData(): array
+    {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearNow = $dateNow->year;
+        $prevMonth = Carbon::create($yearNow, $monthNow, 1)->subMonth();
+
+        $activeSales = User::where('role', 'Sales')->where('active', '1')->orderByDesc('id')->get();
+
+        // ==== KPI: Target vs Actual bulan berjalan ====
+        $smTargetMonth = Target::join('users as u', 'u.id', '=', 'target.id_sales')
+            ->where('u.role', 'Sales')->where('u.active', '1')
+            ->sum('target.total');
+
+        $smActualMonth = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)
+            ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+
+        $smActualPrevMonth = Quotation::whereYear('po_date', $prevMonth->year)->whereMonth('po_date', $prevMonth->month)
+            ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+
+        $smAchievement = $smTargetMonth > 0 ? round($smActualMonth / $smTargetMonth * 100, 1) : 0;
+        $smVsLastMonthPct = $smActualPrevMonth > 0
+            ? round((($smActualMonth - $smActualPrevMonth) / $smActualPrevMonth) * 100, 1)
+            : 0;
+
+        $smQuotationTotal = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)
+            ->where('level', '1')->where('is_primary', '1')->count();
+
+        $smSoTotal = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)
+            ->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+
+        $smInvoiceTotal = Invoice::whereYear('date', $yearNow)->whereMonth('date', $monthNow)->count();
+
+        // ==== Pipeline by Stage (bulan berjalan, dipetakan dari status quotation) ====
+        $smStatusCounts = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)
+            ->where('level', '1')->where('is_primary', '1')
+            ->select('status', DB::raw('count(*) as total'))->groupBy('status')->pluck('total', 'status');
+
+        $smLeadCount = Client::join('users as u', 'u.id', '=', 'client.id_sales')
+            ->where('u.role', 'Sales')
+            ->whereYear('client.created_at', $yearNow)->whereMonth('client.created_at', $monthNow)->count();
+
+        $smPipelineLabels = ['Lead', 'Quotation', 'Negotiation', 'Waiting PO', 'Closed Won'];
+        $smPipelineSeries = [
+            (int) $smLeadCount,
+            (int) ($smStatusCounts->get('20', 0) + $smStatusCounts->get('30', 0) + $smStatusCounts->get('40', 0)),
+            (int) $smStatusCounts->get('60', 0),
+            (int) ($smStatusCounts->get('80', 0) + $smStatusCounts->get('90', 0)),
+            (int) $smStatusCounts->get('100', 0),
+        ];
+        $smPipelineTotal = array_sum($smPipelineSeries);
+
+        // ==== Revenue by Quotation Status (pengganti Revenue by Product - kategori Product tidak reliable) ====
+        $smRevenueByStatus = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)
+            ->where('level', '1')->where('is_primary', '1')
+            ->select('status', DB::raw('sum(nett) as total'))->groupBy('status')->pluck('total', 'status');
+        $smRevenueStatusLabels = ['In Progress', 'Negotiation', 'Hot Prospect', 'PO Won'];
+        $smRevenueStatusSeries = [
+            (float) ($smRevenueByStatus->get('20', 0) + $smRevenueByStatus->get('30', 0) + $smRevenueByStatus->get('40', 0)),
+            (float) $smRevenueByStatus->get('60', 0),
+            (float) ($smRevenueByStatus->get('80', 0) + $smRevenueByStatus->get('90', 0)),
+            (float) $smRevenueByStatus->get('100', 0),
+        ];
+
+        // ==== Sales Team Performance ====
+        $smPoPerSales = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)
+            ->where('status', '100')->where('level', '1')->where('is_primary', '1')
+            ->groupBy('id_sales')->selectRaw('id_sales, SUM(nett) as total_nett, COUNT(*) as total_count')
+            ->get()->keyBy('id_sales');
+
+        $smQuotePerSales = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)
+            ->where('level', '1')->where('is_primary', '1')
+            ->groupBy('id_sales')->selectRaw('id_sales, COUNT(*) as total_count')
+            ->pluck('total_count', 'id_sales');
+
+        $smForecastPerSales = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)
+            ->whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')
+            ->groupBy('id_sales')->selectRaw('id_sales, SUM(nett) as total_nett')
+            ->pluck('total_nett', 'id_sales');
+
+        $smOutstandingPerSales = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
+            ->where('payment.type', 'Tempo')->where('payment.level', 0)
+            ->groupBy('q.id_sales')->selectRaw('q.id_sales as id_sales, SUM(payment.amount) as total_amount')
+            ->pluck('total_amount', 'id_sales');
+
+        // id 16 & 23 = tim e-commerce, digabung jadi satu baris "Team E-Commerce" (sama seperti pola $teamIds di atas)
+        $smTeamIds = [16, 23];
+        $smEcommerce = [
+            'target' => 0.0,
+            'actual' => 0.0,
+            'quotation_count' => 0,
+            'po_count' => 0,
+            'outstanding' => 0.0,
+            'forecast' => 0.0,
+            'new_leads' => 0,
+            'daily_call' => 0,
+            'crm' => 0,
+        ];
+
+        // Denny Tonthawi (id 41) dikecualikan dari card Team Activity atas permintaan user
+        $smActivityExcludeIds = [41];
+
+        $smTeamPerformance = [];
+        $smTeamActivity = [];
+        foreach ($activeSales as $sale) {
+            $target = $sale->latestTarget->total ?? 0;
+            $actualRow = $smPoPerSales->get($sale->id);
+            $actual = $actualRow->total_nett ?? 0;
+            $poCount = $actualRow->total_count ?? 0;
+            $quotationCount = (int) $smQuotePerSales->get($sale->id, 0);
+            $outstanding = (float) $smOutstandingPerSales->get($sale->id, 0);
+            $forecast = (float) $smForecastPerSales->get($sale->id, 0);
+
+            // KPI aktivitas bulan berjalan (pola sama seperti $filteredLeads/$filteredDC/$filteredCRM di branch Admin)
+            $newLeads = Client::where('id_sales', $sale->id)
+                ->whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->count();
+            $dailyCall = Activities::join('client as c', 'activities.id_client', '=', 'c.id')
+                ->where('c.id_sales', $sale->id)
+                ->whereYear('activities.date', $yearNow)->whereMonth('activities.date', $monthNow)
+                ->where('activities.status', 'Responded')
+                ->whereIn('activities.name', ['Daily Call', 'Follow Up'])->count();
+            $crm = Activities::join('client as c', 'activities.id_client', '=', 'c.id')
+                ->join(DB::raw('(SELECT id_client, status FROM crm_status WHERE id IN (SELECT MAX(id) FROM crm_status GROUP BY id_client)) as cs'), 'c.id', '=', 'cs.id_client')
+                ->where('c.id_sales', $sale->id)
+                ->whereYear('activities.date', $yearNow)->whereMonth('activities.date', $monthNow)
+                ->where('activities.status', 'Responded')->where('activities.name', 'CRM')
+                ->where('cs.status', '2')->count(DB::raw('DISTINCT c.id'));
+
+            if (in_array($sale->id, $smTeamIds)) {
+                $smEcommerce['target'] += $target;
+                $smEcommerce['actual'] += $actual;
+                $smEcommerce['quotation_count'] += $quotationCount;
+                $smEcommerce['po_count'] += $poCount;
+                $smEcommerce['outstanding'] += $outstanding;
+                $smEcommerce['forecast'] += $forecast;
+                $smEcommerce['new_leads'] += $newLeads;
+                $smEcommerce['daily_call'] += $dailyCall;
+                $smEcommerce['crm'] += $crm;
+                continue;
+            }
+
+            $smTeamPerformance[] = [
+                'name' => $sale->name,
+                'image' => $sale->image,
+                'target' => (float) $target,
+                'actual' => (float) $actual,
+                'achievement' => $target > 0 ? round($actual / $target * 100, 1) : 0,
+                'quotation_count' => $quotationCount,
+                'po_count' => (int) $poCount,
+                'outstanding' => $outstanding,
+                'forecast' => $forecast,
+            ];
+
+            if (!in_array($sale->id, $smActivityExcludeIds)) {
+                $smTeamActivity[] = [
+                    'name' => $sale->name,
+                    'image' => $sale->image,
+                    'new_leads' => $newLeads,
+                    'daily_call' => $dailyCall,
+                    'crm' => $crm,
+                    'quotation_count' => $quotationCount,
+                    'po_count' => (int) $poCount,
+                ];
+            }
+        }
+
+        $smTeamPerformance[] = [
+            'name' => 'Team E-Commerce',
+            'image' => null,
+            'target' => $smEcommerce['target'],
+            'actual' => $smEcommerce['actual'],
+            'achievement' => $smEcommerce['target'] > 0 ? round($smEcommerce['actual'] / $smEcommerce['target'] * 100, 1) : 0,
+            'quotation_count' => $smEcommerce['quotation_count'],
+            'po_count' => $smEcommerce['po_count'],
+            'outstanding' => $smEcommerce['outstanding'],
+            'forecast' => $smEcommerce['forecast'],
+        ];
+
+        usort($smTeamPerformance, fn($a, $b) => $b['achievement'] <=> $a['achievement']);
+
+        // ==== Outstanding Approval ====
+        $smDiscountOver10 = DetailQuotation::join('quotation as q', 'q.id', '=', 'detail_quotation.id_quotation')
+            ->where('detail_quotation.disc', '>', 10)
+            ->whereYear('q.estimated_date', $yearNow)->whereMonth('q.estimated_date', $monthNow)
+            ->where('q.level', '1')->where('q.is_primary', '1')
+            ->distinct('q.id')->count('q.id');
+
+        $smRevisionCount = RevQuote::join('quotation as q', 'q.id', '=', 'rev_quote.id_quotation')
+            ->whereYear('rev_quote.created_at', $yearNow)->whereMonth('rev_quote.created_at', $monthNow)
+            ->count();
+
+        // ==== Alert ====
+        $smExpiredCount = Quotation::where('expired_date', '<', $dateNow)
+            ->whereNotIn('status', ['100', '0'])->where('level', '1')->where('is_primary', '1')->count();
+
+        $smPoBelumMasukCount = Quotation::where('status', '100')->whereNull('po_file')
+            ->where('level', '1')->where('is_primary', '1')->count();
+
+        $smInvoiceBelumDibuatCount = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->where('quotation.status', '100')
+            ->whereNotNull('quotation.po_file')
+            ->whereNull('invoice.no_invoice')->count();
+
+        $smOverdueInvoiceCount = Payment::where('type', 'Tempo')->where('level', 0)
+            ->whereDate('due_date', '<=', Carbon::today())->count();
+
+        // ==== Customer Activity ====
+        $smVisitToday = Activities::join('client as c', 'c.id', '=', 'activities.id_client')
+            ->join('users as s', 'c.id_sales', '=', 's.id')
+            ->where('s.role', 'Sales')
+            ->where('activities.name', 'Visit')
+            ->whereDate('activities.date', $dateNow)
+            ->select(['activities.id', 'c.company', 's.name as sales_name', 'activities.status'])
+            ->get();
+
+        $smFollowUpToday = Activities::join('client as c', 'c.id', '=', 'activities.id_client')
+            ->join('users as s', 'c.id_sales', '=', 's.id')
+            ->where('s.role', 'Sales')
+            ->whereDate('activities.follow_up', $dateNow)
+            ->select(['activities.id', 'c.company', 's.name as sales_name', 'activities.note'])
+            ->get();
+
+        // ==== Recent PO Won (pengganti Project Monitoring - tidak ada modul Project di sistem ini) ====
+        $smRecentPoWon = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->join('users as u', 'u.id', '=', 'quotation.id_sales')
+            ->leftJoin('invoice', 'invoice.id_quotation', '=', 'quotation.id')
+            ->where('quotation.status', '100')
+            ->where('quotation.level', '1')->where('quotation.is_primary', '1')
+            ->orderByDesc('quotation.po_date')
+            ->limit(8)
+            ->get([
+                'quotation.id',
+                'quotation.no_quote',
+                'quotation.nett',
+                'quotation.po_date',
+                'client.company',
+                'u.name as sales_name',
+                DB::raw("CASE WHEN quotation.po_file IS NULL THEN 'PO Belum Masuk' ELSE 'PO Diterima' END as po_status"),
+                DB::raw("CASE WHEN invoice.no_invoice IS NULL THEN 'Belum Invoice' ELSE 'Invoice Dibuat' END as invoice_status"),
+            ]);
+
+        // ==== Forecast 3 Bulan (pipeline terbuka berdasarkan estimated_date, termasuk deal yang estimasi closing-nya di bulan depan) ====
+        $smForecastLabels = [];
+        $smForecastSeries = [];
+        for ($i = 0; $i <= 2; $i++) {
+            $m = Carbon::now()->addMonths($i);
+            $smForecastLabels[] = $m->locale('id')->translatedFormat('M Y');
+            $smForecastSeries[] = (float) Quotation::whereYear('estimated_date', $m->year)->whereMonth('estimated_date', $m->month)
+                ->whereIn('status', ['20', '30', '40', '60', '80'])
+                ->where('level', '1')->where('is_primary', '1')->sum('nett');
+        }
+
+        return compact(
+            'smTargetMonth',
+            'smActualMonth',
+            'smAchievement',
+            'smVsLastMonthPct',
+            'smQuotationTotal',
+            'smSoTotal',
+            'smInvoiceTotal',
+            'smPipelineLabels',
+            'smPipelineSeries',
+            'smPipelineTotal',
+            'smRevenueStatusLabels',
+            'smRevenueStatusSeries',
+            'smTeamPerformance',
+            'smTeamActivity',
+            'smDiscountOver10',
+            'smRevisionCount',
+            'smExpiredCount',
+            'smPoBelumMasukCount',
+            'smInvoiceBelumDibuatCount',
+            'smOverdueInvoiceCount',
+            'smVisitToday',
+            'smFollowUpToday',
+            'smRecentPoWon',
+            'smForecastLabels',
+            'smForecastSeries',
         );
     }
 

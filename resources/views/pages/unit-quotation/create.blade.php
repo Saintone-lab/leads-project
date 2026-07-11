@@ -43,7 +43,7 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-floating form-floating-outline">
-                            <input type="date" class="form-control" name="date" value="{{ date('Y-m-d') }}">
+                            <input type="date" class="form-control" id="input-date" name="date" value="{{ date('Y-m-d') }}">
                             <label>Date</label>
                         </div>
                     </div>
@@ -61,7 +61,7 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-floating form-floating-outline">
-                            <select class="form-select" name="type">
+                            <select class="form-select" id="select-type" name="type">
                                 <option value="" disabled selected>-- Type --</option>
                                 <option value="Unit">Unit</option>
                                 <option value="Rental">Rental</option>
@@ -72,7 +72,7 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-floating form-floating-outline">
-                            <select class="form-select" name="week">
+                            <select class="form-select" id="select-week" name="week">
                                 <option value="" disabled selected>-- Week --</option>
                                 <option value="1">Week 1</option>
                                 <option value="2">Week 2</option>

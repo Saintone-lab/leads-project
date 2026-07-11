@@ -301,7 +301,7 @@ class FixedController extends Controller
             return response()->json(['error' => 'Unit tidak ditemukan'], 404);
         }
 
-        $allowed = ['OK', 'Service', 'Rental', 'Sold'];
+        $allowed = ['OK', 'Service', 'Rental', 'Breakdown', 'Reserved', 'Sold'];
         if (!in_array($request->status_unit, $allowed)) {
             return redirect()->back()->with('error', 'Status tidak valid');
         }

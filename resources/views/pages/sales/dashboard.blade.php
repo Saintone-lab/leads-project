@@ -995,12 +995,16 @@
     @php
         $adminView = $adminView ?? 'sales';
     @endphp
-    @if ($adminView === 'accounting')
+    @if ($adminView === 'salesmanager')
+        @include('pages.salesmanager.dashboard._content')
+    @elseif ($adminView === 'accounting')
         @include('pages.accounting.dashboard._content')
     @elseif ($adminView === 'finance')
         @include('pages.finance.dashboard._content')
     @elseif ($adminView === 'logistic')
         @include('pages.logistic.dashboard._content')
+    @elseif ($adminView === 'workshop')
+        @include('pages.workshop.dashboard._content')
     @else
     <div class="row gy-4 mb-4">
         <div class="col-12 col-lg-4">
@@ -2478,6 +2482,8 @@
     @include("pages.accounting.dashboard._content")
 @elseif (Auth::user()->role == 'Finance Manager')
     @include('pages.finance.dashboard._content')
+@elseif (Auth::user()->role == 'Sales Manager')
+    @include('pages.salesmanager.dashboard._content')
     @endif
     @foreach ($notulens as $notulen)
         @include('components.modal.notulen.detail')

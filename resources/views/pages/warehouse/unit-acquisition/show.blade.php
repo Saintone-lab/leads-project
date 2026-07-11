@@ -35,6 +35,10 @@
                             <span class="badge bg-label-warning">Sedang Service</span>
                         @elseif ($fixed->status_unit === 'Rental')
                             <span class="badge bg-label-primary">Sedang Rental</span>
+                        @elseif ($fixed->status_unit === 'Breakdown')
+                            <span class="badge bg-label-danger">Breakdown</span>
+                        @elseif ($fixed->status_unit === 'Reserved')
+                            <span class="badge bg-label-info">Reserved</span>
                         @elseif ($fixed->status_unit === 'Sold')
                             <span class="badge bg-label-dark">Sold</span>
                         @endif
@@ -141,6 +145,8 @@
                                     <option value="OK" {{ $fixed->status_unit === 'OK' ? 'selected' : '' }}>OK</option>
                                     <option value="Service" {{ $fixed->status_unit === 'Service' ? 'selected' : '' }}>Sedang Service</option>
                                     <option value="Rental" {{ $fixed->status_unit === 'Rental' ? 'selected' : '' }}>Sedang Rental</option>
+                                    <option value="Breakdown" {{ $fixed->status_unit === 'Breakdown' ? 'selected' : '' }}>Breakdown</option>
+                                    <option value="Reserved" {{ $fixed->status_unit === 'Reserved' ? 'selected' : '' }}>Reserved</option>
                                     <option value="Sold" {{ $fixed->status_unit === 'Sold' ? 'selected' : '' }}>Sold</option>
                                 </select>
                                 <label>Status Unit</label>

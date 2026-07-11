@@ -403,6 +403,9 @@ $(function () {
             $row.find('.field-id-unit').val('');
             $row.find('.field-id-fixed-asset').val('');
             $row.find('.field-label').val('');
+
+            // Sync type select berdasarkan source yang dipilih
+            $('#select-type').val(source === 'rental' ? 'Rental' : 'Unit');
         });
     }
 
@@ -480,6 +483,21 @@ $(function () {
             window.EDIT_PIC_ID = null;
         });
     });
+
+    // ── Auto-calculate week from date ─────────────────────────────────────
+    function syncWeekFromDate(dateStr) {
+        if (!dateStr) return;
+        var day = parseInt(dateStr.split('-')[2], 10);
+        var week = Math.ceil(day / 7);
+        $('#select-week').val(week);
+    }
+
+    $('#input-date').on('change', function () {
+        syncWeekFromDate($(this).val());
+    });
+
+    // Set week on page load based on current date value
+    syncWeekFromDate($('#input-date').val());
 
     // ── Button handlers ───────────────────────────────────────────────────
     $('#btn-add-unit').on('click', addUnitRow);

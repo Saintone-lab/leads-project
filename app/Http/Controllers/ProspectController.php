@@ -153,6 +153,18 @@ class ProspectController extends Controller
             ->orderBy('source_detail')
             ->pluck('source_detail');
 
+        $salesList = User::where('role', 'Sales')->orderBy('name')->get(['id', 'name']);
+
+        $availableYears = Prospect::selectRaw('YEAR(date) as year')
+            ->whereNotNull('date')
+            ->where('date', '!=', '0000-00-00')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+        if (!$availableYears->contains($now->year)) {
+            $availableYears->prepend($now->year);
+        }
+
         return view('pages.support.prospect.index', compact(
             'prospects',
             'comment',
@@ -174,7 +186,9 @@ class ProspectController extends Controller
             'salesLeads',
             'availableWeeks',
             'selectedWeekNum',
-            'domainList'
+            'domainList',
+            'salesList',
+            'availableYears'
         ));
     }
 

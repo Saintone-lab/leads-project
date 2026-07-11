@@ -4445,6 +4445,10 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('client', 'client.id', '=', 'pic.id_client')
             ->leftJoin('users', 'users.id', '=', 'prospect.id_sales')
             ->leftJoin('quotation', 'quotation.id', '=', 'prospect.id_quotation')
+            ->when(request('year'), function ($query) {
+                $query->whereYear('prospect.date', request('year'));
+            })
+            ->orderByDesc('prospect.id')
             ->get(['prospect.id', 'prospect.category', 'prospect.kebutuhan', 'prospect.provide', 'prospect.date', 'client.company', 'users.name', 'users.image', 'pic.name_pic', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);
     });
@@ -4484,6 +4488,13 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
                 $query->where('prospect.level', '1')
                     ->orWhereNull('prospect.level');
             })
+            ->when(request('sales_id'), function ($query) {
+                $query->where('prospect.id_sales', request('sales_id'));
+            })
+            ->when(request('year'), function ($query) {
+                $query->whereYear('prospect.date', request('year'));
+            })
+            ->orderByDesc('prospect.id')
             ->get(['prospect.id', 'prospect.category', 'prospect.kebutuhan', 'prospect.provide', 'prospect.date', 'client.company', 'supp.name as support', 'sale.name as sales', 'pic.name_pic', 'sale.image', 'quotation.status', 'quotation.nett']);
         return response()->json(['data' => $prospect]);
     });

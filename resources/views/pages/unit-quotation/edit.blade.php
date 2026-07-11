@@ -53,7 +53,7 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-floating form-floating-outline">
-                            <input type="date" class="form-control" name="date"
+                            <input type="date" class="form-control" id="input-date" name="date"
                                 value="{{ old('date', $quote->date?->format('Y-m-d')) }}">
                             <label>Date</label>
                         </div>
@@ -74,7 +74,7 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-floating form-floating-outline">
-                            <select class="form-select" name="type">
+                            <select class="form-select" id="select-type" name="type">
                                 <option value="" disabled>-- Type --</option>
                                 @foreach (['Unit', 'Rental', 'Project'] as $t)
                                     <option value="{{ $t }}" {{ $quote->type === $t ? 'selected' : '' }}>{{ $t }}</option>
@@ -85,7 +85,7 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-floating form-floating-outline">
-                            <select class="form-select" name="week">
+                            <select class="form-select" id="select-week" name="week">
                                 <option value="" disabled>-- Week --</option>
                                 @foreach ([1,2,3,4,5] as $w)
                                     <option value="{{ $w }}" {{ $quote->week == $w ? 'selected' : '' }}>Week {{ $w }}</option>
