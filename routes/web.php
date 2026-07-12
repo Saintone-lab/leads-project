@@ -1648,6 +1648,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/show/replacement/{id}', [OpnameController::class, 'show_replacement'])->name('payable.show_replacement');
 
     // Fixed Asset
+    Route::get('/fixed/{id}/maintenance/create', [FixedController::class, 'createMaintenanceLog'])->name('fixed.maintenance.create');
+    Route::post('/fixed/{id}/maintenance', [FixedController::class, 'storeMaintenanceLog'])->name('fixed.maintenance.store');
     Route::resource('/fixed', FixedController::class);
 
     // Unit Acquisition (E-Stock) — servis & konfirmasi QC. Pembuatan data barunya

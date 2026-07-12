@@ -216,9 +216,6 @@
     <div class="col-12">
         <div class="d-flex align-items-center gap-2 mb-2">
             <h5 class="mb-0">Vehicle Maintenance (Kendaraan)</h5>
-            <span class="badge bg-label-secondary" title="Belum ada modul Vehicle Maintenance — angka di bawah placeholder, bukan data tersimpan">
-                <i class="mdi mdi-flask-outline"></i> Data Dummy
-            </span>
         </div>
     </div>
     <div class="col-lg-4 mb-4">
@@ -267,29 +264,33 @@
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
-                            @foreach ($workshopVehicles as $v)
+                            @forelse ($workshopVehicles as $v)
                                 <tr>
                                     <td>
                                         <span class="fw-semibold">{{ $v->plat }}</span>
                                         <div class="text-muted small">{{ $v->jenis }}</div>
                                     </td>
                                     <td>
-                                        {{ $v->servis_berikutnya->translatedFormat('d M Y') }}
+                                        {{ $v->servis_berikutnya ? $v->servis_berikutnya->translatedFormat('d M Y') : '-' }}
                                         <span class="badge bg-label-{{ $v->servis_status['color'] }} ms-1">{{ $v->servis_status['label'] }}</span>
                                     </td>
                                     <td>
-                                        {{ $v->pajak_due->translatedFormat('d M Y') }}
+                                        {{ $v->pajak_due ? $v->pajak_due->translatedFormat('d M Y') : '-' }}
                                         <span class="badge bg-label-{{ $v->pajak_status['color'] }} ms-1">{{ $v->pajak_status['label'] }}</span>
                                     </td>
                                     <td>
-                                        {{ $v->ganti_kaleng_due->translatedFormat('d M Y') }}
+                                        {{ $v->ganti_kaleng_due ? $v->ganti_kaleng_due->translatedFormat('d M Y') : '-' }}
                                         <span class="badge bg-label-{{ $v->ganti_kaleng_status['color'] }} ms-1">{{ $v->ganti_kaleng_status['label'] }}</span>
                                     </td>
                                     <td>
                                         <span class="badge bg-{{ $v->overall_status['color'] }}">{{ $v->overall_status['label'] }}</span>
                                     </td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center">Belum ada data kendaraan (Fixed Asset kategori Kendaraan).</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

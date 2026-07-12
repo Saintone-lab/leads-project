@@ -45,6 +45,19 @@
                             @if ($fixed->unit)
                                 <p class="text-muted mb-2">Unit: {{ $fixed->unit->brand }} {{ $fixed->unit->model }} — {{ $fixed->unit->sku }}</p>
                             @endif
+                            @if ($fixed->type === 'Kendaraan')
+                                <p class="text-muted mb-2">
+                                    {{ $fixed->jenis_kendaraan ?: '-' }}
+                                    @if ($fixed->merk_model) — {{ $fixed->merk_model }} @endif
+                                    @if ($fixed->bahan_bakar)
+                                        <span class="badge bg-label-info">{{ $fixed->bahan_bakar }}</span>
+                                    @endif
+                                </p>
+                                <p class="text-muted mb-2">Plat Nomor: {{ $fixed->plat_nomor ?: '-' }}</p>
+                                @if ($fixed->atas_nama)
+                                    <p class="text-muted mb-2">Atas Nama (STNK): {{ $fixed->atas_nama }}</p>
+                                @endif
+                            @endif
                             <div class="col-6">
                                 <div class="row">
                                     <div class="col-6 fw-medium">
@@ -147,6 +160,37 @@
                         </table>
                     </div>
                 @endif
+                @if ($fixed->type === 'Kendaraan')
+                    <div class="table-responsive px-4 pb-4">
+                        <h5>Riwayat Perawatan Kendaraan</h5>
+                        <table class="table table-striped table-bordered m-0">
+                            <thead class="table-light border-top">
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Jenis</th>
+                                    <th>Jatuh Tempo Berikutnya</th>
+                                    <th>Biaya</th>
+                                    <th>Catatan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($maintenanceLogs as $log)
+                                    <tr style="font-size: 13px">
+                                        <td>{{ Carbon\Carbon::parse($log->tanggal)->format('d-m-Y') }}</td>
+                                        <td>{{ $log->jenis }}</td>
+                                        <td>{{ $log->tanggal_jatuh_tempo ? Carbon\Carbon::parse($log->tanggal_jatuh_tempo)->format('d-m-Y') : '-' }}</td>
+                                        <td>{{ $log->biaya ? 'Rp ' . number_format($log->biaya, 0, ',', '.') : '-' }}</td>
+                                        <td>{{ $log->catatan ?: '-' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center">Belum ada riwayat perawatan tercatat</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
             </div>
         </div>
         {{-- End: Invoice --}}
@@ -158,6 +202,12 @@
                         <a href="{{ route('unit-acquisition.show', $fixed->id) }}"
                             class="btn btn-outline-primary d-grid w-100 mb-3 waves-effect">
                             Kelola di Unit Acquisition (E-Stock)
+                        </a>
+                    @endif
+                    @if ($fixed->type === 'Kendaraan')
+                        <a href="{{ route('fixed.maintenance.create', $fixed->id) }}"
+                            class="btn btn-outline-primary d-grid w-100 mb-3 waves-effect">
+                            Tambah Riwayat Perawatan
                         </a>
                     @endif
                     <a href="{{ route('fixed.edit', $fixed->id) }}"

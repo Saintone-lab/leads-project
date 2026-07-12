@@ -34,6 +34,11 @@ class FixedAsset extends Model
         'confirmed_by',
         'confirmed_at',
         'mulai_penyusutan',
+        'jenis_kendaraan',
+        'merk_model',
+        'bahan_bakar',
+        'plat_nomor',
+        'atas_nama',
     ];
     public function aktiva()
     {
@@ -70,5 +75,9 @@ class FixedAsset extends Model
     public function machine()
     {
         return $this->belongsTo('App\Models\Machine', 'id_machine', 'id');
+    }
+    public function maintenanceLogs()
+    {
+        return $this->hasMany('App\Models\VehicleMaintenanceLog', 'id_fixed_asset')->orderByDesc('tanggal');
     }
 }

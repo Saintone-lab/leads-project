@@ -1478,11 +1478,10 @@ class DashboardController extends Controller
             ->take(6)
             ->values();
 
-        // --- Vehicle Maintenance (DATA DUMMY) ---
-        // Belum ada modul Vehicle Maintenance (tidak ada tabel/model khusus kendaraan).
-        // Data di bawah ini sengaja di-hardcode sebagai placeholder atas permintaan user,
-        // supaya layout dashboard sudah bisa dipreview sebelum modulnya benar-benar dibangun.
-        // TODO: ganti dengan query tabel Vehicle sungguhan begitu modulnya ada.
+        // --- Vehicle Maintenance ---
+        // Data real dari fixed_asset (type='Kendaraan') + vehicle_maintenance_log.
+        // Due-date per kategori diambil dari riwayat TERBARU (tanggal paling akhir) per jenis
+        // (Servis / STNK & Pajak / Ganti Kaleng); kalau belum pernah dicatat, statusnya '-' (secondary).
         $today = Carbon::now();
         $statusFromDays = function (?int $days) {
             if ($days === null) {
@@ -1497,31 +1496,37 @@ class DashboardController extends Controller
             return ['label' => 'OK', 'color' => 'success'];
         };
 
-        $workshopVehicleSeed = [
-            ['plat' => 'B 1234 XYZ', 'jenis' => 'Toyota Avanza', 'servis_terakhir_days_ago' => 80, 'servis_due_days' => 10, 'pajak_due_days' => 45, 'ganti_kaleng_due_days' => 730],
-            ['plat' => 'B 5678 ABC', 'jenis' => 'Daihatsu Xenia', 'servis_terakhir_days_ago' => 120, 'servis_due_days' => -5, 'pajak_due_days' => 20, 'ganti_kaleng_due_days' => 400],
-            ['plat' => 'B 9012 DEF', 'jenis' => 'Mitsubishi L300', 'servis_terakhir_days_ago' => 40, 'servis_due_days' => 30, 'pajak_due_days' => -3, 'ganti_kaleng_due_days' => 1460],
-            ['plat' => 'B 3456 GHI', 'jenis' => 'Toyota Hilux', 'servis_terakhir_days_ago' => 15, 'servis_due_days' => 60, 'pajak_due_days' => 90, 'ganti_kaleng_due_days' => -15],
-            ['plat' => 'B 7890 JKL', 'jenis' => 'Honda Brio', 'servis_terakhir_days_ago' => 95, 'servis_due_days' => 3, 'pajak_due_days' => 15, 'ganti_kaleng_due_days' => 1100],
-        ];
+        $vehicleAssets = FixedAsset::where('type', 'Kendaraan')->with('maintenanceLogs')->get();
 
-        $workshopVehicles = collect($workshopVehicleSeed)->map(function ($v) use ($today, $statusFromDays) {
-            $servisStatus = $statusFromDays($v['servis_due_days']);
-            $pajakStatus = $statusFromDays($v['pajak_due_days']);
-            $kalengStatus = $statusFromDays($v['ganti_kaleng_due_days']);
+        $daysUntil = function ($log) use ($today) {
+            if (!$log || !$log->tanggal_jatuh_tempo) {
+                return null;
+            }
+            return (int) $today->diffInDays(Carbon::parse($log->tanggal_jatuh_tempo), false);
+        };
+
+        $workshopVehicles = $vehicleAssets->map(function ($fixed) use ($daysUntil, $statusFromDays) {
+            $servisLog = $fixed->maintenanceLogs->where('jenis', 'Servis')->sortByDesc('tanggal')->first();
+            $pajakLog = $fixed->maintenanceLogs->where('jenis', 'STNK & Pajak')->sortByDesc('tanggal')->first();
+            $kalengLog = $fixed->maintenanceLogs->where('jenis', 'Ganti Kaleng')->sortByDesc('tanggal')->first();
+
+            $servisStatus = $statusFromDays($daysUntil($servisLog));
+            $pajakStatus = $statusFromDays($daysUntil($pajakLog));
+            $kalengStatus = $statusFromDays($daysUntil($kalengLog));
+
             // Status keseluruhan = yang paling genting di antara ketiganya
             $rank = ['danger' => 3, 'warning' => 2, 'success' => 1, 'secondary' => 0];
             $overall = collect([$servisStatus, $pajakStatus, $kalengStatus])->sortByDesc(fn ($s) => $rank[$s['color']])->first();
 
             return (object) [
-                'plat' => $v['plat'],
-                'jenis' => $v['jenis'],
-                'servis_terakhir' => $today->copy()->subDays($v['servis_terakhir_days_ago']),
-                'servis_berikutnya' => $today->copy()->addDays($v['servis_due_days']),
+                'plat' => $fixed->plat_nomor ?: '-',
+                'jenis' => trim(($fixed->jenis_kendaraan ?: '') . ' ' . ($fixed->merk_model ?: '')) ?: $fixed->code,
+                'servis_terakhir' => $servisLog ? Carbon::parse($servisLog->tanggal) : null,
+                'servis_berikutnya' => $servisLog && $servisLog->tanggal_jatuh_tempo ? Carbon::parse($servisLog->tanggal_jatuh_tempo) : null,
                 'servis_status' => $servisStatus,
-                'pajak_due' => $today->copy()->addDays($v['pajak_due_days']),
+                'pajak_due' => $pajakLog && $pajakLog->tanggal_jatuh_tempo ? Carbon::parse($pajakLog->tanggal_jatuh_tempo) : null,
                 'pajak_status' => $pajakStatus,
-                'ganti_kaleng_due' => $today->copy()->addDays($v['ganti_kaleng_due_days']),
+                'ganti_kaleng_due' => $kalengLog && $kalengLog->tanggal_jatuh_tempo ? Carbon::parse($kalengLog->tanggal_jatuh_tempo) : null,
                 'ganti_kaleng_status' => $kalengStatus,
                 'overall_status' => $overall,
             ];
@@ -1534,7 +1539,7 @@ class DashboardController extends Controller
         $workshopVehicleOverdueCount = $workshopVehicles->filter(fn ($v) => $v->overall_status['color'] === 'danger')->count();
 
         // Klasifikasi 1 kendaraan = 1 kategori paling genting, buat donut Overview (total harus pas = $workshopVehicleTotal)
-        $rank = ['danger' => 3, 'warning' => 2, 'success' => 1];
+        $rank = ['danger' => 3, 'warning' => 2, 'success' => 1, 'secondary' => 0];
         $workshopVehicleOverviewCounts = ['Ready' => 0, 'Servis Due' => 0, 'STNK/Pajak Due' => 0, 'Ganti Kaleng Due' => 0];
         foreach ($workshopVehicles as $v) {
             $candidates = [

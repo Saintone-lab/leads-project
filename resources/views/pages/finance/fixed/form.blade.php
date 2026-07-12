@@ -89,6 +89,7 @@
                     <div class="row w-100 p-3">
                         @php
                             $isMesin = ($fixed->type ?? old('type')) == 'Mesin';
+                            $isKendaraan = ($fixed->type ?? old('type')) == 'Kendaraan';
                         @endphp
                         <div class="col-md-6 col-12 mb-md-0">
                             <label for="Keterangan" class="mb-2">Keterangan</label>
@@ -142,6 +143,56 @@
                                 <input type="hidden" name="kondisi" value="{{ $fixed->kondisi }}">
                                 <small class="text-muted d-block">Kondisi unit tidak bisa diubah lewat edit.</small>
                             @endif
+                            <div id="kendaraan-fields-wrapper" style="{{ $isKendaraan ? '' : 'display:none;' }}">
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <select class="form-select" id="jenis-kendaraan-input" name="jenis_kendaraan">
+                                                <option value="">Pilih Jenis</option>
+                                                <option value="Mobil" {{ ($fixed->jenis_kendaraan ?? old('jenis_kendaraan')) == 'Mobil' ? 'selected' : '' }}>Mobil</option>
+                                                <option value="Motor" {{ ($fixed->jenis_kendaraan ?? old('jenis_kendaraan')) == 'Motor' ? 'selected' : '' }}>Motor</option>
+                                            </select>
+                                            <label for="jenis-kendaraan-input">Jenis Kendaraan</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <select class="form-select" id="bahan-bakar-input" name="bahan_bakar">
+                                                <option value="">Pilih Bahan Bakar</option>
+                                                <option value="Solar" {{ ($fixed->bahan_bakar ?? old('bahan_bakar')) == 'Solar' ? 'selected' : '' }}>Solar</option>
+                                                <option value="Pertalite" {{ ($fixed->bahan_bakar ?? old('bahan_bakar')) == 'Pertalite' ? 'selected' : '' }}>Pertalite</option>
+                                                <option value="Listrik" {{ ($fixed->bahan_bakar ?? old('bahan_bakar')) == 'Listrik' ? 'selected' : '' }}>Listrik</option>
+                                            </select>
+                                            <label for="bahan-bakar-input">Bahan Bakar</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <input class="form-control" type="text" placeholder="Put Merk/Model Here ...."
+                                                id="merk-model-input" name="merk_model"
+                                                value="{{ old('merk_model', $fixed->merk_model ?? '') }}">
+                                            <label for="merk-model-input">Merk / Model</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <input class="form-control" type="text" placeholder="Put Plat Nomor Here ...."
+                                                id="plat-nomor-input" name="plat_nomor"
+                                                value="{{ old('plat_nomor', $fixed->plat_nomor ?? '') }}">
+                                            <label for="plat-nomor-input">Plat Nomor</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <input class="form-control" type="text" placeholder="Put Nama Pemilik STNK Here ...."
+                                                id="atas-nama-input" name="atas_nama"
+                                                value="{{ old('atas_nama', $fixed->atas_nama ?? '') }}">
+                                            <label for="atas-nama-input">Atas Nama (STNK)</label>
+                                        </div>
+                                        <small class="text-muted d-block">Diisi kalau STNK bukan atas nama perusahaan.</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-2 col-12 mb-md-0 mb-3">
                             <p class="mb-2 repeater-title">Qty</p>
@@ -433,11 +484,19 @@
                         $('#desc-unit-wrapper').show();
                         $('#serial-number-wrapper').show();
                         $('#kondisi-wrapper').show();
+                        $('#kendaraan-fields-wrapper').hide();
                         $('#desc-input').val('');
+                    } else if ($(this).val() === 'Kendaraan') {
+                        $('#desc-unit-wrapper').hide();
+                        $('#serial-number-wrapper').hide();
+                        $('#kondisi-wrapper').hide();
+                        $('#desc-text-wrapper').show();
+                        $('#kendaraan-fields-wrapper').show();
                     } else {
                         $('#desc-unit-wrapper').hide();
                         $('#serial-number-wrapper').hide();
                         $('#kondisi-wrapper').hide();
+                        $('#kendaraan-fields-wrapper').hide();
                         $('#desc-text-wrapper').show();
                     }
                 });

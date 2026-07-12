@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\SerialProduct;
 use App\Models\Supplier;
 use App\Models\Unit;
+use App\Models\VehicleMaintenanceLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -56,6 +57,14 @@ class FixedController extends Controller
             ]);
         }
 
+        if ($request->type == 'Kendaraan') {
+            $request->validate([
+                'plat_nomor' => 'required',
+            ], [
+                'plat_nomor.required' => 'Plat nomor kendaraan wajib diisi.',
+            ]);
+        }
+
         // dd($request->all());
         $fixed = new FixedAsset;
         $fixed->id_aktiva = $request->aktiva;
@@ -90,6 +99,13 @@ class FixedController extends Controller
                 $fixed->qc_status = 'checking';
                 $fixed->mulai_penyusutan = null;
             }
+        } elseif ($request->type == 'Kendaraan') {
+            $fixed->jenis_kendaraan = $request->jenis_kendaraan;
+            $fixed->merk_model = $request->merk_model;
+            $fixed->bahan_bakar = $request->bahan_bakar;
+            $fixed->plat_nomor = $request->plat_nomor;
+            $fixed->atas_nama = $request->atas_nama;
+            $fixed->mulai_penyusutan = $fixed->beli;
         } else {
             $fixed->mulai_penyusutan = $fixed->beli;
         }
@@ -119,6 +135,7 @@ class FixedController extends Controller
     {
         $fixed = FixedAsset::find($id);
         $services = FixedAssetService::where('id_fixed_asset', $id)->with('detailProduct.product')->get();
+        $maintenanceLogs = $fixed->type === 'Kendaraan' ? $fixed->maintenanceLogs()->get() : collect();
 
         $totalPenyusutan = 0;
         $nilaiBuku = $fixed->total;
@@ -135,7 +152,7 @@ class FixedController extends Controller
             $nilaiBuku = $fixed->total - $totalPenyusutan;
         }
 
-        return view('pages.finance.fixed.detail', compact('fixed', 'totalPenyusutan', 'nilaiBuku', 'services'));
+        return view('pages.finance.fixed.detail', compact('fixed', 'totalPenyusutan', 'nilaiBuku', 'services', 'maintenanceLogs'));
     }
 
     /**
@@ -188,6 +205,14 @@ class FixedController extends Controller
         if ($fixed->type == 'Mesin') {
             $fixed->id_unit = $request->id_unit;
             $fixed->serial_number = $request->serial_number;
+        }
+
+        if ($fixed->type == 'Kendaraan') {
+            $fixed->jenis_kendaraan = $request->jenis_kendaraan;
+            $fixed->merk_model = $request->merk_model;
+            $fixed->bahan_bakar = $request->bahan_bakar;
+            $fixed->plat_nomor = $request->plat_nomor;
+            $fixed->atas_nama = $request->atas_nama;
         }
 
         $fixed->save();
@@ -416,6 +441,43 @@ class FixedController extends Controller
         $fixed->save();
 
         return redirect('/unit-acquisition/' . $id)->with('success', 'Biaya servis berhasil ditambahkan ke harga pokok unit');
+    }
+
+    /**
+     * Form catat riwayat perawatan kendaraan (Servis / STNK & Pajak / Ganti Kaleng) — khusus type "Kendaraan".
+     */
+    public function createMaintenanceLog($id)
+    {
+        $fixed = FixedAsset::find($id);
+        if (!$fixed || $fixed->type !== 'Kendaraan') {
+            return redirect('/fixed/' . $id)->with('error', 'Riwayat perawatan hanya berlaku untuk kategori Kendaraan.');
+        }
+        return view('pages.finance.fixed.form-maintenance', compact('fixed'));
+    }
+
+    public function storeMaintenanceLog(Request $request, $id)
+    {
+        $fixed = FixedAsset::find($id);
+        if (!$fixed || $fixed->type !== 'Kendaraan') {
+            return redirect('/fixed/' . $id)->with('error', 'Riwayat perawatan hanya berlaku untuk kategori Kendaraan.');
+        }
+
+        $request->validate([
+            'jenis' => 'required',
+            'tanggal' => 'required|date',
+        ]);
+
+        $log = new VehicleMaintenanceLog();
+        $log->id_fixed_asset = $id;
+        $log->jenis = $request->jenis;
+        $log->tanggal = $request->tanggal;
+        $log->tanggal_jatuh_tempo = $request->tanggal_jatuh_tempo ?: null;
+        $log->biaya = $request->biaya ?: null;
+        $log->catatan = $request->catatan;
+        $log->created_by = Auth::user()->id;
+        $log->save();
+
+        return redirect('/fixed/' . $id)->with('success', 'Riwayat perawatan kendaraan berhasil ditambahkan');
     }
 
     /**
