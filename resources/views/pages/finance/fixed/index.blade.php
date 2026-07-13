@@ -1,30 +1,162 @@
 @extends('layouts.sales.app')
-@section('title', 'expense')
+@section('title', 'Fixed Asset')
 @section('content')
-    <div class="card mb-3">
-        <div class="card-body">
-            <div class="d-flex justify-content-end">
-                <a href="{{ route('fixed.create') }}" class="btn btn-primary waves-effect mb-3">
-                    New Fixed Asset
-                </a>
+    <h4 class="fw-bold py-3 mb-0">Fixed Asset</h4>
+
+    <div class="card">
+        <div class="card-header py-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <ul class="nav nav-tabs card-header-tabs border-0 m-0" id="fixed-asset-tab-nav" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-tanah" type="button">
+                        Tanah
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-bangunan" type="button">
+                        Bangunan
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-kendaraan" type="button">
+                        Kendaraan
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-mesin" type="button">
+                        Mesin
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-peralatan" type="button">
+                        Peralatan Kantor
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tools" type="button">
+                        Tools
+                    </button>
+                </li>
+            </ul>
+            <a href="{{ route('fixed.create') }}" class="btn btn-primary btn-sm">
+                <i class="mdi mdi-plus"></i> New Fixed Asset
+            </a>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="tab-content">
+                {{-- Tanah --}}
+                <div class="tab-pane fade show active" id="tab-tanah">
+                    <div class="table-responsive">
+                        <table class="datatable-fixed-generic table table-bordered" data-type="Tanah">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Keterangan</th>
+                                    <th>Qty</th>
+                                    <th>Harga</th>
+                                    <th>Tgl Beli</th>
+                                    <th>Tgl Pakai</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Bangunan --}}
+                <div class="tab-pane fade" id="tab-bangunan">
+                    <div class="table-responsive">
+                        <table class="datatable-fixed-generic table table-bordered" data-type="Bangunan">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Keterangan</th>
+                                    <th>Qty</th>
+                                    <th>Harga</th>
+                                    <th>Tgl Beli</th>
+                                    <th>Tgl Pakai</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Kendaraan --}}
+                <div class="tab-pane fade" id="tab-kendaraan">
+                    <div class="table-responsive">
+                        <table class="datatable-fixed-kendaraan table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Jenis Kendaraan</th>
+                                    <th>Merk/Model</th>
+                                    <th>Plat Nomor</th>
+                                    <th>Atas Nama</th>
+                                    <th>Tgl Beli</th>
+                                    <th>Harga</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Mesin --}}
+                <div class="tab-pane fade" id="tab-mesin">
+                    <div class="table-responsive">
+                        <table class="datatable-fixed-mesin table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Serial Number</th>
+                                    <th>Kondisi</th>
+                                    <th>Status Unit</th>
+                                    <th>Tgl Beli</th>
+                                    <th>Harga</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Peralatan Kantor --}}
+                <div class="tab-pane fade" id="tab-peralatan">
+                    <div class="table-responsive">
+                        <table class="datatable-fixed-generic table table-bordered" data-type="Peralatan Kantor">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Keterangan</th>
+                                    <th>Qty</th>
+                                    <th>Harga</th>
+                                    <th>Tgl Beli</th>
+                                    <th>Tgl Pakai</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Tools --}}
+                <div class="tab-pane fade" id="tab-tools">
+                    <div class="table-responsive">
+                        <table class="datatable-fixed-tools table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Nama Tools</th>
+                                    <th>Teknisi</th>
+                                    <th>Qty</th>
+                                    <th>Tgl Serah Terima</th>
+                                    <th>Status Finance</th>
+                                    <th>Harga</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-fixed-asset table table-striped">
-                <thead>
-                    <tr>
-                        <th>Code</th>
-                        <th>Keterangan</th>
-                        <th>Qty</th>
-                        <th>Price</th>
-                        <th>Umur Aktiva</th>
-                        <th>Tgl Beli</th>
-                        <th>Tgl Pakai</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
     </div>
+
     @include('components.modal.finance.income')
 @endsection()
 

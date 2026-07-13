@@ -15,6 +15,7 @@ use App\Models\VehicleMaintenanceLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FixedController extends Controller
 {
@@ -26,6 +27,41 @@ class FixedController extends Controller
     public function index()
     {
         return view('pages.finance.fixed.index');
+    }
+
+    /**
+     * Data DataTable Fixed Asset, difilter per kategori (tab). Kategori Tools
+     * dapat join tambahan (nama tools dari master, nama teknisi pemegang)
+     * karena kolomnya beda dari kategori lain.
+     */
+    public function data(Request $request)
+    {
+        $type = $request->get('type');
+
+        $query = FixedAsset::where('fixed_asset.type', $type)
+            ->select(
+                'fixed_asset.*',
+                DB::raw("DATE_FORMAT(fixed_asset.beli, '%d-%m-%Y') as tanggal_beli"),
+                DB::raw("DATE_FORMAT(fixed_asset.pakai, '%d-%m-%Y') as tanggal_pakai"),
+                DB::raw("DATE_FORMAT(fixed_asset.tanggal_serah_terima, '%d-%m-%Y') as tanggal_serah_terima_fmt")
+            );
+
+        if ($type == 'Tools') {
+            $query->leftJoin('tool_master', 'tool_master.id', '=', 'fixed_asset.id_tools_master')
+                ->leftJoin('users', 'users.id', '=', 'fixed_asset.id_pic')
+                ->addSelect('tool_master.nama_tools as nama_tools', 'users.name as teknisi_name');
+        }
+
+        $data = $query->orderByDesc('fixed_asset.id')->get();
+
+        if ($type == 'Tools') {
+            $data->transform(function ($row) {
+                $row->status_finance = $row->id_aktiva ? 'Lengkap' : 'Belum Lengkap';
+                return $row;
+            });
+        }
+
+        return response()->json(['data' => $data]);
     }
 
     /**

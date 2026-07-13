@@ -29,7 +29,7 @@ $(function () {
                 { data: "no_quote" },
                 { data: "company" },
                 { data: "harga_total" },
-                { data: "title" },
+                { data: "description" },
                 { data: "estimated_date" },
                 { data: "status" },
                 { data: "name" },

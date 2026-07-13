@@ -18,6 +18,12 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\MachineController;
 use App\Http\Controllers\MonitoringClientController;
+use App\Http\Controllers\ToolAssignmentController;
+use App\Http\Controllers\ToolAuditController;
+use App\Http\Controllers\ToolAuditSummaryController;
+use App\Http\Controllers\ToolAuditVerificationController;
+use App\Http\Controllers\ToolFinanceController;
+use App\Http\Controllers\ToolMasterController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotulenController;
 use App\Http\Controllers\OpnameController;
@@ -232,6 +238,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/quote/overhaul-print-no-image/{id}', [QuotationController::class, 'printNoImageOverhaul'])->name('overhaul-print-no-image.quotation');
     Route::get('/quote/overhaul-revision/{id}', [QuotationController::class, 'revisionOverhaul'])->name('overhaul-revision.quotation');
     Route::post('/quote/overhaul-update/{id}', [QuotationController::class, 'updateOverhaul'])->name('overhaul-update.quotation');
+    Route::get('/quotation/edit-overhaul/{id}', [QuotationController::class, 'editOverhaul'])->name('edit-overhaul.quotation');
+    Route::patch('/quotation/edit-overhaul/{id}', [QuotationController::class, 'updateOverhaulDirect'])->name('edit-overhaul.quotation');
 
     // Route untuk Visit
     Route::get('/visits/leads', function () {
@@ -1471,6 +1479,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/suo/{id}/delivery', [SuoController::class, 'storeDelivery'])->name('suo.storeDelivery');
     Route::get('/suo/{id}/convert', [SuoController::class, 'convert'])->name('suo.convert');
     Route::post('/suo/{id}/mark-converted', [SuoController::class, 'markConverted'])->name('suo.markConverted');
+    Route::get('/suo/{id}/linkable-quotations', [SuoController::class, 'linkableQuotations'])->name('suo.linkableQuotations');
+    Route::post('/suo/{id}/link-quotation', [SuoController::class, 'linkQuotation'])->name('suo.linkQuotation');
     // AJAX data
     Route::get('/db/suo/sales', [SuoController::class, 'dataSales'])->name('suo.data.sales');
     Route::get('/db/suo/logistic', [SuoController::class, 'dataLogistic'])->name('suo.data.logistic');
@@ -1662,6 +1672,37 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/unit-acquisition/{id}/service', [FixedController::class, 'storeService'])->name('unit-acquisition.service.store');
     Route::post('/unit-acquisition/{id}/status', [FixedController::class, 'updateStatusUnit'])->name('unit-acquisition.status');
     Route::post('/unit-acquisition/{id}/harga-jual', [FixedController::class, 'updateHargaJual'])->name('unit-acquisition.harga-jual');
+
+    // Tools — Master (katalog jenis tools milik teknisi)
+    Route::get('/tool-master', [ToolMasterController::class, 'index'])->name('tool-master.index');
+    Route::get('/db/tool-master', [ToolMasterController::class, 'data'])->name('tool-master.data');
+    Route::post('/tool-master', [ToolMasterController::class, 'store'])->name('tool-master.store');
+    Route::patch('/tool-master/{id}', [ToolMasterController::class, 'update'])->name('tool-master.update');
+    Route::delete('/tool-master/{id}', [ToolMasterController::class, 'destroy'])->name('tool-master.destroy');
+
+    // Tools — Management per Teknisi (instance fixed_asset type=Tools)
+    Route::get('/tool-assignment', [ToolAssignmentController::class, 'index'])->name('tool-assignment.index');
+    Route::get('/tool-assignment/{technicianId}', [ToolAssignmentController::class, 'show'])->name('tool-assignment.show');
+    Route::post('/tool-assignment/{technicianId}', [ToolAssignmentController::class, 'store'])->name('tool-assignment.store');
+    Route::patch('/tool-assignment/item/{id}', [ToolAssignmentController::class, 'update'])->name('tool-assignment.update');
+    Route::post('/tool-assignment/item/{id}/transfer', [ToolAssignmentController::class, 'transfer'])->name('tool-assignment.transfer');
+    Route::post('/tool-assignment/item/{id}/retire', [ToolAssignmentController::class, 'retire'])->name('tool-assignment.retire');
+
+    // Tools — Self Audit (role Technician)
+    Route::get('/tool-audit', [ToolAuditController::class, 'index'])->name('tool-audit.index');
+    Route::get('/tool-audit/{id}', [ToolAuditController::class, 'show'])->name('tool-audit.show');
+    Route::post('/tool-audit/{id}/submit', [ToolAuditController::class, 'submit'])->name('tool-audit.submit');
+
+    // Tools — Verifikasi Audit (role Admin)
+    Route::get('/tool-audit-verification', [ToolAuditVerificationController::class, 'index'])->name('tool-audit-verification.index');
+    Route::get('/tool-audit-verification/{id}', [ToolAuditVerificationController::class, 'show'])->name('tool-audit-verification.show');
+    Route::post('/tool-audit-verification/{id}/decide', [ToolAuditVerificationController::class, 'decide'])->name('tool-audit-verification.decide');
+
+    // Tools — Summary rekap per periode (role Admin)
+    Route::get('/tool-audit-summary', [ToolAuditSummaryController::class, 'index'])->name('tool-audit-summary.index');
+
+    // Tools — Kelengkapan data Finance (role Finance Manager + Admin), reuse form edit Fixed Asset yang sudah ada
+    Route::get('/tool-finance', [ToolFinanceController::class, 'index'])->name('tool-finance.index');
 
     // Unit Quotation
     Route::resource('/unit-quotation', UnitQuotationController::class);
@@ -5803,14 +5844,7 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
         )->get();
         return response()->json(['data' => $data]);
     });
-    Route::get('/db/fixed-asset', function () {
-        $data = FixedAsset::select(
-            'fixed_asset.*',
-            DB::raw("DATE_FORMAT(fixed_asset.beli, '%d-%m-%Y') as tanggal_beli"),
-            DB::raw("DATE_FORMAT(fixed_asset.pakai, '%d-%m-%Y') as tanggal_pakai")
-        )->get();
-        return response()->json(['data' => $data]);
-    });
+    Route::get('/db/fixed-asset', [FixedController::class, 'data']);
     Route::get('/db/unit-acquisition', function () {
         $data = FixedAsset::leftJoin('unit as u', 'u.id', '=', 'fixed_asset.id_unit')
             ->leftJoin('supplier as sup', 'sup.id', '=', 'fixed_asset.id_supplier')

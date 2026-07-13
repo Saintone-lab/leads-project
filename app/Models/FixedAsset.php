@@ -39,6 +39,11 @@ class FixedAsset extends Model
         'bahan_bakar',
         'plat_nomor',
         'atas_nama',
+        'id_tools_master',
+        'id_pic',
+        'foto_awal',
+        'tanggal_serah_terima',
+        'status_tools',
     ];
     public function aktiva()
     {
@@ -79,5 +84,13 @@ class FixedAsset extends Model
     public function maintenanceLogs()
     {
         return $this->hasMany('App\Models\VehicleMaintenanceLog', 'id_fixed_asset')->orderByDesc('tanggal');
+    }
+    public function toolsMaster()
+    {
+        return $this->belongsTo('App\Models\ToolMaster', 'id_tools_master', 'id');
+    }
+    public function pic()
+    {
+        return $this->belongsTo('App\Models\User', 'id_pic', 'id');
     }
 }

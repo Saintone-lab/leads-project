@@ -211,6 +211,48 @@ class SuoController extends Controller
         return response()->json(['success' => true]);
     }
 
+    // ─── Link SUO → Penawaran yang sudah ada (Sales) ─────────────────────────
+
+    public function linkableQuotations($id)
+    {
+        $suo = Suo::findOrFail($id);
+
+        $linkedIds = Suo::whereNotNull('id_quotation')->pluck('id_quotation');
+
+        $quotations = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->where('quotation.id_sales', $suo->id_sales)
+            ->where('quotation.level', '1')
+            ->where('quotation.is_primary', '1')
+            ->whereNotIn('quotation.id', $linkedIds)
+            ->orderByDesc('quotation.created_at')
+            ->get(['quotation.id', 'quotation.no_quote', 'quotation.title', 'quotation.created_at', 'client.company']);
+
+        return response()->json(['data' => $quotations]);
+    }
+
+    public function linkQuotation(Request $request, $id)
+    {
+        $request->validate(['id_quotation' => 'required|exists:quotation,id']);
+
+        $suo = Suo::findOrFail($id);
+
+        $alreadyLinked = Suo::whereNotNull('id_quotation')
+            ->where('id_quotation', $request->id_quotation)
+            ->where('id', '!=', $suo->id)
+            ->exists();
+
+        if ($alreadyLinked) {
+            return response()->json(['success' => false, 'message' => 'Penawaran ini sudah dihubungkan ke SUO lain.'], 422);
+        }
+
+        $suo->status       = 'converted';
+        $suo->id_quotation = $request->id_quotation;
+        $suo->save();
+
+        return response()->json(['success' => true]);
+    }
+
     // ─── AJAX data endpoints ──────────────────────────────────────────────────
 
     public function dataSales()

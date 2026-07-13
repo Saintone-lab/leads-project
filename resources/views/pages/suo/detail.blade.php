@@ -182,6 +182,14 @@
             <div class="card">
                 <div class="card-body d-grid gap-2">
 
+                    {{-- Sales: link ke penawaran yang sudah ada --}}
+                    @if ($role == 'Sales' && !$suo->id_quotation)
+                        <button type="button" class="btn btn-outline-primary waves-effect"
+                            data-bs-toggle="modal" data-bs-target="#modalLinkQuotation">
+                            <i class="mdi mdi-link-variant me-1"></i> Hubungkan ke Penawaran
+                        </button>
+                    @endif
+
                     {{-- Sales: convert to quotation --}}
                     @if (($role == 'Sales' || $role == 'Admin') && $suo->status == 'goods_out')
                         <div class="alert alert-success p-2 mb-0" style="font-size:12px;">
@@ -351,6 +359,30 @@
     </div>
     @endif
 
+    {{-- Modal Hubungkan ke Penawaran --}}
+    @if ($role == 'Sales' && !$suo->id_quotation)
+    <div class="modal fade" id="modalLinkQuotation" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Hubungkan ke Penawaran — {{ $suo->no_suo }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control mb-3" id="searchQuotationLink"
+                        placeholder="Cari No. Penawaran / Judul / Perusahaan...">
+                    <div id="listQuotationLink" style="max-height:400px; overflow-y:auto;">
+                        <p class="text-muted text-center py-3">Memuat...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Modal Surat Jalan --}}
     @if (($role == 'Admin' || $role == 'Accounting') && $suo->status == 'confirmed' && $suo->no_invoice_booking)
         <div class="modal fade" id="modalSJ" tabindex="-1">
@@ -413,7 +445,84 @@
 
 @push('script')
 <script>
+function renderQuotationLinkList(data) {
+    window.__quotationLinkData = window.__quotationLinkData || data;
+    var $list = $('#listQuotationLink');
+    if (!data.length) {
+        $list.html('<p class="text-muted text-center py-3">Tidak ada penawaran yang bisa dihubungkan.</p>');
+        return;
+    }
+    var html = '<div class="list-group">';
+    data.forEach(function (q) {
+        html += '<button type="button" class="list-group-item list-group-item-action btn-pick-quotation" data-id="' + q.id + '" data-no="' + (q.no_quote || '-') + '">'
+            + '<div class="d-flex justify-content-between"><strong>' + (q.no_quote || '-') + '</strong>'
+            + '<small class="text-muted">' + new Date(q.created_at).toLocaleDateString('id-ID') + '</small></div>'
+            + '<div style="font-size:12px;">' + (q.title || '') + '</div>'
+            + '<div class="text-muted" style="font-size:12px;">' + (q.company || '') + '</div>'
+            + '</button>';
+    });
+    html += '</div>';
+    $list.html(html);
+}
+
 $(function () {
+    // Load list penawaran saat modal Hubungkan ke Penawaran dibuka
+    $('#modalLinkQuotation').on('show.bs.modal', function () {
+        window.__quotationLinkData = null;
+        $('#searchQuotationLink').val('');
+        $('#listQuotationLink').html('<p class="text-muted text-center py-3">Memuat...</p>');
+        $.get('{{ route('suo.linkableQuotations', $suo->id) }}', function (res) {
+            window.__quotationLinkData = res.data;
+            renderQuotationLinkList(res.data);
+        });
+    });
+
+    $('#searchQuotationLink').on('keyup', function () {
+        var kw = $(this).val().toLowerCase();
+        var filtered = (window.__quotationLinkData || []).filter(function (q) {
+            return (q.no_quote || '').toLowerCase().indexOf(kw) !== -1
+                || (q.title || '').toLowerCase().indexOf(kw) !== -1
+                || (q.company || '').toLowerCase().indexOf(kw) !== -1;
+        });
+        renderQuotationLinkList(filtered);
+    });
+
+    $(document).on('click', '.btn-pick-quotation', function () {
+        var idQuotation = $(this).data('id');
+        var noQuote = $(this).data('no');
+        Swal.fire({
+            icon: 'question',
+            title: 'Hubungkan ke penawaran ' + noQuote + '?',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Hubungkan',
+            cancelButtonText: 'Batal',
+            buttonsStyling: false,
+            customClass: { confirmButton: 'btn btn-primary waves-effect me-2', cancelButton: 'btn btn-outline-secondary waves-effect' }
+        }).then(function (result) {
+            if (!result.isConfirmed) return;
+            $.ajax({
+                url: '{{ route('suo.linkQuotation', $suo->id) }}',
+                type: 'POST',
+                data: { _token: '{{ csrf_token() }}', id_quotation: idQuotation },
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil dihubungkan!',
+                            confirmButtonText: 'OK',
+                            buttonsStyling: false,
+                            customClass: { confirmButton: 'btn btn-primary waves-effect' },
+                        }).then(() => location.reload());
+                    }
+                },
+                error: function (xhr) {
+                    var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Gagal menghubungkan.';
+                    Swal.fire({ icon: 'error', title: msg, buttonsStyling: false, customClass: { confirmButton: 'btn btn-danger waves-effect' } });
+                }
+            });
+        });
+    });
+
     // Load nomor suggest saat modal dibuka
     $('#modalApprove').on('show.bs.modal', function () {
         $('#inputNoInvoiceBooking').val('Memuat...').prop('disabled', true);

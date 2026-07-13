@@ -29,7 +29,7 @@ $(function () {
                 { data: "no_quote" },
                 { data: "company" },
                 { data: "harga_total" },
-                { data: "title" },
+                { data: "description" },
                 { data: "estimated_date" },
                 { data: "status" },
             ],
@@ -67,7 +67,10 @@ $(function () {
                         return '<div class="d-flex justify-content-between px-2"><span>Rp.</span><span>' + formatted + "</span></div>";
                     },
                 },
-                { targets: 3, render: function (data) { return data || "-"; } },
+                { targets: 3, render: function (data, type, full) {
+                    if (type !== "display") return data;
+                    return (data || full.title || "-") || "-";
+                } },
                 {
                     targets: 4,
                     render: function (data, type) {

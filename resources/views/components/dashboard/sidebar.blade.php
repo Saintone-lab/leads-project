@@ -349,7 +349,7 @@
 
             @if (auth::user()->role != 'Accounting')
             <li class="menu-header fw-light mt-4">
-                <span class="menu-header-text">Service Contract</span>
+                <span class="menu-header-text">Service Departement</span>
             </li>
 
             <li class="menu-item {{ request()->is('monitoring-client/*') ? 'open' : '' }}">
@@ -411,6 +411,36 @@
                 <a href="{{ route('service-reports.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-list-box-outline"></i>
                     <div data-i18n="Service Report">Service Report</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('tool-assignment') || request()->is('tool-assignment/*') ? 'active' : '' }}">
+                <a href="{{ route('tool-assignment.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-tools"></i>
+                    <div data-i18n="Data Tools">Data Tools</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('tool-audit-verification') || request()->is('tool-audit-verification/*') || request()->is('tool-audit-summary') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-clipboard-check-outline"></i>
+                    <div data-i18n="Audit Tools">Audit Tools</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('tool-audit-verification') || request()->is('tool-audit-verification/*') ? 'active' : '' }}">
+                        <a href="{{ route('tool-audit-verification.index') }}" class="menu-link">
+                            <div data-i18n="Verification">Verification</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('tool-audit-summary') ? 'active' : '' }}">
+                        <a href="{{ route('tool-audit-summary.index') }}" class="menu-link">
+                            <div data-i18n="Summary Audit Tools">Summary</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item {{ request()->is('under-maintenance') ? 'active' : '' }}">
+                <a href="{{ route('under-maintenance') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-car-wrench"></i>
+                    <div data-i18n="Vehicle Management">Vehicle Management</div>
                 </a>
             </li>
             @endif
@@ -601,6 +631,12 @@
                         <div data-i18n="Fixed Asset">Fixed Asset</div>
                     </a>
                 </li>
+                <li class="menu-item {{ request()->is('tool-finance') ? 'active' : '' }}">
+                    <a href="{{ route('tool-finance.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-finance"></i>
+                        <div data-i18n="Kelengkapan Data Finance Tools">Kelengkapan Data Finance Tools</div>
+                    </a>
+                </li>
             @endif
 
             {{-- <li
@@ -667,6 +703,13 @@
                             <div data-i18n="Unit">Unit</div>
                         </a>
                     </li>
+                    @if (auth::user()->role == 'Admin')
+                        <li class="menu-item {{ request()->is('tool-master') ? 'active' : '' }}">
+                            <a href="{{ route('tool-master.index') }}" class="menu-link">
+                                <div data-i18n="Master Tools">Master Tools</div>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </li>
 
@@ -979,7 +1022,7 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Sales Order</span>
             </li>
-            @php $suoPending = \App\Models\Suo::where('id_sales', Auth::id())->where('status','goods_out')->count(); @endphp
+            @php $suoPending = \App\Models\Suo::where('id_sales', Auth::id())->whereNull('id_quotation')->count(); @endphp
             <li class="menu-item {{ request()->is('suo') || request()->is('suo/*') ? 'active' : '' }}">
                 <a href="{{ route('suo.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-lightning-bolt-outline"></i>
@@ -1821,6 +1864,13 @@
                     <div data-i18n="Monitoring Fajar Paper">Monitoring Fajar Paper</div>
                 </a>
             </li>
+            <li
+                class="menu-item {{ request()->is('tool-audit') || request()->is('tool-audit/*') ? 'active' : '' }}">
+                <a href="{{ route('tool-audit.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-tools"></i>
+                    <div data-i18n="Audit Tools">Audit Tools</div>
+                </a>
+            </li>
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Notulen</span>
@@ -2100,6 +2150,12 @@
                     <div data-i18n="Fixed Asset">Fixed Asset</div>
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('tool-finance') ? 'active' : '' }}">
+                <a href="{{ route('tool-finance.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-finance"></i>
+                    <div data-i18n="Kelengkapan Data Finance Tools">Kelengkapan Data Finance Tools</div>
+                </a>
+            </li>
 
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Logistic</span>
@@ -2137,6 +2193,13 @@
                             <div data-i18n="Unit">Unit</div>
                         </a>
                     </li>
+                    @if (auth::user()->role == 'Admin')
+                        <li class="menu-item {{ request()->is('tool-master') ? 'active' : '' }}">
+                            <a href="{{ route('tool-master.index') }}" class="menu-link">
+                                <div data-i18n="Master Tools">Master Tools</div>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </li>
 

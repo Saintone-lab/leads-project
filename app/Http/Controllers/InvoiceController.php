@@ -401,6 +401,7 @@ class InvoiceController extends Controller
                 }
             }
         }
+        $totalPph += $invoice->pph ?? 0;
         foreach ($payments as $payment) {
             $totalAmount += $payment->amount;
         }

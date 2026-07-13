@@ -192,7 +192,7 @@
                         </thead>
                         <tbody>
                             @php
-                                $totalPph = 0;
+                                $totalPph = $invoice->pph ?? 0;
                                 $no = 1;
                             @endphp
                             @foreach ($dquote as $product)
@@ -552,9 +552,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php
-                                $totalPph = 0;
-                            @endphp
+                             @php
+                                 $totalPph = $invoice->pph ?? 0;
+                             @endphp
                             @php
                                 $abjad = 64;
                             @endphp

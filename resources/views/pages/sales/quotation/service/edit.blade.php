@@ -28,7 +28,7 @@
                     <div class="col-12 col-lg-3 mb-3">
                         <div class="form-floating form-floating-outline">
                             <select id="select2Basic" class="select2 form-select form-select-lg invoice-item-client"
-                                data-allow-clear="true" name="id_pic" {{ @$quotation ? 'disabled' : '' }}>
+                                data-allow-clear="true" name="id_pic">
                                 <option> ---- Choose Company Here ---- </option>
                                 @foreach ($pic as $charge)
                                     <option value="{{ $charge->id }}"
@@ -40,25 +40,27 @@
                             <label for="select2Basic">Client</label>
                         </div>
                     </div>
-                    @if (@$quotation)
-                        <input type="text" name="id_pic" id="idPic" value="{{ $quotation->id_pic }}" hidden>
-                    @endif
                     <div class="col-12 col-lg-3">
                         <div class="form-floating form-floating-outline mb-2">
                             <select id="pic-dropdown" class="select2 form-select invoice-item-pic" data-allow-clear="true"
-                                name="pic" disabled>
-                                @if (@$quotation)
-                                    <option selected>
-                                        {{ $quotation->pic->name_pic }}
-                                    </option>
+                                name="pic">
+                                @if (@$pics)
+                                    @foreach ($pics as $p)
+                                        <option value="{{ $p->id }}" {{ $quotation->id_pic == $p->id ? 'selected' : '' }}>
+                                            {{ $p->name_pic }}
+                                        </option>
+                                    @endforeach
+                                @else
+                                    @if (@$quotation)
+                                        <option value="{{ $quotation->id_pic }}" selected>
+                                            {{ $quotation->pic->name_pic }}
+                                        </option>
+                                    @endif
                                 @endif
                             </select>
                             <label for="pic-dropdown">Pic</label>
                         </div>
                     </div>
-                    @if (@$quotation)
-                        <input type="text" name="pic" id="destination" value="{{ $quotation->id_pic }}" hidden>
-                    @endif
                     <div class="col-12 col-lg-2">
                         <div class="form-floating form-floating-outline">
                             <input class="form-control" type="text" placeholder="Put Title Quotation Here ...."

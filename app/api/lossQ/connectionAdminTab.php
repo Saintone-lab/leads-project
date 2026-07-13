@@ -21,8 +21,17 @@ try {
     $salesFilter = $salesId ? "AND u.id = " . intval($salesId) : "";
 
     $query = "
-    SELECT q.id, q.no_quote, c.company, c.ru, q.harga_total, q.title, q.estimated_date,
-           q.status, q.note, u.name AS sales_name, u.image AS sales_image
+    SELECT q.id, q.no_quote, c.company, c.ru, q.harga_total, q.estimated_date,
+           q.status, q.note, u.name AS sales_name, u.image AS sales_image,
+           COALESCE(
+               NULLIF(TRIM(q.title), ''),
+               (
+                   SELECT GROUP_CONCAT(DISTINCT COALESCE(NULLIF(TRIM(ds.detail), ''), NULLIF(TRIM(s.subtitle), '')) SEPARATOR ' | ')
+                   FROM subtitle_quotation s
+                   LEFT JOIN detail_service_quotation ds ON ds.id_subtitle = s.id
+                   WHERE s.id_quotation = q.id
+               )
+           ) AS description
     FROM quotation q
     LEFT JOIN pic p ON p.id = q.id_pic
     LEFT JOIN client c ON c.id = p.id_client

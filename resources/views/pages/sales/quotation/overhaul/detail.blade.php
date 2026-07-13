@@ -421,6 +421,10 @@
                                 href="{{ route('overhaul-revision.quotation', @$primQuote->id ?? $lastQuote->id) }}">
                                 + Revisi Quotation
                             </a>
+                            <a class="btn btn-outline-info d-grid w-100 mb-3 waves-effect"
+                                href="{{ route('edit-overhaul.quotation', @$primQuote->id ?? $lastQuote->id) }}">
+                                + Edit Quotation
+                            </a>
                         </div>
                     </div>
                 @endif

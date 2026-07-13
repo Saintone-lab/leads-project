@@ -20,25 +20,36 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT q.*, c.company, u.name FROM quotation q 
+        $query = "SELECT q.id, q.no_quote, q.harga_total, q.title, q.estimated_date, q.status, q.note, q.type,
+        c.company, c.ru, u.name,
+        COALESCE(
+            NULLIF(TRIM(q.title), ''),
+            (
+                SELECT GROUP_CONCAT(DISTINCT COALESCE(NULLIF(TRIM(ds.detail), ''), NULLIF(TRIM(s.subtitle), '')) SEPARATOR ' | ')
+                FROM subtitle_quotation s
+                LEFT JOIN detail_service_quotation ds ON ds.id_subtitle = s.id
+                WHERE s.id_quotation = q.id
+            )
+        ) AS description
+        FROM quotation q
         LEFT JOIN pic p on p.id = q.id_pic
         LEFT JOIN client c on c.id = p.id_client
         INNER JOIN users u on u.id = q.id_sales
         WHERE u.id = $user->id AND q.status = '0' AND q.level = '1'
-        GROUP BY id ORDER BY q.expired_date ASC";
+        GROUP BY q.id ORDER BY q.expired_date ASC";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);
         $stmt->execute();
 
-        // Fetch result 
+        // Fetch result
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $arr = [
             "data" => $result,
         ];
 
-        // Echo result as JSON 
+        // Echo result as JSON
         $hasil = json_encode($arr, JSON_PRETTY_PRINT);
 
         // Menampilkan hasil JSON
