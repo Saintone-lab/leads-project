@@ -125,9 +125,6 @@ class LeadsController extends Controller
             'company' =>
                 'required',
 
-            'email' =>
-                'required',
-
             'phone' =>
                 'required',
 
@@ -140,13 +137,7 @@ class LeadsController extends Controller
             'source' =>
                 'required',
 
-            'mobile' =>
-                'required',
-
             'address' =>
-                'required',
-
-            'subAddress' =>
                 'required',
 
             'area' =>
@@ -167,14 +158,11 @@ class LeadsController extends Controller
 
         $message = [
             'company.required' => 'Field Company Wajib Diisi',
-            'email.required' => 'Field Email Company Wajib Diisi',
             'phone.required' => 'Field Phone Wajib Diisi',
             'ru.required' => 'Wajib Pilih Reseller atau User',
             'unit.required' => 'Field Unit Wajib Diisi',
             'source.required' => 'Field Source Wajib Diisi',
-            'mobile.required' => 'Field Mobile Wajib Diisi',
             'address.required' => 'Field Address Wajib Diisi',
-            'subAddress.required' => 'Field Sub Address Wajib Diisi',
             'area.required' => 'Field Area Wajib Diisi',
             // 'namePic.required'=> 'Field Nama PIC Wajib Diisi',
             // 'emailPic.required'=> 'Field Email PIC Wajib Diisi',
@@ -214,7 +202,7 @@ class LeadsController extends Controller
         // }
         $leads->address = $request->address;
         $leads->subAddress = $request->subAddress;
-        $leads->week = $request->week;
+        $leads->week = (int) ceil(Carbon::today()->day / 7);
         $leads->area = $request->area;
         $leadsave = $leads->save();
 

@@ -19,16 +19,6 @@
     </h4>
 
     @if (Auth::user()->role == 'Sales')
-        <div class="d-flex justify-content-end">
-            <button class="btn btn-secondary btn-primary" tabindex="0" type="button" data-bs-target="#createLeads"
-                data-bs-toggle="modal">
-                <span>
-                    <i class="mdi mdi-plus me-sm-1"></i>
-                    <span class="d-none d-sm-inline-block">Add New
-                        Leads</span>
-                </span>
-            </button>
-        </div>
         <div class="nav-align-top mb-4">
             <ul class="nav nav-pills mb-3" role="tablist">
                 <li class="nav-item" role="presentation">
