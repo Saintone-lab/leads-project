@@ -98,6 +98,12 @@
                     <div data-i18n="Overview">Overview</div>
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('kanban*') ? 'active' : '' }}">
+                <a href="{{ route('kanban.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-view-dashboard-outline"></i>
+                    <div data-i18n="Kanban">Kanban</div>
+                </a>
+            </li>
             <!-- Layouts -->
             @if (auth::user()->role != 'Accounting')
             <li class="menu-header fw-light mt-4">
@@ -904,6 +910,12 @@
                     <div data-i18n="Dashboards">Dashboards</div>
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('kanban*') ? 'active' : '' }}">
+                <a href="{{ route('kanban.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-view-dashboard-outline"></i>
+                    <div data-i18n="Kanban">Kanban</div>
+                </a>
+            </li>
             {{-- <li class="menu-item">
                 <a href="#" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-phone-incoming-outgoing-outline"></i>
@@ -1317,6 +1329,12 @@
                     <div data-i18n="Dashboards">Dashboards</div>
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('kanban*') ? 'active' : '' }}">
+                <a href="{{ route('kanban.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-view-dashboard-outline"></i>
+                    <div data-i18n="Kanban">Kanban</div>
+                </a>
+            </li>
             {{-- <li class="menu-item">
                 <a href="#" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-phone-incoming-outgoing-outline"></i>
@@ -1470,6 +1488,12 @@
                 <a href="{{ url('/') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
                     <div data-i18n="Dashboard">Dashboard</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('kanban*') ? 'active' : '' }}">
+                <a href="{{ route('kanban.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-view-dashboard-outline"></i>
+                    <div data-i18n="Kanban">Kanban</div>
                 </a>
             </li>
             <li class="menu-item {{ request()->is('master/product') ? 'active' : '' }}">
@@ -1719,6 +1743,12 @@
                     <div data-i18n="Dashboards">Dashboards</div>
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('kanban*') ? 'active' : '' }}">
+                <a href="{{ route('kanban.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-view-dashboard-outline"></i>
+                    <div data-i18n="Kanban">Kanban</div>
+                </a>
+            </li>
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Monitoring</span>
             </li>
@@ -1845,6 +1875,12 @@
                 <a href="{{ url('/') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
                     <div data-i18n="Dashboards">Dashboards</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('kanban*') ? 'active' : '' }}">
+                <a href="{{ route('kanban.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-view-dashboard-outline"></i>
+                    <div data-i18n="Kanban">Kanban</div>
                 </a>
             </li>
             <li class="menu-header fw-light mt-4">
@@ -1978,6 +2014,12 @@
                 <a href="{{ url('/') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
                     <div data-i18n="Dashboard">Dashboard</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('kanban*') ? 'active' : '' }}">
+                <a href="{{ route('kanban.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-view-dashboard-outline"></i>
+                    <div data-i18n="Kanban">Kanban</div>
                 </a>
             </li>
             <li class="menu-item {{ request()->is('report/finance*') ? 'active' : '' }}">
@@ -2291,6 +2333,12 @@
                 <a href="{{ url('/') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
                     <div data-i18n="Dashboard">Dashboard</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('kanban*') ? 'active' : '' }}">
+                <a href="{{ route('kanban.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-view-dashboard-outline"></i>
+                    <div data-i18n="Kanban">Kanban</div>
                 </a>
             </li>
             <li class="menu-item {{ request()->is('reports') ? 'active' : '' }}">

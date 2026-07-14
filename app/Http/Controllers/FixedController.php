@@ -83,6 +83,50 @@ class FixedController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    /**
+     * Prefix kode aset per kategori (type). Dipakai konsisten oleh generateAssetCode()
+     * dan endpoint nextCode() supaya penomoran seragam: PREFIX-TAHUN-URUT (mis. KDR-2026-001).
+     */
+    private const ASSET_CODE_PREFIXES = [
+        'Tanah' => 'TNH',
+        'Bangunan' => 'BGN',
+        'Kendaraan' => 'KDR',
+        'Mesin' => 'MSN',
+        'Peralatan Kantor' => 'AKT',
+        'Tools' => 'TLS',
+    ];
+
+    private function generateAssetCode($type)
+    {
+        $prefix = self::ASSET_CODE_PREFIXES[$type] ?? 'AST';
+        $year = date('Y');
+        $pattern = "{$prefix}-{$year}-";
+
+        $lastNumber = FixedAsset::where('type', $type)
+            ->where('code', 'like', $pattern . '%')
+            ->selectRaw('MAX(CAST(SUBSTRING(code, ?) AS UNSIGNED)) as max_num', [strlen($pattern) + 1])
+            ->value('max_num');
+
+        $next = ($lastNumber ?? 0) + 1;
+
+        return $pattern . str_pad($next, 3, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * AJAX: kasih preview kode aset berikutnya buat kategori terpilih, dipanggil
+     * dari form.blade.php saat dropdown kategori berubah. Kode ini tetap editable
+     * di form — ini cuma nilai default/saran.
+     */
+    public function nextCode(Request $request)
+    {
+        $type = $request->query('type');
+        if (! $type) {
+            return response()->json(['code' => '']);
+        }
+
+        return response()->json(['code' => $this->generateAssetCode($type)]);
+    }
+
     public function store(Request $request)
     {
         if ($request->type == 'Mesin') {
@@ -109,7 +153,7 @@ class FixedController extends Controller
         $fixed->id_supplier = $request->supplier;
         $fixed->id_pengeluaran = $request->bank;
         $fixed->type = $request->type;
-        $fixed->code = $request->code;
+        $fixed->code = $request->code ?: $this->generateAssetCode($request->type);
         $fixed->no_invoice = $request->no_invoice;
         $fixed->beli = $request->pay;
         $fixed->pakai = $request->pakai;

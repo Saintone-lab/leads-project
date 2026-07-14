@@ -24,6 +24,7 @@ use App\Http\Controllers\ToolAuditSummaryController;
 use App\Http\Controllers\ToolAuditVerificationController;
 use App\Http\Controllers\ToolFinanceController;
 use App\Http\Controllers\ToolMasterController;
+use App\Http\Controllers\KanbanController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotulenController;
 use App\Http\Controllers\OpnameController;
@@ -1658,6 +1659,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/show/replacement/{id}', [OpnameController::class, 'show_replacement'])->name('payable.show_replacement');
 
     // Fixed Asset
+    Route::get('/fixed/next-code', [FixedController::class, 'nextCode'])->name('fixed.next-code');
     Route::get('/fixed/{id}/maintenance/create', [FixedController::class, 'createMaintenanceLog'])->name('fixed.maintenance.create');
     Route::post('/fixed/{id}/maintenance', [FixedController::class, 'storeMaintenanceLog'])->name('fixed.maintenance.store');
     Route::resource('/fixed', FixedController::class);
@@ -1682,6 +1684,8 @@ Route::group(["middleware" => "auth"], function () {
 
     // Tools — Management per Teknisi (instance fixed_asset type=Tools)
     Route::get('/tool-assignment', [ToolAssignmentController::class, 'index'])->name('tool-assignment.index');
+    Route::post('/tool-assignment/technician', [ToolAssignmentController::class, 'addTechnician'])->name('tool-assignment.add-technician');
+    Route::delete('/tool-assignment/technician/{userId}', [ToolAssignmentController::class, 'removeTechnician'])->name('tool-assignment.remove-technician');
     Route::get('/tool-assignment/{technicianId}', [ToolAssignmentController::class, 'show'])->name('tool-assignment.show');
     Route::post('/tool-assignment/{technicianId}', [ToolAssignmentController::class, 'store'])->name('tool-assignment.store');
     Route::patch('/tool-assignment/item/{id}', [ToolAssignmentController::class, 'update'])->name('tool-assignment.update');
@@ -1729,6 +1733,45 @@ Route::group(["middleware" => "auth"], function () {
     // Purchase Order
     Route::resource('/product-set', ProductSetController::class);
     Route::post('/product-set/item/{id}', [ProductSetController::class, 'store_item'])->name('product-set.store_item');
+
+    // Kanban Board
+    Route::get('/kanban', [KanbanController::class, 'index'])->name('kanban.index');
+    Route::post('/kanban/boards', [KanbanController::class, 'storeBoard'])->name('kanban.boards.store');
+    Route::get('/kanban/boards/{id}', [KanbanController::class, 'showBoard'])->name('kanban.boards.show');
+    Route::post('/kanban/boards/{id}/update', [KanbanController::class, 'updateBoard'])->name('kanban.boards.update');
+    Route::delete('/kanban/boards/{id}', [KanbanController::class, 'destroyBoard'])->name('kanban.boards.destroy');
+    
+    Route::get('/kanban/boards/{id}/data', [KanbanController::class, 'getBoardData'])->name('kanban.boards.data');
+    Route::post('/kanban/tasks/move', [KanbanController::class, 'moveTask'])->name('kanban.tasks.move');
+    Route::post('/kanban/tasks', [KanbanController::class, 'storeTask'])->name('kanban.tasks.store');
+    Route::get('/kanban/tasks/{id}', [KanbanController::class, 'getTaskDetails'])->name('kanban.tasks.show');
+    Route::post('/kanban/tasks/{id}/update', [KanbanController::class, 'updateTask'])->name('kanban.tasks.update');
+    Route::delete('/kanban/tasks/{id}', [KanbanController::class, 'destroyTask'])->name('kanban.tasks.destroy');
+    Route::post('/kanban/tasks/{id}/comment', [KanbanController::class, 'storeComment'])->name('kanban.tasks.comment');
+
+    // Kanban Checklists & Items
+    Route::post('/kanban/tasks/{taskId}/checklists', [KanbanController::class, 'storeChecklist'])->name('kanban.checklists.store');
+    Route::delete('/kanban/checklists/{id}', [KanbanController::class, 'destroyChecklist'])->name('kanban.checklists.destroy');
+    Route::post('/kanban/checklists/{checklistId}/items', [KanbanController::class, 'storeChecklistItem'])->name('kanban.checklist-items.store');
+    Route::post('/kanban/checklist-items/{id}/toggle', [KanbanController::class, 'toggleChecklistItem'])->name('kanban.checklist-items.toggle');
+    Route::delete('/kanban/checklist-items/{id}', [KanbanController::class, 'destroyChecklistItem'])->name('kanban.checklist-items.destroy');
+
+    // Comment actions (Edit/Delete)
+    Route::post('/kanban/comments/{id}/update', [KanbanController::class, 'updateComment'])->name('kanban.comments.update');
+    Route::delete('/kanban/comments/{id}', [KanbanController::class, 'destroyComment'])->name('kanban.comments.destroy');
+
+    // Labels update
+    Route::post('/kanban/tasks/{id}/labels', [KanbanController::class, 'updateLabels'])->name('kanban.tasks.labels');
+
+    // Task Attachments
+    Route::post('/kanban/tasks/{id}/attachments', [KanbanController::class, 'uploadAttachment'])->name('kanban.tasks.attachments.upload');
+    Route::delete('/kanban/attachments/{id}', [KanbanController::class, 'destroyAttachment'])->name('kanban.tasks.attachments.destroy');
+
+    // Task Delete Requests
+    Route::post('/kanban/tasks/{id}/request-delete', [KanbanController::class, 'requestDeleteTask'])->name('kanban.tasks.request-delete');
+    Route::get('/kanban/boards/{id}/delete-requests', [KanbanController::class, 'getDeleteRequests'])->name('kanban.boards.delete-requests');
+    Route::post('/kanban/delete-requests/{id}/approve', [KanbanController::class, 'approveDeleteRequest'])->name('kanban.delete-requests.approve');
+    Route::post('/kanban/delete-requests/{id}/reject', [KanbanController::class, 'rejectDeleteRequest'])->name('kanban.delete-requests.reject');
 
     // Database Connection
     Route::get('/db/next-follow/callendar', function () {

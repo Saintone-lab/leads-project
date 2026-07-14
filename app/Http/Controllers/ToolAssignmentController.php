@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FixedAsset;
+use App\Models\ToolAssignmentTechnician;
 use App\Models\ToolMaster;
 use App\Models\User;
 use App\Services\ToolAssetPath;
@@ -24,28 +25,56 @@ class ToolAssignmentController extends Controller
     {
         $this->guardAdmin();
 
-        $technicians = User::where('role', 'Technician')
+        $technicians = User::whereHas('toolAssignmentEntry')
             ->withCount(['toolsAssigned' => function ($q) {
                 $q->where('status_tools', 'Aktif');
             }])
             ->orderBy('name')
             ->get();
 
-        return view('pages.technician.tool-assignment.index', compact('technicians'));
+        $availableUsers = User::whereDoesntHave('toolAssignmentEntry')->orderBy('name')->get();
+
+        return view('pages.technician.tool-assignment.index', compact('technicians', 'availableUsers'));
+    }
+
+    public function addTechnician(Request $request)
+    {
+        $this->guardAdmin();
+
+        $request->validate([
+            'user_id' => 'required|exists:users,id|unique:tool_assignment_technicians,user_id',
+        ], [
+            'user_id.unique' => 'User ini sudah ada di daftar teknisi Tool Assignment.',
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+        ToolAssignmentTechnician::create(['user_id' => $user->id]);
+
+        return redirect()->back()->with('success', $user->name . ' berhasil ditambahkan ke daftar Tool Assignment.');
+    }
+
+    public function removeTechnician($userId)
+    {
+        $this->guardAdmin();
+
+        $entry = ToolAssignmentTechnician::where('user_id', $userId)->firstOrFail();
+        $entry->delete();
+
+        return redirect()->back()->with('success', 'User berhasil dihapus dari daftar Tool Assignment.');
     }
 
     public function show($technicianId)
     {
         $this->guardAdmin();
 
-        $technician = User::where('role', 'Technician')->findOrFail($technicianId);
+        $technician = User::whereHas('toolAssignmentEntry')->findOrFail($technicianId);
         $tools = FixedAsset::where('type', 'Tools')
             ->where('id_pic', $technicianId)
             ->with('toolsMaster')
             ->orderByDesc('tanggal_serah_terima')
             ->get();
         $toolMasters = ToolMaster::where('status_aktif', 1)->orderBy('nama_tools')->get();
-        $otherTechnicians = User::where('role', 'Technician')->where('id', '!=', $technicianId)->orderBy('name')->get();
+        $otherTechnicians = User::whereHas('toolAssignmentEntry')->where('id', '!=', $technicianId)->orderBy('name')->get();
 
         return view('pages.technician.tool-assignment.show', compact('technician', 'tools', 'toolMasters', 'otherTechnicians'));
     }
@@ -54,7 +83,7 @@ class ToolAssignmentController extends Controller
     {
         $this->guardAdmin();
 
-        $technician = User::where('role', 'Technician')->findOrFail($technicianId);
+        $technician = User::whereHas('toolAssignmentEntry')->findOrFail($technicianId);
 
         $request->validate([
             'id_tools_master' => 'required|exists:tool_master,id',
@@ -115,7 +144,7 @@ class ToolAssignmentController extends Controller
         ]);
 
         $fixed = FixedAsset::where('type', 'Tools')->findOrFail($id);
-        $newTechnician = User::where('role', 'Technician')->findOrFail($request->id_pic);
+        $newTechnician = User::whereHas('toolAssignmentEntry')->findOrFail($request->id_pic);
 
         $fixed->id_pic = $newTechnician->id;
         $fixed->save();

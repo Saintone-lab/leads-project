@@ -14,10 +14,13 @@
                     <div class="row">
                         <div class="col-4">
                             <div class="form-floating form-floating-outline mb-2">
-                                <input class="form-control" type="text" placeholder="Put Code Here ...."
+                                <input class="form-control" type="text" placeholder="Pilih kategori dulu untuk generate kode ...."
                                     id="no-code-input" name="code" value="{{ old('code', $fixed->code ?? '') }}">
                                 <label for="no-code-input">Code</label>
                             </div>
+                            @if (! isset($fixed))
+                                <small class="text-muted">Kode otomatis terisi setelah pilih kategori, tapi tetap bisa diedit manual.</small>
+                            @endif
                         </div>
                         <div class="col-4">
                             <div class="form-floating form-floating-outline">
@@ -500,6 +503,28 @@
                         $('#desc-text-wrapper').show();
                     }
                 });
+
+                @if (! isset($fixed))
+                    // Kode aset otomatis mengikuti kategori terpilih, tapi berhenti auto-generate
+                    // begitu user mengetik manual di field-nya (biar tidak menimpa input user).
+                    var codeManuallyEdited = false;
+                    $('#no-code-input').on('input', function() {
+                        codeManuallyEdited = true;
+                    });
+                    $('#type').on('change', function() {
+                        var type = $(this).val();
+                        if (codeManuallyEdited || !type) {
+                            return;
+                        }
+                        $.get('{{ route('fixed.next-code') }}', {
+                            type: type
+                        }, function(res) {
+                            if (res && res.code) {
+                                $('#no-code-input').val(res.code);
+                            }
+                        });
+                    });
+                @endif
 
                 $('#unit-dropdown').on('change', function() {
                     var label = $(this).find(':selected').data('label') || '';
