@@ -175,36 +175,30 @@ class CrmController extends Controller
     {
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
-        // Comment Buat Admin
-        $firstComments = Comment::where('id_user', Auth::id())
-            ->groupBy('id_status')
-            ->get();
 
         $sales = User::where('role', 'sales')->where('active', '1')->get();
-        $statusIds = $firstComments->pluck('id_status')->toArray();
-        $dates = $firstComments->pluck('created_at', 'id_status');
 
-        $commentsQuery = Comment::join('change_status as c', 'c.id', '=', 'comment.id_status')
+        // Optimized Comment for Admin notifications using subquery join instead of multiple orWhere clauses
+        $myCommentsSub = Comment::select('id_status', DB::raw('MAX(created_at) as my_last_comment_at'))
+            ->where('id_user', Auth::id())
+            ->groupBy('id_status');
+
+        $baseCommentsQuery = Comment::join('change_status as c', 'c.id', '=', 'comment.id_status')
             ->join('quotation as q', 'q.id', '=', 'c.id_quotation')
             ->join('users as u', 'u.id', '=', 'comment.id_user')
-            ->whereIn('comment.id_status', $statusIds)
-            ->where(function ($query) use ($dates) {
-                foreach ($dates as $statusId => $createdAt) {
-                    $query->orWhere(function ($subQuery) use ($statusId, $createdAt) {
-                        $subQuery->where('comment.id_status', $statusId)
-                            ->whereRaw('TIMESTAMPDIFF(SECOND, ?, comment.created_at) > 0', [$createdAt]);
-                    });
-                }
+            ->joinSub($myCommentsSub, 'my_comments', function ($join) {
+                $join->on('comment.id_status', '=', 'my_comments.id_status');
             })
-            ->where('comment.id_user', '!=', Auth::id());
+            ->where('comment.id_user', '!=', Auth::id())
+            ->whereRaw('comment.created_at > my_comments.my_last_comment_at');
 
-        // Ambil semua komentar yang relevan
-        $commentAdmin = $commentsQuery->orderBy('comment.id_status')
+        $commentAdmin = (clone $baseCommentsQuery)
+            ->orderBy('comment.id_status')
             ->orderByDesc('comment.created_at')
             ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
 
-        // Filter untuk komentar dengan level '1'
-        $unreadCommentAdmin = $commentsQuery->where('comment.level', '1')
+        $unreadCommentAdmin = (clone $baseCommentsQuery)
+            ->where('comment.level', '1')
             ->orderBy('comment.id_status')
             ->orderByDesc('comment.created_at')
             ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
@@ -231,13 +225,15 @@ class CrmController extends Controller
             ->select(['p.id as idP', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'comment.type', 'c.company', 'u.name', 'u.image']);
 
         // Menggabungkan kedua query menggunakan union
-        $comment = $quotationComment->union($prospectComment)
+        $comment = (clone $quotationComment)->union(clone $prospectComment)
             ->orderBy('date', 'DESC')
             ->take(5)
             ->get();
-        $unreadComment = $quotationComment->union($prospectComment)
+
+        $unreadQuotationComment = (clone $quotationComment)->where('o.level', '1');
+        $unreadProspectComment = (clone $prospectComment)->where('comment.level', '1');
+        $unreadComment = $unreadQuotationComment->union($unreadProspectComment)
             ->orderBy('date', 'DESC')
-            ->where('o.level', '1')
             ->take(5)
             ->get();
 

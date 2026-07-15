@@ -1,111 +1,77 @@
 $(function () {
-    var dt_table_customer_by_status = $(".datatable-customers-by-status");
-    var Url = "/db/crm/status?status=";
-    let selectedStatus = 1;
-
-    if (dt_table_customer_by_status.length) {
-        $('[data-toggle="tooltip"]').tooltip();
-        // Setup - add a text input to each footer cell
-        $(".datatable-customer-search thead tr")
+    var baseAjaxUrl = "/db/crm/status";
+    
+    function initDataTable(selector, statusId) {
+        var $el = $(selector);
+        if (!$el.length) return null;
+        
+        // Clone header row lalu replace isinya dengan input search (seperti di halaman invoice)
+        $el.find("thead tr")
             .clone(true)
-            .appendTo(".datatable-customer-search thead");
-        $(".datatable-customer-search thead tr:eq(1) th").each(function (i) {
+            .appendTo($el.find("thead"));
+
+        $el.find("thead tr:eq(1) th").each(function (i) {
             var title = $(this).text();
             $(this).html(
-                '<input type="text" class="form-control" placeholder="Search ' +
-                    title +
-                    '" />',
+                '<input type="text" class="form-control form-control-sm" placeholder="Cari ' + title + '..." />'
             );
-
-            $("input", this).on("keyup change", function () {
-                if (dt_filter.column(i).search() !== this.value) {
-                    dt_filter.column(i).search(this.value).draw();
-                }
-            });
         });
 
-        window.dtCustomerByStatus = dt_table_customer_by_status.DataTable({
+        var dt = $el.DataTable({
             ajax: {
                 type: "GET",
-                url: Url + selectedStatus,
+                url: baseAjaxUrl + "?status=" + statusId,
+                data: function (d) {
+                    var salesId = $('#admin-sales-filter').val();
+                    if (salesId) {
+                        d.sales_id = salesId;
+                    }
+                    var ruType = $('#ru-type-filter').val();
+                    if (ruType) {
+                        d.ru_type = ruType;
+                    }
+                },
                 headers: {
                     "Content-Type": "application/json",
                 },
-                // success: function (hasil, Url) {
-                //     console.log("Url:", Url);
-                //     console.log(hasil);
-                // },
-                // error: function (error) {
-                //     console.log("Url:", Url + selectedStatus);
-                //     console.error("Error:", error);
-                //     console.log("error disini");
-                // },
             },
             columns: [
                 { data: "company" },
-                { data: "ru" },
                 { data: "status" },
                 { data: "area" },
-                {
-                    data: "note",
-                    render: function (data, type, row) {
-                        if (data === null || data === undefined) {
-                            return "-";
-                        } else {
-                            return type === "display" ? data : "-";
-                        }
-                    },
-                },
                 { data: "date" },
                 { data: "follow_up" },
-                { data: "info" },
+                { data: "info" }, // Flag
             ],
             columnDefs: [
                 {
+                    targets: [1, 3, 4, 5],
+                    className: "text-center",
+                },
+                {
+                    targets: [0, 2],
+                    className: "text-nowrap",
+                },
+                {
+                    responsivePriority: 1,
                     targets: 0,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("existing.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' +
-                                detailRoute +
-                                '">' +
-                                data +
-                                "</a>"
-                            );
+                    render: function (data, type, full) {
+                        if (type !== "display") return data;
+                        var $dataId = full["id"];
+                        var detailRoute = route("existing.show", $dataId);
+                        var companyName = data || "-";
+                        
+                        // Limit company name if too long
+                        if (companyName.length > 25) {
+                            companyName = companyName.substring(0, 25) + "...";
                         }
-                        return data;
+                        
+                        return '<a class="fw-bold text-primary" href="' + detailRoute + '" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (data || "") + '">' + companyName + '</a>';
                     },
                 },
                 {
                     targets: 1,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $status_ru = full["ru"];
-                            var $status = {
-                                User: {
-                                    class: "bg-success",
-                                },
-                                Reseller: {
-                                    class: " bg-warning",
-                                },
-                            };
-                            return (
-                                '<span class="badge ' +
-                                $status[$status_ru].class +
-                                '">' +
-                                data +
-                                "</span> "
-                            );
-                        }
-                        return data;
-                    },
-                },
-                {
-                    targets: 2,
                     render: function (data, type, full, meta) {
-                        // Tambahkan dropdown ke dalam kolom
                         var dropdown =
                             '<select class="form-select status-dropdown" data-id="' +
                             full.id +
@@ -127,7 +93,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: [5, 6],
+                    targets: [3, 4],
                     render: function (data, type, row) {
                         if (data === null || data === undefined) {
                             return "-";
@@ -137,10 +103,12 @@ $(function () {
                     },
                 },
                 {
-                    targets: 7,
+                    targets: 5,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var flag = full["info"];
+                            if (!flag) return "-";
+                            var note = full["note"] || "No notes available";
                             var $info = {
                                 Reftech: {
                                     class: "bg-label-primary",
@@ -151,8 +119,8 @@ $(function () {
                             };
                             return (
                                 '<span class="badge ' +
-                                $info[flag].class +
-                                '">' +
+                                ($info[flag] ? $info[flag].class : "bg-label-secondary") +
+                                '" data-bs-toggle="tooltip" data-bs-placement="top" title="' + note + '">' +
                                 data +
                                 "</span> "
                             );
@@ -161,35 +129,56 @@ $(function () {
                     },
                 },
             ],
-            order: [[1, "desc"]],
-            // orderCellsTop: true,
+            order: [[0, "asc"]],
             dom:
                 '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f><"dt-action-buttons text-end pt-3 pt-md-0"B>>' +
                 '<"table-responsive"t>' +
                 '<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            buttons: [
-                // {
-                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Payable</span>',
-                //     className: "btn btn-primary btn-new",
-                //     action: function (e, dt, node, config) {
-                //         window.location = route("payable.create");
-                //     },
-                // },
-                // {
-                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Payable</span>',
-                //     className: "btn btn-primary",
-                //     attr: {
-                //         href: "{{ route('payable.create') }}",
-                //     },
-                // },
-            ],
+            buttons: [],
         });
-        window.reloadCustomersByStatus = function (StatusId) {
-            let url = "/db/crm/status?status=" + StatusId;
-            window.dtCustomerByStatus.ajax.url(url).load();
-        };
+
+        // Set up search event listeners after DataTable is initialized
+        $el.find("thead tr:eq(1) th input").each(function (i) {
+            $(this).on("keyup change", function () {
+                if (dt.column(i).search() !== this.value) {
+                    dt.column(i).search(this.value).draw();
+                }
+            });
+        });
+
+        return dt;
     }
-    dt_table_customer_by_status.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
+
+    window.dtCustomerActive = initDataTable(".datatable-customers-active", 2);
+    window.dtCustomerNonActive = initDataTable(".datatable-customers-non-active", 3);
+    window.dtCustomerBangkrupt = initDataTable(".datatable-customers-bangkrupt", 1);
+
+    $('#crm-tab-nav button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+        $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust().responsive.recalc();
+    });
+
+    $(document).on('draw.dt', function (e) {
+        var $tbl    = $(e.target);
+        
+        // Re-initialize tooltips (e.g. for company hover and flag note tooltip)
+        $tbl.find('[data-bs-toggle="tooltip"]').tooltip();
+        
+        var badgeId = $tbl.data('badge');
+        if (!badgeId) return;
+        var api   = $tbl.DataTable();
+        var count = api.page.info().recordsTotal;
+        $('#' + badgeId).text(count);
+    });
+
+    $('#admin-sales-filter').on('change', function () {
+        if (window.dtCustomerActive) window.dtCustomerActive.ajax.reload();
+        if (window.dtCustomerNonActive) window.dtCustomerNonActive.ajax.reload();
+        if (window.dtCustomerBangkrupt) window.dtCustomerBangkrupt.ajax.reload();
+    });
+
+    $('#ru-type-filter').on('change', function () {
+        if (window.dtCustomerActive) window.dtCustomerActive.ajax.reload();
+        if (window.dtCustomerNonActive) window.dtCustomerNonActive.ajax.reload();
+        if (window.dtCustomerBangkrupt) window.dtCustomerBangkrupt.ajax.reload();
     });
 });

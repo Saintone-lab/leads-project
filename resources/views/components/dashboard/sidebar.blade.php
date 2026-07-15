@@ -152,6 +152,13 @@
                 </a>
             </li>
 
+            <li class="menu-item {{ request()->is('email-templates*') ? 'active' : '' }}">
+                <a href="{{ route('email-templates.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-email-edit-outline"></i>
+                    <div data-i18n="Email Templates">Email Templates</div>
+                </a>
+            </li>
+
             {{-- <li class="menu-item {{ request()->is('unit-quotation') || request()->is('unit-quotation/*') ? 'active' : '' }}">
                 <a href="{{ route('unit-quotation.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
@@ -475,6 +482,29 @@
                         <div data-i18n="Invoice">Invoice</div>
                         @if (@$requestInvoice >= 1)
                             <div class="badge bg-danger rounded-pill ms-auto">{{ $requestInvoice }}</div>
+                        @endif
+                    </a>
+                </li>
+                @php
+                    $monitoringBoard = \App\Models\KanbanBoard::where('type', 'monitoring')->first();
+                    $monitoringCount = 0;
+                    if ($monitoringBoard) {
+                        $monitoringCount = \App\Models\KanbanTask::where('board_id', $monitoringBoard->id)
+                            ->whereIn('column_id', function($query) use ($monitoringBoard) {
+                                $query->select('id')
+                                    ->from('kanban_columns')
+                                    ->where('board_id', $monitoringBoard->id)
+                                    ->whereIn('title', ['PO REFTECH', 'PO E-COMMERCE']);
+                            })
+                            ->count();
+                    }
+                @endphp
+                <li class="menu-item {{ request()->is('accounting/monitoring-document*') ? 'active' : '' }}">
+                    <a href="{{ route('kanban.monitoring-document') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-view-dashboard-outline"></i>
+                        <div data-i18n="Monitoring Document">Monitoring Document</div>
+                        @if ($monitoringCount >= 1)
+                            <div class="badge bg-danger rounded-pill ms-auto">{{ $monitoringCount }}</div>
                         @endif
                     </a>
                 </li>

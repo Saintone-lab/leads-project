@@ -14,6 +14,8 @@ class KanbanBoard extends Model
         'description',
         'created_by',
         'labels',
+        'type',
+        'notification_sound',
     ];
 
     protected $casts = [

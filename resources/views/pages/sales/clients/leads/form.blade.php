@@ -263,6 +263,13 @@
                     cache: true
                 }
             });
+
+            @if ($errors->any() && old('company') !== null)
+                var leadsModalEl = document.getElementById('{{ @$leads ? 'updateLeads' . strval(@$leads->id) : 'createLeads' }}');
+                if (leadsModalEl) {
+                    bootstrap.Modal.getOrCreateInstance(leadsModalEl).show();
+                }
+            @endif
         });
     </script>
 @endpush

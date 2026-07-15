@@ -24,9 +24,9 @@ class KanbanController extends Controller
         $user = Auth::user();
         
         if ($user->role === 'Admin') {
-            $boards = KanbanBoard::with('creator')->orderBy('title')->get();
+            $boards = KanbanBoard::where('type', '!=', 'monitoring')->with('creator')->orderBy('title')->get();
         } else {
-            $boards = $user->kanbanBoards()->with('creator')->orderBy('title')->get();
+            $boards = $user->kanbanBoards()->where('type', '!=', 'monitoring')->with('creator')->orderBy('title')->get();
         }
 
         // Fetch all active users for board creation members select
@@ -100,7 +100,7 @@ class KanbanController extends Controller
 
     public function updateBoard(Request $request, $id)
     {
-        if (Auth::user()->role !== 'Admin') {
+        if (Auth::user()->role !== 'Admin' && Auth::user()->role !== 'Accounting') {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -116,14 +116,29 @@ class KanbanController extends Controller
             'columns.*.title' => 'required|string|max:255',
             'labels' => 'nullable|array',
             'labels.*' => 'nullable|string|max:100',
+            'notification_sound' => 'nullable|file|max:5120',
         ]);
 
         DB::transaction(function () use ($request, $board) {
-            $board->update([
+            $updateData = [
                 'title' => $request->title,
                 'description' => $request->description,
                 'labels' => $request->labels,
-            ]);
+            ];
+
+            if ($request->hasFile('notification_sound')) {
+                $file = $request->file('notification_sound');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads/kanban_sounds'), $filename);
+                
+                if ($board->notification_sound && file_exists(public_path($board->notification_sound))) {
+                    @unlink(public_path($board->notification_sound));
+                }
+                
+                $updateData['notification_sound'] = 'uploads/kanban_sounds/' . $filename;
+            }
+
+            $board->update($updateData);
 
             // Sync members
             $board->members()->sync($request->member_ids ?? []);
@@ -169,7 +184,7 @@ class KanbanController extends Controller
     public function getBoardData($id)
     {
         $user = Auth::user();
-        $board = KanbanBoard::with(['columns.tasks.assignees', 'columns.tasks.checklists.items'])->findOrFail($id);
+        $board = KanbanBoard::with(['columns.tasks.assignees', 'columns.tasks.checklists.items', 'columns.tasks.pendingPo.quote'])->findOrFail($id);
 
         if ($user->role !== 'Admin' && !$board->members->contains($user->id)) {
             return response()->json(['error' => 'Unauthorized'], 403);
@@ -193,6 +208,11 @@ class KanbanController extends Controller
                     $completedChecklistItems += $checklist->items->where('is_completed', true)->count();
                 }
 
+                $nettValue = 0;
+                if ($task->pendingPo && $task->pendingPo->quote) {
+                    $nettValue = (float) $task->pendingPo->quote->nett;
+                }
+
                 $items[] = [
                     'id' => (string) $task->id,
                     'title' => $task->title,
@@ -203,6 +223,7 @@ class KanbanController extends Controller
                     'total_checklists' => $totalChecklistItems,
                     'completed_checklists' => $completedChecklistItems,
                     'priority' => $task->priority ?? 'medium',
+                    'nett' => $nettValue,
                 ];
             }
             $data[] = [
@@ -287,6 +308,7 @@ class KanbanController extends Controller
             'assigned_to' => 'nullable|exists:users,id',
             'due_date' => 'nullable|date',
             'priority' => 'nullable|string|in:high,medium,low',
+            'pending_po_id' => 'nullable|integer',
         ]);
 
         $columnId = (int) str_replace('column_', '', $request->column_id);
@@ -304,6 +326,7 @@ class KanbanController extends Controller
             'due_date' => $request->due_date,
             'position' => $position,
             'priority' => $request->priority ?? 'medium',
+            'pending_po_id' => $request->pending_po_id,
         ]);
 
         // Log creation activity
@@ -347,6 +370,7 @@ class KanbanController extends Controller
             'due_date' => 'nullable|date',
             'column_id' => 'nullable|string',
             'priority' => 'nullable|string|in:high,medium,low',
+            'service_report_id' => 'nullable|integer',
         ]);
 
         DB::transaction(function () use ($request, $task) {
@@ -406,6 +430,7 @@ class KanbanController extends Controller
                 'assigned_to' => !empty($newAssigneesIds) ? $newAssigneesIds[0] : null,
                 'due_date' => $request->due_date,
                 'priority' => $request->priority ?? $task->priority,
+                'service_report_id' => array_key_exists('service_report_id', $request->all()) ? $request->service_report_id : $task->service_report_id,
             ]);
 
             // Log other changes
@@ -467,7 +492,9 @@ class KanbanController extends Controller
             'comments.user',
             'activities.user',
             'checklists.items',
-            'attachments.user'
+            'attachments.user',
+            'pendingPo.quote.pic.client',
+            'pendingPo.quote.sales'
         ])->findOrFail($id);
 
         // Format comments
@@ -592,6 +619,115 @@ class KanbanController extends Controller
             ];
         });
 
+        $soDetails = null;
+        if ($task->pendingPo) {
+            $po = $task->pendingPo;
+            $invoicePo = \App\Models\Invoice::where('id_quotation', $po->id_quotation)->whereNotNull('no_po')->where('no_po', '!=', '')->value('no_po');
+            $poNumber = $invoicePo ?: ($po->no_pending ?? 'No PO');
+            $companyName = 'Unknown Client';
+            $clientAddress = '';
+            $clientId = null;
+            if ($po->quote && $po->quote->pic && $po->quote->pic->client) {
+                $companyName = $po->quote->pic->client->company;
+                $clientAddress = $po->quote->pic->client->address;
+                $clientId = $po->quote->pic->client->id;
+            }
+
+            // Get Invoices and associate their payments sequentially
+            $invoices = \App\Models\Invoice::where('id_quotation', $po->id_quotation)->orderBy('id')->get();
+            $payments = \App\Models\Payment::where('id_quotation', $po->id_quotation)->orderBy('id')->get();
+            
+            $invoiceList = [];
+            foreach ($invoices as $index => $invoice) {
+                $payment = $payments->get($index);
+                $status = 'Unpaid';
+                if ($payment) {
+                    $status = ($payment->level == 1) ? 'Paid' : 'Pending Confirmation';
+                }
+                
+                $typeLabel = 'Invoice';
+                switch ($invoice->type) {
+                    case 'CT':
+                        $typeLabel = 'Cash Before Delivery';
+                        break;
+                    case 'DP':
+                        $typeLabel = 'Down Payment';
+                        break;
+                    case 'BP':
+                        $typeLabel = 'Balance Payment / Tempo';
+                        break;
+                }
+                $percentVal = $invoice->percent !== null ? (int)$invoice->percent : 100;
+                $termName = "{$typeLabel} ({$percentVal}%)";
+                
+                $invoiceList[] = [
+                    'id' => $invoice->id,
+                    'no_invoice' => $invoice->no_invoice ?: 'Draft Invoice #' . $invoice->id,
+                    'term_name' => $termName,
+                    'status' => $status,
+                    'link' => url('/invoice/' . $invoice->id)
+                ];
+            }
+
+            // Get Delivery / Surat Jalan records for all invoices of this quotation
+            $invoiceIds = $invoices->pluck('id')->toArray();
+            $deliveries = \App\Models\Delivery::whereIn('id_invoice', $invoiceIds)->get()->map(function($d) {
+                return [
+                    'id' => $d->id,
+                    'destination' => $d->destination ?: 'No Destination',
+                    'link' => url('/delivery/' . $d->id),
+                ];
+            });
+
+            // Get available service reports for this client
+            $availableReports = [];
+            if ($clientId) {
+                $availableReports = \App\Models\Reports::whereHas('pic', function($q) use ($clientId) {
+                    $q->where('id_client', $clientId);
+                })
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function($r) {
+                    return [
+                        'id' => $r->id,
+                        'jobdesc' => ($r->no_service ?: 'No SR') . ' - ' . ($r->jobdesc ?: 'Service Report #' . $r->id) . ' (' . $r->created_at->format('d-m-Y') . ')',
+                    ];
+                });
+            }
+
+            $activeReport = null;
+            if ($task->service_report_id) {
+                $rep = \App\Models\Reports::find($task->service_report_id);
+                if ($rep) {
+                    $activeReport = [
+                        'id' => $rep->id,
+                        'jobdesc' => ($rep->no_service ?: 'No SR') . ' - ' . ($rep->jobdesc ?: 'Service Report #' . $rep->id),
+                        'date' => $rep->created_at->format('d-m-Y'),
+                        'link' => url('/service-reports/' . $rep->id),
+                    ];
+                }
+            }
+
+            $soDetails = [
+                'id' => $po->id,
+                'no_po' => $poNumber,
+                'company' => $companyName,
+                'address' => $clientAddress,
+                'sales_name' => $po->quote && $po->quote->sales ? $po->quote->sales->name : 'N/A',
+                'quote_id' => $po->id_quotation,
+                'quote_no' => $po->quote ? $po->quote->no_quote : 'N/A',
+                'quote_link' => url('/quotation/' . $po->id_quotation),
+                'quote_nett' => $po->quote ? number_format($po->quote->nett, 2, ',', '.') : '0',
+                'type' => $po->type,
+                'date' => $po->date ? $po->date : '',
+                'invoices' => $invoiceList,
+                'deliveries' => $deliveries,
+                'available_reports' => $availableReports,
+                'service_report_id' => $task->service_report_id,
+                'active_report' => $activeReport,
+            ];
+        }
+
         return response()->json([
             'success' => true,
             'task' => [
@@ -604,10 +740,13 @@ class KanbanController extends Controller
                 'column_title' => $task->column->title,
                 'labels' => $task->labels ?? [],
                 'priority' => $task->priority ?? 'medium',
+                'pending_po_id' => $task->pending_po_id,
+                'service_report_id' => $task->service_report_id,
             ],
             'feed' => $feed,
             'checklists' => $checklists,
             'attachments' => $attachments,
+            'so_details' => $soDetails,
         ]);
     }
 
@@ -889,6 +1028,171 @@ class KanbanController extends Controller
         $req->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    public function monitoringDocument()
+    {
+        $user = Auth::user();
+        if ($user->role !== 'Admin' && $user->role !== 'Accounting') {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $board = KanbanBoard::where('type', 'monitoring')->first();
+        if (!$board) {
+            $board = KanbanBoard::create([
+                'title' => 'Monitoring Document',
+                'description' => 'Papan Kanban khusus untuk memantau dokumen PO/Sales Order.',
+                'type' => 'monitoring',
+                'created_by' => $user->id,
+            ]);
+
+            $defaultColumns = ['PO REFTECH', 'PO E-COMMERCE', 'Draft / SPK', 'Invoice Sent', 'Paid / Completed'];
+            foreach ($defaultColumns as $index => $colTitle) {
+                KanbanColumn::create([
+                    'board_id' => $board->id,
+                    'title' => $colTitle,
+                    'position' => $index,
+                ]);
+            }
+        }
+
+        $activePos = \App\Models\PendingPO::where('status', '<', 6)
+            ->where('created_at', '>=', '2026-07-17 00:00:00')
+            ->whereHas('quote.payment', function($q) {
+                $q->where('method', '!=', 'Escrow');
+            })
+            ->get();
+
+        foreach ($activePos as $po) {
+            $exists = KanbanTask::where('board_id', $board->id)
+                ->where('pending_po_id', $po->id)
+                ->exists();
+
+            if (!$exists) {
+                $idSales = $po->quote ? $po->quote->id_sales : null;
+                $targetColTitle = ($idSales == 16) ? 'PO E-COMMERCE' : 'PO REFTECH';
+
+                $column = KanbanColumn::where('board_id', $board->id)
+                    ->where('title', $targetColTitle)
+                    ->first();
+
+                if ($column) {
+                    $pos = KanbanTask::where('column_id', $column->id)->count();
+
+                    $invoicePo = \App\Models\Invoice::where('id_quotation', $po->id_quotation)->whereNotNull('no_po')->where('no_po', '!=', '')->value('no_po');
+                    $poNumber = $invoicePo ?: ($po->no_pending ?? 'No PO');
+                    $companyName = 'Unknown Client';
+                    if ($po->quote && $po->quote->pic && $po->quote->pic->client) {
+                        $companyName = $po->quote->pic->client->company;
+                    }
+
+                    $taskTitle = "[$poNumber] - $companyName";
+
+                    KanbanTask::create([
+                        'board_id' => $board->id,
+                        'column_id' => $column->id,
+                        'pending_po_id' => $po->id,
+                        'title' => $taskTitle,
+                        'description' => null,
+                        'position' => $pos,
+                    ]);
+                }
+            }
+        }
+
+        // Auto-update existing tasks titles to match new PO format if needed
+        $existingTasks = KanbanTask::where('board_id', $board->id)
+            ->whereNotNull('pending_po_id')
+            ->with('pendingPo.quote.pic.client')
+            ->get();
+
+        foreach ($existingTasks as $task) {
+            $po = $task->pendingPo;
+            if ($po) {
+                $invoicePo = \App\Models\Invoice::where('id_quotation', $po->id_quotation)->whereNotNull('no_po')->where('no_po', '!=', '')->value('no_po');
+                $poNumber = $invoicePo ?: ($po->no_pending ?? 'No PO');
+                $companyName = 'Unknown Client';
+                if ($po->quote && $po->quote->pic && $po->quote->pic->client) {
+                    $companyName = $po->quote->pic->client->company;
+                }
+                $expectedTitle = "[$poNumber] - $companyName";
+                if ($task->title !== $expectedTitle) {
+                    $task->title = $expectedTitle;
+                    $task->save();
+                }
+            }
+        }
+
+        $users = User::where('active', '1')->orderBy('name')->get();
+
+        if ($user->role === 'Admin') {
+            $myBoards = KanbanBoard::where('type', 'dynamic')->orderBy('title')->get();
+        } else {
+            $myBoards = $user->kanbanBoards()->where('type', 'dynamic')->orderBy('title')->get();
+        }
+
+        return view('pages.kanban.board', compact('board', 'users', 'myBoards'));
+    }
+
+    public function getAvailablePOs()
+    {
+        $user = Auth::user();
+        if ($user->role !== 'Admin' && $user->role !== 'Accounting') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $board = KanbanBoard::where('type', 'monitoring')->first();
+        $existingPoIds = $board ? KanbanTask::where('board_id', $board->id)->whereNotNull('pending_po_id')->pluck('pending_po_id')->toArray() : [];
+
+        $pos = \App\Models\PendingPO::where('status', '<', 6)
+            ->whereNotIn('id', $existingPoIds)
+            ->where('created_at', '>=', '2026-07-17 00:00:00')
+            ->whereHas('quote.payment', function($q) {
+                $q->where('method', '!=', 'Escrow');
+            })
+            ->with(['quote.pic.client', 'quote.sales'])
+            ->get()
+            ->map(function ($po) {
+                $invoicePo = \App\Models\Invoice::where('id_quotation', $po->id_quotation)->whereNotNull('no_po')->where('no_po', '!=', '')->value('no_po');
+                $poNumber = $invoicePo ?: ($po->no_pending ?? 'No PO');
+                $companyName = 'Unknown Client';
+                if ($po->quote && $po->quote->pic && $po->quote->pic->client) {
+                    $companyName = $po->quote->pic->client->company;
+                }
+                return [
+                    'id' => $po->id,
+                    'no_po' => $poNumber,
+                    'company' => $companyName,
+                    'sales' => $po->quote && $po->quote->sales ? $po->quote->sales->name : 'N/A',
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'pos' => $pos,
+        ]);
+    }
+
+    public function checkNewCards($lastTaskId)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'Admin' && $user->role !== 'Accounting') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $board = KanbanBoard::where('type', 'monitoring')->first();
+        if (!$board) {
+            return response()->json(['success' => true, 'new_cards' => 0]);
+        }
+
+        $newCardsCount = KanbanTask::where('board_id', $board->id)
+            ->where('id', '>', $lastTaskId)
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'new_cards' => $newCardsCount,
+        ]);
     }
 
     private function logActivity($taskId, $type, $data = null)

@@ -78,40 +78,42 @@
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
             @if (Auth::user()->role == 'Sales')
-                <table class="datatable-product-sales table table-striped">
+                <table class="datatable-product-sales table table-bordered">
                     <thead>
                         <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>Photo</th>
-                            <th>Brand</th>
-                            <th>PN</th>
-                            <th>Desc</th>
-                            <th>Stock BDG</th>
-                            <th>Stock BKS</th>
-                            <th>Stock Pending</th>
-                            <th>Price</th>
+                            <th rowspan="2"></th>
+                            <th rowspan="2">ID</th>
+                            <th rowspan="2">Photo</th>
+                            <th rowspan="2">Brand</th>
+                            <th rowspan="2">PN</th>
+                            <th rowspan="2">Desc</th>
+                            <th colspan="3" class="text-center border-bottom">Stock</th>
+                            <th rowspan="2">Price</th>
+                        </tr>
+                        <tr>
+                            <th>BDG</th>
+                            <th>BKS</th>
+                            <th>Pend</th>
                         </tr>
                     </thead>
                 </table>
             @else
-                <table class="datatable-product table table-striped">
+                <table class="datatable-product table table-bordered">
                     <thead>
                         <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>SKU</th>
-                            <th>Brand</th>
-                            <th>Part Number</th>
-                            <th>Price</th>
-                            <th>Desc</th>
-                            <th>Dimension</th>
-                            {{-- <th>G/O</th> --}}
-                            <th>Stock BDG</th>
-                            <th>Stock BKS</th>
-                            <th>stock Pending</th>
+                            <th rowspan="2"></th>
+                            <th rowspan="2">ID</th>
+                            <th rowspan="2">SKU</th>
+                            <th rowspan="2">Brand</th>
+                            <th rowspan="2">Part Number</th>
+                            <th rowspan="2">Price</th>
+                            <th rowspan="2">Desc</th>
+                            <th colspan="3" class="text-center border-bottom">Stock</th>
+                        </tr>
+                        <tr>
+                            <th>BDG</th>
+                            <th>BKS</th>
+                            <th>Pend</th>
                         </tr>
                     </thead>
                 </table>

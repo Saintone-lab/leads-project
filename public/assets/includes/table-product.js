@@ -25,16 +25,14 @@ $(function () {
             columns: [
                 { data: "" },
                 { data: "id" },
-                { data: "id" },
                 { data: "commodity" },
                 { data: "brand" },
                 { data: "pn" },
                 { data: "price" },
                 { data: "description" },
-                { data: "dimension" },
-                { data: "go" },
                 { data: "stock" },
                 { data: "warehouse_stock" },
+                { data: "pending_stock" },
             ],
             columnDefs: [
                 {
@@ -49,44 +47,31 @@ $(function () {
                     },
                 },
                 {
-                    // For Checkboxes
                     targets: 1,
-                    orderable: false,
-                    searchable: false,
-                    responsivePriority: 3,
-                    checkboxes: true,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender:
-                            '<input type="checkbox" class="form-check-input">',
-                    },
-                },
-                {
-                    targets: 2,
                     searchable: true,
                     visible: false,
                 },
                 {
                     responsivePriority: 1,
-                    targets: 3,
+                    targets: 2,
                 },
                 {
-                    targets: 3,
+                    targets: 2,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id_p"];
                             var detailRoute = route("product.show", $dataId);
                             var $title = full["modal_replacements"];
+                            var truncated = data && data.length > 25 ? data.substr(0, 22) + '...' : data;
+                            var tooltipTitle = data + ' | ' + $title;
                             return (
                                 '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' +
-                                $title +
+                                tooltipTitle.replace(/"/g, '&quot;') +
                                 '">' +
                                 '<a class="text-dark" href="' +
                                 detailRoute +
                                 '">' +
-                                data +
+                                truncated +
                                 "</a>" +
                                 "</span>"
                             );
@@ -95,7 +80,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 6,
+                    targets: 5,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             // Ambil nilai last_modal
@@ -103,16 +88,16 @@ $(function () {
 
                             var formattedModal =
                                 lastModal === null || lastModal === undefined
-                                    ? "-"
-                                    : $.fn.dataTable.render
-                                          .number(".", ",", 0, "Rp.")
-                                          .display(lastModal);
+                                     ? "-"
+                                     : $.fn.dataTable.render
+                                           .number(".", ",", 0, "Rp.")
+                                           .display(lastModal);
                             var formattedData =
                                 data === null || data === undefined
                                     ? "-"
                                     : $.fn.dataTable.render
-                                          .number(".", ",", 0, "Rp.")
-                                          .display(data);
+                                           .number(".", ",", 0, "Rp.")
+                                           .display(data);
 
                             // Buat tooltip dan konten yang ditampilkan
                             return (
@@ -126,8 +111,36 @@ $(function () {
                         return data;
                     },
                 },
+                {
+                    targets: 6, // description
+                    render: function (data, type, full, row) {
+                        if (!data) return "-";
+                        if (type === "display") {
+                            var truncated = data.length > 35 ? data.substr(0, 32) + '...' : data;
+                            return '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' + data.replace(/"/g, '&quot;') + '">' + truncated + '</span>';
+                        }
+                        return data;
+                    }
+                },
+                {
+                    targets: 4, // Part Number
+                    render: function (data, type, full, row) {
+                        if (!data) return "-";
+                        if (type === "display") {
+                            var truncated = data.length > 20 ? data.substr(0, 17) + '...' : data;
+                            return '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' + data.replace(/"/g, '&quot;') + '">' + truncated + '</span>';
+                        }
+                        return data;
+                    }
+                },
+                {
+                    targets: [7, 8, 9],
+                    render: function (data, type, row) {
+                        return data !== null && data !== undefined ? data : 0;
+                    },
+                },
             ],
-            order: [[2, "desc"]],
+            order: [[1, "desc"]],
             dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             displayLength: 15,
             lengthMenu: [15, 25, 50, 75, 100],
@@ -142,7 +155,7 @@ $(function () {
                             text: '<i class="mdi mdi-printer-outline me-1" ></i>Print',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [2, 3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -198,7 +211,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-document-outline me-1" ></i>Csv',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [2, 3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -235,7 +248,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [2, 3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -272,7 +285,7 @@ $(function () {
                             text: '<i class="mdi mdi-file-pdf-box me-1"></i>Pdf',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [2, 3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
@@ -309,7 +322,7 @@ $(function () {
                             text: '<i class="mdi mdi-content-copy me-1" ></i>Copy',
                             className: "dropdown-item",
                             exportOptions: {
-                                columns: [3, 4, 5, 6, 7, 8, 9],
+                                columns: [2, 3, 4, 5, 6, 7, 8, 9],
                                 // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {

@@ -19,6 +19,8 @@ class KanbanTask extends Model
         'position',
         'assigned_to',
         'priority',
+        'pending_po_id',
+        'service_report_id',
     ];
 
     protected $casts = [
@@ -63,5 +65,10 @@ class KanbanTask extends Model
     public function assignees()
     {
         return $this->belongsToMany(User::class, 'kanban_task_assignees', 'task_id', 'user_id')->withTimestamps();
+    }
+
+    public function pendingPo()
+    {
+        return $this->belongsTo(PendingPO::class, 'pending_po_id');
     }
 }

@@ -56,19 +56,18 @@
                         </ul>
                     </div>
                 @endif
-                @if (auth()->user()->role === 'Admin')
+                @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Accounting')
                     <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#boardSettingsModal">
-                        <i class="mdi mdi-cog me-1"></i> Board Settings
+                        <i class="mdi mdi-cog me-1"></i>
                     </button>
                 @endif
+                <button class="btn btn-outline-primary btn-sm" type="button" id="btnToggleFullscreen">
+                    <i class="mdi mdi-fullscreen me-1" id="fsIcon"></i>
+                </button>
             </div>
         </div>
 
-        @if ($board->description)
-            <div class="alert alert-info mb-4 py-2 border-0 bg-label-info">
-                <i class="mdi mdi-information-outline me-2"></i> {{ $board->description }}
-            </div>
-        @endif
+
 
         <!-- Kanban Board Wrapper -->
         <div class="position-relative kanban-scroll-wrapper">
@@ -97,7 +96,15 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="createTaskTitle" class="form-label">Task Title</label>
-                            <input type="text" class="form-control" id="createTaskTitle" required placeholder="Enter task title">
+                            @if ($board->type === 'monitoring')
+                                <select class="form-select select2-create" id="createTaskTitleSelect" required style="width: 100%;">
+                                    <option value="">-- Pilih PO + Perusahaan --</option>
+                                </select>
+                                <input type="hidden" id="createTaskTitle" name="title">
+                                <input type="hidden" id="createTaskPendingPoId" name="pending_po_id">
+                            @else
+                                <input type="text" class="form-control" id="createTaskTitle" required placeholder="Enter task title">
+                            @endif
                         </div>
                         <div class="mb-3">
                             <label for="createTaskDescription" class="form-label">Description</label>
@@ -179,6 +186,90 @@
                         <!-- Left Section (Width 7/12): Main task info, labels, checklists -->
                         <div class="col-lg-7 border-end pe-lg-4">
                             
+                            <!-- Sales Order / PO details if exists -->
+                             <div id="soDetailsContainer" class="mb-4" style="display: none;">
+                                 <div class="card border border-light-subtle shadow-sm" style="background-color: #fbfbfc; border-radius: 12px; border: 1px solid #eef0f4 !important;">
+                                     <div class="card-body p-3.5">
+                                         <h6 class="fw-bold mb-3 text-dark d-flex align-items-center pb-2" style="font-size: 14.5px; border-bottom: 2px solid #5a8dee;">
+                                             <i class="mdi mdi-file-document-outline me-2 text-primary" style="font-size: 18px;"></i> Detail Purchase Order
+                                         </h6>
+                                         <div class="row g-3" style="font-size: 13px;">
+                                             <div class="col-sm-6">
+                                                 <span class="text-muted d-block mb-0.5" style="font-size: 10px; font-weight: 600; text-transform: uppercase;">Nomor PO</span>
+                                                 <strong id="soPoNumber" class="text-dark" style="font-size: 13.5px;"></strong>
+                                             </div>
+                                             <div class="col-sm-6">
+                                                 <span class="text-muted d-block mb-0.5" style="font-size: 10px; font-weight: 600; text-transform: uppercase;">Client / Perusahaan</span>
+                                                 <strong id="soClientName" class="text-dark" style="font-size: 13.5px;"></strong>
+                                             </div>
+                                             <div class="col-sm-6">
+                                                 <span class="text-muted d-block mb-0.5" style="font-size: 10px; font-weight: 600; text-transform: uppercase;">Nomor Penawaran (Quote)</span>
+                                                 <span id="soQuoteNumber" style="font-size: 13px;"></span>
+                                             </div>
+                                             <div class="col-sm-6">
+                                                 <span class="text-muted d-block mb-0.5" style="font-size: 10px; font-weight: 600; text-transform: uppercase;">Total Nett</span>
+                                                 <span id="soQuoteNett" class="fw-bold text-primary" style="font-size: 13.5px;"></span>
+                                             </div>
+                                             <div class="col-sm-6">
+                                                 <span class="text-muted d-block mb-0.5" style="font-size: 10px; font-weight: 600; text-transform: uppercase;">Sales Person</span>
+                                                 <span id="soSalesPerson" class="text-dark" style="font-size: 13px;"></span>
+                                             </div>
+                                             
+                                             <!-- Invoices & Payments status -->
+                                             <div class="col-sm-12 mt-2">
+                                                 <span class="text-muted d-block mb-1.5" style="font-size: 10px; font-weight: 600; text-transform: uppercase;">Invoice & Status Pembayaran</span>
+                                                 <div id="soInvoicesContainer" class="d-flex flex-column gap-1.5 mt-1">
+                                                     <!-- Dynamically populated via JS -->
+                                                 </div>
+                                             </div>
+ 
+                                             <!-- Delivery / Surat Jalan -->
+                                             <div class="col-sm-12 mt-2">
+                                                 <span class="text-muted d-block mb-1.5" style="font-size: 10px; font-weight: 600; text-transform: uppercase;">Surat Jalan (Delivery Order)</span>
+                                                 <div id="soDeliveriesContainer" class="d-flex flex-wrap gap-1.5 mt-1">
+                                                     <!-- Dynamically populated via JS -->
+                                                 </div>
+                                             </div>
+ 
+                                             <!-- Service Report Selection -->
+                                             <div class="col-sm-12 mt-3 pt-2 border-top">
+                                                 <span class="text-muted d-block mb-1.5" style="font-size: 10px; font-weight: 600; text-transform: uppercase;">Service Report</span>
+                                                 
+                                                 <!-- Connected Service Report Card Display -->
+                                                 <div id="connectedReportContainer" style="display: none;" class="mb-2">
+                                                     <div class="d-flex align-items-center justify-content-between p-2.5 rounded border border-success bg-white" style="font-size: 12.5px; border-color: #71dd37 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                                         <div class="d-flex align-items-center gap-2">
+                                                             <i class="mdi mdi-file-check-outline text-success" style="font-size: 20px;"></i>
+                                                             <div>
+                                                                 <a id="connectedReportLink" href="#" target="_blank" class="fw-bold text-success d-block text-decoration-none"></a>
+                                                                 <small id="connectedReportDate" class="text-muted" style="font-size: 10.5px;"></small>
+                                                             </div>
+                                                         </div>
+                                                         <button type="button" class="btn btn-xs btn-outline-danger px-2 btn-unlink-report" style="padding: 2px 6px;">
+                                                             <i class="mdi mdi-link-off me-1"></i>Putuskan
+                                                         </button>
+                                                     </div>
+                                                 </div>
+
+                                                 <!-- Select & Connect Form Container -->
+                                                 <div id="reportSelectorContainer" style="display: block;" class="mt-1">
+                                                     <div class="d-flex align-items-center gap-2">
+                                                         <div class="flex-grow-1">
+                                                             <select class="form-select select2-edit" id="editTaskServiceReport" name="service_report_id" style="width: 100%;">
+                                                                 <!-- Dynamically populated via JS -->
+                                                             </select>
+                                                         </div>
+                                                         <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" type="button" id="btnConnectReport" style="height: 38px;">
+                                                             <i class="mdi mdi-link-variant"></i> Hubungkan
+                                                         </button>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+
                             <!-- Labels section -->
                             <div class="mb-4">
                                 <label class="form-label text-muted fw-semibold" style="font-size: 11px;">Labels</label>
@@ -205,9 +296,9 @@
 
                             <!-- Metadata row (Assignee, Due Date, and Priority dropdowns) -->
                             <div class="row mb-4">
-                                <div class="col-sm-4">
+                                <div class="col-sm-6">
                                     <label for="editTaskAssignee" class="form-label text-muted fw-semibold" style="font-size: 11px;">Ditugaskan Kepada</label>
-                                    <div class="d-flex align-items-center w-100">
+                                    <div class="w-100">
                                         <select class="form-select select2-edit" id="editTaskAssignee" name="assignees[]" multiple="multiple" data-placeholder="Pilih Penerima" style="width: 100%;">
                                             @foreach ($users as $user)
                                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -215,11 +306,11 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-sm-3">
                                     <label for="editTaskDueDate" class="form-label text-muted fw-semibold" style="font-size: 11px;">Tanggal Batas Waktu</label>
                                     <input type="text" class="form-control flatpickr" id="editTaskDueDate" placeholder="YYYY-MM-DD">
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-sm-3">
                                     <label for="editTaskPriority" class="form-label text-muted fw-semibold" style="font-size: 11px;">Prioritas</label>
                                     <select class="form-select" id="editTaskPriority">
                                         <option value="low">Rendah</option>
@@ -317,7 +408,7 @@
                         <h5 class="modal-title fw-bold">Board Settings</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form id="boardSettingsForm">
+                    <form id="boardSettingsForm" enctype="multipart/form-data">
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="settingsBoardTitle" class="form-label">Board Title</label>
@@ -378,6 +469,22 @@
                                     @endforeach
                                 </div>
                             </div>
+                            @if ($board->type === 'monitoring')
+                            <div class="mb-3 border-top pt-3">
+                                <label for="settingsNotificationSound" class="form-label fw-bold">Notification Sound (mp3/wav/ogg)</label>
+                                <input type="file" class="form-control" id="settingsNotificationSound" name="notification_sound" accept="audio/*">
+                                @if ($board->notification_sound)
+                                    <div class="d-flex align-items-center mt-2 gap-2">
+                                        <small class="text-success mb-0">
+                                            <i class="mdi mdi-check-circle-outline"></i> Sound kustom aktif: {{ basename($board->notification_sound) }}
+                                        </small>
+                                        <button type="button" class="btn btn-xs btn-outline-info py-0 px-2" id="btnTestSound" data-sound="{{ asset($board->notification_sound) }}">
+                                            <i class="mdi mdi-volume-high me-1"></i> Test
+                                        </button>
+                                    </div>
+                                @endif
+                            </div>
+                            @endif
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
@@ -396,6 +503,112 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
     <style>
+        /* Custom modal width expansion for desktop screen layouts */
+        @media (min-width: 1200px) {
+            #taskDetailsModal .modal-xl {
+                max-width: 1300px !important;
+            }
+        }
+
+        /* Fixed height for the entire Kanban board area to fit viewport */
+        .kanban-wrapper {
+            height: calc(100vh - 160px) !important;
+            overflow: auto !important;
+        }
+
+        /* Column cards container takes remaining height and scrolls internally */
+        .kanban-wrapper main.kanban-drag {
+            height: calc(100vh - 225px) !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding: 8px 12px 12px 12px !important;
+        }
+
+        /* Webkit scrollbars styling for kanban columns */
+        .kanban-wrapper main.kanban-drag::-webkit-scrollbar {
+            width: 5px;
+        }
+        .kanban-wrapper main.kanban-drag::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+        }
+        .kanban-wrapper main.kanban-drag::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        /* CSS overrides for Kanban Fullscreen Mode */
+        body.kanban-fullscreen-mode .layout-menu {
+            display: none !important;
+        }
+        body.kanban-fullscreen-mode .layout-navbar {
+            display: none !important;
+        }
+        body.kanban-fullscreen-mode .layout-page {
+            padding-left: 0 !important;
+            padding-top: 0 !important;
+            margin-left: 0 !important;
+        }
+        body.kanban-fullscreen-mode .content-wrapper {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        body.kanban-fullscreen-mode .container-xxl {
+            max-width: 100% !important;
+            width: 100% !important;
+            padding: 10px 15px !important;
+        }
+        body.kanban-fullscreen-mode .kanban-wrapper {
+            height: calc(100vh - 100px) !important;
+        }
+        body.kanban-fullscreen-mode main.kanban-drag {
+            height: calc(100vh - 165px) !important;
+        }
+
+        /* Custom dynamic notification styles */
+        .custom-toast {
+            width: 350px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            pointer-events: auto;
+            animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards, toastFadeOut 0.5s ease 4.5s forwards;
+            transform: translateX(120%);
+        }
+        @keyframes toastSlideIn {
+            to { transform: translateX(0); }
+        }
+        @keyframes toastFadeOut {
+            to { opacity: 0; transform: translateY(-20px); pointer-events: none; }
+        }
+        .toast-bell-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(105, 108, 255, 0.1);
+            color: #696cff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            animation: bellRing 1.5s ease-in-out infinite alternate;
+        }
+        @keyframes bellRing {
+            0%, 100% { transform: rotate(0); }
+            20% { transform: rotate(15deg); }
+            40% { transform: rotate(-15deg); }
+            60% { transform: rotate(10deg); }
+            80% { transform: rotate(-10deg); }
+        }
+
         .kanban-wrapper {
             cursor: grab;
         }
@@ -496,6 +709,7 @@
         $(document).ready(function() {
             const boardId = "{{ $board->id }}";
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
+            const boardType = "{{ $board->type }}";
             let kanbanBoardInstance = null;
             const boardLabels = @json($board->labels ?? (object)[]);
             const defaultLabels = {
@@ -515,10 +729,11 @@
                 if ($(selector).length) {
                     $(selector).each(function() {
                         var $this = $(this);
-                        $this.wrap('<div class="position-relative"></div>').select2({
+                        $this.wrap('<div class="position-relative w-100"></div>').select2({
                             dropdownParent: $this.parent(),
                             placeholder: $this.data('placeholder'),
-                            allowClear: true
+                            allowClear: true,
+                            width: '100%'
                         });
                     });
                 }
@@ -564,6 +779,8 @@
                 return 'bg-label-secondary'; // Safe
             }
 
+            let lastTaskId = 0;
+
             // Fetch and render Kanban data
             function loadKanbanBoard() {
                 // If a card is currently being dragged, skip reload to prevent glitching
@@ -579,6 +796,22 @@
                         }
                         lastBoardDataHash = currentHash;
 
+                        // Track max task id
+                        let maxTaskId = 0;
+                        data.forEach(function(column) {
+                            if (column.item) {
+                                column.item.forEach(function(task) {
+                                    const idNum = parseInt(task.id);
+                                    if (idNum > maxTaskId) {
+                                        maxTaskId = idNum;
+                                    }
+                                });
+                            }
+                        });
+                        if (maxTaskId > lastTaskId) {
+                            lastTaskId = maxTaskId;
+                        }
+
                         $('.kanban-wrapper').html('');
                         
                         // Map items for jKanban rendering
@@ -587,7 +820,10 @@
                                 id: column.id,
                                 title: `
                                     <div class="d-flex justify-content-between align-items-center w-100 pe-2" style="gap: 10px;">
-                                        <span class="kanban-title-board">${column.title}</span>
+                                        <div class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-between flex-grow-1 py-1 px-2 bg-white" style="border-color: #eef0f4; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); pointer-events: none; max-width: calc(100% - 30px); min-width: 0;">
+                                            <span class="kanban-title-board text-truncate" style="font-size: 13px; font-weight: 700; color: #4f5157; margin-right: 5px;" title="${column.title}">${column.title}</span>
+                                            <span class="badge bg-primary rounded-pill" style="font-size: 10px; padding: 2.5px 6.5px; flex-shrink: 0;">${column.item ? column.item.length : 0}</span>
+                                        </div>
                                         <button class="btn btn-xs btn-text-primary btn-icon rounded-circle btn-add-task-custom" data-column-id="${column.id}" style="width: 24px; height: 24px; min-width: 24px; padding: 0;" type="button">
                                             <i class="mdi mdi-plus" style="font-size: 16px;"></i>
                                         </button>
@@ -666,13 +902,31 @@
                                     }
                                     labelsHtml += '</div>';
 
+                                    let displayTitleHtml = `<div class="text-heading fw-semibold" style="font-size: 13px; white-space: normal; word-break: break-word;">${task.title}</div>`;
+                                    const poMatch = task.title.match(/^\[(.*?)\]\s*-\s*(.*)$/);
+                                    if (poMatch) {
+                                        const poNum = poMatch[1];
+                                        const company = poMatch[2];
+                                        displayTitleHtml = `
+                                            <div class="text-primary fw-bold text-truncate" style="font-size: 13.5px;" title="${poNum}">[${poNum}]</div>
+                                            <div class="text-heading fw-semibold mt-1" style="font-size: 12.5px; line-height: 1.35; white-space: normal; word-break: break-word;">${company}</div>
+                                        `;
+                                    }
+
+                                    let nettHtml = '';
+                                    if (task.nett && task.nett > 0 && boardType === 'monitoring') {
+                                        const formattedVal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(task.nett);
+                                        nettHtml = `<div class="mt-1"><span class="badge bg-label-primary" style="font-size: 10px; font-weight: 600; padding: 3px 6px;">${formattedVal}</span></div>`;
+                                    }
+
                                     return {
                                         id: task.id,
                                         title: `
                                             <div class="kanban-item-content" data-task-id="${task.id}" data-task='${JSON.stringify(task).replace(/'/g, "&#39;")}'>
                                                 ${labelsHtml}
-                                                <span class="fw-semibold text-heading d-block mb-1" style="font-size:13px;">${task.title}</span>
-                                                <small class="text-muted d-block text-truncate" style="max-width: 200px;">${task.description ? task.description : ''}</small>
+                                                <div class="mb-1" style="line-height: 1.4;">${displayTitleHtml}</div>
+                                                ${nettHtml}
+                                                <small class="text-muted d-block text-truncate mt-1" style="max-width: 200px;">${task.description ? task.description : ''}</small>
                                                 ${progressBarHtml}
                                                 ${footerHtml}
                                             </div>
@@ -754,8 +1008,47 @@
                 $('#createTaskColumnId').val(boardId);
                 $('#createTaskForm')[0].reset();
                 $('#createTaskAssignee').val('').trigger('change');
+                
+                @if ($board->type === 'monitoring')
+                    $('#createTaskTitleSelect').val('').trigger('change');
+                    $('#createTaskPendingPoId').val('');
+                    
+                    $.ajax({
+                        url: '{{ route("kanban.monitoring-document.available-pos") }}',
+                        method: 'GET',
+                        success: function(response) {
+                            if (response.success) {
+                                let html = '<option value="">-- Pilih PO + Perusahaan --</option>';
+                                response.pos.forEach(function(po) {
+                                    html += `<option value="${po.id}" data-no-po="${po.no_po}" data-company="${po.company}" data-sales="${po.sales}">[${po.no_po}] - ${po.company} (Sales: ${po.sales})</option>`;
+                                });
+                                $('#createTaskTitleSelect').html(html).trigger('change');
+                            }
+                        }
+                    });
+                @endif
+                
                 $('#createTaskModal').modal('show');
             }
+
+            @if ($board->type === 'monitoring')
+                $(document).ready(function() {
+                    $('#createTaskTitleSelect').on('change', function() {
+                        const selectedOption = $(this).find('option:selected');
+                        if (selectedOption.val()) {
+                            const title = `[${selectedOption.data('no-po')}] - ${selectedOption.data('company')}`;
+                            const sales = selectedOption.data('sales');
+                            $('#createTaskTitle').val(title);
+                            $('#createTaskPendingPoId').val(selectedOption.val());
+                            $('#createTaskDescription').val(`Sales: ${sales}`);
+                        } else {
+                            $('#createTaskTitle').val('');
+                            $('#createTaskPendingPoId').val('');
+                            $('#createTaskDescription').val('');
+                        }
+                    });
+                });
+            @endif
 
             // Handle Create Task Submission
             $('#createTaskForm').submit(function(e) {
@@ -766,6 +1059,7 @@
                 const assignee = $('#createTaskAssignee').val();
                 const dueDate = $('#createTaskDueDate').val();
                 const priority = $('#createTaskPriority').val();
+                const pendingPoId = $('#createTaskPendingPoId').length ? $('#createTaskPendingPoId').val() : null;
 
                 $.ajax({
                     url: '/kanban/tasks',
@@ -778,6 +1072,7 @@
                         assigned_to: assignee,
                         due_date: dueDate,
                         priority: priority,
+                        pending_po_id: pendingPoId,
                         _token: csrfToken
                     },
                     success: function(response) {
@@ -860,11 +1155,92 @@
                     success: function(response) {
                         if (response.success) {
                             currentTaskData = response.task;
+
+                            if (response.so_details) {
+                                $('#soPoNumber').text(response.so_details.no_po);
+                                $('#soClientName').text(response.so_details.company);
+                                
+                                // Render Quotation as a Link
+                                if (response.so_details.quote_no !== 'N/A') {
+                                    $('#soQuoteNumber').html(`<a href="${response.so_details.quote_link}" target="_blank" class="fw-semibold text-primary"><i class="mdi mdi-open-in-new me-1" style="font-size:12px;"></i>${response.so_details.quote_no}</a>`);
+                                } else {
+                                    $('#soQuoteNumber').text('N/A');
+                                }
+                                
+                                $('#soQuoteNett').text('Rp ' + response.so_details.quote_nett);
+                                $('#soSalesPerson').text(response.so_details.sales_name);
+
+                                // Render Invoices and associate their payments sequentially
+                                let invoicesHtml = '';
+                                if (response.so_details.invoices && response.so_details.invoices.length > 0) {
+                                    response.so_details.invoices.forEach(function(inv) {
+                                        const statusBadge = inv.status === 'Paid' ? 'bg-label-success' : (inv.status === 'Pending Confirmation' ? 'bg-label-warning' : 'bg-label-danger');
+                                        invoicesHtml += `
+                                            <div class="d-flex align-items-center justify-content-between p-2 rounded bg-white border mb-1" style="font-size:12px;">
+                                                <a href="${inv.link}" target="_blank" class="fw-semibold text-heading"><i class="mdi mdi-link-variant me-1" style="font-size:12px;"></i>${inv.no_invoice} (${inv.term_name})</a>
+                                                <span class="badge ${statusBadge}" style="font-size:9.5px; padding: 2px 6px;">${inv.status}</span>
+                                            </div>
+                                        `;
+                                    });
+                                } else {
+                                    invoicesHtml = '<span class="text-muted" style="font-size:12px;">Belum ada invoice yang diterbitkan.</span>';
+                                }
+                                $('#soInvoicesContainer').html(invoicesHtml);
+
+                                // Render Delivery / Surat Jalan
+                                let deliveriesHtml = '';
+                                if (response.so_details.deliveries && response.so_details.deliveries.length > 0) {
+                                    response.so_details.deliveries.forEach(function(del) {
+                                        deliveriesHtml += `
+                                            <a href="${del.link}" target="_blank" class="badge bg-label-info p-2 me-1 mb-1" style="font-size:11px;">
+                                                <i class="mdi mdi-truck-delivery-outline me-1"></i>Surat Jalan #${del.id} (${del.destination})
+                                            </a>
+                                        `;
+                                    });
+                                } else {
+                                    deliveriesHtml = '<span class="text-muted" style="font-size:12px;">Belum ada surat jalan yang dibuat.</span>';
+                                }
+                                $('#soDeliveriesContainer').html(deliveriesHtml);
+
+                                // Render Connected Service Report flow
+                                if (response.so_details.active_report) {
+                                    $('#connectedReportLink')
+                                        .text(response.so_details.active_report.jobdesc)
+                                        .attr('href', response.so_details.active_report.link);
+                                    $('#connectedReportDate').text('Dibuat: ' + response.so_details.active_report.date);
+                                    
+                                    $('#connectedReportContainer').show();
+                                    $('#reportSelectorContainer').hide();
+                                } else {
+                                    $('#connectedReportContainer').hide();
+                                    $('#reportSelectorContainer').show();
+                                }
+
+                                // Populate available reports dropdown options
+                                isProgrammaticChange = true;
+                                let reportsHtml = '<option value="">-- Hubungkan Service Report --</option>';
+                                if (response.so_details.available_reports && response.so_details.available_reports.length > 0) {
+                                    response.so_details.available_reports.forEach(function(rep) {
+                                        const isSelected = (rep.id == response.so_details.service_report_id) ? 'selected' : '';
+                                        reportsHtml += `<option value="${rep.id}" ${isSelected}>${rep.jobdesc}</option>`;
+                                    });
+                                }
+                                $('#editTaskServiceReport').html(reportsHtml).trigger('change', { programmatic: true });
+                                isProgrammaticChange = false;
+
+                                $('#soDetailsContainer').show();
+                            } else {
+                                $('#soDetailsContainer').hide();
+                            }
                             
                             isProgrammaticChange = true;
                             // Set fields if changed
-                            if ($('#taskDetailsModalLabel').text() !== currentTaskData.title) {
-                                $('#taskDetailsModalLabel').text(currentTaskData.title);
+                            const titleRaw = currentTaskData.title || '';
+                            const titleMatch = titleRaw.match(/^\[(.*?)\]\s*-\s*(.*)$/);
+                            if (titleMatch) {
+                                $('#taskDetailsModalLabel').html(`<span class="badge bg-label-primary px-3 py-2 me-2" style="font-size: 13.5px; font-weight: 600;"><i class="mdi mdi-receipt-text-outline me-1"></i>${titleMatch[1]}</span> <span class="text-dark fw-bold" style="font-size: 16px;">${titleMatch[2]}</span>`);
+                            } else {
+                                $('#taskDetailsModalLabel').text(titleRaw);
                             }
                             if ($('#currentStatusText').text() !== currentTaskData.column_title) {
                                 $('#currentStatusText').text(currentTaskData.column_title);
@@ -1172,16 +1548,11 @@
             });
 
             // Metadata changes (Assignee, Due Date, and Priority auto-sync)
-            $('#editTaskAssignee').change(function(e, data) {
-                if (isProgrammaticChange || (data && data.programmatic)) return;
+            // Metadata changes (Assignee, Due Date, and Priority auto-sync)
+            $(document).on('select2:select select2:unselect', '#editTaskAssignee', function(e) {
                 const taskId = $('#editTaskId').val();
                 if (!taskId || !currentTaskData) return;
                 const newAssignees = $(this).val() || [];
-                const currentAssignees = currentTaskData.assignees || [];
-                
-                const newAssigneesStr = newAssignees.map(String).sort().join(',');
-                const currentAssigneesStr = currentAssignees.map(String).sort().join(',');
-                if (newAssigneesStr === currentAssigneesStr) return;
 
                 $.ajax({
                     url: `/kanban/tasks/${taskId}/update`,
@@ -1739,6 +2110,7 @@
                         assigned_to: assignee,
                         due_date: dueDate,
                         column_id: columnId,
+                        service_report_id: $('#editTaskServiceReport').val(),
                         _token: csrfToken
                     },
                     success: function(response) {
@@ -1753,6 +2125,68 @@
                 });
             });
 
+            // Handle Link Service Report click
+            $(document).on('click', '#btnConnectReport', function(e) {
+                e.preventDefault();
+                const taskId = $('#editTaskId').val();
+                if (!taskId || !currentTaskData) return;
+                
+                const selectedReportId = $('#editTaskServiceReport').val();
+                if (!selectedReportId) {
+                    alert('Silakan pilih Service Report terlebih dahulu.');
+                    return;
+                }
+
+                $.ajax({
+                    url: `/kanban/tasks/${taskId}/update`,
+                    method: 'POST',
+                    data: {
+                        title: currentTaskData.title,
+                        description: $('#editTaskDescription').val(),
+                        assignees: $('#editTaskAssignee').val(),
+                        due_date: $('#editTaskDueDate').val(),
+                        priority: $('#editTaskPriority').val(),
+                        column_id: 'column_' + currentTaskData.column_id,
+                        service_report_id: selectedReportId,
+                        _token: csrfToken
+                    },
+                    success: function() {
+                        loadTaskDetails(taskId);
+                        loadKanbanBoard();
+                    },
+                    error: function() {
+                        alert('Gagal menghubungkan Service Report.');
+                    }
+                });
+            });
+
+            // Handle Unlink Service Report
+            $(document).on('click', '.btn-unlink-report', function(e) {
+                e.preventDefault();
+                const taskId = $('#editTaskId').val();
+                if (!taskId) return;
+                if (confirm('Apakah Anda yakin ingin memutuskan hubungan dengan Service Report ini?')) {
+                    $.ajax({
+                        url: `/kanban/tasks/${taskId}/update`,
+                        method: 'POST',
+                        data: {
+                            title: currentTaskData.title,
+                            description: $('#editTaskDescription').val(),
+                            assignees: $('#editTaskAssignee').val(),
+                            due_date: $('#editTaskDueDate').val(),
+                            priority: $('#editTaskPriority').val(),
+                            column_id: 'column_' + currentTaskData.column_id,
+                            service_report_id: null,
+                            _token: csrfToken
+                        },
+                        success: function() {
+                            loadTaskDetails(taskId);
+                            loadKanbanBoard();
+                        }
+                    });
+                }
+            });
+ 
             // Handle Delete Task
             $('#deleteTaskBtn').click(function() {
                 const taskId = $('#editTaskId').val();
@@ -2101,6 +2535,20 @@
                 });
             });
 
+            // Handle test sound click in Board Settings
+            $(document).on('click', '#btnTestSound', function(e) {
+                e.preventDefault();
+                const soundUrl = $(this).data('sound');
+                if (soundUrl) {
+                    try {
+                        const audio = new Audio(soundUrl);
+                        audio.play();
+                    } catch(err) {
+                        alert('Browser memblokir autoplay suara. Silakan berinteraksi dengan halaman (klik bebas) terlebih dahulu.');
+                    }
+                }
+            });
+
             // Submit board settings
             $('#boardSettingsForm').submit(function(e) {
                 e.preventDefault();
@@ -2111,12 +2559,15 @@
                     $(el).find('input[type="text"]').attr('name', 'columns[' + index + '][title]');
                 });
 
-                const formData = $(this).serialize() + '&_token=' + encodeURIComponent(csrfToken);
+                const formData = new FormData(this);
+                formData.append('_token', csrfToken);
 
                 $.ajax({
                     url: `/kanban/boards/${boardId}/update`,
                     method: 'POST',
                     data: formData,
+                    contentType: false,
+                    processData: false,
                     success: function(response) {
                         $('#boardSettingsModal').modal('hide');
                         window.location.reload();
@@ -2126,6 +2577,105 @@
                     }
                 });
             });
+
+            @if ($board->type === 'monitoring')
+            // Beautiful Floating Toast Notification
+            function showCustomNotification() {
+                let container = $('#customToastContainer');
+                if (!container.length) {
+                    $('body').append('<div id="customToastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 9999; pointer-events: none;"></div>');
+                }
+                
+                const toastHtml = `
+                    <div class="custom-toast">
+                        <div class="toast-bell-icon">
+                            <i class="mdi mdi-bell-ring-outline"></i>
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h6 class="fw-bold mb-1 text-primary" style="font-size: 14px; margin-bottom: 2px;">Ada PO Baru Masuk!</h6>
+                            <p class="text-muted mb-0" style="font-size: 12px; line-height: 1.4;">Dokumen telah berhasil disinkronisasi ke dalam papan monitoring.</p>
+                        </div>
+                        <button type="button" class="btn-close" style="font-size: 10px; opacity: 0.5;" onclick="$(this).closest('.custom-toast').remove()"></button>
+                    </div>
+                `;
+                
+                $('#customToastContainer').append(toastHtml);
+                
+                setTimeout(function() {
+                    $('#customToastContainer .custom-toast').first().remove();
+                }, 5200);
+            }
+
+            // Polling check for new cards
+            function pollNewCards() {
+                if (lastTaskId === 0) return;
+                
+                $.ajax({
+                    url: `/accounting/monitoring-document/check-new-cards/${lastTaskId}`,
+                    method: 'GET',
+                    success: function(response) {
+                        if (response.success && response.new_cards > 0) {
+                            const soundPath = "{{ $board->notification_sound ? asset($board->notification_sound) : asset('assets/audio/kanban-notification-default.wav') }}";
+                            try {
+                                const audio = new Audio(soundPath);
+                                audio.play();
+                            } catch(e) {
+                                console.error("Audio playback blocked:", e);
+                            }
+
+                            showCustomNotification();
+                            loadKanbanBoard();
+                        }
+                    }
+                });
+            }
+
+            // Fullscreen Toggle Handler
+            $('#btnToggleFullscreen').click(function(e) {
+                e.preventDefault();
+                $('body').toggleClass('kanban-fullscreen-mode');
+                const isFullscreen = $('body').hasClass('kanban-fullscreen-mode');
+                
+                if (isFullscreen) {
+                    $('#fsIcon').removeClass('mdi-fullscreen').addClass('mdi-fullscreen-exit');
+                    $('#fsText').text('Exit Fullscreen');
+                    
+                    const elem = document.documentElement;
+                    if (elem.requestFullscreen) {
+                        elem.requestFullscreen();
+                    } else if (elem.webkitRequestFullscreen) { /* Safari */
+                        elem.webkitRequestFullscreen();
+                    } else if (elem.msRequestFullscreen) { /* IE11 */
+                        elem.msRequestFullscreen();
+                    }
+                } else {
+                    $('#fsIcon').removeClass('mdi-fullscreen-exit').addClass('mdi-fullscreen');
+                    $('#fsText').text('Fullscreen');
+                    
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) { /* Safari */
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) { /* IE11 */
+                        document.msExitFullscreen();
+                    }
+                }
+                window.dispatchEvent(new Event('resize'));
+            });
+
+            // Handle native browser escape/exit fullscreen
+            $(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function() {
+                const nativeFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+                if (!nativeFullscreen) {
+                    $('body').removeClass('kanban-fullscreen-mode');
+                    $('#fsIcon').removeClass('mdi-fullscreen-exit').addClass('mdi-fullscreen');
+                    $('#fsText').text('Fullscreen');
+                    window.dispatchEvent(new Event('resize'));
+                }
+            });
+
+            setInterval(pollNewCards, 10000);
+            @endif
         });
     </script>
 @endpush

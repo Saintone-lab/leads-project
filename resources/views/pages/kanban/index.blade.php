@@ -11,7 +11,7 @@
     <div class="d-flex justify-content-between align-items-center py-3 mb-4">
         <h4 class="fw-bold mb-0">Kanban Board</h4>
         @if (auth()->user()->role === 'Admin')
-            <button class="btn btn-primary" disabled>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBoardModal">
                 <i class="mdi mdi-plus me-1"></i> Create New Board
             </button>
         @endif
@@ -57,8 +57,8 @@
         @empty
             <div class="col-12 text-center py-5">
                 <div class="misc-wrapper">
-                    <h2 class="mb-2 mx-2">Under Construction</h2>
-                    <p class="mb-4 mx-2">Fitur Kanban Board sedang dalam pengembangan.</p>
+                    <h2 class="mb-2 mx-2">Belum ada papan Kanban</h2>
+                    <p class="mb-4 mx-2">Anda belum diundang ke papan Kanban mana pun, silakan hubungi Admin.</p>
                 </div>
             </div>
         @endforelse

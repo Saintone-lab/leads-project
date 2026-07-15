@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 use Illuminate\Support\Facades\Auth;
 
 header('Content-Type: application/json');
@@ -58,8 +58,6 @@ if (Auth::check()) {
                     serial_product s ON p.id = s.id_product
                 LEFT JOIN 
                     detail_product dp ON p.id = dp.id_product
-                LEFT JOIN 
-                    detail_product_in dpi ON dp.id = dpi.id_detail_product
                 GROUP BY 
                     p.id, s.pn";
 

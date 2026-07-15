@@ -26,14 +26,9 @@ class ProductController extends Controller
         $commodity = Product::count();
         $dproduct = DetailProduct::count();
         $sproduct = SerialProduct::count();
-        $replace = DetailProduct::all();
-        $asset = $replace->sum(function ($replacement) {
-            return $replacement->modal * $replacement->stock;
-        });
-        $equiv = SerialProduct::join('product', 'product.id', '=', 'serial_product.id_product')->groupBy('product.id')->get();
-        $revenue = $equiv->sum(function ($equivalent) {
-            return $equivalent->price * $equivalent->stock;
-        });
+        $asset = DetailProduct::sum(DB::raw('modal * stock'));
+        $revenue = DB::table(DB::raw('(SELECT p.stock * s.price AS val FROM serial_product s JOIN product p ON p.id = s.id_product GROUP BY p.id) as sub'))
+            ->sum('val');
         // dd($revenue);
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
