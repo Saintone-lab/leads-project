@@ -240,131 +240,147 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($regularSales as $sale)
-                        @php
-                            $totalS1 = 0;
-                            for ($m = 1; $m <= 6; $m++) $totalS1 += $sale['jumlah'][$m];
-                            $pctS1   = $sale['target'] > 0 ? round(($totalS1 / ($sale['target'] * 6)) * 100, 1) : 0;
-                            $lblS1   = $pctS1 >= 100 ? 'success' : ($pctS1 >= 80 ? 'warning' : 'danger');
-                        @endphp
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="{{ url('') . '/' . $sale['image'] }}" class="rounded-circle"
-                                        width="30" height="30" style="object-fit:cover;">
-                                    <span class="fw-semibold">{{ $sale['name'] }}</span>
-                                </div>
-                            </td>
-                            @for ($m = 1; $m <= 6; $m++)
-                                @php
-                                    $nomS1m  = $sale['jumlah'][$m];
-                                    $pctMoS1 = $sale['target'] > 0 ? round(($nomS1m / $sale['target']) * 100, 1) : 0;
-                                    $barS1   = min($pctMoS1, 100);
-                                    $clrS1   = $pctMoS1 >= 100 ? 'success' : ($pctMoS1 >= 80 ? 'warning' : 'danger');
-                                @endphp
-                                <td style="min-width:110px">
-                                    <div class="text-end text-nowrap small">
-                                        {{ $nomS1m > 0 ? number_format($nomS1m, 0, ',', '.') : '—' }}
-                                    </div>
-                                    @if ($nomS1m > 0)
-                                        <div class="d-flex align-items-center gap-1 mt-1">
-                                            <div class="progress flex-grow-1" style="height:4px">
-                                                <div class="progress-bar bg-{{ $clrS1 }}"
-                                                    style="width:{{ $barS1 }}%"></div>
+                    @php
+                        // Susun rows S1 (regular sales + Team E-Commerce), urutkan berdasarkan % pencapaian
+                        $s1Rows = [];
+                        foreach ($regularSales as $sale) {
+                            $t = 0;
+                            for ($m = 1; $m <= 6; $m++) $t += $sale['jumlah'][$m];
+                            $p = $sale['target'] > 0 ? round(($t / ($sale['target'] * 6)) * 100, 1) : 0;
+                            $s1Rows[] = ['isTeam' => false, 'sale' => $sale, 'total' => $t, 'pct' => $p];
+                        }
+                        if (count($ecommerceMembers) > 0) {
+                            $t = 0;
+                            for ($m = 1; $m <= 6; $m++) $t += $teamJumlah[$m];
+                            $p = $teamTarget > 0 ? round(($t / ($teamTarget * 6)) * 100, 1) : 0;
+                            $s1Rows[] = ['isTeam' => true, 'total' => $t, 'pct' => $p];
+                        }
+                        usort($s1Rows, fn($a, $b) => $b['pct'] <=> $a['pct']);
+                    @endphp
+                    @foreach ($s1Rows as $row)
+                        @if ($row['isTeam'])
+                            @php
+                                $teamS1Total = $row['total'];
+                                $teamS1Pct   = $row['pct'];
+                                $teamS1Lbl   = $teamS1Pct >= 100 ? 'success' : ($teamS1Pct >= 80 ? 'warning' : 'danger');
+                            @endphp
+                            <tr class="table-warning">
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="{{ url('') . '/' . $teamImage }}" class="rounded-circle"
+                                            width="30" height="30" style="object-fit:cover;">
+                                        <div>
+                                            <div class="fw-semibold">Team E-Commerce</div>
+                                            <div class="d-flex gap-1 mt-1">
+                                                @foreach ($ecommerceMembers as $member)
+                                                    <span class="badge bg-label-secondary" style="font-size:0.65rem">{{ $member['name'] }}</span>
+                                                @endforeach
                                             </div>
-                                            <small class="text-{{ $clrS1 }} fw-semibold"
-                                                style="font-size:0.7rem">{{ $pctMoS1 }}%</small>
                                         </div>
+                                    </div>
+                                </td>
+                                @for ($m = 1; $m <= 6; $m++)
+                                    @php
+                                        $nomS1m  = $teamJumlah[$m];
+                                        $pctMoS1 = $teamTarget > 0 ? round(($nomS1m / $teamTarget) * 100, 1) : 0;
+                                        $barS1   = min($pctMoS1, 100);
+                                        $clrS1   = $pctMoS1 >= 100 ? 'success' : ($pctMoS1 >= 80 ? 'warning' : 'danger');
+                                    @endphp
+                                    <td style="min-width:110px">
+                                        <div class="text-end text-nowrap small">
+                                            {{ $nomS1m > 0 ? number_format($nomS1m, 0, ',', '.') : '—' }}
+                                        </div>
+                                        @if ($nomS1m > 0)
+                                            <div class="d-flex align-items-center gap-1 mt-1">
+                                                <div class="progress flex-grow-1" style="height:4px">
+                                                    <div class="progress-bar bg-{{ $clrS1 }}" style="width:{{ $barS1 }}%"></div>
+                                                </div>
+                                                <small class="text-{{ $clrS1 }} fw-semibold" style="font-size:0.7rem">{{ $pctMoS1 }}%</small>
+                                            </div>
+                                        @endif
+                                    </td>
+                                @endfor
+                                <td class="text-end text-nowrap fw-bold">{{ number_format($teamS1Total, 0, ',', '.') }}</td>
+                                <td class="text-center"><span class="badge bg-label-{{ $teamS1Lbl }}">{{ $teamS1Pct }}%</span></td>
+                                <td class="text-center">
+                                    @if ($reportS1)
+                                        <div class="dropdown">
+                                            <button class="btn btn-icon btn-sm btn-outline-primary waves-effect dropdown-toggle"
+                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="mdi mdi-eye-outline"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                @foreach ($ecommerceMembers as $member)
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('overview-sales.semester', [$reportS1->id, $member['id']]) }}">
+                                                            {{ $member['name'] }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @else
+                                        <span class="text-muted">—</span>
                                     @endif
                                 </td>
-                            @endfor
-                            <td class="text-end text-nowrap fw-bold">{{ number_format($totalS1, 0, ',', '.') }}</td>
-                            <td class="text-center">
-                                <span class="badge bg-label-{{ $lblS1 }}">{{ $pctS1 }}%</span>
-                            </td>
-                            <td class="text-center">
-                                @if ($reportS1)
-                                    <a href="{{ route('overview-sales.semester', [$reportS1->id, $sale['id']]) }}"
-                                        class="btn btn-icon btn-sm btn-outline-primary waves-effect"
-                                        title="Lihat Detail Semester 1">
-                                        <i class="mdi mdi-eye-outline"></i>
-                                    </a>
-                                @else
-                                    <span class="text-muted">—</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                    {{-- Team E-Commerce (ID 16 & 23) --}}
-                    @if (count($ecommerceMembers) > 0)
-                        @php
-                            $teamS1Total = 0;
-                            for ($m = 1; $m <= 6; $m++) $teamS1Total += $teamJumlah[$m];
-                            $teamS1Pct = $teamTarget > 0 ? round(($teamS1Total / ($teamTarget * 6)) * 100, 1) : 0;
-                            $teamS1Lbl = $teamS1Pct >= 100 ? 'success' : ($teamS1Pct >= 80 ? 'warning' : 'danger');
-                        @endphp
-                        <tr class="table-warning">
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="{{ url('') . '/' . $teamImage }}" class="rounded-circle"
-                                        width="30" height="30" style="object-fit:cover;">
-                                    <div>
-                                        <div class="fw-semibold">Team E-Commerce</div>
-                                        <div class="d-flex gap-1 mt-1">
-                                            @foreach ($ecommerceMembers as $member)
-                                                <span class="badge bg-label-secondary" style="font-size:0.65rem">{{ $member['name'] }}</span>
-                                            @endforeach
-                                        </div>
+                            </tr>
+                        @else
+                            @php
+                                $sale    = $row['sale'];
+                                $totalS1 = $row['total'];
+                                $pctS1   = $row['pct'];
+                                $lblS1   = $pctS1 >= 100 ? 'success' : ($pctS1 >= 80 ? 'warning' : 'danger');
+                            @endphp
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="{{ url('') . '/' . $sale['image'] }}" class="rounded-circle"
+                                            width="30" height="30" style="object-fit:cover;">
+                                        <span class="fw-semibold">{{ $sale['name'] }}</span>
                                     </div>
-                                </div>
-                            </td>
-                            @for ($m = 1; $m <= 6; $m++)
-                                @php
-                                    $nomS1m  = $teamJumlah[$m];
-                                    $pctMoS1 = $teamTarget > 0 ? round(($nomS1m / $teamTarget) * 100, 1) : 0;
-                                    $barS1   = min($pctMoS1, 100);
-                                    $clrS1   = $pctMoS1 >= 100 ? 'success' : ($pctMoS1 >= 80 ? 'warning' : 'danger');
-                                @endphp
-                                <td style="min-width:110px">
-                                    <div class="text-end text-nowrap small">
-                                        {{ $nomS1m > 0 ? number_format($nomS1m, 0, ',', '.') : '—' }}
-                                    </div>
-                                    @if ($nomS1m > 0)
-                                        <div class="d-flex align-items-center gap-1 mt-1">
-                                            <div class="progress flex-grow-1" style="height:4px">
-                                                <div class="progress-bar bg-{{ $clrS1 }}" style="width:{{ $barS1 }}%"></div>
-                                            </div>
-                                            <small class="text-{{ $clrS1 }} fw-semibold" style="font-size:0.7rem">{{ $pctMoS1 }}%</small>
-                                        </div>
-                                    @endif
                                 </td>
-                            @endfor
-                            <td class="text-end text-nowrap fw-bold">{{ number_format($teamS1Total, 0, ',', '.') }}</td>
-                            <td class="text-center"><span class="badge bg-label-{{ $teamS1Lbl }}">{{ $teamS1Pct }}%</span></td>
-                            <td class="text-center">
-                                @if ($reportS1)
-                                    <div class="dropdown">
-                                        <button class="btn btn-icon btn-sm btn-outline-primary waves-effect dropdown-toggle"
-                                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                @for ($m = 1; $m <= 6; $m++)
+                                    @php
+                                        $nomS1m  = $sale['jumlah'][$m];
+                                        $pctMoS1 = $sale['target'] > 0 ? round(($nomS1m / $sale['target']) * 100, 1) : 0;
+                                        $barS1   = min($pctMoS1, 100);
+                                        $clrS1   = $pctMoS1 >= 100 ? 'success' : ($pctMoS1 >= 80 ? 'warning' : 'danger');
+                                    @endphp
+                                    <td style="min-width:110px">
+                                        <div class="text-end text-nowrap small">
+                                            {{ $nomS1m > 0 ? number_format($nomS1m, 0, ',', '.') : '—' }}
+                                        </div>
+                                        @if ($nomS1m > 0)
+                                            <div class="d-flex align-items-center gap-1 mt-1">
+                                                <div class="progress flex-grow-1" style="height:4px">
+                                                    <div class="progress-bar bg-{{ $clrS1 }}"
+                                                        style="width:{{ $barS1 }}%"></div>
+                                                </div>
+                                                <small class="text-{{ $clrS1 }} fw-semibold"
+                                                    style="font-size:0.7rem">{{ $pctMoS1 }}%</small>
+                                            </div>
+                                        @endif
+                                    </td>
+                                @endfor
+                                <td class="text-end text-nowrap fw-bold">{{ number_format($totalS1, 0, ',', '.') }}</td>
+                                <td class="text-center">
+                                    <span class="badge bg-label-{{ $lblS1 }}">{{ $pctS1 }}%</span>
+                                </td>
+                                <td class="text-center">
+                                    @if ($reportS1)
+                                        <a href="{{ route('overview-sales.semester', [$reportS1->id, $sale['id']]) }}"
+                                            class="btn btn-icon btn-sm btn-outline-primary waves-effect"
+                                            title="Lihat Detail Semester 1">
                                             <i class="mdi mdi-eye-outline"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            @foreach ($ecommerceMembers as $member)
-                                                <li>
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('overview-sales.semester', [$reportS1->id, $member['id']]) }}">
-                                                        {{ $member['name'] }}
-                                                    </a>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @else
-                                    <span class="text-muted">—</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endif
+                                        </a>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endif
+                    @endforeach
                     {{-- Baris Support --}}
                     @php
                         $supportS1 = 0;
@@ -432,131 +448,147 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($regularSales as $sale)
-                        @php
-                            $totalS2 = 0;
-                            for ($m = 7; $m <= 12; $m++) $totalS2 += $sale['jumlah'][$m];
-                            $pctS2   = $sale['target'] > 0 ? round(($totalS2 / ($sale['target'] * 6)) * 100, 1) : 0;
-                            $lblS2   = $pctS2 >= 100 ? 'success' : ($pctS2 >= 80 ? 'warning' : 'danger');
-                        @endphp
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="{{ url('') . '/' . $sale['image'] }}" class="rounded-circle"
-                                        width="30" height="30" style="object-fit:cover;">
-                                    <span class="fw-semibold">{{ $sale['name'] }}</span>
-                                </div>
-                            </td>
-                            @for ($m = 7; $m <= 12; $m++)
-                                @php
-                                    $nomS2m  = $sale['jumlah'][$m];
-                                    $pctMoS2 = $sale['target'] > 0 ? round(($nomS2m / $sale['target']) * 100, 1) : 0;
-                                    $barS2   = min($pctMoS2, 100);
-                                    $clrS2   = $pctMoS2 >= 100 ? 'success' : ($pctMoS2 >= 80 ? 'warning' : 'danger');
-                                @endphp
-                                <td style="min-width:110px">
-                                    <div class="text-end text-nowrap small">
-                                        {{ $nomS2m > 0 ? number_format($nomS2m, 0, ',', '.') : '—' }}
-                                    </div>
-                                    @if ($nomS2m > 0)
-                                        <div class="d-flex align-items-center gap-1 mt-1">
-                                            <div class="progress flex-grow-1" style="height:4px">
-                                                <div class="progress-bar bg-{{ $clrS2 }}"
-                                                    style="width:{{ $barS2 }}%"></div>
+                    @php
+                        // Susun rows S2 (regular sales + Team E-Commerce), urutkan berdasarkan % pencapaian
+                        $s2Rows = [];
+                        foreach ($regularSales as $sale) {
+                            $t = 0;
+                            for ($m = 7; $m <= 12; $m++) $t += $sale['jumlah'][$m];
+                            $p = $sale['target'] > 0 ? round(($t / ($sale['target'] * 6)) * 100, 1) : 0;
+                            $s2Rows[] = ['isTeam' => false, 'sale' => $sale, 'total' => $t, 'pct' => $p];
+                        }
+                        if (count($ecommerceMembers) > 0) {
+                            $t = 0;
+                            for ($m = 7; $m <= 12; $m++) $t += $teamJumlah[$m];
+                            $p = $teamTarget > 0 ? round(($t / ($teamTarget * 6)) * 100, 1) : 0;
+                            $s2Rows[] = ['isTeam' => true, 'total' => $t, 'pct' => $p];
+                        }
+                        usort($s2Rows, fn($a, $b) => $b['pct'] <=> $a['pct']);
+                    @endphp
+                    @foreach ($s2Rows as $row)
+                        @if ($row['isTeam'])
+                            @php
+                                $teamS2Total = $row['total'];
+                                $teamS2Pct   = $row['pct'];
+                                $teamS2Lbl   = $teamS2Pct >= 100 ? 'success' : ($teamS2Pct >= 80 ? 'warning' : 'danger');
+                            @endphp
+                            <tr class="table-warning">
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="{{ url('') . '/' . $teamImage }}" class="rounded-circle"
+                                            width="30" height="30" style="object-fit:cover;">
+                                        <div>
+                                            <div class="fw-semibold">Team E-Commerce</div>
+                                            <div class="d-flex gap-1 mt-1">
+                                                @foreach ($ecommerceMembers as $member)
+                                                    <span class="badge bg-label-secondary" style="font-size:0.65rem">{{ $member['name'] }}</span>
+                                                @endforeach
                                             </div>
-                                            <small class="text-{{ $clrS2 }} fw-semibold"
-                                                style="font-size:0.7rem">{{ $pctMoS2 }}%</small>
                                         </div>
+                                    </div>
+                                </td>
+                                @for ($m = 7; $m <= 12; $m++)
+                                    @php
+                                        $nomS2m  = $teamJumlah[$m];
+                                        $pctMoS2 = $teamTarget > 0 ? round(($nomS2m / $teamTarget) * 100, 1) : 0;
+                                        $barS2   = min($pctMoS2, 100);
+                                        $clrS2   = $pctMoS2 >= 100 ? 'success' : ($pctMoS2 >= 80 ? 'warning' : 'danger');
+                                    @endphp
+                                    <td style="min-width:110px">
+                                        <div class="text-end text-nowrap small">
+                                            {{ $nomS2m > 0 ? number_format($nomS2m, 0, ',', '.') : '—' }}
+                                        </div>
+                                        @if ($nomS2m > 0)
+                                            <div class="d-flex align-items-center gap-1 mt-1">
+                                                <div class="progress flex-grow-1" style="height:4px">
+                                                    <div class="progress-bar bg-{{ $clrS2 }}" style="width:{{ $barS2 }}%"></div>
+                                                </div>
+                                                <small class="text-{{ $clrS2 }} fw-semibold" style="font-size:0.7rem">{{ $pctMoS2 }}%</small>
+                                            </div>
+                                        @endif
+                                    </td>
+                                @endfor
+                                <td class="text-end text-nowrap fw-bold">{{ number_format($teamS2Total, 0, ',', '.') }}</td>
+                                <td class="text-center"><span class="badge bg-label-{{ $teamS2Lbl }}">{{ $teamS2Pct }}%</span></td>
+                                <td class="text-center">
+                                    @if ($reportS2)
+                                        <div class="dropdown">
+                                            <button class="btn btn-icon btn-sm btn-outline-primary waves-effect dropdown-toggle"
+                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="mdi mdi-eye-outline"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                @foreach ($ecommerceMembers as $member)
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('overview-sales.semester', [$reportS2->id, $member['id']]) }}">
+                                                            {{ $member['name'] }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @else
+                                        <span class="text-muted">—</span>
                                     @endif
                                 </td>
-                            @endfor
-                            <td class="text-end text-nowrap fw-bold">{{ number_format($totalS2, 0, ',', '.') }}</td>
-                            <td class="text-center">
-                                <span class="badge bg-label-{{ $lblS2 }}">{{ $pctS2 }}%</span>
-                            </td>
-                            <td class="text-center">
-                                @if ($reportS2)
-                                    <a href="{{ route('overview-sales.semester', [$reportS2->id, $sale['id']]) }}"
-                                        class="btn btn-icon btn-sm btn-outline-primary waves-effect"
-                                        title="Lihat Detail Semester 2">
-                                        <i class="mdi mdi-eye-outline"></i>
-                                    </a>
-                                @else
-                                    <span class="text-muted">—</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                    {{-- Team E-Commerce (ID 16 & 23) --}}
-                    @if (count($ecommerceMembers) > 0)
-                        @php
-                            $teamS2Total = 0;
-                            for ($m = 7; $m <= 12; $m++) $teamS2Total += $teamJumlah[$m];
-                            $teamS2Pct = $teamTarget > 0 ? round(($teamS2Total / ($teamTarget * 6)) * 100, 1) : 0;
-                            $teamS2Lbl = $teamS2Pct >= 100 ? 'success' : ($teamS2Pct >= 80 ? 'warning' : 'danger');
-                        @endphp
-                        <tr class="table-warning">
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="{{ url('') . '/' . $teamImage }}" class="rounded-circle"
-                                        width="30" height="30" style="object-fit:cover;">
-                                    <div>
-                                        <div class="fw-semibold">Team E-Commerce</div>
-                                        <div class="d-flex gap-1 mt-1">
-                                            @foreach ($ecommerceMembers as $member)
-                                                <span class="badge bg-label-secondary" style="font-size:0.65rem">{{ $member['name'] }}</span>
-                                            @endforeach
-                                        </div>
+                            </tr>
+                        @else
+                            @php
+                                $sale    = $row['sale'];
+                                $totalS2 = $row['total'];
+                                $pctS2   = $row['pct'];
+                                $lblS2   = $pctS2 >= 100 ? 'success' : ($pctS2 >= 80 ? 'warning' : 'danger');
+                            @endphp
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="{{ url('') . '/' . $sale['image'] }}" class="rounded-circle"
+                                            width="30" height="30" style="object-fit:cover;">
+                                        <span class="fw-semibold">{{ $sale['name'] }}</span>
                                     </div>
-                                </div>
-                            </td>
-                            @for ($m = 7; $m <= 12; $m++)
-                                @php
-                                    $nomS2m  = $teamJumlah[$m];
-                                    $pctMoS2 = $teamTarget > 0 ? round(($nomS2m / $teamTarget) * 100, 1) : 0;
-                                    $barS2   = min($pctMoS2, 100);
-                                    $clrS2   = $pctMoS2 >= 100 ? 'success' : ($pctMoS2 >= 80 ? 'warning' : 'danger');
-                                @endphp
-                                <td style="min-width:110px">
-                                    <div class="text-end text-nowrap small">
-                                        {{ $nomS2m > 0 ? number_format($nomS2m, 0, ',', '.') : '—' }}
-                                    </div>
-                                    @if ($nomS2m > 0)
-                                        <div class="d-flex align-items-center gap-1 mt-1">
-                                            <div class="progress flex-grow-1" style="height:4px">
-                                                <div class="progress-bar bg-{{ $clrS2 }}" style="width:{{ $barS2 }}%"></div>
-                                            </div>
-                                            <small class="text-{{ $clrS2 }} fw-semibold" style="font-size:0.7rem">{{ $pctMoS2 }}%</small>
-                                        </div>
-                                    @endif
                                 </td>
-                            @endfor
-                            <td class="text-end text-nowrap fw-bold">{{ number_format($teamS2Total, 0, ',', '.') }}</td>
-                            <td class="text-center"><span class="badge bg-label-{{ $teamS2Lbl }}">{{ $teamS2Pct }}%</span></td>
-                            <td class="text-center">
-                                @if ($reportS2)
-                                    <div class="dropdown">
-                                        <button class="btn btn-icon btn-sm btn-outline-primary waves-effect dropdown-toggle"
-                                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                @for ($m = 7; $m <= 12; $m++)
+                                    @php
+                                        $nomS2m  = $sale['jumlah'][$m];
+                                        $pctMoS2 = $sale['target'] > 0 ? round(($nomS2m / $sale['target']) * 100, 1) : 0;
+                                        $barS2   = min($pctMoS2, 100);
+                                        $clrS2   = $pctMoS2 >= 100 ? 'success' : ($pctMoS2 >= 80 ? 'warning' : 'danger');
+                                    @endphp
+                                    <td style="min-width:110px">
+                                        <div class="text-end text-nowrap small">
+                                            {{ $nomS2m > 0 ? number_format($nomS2m, 0, ',', '.') : '—' }}
+                                        </div>
+                                        @if ($nomS2m > 0)
+                                            <div class="d-flex align-items-center gap-1 mt-1">
+                                                <div class="progress flex-grow-1" style="height:4px">
+                                                    <div class="progress-bar bg-{{ $clrS2 }}"
+                                                        style="width:{{ $barS2 }}%"></div>
+                                                </div>
+                                                <small class="text-{{ $clrS2 }} fw-semibold"
+                                                    style="font-size:0.7rem">{{ $pctMoS2 }}%</small>
+                                            </div>
+                                        @endif
+                                    </td>
+                                @endfor
+                                <td class="text-end text-nowrap fw-bold">{{ number_format($totalS2, 0, ',', '.') }}</td>
+                                <td class="text-center">
+                                    <span class="badge bg-label-{{ $lblS2 }}">{{ $pctS2 }}%</span>
+                                </td>
+                                <td class="text-center">
+                                    @if ($reportS2)
+                                        <a href="{{ route('overview-sales.semester', [$reportS2->id, $sale['id']]) }}"
+                                            class="btn btn-icon btn-sm btn-outline-primary waves-effect"
+                                            title="Lihat Detail Semester 2">
                                             <i class="mdi mdi-eye-outline"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            @foreach ($ecommerceMembers as $member)
-                                                <li>
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('overview-sales.semester', [$reportS2->id, $member['id']]) }}">
-                                                        {{ $member['name'] }}
-                                                    </a>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @else
-                                    <span class="text-muted">—</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endif
+                                        </a>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endif
+                    @endforeach
                     {{-- Baris Support --}}
                     @php
                         $supportS2 = 0;

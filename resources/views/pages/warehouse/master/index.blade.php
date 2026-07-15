@@ -72,16 +72,21 @@
     </div>
     <div class="card mb-3">
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-master table table-striped">
+            <table class="datatable-master table table-bordered">
                 <thead>
                     <tr>
-                        <th></th>
-                        <th></th>
-                        <th>ID</th>
-                        <th>Product</th>
-                        <th>Desc</th>
-                        <th>G/O</th>
-                        <th>Stock</th>
+                        <th rowspan="2"></th>
+                        <th rowspan="2">ID</th>
+                        <th rowspan="2">SKU</th>
+                        <th rowspan="2">DESC</th>
+                        <th rowspan="2">Dimension</th>
+                        <th rowspan="2">Genuine / Replacement</th>
+                        <th colspan="3" class="text-center border-bottom">Stock</th>
+                    </tr>
+                    <tr>
+                        <th>BDG</th>
+                        <th>BKS</th>
+                        <th>Pend</th>
                     </tr>
                 </thead>
             </table>
