@@ -1033,7 +1033,7 @@ class KanbanController extends Controller
     public function monitoringDocument()
     {
         $user = Auth::user();
-        if ($user->role !== 'Admin' && $user->role !== 'Accounting') {
+        if ($user->role !== 'Admin' && $user->role !== 'Accounting' && $user->role !== 'Finance Manager') {
             abort(403, 'Akses ditolak.');
         }
 
@@ -1137,7 +1137,7 @@ class KanbanController extends Controller
     public function getAvailablePOs()
     {
         $user = Auth::user();
-        if ($user->role !== 'Admin' && $user->role !== 'Accounting') {
+        if ($user->role !== 'Admin' && $user->role !== 'Accounting' && $user->role !== 'Finance Manager') {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -1176,7 +1176,7 @@ class KanbanController extends Controller
     public function checkNewCards($lastTaskId)
     {
         $user = Auth::user();
-        if ($user->role !== 'Admin' && $user->role !== 'Accounting') {
+        if ($user->role !== 'Admin' && $user->role !== 'Accounting' && $user->role !== 'Finance Manager') {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 

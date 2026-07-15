@@ -2088,6 +2088,29 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Accounting</span>
             </li>
+            @php
+                $monitoringBoard = \App\Models\KanbanBoard::where('type', 'monitoring')->first();
+                $monitoringCount = 0;
+                if ($monitoringBoard) {
+                    $monitoringCount = \App\Models\KanbanTask::where('board_id', $monitoringBoard->id)
+                        ->whereIn('column_id', function($query) use ($monitoringBoard) {
+                            $query->select('id')
+                                ->from('kanban_columns')
+                                ->where('board_id', $monitoringBoard->id)
+                                ->whereIn('title', ['PO REFTECH', 'PO E-COMMERCE']);
+                        })
+                        ->count();
+                }
+            @endphp
+            <li class="menu-item {{ request()->is('accounting/monitoring-document*') ? 'active' : '' }}">
+                <a href="{{ route('kanban.monitoring-document') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-view-dashboard-outline"></i>
+                    <div data-i18n="Monitoring Document">Monitoring Document</div>
+                    @if ($monitoringCount >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $monitoringCount }}</div>
+                    @endif
+                </a>
+            </li>
             <li
                 class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-index/payment') || request()->is('payment-index/aging') || request()->is('payment-detail/invoice/*') || request()->is('payment-detail/payment/*') || request()->is('payment-detail/aging/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
