@@ -52,6 +52,11 @@ class FixedController extends Controller
                 ->addSelect('tool_master.nama_tools as nama_tools', 'users.name as teknisi_name');
         }
 
+        if ($type == 'Mesin') {
+            $query->leftJoin('unit', 'unit.id', '=', 'fixed_asset.id_unit')
+                ->addSelect('unit.brand as unit_brand', 'unit.model as unit_model');
+        }
+
         $data = $query->orderByDesc('fixed_asset.id')->get();
 
         if ($type == 'Tools') {

@@ -8,9 +8,21 @@ $(function () {
                 if (type === "display") {
                     var detailRoute = route("fixed.show", full["id"]);
                     var label = data ? data : "#" + full["id"];
-                    return '<a class="text-black" href="' + detailRoute + '">' + label + "</a>";
+                    return '<a class="text-primary fw-semibold" href="' + detailRoute + '">' + label + "</a>";
                 }
                 return data;
+            },
+        };
+    }
+
+    // Nominal rata kanan, "Rp" rata kiri, tetap dalam 1 kolom yang sama
+    function priceColumn(targetIndex) {
+        return {
+            targets: targetIndex,
+            render: function (data, type, full) {
+                if (type !== "display") return data;
+                var formatted = $.fn.dataTable.render.number(".", "", 0).display(data);
+                return '<div class="d-flex justify-content-between"><span>Rp</span><span>' + formatted + "</span></div>";
             },
         };
     }
@@ -55,10 +67,10 @@ $(function () {
                 { data: "tanggal_beli" },
                 { data: "tanggal_pakai" },
             ],
-            columnDefs: [
-                codeColumn(),
-                { targets: 3, render: $.fn.dataTable.render.number(".", "", 0, "Rp ") },
-            ],
+            columnDefs:
+                assetType === "Peralatan Kantor"
+                    ? [codeColumn(), priceColumn(3)]
+                    : [codeColumn(), { targets: 3, render: $.fn.dataTable.render.number(".", "", 0, "Rp ") }],
             order: [[0, "desc"]],
             dom: domLayout,
         });
@@ -83,10 +95,7 @@ $(function () {
                 { data: "tanggal_beli" },
                 { data: "total" },
             ],
-            columnDefs: [
-                codeColumn(),
-                { targets: 6, render: $.fn.dataTable.render.number(".", "", 0, "Rp ") },
-            ],
+            columnDefs: [codeColumn(), priceColumn(6)],
             order: [[0, "desc"]],
             dom: domLayout,
         });
@@ -105,15 +114,19 @@ $(function () {
             columns: [
                 { data: "code" },
                 { data: "serial_number", render: function (d) { return d || "-"; } },
+                {
+                    data: null,
+                    render: function (data, type, full) {
+                        var brandTipe = [full.unit_brand, full.unit_model].filter(Boolean).join(" - ");
+                        return brandTipe || "-";
+                    },
+                },
                 { data: "kondisi", render: function (d) { return d || "-"; } },
                 { data: "status_unit", render: function (d) { return d || "-"; } },
                 { data: "tanggal_beli" },
                 { data: "total" },
             ],
-            columnDefs: [
-                codeColumn(),
-                { targets: 5, render: $.fn.dataTable.render.number(".", "", 0, "Rp ") },
-            ],
+            columnDefs: [codeColumn(), priceColumn(6)],
             order: [[0, "desc"]],
             dom: domLayout,
         });
@@ -146,10 +159,7 @@ $(function () {
                 },
                 { data: "total" },
             ],
-            columnDefs: [
-                codeColumn(),
-                { targets: 6, render: $.fn.dataTable.render.number(".", "", 0, "Rp ") },
-            ],
+            columnDefs: [codeColumn(), priceColumn(6)],
             order: [[0, "desc"]],
             dom: domLayout,
         });

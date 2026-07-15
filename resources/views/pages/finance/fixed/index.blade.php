@@ -120,6 +120,7 @@
                                 <tr>
                                     <th>Code</th>
                                     <th>Serial Number</th>
+                                    <th>Brand & Tipe</th>
                                     <th>Kondisi</th>
                                     <th>Status Unit</th>
                                     <th>Tgl Beli</th>
