@@ -41,8 +41,9 @@
             'mktPo'         => array_sum(array_column($ecoData, 'mktPo')),
         ];
 
-        // Gabungkan: regular (sudah sort by poTotal) + E-Commerce di akhir
+        // Gabungkan lalu urutkan ulang berdasarkan poTotal, Team E-Commerce ikut rangking (tidak fix di bawah)
         $rows = array_merge($regularData, count($ecoData) ? [$ecoRow] : []);
+        usort($rows, fn($a, $b) => $b['poTotal'] <=> $a['poTotal']);
     @endphp
 
     {{-- ===== HEADER ===== --}}
@@ -175,9 +176,9 @@
                             $pct      = $s['target'] > 0 ? round(($s['poTotal'] / $s['target']) * 100, 1) : 0;
                             $pctColor = $pct >= 100 ? 'success' : ($pct >= 70 ? 'warning' : 'danger');
                         @endphp
-                        <tr class="{{ $isEco ? 'table-secondary' : '' }}">
+                        <tr>
                             <td class="ps-3 text-muted" style="width:40px">
-                                {{ $isEco ? '—' : $i + 1 }}
+                                {{ $i + 1 }}
                             </td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
@@ -194,7 +195,7 @@
                                         </div>
                                     @endif
                                     <div>
-                                        <span class="fw-semibold {{ $isEco ? 'fst-italic' : '' }}">{{ $s['name'] }}</span>
+                                        <span class="fw-semibold">{{ $s['name'] }}</span>
                                         @if (($s['mktProspect'] ?? 0) > 0)
                                             @php
                                                 $mktRateQ  = $s['mktProspect'] > 0 ? round(($s['mktQuote'] / $s['mktProspect']) * 100, 0) : 0;
