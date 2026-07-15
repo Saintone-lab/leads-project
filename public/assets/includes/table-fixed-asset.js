@@ -113,16 +113,10 @@ $(function () {
             },
             columns: [
                 { data: "code" },
+                { data: "unit_brand", render: function (d) { return d || "-"; } },
+                { data: "unit_model", render: function (d) { return d || "-"; } },
                 { data: "serial_number", render: function (d) { return d || "-"; } },
-                {
-                    data: null,
-                    render: function (data, type, full) {
-                        var brandTipe = [full.unit_brand, full.unit_model].filter(Boolean).join(" - ");
-                        return brandTipe || "-";
-                    },
-                },
                 { data: "kondisi", render: function (d) { return d || "-"; } },
-                { data: "status_unit", render: function (d) { return d || "-"; } },
                 { data: "tanggal_beli" },
                 { data: "total" },
             ],

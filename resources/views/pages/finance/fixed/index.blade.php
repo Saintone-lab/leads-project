@@ -119,10 +119,10 @@
                             <thead>
                                 <tr>
                                     <th>Code</th>
-                                    <th>Serial Number</th>
-                                    <th>Brand & Tipe</th>
+                                    <th>Brand</th>
+                                    <th>Type</th>
+                                    <th>SN</th>
                                     <th>Kondisi</th>
-                                    <th>Status Unit</th>
                                     <th>Tgl Beli</th>
                                     <th>Harga</th>
                                 </tr>
