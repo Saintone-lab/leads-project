@@ -2524,7 +2524,7 @@
                 const query = $(this).val().toLowerCase().trim();
                 
                 $('.kanban-item').each(function() {
-                    const titleText = $(this).find('.text-heading').text().toLowerCase();
+                    const titleText = $(this).find('.text-heading, .text-primary').text().toLowerCase();
                     const descText = $(this).find('.text-muted').text().toLowerCase();
                     
                     if (titleText.includes(query) || descText.includes(query)) {
