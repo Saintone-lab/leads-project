@@ -167,4 +167,13 @@ $(function () {
                 }
             });
     });
+
+    // Badge jumlah item per tab
+    $(document).on("draw.dt", function (e) {
+        var $tbl = $(e.target);
+        var badgeId = $tbl.data("badge");
+        if (!badgeId) return;
+        var api = $tbl.DataTable();
+        $("#" + badgeId).text(api.page.info().recordsTotal);
+    });
 });

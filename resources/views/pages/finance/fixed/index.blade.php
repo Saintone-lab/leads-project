@@ -1,45 +1,56 @@
 @extends('layouts.sales.app')
 @section('title', 'Fixed Asset')
 @section('content')
-    <h4 class="fw-bold py-3 mb-0">Fixed Asset</h4>
+    <h4 class="fw-bold py-3 mb-0">
+        <span class="text-muted fw-light">Finance /</span> Fixed Asset
+    </h4>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ route('fixed.create') }}" class="btn btn-primary btn-sm">
+            <i class="mdi mdi-plus"></i> New Fixed Asset
+        </a>
+    </div>
 
     <div class="card">
-        <div class="card-header py-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="card-header py-2">
             <ul class="nav nav-tabs card-header-tabs border-0 m-0" id="fixed-asset-tab-nav" role="tablist">
                 <li class="nav-item">
                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-tanah" type="button">
-                        Tanah
+                        <i class="mdi mdi-terrain me-1"></i>Tanah
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-tanah">-</span>
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-bangunan" type="button">
-                        Bangunan
+                        <i class="mdi mdi-office-building me-1"></i>Bangunan
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-bangunan">-</span>
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-kendaraan" type="button">
-                        Kendaraan
+                        <i class="mdi mdi-car me-1"></i>Kendaraan
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-kendaraan">-</span>
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-mesin" type="button">
-                        Mesin
+                        <i class="mdi mdi-cog-outline me-1"></i>Mesin
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-mesin">-</span>
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-peralatan" type="button">
-                        Peralatan Kantor
+                        <i class="mdi mdi-desktop-classic me-1"></i>Peralatan Kantor
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-peralatan">-</span>
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tools" type="button">
-                        Tools
+                        <i class="mdi mdi-toolbox-outline me-1"></i>Tools
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-tools">-</span>
                     </button>
                 </li>
             </ul>
-            <a href="{{ route('fixed.create') }}" class="btn btn-primary btn-sm">
-                <i class="mdi mdi-plus"></i> New Fixed Asset
-            </a>
         </div>
 
         <div class="card-body p-0">
@@ -47,7 +58,8 @@
                 {{-- Tanah --}}
                 <div class="tab-pane fade show active" id="tab-tanah">
                     <div class="table-responsive">
-                        <table class="datatable-fixed-generic table table-bordered" data-type="Tanah">
+                        <table class="datatable-fixed-generic table table-bordered" data-type="Tanah"
+                            data-badge="badge-tanah">
                             <thead>
                                 <tr>
                                     <th>Code</th>
@@ -65,7 +77,8 @@
                 {{-- Bangunan --}}
                 <div class="tab-pane fade" id="tab-bangunan">
                     <div class="table-responsive">
-                        <table class="datatable-fixed-generic table table-bordered" data-type="Bangunan">
+                        <table class="datatable-fixed-generic table table-bordered" data-type="Bangunan"
+                            data-badge="badge-bangunan">
                             <thead>
                                 <tr>
                                     <th>Code</th>
@@ -83,7 +96,7 @@
                 {{-- Kendaraan --}}
                 <div class="tab-pane fade" id="tab-kendaraan">
                     <div class="table-responsive">
-                        <table class="datatable-fixed-kendaraan table table-bordered">
+                        <table class="datatable-fixed-kendaraan table table-bordered" data-badge="badge-kendaraan">
                             <thead>
                                 <tr>
                                     <th>Code</th>
@@ -102,7 +115,7 @@
                 {{-- Mesin --}}
                 <div class="tab-pane fade" id="tab-mesin">
                     <div class="table-responsive">
-                        <table class="datatable-fixed-mesin table table-bordered">
+                        <table class="datatable-fixed-mesin table table-bordered" data-badge="badge-mesin">
                             <thead>
                                 <tr>
                                     <th>Code</th>
@@ -120,7 +133,8 @@
                 {{-- Peralatan Kantor --}}
                 <div class="tab-pane fade" id="tab-peralatan">
                     <div class="table-responsive">
-                        <table class="datatable-fixed-generic table table-bordered" data-type="Peralatan Kantor">
+                        <table class="datatable-fixed-generic table table-bordered" data-type="Peralatan Kantor"
+                            data-badge="badge-peralatan">
                             <thead>
                                 <tr>
                                     <th>Code</th>
@@ -138,7 +152,7 @@
                 {{-- Tools --}}
                 <div class="tab-pane fade" id="tab-tools">
                     <div class="table-responsive">
-                        <table class="datatable-fixed-tools table table-bordered">
+                        <table class="datatable-fixed-tools table table-bordered" data-badge="badge-tools">
                             <thead>
                                 <tr>
                                     <th>Code</th>
