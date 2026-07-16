@@ -476,7 +476,7 @@
                                 </div>
                             </div>
                         </div> --}}
-                        {{-- <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
+                        <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
                             <div class="card-body ">
                                 <div class="row">
                                     <label class="col-sm-4 col-form-label text-sm-start"
@@ -495,7 +495,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div> --}}
+                        </div>
                         <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
                             <div class="card-body ">
                                 <div class="row">

@@ -1,6 +1,9 @@
 @extends('layouts.sales.app')
 @section('title', isset($fixed) ? 'Edit Fixed Asset' : 'Create Fixed Asset')
 @section('content')
+    <h4 class="fw-bold py-3 mb-4">
+        <span class="text-muted fw-light">Finance / <a href="{{ route('fixed.index', ['type' => $fixed->type ?? '']) }}">Fixed Asset</a> /</span> {{ isset($fixed) ? 'Edit' : 'Create' }}
+    </h4>
     <form id="formAuthentication" class="mb-3 fv-plugins-bootstrap5 fv-plugins-framework"
         action="{{ isset($fixed) ? route('fixed.update', $fixed->id) : route('fixed.store') }}" method="post"
         enctype="multipart/form-data">
@@ -347,7 +350,7 @@
                     </div>
                 </div>
                 <div class="float-end">
-                    <a href="{{ isset($fixed) ? route('fixed.show', $fixed->id) : route('fixed.index') }}" type="button"
+                    <a href="{{ isset($fixed) ? route('fixed.show', $fixed->id) : route('fixed.index', ['type' => $fixed->type ?? '']) }}" type="button"
                         class="btn btn-lg btn-outline-secondary">
                         Back
                     </a>

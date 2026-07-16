@@ -204,7 +204,7 @@ class FixedController extends Controller
                 $message = $fixed->kondisi == 'Baru'
                     ? 'Unit baru berhasil didaftarkan dan langsung siap ditawarkan'
                     : 'Unit berhasil didaftarkan, menunggu pengecekan';
-                return redirect('/unit-acquisition')->with('success', $message);
+                return redirect('/fixed/' . $fixed->id)->with('success', $message);
             }
             return redirect('fixed')->with('success', 'data telah di tambahkan');
         }

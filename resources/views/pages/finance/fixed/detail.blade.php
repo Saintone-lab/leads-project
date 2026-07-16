@@ -1,6 +1,9 @@
 @extends('layouts.sales.app')
 @section('title', 'Fixed Asset')
 @section('content')
+    <h4 class="fw-bold py-3 mb-4">
+        <span class="text-muted fw-light">Finance / <a href="{{ route('fixed.index', ['type' => $fixed->type]) }}">Fixed Asset</a> /</span> Detail
+    </h4>
     <div class="row invoice-preview">
         {{-- Invoice --}}
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
@@ -223,9 +226,9 @@
                     </a> --}}
                     <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-fixed mb-3"
                         data-id="{{ $fixed->id }}">Delete</a>
-                    <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">
+                    <a href="{{ route('fixed.index', ['type' => $fixed->type]) }}" class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect">
                         Back
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -249,10 +252,6 @@
         function formatNumber(n) {
             return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
         }
-
-        $('#backButton').click(function() {
-            window.history.back();
-        });
 
         $(document).on('click', '.delete-fixed', function() {
             var id = $(this).data('id');

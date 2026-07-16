@@ -257,6 +257,26 @@
         // Initialize Bootstrap tooltips using jQuery
         $(document).ready(function() {
             $('[data-bs-toggle="tooltip"]').tooltip();
+
+            // Activate tab based on URL query parameter 'type'
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabType = urlParams.get('type');
+            if (tabType) {
+                let targetTabId = '';
+                if (tabType === 'Tanah') targetTabId = '#tab-tanah';
+                else if (tabType === 'Bangunan') targetTabId = '#tab-bangunan';
+                else if (tabType === 'Kendaraan') targetTabId = '#tab-kendaraan';
+                else if (tabType === 'Mesin') targetTabId = '#tab-mesin';
+                else if (tabType === 'Peralatan Kantor') targetTabId = '#tab-peralatan';
+                else if (tabType === 'Tools') targetTabId = '#tab-tools';
+
+                if (targetTabId) {
+                    const tabButton = $(`#fixed-asset-tab-nav button[data-bs-target="${targetTabId}"]`);
+                    if (tabButton.length) {
+                        tabButton.click();
+                    }
+                }
+            }
         });
 
         $(document).on('click', '.delete-expense', function() {
