@@ -142,7 +142,7 @@ class QuotationController extends Controller
         // $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->where('c.id_sales', Auth::user()->id)->get('pic.*');
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         $sales = User::where('role', 'sales')->get();
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
+        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
         // dd($product);
 
 
@@ -890,7 +890,7 @@ class QuotationController extends Controller
         // $pic = Pic::all();
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         // dd($pic);
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
+        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
         $sales = User::where('role', 'sales')->get();
         // dd($dquotation);
         return view('pages.sales.quotation.form', compact('quotation', 'dquotation', 'sales', 'pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
@@ -908,7 +908,7 @@ class QuotationController extends Controller
         // $pic = Pic::all();
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         // dd($pic);
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
+        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
         $sales = User::where('role', 'sales')->get();
         // dd($dquotation);
         return view('pages.sales.quotation.edit', compact('quotation', 'dquotation', 'sales', 'pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
@@ -925,7 +925,7 @@ class QuotationController extends Controller
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         $pics = Pic::where('id_client', $quotation->pic->id_client)->get();
         // $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
+        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
         // dd($subtitle);
 
         // Comment Buat Admin

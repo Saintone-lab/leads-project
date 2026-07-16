@@ -68,11 +68,15 @@ $(function(){
     
                 row++;
     
-                $(this).slideDown();
+                $(this).slideDown(function() {
+                    $(document).trigger('repeater:added');
+                });
             },
             remove: function (e) {
-                confirm("Are you sure you want to delete this element?") &&
+                if (confirm("Are you sure you want to delete this element?")) {
                     $(this).remove(e);
+                    $(document).trigger('repeater:deleted');
+                }
             },
         });
     }
