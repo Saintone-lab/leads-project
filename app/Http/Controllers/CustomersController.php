@@ -8,6 +8,9 @@ use App\Models\Pic;
 use App\Models\Quotation;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+
 
 class CustomersController extends Controller
 {
@@ -191,4 +194,93 @@ class CustomersController extends Controller
             return 0;
         }
     }
+
+    /**
+     * Display a ranking leaderboard of Key Accounts (Top Customers) by PO values YTD.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function keyAccounts(Request $request)
+    {
+        $selectedYear = $request->query('year', date('Y'));
+        $selectedSemester = $request->query('semester', 'all');
+        $search = $request->query('search');
+
+        // Query available years from quotations
+        $years = Quotation::where('status', '100')
+            ->where('level', '1')
+            ->where('is_primary', '1')
+            ->whereNotNull('po_date')
+            ->selectRaw('YEAR(po_date) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->toArray();
+
+        if (!in_array((int)date('Y'), $years)) {
+            array_unshift($years, (int)date('Y'));
+        }
+
+        // Handle semester filtering
+        if ($selectedSemester == '1') {
+            $startDate = Carbon::create($selectedYear, 1, 1)->startOfDay();
+            $endDate = Carbon::create($selectedYear, 6, 30)->endOfDay();
+        } elseif ($selectedSemester == '2') {
+            $startDate = Carbon::create($selectedYear, 7, 1)->startOfDay();
+            $endDate = Carbon::create($selectedYear, 12, 31)->endOfDay();
+        } else {
+            $startDate = Carbon::create($selectedYear, 1, 1)->startOfYear();
+            $endDate = Carbon::create($selectedYear, 12, 31)->endOfYear();
+        }
+
+        // Total revenue for contribution percentage
+        $totalRevenueYear = Quotation::whereBetween('po_date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->where('status', '100')
+            ->where('level', '1')
+            ->where('is_primary', '1')
+            ->sum('nett');
+
+        // Key Accounts ranking query (Paginated by 20, including Outstanding subquery)
+        $keyAccountsQuery = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->join('client', 'client.id', '=', 'pic.id_client')
+            ->whereBetween('quotation.po_date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->where('quotation.status', '100')
+            ->where('quotation.level', '1')
+            ->where('quotation.is_primary', '1');
+
+        if (!empty($search)) {
+            $keyAccountsQuery->where('client.company', 'like', '%' . $search . '%');
+        }
+
+        $keyAccounts = $keyAccountsQuery->select(
+                'client.id',
+                'client.company',
+                DB::raw('SUM(quotation.nett) as total_po'),
+                DB::raw('COUNT(quotation.id) as count_po'),
+                DB::raw('MAX(quotation.po_date) as last_po_date'),
+                DB::raw('(
+                    SELECT COALESCE(SUM(p.amount), 0)
+                    FROM payment p
+                    JOIN quotation q2 ON q2.id = p.id_quotation
+                    JOIN pic pic2 ON pic2.id = q2.id_pic
+                    WHERE pic2.id_client = client.id
+                      AND p.type = "Tempo"
+                      AND p.level = 0
+                ) as total_outstanding')
+            )
+            ->groupBy('client.id', 'client.company')
+            ->orderByDesc('total_po')
+            ->paginate(20);
+
+        return view('pages.sales.clients.key-accounts.index', compact(
+            'keyAccounts',
+            'years',
+            'selectedYear',
+            'selectedSemester',
+            'totalRevenueYear',
+            'search'
+        ));
+    }
 }
+

@@ -104,6 +104,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadsController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\EmailTemplateController;
 use Illuminate\Http\Request;
 
 /*
@@ -163,6 +164,7 @@ Route::group(["middleware" => "auth"], function () {
     // Route For Customers
     Route::resource('/customers', CustomersController::class);
     Route::get('/customers/detail/{id}', [CustomersController::class, 'show'])->name('detail.customers');
+    Route::get('/key-accounts', [CustomersController::class, 'keyAccounts'])->name('key-accounts.index');
 
     // Route For Leads
     Route::resource('/leads', LeadsController::class);
@@ -171,6 +173,10 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/leads/action/{id}', [LeadsController::class, 'storeActionWithLeads'])->name('action.leads');
     Route::post('/leads/visit/{id}', [LeadsController::class, 'storeVisitWithLeads'])->name('visit.leads');
     Route::post('/leads/convert/{id}', [LeadsController::class, 'convertToCustomers'])->name('convert.leads');
+    Route::post('/leads/send-intro/{id}', [LeadsController::class, 'sendIntroEmail'])->name('leads.send-intro');
+
+    // Route For Email Templates
+    Route::resource('/email-templates', EmailTemplateController::class);
 
     // Route untuk Quotation
     Route::resource('/quotation', QuotationController::class);
@@ -1773,6 +1779,11 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/kanban/delete-requests/{id}/approve', [KanbanController::class, 'approveDeleteRequest'])->name('kanban.delete-requests.approve');
     Route::post('/kanban/delete-requests/{id}/reject', [KanbanController::class, 'rejectDeleteRequest'])->name('kanban.delete-requests.reject');
 
+    // Custom Kanban - Monitoring Document
+    Route::get('/accounting/monitoring-document', [KanbanController::class, 'monitoringDocument'])->name('kanban.monitoring-document');
+    Route::get('/accounting/monitoring-document/available-pos', [KanbanController::class, 'getAvailablePOs'])->name('kanban.monitoring-document.available-pos');
+    Route::get('/accounting/monitoring-document/check-new-cards/{last_task_id}', [KanbanController::class, 'checkNewCards'])->name('kanban.monitoring-document.check-new-cards');
+
     // Database Connection
     Route::get('/db/next-follow/callendar', function () {
         $subquery = DB::table('activities')
@@ -2093,6 +2104,8 @@ Route::group(["middleware" => "auth"], function () {
     });
     Route::get('/db/crm/status', function (Request $request) {
         $status = $request->status;
+        $salesId = $request->sales_id;
+        $ruType = $request->ru_type;
 
         $data = DB::table('client as c')
             ->select(
@@ -2111,16 +2124,20 @@ Route::group(["middleware" => "auth"], function () {
             ->leftJoin('activities as a', 'a.id_client', '=', 'c.id')
             ->leftJoin('issues as i', 'c.id_issues', '=', 'i.id')
             ->where('c.role', 'Customers')
-            ->where('u.id', Auth::user()->id)
+            ->when(!in_array(Auth::user()->role, ['Admin', 'Sales Manager', 'Accounting', 'ServiceM', 'Finance Manager']), function ($q) {
+                $q->where('u.id', Auth::user()->id);
+            })
+            ->when(in_array(Auth::user()->role, ['Admin', 'Sales Manager', 'Accounting', 'ServiceM', 'Finance Manager']) && $salesId, function ($q) use ($salesId) {
+                $q->where('u.id', $salesId);
+            })
+            ->when($ruType, function ($q) use ($ruType) {
+                $q->where('c.ru', $ruType);
+            })
             ->when($status, function ($q) use ($status) {
                 $q->where('cs.status', $status);
             })
             ->groupBy(
                 'c.id'
-                // 'cs.status',
-                // 'p.name_pic',
-                // 'i.issue',
-                // 'u.name'
             )
             ->orderByDesc('c.id')
             ->get();

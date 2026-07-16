@@ -466,6 +466,12 @@
                 <li class="menu-header fw-light mt-4">
                     <span class="menu-header-text">Accounting</span>
                 </li>
+                <li class="menu-item {{ request()->is('key-accounts') ? 'active' : '' }}">
+                    <a href="{{ route('key-accounts.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-star-outline"></i>
+                        <div data-i18n="Key Accounts">Key Accounts</div>
+                    </a>
+                </li>
                 <li class="menu-item {{ request()->is('contract') || request()->is('selling/contract') || request()->is('order/contract') ? 'active' : '' }}">
                     <a href="{{ route('contract.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons mdi mdi-book-check-outline"></i>
@@ -970,7 +976,7 @@
                 <span class="menu-header-text">Client</span>
             </li>
             <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('ru') || request()->is('existing-bangkrupt') || request()->is('customer-by-status') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('ru') || request()->is('existing-bangkrupt') || request()->is('customer-by-status') || request()->is('key-accounts') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
                     <div data-i18n="Client">Client</div>
@@ -988,6 +994,12 @@
                         class="menu-item {{ request()->is('customer-by-status') || request()->is('existing/*') ? 'active' : '' }}">
                         <a href="{{ route('index-status.customers') }}" class="menu-link">
                             <div data-i18n="CRM">CRM</div>
+                        </a>
+                    </li>
+                    <li
+                        class="menu-item {{ request()->is('key-accounts') ? 'active' : '' }}">
+                        <a href="{{ route('key-accounts.index') }}" class="menu-link">
+                            <div data-i18n="Key Accounts">Key Accounts</div>
                         </a>
                     </li>
                     {{--
@@ -2088,6 +2100,12 @@
             <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Accounting</span>
             </li>
+            <li class="menu-item {{ request()->is('key-accounts') ? 'active' : '' }}">
+                <a href="{{ route('key-accounts.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-star-outline"></i>
+                    <div data-i18n="Key Accounts">Key Accounts</div>
+                </a>
+            </li>
             @php
                 $monitoringBoard = \App\Models\KanbanBoard::where('type', 'monitoring')->first();
                 $monitoringCount = 0;
@@ -2412,7 +2430,7 @@
                 <span class="menu-header-text">Client</span>
             </li>
             <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('customer-by-status') ? 'open' : '' }}">
+                class="menu-item {{ request()->is('leads') || request()->is('leads/detail/*') || request()->is('existing') || request()->is('existing/*') || request()->is('customer-by-status') || request()->is('key-accounts') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons mdi mdi-account-group-outline"></i>
                     <div data-i18n="Client">Client</div>
@@ -2426,6 +2444,11 @@
                     <li class="menu-item {{ request()->is('customer-by-status') || request()->is('existing/*') ? 'active' : '' }}">
                         <a href="{{ route('index-status.customers') }}" class="menu-link">
                             <div data-i18n="CRM">CRM</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('key-accounts') ? 'active' : '' }}">
+                        <a href="{{ route('key-accounts.index') }}" class="menu-link">
+                            <div data-i18n="Key Accounts">Key Accounts</div>
                         </a>
                     </li>
                 </ul>

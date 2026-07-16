@@ -216,6 +216,90 @@
     </div>
 </div>
 
+@php
+    $chartLabels = [];
+    $chartSeries = [];
+    $top5Sum = 0;
+    
+    foreach ($financeKeyAccounts->take(5) as $ka) {
+        $chartLabels[] = $ka->company;
+        $chartSeries[] = (int)$ka->total_po;
+        $top5Sum += $ka->total_po;
+    }
+    
+    $othersSum = $financeRevenueYTD - $top5Sum;
+    if ($othersSum > 0) {
+        $chartLabels[] = 'Lainnya';
+        $chartSeries[] = (int)$othersSum;
+    }
+@endphp
+
+<!-- Key Accounts Leaderboard -->
+<div class="row mb-2">
+    <div class="col-lg-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">Top 10 Key Accounts (YTD)</h5>
+                <small class="text-muted">Tahun {{ \Carbon\Carbon::now()->year }}</small>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive text-nowrap">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Pelanggan</th>
+                                <th class="text-end">Total PO (Value)</th>
+                                <th class="text-center">Jumlah PO</th>
+                                <th class="text-end">Kontribusi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($financeKeyAccounts as $index => $ka)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>
+                                        <a href="{{ route('detail.customers', $ka->id) }}" class="fw-semibold">
+                                            {{ $ka->company }}
+                                        </a>
+                                    </td>
+                                    <td class="text-end text-success fw-semibold">
+                                        Rp {{ number_format($ka->total_po, 0, ',', '.') }}
+                                    </td>
+                                    <td class="text-center">{{ $ka->count_po }}</td>
+                                    <td class="text-end">
+                                        {{ $financeRevenueYTD > 0 ? round(($ka->total_po / $financeRevenueYTD) * 100, 1) : 0 }}%
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Belum ada data transaksi.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Key Accounts Contribution</h5>
+                <small class="text-muted">Pangsa Pendapatan YTD</small>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-between" style="min-height: 290px;">
+                @if ($financeRevenueYTD > 0)
+                    <div id="financeKeyAccountsChart" class="my-auto"></div>
+                @else
+                    <div class="text-center text-muted my-auto">Belum ada data pendapatan tahunan.</div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @push('before-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/apex-charts/apex-charts.css" />
 @endpush
@@ -287,6 +371,20 @@
                     xaxis: { categories: monthLabels, labels: { style: { colors: labelColor } } },
                     yaxis: { labels: { formatter: formatRp, style: { colors: labelColor } } },
                     grid: { borderColor, strokeDashArray: 5 },
+                    tooltip: { y: { formatter: formatRp } },
+                }).render();
+            }
+
+            // Key Accounts contribution chart
+            const keyAccountsEl = document.querySelector('#financeKeyAccountsChart');
+            if (keyAccountsEl && @json($financeRevenueYTD) > 0) {
+                new ApexCharts(keyAccountsEl, {
+                    chart: { type: 'donut', height: 260 },
+                    labels: @json($chartLabels),
+                    series: @json($chartSeries),
+                    colors: ['#696cff', '#03c3ec', '#71dd37', '#ffab00', '#ff3e1d', '#8592a3'],
+                    legend: { position: 'bottom', labels: { colors: labelColor } },
+                    dataLabels: { enabled: true, formatter: (val) => val.toFixed(1) + '%' },
                     tooltip: { y: { formatter: formatRp } },
                 }).render();
             }
