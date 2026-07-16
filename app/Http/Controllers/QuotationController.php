@@ -1523,6 +1523,21 @@ class QuotationController extends Controller
             return response()->json(['error' => 'Quotation not found.'], 404);
         }
 
+        $client = $quote->pic?->client;
+        if (!$client) {
+            return redirect()->back()->with('error', 'Data client tidak ditemukan.');
+        }
+
+        $npwpClean = preg_replace('/[^a-zA-Z0-9]/', '', $client->npwp ?? '');
+        if (strlen($npwpClean) < 14) {
+            $errorMsg = 'NPWP client belum diisi atau kurang dari 14 karakter. Pengajuan PO tidak dapat diproses.';
+            if ($quote->type == 'Sparepart') {
+                return redirect('/quotation/' . $id)->with('error', $errorMsg);
+            } else {
+                return redirect('/quote/service-show/' . $id)->with('error', $errorMsg);
+            }
+        }
+
         // dd($request->file('uploadPO'));
         if ($request->hasFile('uploadPO')) {
             $foto = $request->file('uploadPO');

@@ -289,6 +289,17 @@ class UnitQuotationController extends Controller
 
         $quote = UnitQuotation::findOrFail($id);
 
+        $client = $quote->client;
+        if (!$client) {
+            return redirect()->back()->with('error', 'Data client tidak ditemukan.');
+        }
+
+        $npwpClean = preg_replace('/[^a-zA-Z0-9]/', '', $client->npwp ?? '');
+        if (strlen($npwpClean) < 14) {
+            return redirect()->route('unit-quotation.show', $id)
+                ->with('error', 'NPWP client belum diisi atau kurang dari 14 karakter. Pengajuan PO tidak dapat diproses.');
+        }
+
         $year = now()->year;
         $path = $request->file('po_file')->store("unit-quotation/po/{$year}", 'public');
 

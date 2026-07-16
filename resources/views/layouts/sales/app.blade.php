@@ -11,6 +11,8 @@
     @include('includes.sales.style')
 
     @stack('after-style')
+    {{-- SweetAlert2 CSS --}}
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
 
 
     {{--  laravel style  --}}
@@ -273,6 +275,9 @@
         });
     </script>
 
+    {{-- SweetAlert2 JS --}}
+    <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
+
     @stack('page-script')
 
     @stack('script')
@@ -283,28 +288,87 @@
             <div class="modal-content text-center">
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <i class="mdi mdi-alert-circle text-danger" style="font-size: 56px;"></i>
+                        <img src="{{ asset('assets/img/illustrations/npwp-warning.jpg') }}" alt="NPWP Belum Lengkap" class="img-fluid" style="max-width: 180px;">
                     </div>
                     <h5 class="fw-bold text-danger mb-2">NPWP Belum Lengkap!</h5>
-                    <p class="text-muted mb-4">TOLONG ISI NPWP CLIENT TERLEBIH DAHULU (minimal 10 angka).</p>
-                    <button type="button" class="btn btn-danger waves-effect waves-light px-5"
-                        data-bs-dismiss="modal">OK, Mengerti</button>
+                    <p class="text-muted mb-4">Jangan Ngide Mau Req. Invoice.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-label-secondary waves-effect"
+                            data-bs-dismiss="modal">Tutup</button>
+                        <a href="#" id="btnEditClientNpwp" class="btn btn-primary waves-effect waves-light">Isi NPWP Sekarang</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // General / Parts / Service / Overhaul / Unit-Sales
             document.querySelectorAll('.btn-upload-po').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    var npwp = (this.dataset.npwp || '').replace(/[^0-9]/g, '');
-                    if (npwp.length <= 10) {
+                btn.addEventListener('click', function(e) {
+                    var npwp = (this.dataset.npwp || '').replace(/[^0-9a-zA-Z]/g, '');
+                    if (npwp.length < 14) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        var clientUrl = this.dataset.clientUrl || '#';
+                        var btnEdit = document.getElementById('btnEditClientNpwp');
+                        if (btnEdit) {
+                            btnEdit.setAttribute('href', clientUrl);
+                        }
+                        
                         new bootstrap.Modal(document.getElementById('modalNpwpError')).show();
                     } else {
-                        new bootstrap.Modal(document.getElementById('uploadPo')).show();
+                        if (!this.hasAttribute('data-bs-toggle')) {
+                            new bootstrap.Modal(document.getElementById('uploadPo')).show();
+                        }
                     }
                 });
             });
+
+            // Unit-Quotation page
+            document.querySelectorAll('.btn-upload-po-unit').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    var npwp = (this.dataset.npwp || '').replace(/[^0-9a-zA-Z]/g, '');
+                    if (npwp.length < 14) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        var clientUrl = this.dataset.clientUrl || '#';
+                        var btnEdit = document.getElementById('btnEditClientNpwp');
+                        if (btnEdit) {
+                            btnEdit.setAttribute('href', clientUrl);
+                        }
+                        
+                        new bootstrap.Modal(document.getElementById('modalNpwpError')).show();
+                    } else {
+                        new bootstrap.Modal(document.getElementById('modalUploadPO')).show();
+                    }
+                });
+            });
+
+            // Show Session Alerts
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: "{{ session('error') }}",
+                    customClass: {
+                        confirmButton: 'btn btn-danger waves-effect'
+                    }
+                });
+            @endif
+
+            @if(session('success') || session('message'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: "{{ session('success') ?: session('message') }}",
+                    customClass: {
+                        confirmButton: 'btn btn-success waves-effect'
+                    }
+                });
+            @endif
         });
     </script>
 

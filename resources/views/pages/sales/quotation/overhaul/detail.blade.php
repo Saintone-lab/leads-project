@@ -541,8 +541,8 @@
                                             PO</button>
                                     @else
                                         <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3 btn-upload-po"
-                                            data-bs-toggle="modal" data-bs-target="#uploadPo"
-                                            data-npwp="{{ $quote->pic->client->npwp ?? '' }}">Upload PO</button>
+                                             data-npwp="{{ $quote->pic->client->npwp ?? '' }}"
+                                             data-client-url="{{ $quote->pic->client->role == 'Leads' ? route('detail.leads', $quote->pic->client->id) : route('existing.show', $quote->pic->client->id) }}">Upload PO</button>
                                     @endif
                                 @endif
                             @endif

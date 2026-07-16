@@ -349,8 +349,9 @@
 
                 {{-- PO --}}
                 @if (Auth::user()->role === 'Sales' && $quote->status !== 'po_received')
-                    <button type="button" class="btn btn-outline-success d-grid w-100 waves-effect mb-2"
-                        data-bs-toggle="modal" data-bs-target="#modalUploadPO">
+                    <button type="button" class="btn btn-outline-success d-grid w-100 waves-effect mb-2 btn-upload-po-unit"
+                        data-npwp="{{ $quote->client->npwp ?? '' }}"
+                        data-client-url="{{ $quote->client->role == 'Leads' ? route('detail.leads', $quote->client->id) : route('existing.show', $quote->client->id) }}">
                         <i class="mdi mdi-upload me-1"></i> Upload PO
                     </button>
                 @endif
