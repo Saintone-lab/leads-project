@@ -127,4 +127,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(KanbanBoard::class, 'kanban_board_members', 'user_id', 'board_id');
     }
+
+    public function handledSales()
+    {
+        return $this->belongsToMany(User::class, 'accounting_sales_mapping', 'id_accounting', 'id_sales');
+    }
 }

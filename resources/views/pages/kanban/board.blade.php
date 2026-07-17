@@ -35,6 +35,14 @@
                     <span class="input-group-text"><i class="mdi mdi-magnify"></i></span>
                     <input type="text" class="form-control" id="kanbanSearchInput" placeholder="Cari kartu tugas...">
                 </div>
+                @if ($board->type === 'monitoring')
+                    <select class="form-select form-select-sm ms-2" id="kanbanAccountingFilter" style="width: 200px;">
+                        <option value="">-- Semua Accounting --</option>
+                        @foreach ($accountingUsers ?? [] as $accountingUser)
+                            <option value="{{ $accountingUser->id }}">{{ $accountingUser->name }}</option>
+                        @endforeach
+                    </select>
+                @endif
             </div>
             <div class="d-flex gap-2 align-items-center">
                 <a href="{{ route('kanban.index') }}" class="btn btn-outline-secondary btn-sm">
@@ -484,6 +492,25 @@
                                     </div>
                                 @endif
                             </div>
+                            <div class="mb-3 border-top pt-3">
+                                <label class="form-label fw-bold">Accounting &rarr; Sales Mapping</label>
+                                <p class="text-muted mb-2" style="font-size: 12px;">Atur sales yang ditangani tiap Accounting, dipakai untuk filter "{{ '-- Semua Accounting --' }}" di halaman board.</p>
+                                <div id="accountingMappingContainer">
+                                    @foreach ($accountingUsers as $accountingUser)
+                                        <div class="mb-2">
+                                            <label class="form-label" style="font-size: 12.5px;">{{ $accountingUser->name }}</label>
+                                            <select class="select2 form-select accounting-mapping-select" multiple="multiple" data-accounting-id="{{ $accountingUser->id }}" data-placeholder="Pilih sales yang ditangani">
+                                                @foreach ($salesUsers as $salesUser)
+                                                    <option value="{{ $salesUser->id }}" {{ $accountingUser->handledSales->contains($salesUser->id) ? 'selected' : '' }}>{{ $salesUser->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary mt-1" id="btnSaveAccountingMapping">
+                                    <i class="mdi mdi-content-save-outline me-1"></i> Simpan Mapping
+                                </button>
+                            </div>
                             @endif
                         </div>
                         <div class="modal-footer">
@@ -712,6 +739,9 @@
             const boardType = "{{ $board->type }}";
             let kanbanBoardInstance = null;
             const boardLabels = @json($board->labels ?? (object)[]);
+            const accountingSalesMap = @json(($accountingUsers ?? collect())->mapWithKeys(function ($acc) {
+                return [(string) $acc->id => $acc->handledSales->pluck('id')->map(fn ($id) => (string) $id)->values()];
+            }));
             const defaultLabels = {
                 primary: 'Biru',
                 success: 'Hijau',
@@ -974,11 +1004,8 @@
 
                         updateBoardScrollArrows();
 
-                        // Re-apply search filter if there is active search query
-                        const searchVal = $('#kanbanSearchInput').val();
-                        if (searchVal && searchVal.trim() !== '') {
-                            $('#kanbanSearchInput').trigger('keyup');
-                        }
+                        // Re-apply active filters (search text + sales) after re-render
+                        applyKanbanFilters();
 
                         $('[data-toggle="tooltip"]').tooltip();
                     }
@@ -2519,21 +2546,30 @@
                 });
             @endif
 
-            // Client-side Card Search filter
-            $(document).on('keyup', '#kanbanSearchInput', function() {
-                const query = $(this).val().toLowerCase().trim();
-                
+            // Client-side Card Search + Accounting filter
+            function applyKanbanFilters() {
+                const query = $('#kanbanSearchInput').val().toLowerCase().trim();
+                const accountingFilter = $('#kanbanAccountingFilter').val();
+                const allowedSalesIds = accountingFilter ? (accountingSalesMap[accountingFilter] || []) : null;
+
                 $('.kanban-item').each(function() {
                     const titleText = $(this).find('.text-heading, .text-primary').text().toLowerCase();
                     const descText = $(this).find('.text-muted').text().toLowerCase();
-                    
-                    if (titleText.includes(query) || descText.includes(query)) {
+                    const taskData = $(this).find('.kanban-item-content').data('task') || {};
+
+                    const matchesSearch = !query || titleText.includes(query) || descText.includes(query);
+                    const matchesAccounting = !allowedSalesIds || allowedSalesIds.includes(String(taskData.id_sales));
+
+                    if (matchesSearch && matchesAccounting) {
                         $(this).show();
                     } else {
                         $(this).hide();
                     }
                 });
-            });
+            }
+
+            $(document).on('keyup', '#kanbanSearchInput', applyKanbanFilters);
+            $(document).on('change', '#kanbanAccountingFilter', applyKanbanFilters);
 
             // Handle test sound click in Board Settings
             $(document).on('click', '#btnTestSound', function(e) {
@@ -2579,6 +2615,38 @@
             });
 
             @if ($board->type === 'monitoring')
+            // Save Accounting -> Sales mapping
+            $('#btnSaveAccountingMapping').click(function() {
+                const $btn = $(this);
+                const mappings = [];
+                $('.accounting-mapping-select').each(function() {
+                    mappings.push({
+                        id_accounting: $(this).data('accounting-id'),
+                        sales_ids: $(this).val() || []
+                    });
+                });
+
+                $btn.prop('disabled', true);
+                $.ajax({
+                    url: '{{ route("kanban.monitoring-document.accounting-mapping") }}',
+                    method: 'POST',
+                    data: {
+                        mappings: mappings,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        alert(response.message || 'Mapping berhasil disimpan.');
+                        window.location.reload();
+                    },
+                    error: function() {
+                        alert('Gagal menyimpan mapping Accounting-Sales.');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                    }
+                });
+            });
+
             // Beautiful Floating Toast Notification
             function showCustomNotification() {
                 let container = $('#customToastContainer');

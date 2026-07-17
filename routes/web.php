@@ -1783,6 +1783,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/accounting/monitoring-document', [KanbanController::class, 'monitoringDocument'])->name('kanban.monitoring-document');
     Route::get('/accounting/monitoring-document/available-pos', [KanbanController::class, 'getAvailablePOs'])->name('kanban.monitoring-document.available-pos');
     Route::get('/accounting/monitoring-document/check-new-cards/{last_task_id}', [KanbanController::class, 'checkNewCards'])->name('kanban.monitoring-document.check-new-cards');
+    Route::post('/accounting/monitoring-document/accounting-mapping', [KanbanController::class, 'updateAccountingSalesMapping'])->name('kanban.monitoring-document.accounting-mapping');
 
     // Database Connection
     Route::get('/db/next-follow/callendar', function () {
