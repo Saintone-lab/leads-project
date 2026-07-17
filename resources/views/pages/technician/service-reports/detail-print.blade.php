@@ -116,7 +116,7 @@
                         </div>
                         <div class="col-8">
                             <p class="mb-1">: {{ $service->machine->unit->brand }}
-                                {{ $service->machine->unit->unit->sku }}</p>
+                                {{ $service->machine->unit->unit->model }}</p>
                             <p class="mb-1">: {{ $service->machine->serial }}
                                 {{ $service->machine->tag ? '| ' . $service->machine->tag : '' }}
                                 {{ $service->machine->location ? '| ' . $service->machine->location : '' }}</p>
@@ -165,7 +165,7 @@
             </h6>
             <div class="row g-2 justify-content-center">
                 @foreach ($pict as $picture)
-                    <div class="col-3 text-center">
+                    <div class="col-4 text-center">
                         <div class="border rounded p-1 mx-auto" style="max-width: 220px;">
                             <img src="{{ url('') . '/' . $picture->picture }}" alt="" srcset=""
                                 style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 4px;"

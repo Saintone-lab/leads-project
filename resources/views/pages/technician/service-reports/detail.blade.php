@@ -132,7 +132,7 @@
                                     </div>
                                     <div class="col-8">
                                         <p class="mb-1">: {{ $service->machine->unit->brand }}
-                                            {{ $service->machine->unit->unit->sku }}</p>
+                                            {{ $service->machine->unit->unit->model }}</p>
                                         <p class="mb-1">: {{ $service->machine->serial }}
                                             {{ $service->machine->tag ? '| ' . $service->machine->tag : '' }}
                                             {{ $service->machine->location ? '| ' . $service->machine->location : '' }}</p>
@@ -208,7 +208,7 @@
                             style="font-size: 12px; letter-spacing: .5px;">Picture</h6>
                         <div class="row g-2 justify-content-center">
                             @foreach ($pict as $picture)
-                                <div class="col-lg-3 col-6 text-center">
+                                <div class="col-md-4 col-6 text-center">
                                     <div class="border rounded p-1 mx-auto position-relative" style="max-width: 220px;">
                                         <img src="{{ url('') . '/' . $picture->picture }}" alt="" srcset=""
                                             style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 4px;">
@@ -321,10 +321,16 @@
                         <a href="#" class="btn btn-danger d-grid w-100 waves-effect delete-hand-sign mb-3"
                             data-id="{{ $service->id }}">Delete Hand Sign</a>
                     @else
-                        <a type="button" data-bs-toggle="modal" data-bs-target="#inputSign-{{ $service->id }}"
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#inputSignPad-{{ $service->id }}"
                             class="d-grid w-100 waves-effect mb-3">
                             <button type="button" class="btn btn-secondary">
-                                Input Hand Sign
+                                Online Sign
+                            </button>
+                        </a>
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#inputSign-{{ $service->id }}"
+                            class="d-grid w-100 waves-effect mb-3">
+                            <button type="button" class="btn btn-outline-secondary">
+                                Upload Sign
                             </button>
                         </a>
                     @endif
@@ -334,6 +340,7 @@
         {{-- End : Button Invoice --}}
     </div>
     @include('components.modal.service.sign')
+    @include('components.modal.service.sign-pad')
     @include('components.modal.service.image')
     @include('components.modal.service.image-v2')
 @endsection
@@ -350,7 +357,7 @@
 @endpush
 @push('script')
     @php
-        $machineName = trim($service->machine->unit->brand . ' ' . $service->machine->unit->unit->sku);
+        $machineName = trim($service->machine->unit->brand . ' ' . $service->machine->unit->unit->model);
         $shareUrl = route('service-reports.print', $service->id);
         $shareText = $service->pic->client->company . ' - ' . $label . "\n" . $machineName . ' - ' . $service->machine->serial . ($service->machine->tag ? ' | ' . $service->machine->tag : '') . "\n" . $shareUrl . "\n\nDibuat Oleh ( " . $service->technician->name . ' )';
     @endphp
@@ -527,38 +534,43 @@
                 previewContainer.innerHTML = '';
 
                 var filesArray = Array.from(event.target.files);
-                for (let i = 0; i < filesArray.length; i++) {
-                    const file = filesArray[i];
+
+                // Buat slot placeholder dulu sesuai urutan file asli (sinkron),
+                // supaya urutan tampil preview tidak tergantung kecepatan FileReader per file.
+                var slots = filesArray.map(function(file, fileIndex) {
+                    const imageContainer = document.createElement('div');
+                    const imageElement = document.createElement('img');
+                    const inputElement = document.createElement('input');
+
+                    imageContainer.className = 'col-6 col-md-4 photo-container mb-3';
+
+                    imageElement.className = 'mb-2';
+                    imageElement.style.width = '100%';
+                    imageElement.style.aspectRatio = '1 / 1';
+                    imageElement.style.objectFit = 'cover';
+                    imageElement.style.borderRadius = '4px';
+
+                    inputElement.className = 'form-control mb-3';
+                    inputElement.type = 'text';
+                    inputElement.name = 'description[' + fileIndex + ']';
+                    inputElement.placeholder = 'Deskripsi untuk Photo ' + (fileIndex + 1);
+
+                    imageContainer.appendChild(imageElement);
+                    imageContainer.appendChild(inputElement);
+                    previewContainer.appendChild(imageContainer);
+
+                    return imageElement;
+                });
+
+                filesArray.forEach(function(file, fileIndex) {
                     const reader = new FileReader();
 
-                    reader.onload = (function(fileIndex) {
-                        return function(e) {
-                            const imageContainer = document.createElement('div');
-                            const imageElement = document.createElement('img');
-                            const inputElement = document.createElement('input');
-
-                            imageContainer.className = 'col-6 col-md-4 photo-container mb-3';
-
-                            imageElement.className = 'mb-2';
-                            imageElement.src = e.target.result;
-                            imageElement.style.width = '100%';
-                            imageElement.style.aspectRatio = '1 / 1';
-                            imageElement.style.objectFit = 'cover';
-                            imageElement.style.borderRadius = '4px';
-
-                            inputElement.className = 'form-control mb-3';
-                            inputElement.type = 'text';
-                            inputElement.name = 'description[]';
-                            inputElement.placeholder = 'Deskripsi untuk Photo ' + (fileIndex + 1);
-
-                            imageContainer.appendChild(imageElement);
-                            imageContainer.appendChild(inputElement);
-                            previewContainer.appendChild(imageContainer);
-                        };
-                    })(i);
+                    reader.onload = function(e) {
+                        slots[fileIndex].src = e.target.result;
+                    };
 
                     reader.readAsDataURL(file);
-                }
+                });
             });
         });
         $(document).on('click', '.delete-photo-item', function() {

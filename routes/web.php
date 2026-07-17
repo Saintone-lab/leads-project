@@ -458,6 +458,7 @@ Route::group(["middleware" => "auth"], function () {
                 'u.bar',
                 // 'u.voltage',
                 'u.sku',
+                'u.model',
                 's.brand',
             )
             ->get();
@@ -1226,7 +1227,7 @@ Route::group(["middleware" => "auth"], function () {
                 't.name',
                 'm.tag',
                 'm.location',
-                DB::raw("CONCAT(s.brand, ' ', un.sku) as brand_type"),
+                DB::raw("CONCAT(s.brand, ' ', un.model) as brand_type"),
                 DB::raw("CONCAT('(', COALESCE(m.serial, '-'), ') - ', COALESCE(m.tag, '-')) AS serial_tag")
             )
             ->get();

@@ -371,7 +371,7 @@
 
                         $.each(response, function(key, value) {
                             var option = $('<option></option>').attr('value', value.id)
-                                .text(value.brand + " " + value.sku +
+                                .text(value.brand + " " + value.model +
                                     " || " + value.location + " - " + value.tag +
                                     " - " + value.serial);
                             machineDropdown.append(option);
