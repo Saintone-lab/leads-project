@@ -20,6 +20,9 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
+        $year = request()->get('year');
+        $yearFilter = ($year && $year !== 'all') ? " AND YEAR(q.po_date) = " . intval($year) : "";
+        $yearFilterU = ($year && $year !== 'all') ? " AND YEAR(sh.created_at) = " . intval($year) : "";
         $query = "SELECT q.id, q.no_quote, c.company, c.ru, q.nett, q.title, q.po_date,
                          inv.id AS invoice_id, inv.no_po, inv.no_invoice,
                          'service' AS row_type
@@ -28,7 +31,7 @@ if (Auth::check()) {
                   LEFT JOIN client c ON c.id = p.id_client
                   INNER JOIN users u ON u.id = q.id_sales
                   LEFT JOIN invoice inv ON inv.id_quotation = q.id
-                  WHERE u.id = $user->id AND q.status = '100' AND q.level = '1' AND q.is_primary = '1'
+                  WHERE u.id = $user->id AND q.status = '100' AND q.level = '1' AND q.is_primary = '1'$yearFilter
                   GROUP BY q.id
 
                   UNION ALL
@@ -49,6 +52,10 @@ if (Auth::check()) {
                   FROM unit_quotation uq
                   LEFT JOIN client cl ON cl.id = NULLIF(uq.id_client,'')
                   WHERE uq.id_sales = $user->id AND uq.status = 'po_received' AND uq.is_latest = 1
+                  AND EXISTS (
+                      SELECT 1 FROM unit_quotation_status_history sh
+                      WHERE sh.id_unit_quotation = uq.id AND sh.status = 'po_received'$yearFilterU
+                  )
 
                   ORDER BY po_date DESC";
 

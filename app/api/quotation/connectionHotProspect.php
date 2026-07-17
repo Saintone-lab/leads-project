@@ -15,6 +15,10 @@ if (Auth::check()) {
         $pdo = new PDO("mysql:host=$host;dbname=$databaseName;charset=utf8", $users, $pass);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+        $year = request()->get('year');
+        $yearFilterQ = ($year && $year !== 'all') ? " AND YEAR(q.estimated_date) = " . intval($year) : "";
+        $yearFilterU = ($year && $year !== 'all') ? " AND YEAR(uq.date) = " . intval($year) : "";
+
         $query = "
         SELECT q.id, q.no_quote, c.company, c.ru, q.subtotal, q.title, q.estimated_date,
                q.status, CONCAT(q.note, ' (', q.status_date, ')') AS tip, q.type, 'service' AS row_type
@@ -22,7 +26,7 @@ if (Auth::check()) {
         LEFT JOIN pic p ON p.id = q.id_pic
         LEFT JOIN client c ON c.id = p.id_client
         INNER JOIN users u ON u.id = q.id_sales
-        WHERE u.id = $userId AND q.status = 80 AND q.level = '1' AND q.is_primary = '1' AND q.type != 'Unit'
+        WHERE u.id = $userId AND q.status = 80 AND q.level = '1' AND q.is_primary = '1' AND q.type != 'Unit'$yearFilterQ
         GROUP BY q.primary_id
 
         UNION ALL
@@ -42,7 +46,7 @@ if (Auth::check()) {
                'unit' AS row_type
         FROM unit_quotation uq
         LEFT JOIN client c2 ON c2.id = NULLIF(uq.id_client,'')
-        WHERE uq.id_sales = $userId AND uq.status = 'hot_prospect' AND uq.is_latest = 1
+        WHERE uq.id_sales = $userId AND uq.status = 'hot_prospect' AND uq.is_latest = 1$yearFilterU
 
         ORDER BY estimated_date ASC";
 

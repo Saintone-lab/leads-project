@@ -1,5 +1,5 @@
 $(function () {
-    $('.datatable-unit-quotation').DataTable({
+    window.dtUnitQuotation = $('.datatable-unit-quotation').DataTable({
         destroy: true,
         processing: true,
         serverSide: true,
@@ -7,6 +7,7 @@ $(function () {
         ajax: {
             url: '/db/unit-quotation',
             type: 'GET',
+            data: function (d) { d.year = window.quotationYearFilter || 'all'; return d; },
         },
         columns: [
             { data: 'no_quote', className: 'text-center text-nowrap' },

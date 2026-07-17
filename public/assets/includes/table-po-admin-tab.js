@@ -25,7 +25,11 @@ $(function () {
                 type: "GET",
                 url: Url,
                 headers: { "Content-Type": "application/json" },
-                data: function (d) { d.sales_id = window.adminSalesFilter || ''; return d; },
+                data: function (d) {
+                    d.sales_id = window.adminSalesFilter || '';
+                    d.year = window.adminQuotationYearFilter || 'all';
+                    return d;
+                },
             },
             columns: [
                 { data: "no_quote" },

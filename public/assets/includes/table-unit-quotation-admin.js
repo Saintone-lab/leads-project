@@ -7,7 +7,11 @@ $(function () {
         ajax: {
             url: '/db/unit-quotation/admin',
             type: 'GET',
-            data: function (d) { d.sales_id = window.adminSalesFilter || ''; return d; },
+            data: function (d) {
+                d.sales_id = window.adminSalesFilter || '';
+                d.year = window.adminQuotationYearFilter || 'all';
+                return d;
+            },
         },
         columns: [
             { data: 'no_quote',     className: 'text-center text-nowrap' },

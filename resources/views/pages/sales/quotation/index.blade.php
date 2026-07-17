@@ -84,6 +84,15 @@
     </div>
     @if (Auth::user()->role !== 'Admin')
     {{-- ── SALES: Tabbed view ─────────────────────────────────────── --}}
+    <div class="d-flex align-items-center justify-content-end mb-3 gap-2">
+        <label class="form-label mb-0 text-muted" style="white-space:nowrap;">Filter Tahun:</label>
+        <select class="form-select form-select-sm" id="quotation-year-filter" style="max-width:150px;">
+            <option value="all">Semua Tahun</option>
+            @for ($y = now()->year; $y >= 2022; $y--)
+                <option value="{{ $y }}" {{ $y == now()->year ? 'selected' : '' }}>{{ $y }}</option>
+            @endfor
+        </select>
+    </div>
     <div class="card">
         <div class="card-header py-2">
             <ul class="nav nav-tabs card-header-tabs border-0 m-0" id="quotation-tab-nav" role="tablist">
@@ -245,7 +254,14 @@
     @else
     {{-- ── ADMIN: Tabbed view ──────────────────────────────────────── --}}
     <div class="d-flex align-items-center justify-content-end mb-3 gap-2">
-        <label class="form-label mb-0 text-muted" style="white-space:nowrap;">Filter Sales:</label>
+        <label class="form-label mb-0 text-muted" style="white-space:nowrap;">Filter Tahun:</label>
+        <select class="form-select form-select-sm" id="admin-year-filter" style="max-width:150px;">
+            <option value="all">Semua Tahun</option>
+            @for ($y = now()->year; $y >= 2022; $y--)
+                <option value="{{ $y }}" {{ $y == now()->year ? 'selected' : '' }}>{{ $y }}</option>
+            @endfor
+        </select>
+        <label class="form-label mb-0 text-muted ms-2" style="white-space:nowrap;">Filter Sales:</label>
         <select class="form-select form-select-sm" id="admin-sales-filter" style="max-width:220px;">
             <option value="">Semua Sales</option>
             @foreach ($salesList as $s)
@@ -475,12 +491,28 @@
             $('#' + badgeId).text(count);
         });
 
+        window.quotationYearFilter = $('#quotation-year-filter').val() || 'all';
+        $('#quotation-year-filter').on('change', function () {
+            window.quotationYearFilter = $(this).val();
+            ['dtQuotation', 'dtUnitQuotation', 'dtHot', 'dtPo', 'dtLoss', 'dtArchive'].forEach(function (key) {
+                if (window[key]) window[key].ajax.reload();
+            });
+        });
+
         window.adminSalesFilter = '';
-        $('#admin-sales-filter').on('change', function () {
-            window.adminSalesFilter = $(this).val();
+        window.adminQuotationYearFilter = $('#admin-year-filter').val() || 'all';
+        var reloadAdminTables = function () {
             ['dtAdminQuotation', 'dtAdminUnitQuotation', 'dtAdminHot', 'dtAdminPo', 'dtAdminLoss'].forEach(function (key) {
                 if (window[key]) window[key].ajax.reload();
             });
+        };
+        $('#admin-sales-filter').on('change', function () {
+            window.adminSalesFilter = $(this).val();
+            reloadAdminTables();
+        });
+        $('#admin-year-filter').on('change', function () {
+            window.adminQuotationYearFilter = $(this).val();
+            reloadAdminTables();
         });
 
         $(document).ready(function() {

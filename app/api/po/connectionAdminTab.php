@@ -21,6 +21,10 @@ try {
     $salesFilter = $salesId ? "AND u.id = " . intval($salesId) : "";
     $salesFilter2 = $salesId ? "AND u2.id = " . intval($salesId) : "";
 
+    $year = request()->get('year');
+    $yearFilter = ($year && $year !== 'all') ? "AND YEAR(q.po_date) = " . intval($year) : "";
+    $yearFilterU = ($year && $year !== 'all') ? " AND YEAR(sh2.created_at) = " . intval($year) : "";
+
     $query = "
     SELECT q.id, q.no_quote, c.company, c.ru, q.nett, q.title, q.po_date,
            inv.id AS invoice_id, inv.no_po, inv.no_invoice,
@@ -30,7 +34,7 @@ try {
     LEFT JOIN client c ON c.id = p.id_client
     INNER JOIN users u ON u.id = q.id_sales
     LEFT JOIN invoice inv ON inv.id_quotation = q.id
-    WHERE q.status = '100' AND q.level = '1' AND q.is_primary = '1' $salesFilter
+    WHERE q.status = '100' AND q.level = '1' AND q.is_primary = '1' $salesFilter $yearFilter
     GROUP BY q.id
 
     UNION ALL
@@ -53,6 +57,10 @@ try {
     LEFT JOIN client cl ON cl.id = NULLIF(uq.id_client,'')
     INNER JOIN users u2 ON u2.id = uq.id_sales
     WHERE uq.status = 'po_received' AND uq.is_latest = 1 $salesFilter2
+    AND EXISTS (
+        SELECT 1 FROM unit_quotation_status_history sh2
+        WHERE sh2.id_unit_quotation = uq.id AND sh2.status = 'po_received'$yearFilterU
+    )
 
     ORDER BY po_date DESC";
 

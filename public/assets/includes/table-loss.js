@@ -24,6 +24,7 @@ $(function () {
                 type: "GET",
                 url: Url,
                 headers: { "Content-Type": "application/json" },
+                data: function (d) { d.year = window.quotationYearFilter || 'all'; return d; },
             },
             columns: [
                 { data: "no_quote" },
@@ -123,6 +124,8 @@ $(function () {
                 },
             },
         });
+
+        window.dtLoss = dt_loss;
 
         dt_table.on("draw.dt", function () {
             $('[data-bs-toggle="tooltip"]').tooltip();

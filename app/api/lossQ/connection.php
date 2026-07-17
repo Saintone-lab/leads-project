@@ -20,6 +20,8 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
+        $year = request()->get('year');
+        $yearFilter = ($year && $year !== 'all') ? " AND YEAR(q.estimated_date) = " . intval($year) : "";
         $query = "SELECT q.id, q.no_quote, q.harga_total, q.title, q.estimated_date, q.status, q.note, q.type,
         c.company, c.ru, u.name,
         COALESCE(
@@ -35,7 +37,7 @@ if (Auth::check()) {
         LEFT JOIN pic p on p.id = q.id_pic
         LEFT JOIN client c on c.id = p.id_client
         INNER JOIN users u on u.id = q.id_sales
-        WHERE u.id = $user->id AND q.status = '0' AND q.level = '1'
+        WHERE u.id = $user->id AND q.status = '0' AND q.level = '1'$yearFilter
         GROUP BY q.id ORDER BY q.expired_date ASC";
 
         $stmt = $pdo->prepare($query);

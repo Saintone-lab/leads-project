@@ -30,6 +30,12 @@ try {
     $where  = "WHERE uq.id_sales = :uid AND uq.is_latest = 1 AND uq.status NOT IN ('hot_prospect','po_received')";
     $params = [':uid' => $user->id];
 
+    $year = request()->get('year');
+    if ($year && $year !== 'all') {
+        $where .= " AND YEAR(uq.date) = :year";
+        $params[':year'] = intval($year);
+    }
+
     if ($search !== '') {
         $where .= " AND (uq.no_quote LIKE :s1 OR c.company LIKE :s2 OR uq.title LIKE :s3)";
         $like  = '%' . $search . '%';

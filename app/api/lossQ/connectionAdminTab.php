@@ -20,6 +20,9 @@ try {
     $salesId = request()->get('sales_id');
     $salesFilter = $salesId ? "AND u.id = " . intval($salesId) : "";
 
+    $year = request()->get('year');
+    $yearFilter = ($year && $year !== 'all') ? "AND YEAR(q.estimated_date) = " . intval($year) : "";
+
     $query = "
     SELECT q.id, q.no_quote, c.company, c.ru, q.harga_total, q.estimated_date,
            q.status, q.note, u.name AS sales_name, u.image AS sales_image,
@@ -36,7 +39,7 @@ try {
     LEFT JOIN pic p ON p.id = q.id_pic
     LEFT JOIN client c ON c.id = p.id_client
     INNER JOIN users u ON u.id = q.id_sales
-    WHERE q.status = '0' AND q.level = '1' $salesFilter
+    WHERE q.status = '0' AND q.level = '1' $salesFilter $yearFilter
     GROUP BY q.id
     ORDER BY q.expired_date ASC";
 
