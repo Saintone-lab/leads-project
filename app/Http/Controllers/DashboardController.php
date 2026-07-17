@@ -2850,7 +2850,8 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $filteredProspectPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_support', $support)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
+        $filteredProspectPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_support', $support)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count()
+            + UnitQuotation::where('status', 'po_received')->where('is_latest', 1)->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->where('id_support', $support)->count();
         $filteredProspectQuote = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_support', $support)->where('level', '1')->where('is_primary', '1')->count();
         $percentedQuotation = $filteredProspectQuote > 0
             ? round(($filteredProspectPO / $filteredProspectQuote) * 100, 2)
@@ -2884,7 +2885,8 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $totalProspectPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_support', $support)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $totalProspectPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_support', $support)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett')
+            + UnitQuotation::where('status', 'po_received')->where('is_latest', 1)->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->where('id_support', $support)->sum(DB::raw('total - tax_amount'));
         $formattedPO = number_format($totalProspectPO, 0, ",", ".");
         return $formattedPO;
     }

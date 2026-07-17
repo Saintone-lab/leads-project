@@ -29,18 +29,24 @@
                                     @php
                                         $totalQ = $quoteData['nett'];
                                         $totalP += $totalQ;
-                                        $quoteObj = \App\Models\Quotation::where('id', $quoteData['id'])->first();
+                                        $isUnit = ($quoteData['source'] ?? 'quotation') === 'unit_quotation';
+                                        $quoteObj = $isUnit ? null : \App\Models\Quotation::where('id', $quoteData['id'])->first();
                                     @endphp
                                     <tr>
                                         <td class="fw-medium">
-                                            <a class="text-black"
-                                                href="{{ route('quotation.show', $quoteObj->id) }}">{{ $quoteObj->no_quote }}</a>
+                                            @if ($isUnit)
+                                                <a class="text-black"
+                                                    href="{{ route('unit-quotation.show', $quoteData['id']) }}">{{ $quoteData['no_quote'] }}</a>
+                                            @else
+                                                <a class="text-black"
+                                                    href="{{ route('quotation.show', $quoteObj->id) }}">{{ $quoteObj->no_quote }}</a>
+                                            @endif
                                         </td>
-                                        <td>{{ $quoteObj->pic->client->company ?? 'Client Di Hapus' }}</td>
-                                        <td>{{ $quoteObj->title }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($quoteObj->estimated_date)->format('d-m-Y') }}</td>
+                                        <td>{{ $isUnit ? $quoteData['company'] : ($quoteObj->pic->client->company ?? 'Client Di Hapus') }}</td>
+                                        <td>{{ $isUnit ? $quoteData['title'] : $quoteObj->title }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($isUnit ? $quoteData['estimated_date'] : $quoteObj->estimated_date)->format('d-m-Y') }}</td>
                                         <td class="text-end">Rp
-                                            {{ number_format($quoteObj->nett, 0, '', '.') }}</td>
+                                            {{ number_format($isUnit ? $quoteData['nett'] : $quoteObj->nett, 0, '', '.') }}</td>
                                     </tr>
                                     @php
                                         $key++;

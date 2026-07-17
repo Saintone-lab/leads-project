@@ -60,10 +60,13 @@ class UnitQuotationController extends Controller
         $tax_amount  = $tax ? round($afterDiskon * 0.11) : 0;
         $total       = $afterDiskon + $tax_amount;
 
+        $client = $request->id_client ? Client::find($request->id_client) : null;
+
         $quote = UnitQuotation::create([
             'id_client'        => $request->id_client ?: null,
             'id_pic'           => $request->id_pic ?: null,
             'id_sales'         => Auth::id(),
+            'id_support'       => $client->id_support ?? null,
             'no_quote'         => $request->no_quote ?: $this->generateNoQuote(),
             'attn'             => $request->attn,
             'no_pr'            => $request->no_pr ?: null,
@@ -216,6 +219,7 @@ class UnitQuotationController extends Controller
             'id_client'        => $source->id_client,
             'id_pic'           => $source->id_pic,
             'id_sales'         => $source->id_sales,
+            'id_support'       => $source->id_support,
             'no_quote'         => $newNoQuote,
             'attn'             => $source->attn,
             'no_pr'            => $source->no_pr,

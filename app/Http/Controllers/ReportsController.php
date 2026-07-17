@@ -305,6 +305,16 @@ class ReportsController extends Controller
             ->groupBy('week')
             ->orderBy('week')
             ->pluck('total', 'week');
+
+        $unitPerWeek = UnitQuotation::select(DB::raw('WEEK(po_received, 4) as week'), DB::raw('COUNT(*) as total'))
+            ->whereBetween('po_received', [$firstDayOfMonth, $lastDayOfMonth])
+            ->where('id_sales', Auth::user()->id)
+            ->where('status', 'po_received')
+            ->where('is_latest', 1)
+            ->groupBy('week')
+            ->orderBy('week')
+            ->pluck('total', 'week');
+
         $fullMonthData = [];
         for ($week = $weekStart; $week <= $endWeek; $week++) {
             $weekKey = "{$week}";
@@ -313,7 +323,7 @@ class ReportsController extends Controller
             if ($weekDays >= 4) {
                 $fullMonthData[$weekKey] = [
                     'week' => $weekKey,
-                    'total' => isset($dCallPerWeek[$weekKey]) ? $dCallPerWeek[$weekKey] : 0,
+                    'total' => (isset($dCallPerWeek[$weekKey]) ? $dCallPerWeek[$weekKey] : 0) + (isset($unitPerWeek[$weekKey]) ? $unitPerWeek[$weekKey] : 0),
                 ];
             }
         }

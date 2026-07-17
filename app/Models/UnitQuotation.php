@@ -15,6 +15,7 @@ class UnitQuotation extends Model
         'id_client',
         'id_pic',
         'id_sales',
+        'id_support',
         'no_quote',
         'attn',
         'no_pr',
