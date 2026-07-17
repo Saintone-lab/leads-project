@@ -1589,7 +1589,18 @@ class QuotationController extends Controller
                 $invoice->term = NULL;
                 $invoice->invoiceTo = NULL;
             }
-            $invoice->type = 'CT';
+            $firstPayment = Payment::where('id_quotation', $id)->first();
+            if ($firstPayment) {
+                if ($firstPayment->type == 'CBD' || $firstPayment->type == 'COD' || $firstPayment->percent == 100) {
+                    $invoice->type = 'CT';
+                } elseif ($firstPayment->type != 'Tempo') {
+                    $invoice->type = $firstPayment->type;
+                } else {
+                    $invoice->type = 'BP';
+                }
+            } else {
+                $invoice->type = 'CT';
+            }
             $invoice->date = Carbon::today();
             $invoice->sign = NULL;
             $invoice->pph = 0;
@@ -1751,17 +1762,19 @@ class QuotationController extends Controller
         $invoice = Invoice::where('id_quotation', $id)->get();
         // dd($request->type);
         $targetInvoice = $invoice[$paymentCount] ?? null;
-        if ($paymentCount != 0 || $request->type == "DP") {
-            if ($targetInvoice != null) {
-                if ($request->type == 'CBD' || $request->type == 'COD') {
+        if ($targetInvoice != null) {
+            if ($request->type == 'CBD' || $request->type == 'COD') {
+                $targetInvoice->type = 'CT';
+            } elseif ($request->type != 'Tempo') {
+                $targetInvoice->type = $request->type;
+            } else {
+                if ($request->percent == 100) {
                     $targetInvoice->type = 'CT';
-                } elseif ($request->type != 'Tempo') {
-                    $targetInvoice->type = $request->type;
                 } else {
                     $targetInvoice->type = 'BP';
                 }
-                $targetInvoice->save();
             }
+            $targetInvoice->save();
         }
 
         $activity = new ChangeStatus();
@@ -1856,8 +1869,10 @@ class QuotationController extends Controller
             return response()->json(['error' => 'Quotation not found.'], 404);
         }
         $paymentDel = $payment->delete();
-        $invoice->type = 'CT';
-        $invoice->save();
+        if ($invoice) {
+            $invoice->type = 'CT';
+            $invoice->save();
+        }
 
         // $file_path = public_path($payment->file);
 

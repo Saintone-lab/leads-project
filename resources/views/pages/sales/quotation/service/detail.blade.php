@@ -592,7 +592,7 @@
                             @endif
                         </div>
                     </div>
-                    @if ($quote->status == 100 && isset($invoice))
+                    @if ($quote->status == 100 && $quote->po_file != null && isset($invoice))
                         <div class="card mb-3">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between mb-3">
