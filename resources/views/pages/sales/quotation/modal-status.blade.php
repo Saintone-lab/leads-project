@@ -1,4 +1,4 @@
-<form action="{{ route('status.change.quotation', $quote->id) }}" method="patch" enctype="multipart/form-data">
+<form action="{{ route('status.change.quotation', $quote->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     <div class="modal-onboarding modal fade animate__animated" id="changeStatus-{{ $quote->id }}" tabindex="-1"
         style="display: none;" aria-hidden="true">
@@ -15,8 +15,7 @@
                         <div class="onboarding-info mb-3">
                             {{ $quote->pic->client->company }}
                         </div>
-                        <form>
-                            <div class="row">
+                        <div class="row">
                                 <div class="col-6">
                                     <div class="form-floating form-floating-outline mb-3">
                                         <select class="form-select" tabindex="0" id="statusChange" name="status">
@@ -122,7 +121,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </form>
                     </div>
                 </div>
                 <div class="modal-footer border-0">

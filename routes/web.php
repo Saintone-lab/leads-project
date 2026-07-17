@@ -184,7 +184,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/prospect-quotation', [QuotationController::class, 'prospect_quote'])->name('quotation.prospect');
     Route::get('/po', [QuotationController::class, 'po_quote'])->name('quotation.po');
     Route::get('/loss', [QuotationController::class, 'loss_quote'])->name('quotation.loss');
-    Route::get('/quotation/{id}/change_status', [QuotationController::class, 'change_status'])->name('status.change.quotation');
+    Route::post('/quotation/{id}/change_status', [QuotationController::class, 'change_status'])->name('status.change.quotation');
     Route::post('/quotation/{id}/add_comment', [QuotationController::class, 'add_comment'])->name('add-comment.quotation');
     Route::post('/quotation/{id}/view_comment', [QuotationController::class, 'view_comment'])->name('view-comment.quotation');
     Route::post('/quotation/{id}/change_po', [QuotationController::class, 'change_po'])->name('change-po.quotation');
