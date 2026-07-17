@@ -193,8 +193,10 @@ $(function () {
         bindUnitSourceToggle($row);
 
         if (item.id_fixed_asset && item.fixed_asset) {
-            // Sumbernya Unit Second (Fixed Asset) — tampilkan blok pencarian itu
-            $row.find('.unit-source-radio[value="fixed_asset"]').prop('checked', true);
+            // Sumbernya Unit Second (Fixed Asset) atau Rental — tampilkan blok pencarian itu
+            var isRental = (item.info_qty === 'Days' || item.info_qty === 'Hari');
+            var sourceVal = isRental ? 'rental' : 'fixed_asset';
+            $row.find('.unit-source-radio[value="' + sourceVal + '"]').prop('checked', true);
             $row.find('.unit-source-catalog').hide();
             $row.find('.unit-source-fixed-asset').show();
 
@@ -406,6 +408,13 @@ $(function () {
 
             // Sync type select berdasarkan source yang dipilih
             $('#select-type').val(source === 'rental' ? 'Rental' : 'Unit');
+
+            // Khusus Untuk Rental itu isian Unit Di ganti jadi Days
+            if (source === 'rental') {
+                $row.find('.field-info-qty').val('Days');
+            } else {
+                $row.find('.field-info-qty').val('Unit');
+            }
         });
     }
 

@@ -51,9 +51,8 @@ class ReportsController extends Controller
             ->where('id_sales', Auth::id())
             ->where('status', 'po_received')
             ->where('is_latest', 1)
-            ->whereHas('statusHistory', fn($q) => $q->where('status', 'po_received')
-                ->whereMonth('created_at', $monthNow)
-                ->whereYear('created_at', $yearNow))
+            ->whereYear('po_received', $yearNow)
+            ->whereMonth('po_received', $monthNow)
             ->get();
 
         $amountSalesUnit = $unitQuotationPO->sum(fn($uq) => $uq->total - $uq->tax_amount);

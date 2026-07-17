@@ -1134,7 +1134,7 @@
                         @foreach ($sales as $user)
                             <li class="nav-item change-sales" role="presentation" style="width: 15%;height: 15%;"
                                 data-id="{{ $user->id }}">
-                                <img class="nav-link btn {{ $user->id == 1 ? 'active' : '' }} d-flex flex-column align-items-center justify-content-center"
+                                <img class="nav-link btn {{ $user->id == ($firstSales->id ?? 1) ? 'active' : '' }} d-flex flex-column align-items-center justify-content-center"
                                     role="tab" data-bs-toggle="tab" data-bs-target="#navs-sales-{{ $user->id }}"
                                     aria-controls="navs-sales-{{ $user->id }}" aria-selected="true"
                                     src="{{ url('') . '/' . $user->image }}" alt="" srcset=""
@@ -1148,7 +1148,7 @@
                             $item = 0;
                         @endphp
                         @foreach ($sales as $user)
-                            <div class="tab-pane fade{{ $user->id == 1 ? ' show active' : '' }}"
+                            <div class="tab-pane fade{{ $user->id == ($firstSales->id ?? 1) ? ' show active' : '' }}"
                                 id="navs-sales-{{ $user->id }}" role="tabpanel">
                                 <div class="mb-3">
                                     <div data-id="{{ $item }}">
@@ -1263,7 +1263,7 @@
                                                                         <h5 class="mb-0">CRM</h5>
                                                                         <small>
                                                                             <span class="filtered-crm">
-                                                                                {{ $filteredCRM }}
+                                                                                {{ $user->id == ($firstSales->id ?? 1) ? $filteredCRM : 0 }}
                                                                             </span>
                                                                             <span
                                                                                 class="filtered-target-crm text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] ?? 0 }}</span>
@@ -1496,7 +1496,8 @@
                                                                     <div class="col-2 d-flex align-items-center">
                                                                         @php
                                                                             $salesTargetLeads = ($targetSales[$item][0] ?? null)?->leads ?? 0;
-                                                                            $targetLeads = $salesTargetLeads > 0 ? ($filteredLeads / $salesTargetLeads) * 100 : 0;
+                                                                            $currentLeads = $user->id == ($firstSales->id ?? 1) ? $filteredLeads : 0;
+                                                                            $targetLeads = $salesTargetLeads > 0 ? ($currentLeads / $salesTargetLeads) * 100 : 0;
                                                                         @endphp
                                                                         <h4 class="filtered-percent-leads fs-5 m-0">
                                                                             {{ round($targetLeads) }} %</h4>
@@ -1506,7 +1507,7 @@
                                                                         <div class="card-info">
                                                                             <h5 class="mb-0">
                                                                                 <span class="filtered-leads">
-                                                                                    {{ $filteredLeads }}
+                                                                                    {{ $user->id == ($firstSales->id ?? 1) ? $filteredLeads : 0 }}
                                                                                 </span>
                                                                                 <span
                                                                                     class="filtered-target-leads text-muted fs-tiny fw-normal">/
@@ -1529,7 +1530,8 @@
                                                                     <div class="col-2 d-flex align-items-center">
                                                                         @php
                                                                             $salesTargetDC = ($targetSales[$item][0] ?? null)?->dc ?? 0;
-                                                                            $targetDC = $salesTargetDC > 0 ? ($filteredDC / $salesTargetDC) * 100 : 0;
+                                                                            $currentDC = $user->id == ($firstSales->id ?? 1) ? $filteredDC : 0;
+                                                                            $targetDC = $salesTargetDC > 0 ? ($currentDC / $salesTargetDC) * 100 : 0;
                                                                         @endphp
                                                                         {{-- <h4 class="filtered-percent-dc fs-5 m-0">
                                                                                 {{ round($targetDC) }} %</h4> --}}
@@ -1539,7 +1541,7 @@
                                                                         <div class="card-info">
                                                                             <h5 class="mb-0">
                                                                                 <span class="filtered-dc">
-                                                                                    {{ $filteredDC }}
+                                                                                    {{ $user->id == ($firstSales->id ?? 1) ? $filteredDC : 0 }}
                                                                                 </span>
                                                                                 {{-- <span
                                                                                         class="filtered-target-dc text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span> --}}
@@ -1564,8 +1566,9 @@
                                                                 <div class="col-2 d-flex align-items-center">
                                                                     @php
                                                                         $crmDenominator = $targetCrm[$user->id] ?? 0;
+                                                                        $currentCRM = $user->id == ($firstSales->id ?? 1) ? $filteredCRM : 0;
                                                                         $targetCRM = $crmDenominator > 0
-                                                                            ? ($filteredCRM / $crmDenominator) * 100
+                                                                            ? ($currentCRM / $crmDenominator) * 100
                                                                             : 0;
                                                                     @endphp
                                                                     @if ($user->id != 3)
@@ -1580,7 +1583,7 @@
                                                                         @else
                                                                             <h5 class="mb-0">
                                                                                 <span class="filtered-crm">
-                                                                                    {{ $filteredCRM }}
+                                                                                    {{ $user->id == ($firstSales->id ?? 1) ? $filteredCRM : 0 }}
                                                                                 </span>
                                                                                 <span
                                                                                     class="filtered-target-crm text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] ?? 0 }}</span>
@@ -1618,7 +1621,7 @@
                                                                     <div class="card-info">
                                                                         <h5 class="mb-0">
                                                                             <span class="filtered-quote">
-                                                                                {{ $filteredQuote }}
+                                                                                {{ $user->id == ($firstSales->id ?? 1) ? $filteredQuote : 0 }}
                                                                             </span>
                                                                             {{-- <span
                                                                                     class="filtered-target-quote text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->quote }}</span> --}}
@@ -1654,7 +1657,7 @@
                                                                     <div class="card-info">
                                                                         <h5 class="mb-0">
                                                                             <span class="filtered-prospect-sales">
-                                                                                {{ $filteredProspect }}
+                                                                                {{ $user->id == ($firstSales->id ?? 1) ? $filteredProspect : 0 }}
                                                                             </span>
                                                                             {{-- <span
                                                                                     class="filtered-all-prospect text-muted fs-tiny fw-normal">/{{ $allProspect }}</span> --}}
@@ -1680,7 +1683,7 @@
                                                                         <h5 class="mb-0">
                                                                             <span class="admin-total-quotation">
                                                                                 Rp
-                                                                                {{ number_format($totalQuotation, 0, ',', '.') }}
+                                                                                {{ $user->id == ($firstSales->id ?? 1) ? number_format($totalQuotation, 0, ',', '.') : 0 }}
                                                                             </span>
                                                                         </h5>
                                                                         <small class="text-muted">Quotation</small>
@@ -1702,7 +1705,7 @@
                                                                         <h5 class="mb-0">
                                                                             <span class="admin-total-prospect">
                                                                                 Rp
-                                                                                {{ number_format($totalProspect, 0, ',', '.') }}
+                                                                                {{ $user->id == ($firstSales->id ?? 1) ? number_format($totalProspect, 0, ',', '.') : 0 }}
                                                                             </span>
                                                                         </h5>
                                                                         <small class="text-muted">Prospect</small>
@@ -1724,7 +1727,7 @@
                                                                         <h5 class="mb-0">
                                                                             <span class="admin-total-hot-prospect">
                                                                                 Rp
-                                                                                {{ number_format($totalHotProspect, 0, ',', '.') }}
+                                                                                {{ $user->id == ($firstSales->id ?? 1) ? number_format($totalHotProspect, 0, ',', '.') : 0 }}
                                                                             </span>
                                                                         </h5>
                                                                         <small class="text-muted">Hot Prospect</small>
@@ -1746,7 +1749,7 @@
                                                                         <h5 class="mb-0">
                                                                             <span class="admin-total-loss">
                                                                                 Rp
-                                                                                {{ number_format($totalLoss, 0, ',', '.') }}
+                                                                                {{ $user->id == ($firstSales->id ?? 1) ? number_format($totalLoss, 0, ',', '.') : 0 }}
                                                                             </span>
                                                                         </h5>
                                                                         <small class="text-muted">Quotation
@@ -1769,11 +1772,12 @@
                                                                         <h5 class="mb-0">
                                                                             <span class="admin-total-po">
                                                                                 Rp
-                                                                                {{ number_format($totalPO, 0, ',', '.') }}
+                                                                                {{ $user->id == ($firstSales->id ?? 1) ? number_format($totalPO, 0, ',', '.') : 0 }}
                                                                             </span>
                                                                             @php
                                                                                 $salesTargetTotal = ($targetSales[$item][0] ?? null)?->total ?? 0;
-                                                                                $targetPO = $salesTargetTotal > 0 ? ($totalPO / $salesTargetTotal) * 100 : 0;
+                                                                                $currentPO = $user->id == ($firstSales->id ?? 1) ? $totalPO : 0;
+                                                                                $targetPO = $salesTargetTotal > 0 ? ($currentPO / $salesTargetTotal) * 100 : 0;
                                                                                 if ($targetPO <= 80) {
                                                                                     $color = 'danger';
                                                                                 } elseif ($targetPO <= 100) {
@@ -1839,7 +1843,7 @@
                                                                 <div class="card-info">
                                                                     <h5 class="mb-0">
                                                                         <span class="filtered-prospect">
-                                                                            {{ $filteredProspect }}
+                                                                            {{ $user->id == ($firstSales->id ?? 1) ? $filteredProspect : 0 }}
                                                                         </span>
                                                                         <span class="text-muted fs-tiny fw-normal">/
                                                                             100</span>
@@ -1868,7 +1872,7 @@
                                                                             0
                                                                         </span>
                                                                         <span
-                                                                            class="filtered-all-prospect-provided text-muted fs-tiny fw-normal">/{{ $allProspect }}</span>
+                                                                            class="filtered-all-prospect-provided text-muted fs-tiny fw-normal">/{{ $user->id == ($firstSales->id ?? 1) ? $allProspect : 0 }}</span>
                                                                     </h5>
                                                                     <small class="text-muted">Provided</small>
                                                                 </div>
@@ -1894,7 +1898,7 @@
                                                                             0
                                                                         </span>
                                                                         <span
-                                                                            class="filtered-all-quote-prospect text-muted fs-tiny fw-normal">/{{ $allProspect }}</span>
+                                                                            class="filtered-all-quote-prospect text-muted fs-tiny fw-normal">/{{ $user->id == ($firstSales->id ?? 1) ? $allProspect : 0 }}</span>
                                                                     </h5>
                                                                     <small class="text-muted">Quotation</small>
                                                                 </div>
@@ -1920,7 +1924,7 @@
                                                                             0
                                                                         </span>
                                                                         <span
-                                                                            class="filtered-all-prospect-not-provided text-muted fs-tiny fw-normal">/{{ $allProspect }}</span>
+                                                                            class="filtered-all-prospect-not-provided text-muted fs-tiny fw-normal">/{{ $user->id == ($firstSales->id ?? 1) ? $allProspect : 0 }}</span>
                                                                     </h5>
                                                                     <small class="text-muted">Not Provided</small>
                                                                 </div>
@@ -2876,28 +2880,28 @@
         $('.change-sales').on('click', function(ev) {
             var id = $(this).data('id');
             console.log('sales ini ber id : ' + id);
+            var $pane = $('#navs-sales-' + id);
 
             // Ajax Sales Kiri
             $.ajax({
                 url: '/dashboard/filteredLeads/' + id,
                 type: 'GET',
-                success: function(response, id) {
-                    // console.log(id);
-                    $(`.filtered-leads`).text(response);
+                success: function(response) {
+                    $pane.find('.filtered-leads').text(response);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredPercentLeads/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-percent-leads`).text(response + '%');
+                    $pane.find('.filtered-percent-leads').text(response + '%');
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredTargetLeads/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-target-leads`).text('/ ' + response.leads);
+                    $pane.find('.filtered-target-leads').text('/ ' + response.leads);
                     console.log(response.leads);
                 }
             });
@@ -2905,84 +2909,84 @@
                 url: '/dashboard/filteredDc/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-dc`).text(response);
+                    $pane.find('.filtered-dc').text(response);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredPercentDc/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-percent-dc`).text(response + '%');
+                    $pane.find('.filtered-percent-dc').text(response + '%');
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredTargetDc/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-target-dc`).text('/ ' + response.dc);
+                    $pane.find('.filtered-target-dc').text('/ ' + response.dc);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredCRM/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-crm`).text(response);
+                    $pane.find('.filtered-crm').text(response);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredPercentCRM/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-percent-crm`).text(response + ' %');
+                    $pane.find('.filtered-percent-crm').text(response + ' %');
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredTargetCRM/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-target-crm`).text('/ ' + response);
+                    $pane.find('.filtered-target-crm').text('/ ' + response);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredQuote/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-quote`).text(response);
+                    $pane.find('.filtered-quote').text(response);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredPercentQuote/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-percent-quote`).text(response + '%');
+                    $pane.find('.filtered-percent-quote').text(response + '%');
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredTargetQuote/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-target-quote`).text('/ ' + response.quote);
+                    $pane.find('.filtered-target-quote').text('/ ' + response.quote);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredProspectAdmin/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-prospect-sales`).text(response);
+                    $pane.find('.filtered-prospect-sales').text(response);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredPercentProspectAdmin/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-percent-prospect-sales`).text(response + '%');
+                    $pane.find('.filtered-percent-prospect-sales').text(response + '%');
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredAllProspect/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-all-prospect`).text('/ ' + response);
+                    $pane.find('.filtered-all-prospect').text('/ ' + response);
                 }
             });
 
@@ -2992,7 +2996,7 @@
                 type: 'GET',
                 success: function(response) {
                     total = formatNumber(response);
-                    $(`.admin-total-quotation`).text('Rp ' + total);
+                    $pane.find('.admin-total-quotation').text('Rp ' + total);
                 }
             });
             $.ajax({
@@ -3000,7 +3004,7 @@
                 type: 'GET',
                 success: function(response) {
                     total = formatNumber(response);
-                    $(`.admin-total-prospect`).text('Rp ' + total);
+                    $pane.find('.admin-total-prospect').text('Rp ' + total);
                 }
             });
             $.ajax({
@@ -3008,7 +3012,7 @@
                 type: 'GET',
                 success: function(response) {
                     total = formatNumber(response);
-                    $(`.admin-total-hot-prospect`).text('Rp ' + total);
+                    $pane.find('.admin-total-hot-prospect').text('Rp ' + total);
                 }
             });
             $.ajax({
@@ -3016,7 +3020,7 @@
                 type: 'GET',
                 success: function(response) {
                     total = formatNumber(response);
-                    $(`.admin-total-loss`).text('Rp ' + total);
+                    $pane.find('.admin-total-loss').text('Rp ' + total);
                 }
             });
             $.ajax({
@@ -3024,7 +3028,7 @@
                 type: 'GET',
                 success: function(response) {
                     total = formatNumber(response);
-                    $(`.admin-total-po`).text('Rp ' + total);
+                    $pane.find('.admin-total-po').text('Rp ' + total);
                 }
             });
             $.ajax({
@@ -3040,11 +3044,11 @@
                     }
 
                     // Update class
-                    const $el = $(`.admin-target-total-po`);
+                    const $el = $pane.find('.admin-target-total-po');
                     $el.removeClass(
                             'bg-label-danger bg-label-warning bg-label-success')
                         .addClass(`bg-label-${color}`);
-                    $(`.admin-target-total-po`).text(response + ' %');
+                    $pane.find('.admin-target-total-po').text(response + ' %');
                 }
             });
 
@@ -3053,7 +3057,7 @@
                 type: 'GET',
                 success: function(response) {
                     var targetPercentage = (response / 100).toFixed(3);
-                    $(`.target-po`).text(targetPercentage + '%');
+                    $pane.find('.target-po').text(targetPercentage + '%');
                     console.log(targetPercentage);
                 }
             });
@@ -3061,21 +3065,21 @@
                 url: '/dashboard/filteredProspectQuote/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-prospect-quotation`).text(response);
+                    $pane.find('.filtered-prospect-quotation').text(response);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredProspectPO/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-prospect-po`).text(response);
+                    $pane.find('.filtered-prospect-po').text(response);
                 }
             });
             $.ajax({
                 url: '/dashboard/totalProspectPO/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.total-prospect-po`).text('Rp ' + response);
+                    $pane.find('.total-prospect-po').text('Rp ' + response);
                 }
             });
             // Ajax Online Sales
@@ -3083,8 +3087,8 @@
                 url: '/dashboard/filteredProduct/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-product`).text(response);
-                    $(`.filtered-percent-product`).text(response + ' %');
+                    $pane.find('.filtered-product').text(response);
+                    $pane.find('.filtered-percent-product').text(response + ' %');
                 }
             });
             $.ajax({
@@ -3092,7 +3096,7 @@
                 type: 'GET',
                 success: function(response) {
                     const value = parseFloat(response) || 0;
-                    $(`.filtered-sw`).text(value);
+                    $pane.find('.filtered-sw').text(value);
 
                     let percent;
                     if (id === 16) {
@@ -3101,67 +3105,67 @@
                         percent = (value / 60) * 100;
                     }
 
-                    $(`.filtered-percent-sw`).text(percent.toFixed(1) + ' %');
+                    $pane.find('.filtered-percent-sw').text(percent.toFixed(1) + ' %');
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredVideo/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-video`).text(response);
-                    $(`.filtered-percent-video`).text(response + ' %');
+                    $pane.find('.filtered-video').text(response);
+                    $pane.find('.filtered-percent-video').text(response + ' %');
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredStat/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-status`).text(response);
+                    $pane.find('.filtered-status').text(response);
                     const value = parseFloat(response) || 0;
                     let percent;
                     percent = value / 5 * 100;
-                    $(`.filtered-percent-status`).text(percent.toFixed(1) + ' %');
+                    $pane.find('.filtered-percent-status').text(percent.toFixed(1) + ' %');
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredDelivery/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-delivery`).text(response);
+                    $pane.find('.filtered-delivery').text(response);
                     const value = parseFloat(response) || 0;
                     let percent;
                     percent = value / 5 * 100;
-                    $(`.filtered-percent-delivery`).text(percent.toFixed(1) + ' %');
+                    $pane.find('.filtered-percent-delivery').text(percent.toFixed(1) + ' %');
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredCustomer/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-customer`).text(response);
+                    $pane.find('.filtered-customer').text(response);
                     const value = parseFloat(response) || 0;
                     let percent;
                     percent = value / 5 * 100;
-                    $(`.filtered-percent-customer`).text(percent.toFixed(1) + ' %');
+                    $pane.find('.filtered-percent-customer').text(percent.toFixed(1) + ' %');
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredResponse/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-response`).text(response);
-                    $(`.filtered-percent-response`).text(response + ' %');
+                    $pane.find('.filtered-response').text(response);
+                    $pane.find('.filtered-percent-response').text(response + ' %');
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredRating/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-rating`).text(response);
+                    $pane.find('.filtered-rating').text(response);
                     const value = parseFloat(response) || 0;
                     let percent;
                     percent = value / 5 * 100;
-                    $(`.filtered-percent-rating`).text(percent.toFixed(1) + ' %');
+                    $pane.find('.filtered-percent-rating').text(percent.toFixed(1) + ' %');
                 }
             });
 
@@ -3170,65 +3174,65 @@
                 url: '/dashboard/filteredProspect/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-prospect`).text(response);
-                    $(`.filtered-percent-prospect`).text(response + ' %');
+                    $pane.find('.filtered-prospect').text(response);
+                    $pane.find('.filtered-percent-prospect').text(response + ' %');
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredProvide/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-provided`).text(response.provide);
-                    $(`.filtered-percent-provided`).text(response.percent + ' %');
-                    $(`.filtered-all-prospect-provided`).text(response.prospect);
+                    $pane.find('.filtered-provided').text(response.provide);
+                    $pane.find('.filtered-percent-provided').text(response.percent + ' %');
+                    $pane.find('.filtered-all-prospect-provided').text(response.prospect);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredProspectQuote/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-quote-prospect`).text(response.quotation);
-                    $(`.filtered-percent-quote-prospect`).text(response.percent + ' %');
-                    $(`.filtered-all-quote-prospect`).text(response.provide);
+                    $pane.find('.filtered-quote-prospect').text(response.quotation);
+                    $pane.find('.filtered-percent-quote-prospect').text(response.percent + ' %');
+                    $pane.find('.filtered-all-quote-prospect').text(response.provide);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredNotProvide/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-not-provided`).text(response.provide);
-                    $(`.filtered-percent-not-provided`).text(response.percent + ' %');
-                    $(`.filtered-all-prospect-not-provided`).text(response.prospect);
+                    $pane.find('.filtered-not-provided').text(response.provide);
+                    $pane.find('.filtered-percent-not-provided').text(response.percent + ' %');
+                    $pane.find('.filtered-all-prospect-not-provided').text(response.prospect);
                 }
             });
             $.ajax({
                 url: '/dashboard/filteredProspectPO/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.filtered-po-prospect`).text(response.po);
-                    $(`.filtered-percent-po-prospect`).text(response.percent + ' %');
-                    $(`.filtered-all-po-prospect`).text(response.quotation);
+                    $pane.find('.filtered-po-prospect').text(response.po);
+                    $pane.find('.filtered-percent-po-prospect').text(response.percent + ' %');
+                    $pane.find('.filtered-all-po-prospect').text(response.quotation);
                 }
             });
             $.ajax({
                 url: '/dashboard/totalProspectQuote/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.total-prospect-quotation`).text('Rp ' + response);
+                    $pane.find('.total-prospect-quotation').text('Rp ' + response);
                 }
             });
             $.ajax({
                 url: '/dashboard/totalProspectProspect/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.total-prospect-hot`).text('Rp ' + response);
+                    $pane.find('.total-prospect-hot').text('Rp ' + response);
                 }
             });
             $.ajax({
                 url: '/dashboard/totalProspectPO/' + id,
                 type: 'GET',
                 success: function(response) {
-                    $(`.total-prospect-po`).text('Rp ' + response);
+                    $pane.find('.total-prospect-po').text('Rp ' + response);
                 }
             });
 

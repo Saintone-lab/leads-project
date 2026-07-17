@@ -38,7 +38,7 @@ try {
     SELECT uq.id, uq.no_quote,
            COALESCE(NULLIF(cl.company,''),'-') AS company,
            NULL AS ru,
-           uq.total AS nett,
+           (uq.total - uq.tax_amount) AS nett,
            COALESCE(NULLIF(uq.title,''),'-') AS title,
            (SELECT DATE(sh.created_at)
             FROM unit_quotation_status_history sh

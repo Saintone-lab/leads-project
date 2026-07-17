@@ -78,10 +78,11 @@ class DashboardController extends Controller
             ->pluck('total_nett', 'id_sales');
 
         $unitPoPerSales = UnitQuotation::where('status', 'po_received')
+            ->where('is_latest', 1)
             ->whereYear('po_received', $yearNow)
             ->whereMonth('po_received', $monthNow)
             ->groupBy('id_sales')
-            ->selectRaw('id_sales, SUM(total) as total_nett')
+            ->selectRaw('id_sales, SUM(total - tax_amount) as total_nett')
             ->pluck('total_nett', 'id_sales');
 
         foreach ($sales as $sale) {
@@ -138,7 +139,7 @@ class DashboardController extends Controller
             $leads = $this->getLeadsSales();
             $visit = $this->getVisitSales();
             $poTotalPrice = Quotation::whereYear('po_date', $yearNow)->whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->where('level', '1')->where('is_primary', '1')->sum('nett')
-                + UnitQuotation::where('status', 'po_received')->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->where('id_sales', Auth::user()->id)->sum('total');
+                + UnitQuotation::where('status', 'po_received')->where('is_latest', 1)->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->where('id_sales', Auth::user()->id)->sum(DB::raw('total - tax_amount'));
             // $noPayment = DB::table('quotation as q')
             //     ->whereYear('q.po_date', $yearNow)
             //     ->whereMonth('q.po_date', $monthNow)
@@ -404,13 +405,15 @@ class DashboardController extends Controller
                 ->where('is_primary', '1')
                 ->sum('nett')
                 + UnitQuotation::where('status', 'po_received')
+                    ->where('is_latest', 1)
                     ->whereYear('po_received', $yearNow)
                     ->whereMonth('po_received', $monthNow)
-                    ->sum('total');
+                    ->sum(DB::raw('total - tax_amount'));
             $formattedTotalPriceAdmin = $this->formatNumber($poTotalPriceAdmin);
             $sales = User::whereIn('role', ['Sales', 'Support'])->where('active', '1')->orderByDesc('id')->get();
-            $firstSales = User::find(1);
-            $targett = Target::where('id_sales', $firstSales->id)->first('total');
+            $firstSales = $sales->first() ?? User::find(1);
+            $firstSalesId = $firstSales ? $firstSales->id : null;
+            $targett = Target::where('id_sales', $firstSalesId)->first('total');
             $targetAllSales = Target::join('users as u', 'u.id', '=', 'target.id_sales')->where('u.role', 'Sales')->where('u.active', '1')->sum('target.total');
             // dd($targetAllSales);
             $targetSales = $sales->map(function ($sale) {
@@ -423,22 +426,46 @@ class DashboardController extends Controller
             // $prospectedQuotationTotal = Prospect::join('quotation as q', 'q.id', '=', 'prospect.id_quotation')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('provide', '!=', '0')->where('status', '!=', '100')->where('q.level', '1')->where('is_primary', '1')->sum('q.nett');
             // $prospectedPOTotal = Prospect::join('quotation as q', 'q.id', '=', 'prospect.id_quotation')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('provide', '!=', '0')->where('status', '100')->where('q.level', '1')->where('is_primary', '1')->sum('q.nett');
             // dd($totalProspectQuote);
-            $totalProspectSupport = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
-            $totalForecast = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '80')->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $totalProspectSupport = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSalesId)->whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $totalForecast = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSalesId)->where('status', '80')->where('level', '1')->where('is_primary', '1')->sum('nett');
 
-            $totalQuotation = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('level', '1')->where('is_primary', '1')->sum('nett');
-            $totalProspect = Quotation::join('prospect as p', 'quotation.id', '=', 'p.id_quotation')->whereNotNull('id_quotation')->whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $firstSales->id)->whereIn('status', ['80', '90'])->where('quotation.level', '1')->where('is_primary', '1')->sum('nett');
-            $totalHotProspect = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->whereIn('status', ['80', '90'])->where('level', '1')->where('is_primary', '1')->sum('nett');
-            $totalLoss = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
-            $totalPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
-            $filteredLeads = Client::whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->where('id_sales', $firstSales->id)->count();
-            $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->whereIn('activities.name', ['Daily Call', 'Follow Up'])->count();
-            $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->join(DB::raw('(SELECT id_client, status FROM crm_status WHERE id IN (SELECT MAX(id) FROM crm_status GROUP BY id_client)) as cs'), 'c.id', '=', 'cs.id_client')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('activities.status', 'Responded')->where('activities.name', 'CRM')->where('cs.status', '2')->count(DB::raw('DISTINCT c.id'));
-            $filteredQuote = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSales->id)->where('level', '1')->where('is_primary', '1')->count();
+            $totalQuotation = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSalesId)->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $totalProspect = Quotation::join('prospect as p', 'quotation.id', '=', 'p.id_quotation')->whereNotNull('id_quotation')->whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('quotation.id_sales', $firstSalesId)->whereIn('status', ['80', '90'])->where('quotation.level', '1')->where('is_primary', '1')->sum('nett');
+            $totalHotProspect = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSalesId)->whereIn('status', ['80', '90'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $totalLoss = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSalesId)->where('status', '0')->where('level', '1')->where('is_primary', '1')->sum('nett');
+            $totalPO = Quotation::whereYear('po_date', $yearNow)
+                ->whereMonth('po_date', $monthNow)
+                ->where('id_sales', $firstSalesId)
+                ->where('status', '100')
+                ->where('level', '1')
+                ->where('is_primary', '1')
+                ->sum('nett')
+                + UnitQuotation::where('status', 'po_received')
+                    ->where('is_latest', 1)
+                    ->whereYear('po_received', $yearNow)
+                    ->whereMonth('po_received', $monthNow)
+                    ->where('id_sales', $firstSalesId)
+                    ->sum(DB::raw('total - tax_amount'));
+            $filteredLeads = Client::whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->where('id_sales', $firstSalesId)->count();
+            $filteredDC = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSalesId)->where('status', 'Responded')->whereIn('activities.name', ['Daily Call', 'Follow Up'])->count();
+            $filteredCRM = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->join(DB::raw('(SELECT id_client, status FROM crm_status WHERE id IN (SELECT MAX(id) FROM crm_status GROUP BY id_client)) as cs'), 'c.id', '=', 'cs.id_client')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSalesId)->where('activities.status', 'Responded')->where('activities.name', 'CRM')->where('cs.status', '2')->count(DB::raw('DISTINCT c.id'));
+            $filteredQuote = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $firstSalesId)->where('level', '1')->where('is_primary', '1')->count();
             $filteredProspect = Prospect::whereNotNull('id_quotation')->whereMonth('date', $monthNow)->whereYear('date', $yearNow)->count();
             $allProspect = Prospect::whereMonth('date', $monthNow)->whereYear('date', $yearNow)->count();
-            $filteredPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $firstSales->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count();
-            $filteredVisit = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSales->id)->where('status', 'Responded')->where('name', 'Visit')->count();
+            $filteredPO = Quotation::whereYear('po_date', $yearNow)
+                ->whereMonth('po_date', $monthNow)
+                ->where('id_sales', $firstSalesId)
+                ->where('status', '100')
+                ->where('level', '1')
+                ->where('is_primary', '1')
+                ->count()
+                + UnitQuotation::where('status', 'po_received')
+                    ->where('is_latest', 1)
+                    ->whereYear('po_received', $yearNow)
+                    ->whereMonth('po_received', $monthNow)
+                    ->where('id_sales', $firstSalesId)
+                    ->count();
+            $filteredVisit = Activities::join('client as c', 'activities.id_client', '=', 'c.id')->whereYear('date', $yearNow)->whereMonth('date', $monthNow)->where('c.id_sales', $firstSalesId)->where('status', 'Responded')->where('name', 'Visit')->count();
 
             $dataDc = $this->getWeekDataDC();
             $dataCRM = $this->getWeekDataCRM();
@@ -560,6 +587,7 @@ class DashboardController extends Controller
                         'targetAllSales',
                         'prCount',
                         'adminView',
+                        'firstSales',
                     ),
                     $adminExtraData
                 )
@@ -1610,11 +1638,11 @@ class DashboardController extends Controller
 
         $smActualMonth = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)
             ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett')
-            + UnitQuotation::where('status', 'po_received')->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->sum('total');
+            + UnitQuotation::where('status', 'po_received')->where('is_latest', 1)->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->sum(DB::raw('total - tax_amount'));
 
         $smActualPrevMonth = Quotation::whereYear('po_date', $prevMonth->year)->whereMonth('po_date', $prevMonth->month)
             ->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett')
-            + UnitQuotation::where('status', 'po_received')->whereYear('po_received', $prevMonth->year)->whereMonth('po_received', $prevMonth->month)->sum('total');
+            + UnitQuotation::where('status', 'po_received')->where('is_latest', 1)->whereYear('po_received', $prevMonth->year)->whereMonth('po_received', $prevMonth->month)->sum(DB::raw('total - tax_amount'));
 
         $smAchievement = $smTargetMonth > 0 ? round($smActualMonth / $smTargetMonth * 100, 1) : 0;
         $smVsLastMonthPct = $smActualPrevMonth > 0
@@ -1626,7 +1654,7 @@ class DashboardController extends Controller
 
         $smSoTotal = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)
             ->where('status', '100')->where('level', '1')->where('is_primary', '1')->count()
-            + UnitQuotation::where('status', 'po_received')->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->count();
+            + UnitQuotation::where('status', 'po_received')->where('is_latest', 1)->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->count();
 
         $smInvoiceTotal = Invoice::whereYear('date', $yearNow)->whereMonth('date', $monthNow)->count();
 
@@ -1668,8 +1696,9 @@ class DashboardController extends Controller
             ->get()->keyBy('id_sales');
 
         $smUnitPoPerSales = UnitQuotation::where('status', 'po_received')
+            ->where('is_latest', 1)
             ->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)
-            ->groupBy('id_sales')->selectRaw('id_sales, SUM(total) as total_nett, COUNT(*) as total_count')
+            ->groupBy('id_sales')->selectRaw('id_sales, SUM(total - tax_amount) as total_nett, COUNT(*) as total_count')
             ->get()->keyBy('id_sales');
 
         $smQuotePerSales = Quotation::whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)
@@ -2369,7 +2398,15 @@ class DashboardController extends Controller
         $dateNow = Carbon::now();
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
-        $totalProspect = Quotation::join('prospect as p', 'quotation.id', '=', 'p.id_quotation')->whereNotNull('id_quotation')->whereYear('estimated_date', $yearNow)->whereMonth('estimated_date', $monthNow)->where('id_sales', $sales)->whereIn('status', ['80', '90'])->where('level', '1')->where('is_primary', '1')->sum('nett');
+        $totalProspect = Quotation::join('prospect as p', 'quotation.id', '=', 'p.id_quotation')
+            ->whereNotNull('id_quotation')
+            ->whereYear('estimated_date', $yearNow)
+            ->whereMonth('estimated_date', $monthNow)
+            ->where('quotation.id_sales', $sales)
+            ->whereIn('status', ['80', '90'])
+            ->where('quotation.level', '1')
+            ->where('is_primary', '1')
+            ->sum('nett');
         return $totalProspect;
     }
     public function totalHotProspectAdmin($sales)
@@ -2403,10 +2440,11 @@ class DashboardController extends Controller
             ->where('is_primary', '1')
             ->sum('nett')
             + UnitQuotation::where('status', 'po_received')
+                ->where('is_latest', 1)
                 ->whereYear('po_received', $yearNow)
                 ->whereMonth('po_received', $monthNow)
                 ->where('id_sales', $sales)
-                ->sum('total');
+                ->sum(DB::raw('total - tax_amount'));
 
         return $totalPO;
     }
@@ -2424,12 +2462,17 @@ class DashboardController extends Controller
             ->where('is_primary', '1')
             ->sum('nett')
             + UnitQuotation::where('status', 'po_received')
+                ->where('is_latest', 1)
                 ->whereYear('po_received', $yearNow)
                 ->whereMonth('po_received', $monthNow)
                 ->where('id_sales', $sales)
-                ->sum('total');
+                ->sum(DB::raw('total - tax_amount'));
 
         $target = Target::where('id_sales', $sales)->first('total');
+
+        if (!$target || $target->total == 0) {
+            return 0;
+        }
 
         $totalTarget = ($totalPO / $target->total) * 100;
 
@@ -2442,7 +2485,7 @@ class DashboardController extends Controller
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
         $filteredPO = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $sales)->where('status', '100')->where('level', '1')->where('is_primary', '1')->count()
-            + UnitQuotation::where('status', 'po_received')->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->where('id_sales', $sales)->count();
+            + UnitQuotation::where('status', 'po_received')->where('is_latest', 1)->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->where('id_sales', $sales)->count();
         return $filteredPO;
     }
     // Ajax Kiri Sales
@@ -2461,6 +2504,9 @@ class DashboardController extends Controller
         $yearNow = $dateNow->year;
         $filteredLeads = Client::whereYear('created_at', $yearNow)->whereMonth('created_at', $monthNow)->where('id_sales', $sales)->count();
         $target = Target::where('id_sales', $sales)->first('leads');
+        if (!$target || $target->leads == 0) {
+            return 0;
+        }
         $leadsTarget = ($filteredLeads / $target->leads) * 100;
         return round($leadsTarget);
     }
@@ -2503,6 +2549,9 @@ class DashboardController extends Controller
             ->distinct('c.id')
             ->count();
         $target = Target::where('id_sales', $sales)->first('dc');
+        if (!$target || $target->dc == 0) {
+            return 0;
+        }
         $dcTarget = ($filteredDC / $target->dc) * 100;
         return round($dcTarget);
     }
@@ -2549,6 +2598,9 @@ class DashboardController extends Controller
         $yearNow = $dateNow->year;
         $filteredQuote = Quotation::whereYear('po_date', $yearNow)->whereMonth('po_date', $monthNow)->where('id_sales', $sales)->where('level', '1')->where('is_primary', '1')->count();
         $target = Target::where('id_sales', $sales)->first('quote');
+        if (!$target || $target->quote == 0) {
+            return 0;
+        }
         $quoteTarget = ($filteredQuote / $target->quote) * 100;
         return round($quoteTarget);
     }
@@ -2575,7 +2627,10 @@ class DashboardController extends Controller
         $yearNow = $dateNow->year;
         $filteredProspect = Prospect::whereNotNull('id_quotation')->whereMonth('date', $monthNow)->whereYear('date', $yearNow)->where('id_sales', $sales)->count();
         $allProspect = Prospect::whereMonth('date', $monthNow)->whereYear('date', $yearNow)->where('id_sales', $sales)->count();
-        $prospectTarget = ($filteredProspect / $allProspect ?? 0) * 100;
+        if ($allProspect == 0) {
+            return 0;
+        }
+        $prospectTarget = ($filteredProspect / $allProspect) * 100;
         return round($prospectTarget);
     }
 
@@ -3192,7 +3247,7 @@ class DashboardController extends Controller
         $monthNow = $dateNow->month;
         $yearNow = $dateNow->year;
         $po = Quotation::whereYear('po_date', $yearNow)->whereMonth("po_date", $monthNow)->where("id_sales", Auth::user()->id)->where("status", "100")->where('level', '1')->where('is_primary', '1')->get();
-        $unitPo = UnitQuotation::where('status', 'po_received')->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->where('id_sales', Auth::user()->id)->get();
+        $unitPo = UnitQuotation::where('status', 'po_received')->where('is_latest', 1)->whereYear('po_received', $yearNow)->whereMonth('po_received', $monthNow)->where('id_sales', Auth::user()->id)->get();
 
         return $po->concat($unitPo);
     }
