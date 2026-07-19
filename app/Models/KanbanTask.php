@@ -71,4 +71,9 @@ class KanbanTask extends Model
     {
         return $this->belongsTo(PendingPO::class, 'pending_po_id');
     }
+
+    public function bast()
+    {
+        return $this->hasOne(Bast::class, 'id_kanban_task');
+    }
 }

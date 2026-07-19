@@ -87,6 +87,12 @@ class KanbanController extends Controller
 
         // Fetch all active users for settings member select
         $users = User::where('active', '1')->orderBy('name')->get();
+        $salesUsers = collect();
+        $accountingUsers = collect();
+        if ($board->type === 'monitoring') {
+            $salesUsers = User::where('role', 'Sales')->where('active', '1')->orderBy('name')->get();
+            $accountingUsers = User::where('role', 'Accounting')->where('active', '1')->orderBy('name')->with('handledSales')->get();
+        }
 
         // Fetch user boards for board switcher dropdown
         if ($user->role === 'Admin') {
@@ -95,7 +101,7 @@ class KanbanController extends Controller
             $myBoards = $user->kanbanBoards()->orderBy('title')->get();
         }
 
-        return view('pages.kanban.board', compact('board', 'users', 'myBoards'));
+        return view('pages.kanban.board', compact('board', 'users', 'myBoards', 'salesUsers', 'accountingUsers'));
     }
 
     public function updateBoard(Request $request, $id)
@@ -184,7 +190,7 @@ class KanbanController extends Controller
     public function getBoardData($id)
     {
         $user = Auth::user();
-        $board = KanbanBoard::with(['columns.tasks.assignees', 'columns.tasks.checklists.items', 'columns.tasks.pendingPo.quote'])->findOrFail($id);
+        $board = KanbanBoard::with(['columns.tasks.assignees', 'columns.tasks.checklists.items', 'columns.tasks.pendingPo.quote.sales'])->findOrFail($id);
 
         if ($user->role !== 'Admin' && !$board->members->contains($user->id)) {
             return response()->json(['error' => 'Unauthorized'], 403);
@@ -209,8 +215,12 @@ class KanbanController extends Controller
                 }
 
                 $nettValue = 0;
+                $idSales = null;
+                $salesName = null;
                 if ($task->pendingPo && $task->pendingPo->quote) {
                     $nettValue = (float) $task->pendingPo->quote->nett;
+                    $idSales = $task->pendingPo->quote->id_sales;
+                    $salesName = $task->pendingPo->quote->sales ? $task->pendingPo->quote->sales->name : null;
                 }
 
                 $items[] = [
@@ -224,6 +234,8 @@ class KanbanController extends Controller
                     'completed_checklists' => $completedChecklistItems,
                     'priority' => $task->priority ?? 'medium',
                     'nett' => $nettValue,
+                    'id_sales' => $idSales,
+                    'sales_name' => $salesName,
                 ];
             }
             $data[] = [
@@ -494,7 +506,8 @@ class KanbanController extends Controller
             'checklists.items',
             'attachments.user',
             'pendingPo.quote.pic.client',
-            'pendingPo.quote.sales'
+            'pendingPo.quote.sales',
+            'bast'
         ])->findOrFail($id);
 
         // Format comments
@@ -627,10 +640,13 @@ class KanbanController extends Controller
             $companyName = 'Unknown Client';
             $clientAddress = '';
             $clientId = null;
+            $bastEntity = 'Reftech';
             if ($po->quote && $po->quote->pic && $po->quote->pic->client) {
-                $companyName = $po->quote->pic->client->company;
-                $clientAddress = $po->quote->pic->client->address;
-                $clientId = $po->quote->pic->client->id;
+                $client = $po->quote->pic->client;
+                $companyName = $client->company;
+                $clientAddress = $client->address;
+                $clientId = $client->id;
+                $bastEntity = ($client->info == 'Reftech') ? 'Reftech' : 'Kojisha';
             }
 
             // Get Invoices and associate their payments sequentially
@@ -658,7 +674,7 @@ class KanbanController extends Controller
                         break;
                 }
                 $percentVal = $invoice->percent !== null ? (int)$invoice->percent : 100;
-                $termName = "{$typeLabel} ({$percentVal}%)";
+                $termName = ($invoice->no_invoice && $invoice->term) ? $invoice->term : "{$typeLabel} ({$percentVal}%)";
                 
                 $invoiceList[] = [
                     'id' => $invoice->id,
@@ -725,6 +741,18 @@ class KanbanController extends Controller
                 'available_reports' => $availableReports,
                 'service_report_id' => $task->service_report_id,
                 'active_report' => $activeReport,
+                'bast_prefill' => [
+                    'id_quotation' => $po->id_quotation,
+                    'entity' => $bastEntity,
+                    'customer_name' => $companyName,
+                    'work_title' => $po->quote ? $po->quote->title : '',
+                    'po_number' => $poNumber,
+                ],
+                'bast' => $task->bast ? [
+                    'id' => $task->bast->id,
+                    'no_bast' => $task->bast->no_bast,
+                    'print_link' => url('/bast/' . $task->bast->id . '/print'),
+                ] : null,
             ];
         }
 
@@ -1058,6 +1086,9 @@ class KanbanController extends Controller
 
         $activePos = \App\Models\PendingPO::where('status', '<', 6)
             ->where('created_at', '>=', '2026-07-17 00:00:00')
+            ->whereHas('quote.invoice', function($q) {
+                $q->whereNotNull('no_invoice')->where('no_invoice', '!=', '');
+            })
             ->whereHas('quote.payment', function($q) {
                 $q->where('method', '!=', 'Escrow');
             })
@@ -1088,7 +1119,7 @@ class KanbanController extends Controller
 
                     $taskTitle = "[$poNumber] - $companyName";
 
-                    KanbanTask::create([
+                    $newTask = KanbanTask::create([
                         'board_id' => $board->id,
                         'column_id' => $column->id,
                         'pending_po_id' => $po->id,
@@ -1096,6 +1127,10 @@ class KanbanController extends Controller
                         'description' => null,
                         'position' => $pos,
                     ]);
+
+                    if ($idSales) {
+                        $newTask->assignees()->sync([$idSales]);
+                    }
                 }
             }
         }
@@ -1103,7 +1138,7 @@ class KanbanController extends Controller
         // Auto-update existing tasks titles to match new PO format if needed
         $existingTasks = KanbanTask::where('board_id', $board->id)
             ->whereNotNull('pending_po_id')
-            ->with('pendingPo.quote.pic.client')
+            ->with(['pendingPo.quote.pic.client', 'assignees'])
             ->get();
 
         foreach ($existingTasks as $task) {
@@ -1120,10 +1155,16 @@ class KanbanController extends Controller
                     $task->title = $expectedTitle;
                     $task->save();
                 }
+
+                if ($task->assignees->isEmpty() && $po->quote && $po->quote->id_sales) {
+                    $task->assignees()->sync([$po->quote->id_sales]);
+                }
             }
         }
 
         $users = User::where('active', '1')->orderBy('name')->get();
+        $salesUsers = User::where('role', 'Sales')->where('active', '1')->orderBy('name')->get();
+        $accountingUsers = User::where('role', 'Accounting')->where('active', '1')->orderBy('name')->with('handledSales')->get();
 
         if ($user->role === 'Admin') {
             $myBoards = KanbanBoard::where('type', 'dynamic')->orderBy('title')->get();
@@ -1131,7 +1172,31 @@ class KanbanController extends Controller
             $myBoards = $user->kanbanBoards()->where('type', 'dynamic')->orderBy('title')->get();
         }
 
-        return view('pages.kanban.board', compact('board', 'users', 'myBoards'));
+        return view('pages.kanban.board', compact('board', 'users', 'myBoards', 'salesUsers', 'accountingUsers'));
+    }
+
+    public function updateAccountingSalesMapping(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'Admin' && $user->role !== 'Accounting') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'mappings' => 'array',
+            'mappings.*.id_accounting' => 'required|exists:users,id',
+            'mappings.*.sales_ids' => 'array',
+            'mappings.*.sales_ids.*' => 'exists:users,id',
+        ]);
+
+        DB::transaction(function () use ($request) {
+            foreach ($request->input('mappings', []) as $mapping) {
+                $accounting = User::find($mapping['id_accounting']);
+                $accounting->handledSales()->sync($mapping['sales_ids'] ?? []);
+            }
+        });
+
+        return response()->json(['success' => true, 'message' => 'Mapping Accounting-Sales berhasil disimpan!']);
     }
 
     public function getAvailablePOs()
@@ -1147,6 +1212,9 @@ class KanbanController extends Controller
         $pos = \App\Models\PendingPO::where('status', '<', 6)
             ->whereNotIn('id', $existingPoIds)
             ->where('created_at', '>=', '2026-07-17 00:00:00')
+            ->whereHas('quote.invoice', function($q) {
+                $q->whereNotNull('no_invoice')->where('no_invoice', '!=', '');
+            })
             ->whereHas('quote.payment', function($q) {
                 $q->where('method', '!=', 'Escrow');
             })

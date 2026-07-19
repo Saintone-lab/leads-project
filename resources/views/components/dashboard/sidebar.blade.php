@@ -514,6 +514,12 @@
                         @endif
                     </a>
                 </li>
+                <li class="menu-item {{ request()->is('bast') || request()->is('bast/*') ? 'active' : '' }}">
+                    <a href="{{ route('bast.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons mdi mdi-file-sign"></i>
+                        <div data-i18n="BAST">BAST</div>
+                    </a>
+                </li>
                 <li
                     class="menu-item {{ request()->is('payment-index/invoice') || request()->is('payment-index/payment') || request()->is('payment-index/aging') || request()->is('payment-detail/invoice/*') || request()->is('payment-detail/payment/*') || request()->is('payment-detail/aging/*') ? 'open' : '' }}">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -2127,6 +2133,12 @@
                     @if ($monitoringCount >= 1)
                         <div class="badge bg-danger rounded-pill ms-auto">{{ $monitoringCount }}</div>
                     @endif
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('bast') || request()->is('bast/*') ? 'active' : '' }}">
+                <a href="{{ route('bast.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-file-sign"></i>
+                    <div data-i18n="BAST">BAST</div>
                 </a>
             </li>
             <li

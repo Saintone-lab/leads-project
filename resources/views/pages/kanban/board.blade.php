@@ -273,6 +273,21 @@
                                                      </div>
                                                  </div>
                                              </div>
+
+                                             <!-- BAST -->
+                                             <div class="col-sm-12 mt-3 pt-2 border-top">
+                                                 <span class="text-muted d-block mb-1.5" style="font-size: 10px; font-weight: 600; text-transform: uppercase;">BAST (Berita Acara Serah Terima)</span>
+                                                 <div id="bastExistingContainer" style="display: none;">
+                                                     <a id="bastExistingLink" href="#" target="_blank" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1">
+                                                         <i class="mdi mdi-file-check-outline"></i> <span id="bastExistingLabel"></span>
+                                                     </a>
+                                                 </div>
+                                                 <div id="bastCreateContainer" style="display: none;">
+                                                     <button type="button" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1" id="btnCreateBastFromCard">
+                                                         <i class="mdi mdi-file-sign"></i> Buat BAST
+                                                     </button>
+                                                 </div>
+                                             </div>
                                          </div>
                                      </div>
                                  </div>
@@ -522,6 +537,8 @@
             </div>
         </div>
     @endif
+
+    @include('components.modal.bast.create')
 @endsection
 
 @push('after-style')
@@ -1114,6 +1131,7 @@
 
             // Variable to keep track of currently active task data in modal
             let currentTaskData = null;
+            let currentBastPrefill = null;
             const currentUserId = {{ auth()->id() }};
             let isProgrammaticChange = false;
             let lastBoardDataHash = '';
@@ -1255,6 +1273,18 @@
                                 $('#editTaskServiceReport').html(reportsHtml).trigger('change', { programmatic: true });
                                 isProgrammaticChange = false;
 
+                                // Render BAST section
+                                currentBastPrefill = response.so_details.bast_prefill || null;
+                                if (response.so_details.bast) {
+                                    $('#bastExistingLabel').text('Lihat BAST ' + response.so_details.bast.no_bast);
+                                    $('#bastExistingLink').attr('href', response.so_details.bast.print_link);
+                                    $('#bastExistingContainer').show();
+                                    $('#bastCreateContainer').hide();
+                                } else {
+                                    $('#bastExistingContainer').hide();
+                                    $('#bastCreateContainer').show();
+                                }
+
                                 $('#soDetailsContainer').show();
                             } else {
                                 $('#soDetailsContainer').hide();
@@ -1323,6 +1353,29 @@
                     }
                 });
             }
+
+            $(document).on('click', '#btnCreateBastFromCard', function() {
+                const taskId = $('#editTaskId').val();
+                const prefill = currentBastPrefill || {};
+                window.openBastModal({
+                    idKanbanTask: taskId,
+                    idQuotation: prefill.id_quotation || '',
+                    entity: prefill.entity || 'Reftech',
+                    customerName: prefill.customer_name || '',
+                    workTitle: prefill.work_title || '',
+                    poNumber: prefill.po_number || '',
+                });
+            });
+
+            $(document).on('bast:saved', function(e, response) {
+                const taskId = $('#editTaskId').val();
+                if (taskId) {
+                    loadTaskDetails(taskId);
+                }
+                if (response && response.bast && response.bast.print_link) {
+                    window.open(response.bast.print_link, '_blank');
+                }
+            });
 
             // Labels Rendering
             function renderLabels(labels) {

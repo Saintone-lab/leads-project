@@ -25,6 +25,7 @@ use App\Http\Controllers\ToolAuditVerificationController;
 use App\Http\Controllers\ToolFinanceController;
 use App\Http\Controllers\ToolMasterController;
 use App\Http\Controllers\KanbanController;
+use App\Http\Controllers\BastController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\NotulenController;
 use App\Http\Controllers\OpnameController;
@@ -1785,6 +1786,14 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/accounting/monitoring-document/available-pos', [KanbanController::class, 'getAvailablePOs'])->name('kanban.monitoring-document.available-pos');
     Route::get('/accounting/monitoring-document/check-new-cards/{last_task_id}', [KanbanController::class, 'checkNewCards'])->name('kanban.monitoring-document.check-new-cards');
     Route::post('/accounting/monitoring-document/accounting-mapping', [KanbanController::class, 'updateAccountingSalesMapping'])->name('kanban.monitoring-document.accounting-mapping');
+
+    // BAST (Berita Acara Serah Terima)
+    Route::get('/bast', [BastController::class, 'index'])->name('bast.index');
+    Route::post('/bast', [BastController::class, 'store'])->name('bast.store');
+    Route::get('/bast/{id}/edit-data', [BastController::class, 'editData'])->name('bast.edit-data');
+    Route::patch('/bast/{id}', [BastController::class, 'update'])->name('bast.update');
+    Route::delete('/bast/{id}', [BastController::class, 'destroy'])->name('bast.destroy');
+    Route::get('/bast/{id}/print', [BastController::class, 'print'])->name('bast.print');
 
     // Database Connection
     Route::get('/db/next-follow/callendar', function () {
