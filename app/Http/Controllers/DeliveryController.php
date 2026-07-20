@@ -10,6 +10,7 @@ use App\Models\Invoice;
 use App\Models\Quotation;
 use App\Models\Suo;
 use App\Models\SubtitleQuotation;
+use App\Models\UnitQuotation;
 use Illuminate\Http\Request;
 
 class DeliveryController extends Controller
@@ -105,6 +106,12 @@ class DeliveryController extends Controller
             $suo    = Suo::with(['detail', 'sales'])->find($delivery->id_suo);
             $client = Client::where('company', $suo->company)->first();
             return view('pages.suo.sj-detail', compact('delivery', 'dDelivery', 'suo', 'client'));
+        }
+
+        // Unit Quotation delivery — tidak punya id_invoice
+        if ($delivery->id_unit_quotation) {
+            $unitQuote = UnitQuotation::with(['client', 'pic', 'sales'])->find($delivery->id_unit_quotation);
+            return view('pages.unit-quotation.sj-detail', compact('delivery', 'dDelivery', 'unitQuote'));
         }
 
         $invoice  = Invoice::find($delivery->id_invoice);
@@ -249,6 +256,12 @@ class DeliveryController extends Controller
             $client = Client::where('company', $suo->company)->first();
             $view   = request('format') == '1' ? 'pages.suo.sj-print-type1' : 'pages.suo.sj-print';
             return view($view, compact('delivery', 'dDelivery', 'suo', 'client'));
+        }
+
+        // Unit Quotation delivery — tidak ada id_invoice
+        if ($delivery->id_unit_quotation) {
+            $unitQuote = UnitQuotation::with(['client', 'pic', 'sales'])->find($delivery->id_unit_quotation);
+            return view('pages.unit-quotation.sj-print', compact('delivery', 'dDelivery', 'unitQuote'));
         }
 
         $invoice  = Invoice::find($delivery->id_invoice);

@@ -86,6 +86,11 @@ class UnitQuotation extends Model
         return $this->hasMany(Contract::class, 'id_unit_quotation');
     }
 
+    public function deliveries()
+    {
+        return $this->hasMany(Delivery::class, 'id_unit_quotation');
+    }
+
     public function getHargaTotalAttribute()
     {
         return $this->total;

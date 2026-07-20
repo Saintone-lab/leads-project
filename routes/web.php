@@ -1738,6 +1738,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/unit-quotation/{id}/cancel-po', [UnitQuotationController::class, 'cancelPO'])->name('unit-quotation.cancel-po');
     Route::post('/unit-quotation/{id}/approve-cancel', [UnitQuotationController::class, 'approveCancelPO'])->name('unit-quotation.approve-cancel');
     Route::post('/unit-quotation/{id}/reject-cancel', [UnitQuotationController::class, 'rejectCancelPO'])->name('unit-quotation.reject-cancel');
+    Route::post('/unit-quotation/{id}/delivery', [UnitQuotationController::class, 'storeDelivery'])->name('unit-quotation.storeDelivery');
 
     // Purchase Order
     Route::resource('/purchase', POController::class);

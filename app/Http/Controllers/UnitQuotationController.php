@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Contract;
+use App\Models\Delivery;
+use App\Models\DetailDelivery;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Pic;
@@ -99,7 +101,7 @@ class UnitQuotationController extends Controller
 
     public function show($id)
     {
-        $quote       = UnitQuotation::with(['client', 'pic', 'sales', 'details.unit', 'statusHistory'])->findOrFail($id);
+        $quote       = UnitQuotation::with(['client', 'pic', 'sales', 'details.unit', 'statusHistory', 'deliveries'])->findOrFail($id);
         $allVersions = $quote->allVersions();
         $invoices    = Invoice::where('id_unit_quotation', $quote->id)->orderByRaw("FIELD(type,'DP','BP','CT')")->get();
         $contracts   = Contract::where('id_unit_quotation', $quote->id)->get();
@@ -266,6 +268,37 @@ class UnitQuotationController extends Controller
     {
         $quote = UnitQuotation::with(['client', 'pic', 'sales', 'details.unit'])->findOrFail($id);
         return view('pages.unit-quotation.print', compact('quote'));
+    }
+
+    public function storeDelivery(Request $request, $id)
+    {
+        $quote = UnitQuotation::with('details.unit')->findOrFail($id);
+
+        $delivery = new Delivery();
+        $delivery->id_unit_quotation = $quote->id;
+        $delivery->date              = $request->date ?? Carbon::today()->toDateString();
+        $delivery->destination       = $request->destination;
+        $delivery->type              = $request->type ?? 'Ekspedisi';
+        $delivery->code              = 'Unit';
+        $delivery->save();
+
+        foreach ($quote->details as $item) {
+            $desc = $item->label ?: ($item->unit
+                ? trim($item->unit->brand . ' ' . $item->unit->sku . ($item->unit->model ? ' — ' . $item->unit->model : ''))
+                : $item->description);
+
+            $dDelivery = new DetailDelivery();
+            $dDelivery->id_delivery = $delivery->id;
+            $dDelivery->id_pn       = null;
+            $dDelivery->desc        = $desc;
+            $dDelivery->qty         = $item->qty;
+            $dDelivery->info_qty    = $item->info_qty ?? 'Unit';
+            $dDelivery->view        = '0';
+            $dDelivery->save();
+        }
+
+        return redirect()->route('unit-quotation.show', $quote->id)
+            ->with('success', 'Surat Jalan berhasil dibuat.');
     }
 
     public function changeStatus(Request $request, $id)
