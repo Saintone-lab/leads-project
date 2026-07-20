@@ -10,6 +10,8 @@ use App\Models\DetailQuotation;
 use App\Models\SubtitleQuotation;
 use App\Models\Expanse;
 use App\Models\Invoice;
+use App\Models\SerialProduct;
+use App\Models\DetailPendingPO;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -208,6 +210,12 @@ class ProjectMonitoringController extends Controller
         $profit = $project->revenue - $totalCost;
         $margin = $project->revenue > 0 ? ($profit / $project->revenue) * 100 : 0;
 
+        // Load relationships for logistic check tab
+        $subQuote = SubtitleQuotation::with('detail.pending')
+            ->where('id_quotation', $project->id_quotation)
+            ->get();
+        $serial = SerialProduct::all();
+
         return view('pages.project-monitoring.show', compact(
             'project',
             'quoteItems',
@@ -219,7 +227,9 @@ class ProjectMonitoringController extends Controller
             'shippingCost',
             'totalCost',
             'profit',
-            'margin'
+            'margin',
+            'subQuote',
+            'serial'
         ));
     }
 

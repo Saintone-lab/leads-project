@@ -320,6 +320,10 @@ class PendingController extends Controller
             }
             $product->save();
         }
+        if (str_contains(request()->header('referer'), 'project-monitoring')) {
+            return redirect()->route('project-monitoring.show', $id)
+                ->with('success', 'Pengecekan logistik / status barang proyek berhasil diperbarui.');
+        }
         return redirect('/pending-po/' . $id)->with('message', 'Product Pending PO telah diedit');
     }
     public function statusEdit(Request $request, $id)

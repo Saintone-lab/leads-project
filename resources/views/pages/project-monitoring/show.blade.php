@@ -430,8 +430,96 @@
                                 </table>
                             </div>
                         </div>
+
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Standalone Cek Barang (Logistik) Card -->
+    <div class="card mb-4 shadow-sm border">
+        <div class="card-header bg-light py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h5 class="m-0 fw-bold"><i class="mdi mdi-checkbox-marked-circle-outline text-primary me-1"></i> Pengecekan Spare Part & Unit Proyek (Logistik)</h5>
+            @if (in_array(Auth::user()->role, ['Admin', 'Logistic', 'Coordinator']))
+                <button type="button" class="btn btn-primary btn-sm waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#replacementEdit">
+                    <i class="mdi mdi-square-edit-outline me-1"></i> Update Status & Stock
+                </button>
+            @else
+                <button type="button" class="btn btn-secondary btn-sm" disabled>
+                    <i class="mdi mdi-lock-outline me-1"></i> Update (Logistic/Admin Only)
+                </button>
+            @endif
+        </div>
+        <div class="card-body pt-3">
+            <div class="table-responsive text-nowrap border rounded">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr class="table-info">
+                            <th style="width: 5%">No</th>
+                            <th style="width: 25%">Item</th>
+                            <th style="width: 20%">Equivalent / Replacement</th>
+                            <th style="width: 8%" class="text-center">Qty</th>
+                            <th style="width: 12%">Status</th>
+                            <th style="width: 8%" class="text-center">BDG</th>
+                            <th style="width: 8%" class="text-center">BKS</th>
+                            <th style="width: 14%">Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php $abjad = 64; @endphp
+                        @foreach ($subQuote as $subJudul)
+                            @php
+                                $no = 1;
+                                $abjad++;
+                            @endphp
+                            <tr class="table-light border-top">
+                                <td class="fw-bold text-center">{{ chr($abjad) }}</td>
+                                <td colspan="7" class="fw-bold">{{ $subJudul->subtitle }}</td>
+                            </tr>
+                            @foreach ($subJudul->detail as $product)
+                                @php
+                                    switch (@$product->pending[0]->status) {
+                                        case 1: $status = 'On Check'; $badge = 'bg-label-warning'; break;
+                                        case 2: $status = 'Ready Stock'; $badge = 'bg-label-info'; break;
+                                        case 3: $status = 'Kurang'; $badge = 'bg-label-danger'; break;
+                                        case 4: $status = 'Pre-Order'; $badge = 'bg-label-primary'; break;
+                                        case 5: $status = 'Delivery Process'; $badge = 'bg-label-linkedin'; break;
+                                        case 6: $status = 'Done'; $badge = 'bg-label-success'; break;
+                                        case 7: $status = 'Cancel'; $badge = 'bg-label-danger'; break;
+                                        default: $status = 'Belum Di Cek'; $badge = 'bg-label-secondary'; break;
+                                    }
+                                @endphp
+                                <tr>
+                                    <td class="text-center">{{ $no }}</td>
+                                    <td class="text-wrap" style="max-width: 200px;">{{ $product->product }}</td>
+                                    <td>
+                                        @if ($product->pending[0]->id_equivalent && $product->pending[0]->equivalent)
+                                            <span class="fw-semibold text-primary">
+                                                {{ $product->pending[0]->equivalent->brand }} {{ $product->pending[0]->equivalent->pn }}
+                                            </span>
+                                            <small class="text-muted d-block" style="font-size: 11px;">
+                                                {{ $product->pending[0]->equivalent->product?->commodity }} ({{ $product->pending[0]->equivalent->product?->go == 'Replacement' ? 'R' : 'G' }})
+                                            </small>
+                                        @else
+                                            <span class="text-muted small">Belum dipetakan ke stok</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">{{ $product->qty }} {{ $product->info_qty }}</td>
+                                    <td>
+                                        <span class="badge {{ $project->status == 6 ? 'bg-label-success' : $badge }}">
+                                            {{ $project->status == 6 ? 'Done' : $status }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">{{ $product->pending[0]->bdg ?? 0 }}</td>
+                                    <td class="text-center">{{ $product->pending[0]->bks ?? 0 }}</td>
+                                    <td class="text-wrap" style="max-width: 150px;">{{ $product->pending[0]->note ?? '-' }}</td>
+                                </tr>
+                                @php $no++; @endphp
+                            @endforeach
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -490,4 +578,26 @@
             </div>
         </div>
     </div>
+
+    <!-- Replacement Stock Checking Modal -->
+    @include('components.modal.pending.project', ['pending' => $project])
+
+    @push('after-style')
+        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
+    @endpush
+
+    @push('after-script')
+        <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
+        <script>
+            $(document).ready(function() {
+                if ($('#replacementEdit .select2').length) {
+                    $('#replacementEdit .select2').each(function() {
+                        $(this).select2({
+                            dropdownParent: $('#replacementEdit')
+                        });
+                    });
+                }
+            });
+        </script>
+    @endpush
 @endsection
