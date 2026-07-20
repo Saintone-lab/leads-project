@@ -474,7 +474,21 @@
                 }
 
                 function initializeSelect2Product() {
-                    $('.invoice-item-product:not(.select2-hidden-accessible)').select2({
+                    $('.invoice-item-product').each(function() {
+                        if ($(this).hasClass('select2-hidden-accessible')) {
+                            try {
+                                $(this).select2('destroy');
+                            } catch (e) {
+                                $(this).removeClass('select2-hidden-accessible');
+                                $(this).removeAttr('data-select2-id');
+                                $(this).find('option').removeAttr('data-select2-id');
+                            }
+                        }
+                    });
+                    
+                    $('.invoice-item-product').next('.select2-container').remove();
+
+                    $('.invoice-item-product').select2({
                         placeholder: ' ---- Choose Part Number Here ---- ',
                         allowClear: true,
                         width: '100%',
@@ -797,10 +811,7 @@
                 });
 
                 // 5. Recalculate totals on repeater added/deleted events
-                $(document).on('repeater:added', function() {
-                    // Just initialize select2 on the new element, no new listeners needed
-                    initializeSelect2Product();
-                });
+
 
                 $(document).on('repeater:deleted', function() {
                     recalculateTotals();

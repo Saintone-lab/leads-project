@@ -135,81 +135,14 @@ class QuotationController extends Controller
     public function create()
     {
         $dateNow = Carbon::now();
-        $numberQ = Quotation::whereYear('estimated_date', $dateNow)->where('id_sales', Auth::user()->id)->count();
+        $numberQ = Quotation::whereYear('estimated_date', $dateNow->year)->where('id_sales', Auth::user()->id)->count();
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         // $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->where('c.id_sales', Auth::user()->id)->get('pic.*');
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         $sales = User::where('role', 'sales')->get();
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
-        // dd($product);
-
-
-        // Comment Buat Admin
-        $firstComments = Comment::where('id_user', Auth::id())
-            ->groupBy('id_status')
-            ->get();
-
-        $statusIds = $firstComments->pluck('id_status')->toArray();
-        $dates = $firstComments->pluck('created_at', 'id_status');
-
-        $commentsQuery = Comment::join('change_status as c', 'c.id', '=', 'comment.id_status')
-            ->join('quotation as q', 'q.id', '=', 'c.id_quotation')
-            ->join('users as u', 'u.id', '=', 'comment.id_user')
-            ->whereIn('comment.id_status', $statusIds)
-            ->where(function ($query) use ($dates) {
-                foreach ($dates as $statusId => $createdAt) {
-                    $query->orWhere(function ($subQuery) use ($statusId, $createdAt) {
-                        $subQuery->where('comment.id_status', $statusId)
-                            ->whereRaw('TIMESTAMPDIFF(SECOND, ?, comment.created_at) > 0', [$createdAt]);
-                    });
-                }
-            })
-            ->where('comment.id_user', '!=', Auth::id());
-
-        // Ambil semua komentar yang relevan
-        $commentAdmin = $commentsQuery->orderBy('comment.id_status')
-            ->orderByDesc('comment.created_at')
-            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
-
-        // Filter untuk komentar dengan level '1'
-        $unreadCommentAdmin = $commentsQuery->where('comment.level', '1')
-            ->orderBy('comment.id_status')
-            ->orderByDesc('comment.created_at')
-            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
-
-        // End Comment Admin
-        $quotationComment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
-            ->join('comment as o', 'o.id_status', '=', 'c.id')
-            ->join('users as u', 'u.id', '=', 'o.id_user')
-            ->where('quotation.id_sales', Auth::id())
-            ->where('o.type', 'quotation')  // Pastikan filter type di sini
-            ->where('o.id_user', '!=', Auth::id())
-            ->orderBy('o.date', 'DESC')
-            ->select(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.level', 'o.comment', 'o.date', 'o.type', 'quotation.no_quote', 'u.name', 'u.image']);
-
-        // Query untuk mengambil data dengan type "prospect"
-        $prospectComment = Comment::join('prospect as p', 'comment.id_prospect', '=', 'p.id')
-            ->join('users as u', 'u.id', '=', 'comment.id_user')
-            ->join('pic as pi', 'pi.id', '=', 'p.id_pic')
-            ->join('client as c', 'c.id', '=', 'pi.id_client')
-            ->where('p.id_sales', Auth::id())
-            ->where('comment.type', 'prospect')  // Pastikan filter type di sini
-            ->where('comment.id_user', '!=', Auth::id())
-            ->orderBy('comment.date', 'DESC')
-            ->select(['p.id as idP', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'comment.type', 'c.company', 'u.name', 'u.image']);
-
-        // Menggabungkan kedua query menggunakan union
-        $comment = $quotationComment->union($prospectComment)
-            ->orderBy('date', 'DESC')
-            ->take(5)
-            ->get();
-        $unreadComment = $quotationComment->union($prospectComment)
-            ->orderBy('date', 'DESC')
-            ->where('o.level', '1')
-            ->take(5)
-            ->get();
+        $product = \DB::table('product')->join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
         return view('pages.sales.quotation.form', compact('pic', 'sales', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 
@@ -883,14 +816,14 @@ class QuotationController extends Controller
         $dquotation = DetailQuotation::where('id_quotation', $id)->get();
         $client = Client::all();
         $dateNow = Carbon::now();
-        $numberQ = Quotation::whereYear('estimated_date', $dateNow)->where('id_sales', Auth::user()->id)->count();
+        $numberQ = Quotation::whereYear('estimated_date', $dateNow->year)->where('id_sales', Auth::user()->id)->count();
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         // $pic = Pic::all();
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         // dd($pic);
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
+        $product = \DB::table('product')->join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
         $sales = User::where('role', 'sales')->get();
         // dd($dquotation);
         return view('pages.sales.quotation.form', compact('quotation', 'dquotation', 'sales', 'pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
@@ -901,14 +834,14 @@ class QuotationController extends Controller
         $dquotation = DetailQuotation::where('id_quotation', $id)->get();
         $client = Client::all();
         $dateNow = Carbon::now();
-        $numberQ = Quotation::whereYear('estimated_date', $dateNow)->where('id_sales', Auth::user()->id)->count();
+        $numberQ = Quotation::whereYear('estimated_date', $dateNow->year)->where('id_sales', Auth::user()->id)->count();
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         // $pic = Pic::all();
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         // dd($pic);
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
+        $product = \DB::table('product')->join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
         $sales = User::where('role', 'sales')->get();
         // dd($dquotation);
         return view('pages.sales.quotation.edit', compact('quotation', 'dquotation', 'sales', 'pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
@@ -918,80 +851,14 @@ class QuotationController extends Controller
         $quotation = Quotation::find($id);
         $subtitle = SubtitleQuotation::with('detail')->where('id_quotation', $id)->get();
         $dateNow = Carbon::now();
-        $numberQ = Quotation::whereYear('estimated_date', $dateNow)->where('id_sales', Auth::user()->id)->count();
+        $numberQ = Quotation::whereYear('estimated_date', $dateNow->year)->where('id_sales', Auth::user()->id)->count();
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         $pics = Pic::where('id_client', $quotation->pic->id_client)->get();
         // $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
-        // dd($subtitle);
-
-        // Comment Buat Admin
-        $firstComments = Comment::where('id_user', Auth::id())
-            ->groupBy('id_status')
-            ->get();
-
-        $statusIds = $firstComments->pluck('id_status')->toArray();
-        $dates = $firstComments->pluck('created_at', 'id_status');
-
-        $commentsQuery = Comment::join('change_status as c', 'c.id', '=', 'comment.id_status')
-            ->join('quotation as q', 'q.id', '=', 'c.id_quotation')
-            ->join('users as u', 'u.id', '=', 'comment.id_user')
-            ->whereIn('comment.id_status', $statusIds)
-            ->where(function ($query) use ($dates) {
-                foreach ($dates as $statusId => $createdAt) {
-                    $query->orWhere(function ($subQuery) use ($statusId, $createdAt) {
-                        $subQuery->where('comment.id_status', $statusId)
-                            ->whereRaw('TIMESTAMPDIFF(SECOND, ?, comment.created_at) > 0', [$createdAt]);
-                    });
-                }
-            })
-            ->where('comment.id_user', '!=', Auth::id());
-
-        // Ambil semua komentar yang relevan
-        $commentAdmin = $commentsQuery->orderBy('comment.id_status')
-            ->orderByDesc('comment.created_at')
-            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
-
-        // Filter untuk komentar dengan level '1'
-        $unreadCommentAdmin = $commentsQuery->where('comment.level', '1')
-            ->orderBy('comment.id_status')
-            ->orderByDesc('comment.created_at')
-            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
-
-        // End Comment Admin
-        $quotationComment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
-            ->join('comment as o', 'o.id_status', '=', 'c.id')
-            ->join('users as u', 'u.id', '=', 'o.id_user')
-            ->where('quotation.id_sales', Auth::id())
-            ->where('o.type', 'quotation')  // Pastikan filter type di sini
-            ->where('o.id_user', '!=', Auth::id())
-            ->orderBy('o.date', 'DESC')
-            ->select(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.level', 'o.comment', 'o.date', 'o.type', 'quotation.no_quote', 'u.name', 'u.image']);
-
-        // Query untuk mengambil data dengan type "prospect"
-        $prospectComment = Comment::join('prospect as p', 'comment.id_prospect', '=', 'p.id')
-            ->join('users as u', 'u.id', '=', 'comment.id_user')
-            ->join('pic as pi', 'pi.id', '=', 'p.id_pic')
-            ->join('client as c', 'c.id', '=', 'pi.id_client')
-            ->where('p.id_sales', Auth::id())
-            ->where('comment.type', 'prospect')  // Pastikan filter type di sini
-            ->where('comment.id_user', '!=', Auth::id())
-            ->orderBy('comment.date', 'DESC')
-            ->select(['p.id as idP', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'comment.type', 'c.company', 'u.name', 'u.image']);
-
-        // Menggabungkan kedua query menggunakan union
-        $comment = $quotationComment->union($prospectComment)
-            ->orderBy('date', 'DESC')
-            ->take(5)
-            ->get();
-        $unreadComment = $quotationComment->union($prospectComment)
-            ->orderBy('date', 'DESC')
-            ->where('o.level', '1')
-            ->take(5)
-            ->get();
+        $product = \DB::table('product')->join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
         return view('pages.sales.quotation.service.edit', compact('quotation', 'subtitle', 'pic', 'pics', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 

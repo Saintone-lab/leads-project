@@ -29,6 +29,7 @@ $(function(){
                 fromControl.each(function (i) {
                     var id = "form-repeater-" + row + "-" + col;
                     // var nameProduct = "product[" + col + "]";
+                    var idProduct = "product-" + row;
                     var idPrice = "price-" + row;
                     var idDetailProduct = "detailProduct-" + row;
                     var idPriceLabel = "priceLabel-" + row;
@@ -39,6 +40,7 @@ $(function(){
                     var idStock = "info-stock-" + row;
                     var idWeight = "info-weight-" + row;
                     var idAmountLabel = "amount-label-" + row;
+                    $(product[i]).attr("id", idProduct);
                     $(product[i]).attr("data-id", row);
                     // $(product[i]).attr("name", nameProduct);
                     $(price[i]).attr("id", idPrice);

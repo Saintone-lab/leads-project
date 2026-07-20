@@ -548,22 +548,7 @@
                     currency: 'IDR'
                 });
 
-                function initializeSelect2Product() {
-                    $('.invoice-item-product').select2({
-                        placeholder: ' ---- Choose Part Number Here ---- ',
-                        allowClear: true,
-                        width: '100%',
-                    });
-                }
-                $(document).ready(function() {
-                    // Panggil fungsi inisialisasi saat halaman dimuat
-                    initializeSelect2Product();
 
-                    // Jika ada elemen dinamis yang ditambahkan, gunakan event listener
-                    $(document).on('repeater:added', function() {
-                        initializeSelect2Product();
-                    });
-                });
 
                 function initFormValidation() {
                     const fv = FormValidation.formValidation(formAuthentication, {
@@ -882,7 +867,21 @@
                 }
 
                 function initializeSelect2Product() {
-                    $('.invoice-item-product:not(.select2-hidden-accessible)').select2({
+                    $('.invoice-item-product').each(function() {
+                        if ($(this).hasClass('select2-hidden-accessible')) {
+                            try {
+                                $(this).select2('destroy');
+                            } catch (e) {
+                                $(this).removeClass('select2-hidden-accessible');
+                                $(this).removeAttr('data-select2-id');
+                                $(this).find('option').removeAttr('data-select2-id');
+                            }
+                        }
+                    });
+                    
+                    $('.invoice-item-product').next('.select2-container').remove();
+
+                    $('.invoice-item-product').select2({
                         placeholder: ' ---- Choose Part Number Here ---- ',
                         allowClear: true,
                         width: '100%',
