@@ -92,6 +92,7 @@
                     <thead>
                         <tr>
                             <th>Supplier</th>
+                            <th>Harga USD ($)</th>
                             <th>Harga Modal (IDR)</th>
                             <th>Tanggal</th>
                             <th>Action</th>
@@ -101,6 +102,7 @@
                         @forelse ($vendorPrices as $vp)
                             <tr>
                                 <td>{{ $vp->supplier->supplier ?? '-' }}</td>
+                                <td>{{ $vp->price_usd > 0 ? '$ ' . number_format($vp->price_usd, 2) : '-' }}</td>
                                 <td><strong>Rp {{ number_format($vp->price_idr, 0, ',', '.') }}</strong></td>
                                 <td>{{ \Carbon\Carbon::parse($vp->date)->format('d M Y') }}</td>
                                 <td>
@@ -112,7 +114,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-3">Belum ada data harga vendor.</td>
+                                <td colspan="5" class="text-center text-muted py-3">Belum ada data harga vendor.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -140,6 +142,14 @@
                                     <option value="{{ $supplier->id }}">{{ $supplier->info ?: '-' }} | {{ $supplier->code ?: '-' }} | {{ $supplier->supplier }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Harga USD ($)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" name="price_usd"
+                                    placeholder="0.00" step="0.01" min="0">
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Harga Modal (IDR) <span class="text-danger">*</span></label>

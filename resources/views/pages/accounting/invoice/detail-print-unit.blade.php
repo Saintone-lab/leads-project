@@ -100,8 +100,11 @@
 
         {{-- Items --}}
         @php
-            $afterDisc = $quote->subtotal - ($quote->subtotal * $quote->diskon / 100);
-            $bgColor   = 'rgb(224, 248, 248)';
+            $afterDisc  = $quote->subtotal - ($quote->subtotal * $quote->diskon / 100);
+            $bgColor    = 'rgb(224, 248, 248)';
+            $hasDisc    = $quote->details->where('disc', '>', 0)->count() > 0;
+            $labelSpan  = $quote->tax ? ($hasDisc ? 3 : 2) : 3;
+            $amountSpan = ($quote->tax || $hasDisc) ? 2 : 1;
         @endphp
         <div>
             <table class="table table-bordered m-0" style="border: 1px solid rgb(60,60,60); width: 100%;">
@@ -111,7 +114,9 @@
                         <th class="text-center" style="width:{{ $quote->tax ? '38%' : '45%' }}">Item</th>
                         <th class="text-center">Price</th>
                         <th class="text-center" style="width:1%; white-space:nowrap">Qty</th>
-                        <th class="text-center">Disc</th>
+                        @if ($hasDisc)
+                            <th class="text-center">Disc</th>
+                        @endif
                         @if ($quote->tax)
                             <th class="text-center">DPP</th>
                         @endif
@@ -177,8 +182,10 @@
                                 @endif
                             </td>
                             <td class="align-top text-end">{{ number_format($detail->price, 0, '', '.') }}</td>
-                            <td class="align-top text-center">{{ intval($detail->qty) }} {{ $detail->info_qty }}</td>
-                            <td class="align-top text-center">{{ $detail->disc > 0 ? intval($detail->disc) . '%' : '-' }}</td>
+                            <td class="align-top text-center" style="white-space:nowrap">{{ intval($detail->qty) }} {{ $detail->info_qty }}</td>
+                            @if ($hasDisc)
+                                <td class="align-top text-center">{{ $detail->disc > 0 ? intval($detail->disc) . '%' : '-' }}</td>
+                            @endif
                             @if ($quote->tax)
                                 <td class="align-top text-end">{{ number_format($dpp, 0, '', '.') }}</td>
                             @endif
@@ -189,75 +196,75 @@
                     {{-- Finance Summary --}}
                     <tr class="fw-medium" style="font-size: 13px">
                         <td colspan="{{ $quote->tax ? 2 : 1 }}" rowspan="9" style="border: none !important;"></td>
-                        <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                        <td colspan="{{ $labelSpan }}" class="text-end py-0" style="padding-right: 10px !important;">
                             <p class="m-0">{{ ($quote->tax || $totalPph > 0) ? 'Subtotal' : 'Total' }}</p>
                         </td>
-                        <td colspan="2" class="py-0 text-end" style="padding-right: 10px !important;">
+                        <td colspan="{{ $amountSpan }}" class="py-0 text-end" style="padding-right: 10px !important;">
                             <p class="m-0">Rp {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                         </td>
                     </tr>
                     @if ($quote->diskon > 0)
                         <tr class="fw-medium" style="font-size: 13px">
-                            <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                            <td colspan="{{ $labelSpan }}" class="text-end py-0" style="padding-right: 10px !important;">
                                 <p class="m-0">Discount ({{ $quote->diskon }}%)</p>
                             </td>
-                            <td colspan="2" class="py-0 text-end" style="padding-right: 10px !important;">
+                            <td colspan="{{ $amountSpan }}" class="py-0 text-end" style="padding-right: 10px !important;">
                                 <p class="m-0">- Rp {{ number_format($quote->subtotal * $quote->diskon / 100, 0, '', '.') }}</p>
                             </td>
                         </tr>
                         <tr class="fw-medium" style="font-size: 13px">
-                            <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                            <td colspan="{{ $labelSpan }}" class="text-end py-0" style="padding-right: 10px !important;">
                                 <p class="m-0">Total After Discount</p>
                             </td>
-                            <td colspan="2" class="py-0 text-end" style="padding-right: 10px !important;">
+                            <td colspan="{{ $amountSpan }}" class="py-0 text-end" style="padding-right: 10px !important;">
                                 <p class="m-0">Rp {{ number_format($afterDisc, 0, '', '.') }}</p>
                             </td>
                         </tr>
                     @endif
                     @if ($quote->tax)
                         <tr class="fw-medium" style="font-size: 13px">
-                            <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                            <td colspan="{{ $labelSpan }}" class="text-end py-0" style="padding-right: 10px !important;">
                                 <p class="m-0">DPP Atas PPN</p>
                             </td>
-                            <td colspan="2" class="py-0 text-end" style="padding-right: 10px !important;">
+                            <td colspan="{{ $amountSpan }}" class="py-0 text-end" style="padding-right: 10px !important;">
                                 <p class="m-0">Rp {{ number_format($afterDisc * 11 / 12, 0, '', '.') }}</p>
                             </td>
                         </tr>
                         <tr class="fw-medium" style="font-size: 13px">
-                            <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                            <td colspan="{{ $labelSpan }}" class="text-end py-0" style="padding-right: 10px !important;">
                                 <p class="m-0">VAT 12%</p>
                             </td>
-                            <td colspan="2" class="py-0 text-end" style="padding-right: 10px !important;">
+                            <td colspan="{{ $amountSpan }}" class="py-0 text-end" style="padding-right: 10px !important;">
                                 <p class="m-0">Rp {{ number_format($quote->tax_amount, 0, '', '.') }}</p>
                             </td>
                         </tr>
                     @endif
                     @if ($totalPph > 0)
                         <tr class="fw-medium" style="font-size: 13px">
-                            <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
+                            <td colspan="{{ $labelSpan }}" class="text-end py-0" style="padding-right: 10px !important;">
                                 <p class="m-0">PPH</p>
                             </td>
-                            <td colspan="2" class="py-0 text-end" style="padding-right: 10px !important;">
+                            <td colspan="{{ $amountSpan }}" class="py-0 text-end" style="padding-right: 10px !important;">
                                 <p class="m-0">Rp {{ number_format($totalPph, 0, '', '.') }}</p>
                             </td>
                         </tr>
                     @endif
                     @if ($quote->tax || $totalPph > 0)
                         <tr class="fw-medium" style="font-size: 13px">
-                            <td colspan="3" class="text-end py-0" style="background-color:{{ $bgColor }}; padding-right: 10px !important;">
+                            <td colspan="{{ $labelSpan }}" class="text-end py-0" style="background-color:{{ $bgColor }}; padding-right: 10px !important;">
                                 <p class="m-0 fw-bold">Total</p>
                             </td>
-                            <td colspan="2" class="py-0 text-end" style="background-color:{{ $bgColor }}; padding-right: 10px !important;">
+                            <td colspan="{{ $amountSpan }}" class="py-0 text-end" style="background-color:{{ $bgColor }}; padding-right: 10px !important;">
                                 <p class="m-0 fw-bold">Rp {{ number_format($quote->total, 0, '', '.') }}</p>
                             </td>
                         </tr>
                     @endif
                     @if (floatval($invoice->percent) < 100)
                         <tr style="font-size: 13px; background:#fff3cd;">
-                            <td colspan="3" class="text-end py-1 fw-bold" style="padding-right: 10px !important;">
+                            <td colspan="{{ $labelSpan }}" class="text-end py-1 fw-bold" style="padding-right: 10px !important;">
                                 <p class="m-0">{{ $invoice->type }} ({{ floatval($invoice->percent) }}% dari total)</p>
                             </td>
-                            <td colspan="2" class="py-1 fw-bold text-end" style="padding-right: 10px !important;">
+                            <td colspan="{{ $amountSpan }}" class="py-1 fw-bold text-end" style="padding-right: 10px !important;">
                                 <p class="m-0">Rp {{ number_format($totalAfterPph, 0, '', '.') }}</p>
                             </td>
                         </tr>

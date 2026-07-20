@@ -81,10 +81,13 @@ class PartInquiryController extends Controller
                 foreach ($request->vendors as $vendor) {
                     if (!empty($vendor['id_supplier']) && isset($vendor['price_idr']) && $vendor['price_idr'] !== '') {
                         $priceIdr = floatval($vendor['price_idr']);
+                        $priceUsd = isset($vendor['price_usd']) && $vendor['price_usd'] !== ''
+                            ? floatval($vendor['price_usd'])
+                            : 0;
                         SparePartVendorPrice::create([
                             'id_serial_product' => $serial->id,
                             'id_supplier'       => $vendor['id_supplier'],
-                            'price_usd'         => 0,
+                            'price_usd'         => $priceUsd,
                             'kurs_usd'          => 0,
                             'price_idr'         => $priceIdr,
                             'date'              => $vendor['date'] ?? now()->toDateString(),
@@ -146,6 +149,7 @@ class PartInquiryController extends Controller
     {
         $request->validate([
             'id_supplier' => 'required|exists:supplier,id',
+            'price_usd'   => 'nullable|numeric|min:0',
             'price_idr'   => 'required|numeric|min:0',
             'date'        => 'required|date',
         ]);
@@ -153,7 +157,7 @@ class PartInquiryController extends Controller
         SparePartVendorPrice::create([
             'id_serial_product' => $id,
             'id_supplier'       => $request->id_supplier,
-            'price_usd'         => 0,
+            'price_usd'         => $request->price_usd !== null ? floatval($request->price_usd) : 0,
             'kurs_usd'          => 0,
             'price_idr'         => floatval($request->price_idr),
             'date'              => $request->date,

@@ -190,6 +190,7 @@
                         <thead>
                             <tr>
                                 <th>Supplier</th>
+                                <th>Harga USD ($)</th>
                                 <th>Harga Modal (IDR)</th>
                                 <th>Tanggal Inquiry</th>
                                 <th></th>
@@ -204,6 +205,13 @@
                                             <option value="{{ $supplier->id }}">{{ $supplier->info ?: '-' }} | {{ $supplier->code ?: '-' }} | {{ $supplier->supplier }}</option>
                                         @endforeach
                                     </select>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" name="vendors[0][price_usd]"
+                                            placeholder="0.00" step="0.01" min="0">
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="input-group">
@@ -403,6 +411,7 @@
         var $select = buildSupplierSelect(vendorIndex);
         var $row = $('<tr class="vendor-row">');
         $row.append($('<td>').append($select));
+        $row.append('<td><div class="input-group"><span class="input-group-text">$</span><input type="number" class="form-control" name="vendors[' + vendorIndex + '][price_usd]" placeholder="0.00" step="0.01" min="0"></div></td>');
         var $modalTd = $('<td>');
         $modalTd.append('<div class="input-group"><span class="input-group-text">Rp</span><input type="text" class="form-control vendor-modal-display" placeholder="0" inputmode="numeric"></div>');
         $modalTd.append('<input type="hidden" class="vendor-modal" name="vendors[' + vendorIndex + '][price_idr]">');
