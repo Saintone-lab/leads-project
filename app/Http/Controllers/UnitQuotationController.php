@@ -101,7 +101,7 @@ class UnitQuotationController extends Controller
 
     public function show($id)
     {
-        $quote       = UnitQuotation::with(['client', 'pic', 'sales', 'details.unit', 'statusHistory', 'deliveries'])->findOrFail($id);
+        $quote       = UnitQuotation::with(['client', 'pic', 'sales', 'details.unit', 'statusHistory'])->findOrFail($id);
         $allVersions = $quote->allVersions();
         $invoices    = Invoice::where('id_unit_quotation', $quote->id)->orderByRaw("FIELD(type,'DP','BP','CT')")->get();
         $contracts   = Contract::where('id_unit_quotation', $quote->id)->get();
@@ -276,6 +276,7 @@ class UnitQuotationController extends Controller
 
         $delivery = new Delivery();
         $delivery->id_unit_quotation = $quote->id;
+        $delivery->id_invoice        = $request->id_invoice ?: null;
         $delivery->date              = $request->date ?? Carbon::today()->toDateString();
         $delivery->destination       = $request->destination;
         $delivery->type              = $request->type ?? 'Ekspedisi';
@@ -295,6 +296,11 @@ class UnitQuotationController extends Controller
             $dDelivery->info_qty    = $item->info_qty ?? 'Unit';
             $dDelivery->view        = '0';
             $dDelivery->save();
+        }
+
+        if ($request->id_invoice) {
+            return redirect()->route('invoice.show_unit', $request->id_invoice)
+                ->with('success', 'Surat Jalan berhasil dibuat.');
         }
 
         return redirect()->route('unit-quotation.show', $quote->id)

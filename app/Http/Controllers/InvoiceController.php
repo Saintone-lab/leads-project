@@ -938,7 +938,7 @@ class InvoiceController extends Controller
     public function show_unit($id)
     {
         $invoice = Invoice::findOrFail($id);
-        $quote   = UnitQuotation::with(['client', 'pic', 'sales', 'details.unit'])->findOrFail($invoice->id_unit_quotation);
+        $quote   = UnitQuotation::with(['client', 'pic', 'sales', 'details.unit', 'deliveries'])->findOrFail($invoice->id_unit_quotation);
 
         $allInvoices = Invoice::where('id_unit_quotation', $quote->id)
             ->orderByRaw("FIELD(type,'DP','BP','CT')")

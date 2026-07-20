@@ -626,8 +626,80 @@
                     @endif
                 </div>
             </div>
+
+            {{-- 6. Delivery Order --}}
+            @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
+                <div class="card mb-3">
+                    <div class="card-header py-2 px-3">
+                        <small class="text-uppercase text-muted fw-semibold">Delivery Order</small>
+                    </div>
+                    <div class="card-body d-grid gap-2">
+                        @if ($quote->deliveries->isNotEmpty())
+                            @foreach ($quote->deliveries as $d)
+                                <a href="{{ route('delivery.show', $d->id) }}"
+                                   class="btn btn-outline-info btn-sm w-100 waves-effect">
+                                    <i class="mdi mdi-file-document-outline me-1"></i> Lihat Surat Jalan #{{ $d->id }}
+                                </a>
+                            @endforeach
+                        @endif
+                        @if ($quote->status === 'po_received')
+                            <button type="button" class="btn btn-outline-success w-100 waves-effect"
+                                data-bs-toggle="modal" data-bs-target="#modalSJUnit">
+                                <i class="mdi mdi-truck-delivery-outline me-1"></i> Buat Surat Jalan
+                            </button>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
+
+    {{-- Modal Buat Surat Jalan --}}
+    @if (($quote->status === 'po_received') && (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting'))
+        <div class="modal fade" id="modalSJUnit" tabindex="-1">
+            <div class="modal-dialog">
+                <form action="{{ route('unit-quotation.storeDelivery', $quote->id) }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="id_invoice" value="{{ $invoice->id }}">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Buat Surat Jalan — {{ $quote->no_quote }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Tanggal</label>
+                                <input type="date" class="form-control" name="date"
+                                    value="{{ \Carbon\Carbon::today()->toDateString() }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tujuan / Alamat</label>
+                                <select class="form-select" name="destination" required>
+                                    @if ($quote->client)
+                                        <option value="1">{{ $quote->client->address }}</option>
+                                        @if ($quote->client->subAddress)
+                                            <option value="2">{{ $quote->client->subAddress }}</option>
+                                        @endif
+                                    @endif
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Jenis Pengiriman</label>
+                                <select class="form-select" name="type">
+                                    <option value="Ekspedisi">Ekspedisi</option>
+                                    <option value="Teknisi">Teknisi</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Buat Surat Jalan</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 
     {{-- Modal PPH 23 per item --}}
     <div class="modal fade" id="modalAddPph" tabindex="-1">
