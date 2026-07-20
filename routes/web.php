@@ -2333,6 +2333,8 @@ Route::group(["middleware" => "auth"], function () {
     });
 
     Route::get('/db/sales/invoice/ar', function () {
+        $year = request()->get('year');
+
         // last payment (umum)
         $lastPaymentSub = DB::table('payment as p1')
             ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.overdue', 'p1.method', 'p1.created_at')
@@ -2416,6 +2418,7 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.status', '100')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
+            ->when($year && $year !== 'all', fn($q) => $q->whereYear('invoice.date', (int) $year))
             ->orderByDesc('invoice.date')
             ->select([
                 'invoice.*',
@@ -2537,6 +2540,7 @@ Route::group(["middleware" => "auth"], function () {
             ->where('invoice.flag', 'Reftech')
             ->whereNotNull('invoice.no_invoice')
             ->whereNotNull('invoice.id_unit_quotation')
+            ->when($year && $year !== 'all', fn($q) => $q->whereYear('invoice.date', (int) $year))
             ->orderByDesc('invoice.date')
             ->select([
                 'invoice.*',
@@ -2586,6 +2590,8 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $invoice]);
     });
     Route::get('/db/sales/invoice/reftech', function () {
+        $year = request()->get('year');
+
         // last payment (umum)
         $lastPaymentSub = DB::table('payment as p1')
             ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.overdue', 'p1.method', 'p1.created_at')
@@ -2670,6 +2676,7 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.status', '100')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
+            ->when($year && $year !== 'all', fn($q) => $q->whereYear('invoice.date', (int) $year))
             ->orderByDesc('invoice.date')
             ->select([
                 'invoice.*',
@@ -2757,6 +2764,8 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $invoice]);
     });
     Route::get('/db/sales/invoice/kojisha', function () {
+        $year = request()->get('year');
+
         // last payment (umum)
         $lastPaymentSub = DB::table('payment as p1')
             ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.overdue', 'p1.method', 'p1.created_at')
@@ -2841,6 +2850,7 @@ Route::group(["middleware" => "auth"], function () {
             ->where('quotation.status', '100')
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
+            ->when($year && $year !== 'all', fn($q) => $q->whereYear('invoice.date', (int) $year))
             ->orderByDesc('invoice.date')
             ->select([
                 'invoice.*',
@@ -2929,6 +2939,8 @@ Route::group(["middleware" => "auth"], function () {
     });
 
     Route::get('/db/sales/invoice/ahmad', function () {
+        $year = request()->get('year');
+
         // last payment (umum)
         $lastPaymentSub = DB::table('payment as p1')
             ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.overdue', 'p1.method', 'p1.created_at')
@@ -3013,6 +3025,7 @@ Route::group(["middleware" => "auth"], function () {
             ->whereIn('quotation.id_sales', [2, 3, 4, 32])
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
+            ->when($year && $year !== 'all', fn($q) => $q->whereYear('invoice.date', (int) $year))
             ->orderByDesc('invoice.date')
             ->select([
                 'invoice.*',
@@ -3100,6 +3113,8 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $invoice]);
     });
     Route::get('/db/sales/invoice/rayi', function () {
+        $year = request()->get('year');
+
         // last payment (umum)
         $lastPaymentSub = DB::table('payment as p1')
             ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.level', 'p1.due_date', 'p1.overdue', 'p1.method', 'p1.created_at')
@@ -3184,6 +3199,7 @@ Route::group(["middleware" => "auth"], function () {
             ->whereIn('quotation.id_sales', [1, 16, 23])
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('invoice.no_invoice')
+            ->when($year && $year !== 'all', fn($q) => $q->whereYear('invoice.date', (int) $year))
             ->orderByDesc('invoice.date')
             ->select([
                 'invoice.*',
@@ -3271,6 +3287,8 @@ Route::group(["middleware" => "auth"], function () {
         return response()->json(['data' => $invoice]);
     });
     Route::get('/db/sales/invoice/escrow', function () {
+        $year = request()->get('year');
+
         $invoice = Invoice::join('quotation as q', 'q.id', '=', 'invoice.id_quotation')
             ->join('pic', 'pic.id', '=', 'q.id_pic')
             ->join('client as c', 'c.id', '=', 'pic.id_client')
@@ -3278,6 +3296,7 @@ Route::group(["middleware" => "auth"], function () {
             ->join('payment as p', 'p.id_quotation', '=', 'q.id')
             ->whereIn('u.id', ['16', '23'])
             ->where('p.method', 'Escrow')
+            ->when($year && $year !== 'all', fn($q2) => $q2->whereYear('invoice.date', (int) $year))
             ->select([
                 'invoice.*',
                 DB::raw("SUBSTRING(invoice.no_invoice, 1, 12) as short_invoice"),

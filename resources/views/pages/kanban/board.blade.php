@@ -64,7 +64,7 @@
                         </ul>
                     </div>
                 @endif
-                @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Accounting')
+                @if (auth()->user()->role === 'Admin' || (auth()->user()->role === 'Accounting' && $board->type === 'monitoring'))
                     <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#boardSettingsModal">
                         <i class="mdi mdi-cog me-1"></i>
                     </button>

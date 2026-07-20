@@ -2142,6 +2142,16 @@
                     <div data-i18n="Key Accounts">Key Accounts</div>
                 </a>
             </li>
+            <li
+                class="menu-item {{ request()->is('invoice') || request()->is('invoice/*') || request()->is('request/invoice') || request()->is('request/invoice/*') || request()->is('index/invoice/kojisha') ? 'active' : '' }}">
+                <a href="{{ route('invoice.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-file-document-check-outline"></i>
+                    <div data-i18n="Invoice">Invoice</div>
+                    @if (@$requestInvoice >= 1)
+                        <div class="badge bg-danger rounded-pill ms-auto">{{ $requestInvoice }}</div>
+                    @endif
+                </a>
+            </li>
             @php
                 $monitoringBoard = \App\Models\KanbanBoard::where('type', 'monitoring')->first();
                 $monitoringCount = 0;

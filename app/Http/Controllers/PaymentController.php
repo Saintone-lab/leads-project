@@ -19,49 +19,7 @@ class PaymentController extends Controller
 {
     public function index_invoice()
     {
-        // Sparepart quotation
-        $fullInvoice = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
-            ->where('quotation.status', '100')
-            ->where('invoice.flag', 'Reftech')
-            ->where('quotation.tax', '11')
-            ->whereNotNull('invoice.no_invoice')
-            ->sum('quotation.harga_total');
-        $fullPayment = Invoice::join('quotation', 'quotation.id', '=', 'invoice.id_quotation')
-            ->leftJoin(
-                DB::raw('(SELECT id_quotation, SUM(amount) as total_payment FROM payment GROUP BY id_quotation) as pay'),
-                'quotation.id', '=', 'pay.id_quotation'
-            )
-            ->where('quotation.status', '100')
-            ->where('invoice.flag', 'Reftech')
-            ->where('quotation.tax', '11')
-            ->whereNotNull('invoice.no_invoice')
-            ->sum(DB::raw('IFNULL(pay.total_payment, 0)'));
-
-        // Unit quotation
-        $uqFullInvoice = Invoice::join('unit_quotation', 'unit_quotation.id', '=', 'invoice.id_unit_quotation')
-            ->where('invoice.flag', 'Reftech')
-            ->where('unit_quotation.tax', 1)
-            ->whereNotNull('invoice.no_invoice')
-            ->sum(DB::raw('ROUND(unit_quotation.total * IFNULL(invoice.percent, 100) / 100)'));
-        $uqFullPayment = Payment::whereNotNull('payment.id_unit_quotation')
-            ->join('invoice', 'invoice.id_unit_quotation', '=', 'payment.id_unit_quotation')
-            ->join('unit_quotation', 'unit_quotation.id', '=', 'payment.id_unit_quotation')
-            ->where('invoice.flag', 'Reftech')
-            ->where('unit_quotation.tax', 1)
-            ->whereNotNull('invoice.no_invoice')
-            ->sum('payment.amount');
-
-        $fullInvoice += $uqFullInvoice;
-        $fullPayment += $uqFullPayment;
-        $sisa = $fullInvoice - $fullPayment;
-
-        $lastPaymentSub = DB::table('payment as p1')
-            ->select('p1.id', 'p1.id_quotation', 'p1.amount', 'p1.type', 'p1.due_date', 'p1.method', 'p1.created_at')
-            ->join(DB::raw('(SELECT id_quotation, MAX(id) as max_id FROM payment GROUP BY id_quotation) as p2'), 'p1.id', '=', DB::raw('p2.max_id'));
-        // dd($lastPaymentSub);
-        // dd(DB::select('SELECT p1.* FROM payment p1 INNER JOIN (SELECT id_quotation, MAX(id) as max_id FROM payment GROUP BY id_quotation) p2 ON p1.id = p2.max_id'));
-        // dd(DB::select('SELECT id_quotation, SUM(amount) as total_payment FROM payment GROUP BY id_quotation'));
-        return view('pages.accounting.payment.index-invoice', compact('fullInvoice', 'fullPayment', 'sisa'));
+        return view('pages.accounting.payment.index-invoice');
     }
     public function index_invoice_ahmad()
     {

@@ -1,8 +1,12 @@
 $(function () {
     var dt_table_sales_invoice_escrow = $(".datatable-sales-invoice-escrow");
     var Url = "/db/sales/invoice/escrow";
+    var initialized = false;
 
-    if (dt_table_sales_invoice_escrow.length) {
+    function initTable() {
+        if (initialized || !dt_table_sales_invoice_escrow.length) return;
+        initialized = true;
+
         $('[data-toggle="tooltip"]').tooltip();
         // Setup - add a text input to each footer cell
         $(".datatable-sales-invoice-escrow thead tr")
@@ -30,21 +34,12 @@ $(function () {
                 headers: {
                     "Content-Type": "application/json",
                 },
-
-                // success: function (hasil, Url) {
-                //     console.log("Url:", Url);
-                //     console.log(hasil);
-                // },
-                // error: function (error) {
-                //     console.log("Url:", Url);
-                //     console.error("Error:", error);
-                //     console.log("error disini");
-                // },
+                data: function (d) {
+                    d.year = window.invoiceYearFilter || "all";
+                    return d;
+                },
             },
             columns: [
-                // { data: "" },
-                // { data: "id" },
-                // { data: "id" },
                 { data: "no_invoice" },
                 { data: "tanggal" },
                 { data: "company" },
@@ -56,22 +51,6 @@ $(function () {
                 },
             ],
             columnDefs: [
-                // {
-                //     // For Responsive
-                //     className: "control",
-                //     orderable: false,
-                //     searchable: false,
-                //     responsivePriority: 2,
-                //     targets: 0,
-                //     render: function (data, type, full, meta) {
-                //         return "";
-                //     },
-                // },
-                // {
-                //     targets: 0,
-                //     searchable: true,
-                //     visible: false,
-                // },
                 {
                     responsivePriority: 1,
                     targets: 0,
@@ -139,11 +118,16 @@ $(function () {
                 },
             ],
             order: [],
-            // orderCellsTop: true,
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         });
+
+        window.invoiceDataTables = window.invoiceDataTables || {};
+        window.invoiceDataTables.escrow = dt_filter;
+
+        dt_table_sales_invoice_escrow.on("draw", function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
     }
-    dt_table_sales_invoice_escrow.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
+
+    $("#nav-inv-escrow").on("shown.bs.tab", initTable);
 });
