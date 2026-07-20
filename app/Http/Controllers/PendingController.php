@@ -505,62 +505,112 @@ class PendingController extends Controller
             return redirect('/pending-po-done')->with('message', 'data telah di tambahkan');
         }
     }
-    public function indexSOrder()
+    public function indexSOrder(Request $request)
     {
-        $newCount = PendingPO::where('status', operator: 0)
-            ->count();
-        $listCount = PendingPO::whereIn('pending_po.status', [1, 2, 3, 4])
-            ->count();
-        $readyCount = PendingPO::where('pending_po.status', 2)
-            ->where('pending_po.type', 'Non Project')
-            ->count();
-        $jadwalCount = PendingPO::join('service_order as s', 's.id_sales_order', '=', 'pending_po.id')
-            ->where('pending_po.status', 2)
-            ->where('pending_po.type', 'Project')
-            ->whereNull('s.date_schedule')
-            ->distinct('pending_po.id')
-            ->count('pending_po.id');
-        $delayedCount = PendingPO::where('status', operator: 9)
-            ->count();
-        // dd($jadwalCount);
-        $deliveryCount = PendingPO::where('pending_po.status', 5)
-            ->count();
-        $noInvoiceCountP = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
-            ->join('invoice as i', 'q.id', '=', 'i.id_quotation')
-            ->whereNotNull('i.no_invoice')
-            ->where('pending_po.type', 'Project')
-            ->where('pending_po.status', 6)
-            ->count();
-        $noInvoiceCountNP = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
-            ->join('invoice as i', 'q.id', '=', 'i.id_quotation')
-            ->whereNotNull('i.no_invoice')
-            ->where('pending_po.type', 'Non Project')
-            ->where('pending_po.status', 6)
-            ->count();
+        $role = Auth::user()->role;
+        $selectedYear = $request->get('year', date('Y'));
 
+        // Query available years for filter dropdown
+        $availableYears = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->where('pending_po.type', 'Non Project')
+            ->whereNotNull('q.po_date')
+            ->selectRaw('YEAR(q.po_date) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year')
+            ->toArray();
+
+        $currentYear = intval(date('Y'));
+        if (!in_array($currentYear, $availableYears)) {
+            $availableYears[] = $currentYear;
+            rsort($availableYears);
+        }
+
+        $query = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->where('pending_po.type', 'Non Project');
+
+        if ($selectedYear !== 'all') {
+            $query->whereYear('q.po_date', $selectedYear);
+        }
+
+        if ($role === 'Sales') {
+            $query->where('q.id_sales', Auth::id());
+        }
+
+        $allOrders = $query->select(
+            'pending_po.id',
+            'pending_po.no_pending',
+            'pending_po.title',
+            'pending_po.status',
+            'q.po_date as order_date',
+            'c.company',
+            'u.name as sales_name',
+            'u.image as sales_image',
+            'q.nett as revenue'
+        )
+        ->orderBy('q.po_date', 'desc')
+        ->get();
+
+        // Calculate material and shipping costs for each Sales Order
+        $allOrders = $allOrders->map(function ($order) {
+            $order->material_cost = PurchaseRequest::where('id_pending', $order->id)
+                ->where('status', '3')
+                ->sum('amount');
+            $order->shipping_cost = Expanse::where('id_pending', $order->id)
+                ->where('type', 'Resi')
+                ->sum('cost');
+            $order->total_cost = $order->material_cost + $order->shipping_cost;
+            $order->profit = $order->revenue - $order->total_cost;
+            return $order;
+        });
+
+        // Group orders for tabs
+        $newOrders = $allOrders->filter(fn($o) => $o->status == 0);
+        $checkPartsOrders = $allOrders->filter(fn($o) => in_array($o->status, [1, 2, 3, 4]));
+        $deliveryOrders = $allOrders->filter(fn($o) => $o->status == 5);
+        $completedOrders = $allOrders->filter(fn($o) => $o->status == 6);
+        $returnOrders = $allOrders->filter(fn($o) => $o->status == 8);
+        $delayedOrders = $allOrders->filter(fn($o) => $o->status == 9);
+
+        // Overall KPIs
+        $totalOrdersCount = $allOrders->count();
+        $totalRevenue = $allOrders->sum('revenue');
+        $totalCost = $allOrders->sum('total_cost');
+        $totalProfit = $totalRevenue - $totalCost;
+        $overallMargin = $totalRevenue > 0 ? ($totalProfit / $totalRevenue) * 100 : 0;
+
+        // Legacy compatibility variables for modals (keep schedules and orders if needed)
         $schedules = ServiceOrder::join(DB::raw("(
-        SELECT id_sales_order, MAX(id) as max_id
-        FROM service_order
-        GROUP BY id_sales_order
-    ) so_max"), 'service_order.id', '=', 'so_max.max_id')
+            SELECT id_sales_order, MAX(id) as max_id
+            FROM service_order
+            GROUP BY id_sales_order
+        ) so_max"), 'service_order.id', '=', 'so_max.max_id')
             ->join('pending_po as p', 'p.id', '=', 'service_order.id_sales_order')
             ->where('p.status', 2)
             ->select('service_order.*', 'p.no_pending', 'p.title')
             ->get();
         $orders = PendingPO::where('status', 2)->where('type', 'Project')->get();
-        // dd($schedules);
-        // $schedules = ServiceOrder::join('PendingPO as p', 'p.id', '=', 'service_order.id_sales_order')->where('p.status, 2')->get();
+
         return view('pages.sorder.index', compact(
+            'allOrders',
+            'newOrders',
+            'checkPartsOrders',
+            'deliveryOrders',
+            'completedOrders',
+            'returnOrders',
+            'delayedOrders',
+            'totalOrdersCount',
+            'totalRevenue',
+            'totalCost',
+            'totalProfit',
+            'overallMargin',
+            'selectedYear',
+            'availableYears',
             'schedules',
-            'orders',
-            'newCount',
-            'listCount',
-            'readyCount',
-            'jadwalCount',
-            'delayedCount',
-            'deliveryCount',
-            'noInvoiceCountP',
-            'noInvoiceCountNP',
+            'orders'
         ));
     }
     public function indexDone()

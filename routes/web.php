@@ -56,6 +56,7 @@ use App\Http\Controllers\UnitController;
 use App\Http\Controllers\CatalogUnitController;
 use App\Http\Controllers\SalesTargetController;
 use App\Http\Controllers\SuoController;
+use App\Http\Controllers\ProjectMonitoringController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WatermarkController;
 use App\Models\Account;
@@ -1504,6 +1505,13 @@ Route::group(["middleware" => "auth"], function () {
     // Logistic & Accounting index pages
     Route::get('/suo-logistic', [SuoController::class, 'logisticIndex'])->name('suo.logistic.index');
     Route::get('/suo-accounting', [SuoController::class, 'accountingIndex'])->name('suo.accounting.index');
+
+    // Project Monitoring
+    Route::get('/project-monitoring', [ProjectMonitoringController::class, 'index'])->name('project-monitoring.index');
+    Route::get('/project-monitoring/{id}', [ProjectMonitoringController::class, 'show'])->name('project-monitoring.show');
+    Route::post('/project-monitoring/{id}/expense', [ProjectMonitoringController::class, 'storeExpense'])->name('project-monitoring.store-expense');
+    Route::delete('/project-monitoring/expense/{id}', [ProjectMonitoringController::class, 'destroyExpense'])->name('project-monitoring.destroy-expense');
+    Route::post('/project-monitoring/{id}/status-step', [ProjectMonitoringController::class, 'updateStatusStep'])->name('project-monitoring.update-status-step');
 
     // Pending PO
     Route::resource('/pending-po', PendingController::class);
@@ -4798,6 +4806,7 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
             ->whereNot('pending_po.status', [6, 7])
+            ->where('pending_po.type', 'Non Project')
             ->where('q.id_sales', Auth::user()->id)
             ->groupBy('q.id')
             ->select(
@@ -4845,6 +4854,7 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
             ->whereNot('pending_po.status', [6, 7])
+            ->where('pending_po.type', 'Non Project')
             ->groupBy('q.id')
             ->orderBy('q.po_date', 'desc')
             ->select(
@@ -4944,6 +4954,7 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
             ->where('pending_po.status', 0)
+            ->where('pending_po.type', 'Non Project')
             ->groupBy('q.id')
             ->orderBy('q.po_date', 'desc')
             ->select(
@@ -4984,6 +4995,7 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
             ->whereIn('pending_po.status', [1, 2, 3, 4])
+            ->where('pending_po.type', 'Non Project')
             ->groupBy('q.id')
             ->orderBy('q.po_date', 'desc')
             ->select(
@@ -5117,6 +5129,7 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
             ->where('pending_po.status', 5)
+            ->where('pending_po.type', 'Non Project')
             ->groupBy('q.id')
             ->orderBy('q.po_date', 'desc')
             ->select(
@@ -5312,6 +5325,7 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
             ->where('pending_po.status', 0)
+            ->where('pending_po.type', 'Non Project')
             ->where('q.id_sales', Auth::user()->id)
             ->groupBy('q.id')
             ->orderBy('q.po_date', 'desc')
@@ -5353,6 +5367,7 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
             ->whereIn('pending_po.status', [1, 2, 3, 4])
+            ->where('pending_po.type', 'Non Project')
             ->where('q.id_sales', Auth::user()->id)
             ->groupBy('q.id')
             ->orderBy('q.po_date', 'desc')
@@ -5394,6 +5409,7 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
                                         ) p2 ON p1.id = p2.max_id
                                         ) as pay"), 'q.id', '=', 'pay.id_quotation')
             ->where('pending_po.status', 5)
+            ->where('pending_po.type', 'Non Project')
             ->where('q.id_sales', Auth::user()->id)
             ->groupBy('q.id')
             ->orderBy('q.po_date', 'desc')

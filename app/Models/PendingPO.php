@@ -13,6 +13,8 @@ class PendingPO extends Model
         'id_quotation',
         'ekspidisi',
         'status',
+        'project_category',
+        'project_status_step',
     ];
     public function quote()
     {

@@ -459,20 +459,22 @@
                                             $payamount = $pay->amount;
                                             $totalwithpph = $pay->amount - $totalPph;
                                         @endphp
-                                        <tr class="fw-medium" style="font-size: 13px">
-                                            <td colspan="3" class="text-end py-0 px-0">
-                                                <p class="m-0"
-                                                    style="{{ $loop->last ? 'background-color: yellow;' : '' }} padding-left:20px; padding-right:10px;">
-                                                    {{ $pay->note }}
-                                                    {{ $pay->percent }}%:</p>
-                                            </td>
-                                            <td class="px-0 py-0" style="padding-left: 0 !important;">
-                                                <p class="fw-medium m-0 text-end"
-                                                    style="{{ $loop->last ? 'background-color: yellow;' : '' }} padding-right:20px;">
-                                                    RP
-                                                    {{ number_format($amount, 0, '', '.') }}</p>
-                                            </td>
-                                        </tr>
+                                        @if (count($payments) > 1)
+                                            <tr class="fw-medium" style="font-size: 13px">
+                                                <td colspan="3" class="text-end py-0 px-0">
+                                                    <p class="m-0"
+                                                        style="{{ $loop->last ? 'background-color: yellow;' : '' }} padding-left:20px; padding-right:10px;">
+                                                        {{ $pay->note }}
+                                                        {{ $pay->percent }}%:</p>
+                                                </td>
+                                                <td class="px-0 py-0" style="padding-left: 0 !important;">
+                                                    <p class="fw-medium m-0 text-end"
+                                                        style="{{ $loop->last ? 'background-color: yellow;' : '' }} padding-right:20px;">
+                                                        RP
+                                                        {{ number_format($amount, 0, '', '.') }}</p>
+                                                </td>
+                                            </tr>
+                                        @endif
                                     @endforeach
                                     @if ($quote->tax != 0)
                                         <tr class="fw-medium" style="font-size: 13px">
@@ -816,20 +818,22 @@
                                             $payamount = $pay->amount;
                                             $totalwithpph = $pay->amount - $totalPph;
                                         @endphp
-                                        <tr class="fw-medium" style="font-size: 13px">
-                                            <td colspan="2" class="text-end py-0 px-0">
-                                                <p class="m-0"
-                                                    style="{{ $loop->last ? 'background-color: yellow;' : '' }} padding-left:20px; padding-right:10px;">
-                                                    {{ $pay->note }}
-                                                    {{ $pay->percent }}%:</p>
-                                            </td>
-                                            <td class="px-0 py-0" style="padding-left: 0 !important;">
-                                                <p class="fw-medium m-0 text-end"
-                                                    style="{{ $loop->last ? 'background-color: yellow;' : '' }} padding-right:20px;">
-                                                    RP
-                                                    {{ number_format($amount, 0, '', '.') }}</p>
-                                            </td>
-                                        </tr>
+                                        @if (count($payments) > 1)
+                                            <tr class="fw-medium" style="font-size: 13px">
+                                                <td colspan="2" class="text-end py-0 px-0">
+                                                    <p class="m-0"
+                                                        style="{{ $loop->last ? 'background-color: yellow;' : '' }} padding-left:20px; padding-right:10px;">
+                                                        {{ $pay->note }}
+                                                        {{ $pay->percent }}%:</p>
+                                                </td>
+                                                <td class="px-0 py-0" style="padding-left: 0 !important;">
+                                                    <p class="fw-medium m-0 text-end"
+                                                        style="{{ $loop->last ? 'background-color: yellow;' : '' }} padding-right:20px;">
+                                                        RP
+                                                        {{ number_format($amount, 0, '', '.') }}</p>
+                                                </td>
+                                            </tr>
+                                        @endif
                                     @endforeach
                                     @if ($quote->tax != 0)
                                         <tr class="fw-medium" style="font-size: 13px">

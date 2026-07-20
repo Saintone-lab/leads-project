@@ -617,6 +617,7 @@
                                placeholder="Masukkan nomor PO dari customer"
                                value="{{ old('po_number', $quote->po_number) }}" required>
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Keterangan Payment <span class="text-muted small">(untuk T&C quotation)</span></label>
                         <input type="text" class="form-control" name="payment_method"

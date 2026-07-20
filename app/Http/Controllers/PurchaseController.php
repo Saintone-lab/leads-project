@@ -362,8 +362,14 @@ class PurchaseController extends Controller
         $this->validate($request, $rule, $message);
         // dd($request->all());
         $purchases = PurchaseRequest::where('id_pending', $id)->get();
-        foreach ($purchases as $purchase) {
+        foreach ($purchases as $key => $purchase) {
             $purchase->status = '3';
+            if (isset($request->price[$key])) {
+                $purchase->price = $request->price[$key];
+            }
+            if (isset($request->amount[$key])) {
+                $purchase->amount = $request->amount[$key];
+            }
             $purchase->save();
         }
         $supplier = Supplier::find($request->supplier);

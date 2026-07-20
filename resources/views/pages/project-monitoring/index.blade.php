@@ -1,14 +1,13 @@
 @extends('layouts.sales.app')
-@section('title', 'Sales Order')
-@section('no-container') @endsection
+@section('title', 'Project Monitoring Dashboard')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center py-3 mb-4 gap-2">
             <h4 class="fw-bold m-0">
-                <span class="text-muted fw-normal">Sales /</span> Sales Order (Spare Parts)
+                <span class="text-muted fw-normal">Project /</span> Profitability Monitoring
             </h4>
             <div class="d-flex align-items-center">
-                <form action="{{ route('pending-po.sales-order') }}" method="GET" class="d-flex align-items-center">
+                <form action="{{ route('project-monitoring.index') }}" method="GET" class="d-flex align-items-center">
                     <label for="filter-year" class="me-2 fw-semibold text-muted text-nowrap">Tahun:</label>
                     <select name="year" id="filter-year" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 130px;">
                         <option value="all" {{ $selectedYear == 'all' ? 'selected' : '' }}>Semua Tahun</option>
@@ -22,19 +21,19 @@
 
         <!-- KPI Cards Grid -->
         <div class="row gy-4 mb-4">
-            <!-- Total Orders Card -->
+            <!-- Total Projects Card -->
             <div class="col-sm-6 col-lg-3">
                 <div class="card card-border-shadow-primary h-100">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-2 pb-1">
                             <div class="avatar me-2">
                                 <span class="avatar-initial rounded bg-label-primary">
-                                    <i class="mdi mdi-cart-outline mdi-24px"></i>
+                                    <i class="mdi mdi-briefcase-outline mdi-24px"></i>
                                 </span>
                             </div>
-                            <h4 class="ms-1 mb-0 fw-bold text-primary">{{ $totalOrdersCount }}</h4>
+                            <h4 class="ms-1 mb-0">{{ $totalProjects }}</h4>
                         </div>
-                        <p class="mb-0 text-primary-900 fw-semibold">Total Sales Order</p>
+                        <p class="mb-0 text-muted">Total Projects</p>
                     </div>
                 </div>
             </div>
@@ -49,33 +48,33 @@
                                     <i class="mdi mdi-currency-usd mdi-24px"></i>
                                 </span>
                             </div>
-                            <h5 class="ms-1 mb-0 text-success fw-bold">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h5>
+                            <h4 class="ms-1 mb-0 text-success">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h4>
                         </div>
-                        <p class="mb-0 text-primary-900 fw-semibold">Total Revenue (Quotation)</p>
+                        <p class="mb-0 text-muted">Total Revenue (Quotation)</p>
                     </div>
                 </div>
             </div>
 
             <!-- Total Cost Card -->
             <div class="col-sm-6 col-lg-3">
-                <div class="card card-border-shadow-danger h-100">
+                <div class="card card-border-shadow-warning h-100">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-2 pb-1">
                             <div class="avatar me-2">
-                                <span class="avatar-initial rounded bg-label-danger">
-                                    <i class="mdi mdi-bank-minus mdi-24px"></i>
+                                <span class="avatar-initial rounded bg-label-warning">
+                                    <i class="mdi mdi-cart-outline mdi-24px"></i>
                                 </span>
                             </div>
-                            <h5 class="ms-1 mb-0 text-danger fw-bold">Rp {{ number_format($totalCost, 0, ',', '.') }}</h5>
+                            <h4 class="ms-1 mb-0 text-warning">Rp {{ number_format($totalMaterial + $totalGeneral + $totalShipping, 0, ',', '.') }}</h4>
                         </div>
-                        <p class="mb-0 text-primary-900 fw-semibold">Purchase & Delivery Cost</p>
+                        <p class="mb-0 text-muted">Total Expenses & Purchases</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Net Profit Card -->
+            <!-- Net Profit / Margin Card -->
             <div class="col-sm-6 col-lg-3">
-                <div class="card card-border-shadow-info h-100">
+                <div class="card card-border-shadow-info h-100" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-2 pb-1">
                             <div class="avatar me-2">
@@ -94,7 +93,7 @@
             </div>
         </div>
 
-        <!-- Sales Orders Tabs Card -->
+        <!-- Projects Tabs Card -->
         <div class="card">
             <div class="card-header p-0">
                 <div class="nav-align-top">
@@ -102,37 +101,31 @@
                         <li class="nav-item">
                             <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#tab-new" aria-selected="true">
                                 New
-                                <span class="badge rounded-pill bg-danger ms-1">{{ $newOrders->count() }}</span>
+                                <span class="badge rounded-pill bg-danger ms-1">{{ $newProjects->count() }}</span>
                             </button>
                         </li>
                         <li class="nav-item">
                             <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#tab-check">
-                                Check Parts
-                                <span class="badge rounded-pill bg-warning ms-1">{{ $checkPartsOrders->count() }}</span>
+                                Check Parts / Unit / Material
+                                <span class="badge rounded-pill bg-warning ms-1">{{ $checkPartsProjects->count() }}</span>
                             </button>
                         </li>
                         <li class="nav-item">
-                            <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#tab-delivery">
-                                Delivery Process
-                                <span class="badge rounded-pill bg-info ms-1">{{ $deliveryOrders->count() }}</span>
+                            <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#tab-sched">
+                                Scheduling / Shipment
+                                <span class="badge rounded-pill bg-info ms-1">{{ $schedulingProjects->count() }}</span>
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#tab-progress">
+                                In Progress / Execution
+                                <span class="badge rounded-pill bg-primary ms-1">{{ $inProgressProjects->count() }}</span>
                             </button>
                         </li>
                         <li class="nav-item">
                             <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#tab-completed">
                                 Selesai
-                                <span class="badge rounded-pill bg-success ms-1">{{ $completedOrders->count() }}</span>
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#tab-delayed">
-                                Delayed
-                                <span class="badge rounded-pill bg-danger ms-1">{{ $delayedOrders->count() }}</span>
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#tab-return">
-                                Return
-                                <span class="badge rounded-pill bg-warning ms-1">{{ $returnOrders->count() }}</span>
+                                <span class="badge rounded-pill bg-success ms-1">{{ $completedProjects->count() }}</span>
                             </button>
                         </li>
                     </ul>
@@ -142,80 +135,47 @@
                 <div class="tab-content p-0 border-0 shadow-none">
                     <!-- Tab New -->
                     <div class="tab-pane fade show active" id="tab-new" role="tabpanel">
-                        @include('pages.sorder._table', ['orderList' => $newOrders, 'tableId' => 'table-new'])
+                        @include('pages.project-monitoring._table', ['projectList' => $newProjects, 'tableId' => 'table-new'])
                     </div>
                     <!-- Tab Check Parts -->
                     <div class="tab-pane fade" id="tab-check" role="tabpanel">
-                        @include('pages.sorder._table', ['orderList' => $checkPartsOrders, 'tableId' => 'table-check'])
+                        @include('pages.project-monitoring._table', ['projectList' => $checkPartsProjects, 'tableId' => 'table-check'])
                     </div>
-                    <!-- Tab Delivery Process -->
-                    <div class="tab-pane fade" id="tab-delivery" role="tabpanel">
-                        @include('pages.sorder._table', ['orderList' => $deliveryOrders, 'tableId' => 'table-delivery'])
+                    <!-- Tab Sched -->
+                    <div class="tab-pane fade" id="tab-sched" role="tabpanel">
+                        @include('pages.project-monitoring._table', ['projectList' => $schedulingProjects, 'tableId' => 'table-sched'])
+                    </div>
+                    <!-- Tab In Progress -->
+                    <div class="tab-pane fade" id="tab-progress" role="tabpanel">
+                        @include('pages.project-monitoring._table', ['projectList' => $inProgressProjects, 'tableId' => 'table-progress'])
                     </div>
                     <!-- Tab Completed -->
                     <div class="tab-pane fade" id="tab-completed" role="tabpanel">
-                        @include('pages.sorder._table', ['orderList' => $completedOrders, 'tableId' => 'table-completed'])
-                    </div>
-                    <!-- Tab Delayed -->
-                    <div class="tab-pane fade" id="tab-delayed" role="tabpanel">
-                        @include('pages.sorder._table', ['orderList' => $delayedOrders, 'tableId' => 'table-delayed'])
-                    </div>
-                    <!-- Tab Return -->
-                    <div class="tab-pane fade" id="tab-return" role="tabpanel">
-                        @include('pages.sorder._table', ['orderList' => $returnOrders, 'tableId' => 'table-return'])
+                        @include('pages.project-monitoring._table', ['projectList' => $completedProjects, 'tableId' => 'table-completed'])
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @foreach ($orders as $order)
-        @include('components.modal.pending.jadwal.schedule')
-    @endforeach
-    @foreach ($schedules as $schedule)
-        @include('components.modal.pending.jadwal.reschedule')
-        @include('components.modal.pending.jadwal.dokumentasi')
-    @endforeach
-@endsection()
+@endsection
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
-    <link rel="stylesheet"
-        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
-    <link rel="stylesheet"
-        href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
 @endpush
 
 @push('after-script')
-    <script src="{{ asset('assets') }}/vendor/libs/moment/moment.js"></script>
-    <script src="{{ asset('assets') }}/vendor/libs/flatpickr/flatpickr.js"></script>
-    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/FormValidation.min.js"></script>
-    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js"></script>
-    <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
-    <script src="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.js"></script>
-@endpush
-
-@push('page-script')
-    <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
-    <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
-@endpush
-
-@push('script')
     <script>
         $(document).ready(function() {
-            $('.datatable-sorder').each(function() {
+            $('.datatable-project').each(function() {
                 $(this).DataTable({
-                    order: [[1, 'desc']], // Sort by PO Date descending
+                    order: [[0, 'desc']],
                     pageLength: 10,
                     language: {
-                        search: "Cari Sales Order:",
+                        search: "Cari Proyek:",
                         lengthMenu: "Tampilkan _MENU_",
-                        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ sales order",
+                        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ proyek",
                         paginate: {
                             first: "Pertama",
                             last: "Terakhir",

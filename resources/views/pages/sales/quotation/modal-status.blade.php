@@ -61,10 +61,23 @@
                                 </div>
                                 <div class="col-6 mb-3">
                                     <div class="form-floating form-floating-outline">
-                                        <input class="form-control" type="text" id="type" name="type"
-                                            value="{{ $quote->type == 'Sparepart' && $quote->quote_for == 'Sparepart' ? 'Non Project' : 'Project' }}"
-                                            disabled>
-                                        <label for="po_date">Date PO</label>
+                                        <select class="form-select" id="type" name="type" disabled>
+                                            <option value="Non Project" {{ ($quote->type == 'Sparepart' && $quote->quote_for == 'Sparepart') ? 'selected' : '' }}>Non Project</option>
+                                            <option value="Project" {{ !($quote->type == 'Sparepart' && $quote->quote_for == 'Sparepart') ? 'selected' : '' }}>Project</option>
+                                        </select>
+                                        <label for="type">Tipe Order</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3 project-category-group" style="display: none;">
+                                    <div class="form-floating form-floating-outline">
+                                        <select class="form-select" id="project_category" name="project_category" disabled>
+                                            <option value="Service PM">Service PM</option>
+                                            <option value="Overhaul">Overhaul / Rebearing</option>
+                                            <option value="Rental">Rental</option>
+                                            <option value="Unit">Unit Only</option>
+                                            <option value="Piping">Piping</option>
+                                        </select>
+                                        <label for="project_category">Kategori Proyek</label>
                                     </div>
                                 </div>
                                 <div class="col-6 mb-3">
@@ -137,23 +150,39 @@
 @push('script')
     <script>
         $(document).ready(function() {
+            function toggleProjectCategory() {
+                if ($('#type').val() === 'Project' && $('#statusChange').val() === '100') {
+                    $('.project-category-group').show();
+                    $('#project_category').prop('disabled', false);
+                } else {
+                    $('.project-category-group').hide();
+                    $('#project_category').prop('disabled', true);
+                }
+            }
+
             function toggleWeekField() {
                 if ($('#statusChange').val() === '100') {
                     $('#selectWeek').prop('disabled', false);
                     $('#selectEkspedisi').prop('disabled', false);
                     $('#noPending').prop('disabled', false);
                     $('#title').prop('disabled', false);
+                    $('#type').prop('disabled', false);
+                    toggleProjectCategory();
                 } else {
                     $('#selectWeek').prop('disabled', true).val('');
                     $('#selectEkspedisi').prop('disabled', true).val('');
                     $('#noPending').prop('disabled', true);
                     $('#title').prop('disabled', true);
+                    $('#type').prop('disabled', true);
+                    $('.project-category-group').hide();
+                    $('#project_category').prop('disabled', true);
                 }
             }
 
             toggleWeekField();
 
             $('#statusChange').on('change', toggleWeekField);
+            $('#type').on('change', toggleProjectCategory);
         });
 
         $('#selectEkspedisi').change(function() {

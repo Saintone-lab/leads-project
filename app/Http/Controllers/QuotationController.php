@@ -1057,10 +1057,10 @@ class QuotationController extends Controller
             $pending = new PendingPO;
             $pending->status = 0;
 
-            if ($quotation->type == 'Sparepart') {
-                $pending->type = "Non Project";
-            } else {
-                $pending->type = "Project";
+            $pending->type = $request->input('type', ($quotation->type == 'Sparepart' ? 'Non Project' : 'Project'));
+            if ($pending->type === 'Project') {
+                $pending->project_category = $request->input('project_category', 'Service PM');
+                $pending->project_status_step = 1;
             }
             $pending->id_quotation = $quotation->primary_id;
             $pending->no_pending = $request->no_pending;
@@ -1320,10 +1320,10 @@ class QuotationController extends Controller
         $pending = new PendingPO;
         $pending->status = 0;
         $pending->id_quotation = $id;
-        if ($quotation->type == 'Sparepart') {
-            $pending->type = "Non Project";
-        } else {
-            $pending->type = "Project";
+        $pending->type = $request->input('type', ($quotation->type == 'Sparepart' ? 'Non Project' : 'Project'));
+        if ($pending->type === 'Project') {
+            $pending->project_category = $request->input('project_category', 'Service PM');
+            $pending->project_status_step = 1;
         }
         $pending->charged = $request->charged;
         $pending->title = $request->title;

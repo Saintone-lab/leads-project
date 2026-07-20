@@ -293,6 +293,12 @@
                     @endif --}}
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('project-monitoring*') ? 'active' : '' }}">
+                <a href="{{ route('project-monitoring.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-monitor-dashboard"></i>
+                    <div data-i18n="Project Monitoring">Project Monitoring</div>
+                </a>
+            </li>
             {{-- <li class="menu-item {{ request()->is('new-order') ? 'active' : '' }}">
                 <a href="{{ route('pending-po.order') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-cart-plus"></i>
@@ -1102,6 +1108,12 @@
                     @endif --}}
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('project-monitoring*') ? 'active' : '' }}">
+                <a href="{{ route('project-monitoring.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-monitor-dashboard"></i>
+                    <div data-i18n="Project Monitoring">Project Monitoring</div>
+                </a>
+            </li>
             @if (Auth::user()->id == 3)
                 <li
                     class="menu-item {{ request()->is('purchase-request') || request()->is('purchase-request/*') ? 'active' : '' }}">
@@ -1650,6 +1662,12 @@
                     @endif --}}
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('project-monitoring*') ? 'active' : '' }}">
+                <a href="{{ route('project-monitoring.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-monitor-dashboard"></i>
+                    <div data-i18n="Project Monitoring">Project Monitoring</div>
+                </a>
+            </li>
             {{-- <li class="menu-item {{ request()->is('new-order') ? 'active' : '' }}">
                 <a href="{{ route('pending-po.order') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-cart-plus"></i>
@@ -1875,6 +1893,12 @@
                     @endif --}}
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('project-monitoring*') ? 'active' : '' }}">
+                <a href="{{ route('project-monitoring.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-monitor-dashboard"></i>
+                    <div data-i18n="Project Monitoring">Project Monitoring</div>
+                </a>
+            </li>
             {{-- <li class="menu-header fw-light mt-4">
                 <span class="menu-header-text">Notulen</span>
             </li> --}}
@@ -2094,6 +2118,12 @@
                 <a href="{{ route('pending-po.sales-order') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-list-box-outline"></i>
                     <div data-i18n="Sales Order">Sales Order</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('project-monitoring*') ? 'active' : '' }}">
+                <a href="{{ route('project-monitoring.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-monitor-dashboard"></i>
+                    <div data-i18n="Project Monitoring">Project Monitoring</div>
                 </a>
             </li>
             <li class="menu-item {{ request()->is('return') || request()->is('return/*') ? 'active' : '' }}">
@@ -2507,6 +2537,12 @@
                 <a href="{{ route('pending-po.sales-order') }}" class="menu-link">
                     <i class="menu-icon tf-icons mdi mdi-list-box-outline"></i>
                     <div data-i18n="Sales Order">Sales Order</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('project-monitoring*') ? 'active' : '' }}">
+                <a href="{{ route('project-monitoring.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons mdi mdi-monitor-dashboard"></i>
+                    <div data-i18n="Project Monitoring">Project Monitoring</div>
                 </a>
             </li>
             <li class="menu-item {{ request()->is('return') || request()->is('return/*') ? 'active' : '' }}">

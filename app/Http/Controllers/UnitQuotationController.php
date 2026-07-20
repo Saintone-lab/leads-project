@@ -340,7 +340,7 @@ class UnitQuotationController extends Controller
         $npwpClean = preg_replace('/[^a-zA-Z0-9]/', '', $client->npwp ?? '');
         if (strlen($npwpClean) < 14) {
             return redirect()->route('unit-quotation.show', $id)
-                ->with('error', 'NPWP client belum diisi atau kurang dari 14 karakter. Pengajuan PO tidak dapat diproses.');
+                ->with('error', 'NPWP client belum diisi or kurang dari 14 karakter. Pengajuan PO tidak dapat diproses.');
         }
 
         $year = now()->year;
@@ -352,6 +352,7 @@ class UnitQuotationController extends Controller
             'payment_method' => $request->payment_method,
             'status'         => 'po_received',
             'po_received'    => now()->toDateString(),
+            'type'           => 'Project',
         ]);
 
         $quote->statusHistory()->create([

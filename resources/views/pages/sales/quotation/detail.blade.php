@@ -527,7 +527,7 @@
                             </div>
                         </div>
                     @endif
-                @elseif(Auth::user()->role == 'Admin')
+                @elseif(Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
                     @if ($quote->po_file != null)
                         <div class="card mb-3">
                             <div class="card-body">

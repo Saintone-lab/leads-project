@@ -13,8 +13,8 @@ class ToolAuditPeriodGenerator
 {
     /**
      * Window audit: 10 hari terakhir bulan Juni (semester 1) & Desember (semester 2).
-     * Return null kalau tanggal hari ini di luar kedua window itu DAN periode
-     * semester terakhir yang sudah lewat sudah pernah ke-generate.
+     * Return null kalau tanggal hari ini di luar kedua window itu DAN gak ada
+     * semester lewat yang butuh catch-up (lihat missedWindowCatchUp()).
      */
     public function activeWindow(?Carbon $date = null)
     {
@@ -44,10 +44,13 @@ class ToolAuditPeriodGenerator
 
     /**
      * Fallback sementara: kalau window resmi sudah kelewat (mis. cron/lazy-trigger
-     * gak sempat jalan pas H-9 s/d akhir bulan) DAN periode semester itu belum
-     * pernah ke-generate sama sekali, tetap buka supaya teknisi bisa catch-up.
-     * Cuma lihat ke belakang (semester yang sudah lewat), gak pernah buka
-     * semester yang belum waktunya.
+     * gak sempat jalan pas H-9 s/d akhir bulan), tetap anggap semester yang baru
+     * lewat itu "terbuka utk catch-up" — SELALU dicek ulang tiap kali dipanggil
+     * (bukan cuma sekali), soalnya generateIfNeeded() pakai firstOrCreate yang
+     * idempotent, jadi sweep berulang ini aman & perlu supaya teknisi yang baru
+     * dapat tools SETELAH catch-up pertama tetap ke-sweep juga (bukan cuma
+     * technician yang aktif pas trigger pertama). Cuma lihat ke belakang
+     * (semester yang sudah lewat), gak pernah buka semester yang belum waktunya.
      */
     protected function missedWindowCatchUp(Carbon $date)
     {
@@ -64,14 +67,6 @@ class ToolAuditPeriodGenerator
         $nearest = $candidates[0] ?? null;
 
         if (!$nearest) {
-            return null;
-        }
-
-        $exists = ToolAuditPeriod::where('tahun', $nearest['tahun'])
-            ->where('semester', $nearest['semester'])
-            ->exists();
-
-        if ($exists) {
             return null;
         }
 

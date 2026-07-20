@@ -1,322 +1,321 @@
 @extends('layouts.sales.app')
 @section('title', 'Detail Sales Order')
 @section('content')
-    <div class="d-flex justify-content-between mb-3">
-        <h5 class="fw-bold pb-1 mb-3">
-            Detail Of {{ $invoice->no_po ?? $quotation->pic->client->company }}
-        </h5>
-        <div class="tombol">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb breadcrumb-style1 mb-0">
+            <li class="breadcrumb-item">
+                <a href="{{ url('/') }}">Home</a>
+            </li>
+            @if ($pending->type == 'Project')
+                <li class="breadcrumb-item">
+                    <a href="{{ route('project-monitoring.index') }}">Project Monitoring</a>
+                </li>
+            @else
+                <li class="breadcrumb-item">
+                    <a href="{{ route('pending-po.sales-order') }}">Sales Order</a>
+                </li>
+            @endif
+            <li class="breadcrumb-item active" aria-current="page">Detail #{{ $pending->no_pending }}</li>
+        </ol>
+    </nav>
+
+    <!-- Header Block -->
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center py-2 mb-4 gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">
+                {{ $pending->no_pending }}
+            </h4>
+            <p class="text-muted mb-0">Detail Sales Order untuk <span class="fw-semibold text-primary">{{ $quotation->pic->client->company }}</span></p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
             @if ($pending->status != '6' && $pending->status != '8' && $pending->status != '9')
-                <button type="button" class="btn btn-primary dropdown-toggle waves-effect waves-light"
-                    data-bs-toggle="dropdown" aria-expanded="false" {{ auth::user()->role != 'Sales' ? '' : 'disabled' }}>
-                    Update
-                </button>
-                <ul class="dropdown-menu" style="">
-                    <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
-                            data-bs-target="#deliveryEdit">Kurir</a></li>
-                    <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
-                            data-bs-target="#statusEdit">Pending PO</a></li>
-                    <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
-                            data-bs-target="#resiEdit">Upload Resi</a></li>
-                </ul>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle waves-effect waves-light"
+                        data-bs-toggle="dropdown" aria-expanded="false" {{ auth::user()->role != 'Sales' ? '' : 'disabled' }}>
+                        <i class="mdi mdi-square-edit-outline me-1"></i> Update Status
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
+                                data-bs-target="#deliveryEdit"><i class="mdi mdi-truck-delivery-outline me-2 text-primary"></i>Kurir</a></li>
+                        <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
+                                data-bs-target="#statusEdit"><i class="mdi mdi-list-status me-2 text-warning"></i>Pending PO</a></li>
+                        <li><a class="dropdown-item waves-effect" href="javascript:void(0);" data-bs-toggle="modal"
+                                data-bs-target="#resiEdit"><i class="mdi mdi-barcode-scan me-2 text-success"></i>Upload Resi</a></li>
+                    </ul>
+                </div>
             @elseif ($pending->status == '6')
                 @if ($pending->id_product_out == null)
-                    <button type="button" class="btn btn-reddit" data-bs-toggle="modal" data-bs-target="#inputProductOut"
+                    <button type="button" class="btn btn-danger waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#inputProductOut"
                         {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                        Connect Product Out
+                        <i class="mdi mdi-connection me-1"></i> Connect Product Out
                     </button>
                 @else
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productReturn"
+                    <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#productReturn"
                         {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                        Retur Barang
+                        <i class="mdi mdi-arrow-u-left-bottom me-1"></i> Retur Barang
                     </button>
                 @endif
             @elseif ($pending->status == '9')
-                <button type="button" class="btn btn-primary done-po" data-id="{{ $pending->id }}"
+                <button type="button" class="btn btn-success done-po waves-effect waves-light" data-id="{{ $pending->id }}"
                     {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                    Done
+                    <i class="mdi mdi-check-decagram-outline me-1"></i> Done
                 </button>
-                <button type="button" class="btn btn-reddit" data-bs-toggle="modal" data-bs-target="#inputProductOut"
+                <button type="button" class="btn btn-danger waves-effect waves-light ms-2" data-bs-toggle="modal" data-bs-target="#inputProductOut"
                     {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                    Connect Product Out
+                    <i class="mdi mdi-connection me-1"></i> Connect Product Out
                 </button>
             @endif
-            <a href="{{ route('pending-po.index') }}" type="button" class="btn btn-secondary"> Back </a>
+            <a href="{{ $pending->type == 'Project' ? route('project-monitoring.index') : route('pending-po.sales-order') }}" class="btn btn-label-secondary waves-effect">
+                <i class="mdi mdi-arrow-left me-1"></i> Kembali
+            </a>
         </div>
     </div>
-    <div class="row mb-3">
-        <div class="col-4">
-            <div class="card h-100">
+
+    <!-- Metadata Grid -->
+    <div class="row g-4 mb-4">
+        <!-- Client & PIC Card -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border">
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-4">Sales</div>
-                        <div class="col-8">: {{ $quotation->sales->name }}</div>
-                        <div class="col-4">Flag</div>
-                        <div class="col-8">: {{ $quotation->pic->client->info }}</div>
-                        <div class="col-4">Client</div>
-                        <div class="col-8">: {{ $quotation->pic->client->company }}</div>
-                        <div class="col-4">PIC</div>
-                        <div class="col-8">: {{ $quotation->pic->name_pic }}</div>
-                        <div class="col-4">Address</div>
-                        <div class="col-8">: {{ $quotation->pic->client->address }}</div>
-                        @php
-                            switch ($pending->delivery) {
-                                case 1:
-                                    $delivery = 'Kurir';
-                                    break;
-                                case 2:
-                                    $delivery = 'Teknisi';
-                                    break;
-                                case 3:
-                                    $delivery = 'Direct';
-                                    break;
-                                case 4:
-                                    $delivery = 'Other';
-                                    break;
-                                default:
-                                    $delivery = 'Error';
-                                    break;
-                            }
-                            switch ($pending->charged) {
-                                case 1:
-                                    $charged = 'Company';
-                                    break;
-                                case 2:
-                                    $charged = 'Customer';
-                                    break;
-                                default:
-                                    $charged = '';
-                                    break;
-                            }
-                        @endphp
-                        <div class="col-4">Kurir</div>
-                        <div class="col-8">
-                            : {{ $delivery }} {{ $pending->charged ? "($charged)" : '' }}
-                        </div>
-                    </div>
+                    <h5 class="fw-bold border-bottom pb-2 mb-3 text-primary">
+                        <i class="mdi mdi-office-building-outline me-1"></i> Informasi Klien
+                    </h5>
+                    <table class="table table-borderless table-sm mb-0">
+                        <tr>
+                            <td class="fw-semibold text-muted py-1" style="width: 30%">Sales</td>
+                            <td class="py-1">: {{ $quotation->sales->name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-muted py-1">Klien</td>
+                            <td class="py-1">: {{ $quotation->pic->client->company }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-muted py-1">PIC Klien</td>
+                            <td class="py-1">: {{ $quotation->pic->name_pic }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-muted py-1">Flag Info</td>
+                            <td class="py-1">: <span class="badge bg-label-info">{{ $quotation->pic->client->info ?? '-' }}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-muted py-1">Alamat</td>
+                            <td class="py-1 text-wrap">: {{ $quotation->pic->client->address }}</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>
-        <div class="col-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-4">No Quotation</div>
-                        @php
-                            if ($quotation->type == 'Sparepart') {
-                                $link = 'quotation.show';
-                            } elseif ($quotation->type == 'Overhaul') {
-                                $link = 'show-overhaul.quotation';
-                            } else {
-                                $link = 'show-service.quotation';
-                            }
 
-                        @endphp
-                        <div class="col-8">: <a class="text-dark cursor-pointer"
-                                href="{{ route($link, $quotation->id) }}">{{ $quotation->no_quote }}</a>
-                        </div>
-                        <div class="col-4">No Invoice</div>
-                        <div class="col-8">:
-                            @if (@$invoice->no_invoice)
-                                <a class="text-dark cursor-pointer" href="{{ route('invoice.show', $invoice->id) }}">
-                                    {{ $invoice->no_invoice }}
+        <!-- Document Info Card -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border">
+                <div class="card-body">
+                    <h5 class="fw-bold border-bottom pb-2 mb-3 text-primary">
+                        <i class="mdi mdi-file-document-outline me-1"></i> Informasi Dokumen
+                    </h5>
+                    @php
+                        if ($quotation->type == 'Sparepart') {
+                            $link = 'quotation.show';
+                        } elseif ($quotation->type == 'Overhaul') {
+                            $link = 'show-overhaul.quotation';
+                        } else {
+                            $link = 'show-service.quotation';
+                        }
+                    @endphp
+                    <table class="table table-borderless table-sm mb-0">
+                        <tr>
+                            <td class="fw-semibold text-muted py-1" style="width: 35%">No Penawaran</td>
+                            <td class="py-1">: 
+                                <a class="fw-bold text-primary" href="{{ route($link, $quotation->id) }}">
+                                    {{ $quotation->no_quote }}
                                 </a>
-                            @else
-                                Belum ada invoice
-                            @endif
-                        </div>
-                        <div class="col-4">Payment Info</div>
-                        <div class="col-8">:
-                            {{ $invoice ? ($invoice->status_p == 1 ? 'Payment Confirmed' : 'Unpaid') : 'Belum ada invoice' }}
-                        </div>
-                        <div class="col-4">PO Date</div>
-                        <div class="col-8">: {{ \Carbon\Carbon::parse($quotation->po_date)->format('d-m-Y') }}</div>
-                    </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-muted py-1">No Invoice</td>
+                            <td class="py-1">: 
+                                @if (@$invoice->no_invoice)
+                                    <a class="fw-bold text-success" href="{{ route('invoice.show', $invoice->id) }}">
+                                        {{ $invoice->no_invoice }}
+                                    </a>
+                                @else
+                                    <span class="text-danger fw-semibold">Belum ada invoice</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-muted py-1">Status Bayar</td>
+                            <td class="py-1">: 
+                                @if ($invoice)
+                                    <span class="badge {{ $invoice->status_p == 1 ? 'bg-label-success' : 'bg-label-danger' }}">
+                                        {{ $invoice->status_p == 1 ? 'Payment Confirmed' : 'Unpaid' }}
+                                    </span>
+                                @else
+                                    <span class="badge bg-label-secondary">No Invoice</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-muted py-1">Tanggal PO</td>
+                            <td class="py-1">: {{ \Carbon\Carbon::parse($quotation->po_date)->format('d-m-Y') }}</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>
-        <div class="col-4">
-            <div class="row">
-                <div class="col-4 mb-2">
-                    <div class="card bg-label-secondary">
-                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
-                            <h5 class="m-0">Date</h5>
+
+        <!-- Shipping / Resi Info Card -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="fw-bold border-bottom pb-2 mb-3 text-primary">
+                        <i class="mdi mdi-truck-delivery-outline me-1"></i> Informasi Pengiriman
+                    </h5>
+                    @php
+                        switch ($pending->delivery) {
+                            case 1:
+                                $delivery = 'Kurir';
+                                break;
+                            case 2:
+                                $delivery = 'Teknisi';
+                                break;
+                            case 3:
+                                $delivery = 'Direct';
+                                break;
+                            case 4:
+                                $delivery = 'Other';
+                                break;
+                            default:
+                                $delivery = '-';
+                                break;
+                        }
+                        switch ($pending->charged) {
+                            case 1:
+                                $charged = 'Company';
+                                break;
+                            case 2:
+                                $charged = 'Customer';
+                                break;
+                            default:
+                                $charged = '';
+                                break;
+                        }
+                    @endphp
+                    <table class="table table-borderless table-sm mb-3">
+                        <tr>
+                            <td class="fw-semibold text-muted py-1" style="width: 30%">Kurir SO</td>
+                            <td class="py-1">: {{ $delivery }} {{ $pending->charged ? "($charged)" : '' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-muted py-1">Cargo Resi</td>
+                            <td class="py-1">: {{ $resi->kurir ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-muted py-1">No Resi</td>
+                            <td class="py-1">: <code class="text-dark">{{ $resi->no_track ?? '-' }}</code></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-muted py-1">Ongkos Kirim</td>
+                            <td class="py-1">: Rp {{ number_format($resi->cost ?? 0, 0, '.', ',') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold text-muted py-1">Tanggal Resi</td>
+                            <td class="py-1">: {{ $resi->date ?? '-' }}</td>
+                        </tr>
+                    </table>
+
+                    @if (@$resi->image != null)
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="{{ url($resi->image) }}" class="btn btn-sm btn-outline-primary w-100 waves-effect" target="_blank">
+                                <i class="mdi mdi-image-outline me-1"></i> Lihat Foto Resi
+                            </a>
+                            <a href="#" data-id="{{ $resi->id }}" data-pending="{{ $pending->id }}" class="btn btn-sm btn-outline-danger delete-resi waves-effect px-3">
+                                <i class="mdi mdi-delete-outline"></i>
+                            </a>
                         </div>
-                    </div>
-                </div>
-                <div class="col-8">
-                    <div class="card">
-                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
-                            <h6 class="m-0">{{ $resi->date ?? '-' }}</h6>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-4 mb-2">
-                    <div class="card bg-label-secondary">
-                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
-                            <h5 class="m-0">Cargo</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-8">
-                    <div class="card">
-                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
-                            <h6 class="m-0">{{ $resi->kurir ?? '-' }}</h6>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-4 mb-2">
-                    <div class="card bg-label-secondary">
-                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
-                            <h5 class="m-0">No Resi</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-8">
-                    <div class="card">
-                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
-                            <h6 class="m-0">{{ $resi->no_track ?? '-' }}</h6>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-4 mb-2">
-                    <div class="card bg-label-secondary">
-                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
-                            <h5 class="m-0">Cost</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-8">
-                    <div class="card">
-                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
-                            <h6 class="m-0">Rp {{ number_format($resi->cost ?? 0, 0, '.', ',') }}</h6>
-                        </div>
-                    </div>
-                </div>
-                @if (@$resi->image != null)
-                    <div class="col-8">
-                        <a href="{{ url($resi->image) }}" class="btn btn-sm btn-primary d-grid w-100 waves-effect"
-                            target="_blank" {{ $resi->image == null ? 'Disabled' : '' }}>
-                            Image
-                        </a>
-                    </div>
-                    <div class="col-4">
-                        <a href="#" data-id="{{ $resi->id }}" data-pending="{{ $pending->id }}"
-                            class="btn btn-label-danger delete-resi waves-effect w-100"
-                            {{ $resi->image == null ? 'Disabled' : '' }}>
-                            <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                        </a>
-                    </div>
-                @else
-                    <div class="col-12">
-                        <button class="btn btn-primary waves-effect w-100" disabled>
-                            Belum Ada Resi
+                    @else
+                        <button class="btn btn-sm btn-outline-secondary w-100 mt-auto" disabled>
+                            <i class="mdi mdi-alert-circle-outline me-1"></i> Resi Belum Diunggah
                         </button>
-                    </div>
-                @endif
+                    @endif
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Main Content Section -->
     @if ($pending->type == 'Project')
         @if ($pending->status != '6' && $pending->status != '8')
-            <div class="mb-3" style="display: flex; justify-content: flex-end;">
-                {{-- <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal"
+            <div class="d-flex justify-content-end mb-3 gap-2">
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                    data-bs-target="#purchaseReqPrj" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
+                    <i class="mdi mdi-plus-box me-1"></i> Purchase Request
+                </button>
+                <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal"
                     data-bs-target="#replacementEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                    Update Status Barang
-                </button> --}}
-                <div class="" style="display: flex; justify-content: flex-end;">
-                    <button type="button" class="btn btn-google-plus float-end mx-2" data-bs-toggle="modal"
-                        data-bs-target="#purchaseReqPrj" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                        Purchase Request
-                    </button>
-                    <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal"
-                        data-bs-target="#replacementEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                        Update Status Barang
-                    </button>
-                </div>
+                    <i class="mdi mdi-list-status me-1"></i> Update Status Barang
+                </button>
             </div>
         @endif
-        <div class="card mb-4">
-            <div class="table-responsive text-nowrap h-100">
-                <table class="table table-bordered">
-                    <thead>
+
+        <!-- Items Table -->
+        <div class="card mb-4 shadow-sm border">
+            <div class="card-header bg-light py-3 border-bottom">
+                <h5 class="m-0 fw-bold"><i class="mdi mdi-package-variant-closed text-primary me-1"></i> Daftar Barang Proyek</h5>
+            </div>
+            <div class="table-responsive text-nowrap">
+                <table class="table table-bordered table-striped mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <th>No</th>
+                            <th style="width: 50px;">No</th>
                             <th>Item</th>
-                            <th>Desc</th>
+                            <th>Description</th>
                             <th>Qty</th>
                             <th>Status</th>
                             <th>Note</th>
                         </tr>
                     </thead>
-                    <tbody class="table-border-bottom-0">
-                        @php
-                            $abjad = 64;
-                        @endphp
+                    <tbody>
+                        @php $abjad = 64; @endphp
                         @foreach ($subQuote as $subJudul)
                             @php
                                 $no = 0;
                                 $abjad++;
                             @endphp
-                            <tr style="font-size: 17px border-bottom:none !important;" class="border-top">
-                                <td class="align-top" style="border-bottom:none !important; background-color: #f0f0f0;">
-                                    <p class="fw-bold mb-0">{{ chr($abjad) }}</p>
-                                </td>
-                                <td class="text-nowrap align-top" colspan="5"
-                                    style="border-bottom:none !important; background-color: #f0f0f0;">
-                                    <p class="fw-bold mb-0">{{ $subJudul->subtitle }}</p>
-                                </td>
+                            <tr class="table-secondary">
+                                <td class="align-middle fw-bold text-center">{{ chr($abjad) }}</td>
+                                <td colspan="5" class="align-middle fw-bold">{{ $subJudul->subtitle }}</td>
                             </tr>
                             @foreach ($subJudul->detail as $product)
                                 @php
                                     switch ($product->pending[0]->status) {
-                                        case 1:
-                                            $status = 'On Check';
-                                            break;
-                                        case 2:
-                                            $status = 'Ready Stock';
-                                            break;
-                                        case 3:
-                                            $status = 'Kurang';
-                                            break;
-                                        case 4:
-                                            $status = 'Pre-Order';
-                                            break;
-                                        case 5:
-                                            $status = 'Delivery Process';
-                                            break;
-                                        case 6:
-                                            $status = 'Done';
-                                            break;
-                                        default:
-                                            $status = 'Belum Di Cek';
-                                            break;
+                                        case 1: $status = 'On Check'; $badge = 'bg-label-warning'; break;
+                                        case 2: $status = 'Ready Stock'; $badge = 'bg-label-info'; break;
+                                        case 3: $status = 'Kurang'; $badge = 'bg-label-danger'; break;
+                                        case 4: $status = 'Pre-Order'; $badge = 'bg-label-primary'; break;
+                                        case 5: $status = 'Delivery Process'; $badge = 'bg-label-linkedin'; break;
+                                        case 6: $status = 'Done'; $badge = 'bg-label-success'; break;
+                                        default: $status = 'Belum Di Cek'; $badge = 'bg-label-secondary'; break;
                                     }
                                 @endphp
-                                <tr style="font-size: 15px;">
-                                    <td>
-                                        @php
-                                            $no++;
-                                        @endphp
-                                        <p class="mb-1">{{ $no }}</p>
-                                    </td>
-                                    <td>
-                                        <p class="mb-1">{{ $product->product }}</p>
-                                    </td>
-                                    <td>
+                                <tr>
+                                    <td class="text-center">@php $no++; @endphp {{ $no }}</td>
+                                    <td class="fw-semibold text-wrap" style="max-width: 250px;">{{ $product->product }}</td>
+                                    <td class="text-wrap" style="max-width: 350px;">
                                         @if ($product->detail != '-')
-                                            <pre class="mb-0"
-                                                style="font-size: 13px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $product->detail }}</pre>
+                                            <pre class="mb-0 text-muted" style="font-family: inherit; font-size: 13px; white-space: pre-wrap;">{{ $product->detail }}</pre>
                                         @else
                                             -
                                         @endif
                                     </td>
+                                    <td>{{ $product->qty }} {{ $product->info_qty }}</td>
                                     <td>
-                                        <p class="mb-0">{{ $product->qty }} {{ $product->info_qty }}</p>
+                                        <span class="badge {{ $pending->status == '6' ? 'bg-label-success' : $badge }}">
+                                            {{ $pending->status == '6' ? 'Done' : $status }}
+                                        </span>
                                     </td>
-                                    <td>{{ $pending->status == '6' ? 'Done' : $status }}</td>
-                                    <td>{{ $pending->status == '6' ? 'Done' : $product->pending[0]->note }}</td>
+                                    <td class="text-wrap" style="max-width: 200px;">{{ $pending->status == '6' ? 'Done' : ($product->pending[0]->note ?? '-') }}</td>
                                 </tr>
                             @endforeach
                         @endforeach
@@ -324,52 +323,39 @@
                 </table>
             </div>
         </div>
-        <div class="card mb-4">
-            <div class="card-body">
-                <h4 class="fw-medium card-title mb-3">
-                    Purchase Request
-                </h4>
 
-                <table class="table table-striped">
-                    <thead>
+        <!-- Purchase Requests -->
+        <div class="card mb-4 shadow-sm border">
+            <div class="card-header bg-light py-3 border-bottom">
+                <h5 class="m-0 fw-bold"><i class="mdi mdi-cart-arrow-down text-primary me-1"></i> Purchase Request</h5>
+            </div>
+            <div class="table-responsive text-nowrap">
+                <table class="table table-bordered table-striped mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <th>No</th>
+                            <th style="width: 50px;">No</th>
                             <th>No PR</th>
                             <th>Item</th>
                             <th>Qty</th>
                             <th>Note</th>
                             <th>Status</th>
-                            <th>Action</th>
+                            <th class="text-center" style="width: 100px;">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="table-border-bottom-0">
-                        @php
-                            $no = 1;
-                        @endphp
+                    <tbody>
+                        @php $no = 1; @endphp
                         @forelse ($purchase as $pr)
                             @php
                                 switch ($pr->status) {
-                                    case 1:
-                                        $color_pr = 'text-primary';
-                                        $status_pr = 'Sudah di ACC';
-                                        break;
-                                    case 2:
-                                        $color_pr = 'text-warning';
-                                        $status_pr = 'Dalam Pengiriman';
-                                        break;
-                                    case 3:
-                                        $color_pr = 'text-success';
-                                        $status_pr = 'Done';
-                                        break;
-                                    default:
-                                        $color_pr = 'text-secondary';
-                                        $status_pr = 'Belum Di ACC';
-                                        break;
+                                    case 1: $status_pr = 'Sudah di ACC'; $color_pr = 'bg-label-primary'; break;
+                                    case 2: $status_pr = 'Dalam Pengiriman'; $color_pr = 'bg-label-warning'; break;
+                                    case 3: $status_pr = 'Done'; $color_pr = 'bg-label-success'; break;
+                                    default: $status_pr = 'Belum Di ACC'; $color_pr = 'bg-label-secondary'; break;
                                 }
                             @endphp
                             <tr>
-                                <td>{{ $no }}</td>
-                                <td>{{ $pr->no_pr ?? '-' }}</td>
+                                <td class="text-center">{{ $no }}</td>
+                                <td class="fw-bold">{{ $pr->no_pr ?? '-' }}</td>
                                 <td>
                                     @if ($pr->id_equivalent == '0')
                                         -
@@ -377,40 +363,20 @@
                                         {{ $pr->equivalent->brand }} {{ $pr->equivalent->pn }}
                                     @endif
                                 </td>
-                                {{-- <td>
-                                    <pre class="mb-0"
-                                        style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $item->detail_product }}</pre>
-                                </td> --}}
                                 <td>{{ $pr->qty }} {{ $pr->equivalent->product->unit ?? '' }}</td>
-                                {{-- <td>{{ $pr->qty }}</td> --}}
-                                <td>{{ $pr->note }}</td>
-                                <td class="{{ $color_pr }}">{{ $status_pr }}</td>
-                                <td>
-                                    <a href="#" data-id="{{ $pr->id }}" data-pending="{{ $pending->id }}"
-                                        class="btn btn-sm btn-label-danger delete-request m-2">
-                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                                    </a>
-                                    {{-- <a type="button" href="#" data-bs-toggle="modal"
-                                        data-bs-target="#editMachine-534" data-id="534"
-                                        class="btn btn-sm btn-label-primary">
-                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i>
-                                    </a>
-                                    <a href="http://127.0.0.1:8000/monitoring/daily-create/534"
-                                        class="btn btn-sm btn-label-warning m-2">
-                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-import m-0"></i>
-                                    </a>
-                                    <a href="http://127.0.0.1:8000/monitoring/daily-visit/534"
-                                        class="btn btn-sm btn-label-success m-2">
-                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-eye-outline m-0"></i>
-                                    </a> --}}
+                                <td class="text-wrap" style="max-width: 250px;">{{ $pr->note ?? '-' }}</td>
+                                <td><span class="badge {{ $color_pr }}">{{ $status_pr }}</span></td>
+                                <td class="text-center">
+                                    <button data-id="{{ $pr->id }}" data-pending="{{ $pending->id }}"
+                                        class="btn btn-sm btn-outline-danger delete-request waves-effect">
+                                        <i class="mdi mdi-delete-outline"></i> Hapus
+                                    </button>
                                 </td>
                             </tr>
-                            @php
-                                $no++;
-                            @endphp
+                            @php $no++; @endphp
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center">Tidak Ada Purchase Request</td>
+                                <td colspan="7" class="text-center py-4 text-muted">Tidak Ada Purchase Request</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -419,129 +385,110 @@
         </div>
     @else
         @if ($pending->status != '6' && $pending->status != '8')
-            <div class="mb-3" style="display: flex; justify-content: flex-end;">
-                <button type="button" class="btn btn-google-plus float-end mx-2" data-bs-toggle="modal"
+            <div class="d-flex justify-content-end mb-3 gap-2">
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
                     data-bs-target="#purchaseReq" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                    Purchase Request
+                    <i class="mdi mdi-plus-box me-1"></i> Purchase Request
                 </button>
-                <button type="button" class="btn btn-facebook float-end" data-bs-toggle="modal"
+                <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal"
                     data-bs-target="#productEdit" {{ auth()->user()->role != 'Sales' ? '' : 'disabled' }}>
-                    Update Status Barang
+                    <i class="mdi mdi-list-status me-1"></i> Update Status Barang
                 </button>
             </div>
         @endif
-        <div class="card mb-4">
-            <div class="table-responsive text-nowrap h-100">
-                <table class="table table-striped">
-                    <thead>
+
+        <!-- Items Table (Spare Part / Non-Project) -->
+        <div class="card mb-4 shadow-sm border">
+            <div class="card-header bg-light py-3 border-bottom">
+                <h5 class="m-0 fw-bold"><i class="mdi mdi-package-variant-closed text-primary me-1"></i> Daftar Barang Spare Parts</h5>
+            </div>
+            <div class="table-responsive text-nowrap">
+                <table class="table table-bordered table-striped mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <th>No</th>
+                            <th style="width: 50px;">No</th>
                             <th>Item</th>
-                            <th>Desc</th>
+                            <th>Description</th>
                             <th>G/R</th>
                             <th>Qty</th>
                             <th>Status</th>
                             <th>Note</th>
                         </tr>
                     </thead>
-                    <tbody class="table-border-bottom-0">
-                        @php
-                            $no = 1;
-                        @endphp
+                    <tbody>
+                        @php $no = 1; @endphp
                         @foreach ($detQuotation as $item)
                             @php
                                 switch ($item->status) {
-                                    case 1:
-                                        $status = 'On Check';
-                                        break;
-                                    case 2:
-                                        $status = 'Ready Stock';
-                                        break;
-                                    case 3:
-                                        $status = 'Kurang';
-                                        break;
-                                    case 4:
-                                        $status = 'Pre-Order';
-                                        break;
-                                    case 5:
-                                        $status = 'Delivery Process';
-                                        break;
-                                    case 6:
-                                        $status = 'Done';
-                                        break;
-                                    default:
-                                        $status = 'Belum Di Cek';
-                                        break;
+                                    case 1: $status = 'On Check'; $badge = 'bg-label-warning'; break;
+                                    case 2: $status = 'Ready Stock'; $badge = 'bg-label-info'; break;
+                                    case 3: $status = 'Kurang'; $badge = 'bg-label-danger'; break;
+                                    case 4: $status = 'Pre-Order'; $badge = 'bg-label-primary'; break;
+                                    case 5: $status = 'Delivery Process'; $badge = 'bg-label-linkedin'; break;
+                                    case 6: $status = 'Done'; $badge = 'bg-label-success'; break;
+                                    default: $status = 'Belum Di Cek'; $badge = 'bg-label-secondary'; break;
                                 }
                             @endphp
                             <tr>
-                                <td>{{ $no }}</td>
-                                <td>
+                                <td class="text-center">{{ $no }}</td>
+                                <td class="fw-semibold">
                                     @if ($item->id_equivalent == '0')
                                         -
                                     @else
                                         {{ $item->equivalent->brand }} {{ $item->equivalent->pn }}
                                     @endif
                                 </td>
-                                <td>
-                                    <pre class="mb-0"
-                                        style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $item->detail_product }}</pre>
+                                <td class="text-wrap" style="max-width: 350px;">
+                                    <pre class="mb-0 text-muted" style="font-family: inherit; font-size: 13px; white-space: pre-wrap;">{{ $item->detail_product }}</pre>
                                 </td>
                                 <td>{{ $item->equivalent->product->go ?? '-' }}</td>
                                 <td>{{ $item->qty }} {{ $item->info_qty }}</td>
-                                <td>{{ $pending->status == '6' ? 'Done' : $status }}</td>
-                                <td> {{ $pending->status == '6' ? 'Done' : $item->note }}</td>
+                                <td>
+                                    <span class="badge {{ $pending->status == '6' ? 'bg-label-success' : $badge }}">
+                                        {{ $pending->status == '6' ? 'Done' : $status }}
+                                    </span>
+                                </td>
+                                <td class="text-wrap" style="max-width: 200px;">{{ $pending->status == '6' ? 'Done' : ($item->note ?? '-') }}</td>
                             </tr>
-                            @php
-                                $no++;
-                            @endphp
+                            @php $no++; @endphp
                         @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="card mb-4">
-            <div class="card-body">
-                <h4 class="fw-medium card-title mb-3">
-                    Purchase Request
-                </h4>
 
-                <table class="table table-striped">
-                    <thead>
+        <!-- Purchase Requests -->
+        <div class="card mb-4 shadow-sm border">
+            <div class="card-header bg-light py-3 border-bottom">
+                <h5 class="m-0 fw-bold"><i class="mdi mdi-cart-arrow-down text-primary me-1"></i> Purchase Request</h5>
+            </div>
+            <div class="table-responsive text-nowrap">
+                <table class="table table-bordered table-striped mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <th>No</th>
+                            <th style="width: 50px;">No</th>
                             <th>No PR</th>
                             <th>Item</th>
                             <th>Qty</th>
                             <th>Note</th>
                             <th>Status</th>
-                            <th>Action</th>
+                            <th class="text-center" style="width: 100px;">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="table-border-bottom-0">
-                        @php
-                            $no = 1;
-                        @endphp
+                    <tbody>
+                        @php $no = 1; @endphp
                         @forelse ($purchase as $pr)
                             @php
                                 switch ($pr->status) {
-                                    case 1:
-                                        $status_pr = 'Sudah di ACC';
-                                        break;
-                                    case 2:
-                                        $status_pr = 'Dalam Pengiriman';
-                                        break;
-                                    case 3:
-                                        $status_pr = 'Done';
-                                        break;
-                                    default:
-                                        $status_pr = 'Belum Di ACC';
-                                        break;
+                                    case 1: $status_pr = 'Sudah di ACC'; $color_pr = 'bg-label-primary'; break;
+                                    case 2: $status_pr = 'Dalam Pengiriman'; $color_pr = 'bg-label-warning'; break;
+                                    case 3: $status_pr = 'Done'; $color_pr = 'bg-label-success'; break;
+                                    default: $status_pr = 'Belum Di ACC'; $color_pr = 'bg-label-secondary'; break;
                                 }
                             @endphp
                             <tr>
-                                <td>{{ $no }}</td>
-                                <td>{{ $pr->no_pr ?? '-' }}</td>
+                                <td class="text-center">{{ $no }}</td>
+                                <td class="fw-bold">{{ $pr->no_pr ?? '-' }}</td>
                                 <td>
                                     @if ($pr->id_equivalent == '0')
                                         -
@@ -549,100 +496,223 @@
                                         {{ $pr->equivalent->brand }} {{ $pr->equivalent->pn }}
                                     @endif
                                 </td>
-                                {{-- <td>
-                                    <pre class="mb-0"
-                                        style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $item->detail_product }}</pre>
-                                </td> --}}
                                 <td>{{ $pr->qty }} {{ $pr->equivalent->product->unit ?? '' }}</td>
-                                {{-- <td>{{ $pr->qty }}</td> --}}
-                                <td>{{ $pr->note }}</td>
-                                <td>{{ $status_pr }}</td>
-                                <td>
-                                    <a href="#" data-id="{{ $pr->id }}" data-pending="{{ $pending->id }}"
-                                        class="btn btn-sm btn-label-danger delete-request m-2">
-                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                                    </a>
-                                    {{-- <a type="button" href="#" data-bs-toggle="modal"
-                                        data-bs-target="#editMachine-534" data-id="534"
-                                        class="btn btn-sm btn-label-primary">
-                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i>
-                                    </a>
-                                    <a href="http://127.0.0.1:8000/monitoring/daily-create/534"
-                                        class="btn btn-sm btn-label-warning m-2">
-                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-import m-0"></i>
-                                    </a>
-                                    <a href="http://127.0.0.1:8000/monitoring/daily-visit/534"
-                                        class="btn btn-sm btn-label-success m-2">
-                                        <i class="menu-icon tf-icons mdi mdi-14px mdi-eye-outline m-0"></i>
-                                    </a> --}}
+                                <td class="text-wrap" style="max-width: 250px;">{{ $pr->note ?? '-' }}</td>
+                                <td><span class="badge {{ $color_pr }}">{{ $status_pr }}</span></td>
+                                <td class="text-center">
+                                    <button data-id="{{ $pr->id }}" data-pending="{{ $pending->id }}"
+                                        class="btn btn-sm btn-outline-danger delete-request waves-effect">
+                                        <i class="mdi mdi-delete-outline"></i> Hapus
+                                    </button>
                                 </td>
                             </tr>
-                            @php
-                                $no++;
-                            @endphp
+                            @php $no++; @endphp
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center">Tidak Ada Purchase Request</td>
+                                <td colspan="7" class="text-center py-4 text-muted">Tidak Ada Purchase Request</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="card mb-4">
-            <div class="card-body">
 
-                {{-- Header Action --}}
-                <div class="d-flex justify-content-end mb-3">
-                    <a href="#" class="btn btn-primary waves-effect clear-return" data-id="{{ $pending->id }}">
-                        Clear Return
-                    </a>
+        <!-- Returns Section -->
+        <div class="card mb-4 shadow-sm border">
+            <div class="card-header bg-light py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="m-0 fw-bold"><i class="mdi mdi-arrow-u-left-bottom text-primary me-1"></i> Retur Barang</h5>
+                <a href="#" class="btn btn-sm btn-outline-danger clear-return waves-effect" data-id="{{ $pending->id }}">
+                    <i class="mdi mdi-eraser-variant me-1"></i> Clear Return
+                </a>
+            </div>
+            <div class="table-responsive text-nowrap">
+                <table class="table table-bordered table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 50px;">No</th>
+                            <th>No Return</th>
+                            <th>No DO</th>
+                            <th>Tanggal Return</th>
+                            <th>Tanggal Selesai</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php $no = 1; @endphp
+                        @forelse ($return as $retur)
+                            <tr>
+                                <td class="text-center">{{ $no }}</td>
+                                <td>
+                                    <a href="{{ route('return.show', $retur->id) }}" class="fw-bold text-primary">
+                                        {{ $retur->no_return }}
+                                    </a>
+                                </td>
+                                <td>{{ $retur->product_in->no_do ?? 'Belum Ada Product In' }}</td>
+                                <td>{{ $retur->date }}</td>
+                                <td>{{ $retur->date_done ?? '-' }}</td>
+                            </tr>
+                            @php $no++; @endphp
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">Tidak ada return di invoice ini</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
+
+    <!-- Activity Timeline / Comment Log -->
+    @if ($activity->count() >= 1)
+        <div class="card mb-4 shadow-sm border">
+            <div class="card-header bg-light py-3 border-bottom">
+                <h5 class="m-0 fw-bold"><i class="mdi mdi-history text-primary me-1"></i> Activity & Progress Timeline</h5>
+            </div>
+            <div class="card-body pt-4" id="viewComment">
+                <ul class="timeline card-timeline mb-0">
+                    @foreach ($activity as $stats)
+                        @php
+                            switch ($stats->status) {
+                                case '1': $status = 'Pending On Check'; $color = 'warning'; break;
+                                case '2': $status = 'Updated in to Ready Stock'; $color = 'info'; break;
+                                case '3': $status = 'Updated in to Kurang'; $color = 'danger'; break;
+                                case '4': $status = 'Updated in to Pre-Order'; $color = 'primary'; break;
+                                case '5': $status = 'Updated in to Delivery Process'; $color = 'info'; break;
+                                case '6': $status = 'Pending is Done'; $color = 'success'; break;
+                                case '7': $status = 'Pending is Canceled'; $color = 'danger'; break;
+                                case '8': $status = 'Retur Product'; $color = 'warning'; break;
+                                case '9': $status = 'Delayed Done'; $color = 'secondary'; break;
+                                default: $status = 'Pending Created'; $color = 'info'; break;
+                            }
+                        @endphp
+                        <li class="timeline-item timeline-item-transparent clearfix">
+                            <span class="timeline-point timeline-point-{{ $color }}"></span>
+                            <div class="timeline-event">
+                                <div class="timeline-header mb-1 border-bottom pb-1">
+                                    <h6 class="mb-0 fw-bold text-{{ $color }}">{{ $status }}</h6>
+                                    <small class="text-muted">
+                                        {{ $stats->date->diffInHours(Carbon\Carbon::now()) > 24 ? $stats->date->format('d M Y H:i') : $stats->date->diffForHumans() }}
+                                    </small>
+                                </div>
+                                <p class="mb-3 text-muted" style="font-size: 13px;">{{ $stats->note }}</p>
+                                
+                                <!-- Comments loop in chat bubble layout -->
+                                @foreach ($stats->comment as $item)
+                                    <div class="d-flex mb-3 align-items-start {{ $item->id_user == Auth::user()->id ? 'justify-content-end' : '' }}">
+                                        <div class="d-flex {{ $item->id_user == Auth::user()->id ? 'flex-row-reverse' : '' }} gap-2 align-items-start" style="max-width: 80%;">
+                                            <img src="{{ $item->user->image ? asset($item->user->image) : asset('assets/img/avatars/1.png') }}" 
+                                                 alt="User Image" 
+                                                 style="width: 38px; height: 38px; object-fit: cover;" 
+                                                 class="rounded-circle border">
+                                            <div class="p-2.5 px-3 rounded shadow-sm {{ $item->id_user == Auth::user()->id ? 'bg-primary text-white' : 'bg-light text-dark border' }}" style="border-radius: 12px !important;">
+                                                <div class="d-flex justify-content-between align-items-center gap-4 mb-1">
+                                                    <span class="fw-bold small {{ $item->id_user == Auth::user()->id ? 'text-white' : 'text-primary' }}">{{ $item->user->name }}</span>
+                                                    <small class="small {{ $item->id_user == Auth::user()->id ? 'text-white-50' : 'text-muted' }}" style="font-size: 10px;">
+                                                        {{ $item->date->diffInHours(Carbon\Carbon::now()) > 24 ? $item->date->format('d M Y H:i') : $item->date->diffForHumans() }}
+                                                    </small>
+                                                </div>
+                                                <p class="mb-0 small" style="white-space: pre-wrap; font-size: 13px;">{{ $item->comment }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+
+                                @php
+                                    $lastStat = App\Models\ChangeStatus::where('id_pending', $pending->id)
+                                        ->orderByDesc('id')
+                                        ->first();
+                                @endphp
+                                
+                                @if ($stats->id == $lastStat->id && $pending->status != '6')
+                                    <form action="{{ route('pending-po.addComment', $pending->id) }}" method="post" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="mt-3">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control form-control-sm border" placeholder="Tulis komentar/catatan progress..." name="comment" required>
+                                                <button type="submit" class="btn btn-sm btn-primary waves-effect">
+                                                    <i class="mdi mdi-send-outline me-1"></i> Kirim
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                @endif
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
+    <!-- Finished Product Out Invoice -->
+    @if ($pending->status == '6' && $pending->id_product_out != null)
+        <div class="card invoice-preview-card border shadow-sm mb-4">
+            <div class="card-header bg-light py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h5 class="m-0 fw-bold text-success"><i class="mdi mdi-file-document-check-outline me-1"></i> Surat Jalan Barang Keluar ({{ $product->vers }})</h5>
+                <h6 class="m-0 fw-semibold text-muted">#{{ $product->no_type == '1' ? $product->invoice : $product->po }}</h6>
+            </div>
+            <div class="card-body pt-3">
+                <div class="row gy-3">
+                    <div class="col-md-6">
+                        <span class="text-muted fw-semibold d-block mb-1">Customers / Alamat Pengiriman:</span>
+                        <pre class="mb-0 text-dark fw-medium p-2 bg-light rounded border text-wrap" style="font-family: inherit; font-size: 14px;">{{ $product->detail_client }}</pre>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="text-muted fw-semibold d-block mb-1">Tanggal Keluar:</span>
+                        <p class="mb-0 fw-medium text-dark"><i class="mdi mdi-calendar-range me-1"></i> {{ Carbon\Carbon::parse($product->date)->format('d-m-Y') }}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="text-muted fw-semibold d-block mb-1">Dibuat Oleh:</span>
+                        <p class="mb-0 fw-medium text-dark"><i class="mdi mdi-account-circle-outline me-1"></i> {{ $product->user->name }}</p>
+                    </div>
+                    @if($product->note)
+                        <div class="col-12">
+                            <span class="text-muted fw-semibold d-block mb-1">Catatan Tambahan:</span>
+                            <pre class="mb-0 text-muted p-2 bg-light rounded border text-wrap" style="font-family: inherit; font-size: 13px;">{{ $product->note }}</pre>
+                        </div>
+                    @endif
                 </div>
 
-                {{-- Table --}}
-                <div class="table-responsive">
-                    <table class="table m-0">
-                        <thead>
+                <!-- Product Out Items Table -->
+                <div class="table-responsive border rounded mt-4">
+                    <table class="table table-bordered table-striped mb-0">
+                        <thead class="table-light">
                             <tr>
-                                <th>Item</th>
-                                <th>No Return</th>
-                                <th>No Do</th>
-                                <th>Date</th>
-                                <th>Date Done</th>
+                                <th style="width: 50px;">No</th>
+                                <th>Item Keluar</th>
+                                <th>Qty</th>
+                                <th>Harga Satuan</th>
+                                <th>Subtotal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = 0; @endphp
-                            @forelse ($return as $retur)
-                                @php $no++; @endphp
-                                <tr style="font-size: 13px">
-                                    <td class="align-top">{{ $no }}</td>
-                                    <td class="text-nowrap align-top">
-                                        <a href="{{ route('return.show', $retur->id) }}" class="mb-0 text-dark fw-semibold">
-                                            {{ $retur->no_return }}
-                                        </a>
-                                    </td>
-                                    <td class="text-nowrap align-top">
-                                        <p class="mb-0">
-                                            {{ $retur->product_in->no_do ?? 'Belum Ada Product In' }}
-                                        </p>
-                                    </td>
-                                    <td class="align-top">
-                                        {{ $retur->date }}
-                                    </td>
-                                    <td class="align-top">{{ $retur->date_done ?? '-' }}</td>
-                                </tr>
-                            @empty
+                            @php $no = 1; @endphp
+                            @foreach ($detProduct as $products)
                                 <tr>
-                                    <td colspan="4" class="text-center">
-                                        Tidak ada return di invoice ini
+                                    <td class="text-center">{{ $no }}</td>
+                                    <td>
+                                        <p class="mb-0 fw-semibold text-primary">{{ $products->detailProduct->replacement }}</p>
+                                        <small class="text-muted">{{ $products->detailProduct->product->description }}</small>
                                     </td>
+                                    <td>{{ $products->qty }} {{ $products->detailProduct->product->unit }}</td>
+                                    <td>Rp {{ number_format($products->price, 0, ',', '.') }}</td>
+                                    <td class="fw-bold">Rp {{ number_format($products->amount, 0, ',', '.') }}</td>
                                 </tr>
-                            @endforelse
+                                @php $no++; @endphp
+                            @endforeach
+                            <tr class="table-light">
+                                <td colspan="3" class="border-0"></td>
+                                <td class="fw-semibold">Shipping Cost</td>
+                                <td class="fw-bold">: Rp {{ number_format($product->shipping, 0, ',', '.') }}</td>
+                            </tr>
+                            <tr class="table-light">
+                                <td colspan="3" class="border-0"></td>
+                                <td class="fw-semibold border-top text-primary">Grand Total</td>
+                                <td class="fw-bold border-top text-primary">: Rp {{ number_format($product->total, 0, ',', '.') }}</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
     @endif
