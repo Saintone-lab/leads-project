@@ -74,6 +74,10 @@ class Client extends Model
     {
         return $this->hasMany('App\Models\Machine', 'id_client');
     }
+    public function plants()
+    {
+        return $this->hasMany('App\Models\ClientPlant', 'id_client');
+    }
     public function crmStatus()
     {
         return $this->hasMany(CrmStatus::class, 'id_client');

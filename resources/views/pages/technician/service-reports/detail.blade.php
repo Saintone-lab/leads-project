@@ -131,8 +131,8 @@
                                         <p class="mb-0">Running & Load</p>
                                     </div>
                                     <div class="col-8">
-                                        <p class="mb-1">: {{ $service->machine->unit->brand }}
-                                            {{ $service->machine->unit->unit->model }}</p>
+                                        <p class="mb-1">: {{ $service->machine?->unit?->brand ?? '-' }}
+                                            {{ $service->machine?->unit?->unit?->model ?? '-' }}</p>
                                         <p class="mb-1">: {{ $service->machine->serial }}
                                             {{ $service->machine->tag ? '| ' . $service->machine->tag : '' }}
                                             {{ $service->machine->location ? '| ' . $service->machine->location : '' }}</p>
@@ -357,7 +357,7 @@
 @endpush
 @push('script')
     @php
-        $machineName = trim($service->machine->unit->brand . ' ' . $service->machine->unit->unit->model);
+        $machineName = trim(($service->machine?->unit?->brand ?? '') . ' ' . ($service->machine?->unit?->unit?->model ?? ''));
         $shareUrl = route('service-reports.print', $service->id);
         $shareText = $service->pic->client->company . ' - ' . $label . "\n" . $machineName . ' - ' . $service->machine->serial . ($service->machine->tag ? ' | ' . $service->machine->tag : '') . "\n" . $shareUrl . "\n\nDibuat Oleh ( " . $service->technician->name . ' )';
     @endphp

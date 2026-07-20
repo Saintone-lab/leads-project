@@ -35,6 +35,7 @@ use App\Http\Controllers\PayableController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PendingController;
 use App\Http\Controllers\PicController;
+use App\Http\Controllers\PlantController;
 use App\Http\Controllers\POController;
 use App\Http\Controllers\PartInquiryController;
 use App\Http\Controllers\ProductController;
@@ -313,6 +314,11 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/pic/existing/store/{id}', [PicController::class, 'storeOnCrm'])->name('pic.crm.store');
     Route::patch('/pic/existing/update/{id}', [PicController::class, 'updateOnCrm'])->name('pic.crm.update');
     Route::post('/pic/existing/{id}', [PicController::class, 'destroyOnCrm'])->name('pic.crm.destroy');
+
+    // Route untuk Plant (sub-lokasi client)
+    Route::post('/plant/existing/store/{id}', [PlantController::class, 'store'])->name('plant.crm.store');
+    Route::patch('/plant/existing/update/{id}', [PlantController::class, 'update'])->name('plant.crm.update');
+    Route::delete('/plant/{id}', [PlantController::class, 'destroy'])->name('plant.destroy');
 
     // Kurs USD/IDR (cache 1 jam)
     Route::get('/api/exchange-rate/usd-idr', function () {
@@ -1490,6 +1496,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/suo/{id}/mark-converted', [SuoController::class, 'markConverted'])->name('suo.markConverted');
     Route::get('/suo/{id}/linkable-quotations', [SuoController::class, 'linkableQuotations'])->name('suo.linkableQuotations');
     Route::post('/suo/{id}/link-quotation', [SuoController::class, 'linkQuotation'])->name('suo.linkQuotation');
+    Route::post('/suo/from-quotation/{quotationId}', [SuoController::class, 'storeFromQuotation'])->name('suo.storeFromQuotation');
     // AJAX data
     Route::get('/db/suo/sales', [SuoController::class, 'dataSales'])->name('suo.data.sales');
     Route::get('/db/suo/logistic', [SuoController::class, 'dataLogistic'])->name('suo.data.logistic');
@@ -3898,6 +3905,33 @@ Route::group(["middleware" => "auth"], function () {
             ->get('quotation.*');
         return response()->json(['data' => $quotation]);
     });
+    Route::get('/db/product/quotation/active/{id}', function ($id) {
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->where('pic.id_client', $id)
+            ->where('quotation.level', '1')
+            ->where('quotation.is_primary', '1')
+            ->whereIn('quotation.status', ['20', '30', '40', '60', '80'])
+            ->get('quotation.*');
+        return response()->json(['data' => $quotation]);
+    });
+    Route::get('/db/product/quotation/loss/{id}', function ($id) {
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->where('pic.id_client', $id)
+            ->where('quotation.level', '1')
+            ->where('quotation.is_primary', '1')
+            ->where('quotation.status', '0')
+            ->get('quotation.*');
+        return response()->json(['data' => $quotation]);
+    });
+    Route::get('/db/product/quotation/archive/{id}', function ($id) {
+        $quotation = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->where('pic.id_client', $id)
+            ->where('quotation.level', '1')
+            ->where('quotation.is_primary', '1')
+            ->where('quotation.status', '100')
+            ->get('quotation.*');
+        return response()->json(['data' => $quotation]);
+    });
     Route::get('/db/product/in/detail/{id}', function ($id) {
         $products = DB::table('product_in as p')
             ->select('p.*', 'dp.replacement', 'd.qty')
@@ -4202,8 +4236,26 @@ AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT
     });
 
     Route::get('/db/client/po-history/{id}', function ($id) {
-        $data = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('level', '1')->where('is_primary', '1')->where('quotation.status', '100')->where('pic.id_client', $id)->get('quotation.*');
+        $query = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('level', '1')->where('is_primary', '1')->where('quotation.status', '100')->where('pic.id_client', $id);
+        if (request()->query('year')) {
+            $query->whereYear('quotation.po_date', request()->query('year'));
+        }
+        $data = $query->get('quotation.*');
         return response()->json(['data' => $data]);
+    });
+    Route::get('/db/client/po-summary/{id}', function ($id) {
+        $query = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('level', '1')->where('is_primary', '1')->where('quotation.status', '100')->where('pic.id_client', $id);
+        if (request()->query('year')) {
+            $query->whereYear('quotation.po_date', request()->query('year'));
+        }
+        $totalPo = (clone $query)->count();
+        $totalRevenue = (clone $query)->sum('quotation.nett');
+        $avgDeal = $totalPo > 0 ? $totalRevenue / $totalPo : 0;
+        return response()->json([
+            'total_revenue' => $totalRevenue,
+            'total_po' => $totalPo,
+            'avg_deal' => $avgDeal,
+        ]);
     });
     Route::get('/db/client/crm-history/{id}', function ($id) {
         $data = Activities::where('id_client', $id)->whereIn('name', ['Daily Call', 'Follow Up', 'CRM'])->get();
@@ -4634,6 +4686,15 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
                 'u.unit',
                 's.brand',
             )
+            ->selectRaw('(SELECT COUNT(*) FROM reports WHERE reports.id_machine = machine.id) as report_count')
+            ->get();
+        return response()->json(['data' => $data]);
+    });
+    Route::get('/db/machine/{id}/reports', function ($id) {
+        $data = Reports::leftJoin('users', 'users.id', '=', 'reports.id_technician')
+            ->where('reports.id_machine', $id)
+            ->orderByDesc('reports.date')
+            ->select('reports.id', 'reports.no_service', 'reports.type', 'reports.date', 'users.name as technician')
             ->get();
         return response()->json(['data' => $data]);
     });

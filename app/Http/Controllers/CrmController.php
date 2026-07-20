@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Activities;
 use App\Models\Client;
+use App\Models\ClientPlant;
 use App\Models\Comment;
 use App\Models\CrmStatus;
 use App\Models\Issues;
@@ -347,9 +348,70 @@ class CrmController extends Controller
         $existing = Client::find($id);
         $machines = Machine::where('id_client', $id)->get();
         $charge = PIC::where('id_client', $id)->get();
+        $plants = ClientPlant::where('id_client', $id)->get();
         $callhis = Activities::where('id_client', $id)->whereIn('name', ['Daily Call', 'Follow Up', 'CRM'])->get();
         $visit = Activities::where('id_client', $id)->where('name', 'Visit')->get();
         $quote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('level', '1')->get('quotation.*');
+
+        $poYears = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->where('pic.id_client', $id)
+            ->where('quotation.level', '1')
+            ->where('quotation.is_primary', '1')
+            ->where('quotation.status', '100')
+            ->whereNotNull('quotation.po_date')
+            ->selectRaw('DISTINCT YEAR(quotation.po_date) as year')
+            ->pluck('year')
+            ->push($yearsNow)
+            ->unique()
+            ->sortDesc()
+            ->values();
+
+        $quotationStatusMap = [
+            '20' => ['label' => 'Send Quotation', 'color' => 'secondary'],
+            '30' => ['label' => 'Inquiry Accepted', 'color' => 'dark'],
+            '40' => ['label' => 'Progress Follow Up', 'color' => 'info'],
+            '60' => ['label' => 'Negotiation / Revisi', 'color' => 'primary'],
+            '80' => ['label' => 'Hot Prospect', 'color' => 'warning'],
+            '100' => ['label' => 'Done PO', 'color' => 'success'],
+            '0' => ['label' => 'Loss', 'color' => 'danger'],
+        ];
+
+        $activityTimeline = collect();
+
+        foreach ($callhis as $history) {
+            $activityTimeline->push([
+                'date' => Carbon::parse($history->date),
+                'title' => $history->action,
+                'category' => $history->name,
+                'status' => $history->status,
+                'note' => $history->note,
+                'color' => match ($history->name) {
+                    'Daily Call' => 'info',
+                    'Follow Up' => 'warning',
+                    default => 'primary',
+                },
+                'no_quote' => null,
+                'url' => null,
+            ]);
+        }
+
+        foreach ($quote as $q) {
+            $statusInfo = $quotationStatusMap[$q->status] ?? ['label' => $q->status, 'color' => 'secondary'];
+
+            $activityTimeline->push([
+                'date' => $q->created_at ?? Carbon::parse($q->estimated_date),
+                'title' => 'Quotation Dibuat',
+                'category' => 'Quotation',
+                'status' => $statusInfo['label'],
+                'note' => $q->note,
+                'color' => $statusInfo['color'],
+                'no_quote' => $q->no_quote,
+                'url' => route('quotation.show', $q->id),
+            ]);
+        }
+
+        $activityTimeline = $activityTimeline->sortByDesc('date')->values();
+
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
         $unit = SerialProduct::whereNotNull('detail')->get();
@@ -433,6 +495,9 @@ class CrmController extends Controller
                 'existing',
                 'callhis',
                 'quote',
+                'activityTimeline',
+                'plants',
+                'poYears',
                 'leveledProspect',
                 'noSaleProspect',
                 'comment',

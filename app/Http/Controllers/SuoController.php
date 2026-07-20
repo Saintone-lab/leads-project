@@ -8,6 +8,7 @@ use App\Models\DetailDelivery;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\Quotation;
+use App\Models\SubtitleQuotation;
 use App\Models\Suo;
 use App\Models\SuoDetail;
 use Carbon\Carbon;
@@ -90,9 +91,24 @@ class SuoController extends Controller
         $quotationDetail = collect();
         $invoice         = null;
         if ($suo->id_quotation) {
-            $quotation       = Quotation::find($suo->id_quotation);
-            $quotationDetail = DetailQuotation::where('id_quotation', $suo->id_quotation)->get();
-            $invoice         = Invoice::where('id_quotation', $suo->id_quotation)->first();
+            $quotation = Quotation::find($suo->id_quotation);
+
+            if ($quotation && $quotation->type === 'Service') {
+                $quotationDetail = SubtitleQuotation::with('detail')
+                    ->where('id_quotation', $suo->id_quotation)
+                    ->get()
+                    ->flatMap(fn($subtitle) => $subtitle->detail)
+                    ->map(fn($item) => (object) [
+                        'detail_product' => $item->product ?: $item->detail,
+                        'qty'            => $item->qty,
+                        'info_qty'       => $item->info_qty,
+                    ])
+                    ->values();
+            } else {
+                $quotationDetail = DetailQuotation::where('id_quotation', $suo->id_quotation)->get();
+            }
+
+            $invoice = Invoice::where('id_quotation', $suo->id_quotation)->first();
         }
 
         return view('pages.suo.detail', compact('suo', 'role', 'client', 'quotation', 'quotationDetail', 'invoice'));
@@ -251,6 +267,67 @@ class SuoController extends Controller
         $suo->save();
 
         return response()->json(['success' => true]);
+    }
+
+    // ─── Ajukan SUO langsung dari Quotation (Sales) ──────────────────────────
+
+    public function storeFromQuotation($quotationId)
+    {
+        $quotation = Quotation::with('pic.client')->findOrFail($quotationId);
+
+        if (!in_array($quotation->type, ['Sparepart', 'Service'])) {
+            return response()->json(['success' => false, 'message' => 'Type penawaran ini tidak didukung untuk SUO.'], 422);
+        }
+
+        if (Suo::where('id_quotation', $quotation->id)->exists()) {
+            return response()->json(['success' => false, 'message' => 'Penawaran ini sudah punya SUO.'], 422);
+        }
+
+        if ($quotation->type === 'Sparepart') {
+            $items = DetailQuotation::where('id_quotation', $quotation->id)->get()->map(fn($item) => [
+                'item_name' => $item->detail_product,
+                'qty'       => $item->qty,
+                'unit'      => $item->info_qty,
+            ]);
+        } else {
+            $items = SubtitleQuotation::with('detail')
+                ->where('id_quotation', $quotation->id)
+                ->get()
+                ->flatMap(fn($subtitle) => $subtitle->detail)
+                ->map(fn($item) => [
+                    'item_name' => $item->product ?: $item->detail,
+                    'qty'       => $item->qty,
+                    'unit'      => $item->info_qty,
+                ]);
+        }
+
+        if ($items->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Penawaran ini belum punya item.'], 422);
+        }
+
+        $client = $quotation->pic->client ?? null;
+
+        $suo = new Suo();
+        $suo->no_suo       = $this->generateNoSuo();
+        $suo->company      = $client->company ?? '-';
+        $suo->pic          = $quotation->pic->name_pic ?? '-';
+        $suo->address      = $client->address ?? '-';
+        $suo->notes        = 'Diajukan otomatis dari Penawaran ' . $quotation->no_quote;
+        $suo->id_sales     = $quotation->id_sales;
+        $suo->status       = 'submitted';
+        $suo->id_quotation = $quotation->id;
+        $suo->save();
+
+        foreach ($items as $item) {
+            $detail = new SuoDetail();
+            $detail->id_suo    = $suo->id;
+            $detail->item_name = $item['item_name'];
+            $detail->qty       = $item['qty'] ?: 1;
+            $detail->unit      = $item['unit'];
+            $detail->save();
+        }
+
+        return response()->json(['success' => true, 'suo_id' => $suo->id]);
     }
 
     // ─── AJAX data endpoints ──────────────────────────────────────────────────

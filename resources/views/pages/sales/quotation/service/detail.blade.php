@@ -714,6 +714,24 @@
                     </div>
                 @endif
 
+                @if (Auth::user()->role == 'Sales')
+                    <div class="card">
+                        <div class="card-body">
+                            @if ($quote->suo)
+                                <a class="btn btn-outline-info d-grid w-100 waves-effect"
+                                    href="{{ route('suo.show', $quote->suo->id) }}">
+                                    <i class="mdi mdi-eye-outline me-1"></i> Lihat SUO ({{ $quote->suo->no_suo }})
+                                </a>
+                            @else
+                                <a href="#" data-id="{{ $quote->id }}"
+                                    class="btn btn-outline-dark d-grid w-100 waves-effect ajukan-suo">
+                                    <i class="mdi mdi-truck-fast-outline me-1"></i> Ajukan SUO
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Cek apakah ada kontrak bertipe Selling -->
                 @if (Auth::user()->role == 'Admin')
                     <div class="card">
@@ -1245,6 +1263,60 @@
                         customClass: {
                             confirmButton: "btn btn-success waves-effect",
                         },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.ajukan-suo', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Ajukan SUO dari penawaran ini?",
+                text: "SUO baru akan dibuat otomatis berisi item dari penawaran ini.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Ya, Ajukan SUO",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('suo/from-quotation') }}/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "SUO dibuat!",
+                                    text: "SUO berhasil diajukan dari penawaran ini.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                }).then(function() {
+                                    window.location.href = '/suo/' + response.suo_id;
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: response.message || 'Gagal mengajukan SUO.'
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON
+                                .message : 'Gagal mengajukan SUO.';
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: msg
+                            });
+                        }
                     });
                 }
             });

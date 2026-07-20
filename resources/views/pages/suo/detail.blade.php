@@ -88,8 +88,8 @@
                     </table>
                 </div>
 
-                {{-- Preview item penawaran jika sudah converted --}}
-                @if ($suo->status == 'converted' && $quotation && $quotationDetail->count())
+                {{-- Preview item penawaran jika sudah terhubung ke penawaran --}}
+                @if ($quotation && $quotationDetail->count())
                     <div class="card-body border-top">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h6 class="fw-bold mb-0">
@@ -191,7 +191,7 @@
                     @endif
 
                     {{-- Sales: convert to quotation --}}
-                    @if (($role == 'Sales' || $role == 'Admin') && $suo->status == 'goods_out')
+                    @if (($role == 'Sales' || $role == 'Admin') && $suo->status == 'goods_out' && !$suo->id_quotation)
                         <div class="alert alert-success p-2 mb-0" style="font-size:12px;">
                             Barang sudah keluar. Silahkan buat penawaran untuk melanjutkan proses.
                         </div>
@@ -200,9 +200,9 @@
                         </a>
                     @endif
 
-                    @if ($suo->status == 'converted' && $suo->id_quotation)
+                    @if ($suo->id_quotation)
                         <div class="alert alert-primary p-2 mb-0" style="font-size:12px;">
-                            SUO sudah dikonversi ke penawaran.
+                            SUO sudah terhubung ke penawaran.
                         </div>
                         <a href="{{ route('quotation.show', $suo->id_quotation) }}" class="btn btn-outline-primary">
                             <i class="mdi mdi-eye-outline me-1"></i> Lihat Penawaran

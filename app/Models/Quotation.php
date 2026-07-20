@@ -93,4 +93,8 @@ class Quotation extends Model
     {
         return $this->hasMany('App\Models\Retur', 'id_quotation');
     }
+    public function suo()
+    {
+        return $this->hasOne('App\Models\Suo', 'id_quotation');
+    }
 }

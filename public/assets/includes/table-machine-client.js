@@ -35,6 +35,7 @@ $(function () {
                 { data: "serial" },
                 { data: "tag" },
                 { data: "location" },
+                { data: "report_count" },
                 {
                     data: "",
                 },
@@ -52,19 +53,11 @@ $(function () {
                     },
                 },
                 {
-                    // For Checkboxes
+                    // Checkbox column removed, kept hidden to avoid reindexing other targets
                     targets: 1,
+                    visible: false,
                     orderable: false,
                     searchable: false,
-                    responsivePriority: 3,
-                    checkboxes: true,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender:
-                            '<input type="checkbox" class="form-check-input">',
-                    },
                 },
                 {
                     targets: 2,
@@ -77,21 +70,47 @@ $(function () {
                 },
                 {
                     targets: 9,
+                    className: "text-center",
+                    render: function (data, type, full, row) {
+                        var count = full["report_count"] || 0;
+                        var id = full["id"];
+                        var label = (full["sku"] || full["unit"] || "Machine #" + id) +
+                            (full["serial"] ? " - SN " + full["serial"] : "");
+
+                        if (count <= 0) {
+                            return '<span class="badge rounded-pill bg-label-secondary">0</span>';
+                        }
+
+                        return (
+                            '<span class="badge rounded-pill bg-label-info machine-report-badge" style="cursor:pointer" ' +
+                            'data-bs-toggle="modal" data-bs-target="#machineReportsModal" ' +
+                            'data-machine-id="' + id + '" data-machine-label="' + label.replace(/"/g, "&quot;") + '">' +
+                            count +
+                            "</span>"
+                        );
+                    },
+                },
+                {
+                    targets: 10,
+                    orderable: false,
+                    searchable: false,
                     render: function (data, type, full, row) {
                         var id = full["id"];
                         var routeCreate = route("create.daily-monitoring", id);
                         var routeVisit = route("visitor.daily-monitoring", id);
                         return (
-                            '<a href="#" data-id="' +
-                            id +
-                            '" class="btn btn-sm btn-label-danger delete-machine m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i></a>' +
-                            '<a type="button" href="#" data-bs-toggle="modal" data-bs-target="#editMachine-' +
-                            id +
-                            '" data-id="' +
-                            id +
-                            '" class="btn btn-sm btn-label-primary"><i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i></a>' +
-                            '<a href="'+ routeCreate  +'" class="btn btn-sm btn-label-warning m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-import m-0"></i></a>' +
-                            '<a href="'+ routeVisit  +'" class="btn btn-sm btn-label-success m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-eye-outline m-0"></i></a>' 
+                            '<div class="btn-group">' +
+                            '<a type="button" href="#" data-bs-toggle="modal" data-bs-target="#editMachine-' + id + '" data-id="' + id + '" class="btn btn-sm btn-label-primary">' +
+                            '<i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline me-1"></i>Edit</a>' +
+                            '<button type="button" class="btn btn-sm btn-label-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">' +
+                            '<span class="visually-hidden">Toggle Dropdown</span></button>' +
+                            '<ul class="dropdown-menu dropdown-menu-end">' +
+                            '<li><a class="dropdown-item" href="' + routeCreate + '"><i class="menu-icon tf-icons mdi mdi-14px mdi-import me-1"></i>Create Daily Monitoring</a></li>' +
+                            '<li><a class="dropdown-item" href="' + routeVisit + '"><i class="menu-icon tf-icons mdi mdi-14px mdi-eye-outline me-1"></i>Visit Daily Monitoring</a></li>' +
+                            '<li><hr class="dropdown-divider"></li>' +
+                            '<li><a href="#" data-id="' + id + '" class="dropdown-item text-danger delete-machine"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline me-1"></i>Delete</a></li>' +
+                            '</ul>' +
+                            '</div>'
                         );
                     },
                 },
@@ -365,5 +384,70 @@ $(function () {
     }
     dt_table_machine_client.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
+    });
+
+    $(document).on("click", ".machine-report-badge", function () {
+        var machineId = $(this).data("machine-id");
+        var machineLabel = $(this).data("machine-label");
+        var $list = $("#machineReportsList");
+
+        $("#machineReportsModalTitle").text("Service Report - " + machineLabel);
+        $list.html('<p class="text-center text-muted mb-0">Memuat...</p>');
+
+        $.ajax({
+            type: "GET",
+            url: "/db/machine/" + machineId + "/reports",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            success: function (res) {
+                var reports = res.data || [];
+                if (!reports.length) {
+                    $list.html(
+                        '<p class="text-center text-muted mb-0">Belum ada Service Report.</p>'
+                    );
+                    return;
+                }
+
+                var typeColor = {
+                    Service: "bg-label-primary",
+                    Visit: "bg-label-info",
+                    General: "bg-label-warning",
+                };
+
+                var html = '<ul class="list-group">';
+                reports.forEach(function (r) {
+                    var color = typeColor[r.type] || "bg-label-secondary";
+                    var detailUrl = route("service-reports.show", r.id);
+                    html +=
+                        '<li class="list-group-item d-flex justify-content-between align-items-center">' +
+                        "<div>" +
+                        '<a href="' +
+                        detailUrl +
+                        '" class="fw-medium text-dark">' +
+                        r.no_service +
+                        "</a>" +
+                        '<div class="text-muted small">' +
+                        (r.technician || "-") +
+                        " &middot; " +
+                        r.date +
+                        "</div>" +
+                        "</div>" +
+                        '<span class="badge rounded-pill ' +
+                        color +
+                        '">' +
+                        (r.type || "-") +
+                        "</span>" +
+                        "</li>";
+                });
+                html += "</ul>";
+                $list.html(html);
+            },
+            error: function () {
+                $list.html(
+                    '<p class="text-center text-danger mb-0">Gagal memuat data.</p>'
+                );
+            },
+        });
     });
 });

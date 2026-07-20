@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 
 class CustomersController extends Controller
@@ -207,11 +208,17 @@ class CustomersController extends Controller
         $selectedSemester = $request->query('semester', 'all');
         $search = $request->query('search');
 
+        $isSales = Auth::user()->role == 'Sales';
+        $salesId = Auth::id();
+
         // Query available years from quotations
         $years = Quotation::where('status', '100')
             ->where('level', '1')
             ->where('is_primary', '1')
             ->whereNotNull('po_date')
+            ->when($isSales, function ($query) use ($salesId) {
+                $query->where('id_sales', $salesId);
+            })
             ->selectRaw('YEAR(po_date) as year')
             ->distinct()
             ->orderByDesc('year')
@@ -239,6 +246,9 @@ class CustomersController extends Controller
             ->where('status', '100')
             ->where('level', '1')
             ->where('is_primary', '1')
+            ->when($isSales, function ($query) use ($salesId) {
+                $query->where('id_sales', $salesId);
+            })
             ->sum('nett');
 
         // Key Accounts ranking query (Paginated by 20, including Outstanding subquery)
@@ -248,6 +258,10 @@ class CustomersController extends Controller
             ->where('quotation.status', '100')
             ->where('quotation.level', '1')
             ->where('quotation.is_primary', '1');
+
+        if ($isSales) {
+            $keyAccountsQuery->where('quotation.id_sales', $salesId);
+        }
 
         if (!empty($search)) {
             $keyAccountsQuery->where('client.company', 'like', '%' . $search . '%');
@@ -266,7 +280,8 @@ class CustomersController extends Controller
                     JOIN pic pic2 ON pic2.id = q2.id_pic
                     WHERE pic2.id_client = client.id
                       AND p.type = "Tempo"
-                      AND p.level = 0
+                      AND p.level = 0'
+                      . ($isSales ? ' AND q2.id_sales = ' . (int) $salesId : '') . '
                 ) as total_outstanding')
             )
             ->groupBy('client.id', 'client.company')
