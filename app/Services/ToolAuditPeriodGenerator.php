@@ -13,7 +13,8 @@ class ToolAuditPeriodGenerator
 {
     /**
      * Window audit: 10 hari terakhir bulan Juni (semester 1) & Desember (semester 2).
-     * Return null kalau tanggal hari ini di luar kedua window itu.
+     * Return null kalau tanggal hari ini di luar kedua window itu DAN periode
+     * semester terakhir yang sudah lewat sudah pernah ke-generate.
      */
     public function activeWindow(?Carbon $date = null)
     {
@@ -38,7 +39,51 @@ class ToolAuditPeriodGenerator
             }
         }
 
-        return null;
+        return $this->missedWindowCatchUp($date);
+    }
+
+    /**
+     * Fallback sementara: kalau window resmi sudah kelewat (mis. cron/lazy-trigger
+     * gak sempat jalan pas H-9 s/d akhir bulan) DAN periode semester itu belum
+     * pernah ke-generate sama sekali, tetap buka supaya teknisi bisa catch-up.
+     * Cuma lihat ke belakang (semester yang sudah lewat), gak pernah buka
+     * semester yang belum waktunya.
+     */
+    protected function missedWindowCatchUp(Carbon $date)
+    {
+        $tahun = $date->year;
+
+        $candidates = [
+            ['tahun' => $tahun, 'semester' => 1, 'end' => Carbon::create($tahun, 6, 1)->endOfMonth()],
+            ['tahun' => $tahun, 'semester' => 2, 'end' => Carbon::create($tahun, 12, 1)->endOfMonth()],
+            ['tahun' => $tahun - 1, 'semester' => 2, 'end' => Carbon::create($tahun - 1, 12, 1)->endOfMonth()],
+        ];
+
+        $candidates = array_filter($candidates, fn ($c) => $c['end']->lt($date));
+        usort($candidates, fn ($a, $b) => $b['end'] <=> $a['end']);
+        $nearest = $candidates[0] ?? null;
+
+        if (!$nearest) {
+            return null;
+        }
+
+        $exists = ToolAuditPeriod::where('tahun', $nearest['tahun'])
+            ->where('semester', $nearest['semester'])
+            ->exists();
+
+        if ($exists) {
+            return null;
+        }
+
+        $end = $nearest['end'];
+        $start = $end->copy()->subDays(9)->startOfDay();
+
+        return [
+            'tahun' => $nearest['tahun'],
+            'semester' => $nearest['semester'],
+            'tanggal_mulai' => $start->toDateString(),
+            'tanggal_selesai' => $end->copy()->endOfDay()->toDateString(),
+        ];
     }
 
     /**
