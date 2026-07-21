@@ -76,7 +76,8 @@ class ProjectMonitoringController extends Controller
             'u.name as sales_name',
             'u.image as sales_image',
             'q.nett as revenue',
-            'q.no_quote'
+            'q.no_quote',
+            DB::raw('(SELECT no_po FROM invoice WHERE id_quotation = q.id LIMIT 1) as no_po')
         )
         ->orderBy('pending_po.date', 'desc')
         ->get();

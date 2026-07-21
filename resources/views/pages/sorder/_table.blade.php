@@ -3,6 +3,7 @@
         <thead>
             <tr class="table-light">
                 <th>No SO</th>
+                <th>No PO</th>
                 <th>Date</th>
                 <th>Customer</th>
                 <th>Part Desc</th>
@@ -17,6 +18,9 @@
                         <a href="{{ route('pending-po.show', $order->id) }}" class="fw-semibold text-primary">
                             {{ $order->no_pending }}
                         </a>
+                    </td>
+                    <td>
+                        {{ $order->no_po ?? '-' }}
                     </td>
                     <td>
                         <span class="text-muted">{{ $order->order_date ? \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') : '-' }}</span>

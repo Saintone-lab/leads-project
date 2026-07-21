@@ -1,6 +1,6 @@
     @extends('layouts.sales.app')
     @section('title', 'Create Quotation')
-    @section('content')
+    @section('content')
         @php
             $id = 0;
             $dataDetail = 0;
@@ -179,25 +179,25 @@
                                 </div>
                             </div>
                         </div>
-                        @if (@$dquotation)
-                            <div class="mb-3" data-repeater-list="group-a">
-                                @foreach ($dquotation as $quote)
-                                    @php
-                                        $id++;
-                                        $dataDetail++;
-                                    @endphp
-                                    <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
-                                        <div class="d-flex border rounded position-relative pe-0">
-                                            <div class="row w-100 p-3">
-                                                <div class="col-md-6 col-12 mb-md-0 mb-3">
-                                                    <label for="product" class="mb-2">Product</label>
-                                                    <div class="form-floating form-floating-outline mb-2">
-                                                        <select id="product-{{ $id }}"
-                                                            class="form-select invoice-item-product"
-                                                            data-allow-clear="true" name="product[]"
-                                                            data-id="{{ $id }}">
-                                                            <option value="">---- Choose Part Number Here ----
-                                                            </option>
+                        @if (@$dquotation)
+                            <div class="mb-3" data-repeater-list="group-a">
+                                @foreach ($dquotation as $quote)
+                                    @php
+                                        $id++;
+                                        $dataDetail++;
+                                    @endphp
+                                    <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
+                                        <div class="d-flex border border-secondary-subtle rounded-3 position-relative pe-0 mb-3 shadow-xs item-row-card" style="transition: all 0.25s ease; background-color: #fdfefe;">
+                                            <div class="row w-100 p-3 align-items-start">
+                                                <!-- Product Select -->
+                                                <div class="col-md-5 col-12 mb-md-0 mb-3">
+                                                    <label for="product" class="mb-2 fw-semibold text-secondary">Product</label>
+                                                    <div class="form-floating form-floating-outline mb-2">
+                                                        <select id="product-{{ $id }}"
+                                                            class="form-select invoice-item-product"
+                                                            data-allow-clear="true" name="product[]"
+                                                            data-id="{{ $id }}">
+                                                            <option value="">---- Choose Part Number Here ----</option>
                                                             @if (!empty($quote->id_equivalent) && !empty($quote->equivalent))
                                                                 <option value="{{ $quote->id_equivalent }}"
                                                                     data-replacement="{{ $quote->id_equivalent }}"
@@ -209,154 +209,186 @@
                                                                     ||
                                                                     {{ $quote->equivalent->product->go ?? '' }}
                                                                 </option>
-                                                            @endif
-                                                        </select>
-                                                        <label for="product-{{ $id }}">Product Part
-                                                            Number</label>
-                                                    </div>
-                                                    <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-{{ $id }}"
-                                                        placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]">{{ old('detail_product[]', $quote->detail_product) }}</textarea>
-                                                </div>
-                                                <div class="col-md-3 col-12 mb-md-0 mb-3">
-                                                    <p class="mb-2 repeater-title">Price</p>
-                                                    <div class="input-group" data-price="1">
-                                                        <span class="input-group-text">Rp. </span>
-                                                        <input type="text"
-                                                            class="form-control invoice-item-price-label"
-                                                            id="priceLabel-{{ $id }}"
-                                                            data-id="{{ $id }}" min="0"
-                                                            placeholder="Put Price Here" data-type="currency"
-                                                            pattern="^[0-9]\d{0,2}(\.\d{3})*$"
-                                                            value="{{ old('price[]', @$quote->price ? number_format(@$quote->price, 0, '', '.') : '') }}">
-                                                        <input class="form-control invoice-item-price" type="number"
-                                                            name="price[]" id="price-{{ $id }}"
-                                                            value="{{ old('price[]', @$quote->price ?? '') }}" hidden>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between mb-3">
-                                                        <p>Stock : <span class="info-stock-label"
-                                                                id="info-stock-1"></span>
-                                                        </p>
-                                                        <p>Weight : <span class="info-weight-label"
-                                                                id="info-weight-1"></span>
-                                                            g
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-1 col-12 mb-md-0 mb-3">
-                                                    <p class="mb-2 repeater-title">Qty</p>
-                                                    <input type="number" class="form-control invoice-item-qty mb-3"
-                                                        placeholder="Min 1" name="qty[]" id="qty-{{ $dataDetail }}"
-                                                        data-id="{{ $dataDetail }}" min="1"
-                                                        value="{{ old('qty[]', $quote->qty) }}">
-                                                                                                        <div class="form-floating form-floating-outline mb-4">
-                                                        <input type="text" class="form-control invoice-item-info" id="info-qty-{{ $dataDetail }}"
-                                                            data-id="{{ $dataDetail }}" name="info_qty[]" readonly
-                                                            value="{{ old('info_qty[]', $quote->info_qty) }}">
-                                                        <label for="info-qty-{{ $dataDetail }}">Satuan</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-1 col-12 mb-md-0 mb-3">
-                                                    <p class="mb-2 repeater-title">Discount</p>
-                                                    <input type="number" class="form-control invoice-item-disc"
-                                                        placeholder="%" name="disc[]" id="disc-{{ $dataDetail }}"
-                                                        data-id="{{ $dataDetail }}" min="0"
-                                                        value="{{ old('disc[]', $quote->disc ?? '0') }}">
-                                                </div>
-                                                <div class="col-md-1 col-12 pe-0">
-                                                    <p class="mb-2 repeater-title">Amount</p>
-                                                    <p class="mb-0 amount-label" id="amount-label-{{ $id }}"
-                                                        data-id="{{ $id }}">
-                                                        {{ old('amount[]', 'RP ' . number_format($quote->amount, 0, '', '.')) }}
-                                                    </p>
-                                                    <input type="number" class="form-control invoice-item-amount"
-                                                        name="amount[]" id="amount-{{ $id }}" data-id="1"
-                                                        value="{{ old('amount[]', $quote->amount) }}" hidden>
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="d-flex flex-column align-items-center justify-content-between border-start p-2">
-                                                <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
-                                                    data-id="{{ $id }}" data-repeater-delete=""></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="mb-2" data-repeater-list="group-a">
-                                <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
-                                    <div class="d-flex border rounded position-relative pe-0">
-                                        <div class="row w-100 p-3">
-                                            <div class="col-md-6 col-12 mb-md-0">
-                                                <label for="product" class="mb-2">Product</label>
-                                                <div class="form-floating form-floating-outline mb-2">
-                                                    <select id="product-{{ $id }}"
-                                                        class="form-select invoice-item-product"
-                                                        data-allow-clear="true" name="product[]" data-id="1">
-                                                        <option> ---- Choose Part Number Here ---- </option>
-                                                        
-                                                    </select>
-                                                    <label for="product-{{ $id }}">Product Part Number</label>
-                                                </div>
-                                                <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-1"
-                                                    placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]"></textarea>
-                                            </div>
-                                            <div class="col-md-3 col-12 mb-md-0 mb-3">
-                                                <p class="mb-2 repeater-title">Price</p>
-                                                <div class="input-group mb-3" data-price="1">
-                                                    <span class="input-group-text">Rp. </span>
-                                                    <input type="text" class="form-control invoice-item-price-label"
-                                                        id="priceLabel-1" data-id="1" name="harga"
-                                                        placeholder="Put Price Here" data-type="currency" min="0"
-                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
-                                                        @blur="focused = false" value="{{ old('price[]') }}">
-                                                    <input class="form-control invoice-item-price" type="number"
-                                                        name="price[]" id="price-1" value="{{ old('price[]') }}"
-                                                        hidden>
-                                                </div>
-                                                <div class="d-flex justify-content-between mb-3">
-                                                    <p>Stock : <span class="info-stock-label" id="info-stock-1"></span>
-                                                    </p>
-                                                    <p>Weight : <span class="info-weight-label" id="info-weight-1"></span>
-                                                        g
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-1 col-12 mb-md-0 mb-3">
-                                                <p class="mb-2 repeater-title">Qty</p>
-                                                <input type="number" class="form-control mb-4 invoice-item-qty"
-                                                    placeholder="Min 1" name="qty[]" id="qty-1" data-id="1"
-                                                    min="1" value="{{ old('qty[]') }}">
-                                                                                                <div class="form-floating form-floating-outline mb-4">
-                                                    <input type="text" class="form-control invoice-item-info" id="info-qty-1"
-                                                        data-id="1" name="info_qty[]" readonly
-                                                        value="{{ old('info_qty[]') }}">
-                                                    <label for="info-qty-1">Satuan</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-1 col-12 mb-md-0 mb-3">
-                                                <p class="mb-2 repeater-title">Discount</p>
-                                                <input type="number" class="form-control invoice-item-disc"
-                                                    placeholder="%" name="disc[]" id="disc-1" data-id="1"
-                                                    min="0" value="{{ old('disc[]', '0') }}">
-                                            </div>
-                                            <div class="col-md-1 col-12 pe-0">
-                                                <p class="mb-2 repeater-title">Amount</p>
-                                                <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
-                                                    {{ old(strval('amount[]')) }}</p>
-                                                <input type="number" class="form-control invoice-item-amount"
-                                                    name="amount[]" id="amount-1" data-id="1"
-                                                    value="{{ old('amount[]') }}" hidden>
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="d-flex flex-column align-items-center justify-content-between border-start p-2">
-                                            <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
-                                                data-id="1" data-repeater-delete=""></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                                            @endif
+                                                        </select>
+                                                        <label for="product-{{ $id }}">Product Part Number</label>
+                                                    </div>
+                                                    <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-{{ $id }}"
+                                                        placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]">{{ old('detail_product[]', $quote->detail_product) }}</textarea>
+                                                </div>
+                                                
+                                                <!-- Price & Badges -->
+                                                <div class="col-md-3 col-12 mb-md-0 mb-3">
+                                                    <label class="mb-2 fw-semibold text-secondary">Price</label>
+                                                    <div class="input-group" data-price="1">
+                                                        <span class="input-group-text">Rp. </span>
+                                                        <input type="text" class="form-control invoice-item-price-label"
+                                                            id="priceLabel-{{ $id }}"
+                                                            data-id="{{ $id }}" min="0"
+                                                            placeholder="Put Price Here" data-type="currency"
+                                                            pattern="^[0-9]\d{0,2}(\.\d{3})*$"
+                                                            value="{{ old('price[]', @$quote->price ? number_format(@$quote->price, 0, '', '.') : '') }}">
+                                                        <input class="form-control invoice-item-price" type="number"
+                                                            name="price[]" id="price-{{ $id }}"
+                                                            value="{{ old('price[]', @$quote->price ?? '') }}" hidden>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between mt-2 flex-wrap gap-1">
+                                                        <span class="badge bg-label-info d-flex align-items-center py-1.5 px-2.5 rounded-pill">
+                                                            <i class="mdi mdi-cube-outline me-1 fs-6"></i>
+                                                            Stock: <strong class="info-stock-label ms-1" id="info-stock-{{ $id }}">-</strong>
+                                                        </span>
+                                                        <span class="badge bg-label-warning d-flex align-items-center py-1.5 px-2.5 rounded-pill">
+                                                            <i class="mdi mdi-scale me-1 fs-6"></i>
+                                                            Weight: <strong class="info-weight-label mx-1" id="info-weight-{{ $id }}">-</strong> g
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Qty / Unit -->
+                                                <div class="col-md-2 col-12 mb-md-0 mb-3">
+                                                    <label class="mb-2 fw-semibold text-secondary">Qty / Unit</label>
+                                                    <div class="input-group input-group-merge">
+                                                        <input type="number" class="form-control invoice-item-qty"
+                                                            placeholder="Qty" name="qty[]" id="qty-{{ $dataDetail }}"
+                                                            data-id="{{ $dataDetail }}" min="1"
+                                                            value="{{ old('qty[]', $quote->qty) }}">
+                                                        <input type="text" class="input-group-text px-2 bg-light text-secondary invoice-item-info text-center"
+                                                            id="info-qty-{{ $dataDetail }}" data-id="{{ $dataDetail }}" name="info_qty[]" readonly
+                                                            value="{{ old('info_qty[]', $quote->info_qty ?? 'Pcs') }}" style="max-width: 65px; border-left: 0; font-size: 0.85rem; font-weight: 600;">
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Discount -->
+                                                <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                                    <label class="mb-2 fw-semibold text-secondary">Disc</label>
+                                                    <div class="input-group input-group-merge">
+                                                        <input type="number" class="form-control invoice-item-disc text-center"
+                                                            placeholder="0" name="disc[]" id="disc-{{ $dataDetail }}"
+                                                            data-id="{{ $dataDetail }}" min="0"
+                                                            value="{{ old('disc[]', $quote->disc ?? '0') }}" style="padding-left: 5px; padding-right: 5px;">
+                                                        <span class="input-group-text px-1 bg-light text-secondary font-semibold" style="font-size: 0.85rem;">%</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Amount -->
+                                                <div class="col-md-1 col-12 text-md-end pe-0 mb-md-0 mb-3">
+                                                    <label class="mb-2 fw-semibold text-secondary d-block">Amount</label>
+                                                    <div class="d-flex align-items-center justify-content-md-end h-px-40 mt-1">
+                                                        <span class="fw-bold text-primary amount-label" id="amount-label-{{ $id }}" data-id="{{ $id }}" style="font-size: 1rem;">
+                                                            {{ old('amount[]', 'Rp ' . number_format($quote->amount, 0, '', '.')) }}
+                                                        </span>
+                                                    </div>
+                                                    <input type="number" class="form-control invoice-item-amount"
+                                                        name="amount[]" id="amount-{{ $id }}" data-id="1"
+                                                        value="{{ old('amount[]', $quote->amount) }}" hidden>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Trash Button -->
+                                            <div class="d-flex align-items-center justify-content-center border-start px-2 bg-light" style="background-color: rgba(255, 76, 81, 0.03) !important;">
+                                                <button type="button" class="btn btn-icon btn-outline-danger btn-sm border-0 rounded-circle waves-effect btn-del"
+                                                    data-id="{{ $id }}" data-repeater-delete="" style="transition: all 0.2s ease;">
+                                                    <i class="mdi mdi-trash-can-outline fs-4"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="mb-2" data-repeater-list="group-a">
+                                <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
+                                    <div class="d-flex border border-secondary-subtle rounded-3 position-relative pe-0 mb-3 shadow-xs item-row-card" style="transition: all 0.25s ease; background-color: #fdfefe;">
+                                        <div class="row w-100 p-3 align-items-start">
+                                            <!-- Product Select -->
+                                            <div class="col-md-5 col-12 mb-md-0 mb-3">
+                                                <label for="product" class="mb-2 fw-semibold text-secondary">Product</label>
+                                                <div class="form-floating form-floating-outline mb-2">
+                                                    <select id="product-{{ $id }}"
+                                                        class="form-select invoice-item-product"
+                                                        data-allow-clear="true" name="product[]" data-id="1">
+                                                        <option value=""> ---- Choose Part Number Here ---- </option>
+                                                    </select>
+                                                    <label for="product-{{ $id }}">Product Part Number</label>
+                                                </div>
+                                                <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-1"
+                                                    placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]"></textarea>
+                                            </div>
+                                            
+                                            <!-- Price & Badges -->
+                                            <div class="col-md-3 col-12 mb-md-0 mb-3">
+                                                <label class="mb-2 fw-semibold text-secondary">Price</label>
+                                                <div class="input-group" data-price="1">
+                                                    <span class="input-group-text">Rp. </span>
+                                                    <input type="text" class="form-control invoice-item-price-label"
+                                                        id="priceLabel-1" data-id="1" name="harga"
+                                                        placeholder="Put Price Here" data-type="currency" min="0"
+                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$" @focus="focused = true"
+                                                        @blur="focused = false" value="{{ old('price[]') }}">
+                                                    <input class="form-control invoice-item-price" type="number"
+                                                        name="price[]" id="price-1" value="{{ old('price[]') }}"
+                                                        hidden>
+                                                </div>
+                                                <div class="d-flex justify-content-between mt-2 flex-wrap gap-1">
+                                                    <span class="badge bg-label-info d-flex align-items-center py-1.5 px-2.5 rounded-pill">
+                                                        <i class="mdi mdi-cube-outline me-1 fs-6"></i>
+                                                        Stock: <strong class="info-stock-label ms-1" id="info-stock-1">-</strong>
+                                                    </span>
+                                                    <span class="badge bg-label-warning d-flex align-items-center py-1.5 px-2.5 rounded-pill">
+                                                        <i class="mdi mdi-scale me-1 fs-6"></i>
+                                                        Weight: <strong class="info-weight-label mx-1" id="info-weight-1">-</strong> g
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Qty & Unit -->
+                                            <div class="col-md-2 col-12 mb-md-0 mb-3">
+                                                <label class="mb-2 fw-semibold text-secondary">Qty / Unit</label>
+                                                <div class="input-group input-group-merge">
+                                                    <input type="number" class="form-control invoice-item-qty"
+                                                        placeholder="Qty" name="qty[]" id="qty-1" data-id="1"
+                                                        min="1" value="{{ old('qty[]') }}">
+                                                    <input type="text" class="input-group-text px-2 bg-light text-secondary invoice-item-info text-center"
+                                                        id="info-qty-1" data-id="1" name="info_qty[]" readonly
+                                                        value="{{ old('info_qty[]', 'Pcs') }}" style="max-width: 65px; border-left: 0; font-size: 0.85rem; font-weight: 600;">
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Discount -->
+                                            <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                                <label class="mb-2 fw-semibold text-secondary">Disc</label>
+                                                <div class="input-group input-group-merge">
+                                                    <input type="number" class="form-control invoice-item-disc text-center"
+                                                        placeholder="0" name="disc[]" id="disc-1" data-id="1"
+                                                        min="0" value="{{ old('disc[]', '0') }}" style="padding-left: 5px; padding-right: 5px;">
+                                                    <span class="input-group-text px-1 bg-light text-secondary font-semibold" style="font-size: 0.85rem;">%</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Amount -->
+                                            <div class="col-md-1 col-12 text-md-end pe-0 mb-md-0 mb-3">
+                                                <label class="mb-2 fw-semibold text-secondary d-block">Amount</label>
+                                                <div class="d-flex align-items-center justify-content-md-end h-px-40 mt-1">
+                                                    <span class="fw-bold text-primary amount-label" id="amount-label-1" data-id="1" style="font-size: 1rem;">
+                                                        {{ old('amount[]', 'Rp 0') }}
+                                                    </span>
+                                                </div>
+                                                <input type="number" class="form-control invoice-item-amount"
+                                                    name="amount[]" id="amount-1" data-id="1"
+                                                    value="{{ old('amount[]') }}" hidden>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Trash Button -->
+                                        <div class="d-flex align-items-center justify-content-center border-start px-2 bg-light" style="background-color: rgba(255, 76, 81, 0.03) !important;">
+                                            <button type="button" class="btn btn-icon btn-outline-danger btn-sm border-0 rounded-circle waves-effect btn-del"
+                                                data-id="1" data-repeater-delete="" style="transition: all 0.2s ease;">
+                                                <i class="mdi mdi-trash-can-outline fs-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         @endif
                         <div class="row">
                             <div class="col-12 mb-2">
@@ -424,11 +456,123 @@
                                         <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
                                             <span class="text-secondary fw-medium">Sub Total</span>
                                             <div class="text-end">
-                                                @if (@$dquotation)
-                                                    <input type="number" id="subtotal" class="form-control text-end form-control-sm"
-                                                        name="subtotal"
-                                                        value="{{ old('subtotal', @$quotation->subtotal ?? '') }}">
-                                                @else
+                                                @if (@$dquotation)
+                            <div class="mb-3" data-repeater-list="group-a">
+                                @foreach ($dquotation as $quote)
+                                    @php
+                                        $id++;
+                                        $dataDetail++;
+                                    @endphp
+                                    <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
+                                        <div class="d-flex border border-secondary-subtle rounded-3 position-relative pe-0 mb-3 shadow-xs item-row-card" style="transition: all 0.25s ease; background-color: #fdfefe;">
+                                            <div class="row w-100 p-3 align-items-start">
+                                                <!-- Product Select -->
+                                                <div class="col-md-5 col-12 mb-md-0 mb-3">
+                                                    <label for="product" class="mb-2 fw-semibold text-secondary">Product</label>
+                                                    <div class="form-floating form-floating-outline mb-2">
+                                                        <select id="product-{{ $id }}"
+                                                            class="form-select invoice-item-product"
+                                                            data-allow-clear="true" name="product[]"
+                                                            data-id="{{ $id }}">
+                                                            <option value="">---- Choose Part Number Here ----</option>
+                                                            @if (!empty($quote->id_equivalent) && !empty($quote->equivalent))
+                                                                <option value="{{ $quote->id_equivalent }}"
+                                                                    data-replacement="{{ $quote->id_equivalent }}"
+                                                                    data-commodity="{{ $quote->equivalent->id_product }}"
+                                                                    data-unit="{{ $quote->equivalent->product->unit ?? 'Pcs' }}"
+                                                                    selected>
+                                                                    {{ $quote->equivalent->brand }} {{ $quote->equivalent->pn }}
+                                                                    ({{ $quote->equivalent->product->detail_desc ?? '' }})
+                                                                    ||
+                                                                    {{ $quote->equivalent->product->go ?? '' }}
+                                                                </option>
+                                                            @endif
+                                                        </select>
+                                                        <label for="product-{{ $id }}">Product Part Number</label>
+                                                    </div>
+                                                    <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-{{ $id }}"
+                                                        placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]">{{ old('detail_product[]', $quote->detail_product) }}</textarea>
+                                                </div>
+                                                
+                                                <!-- Price & Badges -->
+                                                <div class="col-md-3 col-12 mb-md-0 mb-3">
+                                                    <label class="mb-2 fw-semibold text-secondary">Price</label>
+                                                    <div class="input-group" data-price="1">
+                                                        <span class="input-group-text">Rp. </span>
+                                                        <input type="text" class="form-control invoice-item-price-label"
+                                                            id="priceLabel-{{ $id }}"
+                                                            data-id="{{ $id }}" min="0"
+                                                            placeholder="Put Price Here" data-type="currency"
+                                                            pattern="^[0-9]\d{0,2}(\.\d{3})*$"
+                                                            value="{{ old('price[]', @$quote->price ? number_format(@$quote->price, 0, '', '.') : '') }}">
+                                                        <input class="form-control invoice-item-price" type="number"
+                                                            name="price[]" id="price-{{ $id }}"
+                                                            value="{{ old('price[]', @$quote->price ?? '') }}" hidden>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between mt-2 flex-wrap gap-1">
+                                                        <span class="badge bg-label-info d-flex align-items-center py-1.5 px-2.5 rounded-pill">
+                                                            <i class="mdi mdi-cube-outline me-1 fs-6"></i>
+                                                            Stock: <strong class="info-stock-label ms-1" id="info-stock-{{ $id }}">-</strong>
+                                                        </span>
+                                                        <span class="badge bg-label-warning d-flex align-items-center py-1.5 px-2.5 rounded-pill">
+                                                            <i class="mdi mdi-scale me-1 fs-6"></i>
+                                                            Weight: <strong class="info-weight-label mx-1" id="info-weight-{{ $id }}">-</strong> g
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Qty / Unit -->
+                                                <div class="col-md-2 col-12 mb-md-0 mb-3">
+                                                    <label class="mb-2 fw-semibold text-secondary">Qty / Unit</label>
+                                                    <div class="input-group input-group-merge">
+                                                        <input type="number" class="form-control invoice-item-qty"
+                                                            placeholder="Qty" name="qty[]" id="qty-{{ $dataDetail }}"
+                                                            data-id="{{ $dataDetail }}" min="1"
+                                                            value="{{ old('qty[]', $quote->qty) }}">
+                                                        <input type="text" class="input-group-text px-2 bg-light text-secondary invoice-item-info text-center"
+                                                            id="info-qty-{{ $dataDetail }}" data-id="{{ $dataDetail }}" name="info_qty[]" readonly
+                                                            value="{{ old('info_qty[]', $quote->info_qty ?? 'Pcs') }}" style="max-width: 65px; border-left: 0; font-size: 0.85rem; font-weight: 600;">
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Discount -->
+                                                <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                                    <label class="mb-2 fw-semibold text-secondary">Disc</label>
+                                                    <div class="input-group input-group-merge">
+                                                        <input type="number" class="form-control invoice-item-disc text-center"
+                                                            placeholder="0" name="disc[]" id="disc-{{ $dataDetail }}"
+                                                            data-id="{{ $dataDetail }}" min="0"
+                                                            value="{{ old('disc[]', $quote->disc ?? '0') }}" style="padding-left: 5px; padding-right: 5px;">
+                                                        <span class="input-group-text px-1 bg-light text-secondary font-semibold" style="font-size: 0.85rem;">%</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Amount -->
+                                                <div class="col-md-1 col-12 text-md-end pe-0 mb-md-0 mb-3">
+                                                    <label class="mb-2 fw-semibold text-secondary d-block">Amount</label>
+                                                    <div class="d-flex align-items-center justify-content-md-end h-px-40 mt-1">
+                                                        <span class="fw-bold text-primary amount-label" id="amount-label-{{ $id }}" data-id="{{ $id }}" style="font-size: 1rem;">
+                                                            {{ old('amount[]', 'Rp ' . number_format($quote->amount, 0, '', '.')) }}
+                                                        </span>
+                                                    </div>
+                                                    <input type="number" class="form-control invoice-item-amount"
+                                                        name="amount[]" id="amount-{{ $id }}" data-id="1"
+                                                        value="{{ old('amount[]', $quote->amount) }}" hidden>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Trash Button -->
+                                            <div class="d-flex align-items-center justify-content-center border-start px-2 bg-light" style="background-color: rgba(255, 76, 81, 0.03) !important;">
+                                                <button type="button" class="btn btn-icon btn-outline-danger btn-sm border-0 rounded-circle waves-effect btn-del"
+                                                    data-id="{{ $id }}" data-repeater-delete="" style="transition: all 0.2s ease;">
+                                                    <i class="mdi mdi-trash-can-outline fs-4"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
                                                     <span class="fs-5 fw-bold text-dark subtotal-label" id="subtotal-label">
                                                         {{ old('subtotal', @$quotation->subtotal ? 'Rp ' . number_format(@$quotation->subtotal, 0, '', '.') : 'Rp 0') }}
                                                     </span>
@@ -476,17 +620,129 @@
                                             </div>
                                         </div>
 
-                                        <!-- Total Row (Highlighted) -->
-                                        <div class="d-flex align-items-center justify-content-between p-3 bg-label-primary">
+                                        <!-- Total Row (Highlighted) -->
+                                        <div class="d-flex align-items-center justify-content-between p-3 rounded-bottom" style="background: linear-gradient(135deg, rgba(102, 108, 255, 0.08) 0%, rgba(102, 108, 255, 0.03) 100%);">
                                             <input type="number" id="totalNoTax" name="total_no_tax"
                                                 value="{{ old('total_no_tax', @$quotation->total_no_tax ?? '') }}" hidden>
                                             <span class="text-primary fw-bold fs-5">Total</span>
                                             <div class="text-end">
-                                                @if (@$dquotation)
-                                                    <input type="number" id="hargaTotal" class="form-control text-end fw-bold text-primary form-control-sm"
-                                                        name="harga_total"
-                                                        value="{{ old('harga_total', @$quotation->harga_total ?? '') }}">
-                                                @else
+                                                @if (@$dquotation)
+                            <div class="mb-3" data-repeater-list="group-a">
+                                @foreach ($dquotation as $quote)
+                                    @php
+                                        $id++;
+                                        $dataDetail++;
+                                    @endphp
+                                    <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
+                                        <div class="d-flex border border-secondary-subtle rounded-3 position-relative pe-0 mb-3 shadow-xs item-row-card" style="transition: all 0.25s ease; background-color: #fdfefe;">
+                                            <div class="row w-100 p-3 align-items-start">
+                                                <!-- Product Select -->
+                                                <div class="col-md-5 col-12 mb-md-0 mb-3">
+                                                    <label for="product" class="mb-2 fw-semibold text-secondary">Product</label>
+                                                    <div class="form-floating form-floating-outline mb-2">
+                                                        <select id="product-{{ $id }}"
+                                                            class="form-select invoice-item-product"
+                                                            data-allow-clear="true" name="product[]"
+                                                            data-id="{{ $id }}">
+                                                            <option value="">---- Choose Part Number Here ----</option>
+                                                            @if (!empty($quote->id_equivalent) && !empty($quote->equivalent))
+                                                                <option value="{{ $quote->id_equivalent }}"
+                                                                    data-replacement="{{ $quote->id_equivalent }}"
+                                                                    data-commodity="{{ $quote->equivalent->id_product }}"
+                                                                    data-unit="{{ $quote->equivalent->product->unit ?? 'Pcs' }}"
+                                                                    selected>
+                                                                    {{ $quote->equivalent->brand }} {{ $quote->equivalent->pn }}
+                                                                    ({{ $quote->equivalent->product->detail_desc ?? '' }})
+                                                                    ||
+                                                                    {{ $quote->equivalent->product->go ?? '' }}
+                                                                </option>
+                                                            @endif
+                                                        </select>
+                                                        <label for="product-{{ $id }}">Product Part Number</label>
+                                                    </div>
+                                                    <textarea class="form-control invoice-item-detail-product" rows="2" id="detailProduct-{{ $id }}"
+                                                        placeholder="Detail Product. Example: Kaeser ASD" name="detail_product[]">{{ old('detail_product[]', $quote->detail_product) }}</textarea>
+                                                </div>
+                                                
+                                                <!-- Price & Badges -->
+                                                <div class="col-md-3 col-12 mb-md-0 mb-3">
+                                                    <label class="mb-2 fw-semibold text-secondary">Price</label>
+                                                    <div class="input-group" data-price="1">
+                                                        <span class="input-group-text">Rp. </span>
+                                                        <input type="text" class="form-control invoice-item-price-label"
+                                                            id="priceLabel-{{ $id }}"
+                                                            data-id="{{ $id }}" min="0"
+                                                            placeholder="Put Price Here" data-type="currency"
+                                                            pattern="^[0-9]\d{0,2}(\.\d{3})*$"
+                                                            value="{{ old('price[]', @$quote->price ? number_format(@$quote->price, 0, '', '.') : '') }}">
+                                                        <input class="form-control invoice-item-price" type="number"
+                                                            name="price[]" id="price-{{ $id }}"
+                                                            value="{{ old('price[]', @$quote->price ?? '') }}" hidden>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between mt-2 flex-wrap gap-1">
+                                                        <span class="badge bg-label-info d-flex align-items-center py-1.5 px-2.5 rounded-pill">
+                                                            <i class="mdi mdi-cube-outline me-1 fs-6"></i>
+                                                            Stock: <strong class="info-stock-label ms-1" id="info-stock-{{ $id }}">-</strong>
+                                                        </span>
+                                                        <span class="badge bg-label-warning d-flex align-items-center py-1.5 px-2.5 rounded-pill">
+                                                            <i class="mdi mdi-scale me-1 fs-6"></i>
+                                                            Weight: <strong class="info-weight-label mx-1" id="info-weight-{{ $id }}">-</strong> g
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Qty / Unit -->
+                                                <div class="col-md-2 col-12 mb-md-0 mb-3">
+                                                    <label class="mb-2 fw-semibold text-secondary">Qty / Unit</label>
+                                                    <div class="input-group input-group-merge">
+                                                        <input type="number" class="form-control invoice-item-qty"
+                                                            placeholder="Qty" name="qty[]" id="qty-{{ $dataDetail }}"
+                                                            data-id="{{ $dataDetail }}" min="1"
+                                                            value="{{ old('qty[]', $quote->qty) }}">
+                                                        <input type="text" class="input-group-text px-2 bg-light text-secondary invoice-item-info text-center"
+                                                            id="info-qty-{{ $dataDetail }}" data-id="{{ $dataDetail }}" name="info_qty[]" readonly
+                                                            value="{{ old('info_qty[]', $quote->info_qty ?? 'Pcs') }}" style="max-width: 65px; border-left: 0; font-size: 0.85rem; font-weight: 600;">
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Discount -->
+                                                <div class="col-md-1 col-12 mb-md-0 mb-3">
+                                                    <label class="mb-2 fw-semibold text-secondary">Disc</label>
+                                                    <div class="input-group input-group-merge">
+                                                        <input type="number" class="form-control invoice-item-disc text-center"
+                                                            placeholder="0" name="disc[]" id="disc-{{ $dataDetail }}"
+                                                            data-id="{{ $dataDetail }}" min="0"
+                                                            value="{{ old('disc[]', $quote->disc ?? '0') }}" style="padding-left: 5px; padding-right: 5px;">
+                                                        <span class="input-group-text px-1 bg-light text-secondary font-semibold" style="font-size: 0.85rem;">%</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Amount -->
+                                                <div class="col-md-1 col-12 text-md-end pe-0 mb-md-0 mb-3">
+                                                    <label class="mb-2 fw-semibold text-secondary d-block">Amount</label>
+                                                    <div class="d-flex align-items-center justify-content-md-end h-px-40 mt-1">
+                                                        <span class="fw-bold text-primary amount-label" id="amount-label-{{ $id }}" data-id="{{ $id }}" style="font-size: 1rem;">
+                                                            {{ old('amount[]', 'Rp ' . number_format($quote->amount, 0, '', '.')) }}
+                                                        </span>
+                                                    </div>
+                                                    <input type="number" class="form-control invoice-item-amount"
+                                                        name="amount[]" id="amount-{{ $id }}" data-id="1"
+                                                        value="{{ old('amount[]', $quote->amount) }}" hidden>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Trash Button -->
+                                            <div class="d-flex align-items-center justify-content-center border-start px-2 bg-light" style="background-color: rgba(255, 76, 81, 0.03) !important;">
+                                                <button type="button" class="btn btn-icon btn-outline-danger btn-sm border-0 rounded-circle waves-effect btn-del"
+                                                    data-id="{{ $id }}" data-repeater-delete="" style="transition: all 0.2s ease;">
+                                                    <i class="mdi mdi-trash-can-outline fs-4"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
                                                     <span class="fs-4 fw-bold text-primary harga-total-label" id="hargaTotalLabel">
                                                         {{ old('harga_total', @$quotation->harga_total ? 'Rp ' . number_format(@$quotation->harga_total, 0, '', '.') : 'Rp 0') }}
                                                     </span>
@@ -513,8 +769,20 @@
             </div>
         </form>
     @endsection
-    @push('after-style')
-        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
+    @push('after-style')
+        <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
+        <style>
+            .item-row-card {
+                transition: all 0.25s ease-in-out;
+            }
+            .item-row-card:hover {
+                border-color: #666cff !important;
+                box-shadow: 0 4px 12px rgba(102, 108, 255, 0.08) !important;
+            }
+            .btn-del:hover {
+                background-color: rgba(255, 76, 81, 0.1) !important;
+            }
+        </style>
     @endpush
     @push('after-script')
         <script src="{{ asset('assets') }}/vendor/libs/formvalidation/dist/js/FormValidation.min.js"></script>

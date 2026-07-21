@@ -209,8 +209,16 @@
     <script>
         $(document).ready(function() {
             $('.datatable-sorder').each(function() {
-                $(this).DataTable({
-                    order: [[1, 'desc']], // Sort by PO Date descending
+                var $table = $(this);
+
+                // Clone header for search row
+                $table.find('thead tr')
+                    .clone(true)
+                    .appendTo($table.find('thead'));
+
+                var table = $table.DataTable({
+                    orderCellsTop: true,
+                    order: [[2, 'desc']], // Sort by Date descending
                     pageLength: 10,
                     language: {
                         search: "Cari Sales Order:",
@@ -223,6 +231,22 @@
                             previous: "Sebelumnya"
                         }
                     }
+                });
+
+                // Replace cloned headers with input fields
+                $table.find('thead tr:eq(1) th').each(function(i) {
+                    var title = $(this).text();
+                    if (i === 6) { // Skip Sales avatar column
+                        $(this).html('');
+                        return;
+                    }
+                    $(this).html('<input type="text" class="form-control form-control-sm" placeholder="Cari ' + title + '..." />');
+
+                    $('input', this).on('keyup change', function() {
+                        if (table.column(i).search() !== this.value) {
+                            table.column(i).search(this.value).draw();
+                        }
+                    });
                 });
             });
         });

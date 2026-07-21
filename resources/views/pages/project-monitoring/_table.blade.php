@@ -3,6 +3,7 @@
         <thead>
             <tr class="table-light">
                 <th>No SO</th>
+                <th>No PO</th>
                 <th>Date</th>
                 <th>Customer</th>
                 <th>Title / Project Name</th>
@@ -17,6 +18,9 @@
                         <a href="{{ route('project-monitoring.show', $project->id) }}" class="fw-semibold text-primary">
                             {{ $project->no_pending }}
                         </a>
+                    </td>
+                    <td>
+                        {{ $project->no_po ?? '-' }}
                     </td>
                     <td>
                         <span class="text-muted">{{ $project->order_date ? \Carbon\Carbon::parse($project->order_date)->format('d-m-Y') : '-' }}</span>

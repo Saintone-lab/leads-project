@@ -169,7 +169,15 @@
     <script>
         $(document).ready(function() {
             $('.datatable-project').each(function() {
-                $(this).DataTable({
+                var $table = $(this);
+
+                // Clone header for search row
+                $table.find('thead tr')
+                    .clone(true)
+                    .appendTo($table.find('thead'));
+
+                var table = $table.DataTable({
+                    orderCellsTop: true,
                     order: [[0, 'desc']],
                     pageLength: 10,
                     language: {
@@ -183,6 +191,22 @@
                             previous: "Sebelumnya"
                         }
                     }
+                });
+
+                // Replace cloned headers with input fields
+                $table.find('thead tr:eq(1) th').each(function(i) {
+                    var title = $(this).text();
+                    if (i === 6) { // Skip Sales avatar column
+                        $(this).html('');
+                        return;
+                    }
+                    $(this).html('<input type="text" class="form-control form-control-sm" placeholder="Cari ' + title + '..." />');
+
+                    $('input', this).on('keyup change', function() {
+                        if (table.column(i).search() !== this.value) {
+                            table.column(i).search(this.value).draw();
+                        }
+                    });
                 });
             });
         });

@@ -553,7 +553,8 @@ class PendingController extends Controller
             'c.company',
             'u.name as sales_name',
             'u.image as sales_image',
-            'q.nett as revenue'
+            'q.nett as revenue',
+            DB::raw('(SELECT no_po FROM invoice WHERE id_quotation = q.id LIMIT 1) as no_po')
         )
         ->orderBy('q.po_date', 'desc')
         ->get();
