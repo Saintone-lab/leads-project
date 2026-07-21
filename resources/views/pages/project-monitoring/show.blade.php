@@ -1,5 +1,6 @@
 @extends('layouts.sales.app')
 @section('title', 'Analisis Profitabilitas Proyek')
+@section('no-container') @endsection
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="d-flex justify-content-between align-items-center mb-4">

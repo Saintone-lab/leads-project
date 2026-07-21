@@ -1,5 +1,6 @@
 @extends('layouts.sales.app')
 @section('title', 'Project Monitoring Dashboard')
+@section('no-container') @endsection
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center py-3 mb-4 gap-2">
