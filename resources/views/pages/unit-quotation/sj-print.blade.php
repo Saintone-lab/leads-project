@@ -66,7 +66,7 @@
                                         </div>
                                         <div class="col-8">
                                             <p class="mb-1">: {{ \Carbon\Carbon::parse($delivery->date)->format('d-m-Y') }}</p>
-                                            <p class="mb-1">: {{ $unitQuote->no_quote }}</p>
+                                            <p class="mb-1">: {{ $unitQuote->po_number ?: $unitQuote->no_quote }}</p>
                                             <p class="mb-1">: {{ $client->company ?? '-' }}</p>
                                             <p class="mb-1">: {{ $address }}</p>
                                         </div>
