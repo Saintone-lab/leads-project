@@ -12,6 +12,8 @@
             </a>
         </div>
 
+        @include('components.dashboard.tab-navigation')
+
         @if (session('success'))
             <div class="alert alert-success alert-dismissible" role="alert">
                 {{ session('success') }}

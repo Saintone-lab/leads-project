@@ -1508,7 +1508,9 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/suo-accounting', [SuoController::class, 'accountingIndex'])->name('suo.accounting.index');
 
     // Project Monitoring
-    Route::get('/project-monitoring', [ProjectMonitoringController::class, 'index'])->name('project-monitoring.index');
+    Route::get('/project-monitoring', function (\Illuminate\Http\Request $request) {
+        return redirect()->route('pending-po.sales-order', array_merge($request->query(), ['tab' => 'project-monitoring']));
+    })->name('project-monitoring.index');
     Route::get('/project-monitoring/{id}', [ProjectMonitoringController::class, 'show'])->name('project-monitoring.show');
     Route::post('/project-monitoring/{id}/expense', [ProjectMonitoringController::class, 'storeExpense'])->name('project-monitoring.store-expense');
     Route::delete('/project-monitoring/expense/{id}', [ProjectMonitoringController::class, 'destroyExpense'])->name('project-monitoring.destroy-expense');

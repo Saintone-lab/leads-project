@@ -21,6 +21,7 @@ use App\Models\Retur;
 use App\Models\SerialProduct;
 use App\Models\ServiceOrder;
 use App\Models\SubtitleQuotation;
+use App\Models\ProjectExpense;
 use Auth;
 use Carbon\Carbon;
 use DB;
@@ -514,9 +515,8 @@ class PendingController extends Controller
         $role = Auth::user()->role;
         $selectedYear = $request->get('year', date('Y'));
 
-        // Query available years for filter dropdown
+        // Query available years for filter dropdown (both Project and Non Project)
         $availableYears = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
-            ->where('pending_po.type', 'Non Project')
             ->whereNotNull('q.po_date')
             ->selectRaw('YEAR(q.po_date) as year')
             ->distinct()
@@ -530,21 +530,24 @@ class PendingController extends Controller
             rsort($availableYears);
         }
 
-        $query = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+        // ==========================================
+        // 1. SALES ORDER (Non Project) DATA
+        // ==========================================
+        $sorderQuery = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
             ->join('pic as p', 'q.id_pic', '=', 'p.id')
             ->join('client as c', 'p.id_client', '=', 'c.id')
             ->join('users as u', 'q.id_sales', '=', 'u.id')
             ->where('pending_po.type', 'Non Project');
 
         if ($selectedYear !== 'all') {
-            $query->whereYear('q.po_date', $selectedYear);
+            $sorderQuery->whereYear('q.po_date', $selectedYear);
         }
 
         if ($role === 'Sales') {
-            $query->where('q.id_sales', Auth::id());
+            $sorderQuery->where('q.id_sales', Auth::id());
         }
 
-        $allOrders = $query->select(
+        $allOrders = $sorderQuery->select(
             'pending_po.id',
             'pending_po.no_pending',
             'pending_po.title',
@@ -559,7 +562,6 @@ class PendingController extends Controller
         ->orderBy('q.po_date', 'desc')
         ->get();
 
-        // Calculate material and shipping costs for each Sales Order
         $allOrders = $allOrders->map(function ($order) {
             $order->material_cost = PurchaseRequest::where('id_pending', $order->id)
                 ->where('status', '3')
@@ -572,7 +574,6 @@ class PendingController extends Controller
             return $order;
         });
 
-        // Group orders for tabs
         $newOrders = $allOrders->filter(fn($o) => $o->status == 0);
         $checkPartsOrders = $allOrders->filter(fn($o) => in_array($o->status, [1, 2, 3, 4]));
         $deliveryOrders = $allOrders->filter(fn($o) => $o->status == 5);
@@ -580,14 +581,78 @@ class PendingController extends Controller
         $returnOrders = $allOrders->filter(fn($o) => $o->status == 8);
         $delayedOrders = $allOrders->filter(fn($o) => $o->status == 9);
 
-        // Overall KPIs
         $totalOrdersCount = $allOrders->count();
-        $totalRevenue = $allOrders->sum('revenue');
-        $totalCost = $allOrders->sum('total_cost');
-        $totalProfit = $totalRevenue - $totalCost;
-        $overallMargin = $totalRevenue > 0 ? ($totalProfit / $totalRevenue) * 100 : 0;
+        $totalRevenueSOrder = $allOrders->sum('revenue');
+        $totalCostSOrder = $allOrders->sum('total_cost');
+        $totalProfitSOrder = $totalRevenueSOrder - $totalCostSOrder;
+        $overallMarginSOrder = $totalRevenueSOrder > 0 ? ($totalProfitSOrder / $totalRevenueSOrder) * 100 : 0;
 
-        // Legacy compatibility variables for modals (keep schedules and orders if needed)
+        // ==========================================
+        // 2. PROJECT MONITORING DATA
+        // ==========================================
+        $projectQuery = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
+            ->join('pic as p', 'q.id_pic', '=', 'p.id')
+            ->join('client as c', 'p.id_client', '=', 'c.id')
+            ->join('users as u', 'q.id_sales', '=', 'u.id')
+            ->where('pending_po.type', 'Project');
+
+        if ($selectedYear !== 'all') {
+            $projectQuery->whereYear('pending_po.date', $selectedYear);
+        }
+
+        if ($role === 'Sales') {
+            $projectQuery->where('q.id_sales', Auth::id());
+        }
+
+        $projects = $projectQuery->select(
+            'pending_po.id',
+            'pending_po.no_pending',
+            'pending_po.title',
+            'pending_po.status',
+            'pending_po.date as order_date',
+            'pending_po.project_status_step',
+            'pending_po.project_category',
+            'c.company',
+            'u.name as sales_name',
+            'u.image as sales_image',
+            'q.nett as revenue',
+            'q.no_quote',
+            DB::raw('(SELECT no_po FROM invoice WHERE id_quotation = q.id LIMIT 1) as no_po')
+        )
+        ->orderBy('pending_po.date', 'desc')
+        ->get();
+
+        $projects = $projects->map(function ($project) {
+            $project->material_cost = PurchaseRequest::where('id_pending', $project->id)
+                ->where('status', '3')
+                ->sum('amount');
+            $project->general_cost = ProjectExpense::where('id_pending', $project->id)
+                ->sum('amount');
+            $project->shipping_cost = Expanse::where('id_pending', $project->id)
+                ->where('type', 'Resi')
+                ->sum('cost');
+            $project->total_cost = $project->material_cost + $project->general_cost + $project->shipping_cost;
+            $project->profit = $project->revenue - $project->total_cost;
+            $project->margin = $project->revenue > 0 ? ($project->profit / $project->revenue) * 100 : 0;
+            return $project;
+        });
+
+        $newProjects = $projects->filter(fn($p) => $p->status == 0);
+        $checkPartsProjects = $projects->filter(fn($p) => $p->status != 0 && $p->status != 6 && ($p->project_status_step ?? 1) == 1);
+        $schedulingProjects = $projects->filter(fn($p) => $p->status != 0 && $p->status != 6 && ($p->project_status_step ?? 1) == 2);
+        $inProgressProjects = $projects->filter(fn($p) => $p->status != 0 && $p->status != 6 && ($p->project_status_step ?? 1) >= 3);
+        $completedProjects = $projects->filter(fn($p) => $p->status == 6);
+
+        $totalProjectsCount = $projects->count();
+        $totalRevenueProject = $projects->sum('revenue');
+        $totalMaterialProject = $projects->sum('material_cost');
+        $totalGeneralProject = $projects->sum('general_cost');
+        $totalShippingProject = $projects->sum('shipping_cost');
+        $totalCostProject = $totalMaterialProject + $totalGeneralProject + $totalShippingProject;
+        $totalProfitProject = $totalRevenueProject - $totalCostProject;
+        $overallMarginProject = $totalRevenueProject > 0 ? ($totalProfitProject / $totalRevenueProject) * 100 : 0;
+
+        // Legacy compatibility variables for modals
         $schedules = ServiceOrder::join(DB::raw("(
             SELECT id_sales_order, MAX(id) as max_id
             FROM service_order
@@ -600,6 +665,10 @@ class PendingController extends Controller
         $orders = PendingPO::where('status', 2)->where('type', 'Project')->get();
 
         return view('pages.sorder.index', compact(
+            'availableYears',
+            'selectedYear',
+
+            // Sales Order variables
             'allOrders',
             'newOrders',
             'checkPartsOrders',
@@ -608,12 +677,28 @@ class PendingController extends Controller
             'returnOrders',
             'delayedOrders',
             'totalOrdersCount',
-            'totalRevenue',
-            'totalCost',
-            'totalProfit',
-            'overallMargin',
-            'selectedYear',
-            'availableYears',
+            'totalRevenueSOrder',
+            'totalCostSOrder',
+            'totalProfitSOrder',
+            'overallMarginSOrder',
+
+            // Project Monitoring variables
+            'projects',
+            'newProjects',
+            'checkPartsProjects',
+            'schedulingProjects',
+            'inProgressProjects',
+            'completedProjects',
+            'totalProjectsCount',
+            'totalRevenueProject',
+            'totalMaterialProject',
+            'totalGeneralProject',
+            'totalShippingProject',
+            'totalCostProject',
+            'totalProfitProject',
+            'overallMarginProject',
+
+            // Legacy modals variables
             'schedules',
             'orders'
         ));

@@ -20,6 +20,8 @@
             </div>
         </div>
 
+        @include('components.dashboard.tab-navigation')
+
         <!-- KPI Cards Grid -->
         <div class="row gy-4 mb-4">
             <!-- Total Projects Card -->
