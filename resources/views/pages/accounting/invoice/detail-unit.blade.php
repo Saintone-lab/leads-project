@@ -430,6 +430,21 @@
                 </div>
             </div>
 
+            {{-- Invoice Settings --}}
+            @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
+                <div class="card mb-3">
+                    <div class="card-header py-2 px-3">
+                        <small class="text-uppercase text-muted fw-semibold">Invoice Settings</small>
+                    </div>
+                    <div class="card-body d-grid gap-2">
+                        <button type="button" class="btn btn-outline-secondary w-100 waves-effect"
+                            data-bs-toggle="modal" data-bs-target="#changeDate">Change Date</button>
+                        <button type="button" class="btn btn-outline-secondary w-100 waves-effect"
+                            data-bs-toggle="modal" data-bs-target="#editInvoiceModal">Edit No Invoice / Term</button>
+                    </div>
+                </div>
+            @endif
+
             {{-- 2. Invoice Info --}}
             <div class="card mb-3">
                 <div class="card-header py-2 px-3">
@@ -881,6 +896,40 @@
             </div>
         </div>
     </div>
+
+    {{-- Edit Invoice Modal --}}
+    @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
+        <div class="modal fade" id="editInvoiceModal" tabindex="-1" aria-labelledby="editInvoiceModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editInvoiceModalLabel">Edit No Invoice & Term of Payment</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST" action="{{ route('invoice.update', $invoice->id) }}">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="invoiceNumber" class="form-label">No Invoice</label>
+                                <input type="text" class="form-control" id="invoiceNumber" name="invoice" value="{{ old('invoice', $invoice->no_invoice) }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="termPayment" class="form-label">Term of Payment</label>
+                                <textarea class="form-control" id="termPayment" name="payment" rows="4" required>{{ old('payment', $invoice->term ?? $quote->payment_method) }}</textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        @include('components.modal.invoice.date')
+    @endif
 
 @endsection
 

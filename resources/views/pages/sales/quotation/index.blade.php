@@ -10,10 +10,10 @@
                             <div>
                                 <p class="mb-2">Quotation</p>
                                 <h4 class="mb-2">Rp
-                                    {{ number_format(Auth::user()->role == 'Admin' ? $forecastAdmin : $forecast, 2, ',', '.') }}
+                                    <span id="card-forecast-sum">{{ number_format(Auth::user()->role == 'Admin' ? $forecastAdmin : $forecast, 2, ',', '.') }}</span>
                                 </h4>
                                 <p class="mb-0"><span
-                                        class="badge rounded-pill bg-label-success">{{ (Auth::user()->role == 'Admin' ? $quotationAdmin : $quotation)->whereIn('status', ['20', '30', '40', '60', '80'])->count() }}</span>
+                                        class="badge rounded-pill bg-label-success" id="card-forecast-count">{{ Auth::user()->role == 'Admin' ? $forecastAdminCount : $forecastCount }}</span>
                                 </p>
                             </div>
                             <div class="avatar me-sm-4">
@@ -29,10 +29,10 @@
                             <div>
                                 <p class="mb-2">Hot Prospect</p>
                                 <h4 class="mb-2">Rp
-                                    {{ number_format(Auth::user()->role == 'Admin' ? $prospectAdmin : $prospect, 2, ',', '.') }}
+                                    <span id="card-prospect-sum">{{ number_format(Auth::user()->role == 'Admin' ? $prospectAdmin : $prospect, 2, ',', '.') }}</span>
                                 </h4>
                                 <p class="mb-0"><span
-                                        class="badge rounded-pill bg-label-success">{{ (Auth::user()->role == 'Admin' ? $quotationAdmin : $quotation)->where('status', '80')->count() }}</span>
+                                        class="badge rounded-pill bg-label-success" id="card-prospect-count">{{ Auth::user()->role == 'Admin' ? $prospectAdminCount : $prospectCount }}</span>
                                 </p>
                             </div>
                             <div class="avatar me-lg-4">
@@ -48,9 +48,9 @@
                             <div>
                                 <p class="mb-2">Purchase Order</p>
                                 <h4 class="mb-2">Rp
-                                    {{ number_format(Auth::user()->role == 'Admin' ? $poAdmin : $po, 2, ',', '.') }}</h4>
+                                    <span id="card-po-sum">{{ number_format(Auth::user()->role == 'Admin' ? $poAdmin : $po, 2, ',', '.') }}</span></h4>
                                 <p class="mb-0"><span
-                                        class="badge rounded-pill bg-label-success">{{ (Auth::user()->role == 'Admin' ? $quotationAdmin : $quotation)->where('status', '100')->count() }}</span>
+                                        class="badge rounded-pill bg-label-success" id="card-po-count">{{ Auth::user()->role == 'Admin' ? $poAdminCount : $poCount }}</span>
                                 </p>
                             </div>
                             <div class="avatar me-sm-4">
@@ -65,10 +65,10 @@
                             <div>
                                 <p class="mb-2">Loss Order</p>
                                 <h4 class="mb-2">Rp
-                                    {{ number_format(Auth::user()->role == 'Admin' ? $lossAdmin : $loss, 2, ',', '.') }}
+                                    <span id="card-loss-sum">{{ number_format(Auth::user()->role == 'Admin' ? $lossAdmin : $loss, 2, ',', '.') }}</span>
                                 </h4>
                                 <p class="mb-0"><span
-                                        class="badge rounded-pill bg-label-danger">{{ (Auth::user()->role == 'Admin' ? $quotationAdmin : $quotation)->where('status', '0')->count() }}</span>
+                                        class="badge rounded-pill bg-label-danger" id="card-loss-count">{{ Auth::user()->role == 'Admin' ? $lossAdminCount : $lossCount }}</span>
                                 </p>
                             </div>
                             <div class="avatar">
@@ -491,12 +491,46 @@
             $('#' + badgeId).text(count);
         });
 
+        function updateCardStats() {
+            var isAdmin = {{ Auth::user()->role === 'Admin' ? 'true' : 'false' }};
+            var year = isAdmin ? (window.adminQuotationYearFilter || 'all') : (window.quotationYearFilter || 'all');
+            var salesId = isAdmin ? (window.adminSalesFilter || '') : '';
+
+            $.ajax({
+                url: '{{ route("quotation.card-stats") }}',
+                type: 'GET',
+                data: {
+                    year: year,
+                    sales_id: salesId
+                },
+                success: function(response) {
+                    var localeOptions = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+                    
+                    $('#card-forecast-sum').text(parseFloat(response.forecast_sum).toLocaleString('id-ID', localeOptions));
+                    $('#card-forecast-count').text(response.forecast_count);
+                    
+                    $('#card-prospect-sum').text(parseFloat(response.prospect_sum).toLocaleString('id-ID', localeOptions));
+                    $('#card-prospect-count').text(response.prospect_count);
+                    
+                    $('#card-po-sum').text(parseFloat(response.po_sum).toLocaleString('id-ID', localeOptions));
+                    $('#card-po-count').text(response.po_count);
+                    
+                    $('#card-loss-sum').text(parseFloat(response.loss_sum).toLocaleString('id-ID', localeOptions));
+                    $('#card-loss-count').text(response.loss_count);
+                },
+                error: function(xhr) {
+                    console.error('Error updating card stats:', xhr);
+                }
+            });
+        }
+
         window.quotationYearFilter = $('#quotation-year-filter').val() || 'all';
         $('#quotation-year-filter').on('change', function () {
             window.quotationYearFilter = $(this).val();
             ['dtQuotation', 'dtUnitQuotation', 'dtHot', 'dtPo', 'dtLoss', 'dtArchive'].forEach(function (key) {
                 if (window[key]) window[key].ajax.reload();
             });
+            updateCardStats();
         });
 
         window.adminSalesFilter = '';
@@ -509,10 +543,12 @@
         $('#admin-sales-filter').on('change', function () {
             window.adminSalesFilter = $(this).val();
             reloadAdminTables();
+            updateCardStats();
         });
         $('#admin-year-filter').on('change', function () {
             window.adminQuotationYearFilter = $(this).val();
             reloadAdminTables();
+            updateCardStats();
         });
 
         $(document).ready(function() {

@@ -1368,7 +1368,7 @@
                             data-bs-toggle="modal" data-bs-target="#descView">Change Description</button>
                         <button type="button" class="btn btn-outline-secondary w-100 waves-effect"
                             data-bs-toggle="modal" data-bs-target="#changeDate">Change Date</button>
-                        @if (Auth::user()->role == 'Admin')
+                        @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
                             <button type="button" class="btn btn-outline-secondary w-100 waves-effect"
                                 data-bs-toggle="modal" data-bs-target="#editInvoiceModal">Edit No Invoice / Term</button>
                         @endif

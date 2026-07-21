@@ -45,17 +45,32 @@ class QuotationController extends Controller
      */
     public function index()
     {
-        $quotation = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->get();
-        $forecast = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->whereIn('status', ['20', '30', '40', '60', '80'])->where('type', 'Sparepart')->sum('nett');
-        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->where('status', '80')->where('type', 'Sparepart')->sum('nett');
-        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
-        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
-        $quotationAdmin = Quotation::get();
-        $forecastAdmin = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
-        $prospectAdmin = Quotation::where('status', '80')->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
-        $poAdmin = Quotation::where('status', '100')->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
-        $lossAdmin = Quotation::where('status', '0')->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
-        // dd();
+        $currentYear = now()->year;
+
+        // Sales card stats:
+        $salesStats = $this->calculateCardStats($currentYear, null);
+        $forecast = $salesStats['forecast_sum'];
+        $forecastCount = $salesStats['forecast_count'];
+        $prospect = $salesStats['prospect_sum'];
+        $prospectCount = $salesStats['prospect_count'];
+        $po = $salesStats['po_sum'];
+        $poCount = $salesStats['po_count'];
+        $loss = $salesStats['loss_sum'];
+        $lossCount = $salesStats['loss_count'];
+
+        // Admin card stats:
+        $adminStats = $this->calculateCardStats($currentYear, null);
+        $forecastAdmin = $adminStats['forecast_sum'];
+        $forecastAdminCount = $adminStats['forecast_count'];
+        $prospectAdmin = $adminStats['prospect_sum'];
+        $prospectAdminCount = $adminStats['prospect_count'];
+        $poAdmin = $adminStats['po_sum'];
+        $poAdminCount = $adminStats['po_count'];
+        $lossAdmin = $adminStats['loss_sum'];
+        $lossAdminCount = $adminStats['loss_count'];
+
+        $quotation = collect([]);
+        $quotationAdmin = collect([]);
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         $machine = MachineTemplate::all();
@@ -124,7 +139,144 @@ class QuotationController extends Controller
             ->take(5)
             ->get();
         $salesList = User::where('role', 'Sales')->orderBy('name')->get(['id', 'name']);
-        return view('pages.sales.quotation.index', compact('machine', 'noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin', 'salesList'));
+        return view('pages.sales.quotation.index', compact('machine', 'noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin', 'salesList', 'forecastCount', 'prospectCount', 'poCount', 'lossCount', 'forecastAdminCount', 'prospectAdminCount', 'poAdminCount', 'lossAdminCount'));
+    }
+
+    public function cardStats(Request $request)
+    {
+        $year = $request->get('year', now()->year);
+        $salesId = $request->get('sales_id');
+        
+        $stats = $this->calculateCardStats($year, $salesId);
+        
+        return response()->json($stats);
+    }
+
+    private function calculateCardStats($year, $salesId = null)
+    {
+        $isAdmin = Auth::user()->role === 'Admin';
+        
+        // 1. Forecast (Quotation)
+        $qForecast = \DB::table('quotation as q')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->whereIn('q.status', ['20', '30', '40', '60', '80'])
+            ->where('q.level', '1')
+            ->where('q.is_primary', '1')
+            ->where('q.type', '!=', 'Unit');
+            
+        // 2. Hot Prospect
+        $qProspect = \DB::table('quotation as q')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('q.status', 80)
+            ->where('q.level', '1')
+            ->where('q.is_primary', '1')
+            ->where('q.type', '!=', 'Unit');
+            
+        $uqProspect = \DB::table('unit_quotation as uq')
+            ->join('users as u2', 'u2.id', '=', 'uq.id_sales')
+            ->where('uq.status', 'hot_prospect')
+            ->where('uq.is_latest', 1);
+            
+        // 3. Purchase Order
+        $qPo = \DB::table('quotation as q')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('q.status', '100')
+            ->where('q.level', '1')
+            ->where('q.is_primary', '1');
+            
+        $uqPo = \DB::table('unit_quotation as uq')
+            ->join('users as u2', 'u2.id', '=', 'uq.id_sales')
+            ->where('uq.status', 'po_received')
+            ->where('uq.is_latest', 1);
+            
+        // 4. Loss Order
+        $qLoss = \DB::table('quotation as q')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('q.status', '0')
+            ->where('q.level', '1');
+
+        // Apply sales filter
+        if ($isAdmin) {
+            if (!empty($salesId)) {
+                $qForecast->where('u.id', $salesId);
+                $qProspect->where('u.id', $salesId);
+                $uqProspect->where('u2.id', $salesId);
+                $qPo->where('u.id', $salesId);
+                $uqPo->where('u2.id', $salesId);
+                $qLoss->where('u.id', $salesId);
+            }
+        } else {
+            $qForecast->where('u.id', Auth::id());
+            $qProspect->where('u.id', Auth::id());
+            $uqProspect->where('uq.id_sales', Auth::id());
+            $qPo->where('u.id', Auth::id());
+            $uqPo->where('uq.id_sales', Auth::id());
+            $qLoss->where('u.id', Auth::id());
+        }
+
+        // Apply year filter
+        if ($year && $year !== 'all') {
+            $yearInt = intval($year);
+            $qForecast->whereYear('q.estimated_date', $yearInt);
+            $qProspect->whereYear('q.estimated_date', $yearInt);
+            $uqProspect->whereYear('uq.date', $yearInt);
+            $qPo->whereYear('q.po_date', $yearInt);
+            
+            $uqPo->whereExists(function($query) use ($yearInt) {
+                $query->select(\DB::raw(1))
+                      ->from('unit_quotation_status_history as sh')
+                      ->whereColumn('sh.id_unit_quotation', 'uq.id')
+                      ->where('sh.status', 'po_received')
+                      ->whereYear('sh.created_at', $yearInt);
+            });
+            
+            $qLoss->whereYear('q.estimated_date', $yearInt);
+        }
+
+        // 1. Calculate Forecast Stats
+        $forecastItems = $qForecast->select('q.primary_id', \DB::raw('MAX(q.subtotal) as subtotal'))->groupBy('q.primary_id')->get();
+        $forecastSum = $forecastItems->sum('subtotal') ?? 0;
+        $forecastCount = $forecastItems->count();
+
+        // 2. Calculate Hot Prospect Stats
+        $prospectItems = $qProspect->select('q.primary_id', \DB::raw('MAX(q.subtotal) as subtotal'))->groupBy('q.primary_id')->get();
+        $prospectSumQ = $prospectItems->sum('subtotal') ?? 0;
+        $prospectCountQ = $prospectItems->count();
+        
+        $uqProspectItems = $uqProspect->select('uq.subtotal')->get();
+        $prospectSumUQ = $uqProspectItems->sum('subtotal') ?? 0;
+        $prospectCountUQ = $uqProspectItems->count();
+        
+        $prospectSum = $prospectSumQ + $prospectSumUQ;
+        $prospectCount = $prospectCountQ + $prospectCountUQ;
+
+        // 3. Calculate PO Stats
+        $poItems = $qPo->select('q.nett')->get();
+        $poSumQ = $poItems->sum('nett') ?? 0;
+        $poCountQ = $poItems->count();
+        
+        $uqPoItems = $uqPo->select(\DB::raw('(uq.total - uq.tax_amount) as nett'))->get();
+        $poSumUQ = $uqPoItems->sum('nett') ?? 0;
+        $poCountUQ = $uqPoItems->count();
+        
+        $poSum = $poSumQ + $poSumUQ;
+        $poCount = $poCountQ + $poCountUQ;
+
+        // 4. Calculate Loss Stats
+        $lossItems = $qLoss->select('q.harga_total')->get();
+        $lossSum = $lossItems->sum('harga_total') ?? 0;
+        $lossCount = $lossItems->count();
+
+        return [
+            'forecast_sum' => $forecastSum,
+            'forecast_count' => $forecastCount,
+            'prospect_sum' => $prospectSum,
+            'prospect_count' => $prospectCount,
+            'po_sum' => $poSum,
+            'po_count' => $poCount,
+            'loss_sum' => $lossSum,
+            'loss_count' => $lossCount,
+        ];
     }
 
     public function searchProducts(Request $request)

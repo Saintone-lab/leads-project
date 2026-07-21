@@ -199,19 +199,25 @@ class InvoiceController extends Controller
             'payment.required' => 'Field payment Wajib Diisi',
         ];
         $this->validate($request, $rule, $message);
-        $invoice = Invoice::find($id);
-        $quote = Quotation::find($invoice->id_quotation);
+        $invoice = Invoice::findOrFail($id);
+        
         $invoice->no_invoice = $request->invoice;
         $invoice->term = $request->payment;
-        $invoice->invoiceTo = $quote->destination;
-        $invoiceSave = $invoice->save();
-        // $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
-        // $lastPayment->due_date = Carbon::now()->addDays($request->due_date);
-        // $lastPayment->save();
-        if ($invoiceSave) {
-            $this->syncMonitoringDocumentCard($quote);
 
-            return redirect('/invoice/' . $id)->with('message', 'Invoice has been accepted');
+        if ($invoice->id_unit_quotation) {
+            $invoice->invoiceTo = '1';
+            $invoiceSave = $invoice->save();
+            if ($invoiceSave) {
+                return redirect()->route('invoice.show_unit', $id)->with('success', 'Invoice has been updated');
+            }
+        } else {
+            $quote = Quotation::find($invoice->id_quotation);
+            $invoice->invoiceTo = $quote->destination;
+            $invoiceSave = $invoice->save();
+            if ($invoiceSave) {
+                $this->syncMonitoringDocumentCard($quote);
+                return redirect('/invoice/' . $id)->with('message', 'Invoice has been accepted');
+            }
         }
     }
 
@@ -568,13 +574,16 @@ class InvoiceController extends Controller
     }
     public function change_date(Request $request, $id)
     {
-        $invoice = Invoice::find($id);
+        $invoice = Invoice::findOrFail($id);
 
         $invoice->date = $request->date;
         $invoice->invoiceTo = $request->destination;
         $invoiceSave = $invoice->save();
 
         if ($invoiceSave) {
+            if ($invoice->id_unit_quotation) {
+                return redirect()->route('invoice.show_unit', $id)->with('success', 'Tanggal invoice berhasil diubah.');
+            }
             return redirect('/invoice/' . $id)->with('massage', 'Data telah terkirim');
         }
     }
