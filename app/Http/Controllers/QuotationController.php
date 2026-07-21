@@ -127,6 +127,47 @@ class QuotationController extends Controller
         return view('pages.sales.quotation.index', compact('machine', 'noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin', 'salesList'));
     }
 
+    public function searchProducts(Request $request)
+    {
+        $search = $request->input('q');
+        
+        $query = \DB::table('product')
+            ->join('serial_product as s', 's.id_product', '=', 'product.id')
+            ->select([
+                's.id',
+                'product.id as comId',
+                's.pn',
+                's.brand',
+                'product.go',
+                'product.detail_desc',
+                'product.unit'
+            ]);
+
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('s.pn', 'like', "%{$search}%")
+                  ->orWhere('s.brand', 'like', "%{$search}%")
+                  ->orWhere('product.go', 'like', "%{$search}%")
+                  ->orWhere('product.detail_desc', 'like', "%{$search}%");
+            });
+        }
+
+        $products = $query->limit(30)->get();
+
+        $results = [];
+        foreach ($products as $p) {
+            $results[] = [
+                'id' => $p->id,
+                'text' => "{$p->brand} {$p->pn} ({$p->detail_desc}) || {$p->go}",
+                'replacement' => $p->id,
+                'commodity' => $p->comId,
+                'unit' => $p->unit
+            ];
+        }
+
+        return response()->json($results);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -142,7 +183,7 @@ class QuotationController extends Controller
         // $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->where('c.id_sales', Auth::user()->id)->get('pic.*');
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         $sales = User::where('role', 'sales')->get();
-        $product = \DB::table('product')->join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
+        $product = collect([]);
         return view('pages.sales.quotation.form', compact('pic', 'sales', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 
@@ -823,7 +864,7 @@ class QuotationController extends Controller
         // $pic = Pic::all();
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         // dd($pic);
-        $product = \DB::table('product')->join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
+        $product = collect([]);
         $sales = User::where('role', 'sales')->get();
         // dd($dquotation);
         return view('pages.sales.quotation.form', compact('quotation', 'dquotation', 'sales', 'pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
@@ -841,7 +882,7 @@ class QuotationController extends Controller
         // $pic = Pic::all();
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         // dd($pic);
-        $product = \DB::table('product')->join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
+        $product = collect([]);
         $sales = User::where('role', 'sales')->get();
         // dd($dquotation);
         return view('pages.sales.quotation.edit', compact('quotation', 'dquotation', 'sales', 'pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
@@ -858,7 +899,7 @@ class QuotationController extends Controller
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         $pics = Pic::where('id_client', $quotation->pic->id_client)->get();
         // $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
-        $product = \DB::table('product')->join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc', 'product.unit']);
+        $product = collect([]);
         return view('pages.sales.quotation.service.edit', compact('quotation', 'subtitle', 'pic', 'pics', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 

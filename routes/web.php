@@ -182,6 +182,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/email-templates', EmailTemplateController::class);
 
     // Route untuk Quotation
+    Route::get('/quotation/products/search', [QuotationController::class, 'searchProducts'])->name('quotation.products.search');
     Route::resource('/quotation', QuotationController::class);
     Route::get('/quotation/leads/create', [QuotationController::class, 'create'])->name('create.quotation');
     Route::get('/prospect-quotation', [QuotationController::class, 'prospect_quote'])->name('quotation.prospect');

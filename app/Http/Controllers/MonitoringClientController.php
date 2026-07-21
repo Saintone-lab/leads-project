@@ -530,7 +530,7 @@ class MonitoringClientController extends Controller
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id', 1277)->get('pic.*');
         $sales = User::where('role', 'sales')->get();
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
+        $product = collect([]);
         // dd($product);
 
 

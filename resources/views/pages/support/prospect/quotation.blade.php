@@ -129,19 +129,10 @@
                                         <label for="product" class="mb-2">Product</label>
                                         <div class="form-floating form-floating-outline mb-2">
                                             <select id="product-{{ $id }}"
-                                                class="select2 form-select invoice-item-product" data-allow-clear="true"
+                                                class="form-select invoice-item-product" data-allow-clear="true"
                                                 name="product[]" data-id="1">
                                                 <option> ---- Choose Part Number Here ---- </option>
-                                                @foreach ($product as $products)
-                                                    <option value="{{ $products->id }}"
-                                                        data-replacement="{{ $products->id }}"
-                                                        data-commodity="{{ $products->comId }}">
-                                                        {{ $products->brand }} {{ $products->pn }}
-                                                        ({{ $products->detail_desc }})
-                                                        ||
-                                                        {{ $products->go }}
-                                                    </option>
-                                                @endforeach
+                                                
                                             </select>
                                             <label for="product-{{ $id }}">Product Part Number</label>
                                         </div>
@@ -432,24 +423,36 @@
             });
 
             function initializeSelect2Product() {
-                $('.invoice-item-product').each(function() {
-                    if ($(this).hasClass('select2-hidden-accessible')) {
-                        try {
-                            $(this).select2('destroy');
-                        } catch (e) {
-                            $(this).removeClass('select2-hidden-accessible');
-                            $(this).removeAttr('data-select2-id');
-                            $(this).find('option').removeAttr('data-select2-id');
-                        }
-                    }
-                });
-                
-                $('.invoice-item-product').next('.select2-container').remove();
-
-                $('.invoice-item-product').select2({
+                $('.invoice-item-product').not('.select2-hidden-accessible').select2({
                     placeholder: ' ---- Choose Part Number Here ---- ',
                     allowClear: true,
                     width: '100%',
+                    ajax: {
+                        url: '{{ route('quotation.products.search') }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                q: params.term
+                            };
+                        },
+                        processResults: function (data) {
+                            return {
+                                results: data
+                            };
+                        },
+                        cache: true
+                    }
+                }).on('select2:select', function (e) {
+                    var data = e.params.data;
+                    $(this).find('option:selected')
+                        .attr('data-replacement', data.replacement)
+                        .data('replacement', data.replacement)
+                        .attr('data-commodity', data.commodity)
+                        .data('commodity', data.commodity)
+                        .attr('data-unit', data.unit)
+                        .data('unit', data.unit);
+                    $(this).trigger('change');
                 });
             }
             $(document).ready(function() {
