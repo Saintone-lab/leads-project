@@ -1784,8 +1784,19 @@ class QuotationController extends Controller
             $invoice->delete();
         }
 
-        // Hapus Pending
+        // Hapus Pending & KanbanTask terkait
         foreach ($pendings as $pending) {
+            $tasks = \App\Models\KanbanTask::where('pending_po_id', $pending->id)->get();
+            foreach ($tasks as $task) {
+                // Hapus file attachment dari disk jika ada
+                foreach ($task->attachments as $attachment) {
+                    $fullPath = public_path($attachment->file_path);
+                    if (file_exists($fullPath)) {
+                        @unlink($fullPath);
+                    }
+                }
+                $task->delete();
+            }
             $pending->delete();
         }
 

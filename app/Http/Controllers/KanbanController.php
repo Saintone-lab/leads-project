@@ -1082,6 +1082,22 @@ class KanbanController extends Controller
                     'position' => $index,
                 ]);
             }
+        } else {
+            // Auto-cleanup orphaned tasks (kartu yang pending_po_id nya sudah terhapus di database)
+            $orphanedTasks = KanbanTask::where('board_id', $board->id)
+                ->whereNotNull('pending_po_id')
+                ->whereDoesntHave('pendingPo')
+                ->get();
+
+            foreach ($orphanedTasks as $task) {
+                foreach ($task->attachments as $attachment) {
+                    $fullPath = public_path($attachment->file_path);
+                    if (file_exists($fullPath)) {
+                        @unlink($fullPath);
+                    }
+                }
+                $task->delete();
+            }
         }
 
         $activePos = \App\Models\PendingPO::where('status', '<', 6)
