@@ -139,14 +139,19 @@
                                 @endif
                             @endif
                         </div>
-                        <div class="col-md-3 text-center">
-                            @if ($item->foto_audit)
-                                <img src="{{ asset($item->foto_audit) }}" alt="foto audit"
-                                    style="width:100%;max-width:100px;aspect-ratio:1/1;object-fit:cover;border-radius:6px;">
-                                <div class="small text-muted mt-1">Foto Audit</div>
-                            @endif
+                        <div class="col-md-3 text-center foto-upload-wrapper" data-item-id="{{ $item->id }}">
+                            <div class="foto-preview-container">
+                                @if ($item->foto_audit)
+                                    <img src="{{ asset($item->foto_audit) }}" alt="foto audit" class="foto-preview-img"
+                                        style="width:100%;max-width:100px;aspect-ratio:1/1;object-fit:cover;border-radius:6px;">
+                                    <div class="small text-muted mt-1 foto-preview-label">Foto Audit</div>
+                                @else
+                                    <div class="no-foto-placeholder text-muted small">Belum ada foto</div>
+                                @endif
+                            </div>
+                            <div class="upload-status text-primary small mt-1" style="display:none;"></div>
                             @if ($editable)
-                                <input type="file" class="form-control form-control-sm mt-2" accept="image/*"
+                                <input type="file" class="form-control form-control-sm mt-2 foto-audit-input" accept="image/*"
                                     name="items[{{ $item->id }}][foto_audit]" {{ $item->foto_audit ? '' : 'required' }}>
                             @endif
                         </div>
@@ -170,6 +175,87 @@
                 var metodeWrap = document.querySelector('.metode-wrap-' + id);
                 if (alasanWrap) alasanWrap.style.display = this.value === 'Rusak' ? 'block' : 'none';
                 if (metodeWrap) metodeWrap.style.display = this.value === 'Hilang' ? 'block' : 'none';
+            });
+        });
+
+        // AJAX Photo Upload
+        const submitBtn = document.querySelector('button[type="submit"]');
+
+        document.querySelectorAll('.foto-audit-input').forEach(function (input) {
+            input.addEventListener('change', function () {
+                const file = this.files[0];
+                if (!file) return;
+
+                const wrapper = this.closest('.foto-upload-wrapper');
+                const itemId = wrapper.getAttribute('data-item-id');
+                const statusDiv = wrapper.querySelector('.upload-status');
+                const previewContainer = wrapper.querySelector('.foto-preview-container');
+                const fileInput = this;
+
+                // Disable input and submit button
+                fileInput.disabled = true;
+                if (submitBtn) submitBtn.disabled = true;
+                statusDiv.style.display = 'block';
+                statusDiv.innerHTML = '<span class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></span> Mengunggah...';
+
+                const formData = new FormData();
+                formData.append('foto_audit', file);
+                formData.append('_token', '{{ csrf_token() }}');
+
+                fetch(`/tool-audit/item/${itemId}/upload-photo`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Update preview
+                        previewContainer.innerHTML = `
+                            <img src="${data.foto_url}" alt="foto audit" class="foto-preview-img"
+                                style="width:100%;max-width:100px;aspect-ratio:1/1;object-fit:cover;border-radius:6px;">
+                            <div class="small text-muted mt-1 foto-preview-label">Foto Audit</div>
+                        `;
+                        // Remove required attribute
+                        fileInput.removeAttribute('required');
+                        // Clear the input value so it's not uploaded again in the main form submit
+                        fileInput.value = '';
+                        
+                        statusDiv.innerHTML = '<span class="text-success"><i class="mdi mdi-check-circle"></i> Berhasil diunggah</span>';
+                    } else {
+                        throw new Error('Gagal mengunggah foto.');
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    let errMsg = 'Gagal mengunggah foto.';
+                    if (error.errors && error.errors.foto_audit) {
+                        errMsg = error.errors.foto_audit.join(', ');
+                    } else if (error.message) {
+                        errMsg = error.message;
+                    }
+                    alert(errMsg);
+                    statusDiv.innerHTML = `<span class="text-danger"><i class="mdi mdi-alert-circle"></i> ${errMsg}</span>`;
+                })
+                .finally(() => {
+                    // Re-enable input and submit button
+                    fileInput.disabled = false;
+                    
+                    // Check if any other uploads are in progress before enabling submit button
+                    const anyUploading = Array.from(document.querySelectorAll('.upload-status')).some(el => {
+                        return el.style.display === 'block' && el.innerHTML.includes('spinner-border');
+                    });
+                    if (!anyUploading && submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+                });
             });
         });
     </script>

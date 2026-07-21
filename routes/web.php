@@ -1723,6 +1723,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/tool-audit', [ToolAuditController::class, 'index'])->name('tool-audit.index');
     Route::get('/tool-audit/{id}', [ToolAuditController::class, 'show'])->name('tool-audit.show');
     Route::post('/tool-audit/{id}/submit', [ToolAuditController::class, 'submit'])->name('tool-audit.submit');
+    Route::post('/tool-audit/item/{itemId}/upload-photo', [ToolAuditController::class, 'uploadPhotoAjax'])->name('tool-audit.upload-photo');
 
     // Tools — Verifikasi Audit (role Admin)
     Route::get('/tool-audit-verification', [ToolAuditVerificationController::class, 'index'])->name('tool-audit-verification.index');

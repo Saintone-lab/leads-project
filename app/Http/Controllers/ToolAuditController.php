@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ToolAudit;
+use App\Models\ToolAuditItem;
 use App\Services\ToolAssetPath;
 use App\Services\ToolAuditPeriodGenerator;
 use Carbon\Carbon;
@@ -158,4 +159,42 @@ class ToolAuditController extends Controller
 
         return $relativePath;
     }
+
+    public function uploadPhotoAjax(Request $request, $itemId)
+    {
+        $this->guardTechnician();
+
+        $item = ToolAuditItem::with('audit')
+            ->whereHas('audit', function ($query) {
+                $query->where('id_technician', Auth::id())
+                    ->whereIn('status_submit', ['Draft', 'Rejected']);
+            })
+            ->findOrFail($itemId);
+
+        $this->validate($request, [
+            'foto_audit' => 'required|image|mimes:jpeg,jpg,png|max:4096'
+        ], [
+            'foto_audit.required' => 'Foto wajib diupload.',
+            'foto_audit.image' => 'File harus berupa gambar.',
+            'foto_audit.mimes' => 'Format gambar harus jpeg, jpg, atau png.',
+            'foto_audit.max' => 'Ukuran gambar maksimal 4MB.'
+        ]);
+
+        $technicianName = Auth::user()->name;
+
+        $relativePath = $this->uploadFotoAudit(
+            $request->file('foto_audit'),
+            Auth::id(),
+            $technicianName
+        );
+
+        $item->foto_audit = $relativePath;
+        $item->save();
+
+        return response()->json([
+            'success' => true,
+            'foto_url' => asset($relativePath)
+        ]);
+    }
 }
+
