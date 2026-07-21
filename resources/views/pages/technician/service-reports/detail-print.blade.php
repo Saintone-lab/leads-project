@@ -115,8 +115,7 @@
                             <p class="mb-0">Running & Load</p>
                         </div>
                         <div class="col-8">
-                            <p class="mb-1">: {{ $service->machine->unit->brand }}
-                                {{ $service->machine->unit->unit->model }}</p>
+                            <p class="mb-1">: {{ $service->machine?->unit?->brand ?? '-' }}@if($service->machine?->unit?->unit?->model && $service->machine?->unit?->unit?->model !== '-') {{ $service->machine?->unit?->unit?->model }}@endif{{ $service->machine->desc ? ' - ' . $service->machine->desc : '' }}</p>
                             <p class="mb-1">: {{ $service->machine->serial }}
                                 {{ $service->machine->tag ? '| ' . $service->machine->tag : '' }}
                                 {{ $service->machine->location ? '| ' . $service->machine->location : '' }}</p>
