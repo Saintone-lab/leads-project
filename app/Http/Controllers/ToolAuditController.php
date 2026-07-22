@@ -77,6 +77,7 @@ class ToolAuditController extends Controller
                 $rules["{$prefix}.alasan"] = 'required|string|max:255';
             } elseif ($kondisi == 'Hilang') {
                 $rules["{$prefix}.metode_ganti"] = 'required|in:Beli Sendiri,Potong Bonus';
+                $rules["{$prefix}.alasan"] = 'nullable|string|max:255';
             }
         }
 
@@ -97,7 +98,7 @@ class ToolAuditController extends Controller
 
             $item->qty_actual = $data['qty_actual'];
             $item->kondisi = $data['kondisi'];
-            $item->alasan = $data['kondisi'] == 'Rusak' ? ($data['alasan'] ?? null) : null;
+            $item->alasan = in_array($data['kondisi'], ['Rusak', 'Hilang']) ? ($data['alasan'] ?? null) : null;
             $item->metode_ganti = $data['kondisi'] == 'Hilang' ? ($data['metode_ganti'] ?? null) : null;
 
             if ($request->hasFile("items.{$item->id}.foto_audit")) {

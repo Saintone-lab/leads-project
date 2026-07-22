@@ -72,7 +72,7 @@
                             </div>
                             <span class="badge {{ $kondisiBadge }}">{{ $item->kondisi ?? '-' }}</span>
                             @if ($item->alasan)
-                                <div class="small text-muted mt-1">Alasan: {{ $item->alasan }}</div>
+                                <div class="small text-muted mt-1">{{ $item->kondisi == 'Hilang' ? 'Catatan' : 'Alasan' }}: {{ $item->alasan }}</div>
                             @endif
                             @if ($item->metode_ganti)
                                 <div class="small text-muted mt-1">Ganti: {{ $item->metode_ganti }}</div>

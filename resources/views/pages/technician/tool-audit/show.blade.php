@@ -95,9 +95,9 @@
                                 </div>
 
                                 <div class="mt-2 alasan-wrap-{{ $item->id }}"
-                                    style="display: {{ $kondisi == 'Rusak' ? 'block' : 'none' }};">
+                                    style="display: {{ in_array($kondisi, ['Rusak', 'Hilang']) ? 'block' : 'none' }};">
                                     <textarea class="form-control form-control-sm" name="items[{{ $item->id }}][alasan]"
-                                        placeholder="Alasan kerusakan...">{{ old("items.{$item->id}.alasan", $item->alasan) }}</textarea>
+                                        placeholder="{{ $kondisi == 'Hilang' ? 'Catatan (opsional)...' : 'Alasan kerusakan...' }}">{{ old("items.{$item->id}.alasan", $item->alasan) }}</textarea>
                                 </div>
 
                                 <div class="mt-2 metode-wrap-{{ $item->id }}"
@@ -173,7 +173,11 @@
                 var id = this.getAttribute('data-item');
                 var alasanWrap = document.querySelector('.alasan-wrap-' + id);
                 var metodeWrap = document.querySelector('.metode-wrap-' + id);
-                if (alasanWrap) alasanWrap.style.display = this.value === 'Rusak' ? 'block' : 'none';
+                if (alasanWrap) {
+                    alasanWrap.style.display = (this.value === 'Rusak' || this.value === 'Hilang') ? 'block' : 'none';
+                    var textarea = alasanWrap.querySelector('textarea');
+                    if (textarea) textarea.placeholder = this.value === 'Hilang' ? 'Catatan (opsional)...' : 'Alasan kerusakan...';
+                }
                 if (metodeWrap) metodeWrap.style.display = this.value === 'Hilang' ? 'block' : 'none';
             });
         });

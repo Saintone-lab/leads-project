@@ -51,6 +51,11 @@
                                 <a href="{{ route('tool-audit-verification.show', $audit->id) }}" class="btn btn-sm btn-primary">
                                     {{ $status == 'Submitted' ? 'Verifikasi' : 'Lihat' }}
                                 </a>
+                                @if (Auth::user()->role == 'Admin')
+                                    <a href="{{ route('tool-audit-verification.edit', $audit->id) }}" class="btn btn-sm btn-outline-warning">
+                                        <i class="mdi mdi-pencil"></i> Edit
+                                    </a>
+                                @endif
                             </td>
                         </tr>
                     @empty
