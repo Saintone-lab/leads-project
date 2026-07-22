@@ -15,6 +15,11 @@
                     </button>
                 </li>
                 <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-existing-crm" type="button">
+                        <i class="menu-icon tf-icons mdi mdi-phone-outline me-1"></i>CRM Activity
+                    </button>
+                </li>
+                <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-existing-quotation"
                         type="button">
                         <i class="menu-icon tf-icons mdi mdi-file-document-outline me-1"></i>Quotation
@@ -23,11 +28,6 @@
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-existing-po" type="button">
                         <i class="menu-icon tf-icons mdi mdi-cart-outline me-1"></i>Purchase Order
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-existing-crm" type="button">
-                        <i class="menu-icon tf-icons mdi mdi-phone-outline me-1"></i>CRM Activity
                     </button>
                 </li>
                 <li class="nav-item">
@@ -291,8 +291,9 @@
                                         <th></th>
                                         <th></th>
                                         <th>ID</th>
-                                        <th>Date</th>
                                         <th>No Quote</th>
+                                        <th>Deskripsi</th>
+                                        <th>Date</th>
                                         <th>Status</th>
                                         <th>Total Price</th>
                                     </tr>

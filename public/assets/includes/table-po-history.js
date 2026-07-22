@@ -45,8 +45,9 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "po_date" },
                 { data: "no_quote" },
+                { data: "title" },
+                { data: "po_date" },
                 { data: "status" },
                 { data: "nett" },
             ],
@@ -77,9 +78,6 @@ $(function () {
                 {
                     responsivePriority: 1,
                     targets: 3,
-                },
-                {
-                    targets: 4,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
@@ -96,8 +94,17 @@ $(function () {
                     },
                 },
                 {
-                    // Label Status Percent
+                    targets: 4,
+                    render: function (data, type, full, meta) {
+                        return data ? data : "-";
+                    },
+                },
+                {
                     targets: 5,
+                },
+                {
+                    // Label Status Percent
+                    targets: 6,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $titleTool = full["note"];
@@ -159,6 +166,12 @@ $(function () {
                             $status[$status_number].title +
                             "</span>"
                         );
+                    },
+                },
+                {
+                    targets: 7,
+                    render: function (data, type, full, meta) {
+                        return formatRupiah(data);
                     },
                 },
             ],

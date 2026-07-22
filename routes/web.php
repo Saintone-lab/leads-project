@@ -4719,7 +4719,7 @@ AND u.id = ' . Auth::user()->id . ') AS price'),
             ->select(
                 'machine.*',
                 's.bar',
-                'u.sku',
+                'u.model as sku',
                 'u.unit',
                 's.brand',
             )
