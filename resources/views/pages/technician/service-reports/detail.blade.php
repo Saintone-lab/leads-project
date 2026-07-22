@@ -131,7 +131,15 @@
                                         <p class="mb-0">Running & Load</p>
                                     </div>
                                     <div class="col-8">
-                                        <p class="mb-1">: {{ $service->machine?->unit?->brand ?? '-' }}@if($service->machine?->unit?->unit?->model && $service->machine?->unit?->unit?->model !== '-') {{ $service->machine?->unit?->unit?->model }}@endif{{ $service->machine->desc ? ' - ' . $service->machine->desc : '' }}</p>
+                                        <p class="mb-1">: 
+                                            @if (Auth::user()->role == 'Admin' && isset($service->machine?->unit?->unit))
+                                                <a href="{{ route('unit-global.show', $service->machine->unit->unit->id) }}" target="_blank">
+                                                    {{ $service->machine?->unit?->brand ?? '-' }}@if($service->machine?->unit?->unit?->model && $service->machine?->unit?->unit?->model !== '-') {{ $service->machine?->unit?->unit?->model }}@endif{{ $service->machine->desc ? ' - ' . $service->machine->desc : '' }}
+                                                </a>
+                                            @else
+                                                {{ $service->machine?->unit?->brand ?? '-' }}@if($service->machine?->unit?->unit?->model && $service->machine?->unit?->unit?->model !== '-') {{ $service->machine?->unit?->unit?->model }}@endif{{ $service->machine->desc ? ' - ' . $service->machine->desc : '' }}
+                                            @endif
+                                        </p>
                                         <p class="mb-1">: {{ $service->machine->serial }}
                                             {{ $service->machine->tag ? '| ' . $service->machine->tag : '' }}
                                             {{ $service->machine->location ? '| ' . $service->machine->location : '' }}</p>

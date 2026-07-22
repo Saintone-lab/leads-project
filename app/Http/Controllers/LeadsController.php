@@ -16,6 +16,8 @@ use App\Models\Activities;
 use App\Models\Visit;
 use App\Models\Quotation;
 use App\Models\Pic;
+use App\Models\ClientPlant;
+use App\Models\Reports;
 use DB;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -228,19 +230,84 @@ class LeadsController extends Controller
      */
     public function show($id)
     {
+        $dateNow = Carbon::now();
+        $monthNow = $dateNow->month;
+        $yearsNow = $dateNow->year;
+
         $existing = Client::where('id', $id)->first();
         $leads = Client::where('id', $id)->first();
         $charge = PIC::where('id_client', $id)->get();
         $unit = SerialProduct::whereNotNull('detail')->get();
         $machines = Machine::where('id_client', $id)->get();
-        $callhis = Activities::where('id_client', $id)->whereIn('name', ['Daily Call', 'Follow Up'])->get();
+        $plants = ClientPlant::where('id_client', $id)->get();
+        $callhis = Activities::where('id_client', $id)->whereIn('name', ['Daily Call', 'Follow Up', 'CRM'])->get();
         $visit = Activities::where('id_client', $id)->where('name', 'Visit')->get();
         $quote = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('pic.id_client', $id)->where('level', '1')->get('quotation.*');
         $sales = User::where('role', 'sales')->get();
         $issue = Issues::all();
+        $service = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')->where('pic.id_client', $id)->get('reports.*');
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
+        $poYears = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')
+            ->where('pic.id_client', $id)
+            ->where('quotation.level', '1')
+            ->where('quotation.is_primary', '1')
+            ->where('quotation.status', '100')
+            ->whereNotNull('quotation.po_date')
+            ->selectRaw('DISTINCT YEAR(quotation.po_date) as year')
+            ->pluck('year')
+            ->push($yearsNow)
+            ->unique()
+            ->sortDesc()
+            ->values();
+
+        $quotationStatusMap = [
+            '20' => ['label' => 'Send Quotation', 'color' => 'secondary'],
+            '30' => ['label' => 'Inquiry Accepted', 'color' => 'dark'],
+            '40' => ['label' => 'Progress Follow Up', 'color' => 'info'],
+            '60' => ['label' => 'Negotiation / Revisi', 'color' => 'primary'],
+            '80' => ['label' => 'Hot Prospect', 'color' => 'warning'],
+            '100' => ['label' => 'Done PO', 'color' => 'success'],
+            '0' => ['label' => 'Loss', 'color' => 'danger'],
+        ];
+
+        $activityTimeline = collect();
+
+        foreach ($callhis as $history) {
+            $activityTimeline->push([
+                'date' => Carbon::parse($history->date),
+                'title' => $history->action,
+                'category' => $history->name,
+                'status' => $history->status,
+                'note' => $history->note,
+                'color' => match ($history->name) {
+                    'Daily Call' => 'info',
+                    'Follow Up' => 'warning',
+                    default => 'primary',
+                },
+                'no_quote' => null,
+                'url' => null,
+            ]);
+        }
+
+        foreach ($quote as $q) {
+            $statusInfo = $quotationStatusMap[$q->status] ?? ['label' => $q->status, 'color' => 'secondary'];
+
+            $activityTimeline->push([
+                'date' => $q->created_at ?? Carbon::parse($q->estimated_date),
+                'title' => 'Quotation Dibuat',
+                'category' => 'Quotation',
+                'status' => $statusInfo['label'],
+                'note' => $q->note,
+                'color' => $statusInfo['color'],
+                'no_quote' => $q->no_quote,
+                'url' => route('quotation.show', $q->id),
+            ]);
+        }
+
+        $activityTimeline = $activityTimeline->sortByDesc('date')->values();
+        $crmhis = $this->data($id);
 
         // Comment Buat Admin
         $firstComments = Comment::where('id_user', Auth::id())
@@ -306,7 +373,11 @@ class LeadsController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.sales.clients.leads.detail', compact('existing', 'unit', 'machines', 'noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'leads', 'callhis', 'quote', 'sales', 'charge', 'issue', 'visit'));
+        return view('pages.sales.clients.leads.detail', compact(
+            'existing', 'callhis', 'quote', 'activityTimeline', 'plants', 'poYears', 'leveledProspect', 'noSaleProspect',
+            'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'sales', 'unit', 'charge', 'issue',
+            'service', 'visit', 'machines', 'monthNow', 'yearsNow', 'leads', 'crmhis'
+        ));
     }
 
     /**
@@ -633,5 +704,105 @@ class LeadsController extends Controller
             ->take(5)
             ->get();
         return view('pages.sales.clients.leads.indexBySales', compact('noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'client', 'sales', 'issue'));
+    }
+
+    protected function data($id)
+    {
+        $currentMonth = date('n'); // 'n' returns the month without leading zeros
+        $currentYear = date('Y');
+
+        // Determine the start date based on the current month
+        if ($currentMonth >= 1 && $currentMonth <= 6) {
+            // January to June
+            $startSemester = Carbon::parse($currentYear . '-01-01'); // 1 January of the current year
+        } else {
+            // July to December
+            $startSemester = Carbon::parse($currentYear . '-07-01'); // 1 July of the current year
+        }
+        // Misalkan semester berlangsung selama 16 minggu
+        $numOfWeeks = 26;
+
+        $dataPerMonth = [];
+        $dataPerSixMonth = [];
+
+        for ($week = 0; $week < $numOfWeeks; $week++) {
+            $currentWeek = $startSemester->copy()->addWeeks($week);
+            $startDate = $currentWeek->copy()->startOfWeek();
+            $endDate = $currentWeek->copy()->endOfWeek();
+
+            // Hitung jumlah hari dalam minggu ini
+            $daysInWeek = $endDate->diffInDays($startDate) + 1;
+
+            // Jika jumlah hari dalam minggu lebih dari 4, pertimbangkan sebagai satu minggu
+            if ($daysInWeek > 4) {
+                $month = $currentWeek->format('F Y');
+                $data = Activities::whereBetween('date', [$startDate, $endDate])->where('id_client', $id)->get();
+                if ($data->isNotEmpty()) {
+                    // dd($data);
+                    // Jika ada data, tambahkan ke array dataPerMonth
+                    $dataPerMonth[$month][] = [
+                        'week_start' => $startDate->format('Y-m-d'),
+                        'week_end' => $endDate->format('Y-m-d'),
+                        'data' => $data->map(function ($item) {
+                            $carbonDate = Carbon::parse($item->date);
+                            return $carbonDate->format('m-d');
+                        }),
+                        'note' => $data->map(function ($item) {
+                            return $item->note;
+                        }),
+                    ];
+                } else {
+                    // Jika tidak ada data, tambahkan tanda "-"
+                    $dataPerMonth[$month][] = [
+                        'week_start' => $startDate->format('Y-m-d'),
+                        'week_end' => $endDate->format('Y-m-d'),
+                        'data' => '-',
+                        'note' => '-',
+                    ];
+                }
+            }
+        }
+        $dataPerSixMonth[] = [
+            'month' => $month,
+            'data' => $dataPerMonth,
+        ];
+
+        return $dataPerMonth;
+    }
+
+    public function getServicePerMonth($id)
+    {
+        $machines = Machine::where('id_client', $id)->with('reports')->get();
+        $results = [];
+
+        foreach ($machines as $machine) {
+            $serviceReportsByMonth = [];
+
+            // Inisialisasi array bulan
+            for ($i = 1; $i <= 12; $i++) {
+                $monthName = Carbon::create()->month($i)->format('F');
+                $serviceReportsByMonth[$monthName] = [
+                    'month' => $monthName,
+                    'service' => 'no service'
+                ];
+            }
+
+            // Isi array bulan dengan data dari laporan servis yang ada
+            foreach ($machine->reports as $report) {
+                $month = Carbon::parse($report->date)->month;
+                $monthName = Carbon::create()->month($month)->format('F');
+                $serviceReportsByMonth[$monthName] = [
+                    'month' => $monthName,
+                    'service' => $report->no_service
+                ];
+            }
+
+            $results[] = [
+                'machine' => $machine->brand,
+                'Service' => array_values($serviceReportsByMonth)
+            ];
+        }
+
+        return response()->json($results);
     }
 }

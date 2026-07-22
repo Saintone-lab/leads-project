@@ -69,7 +69,7 @@
                                     <option selected>----- Select Company Sales -----</option>
                                     @foreach ($sales as $sale)
                                         <option data-id="{{ $sale->id }}" value="{{ $sale->id }}"
-                                            {{ (isset($selectedSalesId) && $selectedSalesId == $sale->id) || (@$report && @$report->pic->client->sales->id == $sale->id) ? 'selected' : '' }}>
+                                            {{ (isset($selectedSalesId) && $selectedSalesId == $sale->id) || (@$report && isset($report->pic->client->sales) && $report->pic->client->sales->id == $sale->id) ? 'selected' : '' }}>
                                             {{ $sale->name }}</option>
                                     @endforeach
                                 </select>
@@ -82,7 +82,7 @@
                                 <select id="client-dropdown" class="select2 form-select invoice-item-client" data-id="1"
                                     data-allow-clear="true" name="client" disabled>
                                     <option> ---- Choose Client Here ---- </option>
-                                    @if (@$report)
+                                    @if (@$report && isset($report->pic->client))
                                         <option data-id="{{ $report->pic->client->id }}" value="{{ $report->pic->client->id }}"
                                             selected>
                                             {{ $report->pic->client->company }}</option>
@@ -96,7 +96,7 @@
                                 <select id="pic-dropdown" class="select2 form-select invoice-item-pic" data-id="1"
                                     data-allow-clear="true" name="id_pic" disabled>
                                     <option> ---- Choose PIC Here ---- </option>
-                                    @if (@$report)
+                                    @if (@$report && isset($report->pic))
                                         <option data-id="{{ $report->pic->id }}" value="{{ $report->pic->id }}" selected>
                                             {{ $report->pic->name_pic }}</option>
                                     @endif
@@ -141,13 +141,13 @@
                                 <option> ---- Choose Machine Here ---- </option>
                                 @if (isset($isInternalStock) && $isInternalStock && isset($machine))
                                     <option value="{{ $machine->id }}" selected>
-                                        {{ $machine->unit->brand ?? '-' }} {{ $machine->unit->pn ?? '' }} ||
+                                        {{ optional($machine->unit)->brand ?? '-' }} {{ optional($machine->unit)->pn ?? '' }} ||
                                         {{ $machine->location }} - {{ $machine->tag }} - {{ $machine->serial }}
                                     </option>
-                                @elseif (@$report)
+                                @elseif (@$report && isset($report->machine))
                                     <option data-id="{{ $report->machine->id }}" value="{{ $report->machine->id }}"
                                         selected>
-                                        {{ $report->machine->unit->brand }} {{ $report->machine->unit->pn }} ||
+                                        {{ optional($report->machine->unit)->brand ?? '-' }} {{ optional($report->machine->unit)->pn ?? '' }} ||
                                         {{ $report->machine->location }} - {{ $report->machine->tag }} -
                                         {{ $report->machine->serial }}
                                     </option>
@@ -244,8 +244,8 @@
         }
         $(document).ready(function() {
             var selectedMachineId = '{{ $selectedMachineId ?? $report->id_machine ?? '' }}';
-            var selectedSalesId = '{{ $selectedSalesId ?? $report->pic->client->id_sales ?? '' }}';
-            var selectedClientId = '{{ $selectedClientId ?? $report->pic->id_client ?? '' }}';
+            var selectedSalesId = '{{ $selectedSalesId ?? (isset($report->pic->client) ? $report->pic->client->id_sales : '') }}';
+            var selectedClientId = '{{ $selectedClientId ?? (isset($report->pic) ? $report->pic->id_client : '') }}';
             var selectedPICId = '{{ $selectedPICId ?? $report->id_pic ?? '' }}';
             var isInternalStock = {{ isset($isInternalStock) && $isInternalStock ? 'true' : 'false' }};
             initNumericInput();

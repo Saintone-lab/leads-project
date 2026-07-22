@@ -1523,6 +1523,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::patch('/pending-po/product/{id}', [PendingController::class, 'productEdit'])->name('pending-po.productEdit');
     Route::patch('/pending-po/project/{id}', [PendingController::class, 'projectEdit'])->name('pending-po.projectEdit');
     Route::patch('/pending-po/status/{id}', [PendingController::class, 'statusEdit'])->name('pending-po.statusEdit');
+    Route::post('/pending-po/change-type/{id}', [PendingController::class, 'changeType'])->name('pending-po.changeType');
+    Route::post('/pending-po/update-addresses/{id}', [PendingController::class, 'updateAddresses'])->name('pending-po.updateAddresses');
     Route::patch('/pending-po/delivery/{id}', [PendingController::class, 'deliveryEdit'])->name('pending-po.deliveryEdit');
     Route::post('/pending-po/retur/{id}', [PendingController::class, 'returProduct'])->name('pending-po.returProduct');
     Route::post('/pending-po/clear-return/{id}', [PendingController::class, 'clearReturn'])->name('pending-po.clearReturn');
@@ -1729,6 +1731,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::get('/tool-audit-verification', [ToolAuditVerificationController::class, 'index'])->name('tool-audit-verification.index');
     Route::get('/tool-audit-verification/{id}', [ToolAuditVerificationController::class, 'show'])->name('tool-audit-verification.show');
     Route::post('/tool-audit-verification/{id}/decide', [ToolAuditVerificationController::class, 'decide'])->name('tool-audit-verification.decide');
+    Route::get('/tool-audit-verification/{id}/edit', [ToolAuditVerificationController::class, 'edit'])->name('tool-audit-verification.edit');
+    Route::post('/tool-audit-verification/{id}/update', [ToolAuditVerificationController::class, 'update'])->name('tool-audit-verification.update');
 
     // Tools — Summary rekap per periode (role Admin)
     Route::get('/tool-audit-summary', [ToolAuditSummaryController::class, 'index'])->name('tool-audit-summary.index');
@@ -4298,8 +4302,8 @@ AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT
         $data = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')
             ->join('users', 'users.id', '=', 'reports.id_technician')
             ->join('machine', 'machine.id', '=', 'reports.id_machine')
-            ->join('unit', 'unit.id', '=', 'machine.id_unit')
-            ->join('serial_product as s', 'unit.id', '=', 's.id_product')
+            ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
+            ->join('unit', 'unit.id', '=', 's.id_product')
             ->where('pic.id_client', $id)
             ->where('reports.type', 'Service')
             ->select(
@@ -4315,8 +4319,8 @@ AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT
         $data = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')
             ->join('users', 'users.id', '=', 'reports.id_technician')
             ->join('machine', 'machine.id', '=', 'reports.id_machine')
-            ->join('unit', 'unit.id', '=', 'machine.id_unit')
-            ->join('serial_product as s', 'unit.id', '=', 's.id_product')
+            ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
+            ->join('unit', 'unit.id', '=', 's.id_product')
             ->where('pic.id_client', $id)
             ->where('reports.type', 'Visit')
             ->select(
@@ -4332,8 +4336,8 @@ AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT
         $data = Reports::join('pic', 'pic.id', '=', 'reports.id_pic')
             ->join('users', 'users.id', '=', 'reports.id_technician')
             ->join('machine', 'machine.id', '=', 'reports.id_machine')
-            ->join('unit', 'unit.id', '=', 'machine.id_unit')
-            ->join('serial_product as s', 'unit.id', '=', 's.id_product')
+            ->join('serial_product as s', 's.id', '=', 'machine.id_unit')
+            ->join('unit', 'unit.id', '=', 's.id_product')
             ->where('pic.id_client', $id)
             ->where('reports.type', 'General')
             ->select(
