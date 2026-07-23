@@ -46,7 +46,8 @@ class InvoiceController extends Controller
             ->whereNotNull('client.npwp')
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
-            ->count();
+            ->count()
+            + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $activeTab = request('tab', 'reftech');
         return view('pages.accounting.invoice.index', compact('requestContract', 'requestInvoice', 'noSaleProspect', 'activeTab'));
@@ -95,7 +96,8 @@ class InvoiceController extends Controller
             ->whereNotNull('client.npwp')
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
-            ->count();
+            ->count()
+            + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
         $invoice = Invoice::find($id);
 
         // Unit quotation invoice — arahkan ke halaman yang benar
@@ -351,7 +353,8 @@ class InvoiceController extends Controller
             ->whereNotNull('quotation.po_file')
             ->whereNotNull('client.npwp')
             ->whereNull('invoice.no_invoice')
-            ->count();
+            ->count()
+            + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
         $dateNow = Carbon::now();
         $year = $dateNow->year;
         $month = $dateNow->month;
@@ -402,7 +405,19 @@ class InvoiceController extends Controller
             $lastSuoSeq = isset($m[1]) ? (int) $m[1] : 0;
         }
 
-        function generateNextInvoiceNumber($lastInvoice, $defaultCode, $lastSuoSeq = 0)
+        // Juga pertimbangkan invoice unit quotation yg sudah ada (satu namespace nomor dgn invoice biasa)
+        $lastUnitInvoice = Invoice::whereNotNull('id_unit_quotation')
+            ->whereNotNull('no_invoice')
+            ->whereYear('created_at', $year)
+            ->orderBy('no_invoice', 'desc')
+            ->first();
+        $lastUnitSeq = 0;
+        if ($lastUnitInvoice) {
+            preg_match('/^(\d+)\//', $lastUnitInvoice->no_invoice, $m);
+            $lastUnitSeq = isset($m[1]) ? (int) $m[1] : 0;
+        }
+
+        function generateNextInvoiceNumber($lastInvoice, $defaultCode, $lastSuoSeq = 0, $lastUnitSeq = 0)
         {
             $lastSeqFromInvoice = 0;
             if ($lastInvoice) {
@@ -412,7 +427,7 @@ class InvoiceController extends Controller
                 }
             }
 
-            $effectiveLast = max($lastSeqFromInvoice, $lastSuoSeq);
+            $effectiveLast = max($lastSeqFromInvoice, $lastSuoSeq, $lastUnitSeq);
 
             if ($effectiveLast > 0) {
                 return str_pad($effectiveLast + 1, 3, '0', STR_PAD_LEFT);
@@ -420,18 +435,30 @@ class InvoiceController extends Controller
 
             return $defaultCode;
         }
-        // Generate next invoice numbers — mempertimbangkan sequence SUO booking
-        $nextCodePR  = generateNextInvoiceNumber($lastInvoicePRef,  '001', $lastSuoSeq);
-        $nextCodeNPR = generateNextInvoiceNumber($lastInvoiceNPRef, '001', $lastSuoSeq);
-        $nextCodePK  = generateNextInvoiceNumber($lastInvoicePKoj,  '001', $lastSuoSeq);
-        $nextCodeNPK = generateNextInvoiceNumber($lastInvoiceNPKoj, '001', $lastSuoSeq);
+        // Generate next invoice numbers — mempertimbangkan sequence SUO booking & invoice unit quotation
+        $nextCodePR  = generateNextInvoiceNumber($lastInvoicePRef,  '001', $lastSuoSeq, $lastUnitSeq);
+        $nextCodeNPR = generateNextInvoiceNumber($lastInvoiceNPRef, '001', $lastSuoSeq, $lastUnitSeq);
+        $nextCodePK  = generateNextInvoiceNumber($lastInvoicePKoj,  '001', $lastSuoSeq, $lastUnitSeq);
+        $nextCodeNPK = generateNextInvoiceNumber($lastInvoiceNPKoj, '001', $lastSuoSeq, $lastUnitSeq);
 
-        // "Last No" display — tampilkan nomor terakhir yg benar-benar dipakai (invoice atau SUO booking)
-        $getEffectiveLastDisplay = function ($lastInvoice) use ($lastSuoBookingNo, $lastSuoSeq) {
-            if (!$lastInvoice) return $lastSuoBookingNo;
-            preg_match('/^(\d+)\//', $lastInvoice->no_invoice, $m);
-            $invoiceSeq = isset($m[1]) ? (int) $m[1] : 0;
-            return $invoiceSeq >= $lastSuoSeq ? $lastInvoice->no_invoice : $lastSuoBookingNo;
+        // "Last No" display — tampilkan nomor terakhir yg benar-benar dipakai (invoice, SUO booking, atau invoice unit quotation)
+        $getEffectiveLastDisplay = function ($lastInvoice) use ($lastSuoBookingNo, $lastSuoSeq, $lastUnitInvoice, $lastUnitSeq) {
+            $best = 0;
+            if ($lastInvoice) {
+                preg_match('/^(\d+)\//', $lastInvoice->no_invoice, $m);
+                $best = isset($m[1]) ? (int) $m[1] : 0;
+            }
+            $bestDisplay = $lastInvoice->no_invoice ?? null;
+
+            if ($lastUnitSeq > $best) {
+                $best = $lastUnitSeq;
+                $bestDisplay = $lastUnitInvoice->no_invoice;
+            }
+            if ($lastSuoSeq > $best) {
+                $bestDisplay = $lastSuoBookingNo;
+            }
+
+            return $bestDisplay;
         };
         $displayLastPR  = $getEffectiveLastDisplay($lastInvoicePRef);
         $displayLastNPR = $getEffectiveLastDisplay($lastInvoiceNPRef);
@@ -972,7 +999,8 @@ class InvoiceController extends Controller
             ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')->whereNotNull('client.npwp')
-            ->whereNotNull('quotation.po_file')->whereNull('invoice.no_invoice')->count();
+            ->whereNotNull('quotation.po_file')->whereNull('invoice.no_invoice')->count()
+            + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
         $noSaleProspect = Prospect::whereNull('id_sales')->whereNull('provide')->count();
 
         return view('pages.accounting.invoice.detail-unit', compact(
@@ -1068,7 +1096,8 @@ class InvoiceController extends Controller
             ->join('invoice', 'invoice.id_quotation', '=', 'quotation.id')
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')->whereNotNull('client.npwp')
-            ->whereNotNull('quotation.po_file')->whereNull('invoice.no_invoice')->count();
+            ->whereNotNull('quotation.po_file')->whereNull('invoice.no_invoice')->count()
+            + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
         $noSaleProspect = Prospect::whereNull('id_sales')->whereNull('provide')->count();
 
         return view('pages.accounting.invoice.before-accept-unit', compact(

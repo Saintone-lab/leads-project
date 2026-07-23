@@ -396,7 +396,8 @@ class DashboardController extends Controller
                 ->where('status', '100')
                 ->whereNotNull('quotation.po_file')
                 ->whereNull('invoice.no_invoice')
-                ->count();
+                ->count()
+                + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
             $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
             $poTotalPriceAdmin = Quotation::whereYear('po_date', $yearNow)
                 ->whereMonth('po_date', $monthNow)
@@ -635,7 +636,8 @@ class DashboardController extends Controller
                 ->where('status', '100')
                 ->whereNotNull('quotation.po_file')
                 ->whereNull('invoice.no_invoice')
-                ->count();
+                ->count()
+                + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
             $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
             $newCount = PendingPO::where('status', operator: 0)
                 ->where('type', 'Non Project')
@@ -1131,7 +1133,8 @@ class DashboardController extends Controller
             ->where('status', '100')
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
-            ->count();
+            ->count()
+            + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
 
         $acctMonthStart = Carbon::create($yearNow, $monthNow, 1)->startOfMonth();
         $acctMonthEnd = Carbon::create($yearNow, $monthNow, 1)->endOfMonth();

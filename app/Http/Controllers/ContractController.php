@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contract;
 use App\Models\DetailQuotation;
+use App\Models\Invoice;
 use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\SubtitleQuotation;
@@ -28,7 +29,8 @@ class ContractController extends Controller
             ->where('status', '100')
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
-            ->count();
+            ->count()
+            + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
         $contracts = Contract::with(['quotation.pic.client', 'unitQuotation.client'])
             ->where('level', '0')
             ->get();
@@ -93,7 +95,8 @@ class ContractController extends Controller
             ->where('status', '100')
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
-            ->count();
+            ->count()
+            + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
         $today = Carbon::now();
         $thisYear = $today->year;
         $numberLastSP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $today)->where('q.tax', '11')->where('contract.type', 'Selling')->where('contract.level', '1')->groupBy('contract.id')->orderByDesc('contract.id')->first('contract.no_contract');
