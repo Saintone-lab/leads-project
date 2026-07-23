@@ -166,9 +166,13 @@
                             <div class="col-5 text-muted">Discount</div>
                             <div class="col-7">
                                 <div class="input-group input-group-sm">
-                                    <input type="number" class="form-control text-end" name="diskon" id="input-diskon"
-                                        value="0" min="0" max="100" step="0.01">
-                                    <span class="input-group-text">%</span>
+                                    <select class="form-select flex-grow-0" id="select-diskon-type"
+                                        name="diskon_type" style="max-width:80px;">
+                                        <option value="percent" selected>%</option>
+                                        <option value="amount">Rp</option>
+                                    </select>
+                                    <input type="text" class="form-control text-end" name="diskon"
+                                        id="input-diskon" value="0" autocomplete="off">
                                 </div>
                             </div>
                         </div>

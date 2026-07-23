@@ -186,7 +186,7 @@
                             <td colspan="2" class="text-end px-4 py-4">
                                 <p class="mb-2">Subtotal :</p>
                                 @if ($quote->diskon > 0)
-                                    <p class="mb-2">Discount {{ $quote->diskon }}% :</p>
+                                    <p class="mb-2">Discount {{ $quote->discount_label }} :</p>
                                     <p class="mb-2">Subtotal After Discount :</p>
                                 @endif
                                 <p class="mb-0">Tax :</p>
@@ -194,9 +194,8 @@
                             <td colspan="2" class="px-4 py-4">
                                 <p class="fw-semibold mb-2 text-end">Rp {{ number_format($quote->subtotal, 0, '', '.') }}</p>
                                 @if ($quote->diskon > 0)
-                                    @php $afterDisc = $quote->subtotal - ($quote->subtotal * $quote->diskon / 100); @endphp
-                                    <p class="fw-semibold mb-2 text-end">- Rp {{ number_format($quote->subtotal * $quote->diskon / 100, 0, '', '.') }}</p>
-                                    <p class="fw-semibold mb-2 text-end">Rp {{ number_format($afterDisc, 0, '', '.') }}</p>
+                                    <p class="fw-semibold mb-2 text-end">- Rp {{ number_format($quote->discount_amount, 0, '', '.') }}</p>
+                                    <p class="fw-semibold mb-2 text-end">Rp {{ number_format($quote->subtotal - $quote->discount_amount, 0, '', '.') }}</p>
                                 @endif
                                 <p class="fw-semibold mb-0 text-end">
                                     {{ $quote->tax ? 'Rp ' . number_format($quote->tax_amount, 0, '', '.') : '0' }}

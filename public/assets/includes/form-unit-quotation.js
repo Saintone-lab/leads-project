@@ -75,8 +75,11 @@ $(function () {
             subtotal += qty * price * (1 - disc / 100);
         });
 
-        var diskon      = parseFloat($('#input-diskon').val()) || 0;
-        var afterDiskon = subtotal - (subtotal * diskon / 100);
+        var diskonType  = $('#select-diskon-type').val() || 'percent';
+        var diskon      = diskonType === 'amount'
+            ? parseRupiah($('#input-diskon').val())
+            : (parseFloat($('#input-diskon').val()) || 0);
+        var afterDiskon = diskonType === 'amount' ? (subtotal - diskon) : (subtotal - (subtotal * diskon / 100));
         var tax         = $('#toggle-tax').is(':checked');
         var taxAmount   = tax ? Math.round(afterDiskon * 0.11) : 0;
         var total       = afterDiskon + taxAmount;
@@ -512,7 +515,19 @@ $(function () {
     $('#btn-add-unit').on('click', addUnitRow);
     $('#btn-add-custom').on('click', addCustomRow);
 
-    $('#input-diskon').on('input', recalcSummary);
+    $('#input-diskon').on('input', function () {
+        if ($('#select-diskon-type').val() === 'amount') {
+            var raw = $(this).val().replace(/\D/g, '');
+            $(this).val(formatRupiah(raw));
+        }
+        recalcSummary();
+    });
+    $('#select-diskon-type').on('change', function () {
+        // Format ulang tampilan diskon sesuai tipe baru; nilai di-reset
+        // supaya angka % tidak salah dibaca sebagai nominal Rp (atau sebaliknya).
+        $('#input-diskon').val('0');
+        recalcSummary();
+    });
     $('#toggle-tax').on('change', recalcSummary);
 
     // ── Pre-submit: convert rupiah field to raw number for server ─────────
@@ -520,6 +535,11 @@ $(function () {
         $('.rupiah-input').each(function () {
             $(this).val(parseRupiah($(this).val()));
         });
+
+        var $diskon = $('#input-diskon');
+        $diskon.val($('#select-diskon-type').val() === 'amount'
+            ? parseRupiah($diskon.val())
+            : (parseFloat($diskon.val()) || 0));
     });
 
     // ── Hydrate existing items for edit mode ──────────────────────────────
@@ -536,6 +556,15 @@ $(function () {
         if (window.EDIT_CLIENT_ID) {
             $('#client-select').trigger('change');
         }
+    }
+
+    // Format nilai diskon awal (mode edit) kalau tipenya nominal Rupiah.
+    // Nilai dari server berbentuk decimal string ("300000.00") — parse dulu
+    // sebagai float sebelum diformat, supaya titik desimalnya tidak ikut
+    // dianggap ribuan oleh formatRupiah.
+    if ($('#select-diskon-type').val() === 'amount') {
+        var initialDiskon = parseFloat($('#input-diskon').val()) || 0;
+        $('#input-diskon').val(formatRupiah(Math.round(initialDiskon)));
     }
 
     toggleEmptyState();

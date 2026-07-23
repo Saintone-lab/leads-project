@@ -56,8 +56,9 @@ class UnitQuotationController extends Controller
             $subtotal += $qty * $price * (1 - $disc / 100);
         }
 
+        $diskonType  = $request->diskon_type === 'amount' ? 'amount' : 'percent';
         $diskon      = floatval($request->diskon ?? 0);
-        $afterDiskon = $subtotal - ($subtotal * $diskon / 100);
+        $afterDiskon = $diskonType === 'amount' ? ($subtotal - $diskon) : ($subtotal - ($subtotal * $diskon / 100));
         $tax         = $request->boolean('tax');
         $tax_amount  = $tax ? round($afterDiskon * 0.11) : 0;
         $total       = $afterDiskon + $tax_amount;
@@ -78,6 +79,7 @@ class UnitQuotationController extends Controller
             'week'             => $request->week,
             'subtotal'         => $subtotal,
             'diskon'           => $diskon,
+            'diskon_type'      => $diskonType,
             'tax'              => $tax,
             'tax_amount'       => $tax_amount,
             'total'            => $total,
@@ -162,8 +164,9 @@ class UnitQuotationController extends Controller
             $subtotal += $qty * $price * (1 - $disc / 100);
         }
 
+        $diskonType  = $request->diskon_type === 'amount' ? 'amount' : 'percent';
         $diskon      = floatval($request->diskon ?? 0);
-        $afterDiskon = $subtotal - ($subtotal * $diskon / 100);
+        $afterDiskon = $diskonType === 'amount' ? ($subtotal - $diskon) : ($subtotal - ($subtotal * $diskon / 100));
         $tax         = $request->boolean('tax');
         $tax_amount  = $tax ? round($afterDiskon * 0.11) : 0;
         $total       = $afterDiskon + $tax_amount;
@@ -180,6 +183,7 @@ class UnitQuotationController extends Controller
             'week'             => $request->week,
             'subtotal'         => $subtotal,
             'diskon'           => $diskon,
+            'diskon_type'      => $diskonType,
             'tax'              => $tax,
             'tax_amount'       => $tax_amount,
             'total'            => $total,
@@ -231,6 +235,7 @@ class UnitQuotationController extends Controller
             'week'             => $source->week,
             'subtotal'         => $source->subtotal,
             'diskon'           => $source->diskon,
+            'diskon_type'      => $source->diskon_type,
             'tax'              => $source->tax,
             'tax_amount'       => $source->tax_amount,
             'total'            => $source->total,

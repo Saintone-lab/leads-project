@@ -119,8 +119,8 @@
                                 </tr>
                                 @if ($quote->diskon > 0)
                                     <tr>
-                                        <td class="fw-medium">Diskon ({{ $quote->diskon }}%)</td>
-                                        <td class="text-end text-danger">- Rp {{ number_format($quote->subtotal * $quote->diskon / 100, 0, ',', '.') }}</td>
+                                        <td class="fw-medium">Diskon ({{ $quote->discount_label }})</td>
+                                        <td class="text-end text-danger">- Rp {{ number_format($quote->discount_amount, 0, ',', '.') }}</td>
                                     </tr>
                                 @endif
                                 @if ($quote->tax)

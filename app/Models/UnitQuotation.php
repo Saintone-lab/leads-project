@@ -25,6 +25,7 @@ class UnitQuotation extends Model
         'week',
         'subtotal',
         'diskon',
+        'diskon_type',
         'tax',
         'tax_amount',
         'total',
@@ -94,6 +95,24 @@ class UnitQuotation extends Model
     public function getHargaTotalAttribute()
     {
         return $this->total;
+    }
+
+    /** Nominal discount in Rupiah, regardless of whether it was entered as % or Rp */
+    public function getDiscountAmountAttribute()
+    {
+        if (($this->diskon_type ?? 'percent') === 'amount') {
+            return (float) $this->diskon;
+        }
+        return round($this->subtotal * $this->diskon / 100);
+    }
+
+    /** Human-readable discount label, e.g. "10%" or "Rp 100.000" */
+    public function getDiscountLabelAttribute()
+    {
+        if (($this->diskon_type ?? 'percent') === 'amount') {
+            return 'Rp ' . number_format($this->diskon, 0, '', '.');
+        }
+        return $this->diskon . '%';
     }
 
     /** All revisions in the same group (including original) */

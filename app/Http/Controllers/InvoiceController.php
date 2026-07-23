@@ -958,7 +958,7 @@ class InvoiceController extends Controller
         $percent       = floatval($invoice->percent ?? 100);
         $invoiceAmount = round($quote->total * $percent / 100);
 
-        $afterDiskon   = $quote->subtotal - ($quote->subtotal * $quote->diskon / 100);
+        $afterDiskon   = $quote->subtotal - $quote->discount_amount;
         $totalPph      = $quote->details->sum(fn($d) => ($d->amount * $d->pph) / 100);
         $totalPph     += $invoice->pph ?? 0;
         $totalAfterPph = $invoiceAmount - $totalPph;

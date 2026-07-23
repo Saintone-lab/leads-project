@@ -131,7 +131,7 @@
 
                             @php
                                 $afterDisc = $unitQuote->diskon > 0
-                                    ? $unitQuote->subtotal - ($unitQuote->subtotal * $unitQuote->diskon / 100)
+                                    ? $unitQuote->subtotal - $unitQuote->discount_amount
                                     : $unitQuote->subtotal;
                             @endphp
                             <tr class="border-top" style="font-size:13px;">
@@ -141,7 +141,7 @@
                                 <td colspan="1" class="text-end px-4 py-4">
                                     <p class="mb-2">Subtotal:</p>
                                     @if ($unitQuote->diskon > 0)
-                                        <p class="mb-2">Discount {{ $unitQuote->diskon }}%:</p>
+                                        <p class="mb-2">Discount {{ $unitQuote->discount_label }}:</p>
                                         <p class="mb-2">After Discount:</p>
                                     @endif
                                     <p class="mb-2">Tax {{ $unitQuote->tax ? '(11%)' : '' }}:</p>
@@ -149,7 +149,7 @@
                                 <td class="text-end px-4 py-4">
                                     <p class="fw-semibold mb-2">Rp {{ number_format($unitQuote->subtotal, 0, '', '.') }}</p>
                                     @if ($unitQuote->diskon > 0)
-                                        <p class="fw-semibold mb-2">- Rp {{ number_format($unitQuote->subtotal * $unitQuote->diskon / 100, 0, '', '.') }}</p>
+                                        <p class="fw-semibold mb-2">- Rp {{ number_format($unitQuote->discount_amount, 0, '', '.') }}</p>
                                         <p class="fw-semibold mb-2">Rp {{ number_format($afterDisc, 0, '', '.') }}</p>
                                     @endif
                                     <p class="fw-semibold mb-2">{{ $unitQuote->tax ? 'Rp ' . number_format($unitQuote->tax_amount, 0, '', '.') : '0' }}</p>

@@ -100,7 +100,7 @@
 
         {{-- Items --}}
         @php
-            $afterDisc  = $quote->subtotal - ($quote->subtotal * $quote->diskon / 100);
+            $afterDisc  = $quote->subtotal - $quote->discount_amount;
             $bgColor    = 'rgb(224, 248, 248)';
             $hasDisc    = $quote->details->where('disc', '>', 0)->count() > 0;
             $labelSpan  = $quote->tax ? ($hasDisc ? 3 : 2) : 3;
@@ -206,10 +206,10 @@
                     @if ($quote->diskon > 0)
                         <tr class="fw-medium" style="font-size: 13px">
                             <td colspan="{{ $labelSpan }}" class="text-end py-0" style="padding-right: 10px !important;">
-                                <p class="m-0">Discount ({{ $quote->diskon }}%)</p>
+                                <p class="m-0">Discount ({{ $quote->discount_label }})</p>
                             </td>
                             <td colspan="{{ $amountSpan }}" class="py-0 text-end" style="padding-right: 10px !important;">
-                                <p class="m-0">- Rp {{ number_format($quote->subtotal * $quote->diskon / 100, 0, '', '.') }}</p>
+                                <p class="m-0">- Rp {{ number_format($quote->discount_amount, 0, '', '.') }}</p>
                             </td>
                         </tr>
                         <tr class="fw-medium" style="font-size: 13px">

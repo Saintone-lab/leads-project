@@ -177,9 +177,14 @@
                             <div class="col-5 text-muted">Discount</div>
                             <div class="col-7">
                                 <div class="input-group input-group-sm">
-                                    <input type="number" class="form-control text-end" name="diskon" id="input-diskon"
-                                        value="{{ old('diskon', $quote->diskon ?? 0) }}" min="0" max="100" step="0.01">
-                                    <span class="input-group-text">%</span>
+                                    <select class="form-select flex-grow-0" id="select-diskon-type"
+                                        name="diskon_type" style="max-width:80px;">
+                                        <option value="percent" {{ old('diskon_type', $quote->diskon_type ?? 'percent') == 'percent' ? 'selected' : '' }}>%</option>
+                                        <option value="amount" {{ old('diskon_type', $quote->diskon_type ?? 'percent') == 'amount' ? 'selected' : '' }}>Rp</option>
+                                    </select>
+                                    <input type="text" class="form-control text-end" name="diskon"
+                                        id="input-diskon"
+                                        value="{{ old('diskon', $quote->diskon ?? 0) }}" autocomplete="off">
                                 </div>
                             </div>
                         </div>

@@ -153,7 +153,7 @@
                 @php
                     $colCount = $quote->tax ? 5 : 4; // No, Item, Price, Qty, [DPP,] Amount
                     $bgColor  = 'rgb(224, 248, 248)';
-                    $afterDisc = $quote->subtotal - ($quote->subtotal * $quote->diskon / 100);
+                    $afterDisc = $quote->subtotal - $quote->discount_amount;
                     $dppTotal  = $quote->tax ? ($afterDisc * 11 / 12) : 0;
                 @endphp
                 <div class="table-responsive">
@@ -257,10 +257,10 @@
                             @if ($quote->diskon > 0)
                                 <tr class="fw-medium" style="font-size: 13px">
                                     <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                        <p class="m-0">Discount ({{ $quote->diskon }}%)</p>
+                                        <p class="m-0">Discount ({{ $quote->discount_label }})</p>
                                     </td>
                                     <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                        <p class="m-0 text-end">RP {{ number_format($quote->subtotal * $quote->diskon / 100, 0, '', '.') }}</p>
+                                        <p class="m-0 text-end">RP {{ number_format($quote->discount_amount, 0, '', '.') }}</p>
                                     </td>
                                 </tr>
                                 <tr class="fw-medium" style="font-size: 13px">

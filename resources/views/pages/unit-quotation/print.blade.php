@@ -156,7 +156,7 @@
         {{-- Note + Financial Summary (di luar tabel) --}}
         @php
             $afterDisc = $quote->diskon > 0
-                ? $quote->subtotal - ($quote->subtotal * $quote->diskon / 100)
+                ? $quote->subtotal - $quote->discount_amount
                 : $quote->subtotal;
         @endphp
         <div class="d-flex justify-content-between align-items-start mt-3 mb-4" style="gap:16px;">
@@ -178,8 +178,8 @@
                     </tr>
                     @if ($quote->diskon > 0)
                         <tr>
-                            <td style="padding:3px 8px 3px 0; color:#555;">Discount {{ $quote->diskon }}%</td>
-                            <td style="padding:3px 0; text-align:right; font-weight:500;">- Rp {{ number_format($quote->subtotal * $quote->diskon / 100, 0, '', '.') }}</td>
+                            <td style="padding:3px 8px 3px 0; color:#555;">Discount {{ $quote->discount_label }}</td>
+                            <td style="padding:3px 0; text-align:right; font-weight:500;">- Rp {{ number_format($quote->discount_amount, 0, '', '.') }}</td>
                         </tr>
                         <tr>
                             <td style="padding:3px 8px 3px 0; color:#555;">After Discount</td>
