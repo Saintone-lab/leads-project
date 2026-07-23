@@ -178,7 +178,7 @@
                     </tr>
                     @if ($quote->diskon > 0)
                         <tr>
-                            <td style="padding:3px 8px 3px 0; color:#555;">Discount {{ $quote->discount_label }}</td>
+                            <td style="padding:3px 8px 3px 0; color:#555;">Discount{{ $quote->discount_label ? ' ' . $quote->discount_label : '' }}</td>
                             <td style="padding:3px 0; text-align:right; font-weight:500;">- Rp {{ number_format($quote->discount_amount, 0, '', '.') }}</td>
                         </tr>
                         <tr>

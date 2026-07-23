@@ -141,7 +141,7 @@
                                 <td colspan="1" class="text-end px-4 py-4">
                                     <p class="mb-2">Subtotal:</p>
                                     @if ($unitQuote->diskon > 0)
-                                        <p class="mb-2">Discount {{ $unitQuote->discount_label }}:</p>
+                                        <p class="mb-2">Discount{{ $unitQuote->discount_label ? ' ' . $unitQuote->discount_label : '' }}:</p>
                                         <p class="mb-2">After Discount:</p>
                                     @endif
                                     <p class="mb-2">Tax {{ $unitQuote->tax ? '(11%)' : '' }}:</p>

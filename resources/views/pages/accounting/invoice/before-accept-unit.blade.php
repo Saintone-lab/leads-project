@@ -119,7 +119,7 @@
                                 </tr>
                                 @if ($quote->diskon > 0)
                                     <tr>
-                                        <td class="fw-medium">Diskon ({{ $quote->discount_label }})</td>
+                                        <td class="fw-medium">Diskon{{ $quote->discount_label ? ' (' . $quote->discount_label . ')' : '' }}</td>
                                         <td class="text-end text-danger">- Rp {{ number_format($quote->discount_amount, 0, ',', '.') }}</td>
                                     </tr>
                                 @endif

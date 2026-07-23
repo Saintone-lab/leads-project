@@ -106,11 +106,15 @@ class UnitQuotation extends Model
         return round($this->subtotal * $this->diskon / 100);
     }
 
-    /** Human-readable discount label, e.g. "10%" or "Rp 100.000" */
+    /**
+     * Discount rate descriptor, e.g. "10%" for a percent discount.
+     * Empty for a flat Rupiah discount — the amount is already shown
+     * next to it, so repeating it here would just be redundant.
+     */
     public function getDiscountLabelAttribute()
     {
         if (($this->diskon_type ?? 'percent') === 'amount') {
-            return 'Rp ' . number_format($this->diskon, 0, '', '.');
+            return '';
         }
         return $this->diskon . '%';
     }

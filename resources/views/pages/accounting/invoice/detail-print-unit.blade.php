@@ -206,7 +206,7 @@
                     @if ($quote->diskon > 0)
                         <tr class="fw-medium" style="font-size: 13px">
                             <td colspan="{{ $labelSpan }}" class="text-end py-0" style="padding-right: 10px !important;">
-                                <p class="m-0">Discount ({{ $quote->discount_label }})</p>
+                                <p class="m-0">Discount{{ $quote->discount_label ? ' (' . $quote->discount_label . ')' : '' }}</p>
                             </td>
                             <td colspan="{{ $amountSpan }}" class="py-0 text-end" style="padding-right: 10px !important;">
                                 <p class="m-0">- Rp {{ number_format($quote->discount_amount, 0, '', '.') }}</p>
