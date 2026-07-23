@@ -152,72 +152,13 @@
             @endforeach
         </div>
         <div class="col-md-12">
-            <div class="d-flex justify-content-between mb-2">
-                <h5 class="fw-bold pb-1 mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold pb-1 mb-0">
                     Machine
                 </h5>
-                <a type="button" data-bs-toggle="modal" data-bs-target="#createMachine">
-                    <button type="button" class="btn btn-primary">
-                        + Create New machine
-                    </button>
+                <a href="{{ route('existing.show', $customers->id) }}" class="btn btn-primary">
+                    Kelola Machine
                 </a>
-            </div>
-            <div class="row">
-                @foreach ($machines as $machine)
-                    <div class="card mb-2 col-6">
-                        <div class="card-header pb-0">
-                            <div class="text-end text-muted">
-                                <button type="button" class="btn btn-sm btn-label-danger">
-                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline"></i>Delete
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <p class="card-text">
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Brand
-                                </div>
-                                <div class="col-9">
-                                    : {{ $machine->brand }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Phone
-                                </div>
-                                <div class="col-9">
-                                    : {{ $machine->type }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Email
-                                </div>
-                                <div class="col-9">
-                                    : {{ $machine->serial_number }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Position
-                                </div>
-                                <div class="col-9">
-                                    : {{ $machine->bar }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Position
-                                </div>
-                                <div class="col-9">
-                                    : {{ $machine->running }}
-                                </div>
-                            </div>
-                            </p>
-                        </div>
-                    </div>
-                @endforeach
             </div>
         </div>
     </div>

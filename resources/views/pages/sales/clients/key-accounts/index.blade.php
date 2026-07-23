@@ -164,7 +164,7 @@
                                             @endif
                                         </td>
                                         <td title="{{ $ka->company }}">
-                                            <a href="{{ route('detail.customers', $ka->id) }}" class="fw-semibold text-body text-truncate d-inline-block" style="max-width: 220px;">
+                                            <a href="{{ route('existing.show', $ka->id) }}" class="fw-semibold text-body text-truncate d-inline-block" style="max-width: 220px;">
                                                 {{ \Illuminate\Support\Str::limit($ka->company, 25) }}
                                             </a>
                                         </td>
