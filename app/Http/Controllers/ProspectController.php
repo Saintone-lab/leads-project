@@ -47,22 +47,31 @@ class ProspectController extends Controller
         $cursor = $startOfMonth->copy();
         $wNum = 1;
         while ($cursor->lte($endOfMonth)) {
-            $wEnd = $cursor->copy()->addDays(6);
+            $wStart = $cursor->copy()->startOfDay();
+            $wEnd = $cursor->copy()->endOfWeek(Carbon::SUNDAY)->endOfDay();
             if ($wEnd->gt($endOfMonth)) {
-                $wEnd = $endOfMonth->copy();
+                $wEnd = $endOfMonth->copy()->endOfDay();
             }
+
             $availableWeeks[] = [
                 'week' => $wNum,
-                'start' => $cursor->copy(),
-                'end' => $wEnd->copy(),
-                'label' => 'Week '.$wNum.' ('.$cursor->format('d').'–'.$wEnd->format('d').' '.$cursor->format('M Y').')',
+                'start' => $wStart,
+                'end' => $wEnd,
+                'label' => 'Week '.$wNum.' ('.$wStart->format('d').'–'.$wEnd->format('d').' '.$wStart->format('M Y').')',
             ];
-            $cursor->addDays(7);
+
+            $cursor = $wEnd->copy()->startOfDay()->addDay();
             $wNum++;
         }
 
-        $defaultWeek = (int) ceil($now->day / 7);
-        $defaultWeek = min($defaultWeek, count($availableWeeks));
+        $defaultWeek = 1;
+        foreach ($availableWeeks as $index => $w) {
+            if ($now->gte($w['start']) && $now->lte($w['end'])) {
+                $defaultWeek = $index + 1;
+                break;
+            }
+        }
+
         $selectedWeekNum = max(1, min((int) request('week', $defaultWeek), count($availableWeeks)));
         $selectedWeek = $availableWeeks[$selectedWeekNum - 1];
 
