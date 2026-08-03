@@ -16,6 +16,8 @@ class PurchaseOrder extends Model
     ];
     protected $fillable = [
         'no_po',
+        'category',
+        'receipt_status',
         'attn',
         'mobile',
         'company',

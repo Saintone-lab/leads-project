@@ -20,6 +20,7 @@ class Reports extends Model
         'id_technician',
         'id_monitoring',
         'type',
+        'pm_level',
         'running',
         'load',
         'jobdesc',

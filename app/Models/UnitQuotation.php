@@ -14,12 +14,15 @@ class UnitQuotation extends Model
         'is_latest',
         'id_client',
         'id_pic',
+        'id_plant',
+        'address',
         'id_sales',
         'id_support',
         'no_quote',
         'attn',
         'no_pr',
         'date',
+        'expired_date',
         'title',
         'type',
         'week',
@@ -28,10 +31,12 @@ class UnitQuotation extends Model
         'diskon_type',
         'tax',
         'tax_amount',
+        'shipping',
         'total',
         'note',
         'validity',
         'pricing',
+        'warranty',
         'delivery_process',
         'payment',
         'status',
@@ -43,8 +48,9 @@ class UnitQuotation extends Model
     ];
 
     protected $casts = [
-        'date' => 'date',
-        'tax'  => 'boolean',
+        'date'         => 'date',
+        'expired_date' => 'date',
+        'tax'          => 'boolean',
     ];
 
     public function client()
@@ -55,6 +61,11 @@ class UnitQuotation extends Model
     public function pic()
     {
         return $this->belongsTo(Pic::class, 'id_pic');
+    }
+
+    public function plant()
+    {
+        return $this->belongsTo(ClientPlant::class, 'id_plant');
     }
 
     public function sales()
@@ -70,6 +81,11 @@ class UnitQuotation extends Model
     public function statusHistory()
     {
         return $this->hasMany(UnitQuotationStatusHistory::class, 'id_unit_quotation')->orderBy('created_at', 'desc');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(UnitQuotationComment::class, 'id_unit_quotation')->orderBy('created_at', 'desc');
     }
 
     public function invoices()
@@ -90,6 +106,11 @@ class UnitQuotation extends Model
     public function deliveries()
     {
         return $this->hasMany(Delivery::class, 'id_unit_quotation');
+    }
+
+    public function suo()
+    {
+        return $this->hasOne(Suo::class, 'id_unit_quotation');
     }
 
     public function getHargaTotalAttribute()

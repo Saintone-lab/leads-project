@@ -13,6 +13,7 @@ class UnitQuotationDetail extends Model
         'type',
         'id_unit',
         'id_fixed_asset',
+        'id_equivalent',
         'spec_visible',
         'label',
         'description',
@@ -33,6 +34,26 @@ class UnitQuotationDetail extends Model
     public function fixedAsset()
     {
         return $this->belongsTo(FixedAsset::class, 'id_fixed_asset');
+    }
+
+    public function equivalent()
+    {
+        return $this->belongsTo(SerialProduct::class, 'id_equivalent');
+    }
+
+    public function deliveredItems()
+    {
+        return $this->hasMany(DetailDelivery::class, 'id_unit_quotation_detail');
+    }
+
+    public function getDeliveredQtyAttribute()
+    {
+        return (float) $this->deliveredItems()->sum('qty');
+    }
+
+    public function getRemainingQtyAttribute()
+    {
+        return max((float) $this->qty - $this->delivered_qty, 0);
     }
 
     public function getSpecVisibleArray(): array

@@ -21,6 +21,7 @@ class Suo extends Model
         'status',
         'no_invoice_booking',
         'id_quotation',
+        'id_unit_quotation',
         'confirmed_by',
         'confirmed_at',
         'approved_by',
@@ -52,6 +53,11 @@ class Suo extends Model
     public function quotation()
     {
         return $this->belongsTo('App\Models\Quotation', 'id_quotation', 'id');
+    }
+
+    public function unitQuotation()
+    {
+        return $this->belongsTo('App\Models\UnitQuotation', 'id_unit_quotation', 'id');
     }
 
     public function deliveries()

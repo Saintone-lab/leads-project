@@ -15,7 +15,9 @@ class DetailDelivery extends Model
     ];
     protected $fillable = [
         'id_delivery',
+        'id_unit_quotation_detail',
         'id_pn',
+        'type',
         'qty',
         'desc',
         'info_qty',
@@ -29,5 +31,9 @@ class DetailDelivery extends Model
     public function pn()
     {
         return $this->belongsTo('App\Models\SerialProduct', 'id_pn', 'id');
+    }
+    public function unitQuotationDetail()
+    {
+        return $this->belongsTo(UnitQuotationDetail::class, 'id_unit_quotation_detail');
     }
 }

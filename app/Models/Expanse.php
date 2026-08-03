@@ -23,6 +23,7 @@ class Expanse extends Model
         'type',
         'status',
         'id_expense',
+        'description',
     ];
     public function pending()
     {

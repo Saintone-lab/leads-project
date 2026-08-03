@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -44,7 +45,35 @@ class FixedAsset extends Model
         'foto_awal',
         'tanggal_serah_terima',
         'status_tools',
+        'is_disposed',
+        'tanggal_disposal',
+        'nilai_buku_disposal',
+        'harga_jual_final',
     ];
+
+    /**
+     * Garis lurus, 25%/tahun hardcoded, dicap maksimal `umur` bulan. Basis nilai
+     * adalah `total` (sudah termasuk kapitalisasi servis). Unit "Dalam Pengecekan"
+     * belum boleh disusutkan sama sekali. Diekstrak dari FixedController::show()
+     * supaya bisa dipakai ulang saat disposal (unit keluar) tanpa duplikasi logic.
+     */
+    public function hitungNilaiBuku(): array
+    {
+        if ($this->qc_status === 'checking') {
+            return ['total_penyusutan' => 0, 'nilai_buku' => $this->total];
+        }
+
+        $startDate = Carbon::parse($this->mulai_penyusutan ?? $this->beli);
+        $endDate = Carbon::now();
+        $diffMonth = $startDate->greaterThan($endDate) ? 0 : $startDate->diffInMonths($endDate);
+        $bulanPenyusutan = min($diffMonth, $this->umur);
+        $penyusutanPerBulan = ($this->total * 0.25) / 12;
+        $totalPenyusutan = $penyusutanPerBulan * $bulanPenyusutan;
+        $nilaiBuku = $this->total - $totalPenyusutan;
+
+        return ['total_penyusutan' => $totalPenyusutan, 'nilai_buku' => $nilaiBuku];
+    }
+
     public function aktiva()
     {
         return $this->belongsTo('App\Models\Account', 'id_aktiva', 'id');
