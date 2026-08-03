@@ -144,7 +144,7 @@
                 <div class="content-wrapper">
 
                     @if (!View::hasSection('no-container'))
-                        <div class="container-xxl flex-grow-1 container-p-y">
+                        <div class="container-fluid flex-grow-1 container-p-y">
                             <!--  Content  -->
                             @yield('content')
                             <!--  END: Content  -->
@@ -364,9 +364,9 @@
                     icon: 'success',
                     title: 'Success!',
                     text: "{{ session('success') ?: session('message') }}",
-                    customClass: {
-                        confirmButton: 'btn btn-success waves-effect'
-                    }
+                    timer: 1500,
+                    timerProgressBar: true,
+                    showConfirmButton: false
                 });
             @endif
         });

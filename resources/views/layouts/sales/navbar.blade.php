@@ -1,4 +1,4 @@
-<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+<nav class="layout-navbar container-fluid navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
     id="layout-navbar">
     <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
         <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
@@ -40,6 +40,7 @@
                         if (Auth::user()?->role == 'Admin' && @$unreadCommentAdmin && $unreadCommentAdmin->count() >= 1) $hasBadge = true;
                         if (Auth::user()?->role != 'Admin' && @$unreadComment && $unreadComment->count() >= 1) $hasBadge = true;
                         if (@$prMentions && $prMentions->count() >= 1) $hasBadge = true;
+                        if (in_array(Auth::user()?->role, ['Admin', 'Accounting', 'Finance']) && @$pendingCancelQuotes && $pendingCancelQuotes->count() >= 1) $hasBadge = true;
                     @endphp
                     @if ($hasBadge)
                         <span class="position-absolute top-0 start-50 translate-middle-y badge badge-dot bg-danger mt-2 border"></span>
@@ -49,6 +50,9 @@
                     <li class="dropdown-menu-header border-bottom">
                         <div class="dropdown-header d-flex align-items-center py-3">
                             <h6 class="mb-0 me-auto">Notification</h6>
+                            @if (in_array(Auth::user()?->role, ['Admin', 'Accounting', 'Finance']) && @$pendingCancelQuotes && $pendingCancelQuotes->count() > 0)
+                                <span class="badge rounded-pill bg-danger me-1">{{ $pendingCancelQuotes->count() }} Cancel PO</span>
+                            @endif
                             @if (Auth::user()?->role == 'Admin')
                                 @if (@$unreadCommentAdmin)
                                     @if ($unreadCommentAdmin->count() > 1)
@@ -69,6 +73,32 @@
                     </li>
                     <li class="dropdown-notifications-list scrollable-container">
                         <ul class="list-group list-group-flush">
+                            {{-- Notifikasi Cancel PO untuk Accounting / Admin / Finance --}}
+                            @if (in_array(Auth::user()?->role, ['Admin', 'Accounting', 'Finance']) && @$pendingCancelQuotes && $pendingCancelQuotes->count() > 0)
+                                @foreach ($pendingCancelQuotes as $cancelQ)
+                                    <a href="{{ route('unit-quotation.show', $cancelQ->id) }}"
+                                        class="list-group-item list-group-item-action dropdown-notifications-item" style="background:#fff0f0;">
+                                        <div class="d-flex gap-2">
+                                            <div class="flex-shrink-0">
+                                                <div class="avatar me-1">
+                                                    <span class="avatar-initial rounded-circle bg-danger text-white">
+                                                        <i class="mdi mdi-alert-circle-outline"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex flex-column flex-grow-1 overflow-hidden w-px-200">
+                                                <h6 class="mb-1 text-truncate text-danger fw-bold">{{ $cancelQ->no_quote }}</h6>
+                                                <small class="text-truncate text-body">
+                                                    <strong class="text-dark">{{ $cancelQ->sales?->name }}</strong> mengajukan pembatalan PO ({{ $cancelQ->client?->company ?? '-' }})
+                                                </small>
+                                            </div>
+                                            <div class="flex-shrink-0 dropdown-notifications-actions">
+                                                <small class="text-muted">{{ \Carbon\Carbon::parse($cancelQ->updated_at)->diffForHumans() }}</small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            @endif
                             @if (Auth::user()?->role == 'Admin')
                                 @if (@$commentAdmin)
                                     @foreach ($commentAdmin as $item)
@@ -227,14 +257,6 @@
                                 <span class="align-middle">Settings</span>
                             </a>
                         </li>
-                        @if (Auth::user()?->role === 'Admin')
-                            <li>
-                                <a class="dropdown-item" href="{{ route('audit-tools.index') }}">
-                                    <i class="mdi mdi-tools me-2"></i>
-                                    <span class="align-middle">Audit Tools</span>
-                                </a>
-                            </li>
-                        @endif
                         <li>
                             <div class="dropdown-divider"></div>
                         </li>
@@ -259,7 +281,7 @@
 
     <!-- Search Small Screens -->
     <div class="navbar-search-wrapper search-input-wrapper d-none">
-        <input type="text" class="form-control search-input container-xxl border-0" placeholder="Search..."
+        <input type="text" class="form-control search-input container-fluid border-0" placeholder="Search..."
             aria-label="Search..." />
         <i class="mdi mdi-close search-toggler cursor-pointer"></i>
     </div>
