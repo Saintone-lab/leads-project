@@ -1,29 +1,64 @@
 @extends('layouts.sales.app')
 @section('title', 'Edit Unit Quotation')
 @section('content')
-    <div class="d-flex justify-content-between align-items-center py-3 mb-4">
-        <h4 class="fw-bold mb-0">
-            <span class="text-muted fw-light">Sales / <a href="{{ route('unit-quotation.show', $quote->id) }}">Unit Quotation</a> /</span> Edit
-        </h4>
+    {{-- Hero Page Header & Top Bar --}}
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center py-3 mb-3 gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <span class="text-muted fw-light">Sales / <a href="{{ route('unit-quotation.show', $quote->id) }}" class="text-muted">Unit Quotation</a> /</span> Edit
+            </h4>
+            <p class="text-muted mb-0 small"><i class="mdi mdi-file-document-edit-outline me-1"></i> Edit quotation document {{ $quote->no_quote }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ route('unit-quotation.show', $quote->id) }}" class="btn btn-label-secondary">
+                <i class="mdi mdi-arrow-left me-1"></i> Back
+            </a>
+            <button type="submit" form="form-unit-quotation" class="btn btn-primary shadow-sm">
+                <i class="mdi mdi-content-save me-1"></i> Update Quotation
+            </button>
+        </div>
     </div>
 
     <form action="{{ route('unit-quotation.update', $quote->id) }}" method="POST" id="form-unit-quotation">
         @csrf
         @method('PUT')
 
-        {{-- No. Quotation --}}
-        <div class="form-floating mb-3">
-            <input type="text" class="form-control fw-bold fs-3" name="no_quote"
-                placeholder="Quotation Number"
-                value="{{ old('no_quote', $quote->no_quote) }}">
-            <label>Quotation Number</label>
+        {{-- Hero Quotation Header Card --}}
+        <div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%); border-left: 5px solid #696cff !important;">
+            <div class="card-body py-3">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-8 col-12">
+                        <label class="form-label text-uppercase fw-bold text-primary small mb-1" style="letter-spacing: .5px;">
+                            <i class="mdi mdi-pound me-1"></i> Quotation Number
+                        </label>
+                        <input type="text" class="form-control form-control-lg fw-bold bg-white text-primary border-primary-subtle shadow-sm"
+                            name="no_quote" placeholder="Quotation Number" value="{{ old('no_quote', $quote->no_quote) }}" style="font-size: 1.35rem;">
+                    </div>
+                    <div class="col-md-4 col-12 text-md-end">
+                        <span class="badge bg-label-info px-3 py-2 fs-6 rounded-pill">
+                            <i class="mdi mdi-file-document-edit-outline me-1"></i> STATUS: EDIT MODE
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        {{-- HEADER --}}
-        <div class="card mb-4">
-            <div class="card-body">
+        {{-- HEADER CLIENT & DETAILS --}}
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center">
+                <h6 class="card-title mb-0 fw-bold text-dark">
+                    <i class="mdi mdi-domain me-2 text-primary fs-5"></i> Customer Information & Quotation Details
+                </h6>
+            </div>
+            <div class="card-body pt-4">
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    {{-- Sub Header: Customer & Alamat --}}
+                    <div class="col-12">
+                        <div class="d-flex align-items-center text-muted small fw-bold text-uppercase mb-1" style="letter-spacing:.5px;">
+                            <i class="mdi mdi-account-group-outline me-1"></i> Customer & Delivery Address
+                        </div>
+                    </div>
+                    <div class="col-md-4">
                         <div class="form-floating form-floating-outline">
                             <select class="select2 form-select" name="id_client" id="client-select">
                                 <option value="">-- Select Client --</option>
@@ -35,10 +70,10 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <label>Client</label>
+                            <label>Client *</label>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="form-floating form-floating-outline">
                             <select class="form-select" name="id_pic" id="pic-select">
                                 <option value="">-- Select PIC --</option>
@@ -48,14 +83,46 @@
                                     </option>
                                 @endif
                             </select>
-                            <label>PIC / Contact</label>
+                            <label>PIC / Contact *</label>
                         </div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="form-floating form-floating-outline">
+                            <select class="form-select" id="address-select">
+                                <option value="">-- Select Address --</option>
+                            </select>
+                            <label>Address / Plant</label>
+                        </div>
+                        <input type="hidden" name="id_plant" id="input-id-plant" value="{{ $quote->id_plant }}">
+                        <input type="hidden" name="address" id="input-address-hidden" value="{{ $quote->address }}">
+                    </div>
+                    <div class="col-md-12" id="manual-address-wrapper" style="display: none;">
+                        <div class="form-floating form-floating-outline">
+                            <textarea class="form-control" id="input-address-manual" rows="2" style="height: 60px;" placeholder="Enter custom address...">{{ $quote->address }}</textarea>
+                            <label>Custom Address</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <hr class="my-2">
+                        <div class="d-flex align-items-center text-muted small fw-bold text-uppercase mb-1" style="letter-spacing:.5px;">
+                            <i class="mdi mdi-file-document-outline me-1"></i> Quotation Parameters & Specifications
+                        </div>
+                    </div>
+
                     <div class="col-md-2">
                         <div class="form-floating form-floating-outline">
                             <input type="date" class="form-control" id="input-date" name="date"
                                 value="{{ old('date', $quote->date?->format('Y-m-d')) }}">
                             <label>Date</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating form-floating-outline">
+                            <input type="date" class="form-control bg-light-subtle" id="input-expired-date" name="expired_date"
+                                value="{{ old('expired_date', $quote->expired_date ? \Carbon\Carbon::parse($quote->expired_date)->format('Y-m-d') : \Carbon\Carbon::parse($quote->date)->addMonth()->format('Y-m-d')) }}"
+                                readonly title="Auto-calculated: 1 month from quotation date">
+                            <label class="text-muted">Expired Quotation</label>
                         </div>
                     </div>
                     <div class="col-md-2">
@@ -76,7 +143,7 @@
                         <div class="form-floating form-floating-outline">
                             <select class="form-select" id="select-type" name="type">
                                 <option value="" disabled>-- Type --</option>
-                                @foreach (['Unit', 'Rental', 'Project'] as $t)
+                                @foreach (['Unit', 'Rental', 'Project', 'Parts', 'Service', 'Piping', 'Air Audit'] as $t)
                                     <option value="{{ $t }}" {{ $quote->type === $t ? 'selected' : '' }}>{{ $t }}</option>
                                 @endforeach
                             </select>
@@ -99,109 +166,168 @@
         </div>
 
         {{-- LINE ITEMS --}}
-        <div class="card mb-4">
-            <div class="card-header py-3">
-                <h6 class="mb-0 fw-bold">Quotation Items</h6>
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center justify-content-between">
+                <h6 class="card-title mb-0 fw-bold text-dark">
+                    <i class="mdi mdi-cube-outline me-2 text-primary fs-5"></i> Quotation Line Items
+                </h6>
+                <span class="badge bg-label-secondary" id="items-count-badge">0 Items</span>
             </div>
             <div class="card-body p-0">
                 <div id="line-items-container">
                     {{-- rows injected by JS --}}
                 </div>
-                <div id="empty-state" class="text-center text-muted py-5">
-                    <i class="mdi mdi-package-variant-closed mdi-48px d-block mb-2"></i>
-                    No items yet. Click "Add Unit" or "Add Custom Item".
+                <div id="empty-state" class="text-center text-muted py-5 my-2">
+                    <div class="avatar avatar-md bg-label-primary mx-auto mb-3" style="width: 54px; height: 54px;">
+                        <i class="mdi mdi-package-variant-closed fs-3" style="line-height: 54px;"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">No Line Items Added Yet</h6>
+                    <p class="text-muted small mb-0">Click the buttons below to add Spare Parts/Units from catalog, Custom Items, or Head Titles.</p>
                 </div>
-                <div class="d-flex gap-2 p-3 border-top">
-                    <button type="button" class="btn btn-sm btn-primary" id="btn-add-unit">
-                        <i class="mdi mdi-plus me-1"></i> Add Unit
+                <div class="d-flex flex-wrap gap-2 p-3 border-top bg-light-subtle">
+                    <button type="button" class="btn btn-sm btn-primary shadow-sm" id="btn-add-unit">
+                        <i class="mdi mdi-plus me-1"></i> Add Item
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-add-custom">
                         <i class="mdi mdi-format-list-bulleted me-1"></i> Add Custom Item
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info" id="btn-add-header">
+                        <i class="mdi mdi-format-header-1 me-1"></i> Add Head Title
                     </button>
                 </div>
             </div>
         </div>
 
         {{-- SUMMARY + TERMS --}}
-        <div class="card mb-4">
+        <div class="card mb-4 border-0 shadow-sm">
             <div class="card-body">
-                <div class="row">
-                    {{-- Terms & Conditions --}}
-                    <div class="col-lg-6">
-                        <h5 class="mb-4">Terms & Conditions</h5>
-                        <div class="row mb-3">
-                            <label class="col-sm-4 col-form-label" for="validity">Validity of Quotation</label>
-                            <div class="col-sm-8">
-                                <input type="text" id="validity" class="form-control" name="validity"
-                                    value="{{ old('validity', $quote->validity) }}">
-                            </div>
+                <div class="row g-4">
+                    {{-- Note + Terms & Conditions (Kiri) --}}
+                    <div class="col-lg-7">
+                        {{-- Note --}}
+                        <div class="mb-4 pb-3 border-bottom">
+                            <h6 class="fw-bold mb-2 text-dark">
+                                <i class="mdi mdi-notebook-edit-outline me-1 text-primary"></i> Note / Quotation Remarks
+                            </h6>
+                            <textarea class="form-control" name="note" id="note"
+                                rows="3" placeholder="• Write your quotation note/remarks here..."
+                                style="overflow-y: hidden; resize: none;">{{ old('note', $quote->note) }}</textarea>
+                            <div class="form-text text-muted mt-1"><i class="mdi mdi-information-outline me-1"></i>Tekan <kbd>Enter</kbd> untuk baris baru otomatis ber-bullet.</div>
                         </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-4 col-form-label" for="pricing">Price</label>
-                            <div class="col-sm-8">
-                                <input type="text" id="pricing" class="form-control" name="pricing"
-                                    value="{{ old('pricing', $quote->pricing) }}">
+
+                        {{-- Terms & Conditions --}}
+                        <div>
+                            <h6 class="fw-bold mb-3 text-dark">
+                                <i class="mdi mdi-shield-check-outline me-1 text-primary"></i> Terms & Conditions
+                            </h6>
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="validity">Validity of Quotation</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="validity" class="form-control form-control-sm" name="validity"
+                                        value="{{ old('validity', $quote->validity) }}">
+                                </div>
                             </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-4 col-form-label" for="delivery">Delivery Process</label>
-                            <div class="col-sm-8">
-                                <input type="text" id="delivery" class="form-control" name="delivery_process"
-                                    value="{{ old('delivery_process', $quote->delivery_process) }}">
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="pricing">Price</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="pricing" class="form-control form-control-sm" name="pricing"
+                                        value="{{ old('pricing', $quote->pricing) }}">
+                                </div>
                             </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-4 col-form-label" for="payment">Payment</label>
-                            <div class="col-sm-8">
-                                <input type="text" id="payment" class="form-control" name="payment"
-                                    value="{{ old('payment', $quote->payment) }}">
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="warranty">Warranty</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="warranty" class="form-control form-control-sm" name="warranty"
+                                        value="{{ old('warranty', $quote->warranty) }}">
+                                </div>
                             </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-4 col-form-label" for="note">Note</label>
-                            <div class="col-sm-8">
-                                <textarea class="form-control" name="note" id="note"
-                                    rows="2" placeholder="Write your note here...">{{ old('note', $quote->note) }}</textarea>
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="delivery">Delivery Process</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="delivery" class="form-control form-control-sm" name="delivery_process"
+                                        value="{{ old('delivery_process', $quote->delivery_process) }}">
+                                </div>
+                            </div>
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="payment">Payment</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="payment" class="form-control form-control-sm" name="payment"
+                                        value="{{ old('payment', $quote->payment) }}">
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Summary --}}
-                    <div class="col-lg-2"></div>
-                    <div class="col-lg-4">
-                        <div class="row mb-2 align-items-center mt-4">
-                            <div class="col-5 text-muted">Subtotal</div>
-                            <div class="col-7 fw-semibold text-end" id="display-subtotal">Rp 0</div>
-                        </div>
-                        <div class="row mb-2 align-items-center">
-                            <div class="col-5 text-muted">Discount</div>
-                            <div class="col-7">
-                                <div class="input-group input-group-sm">
-                                    <select class="form-select flex-grow-0" id="select-diskon-type"
-                                        name="diskon_type" style="max-width:80px;">
-                                        <option value="percent" {{ old('diskon_type', $quote->diskon_type ?? 'percent') == 'percent' ? 'selected' : '' }}>%</option>
-                                        <option value="amount" {{ old('diskon_type', $quote->diskon_type ?? 'percent') == 'amount' ? 'selected' : '' }}>Rp</option>
-                                    </select>
-                                    <input type="text" class="form-control text-end" name="diskon"
-                                        id="input-diskon"
-                                        value="{{ old('diskon', $quote->diskon ?? 0) }}" autocomplete="off">
+                    {{-- Summary Card (Kanan) --}}
+                    <div class="col-lg-5">
+                        <div class="card border-0 shadow-sm overflow-hidden" style="background: #ffffff; border: 1px solid #e0e0ff !important; border-radius: 12px;">
+                            {{-- Header --}}
+                            <div class="card-header py-3 px-4 bg-light border-bottom d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xs bg-label-primary rounded me-2 d-flex align-items-center justify-content-center" style="width:28px; height:28px;">
+                                        <i class="mdi mdi-calculator text-primary fs-6"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-0 text-dark">Total Summary</h6>
+                                </div>
+                                <span class="badge bg-label-primary px-2 py-1" style="font-size:10px;">IDR SUMMARY</span>
+                            </div>
+
+                            <div class="card-body p-4">
+                                {{-- Subtotal --}}
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-muted small">Subtotal</span>
+                                    <span class="fw-bold text-dark fs-6" id="display-subtotal">Rp 0</span>
+                                </div>
+
+                                {{-- Discount --}}
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-muted small">Discount</span>
+                                    <div style="width: 160px;">
+                                        <div class="input-group input-group-sm">
+                                            <select class="form-select flex-grow-0" id="select-diskon-type" name="diskon_type" style="max-width:65px; font-size:11px;">
+                                                <option value="percent" {{ $quote->diskon_type === 'percent' ? 'selected' : '' }}>%</option>
+                                                <option value="amount" {{ $quote->diskon_type === 'amount' ? 'selected' : '' }}>Rp</option>
+                                            </select>
+                                            <input type="text" class="form-control text-end fw-semibold" name="diskon" id="input-diskon" value="{{ old('diskon', $quote->diskon) }}" autocomplete="off">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- PPN 12% --}}
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-muted small">PPN 12%</span>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" name="tax" id="toggle-tax" value="1"
+                                                {{ $quote->tax ? 'checked' : '' }}>
+                                        </div>
+                                    </div>
+                                    <span id="display-tax" class="fw-semibold text-muted small">Rp 0</span>
+                                </div>
+
+                                {{-- Shipping Cost (Optional, Non-taxable) --}}
+                                <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                                    <div>
+                                        <span class="text-muted small d-block">Shipping Cost</span>
+                                        <span class="text-muted" style="font-size: 10px;">( Non-taxable )</span>
+                                    </div>
+                                    <div style="width: 160px;">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text fw-semibold" style="font-size:11px;">Rp</span>
+                                            <input type="text" class="form-control text-end fw-semibold rupiah-input" name="shipping" id="input-shipping" value="{{ old('shipping', $quote->shipping > 0 ? number_format($quote->shipping, 0, '', '.') : '0') }}" placeholder="0" autocomplete="off">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Total Penawaran Hero Box --}}
+                                <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%); border: 1px dashed #696cff;">
+                                    <div>
+                                        <div class="text-uppercase fw-bold text-primary" style="font-size: 10px; letter-spacing: 0.8px;">Total Amount</div>
+                                        <div class="text-muted" style="font-size: 10px;">( Inclusive of Tax &amp; Discount )</div>
+                                    </div>
+                                    <div class="fw-bolder text-primary fs-3" id="display-total" style="letter-spacing: -0.5px;">Rp 0</div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row mb-2 align-items-center">
-                            <div class="col-5 text-muted">VAT 11%</div>
-                            <div class="col-7 d-flex align-items-center gap-2">
-                                <div class="form-check form-switch mb-0">
-                                    <input class="form-check-input" type="checkbox" name="tax" id="toggle-tax"
-                                        value="1" {{ $quote->tax ? 'checked' : '' }}>
-                                </div>
-                                <span id="display-tax" class="text-muted small">Rp 0</span>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="row align-items-center">
-                            <div class="col-5 fw-bold">Total</div>
-                            <div class="col-7 fw-bold text-end fs-5" id="display-total">Rp 0</div>
                         </div>
                     </div>
                 </div>
@@ -210,7 +336,7 @@
 
         <div class="d-flex justify-content-end gap-2 mb-4">
             <a href="{{ route('unit-quotation.show', $quote->id) }}" class="btn btn-label-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary shadow-sm px-4">
                 <i class="mdi mdi-content-save me-1"></i> Save Changes
             </button>
         </div>
@@ -222,18 +348,24 @@
             <input type="hidden" name="items[__IDX__][type]" value="unit">
             <input type="hidden" name="items[__IDX__][id_unit]" class="field-id-unit">
             <input type="hidden" name="items[__IDX__][id_fixed_asset]" class="field-id-fixed-asset">
+            <input type="hidden" name="items[__IDX__][id_equivalent]" class="field-id-equivalent">
             <input type="hidden" name="items[__IDX__][spec_visible]" class="field-spec-visible">
 
             <div class="mb-2">
                 <div class="form-check form-check-inline">
                     <input class="form-check-input unit-source-radio" type="radio" name="unit_source___IDX__"
-                        value="catalog" checked>
+                        value="sparepart" checked>
+                    <label class="form-check-label small">Spare Part</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input unit-source-radio" type="radio" name="unit_source___IDX__"
+                        value="catalog">
                     <label class="form-check-label small">Catalog Unit</label>
                 </div>
                 <div class="form-check form-check-inline">
                     <input class="form-check-input unit-source-radio" type="radio" name="unit_source___IDX__"
                         value="fixed_asset">
-                    <label class="form-check-label small">Unit Second (dari Fixed Asset)</label>
+                    <label class="form-check-label small">Unit Second</label>
                 </div>
                 <div class="form-check form-check-inline">
                     <input class="form-check-input unit-source-radio" type="radio" name="unit_source___IDX__"
@@ -244,7 +376,7 @@
 
             <div class="row g-2 align-items-start">
                 <div class="col-md-4">
-                    <div class="unit-source-catalog">
+                    <div class="unit-source-catalog" style="display:none;">
                         <select class="select2-unit-search form-select form-select-sm" style="width:100%">
                             <option value="">Search unit (SKU / Brand / Model)...</option>
                         </select>
@@ -252,6 +384,11 @@
                     <div class="unit-source-fixed-asset" style="display:none;">
                         <select class="select2-fixed-asset-search form-select form-select-sm" style="width:100%">
                             <option value="">Search Unit Second (SKU / Brand / Serial Number)...</option>
+                        </select>
+                    </div>
+                    <div class="unit-source-equivalent">
+                        <select class="select2-equivalent-search form-select form-select-sm" style="width:100%">
+                            <option value="">Search Spare Part / Equivalent (PN / Brand / Name)...</option>
                         </select>
                     </div>
                 </div>
@@ -288,7 +425,7 @@
             <div class="mt-2">
                 <input type="text" class="form-control form-control-sm field-label"
                     name="items[__IDX__][label]"
-                    placeholder="Judul item (otomatis terisi, bisa diubah)">
+                    placeholder="Item title (auto-filled, editable)">
             </div>
 
             <div class="spec-preview mt-2 ms-1 ps-3 border-start border-2" style="display:none;">
@@ -298,50 +435,94 @@
                     Click <kbd>×</kbd> on a spec to hide it from the quotation.
                 </p>
             </div>
+
+            {{-- Spare Part Stock Preview --}}
+            <div class="equivalent-stock-preview mt-2" style="display:none;">
+                <span class="badge bg-label-info me-1">BDG Stock: <span class="stock-bdg">0</span></span>
+                <span class="badge bg-label-info me-1">BKS Stock: <span class="stock-bks">0</span></span>
+                <span class="badge bg-label-warning">Pending Stock: <span class="stock-pending">0</span></span>
+            </div>
         </div>
     </template>
 
     <template id="tmpl-custom-row">
         <div class="unit-row border-bottom p-3" data-type="custom">
             <input type="hidden" name="items[__IDX__][type]" value="custom">
-            <div class="row g-2">
-                <div class="col-md-6">
-                    <input type="text" class="form-control form-control-sm"
-                        name="items[__IDX__][label]" placeholder="Title *" required>
-                </div>
-                <div class="col-md-6">
-                    <input type="text" class="form-control form-control-sm"
-                        name="items[__IDX__][description]" placeholder="Description (optional)">
-                </div>
-                <div class="col-md-2">
-                    <div class="input-group input-group-sm">
-                        <input type="number" class="form-control text-center field-qty"
-                            name="items[__IDX__][qty]" value="1" min="1">
-                        <select class="form-select" name="items[__IDX__][info_qty]" style="max-width:70px;">
-                            <option value="Lot">Lot</option>
-                            <option value="Set">Set</option>
-                        </select>
+
+            <div class="row g-3 align-items-start">
+                {{-- Left: Item Title & Description (30%) --}}
+                <div class="col-md-4" style="flex: 0 0 30%; max-width: 30%;">
+                    <div class="mb-2">
+                        <input type="text" class="form-control form-control-sm fw-bold field-label"
+                            name="items[__IDX__][label]" placeholder="Item Title *" required>
+                    </div>
+                    <div>
+                        <textarea class="form-control form-control-sm field-description"
+                            name="items[__IDX__][description]" rows="2" placeholder="Description (optional)"></textarea>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <input type="text" class="form-control form-control-sm text-end field-price rupiah-input"
-                        name="items[__IDX__][price]" placeholder="Price" autocomplete="off">
-                </div>
-                <div class="col-md-1">
-                    <div class="input-group input-group-sm">
-                        <input type="number" class="form-control text-center field-disc"
-                            name="items[__IDX__][disc]" value="0" min="0" max="100">
-                        <span class="input-group-text">%</span>
+
+                {{-- Right: Qty, Price, Disc, Nominal, Remove (70%) --}}
+                <div class="col-md-8" style="flex: 0 0 70%; max-width: 70%;">
+                    <div class="row g-2 align-items-center h-100 pt-1">
+                        <div class="col-md-3">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">Qty</span>
+                                <input type="number" class="form-control text-center field-qty"
+                                    name="items[__IDX__][qty]" value="1" min="1">
+                                <select class="form-select field-info-qty" name="items[__IDX__][info_qty]" style="max-width:70px;">
+                                    <option value="Lot">Lot</option>
+                                    <option value="Set">Set</option>
+                                    <option value="Unit">Unit</option>
+                                    <option value="Pcs">Pcs</option>
+                                    <option value="Ls">Ls</option>
+                                    <option value="Btg">Btg</option>
+                                    <option value="Mtr">Mtr</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">Price</span>
+                                <input type="text" class="form-control form-control-sm text-end field-price rupiah-input"
+                                    name="items[__IDX__][price]" placeholder="Price" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">Disc</span>
+                                <input type="number" class="form-control text-center field-disc"
+                                    name="items[__IDX__][disc]" value="0" min="0" max="100">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <span class="text-muted small me-1">Nominal:</span>
+                            <span class="field-amount fw-semibold text-primary">Rp 0</span>
+                        </div>
+                        <div class="col-md-1 text-end">
+                            <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row">
+                                <i class="mdi mdi-delete-outline"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-1 text-end">
-                    <span class="field-amount fw-semibold text-primary">Rp 0</span>
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-header-row">
+        <div class="unit-row border-bottom p-3 bg-light" data-type="header">
+            <input type="hidden" name="items[__IDX__][type]" value="header">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary text-uppercase" style="font-size:10px;">Head Title</span>
+                <div class="flex-grow-1">
+                    <input type="text" class="form-control form-control-sm fw-bold text-primary field-label"
+                        name="items[__IDX__][label]" placeholder="Head Title (e.g. A. SCOPE OF WORK, B. PIPING SYSTEM) *" required>
                 </div>
-                <div class="col-md-1 text-end">
-                    <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row">
-                        <i class="mdi mdi-delete-outline"></i>
-                    </button>
-                </div>
+                <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row">
+                    <i class="mdi mdi-delete-outline"></i>
+                </button>
             </div>
         </div>
     </template>
@@ -360,6 +541,86 @@
         window.EDIT_ITEMS = @json($editItems);
         window.EDIT_CLIENT_ID = {{ $quote->id_client ?? 'null' }};
         window.EDIT_PIC_ID = {{ $quote->id_pic ?? 'null' }};
+        window.EDIT_PLANT_ID = {{ $quote->id_plant ?? 'null' }};
+        window.EDIT_ADDRESS = @json($quote->address ?? '');
     </script>
     <script src="{{ asset('assets') }}/includes/form-unit-quotation.js"></script>
+    <script>
+        (function () {
+            const inputDate   = document.getElementById('input-date');
+            const expiredDate = document.getElementById('input-expired-date');
+
+            function addOneMonth(dateStr) {
+                if (!dateStr) return '';
+                const d = new Date(dateStr);
+                const day = d.getDate();
+                d.setMonth(d.getMonth() + 1);
+                if (d.getDate() !== day) d.setDate(0);
+                return d.toISOString().slice(0, 10);
+            }
+
+            inputDate.addEventListener('change', function () {
+                expiredDate.value = addOneMonth(this.value);
+            });
+        })();
+
+        // ── Auto-bullet on Note textarea ──
+        (function () {
+            const BULLET = '\u2022 ';
+            const ta = document.getElementById('note');
+            if (!ta) return;
+
+            // When user first focuses & textarea is empty, pre-fill bullet
+            ta.addEventListener('focus', function () {
+                if (this.value.trim() === '') {
+                    this.value = BULLET;
+                    this.setSelectionRange(BULLET.length, BULLET.length);
+                }
+            });
+
+            ta.addEventListener('keydown', function (e) {
+                if (e.key !== 'Enter') return;
+                e.preventDefault();
+
+                const start = this.selectionStart;
+                const end   = this.selectionEnd;
+                const val   = this.value;
+
+                // Find the current line
+                const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+                const currentLine = val.substring(lineStart, start);
+
+                // If current line is only a bullet (empty item), remove bullet & exit list
+                if (currentLine === BULLET || currentLine === '\u2022') {
+                    this.value = val.substring(0, lineStart) + val.substring(end);
+                    this.setSelectionRange(lineStart, lineStart);
+                    return;
+                }
+
+                // Otherwise insert newline + bullet
+                const insert = '\n' + BULLET;
+                this.value = val.substring(0, start) + insert + val.substring(end);
+                const newPos = start + insert.length;
+                this.setSelectionRange(newPos, newPos);
+            });
+
+            // Ensure first line starts with bullet on blur if not empty
+            ta.addEventListener('blur', function () {
+                if (this.value && !this.value.startsWith(BULLET)) {
+                    this.value = BULLET + this.value;
+                }
+            });
+
+            // Auto-resize height to fit content (including existing content on load)
+            function autoResize() {
+                ta.style.height = 'auto';
+                ta.style.height = ta.scrollHeight + 'px';
+            }
+            ta.addEventListener('input', autoResize);
+            ta.addEventListener('keydown', function () {
+                setTimeout(autoResize, 0);
+            });
+            autoResize(); // run immediately to fit existing content
+        })();
+    </script>
 @endpush

@@ -1,11 +1,12 @@
 <div class="table-responsive text-nowrap border rounded">
-    <table class="table table-bordered table-striped datatable-project mb-0" id="{{ $tableId }}">
+    <table class="table table-bordered datatable-project mb-0" id="{{ $tableId }}">
         <thead>
             <tr class="table-light">
                 <th>No SO</th>
                 <th>No PO</th>
                 <th>Date</th>
                 <th>Customer</th>
+                <th>Area</th>
                 <th>Title / Project Name</th>
                 <th class="text-center">Status</th>
                 <th class="text-center">Sales</th>
@@ -15,7 +16,7 @@
             @foreach ($projectList as $project)
                 <tr>
                     <td>
-                        <a href="{{ route('project-monitoring.show', $project->id) }}" class="fw-semibold text-primary">
+                        <a href="{{ $project->detail_route ?? route('project-monitoring.show', $project->id) }}" class="fw-semibold text-primary">
                             {{ $project->no_pending }}
                         </a>
                     </td>
@@ -26,6 +27,7 @@
                         <span class="text-muted">{{ $project->order_date ? \Carbon\Carbon::parse($project->order_date)->format('d-m-Y') : '-' }}</span>
                     </td>
                     <td>{{ $project->company }}</td>
+                    <td>{{ $project->area ?? '-' }}</td>
                     <td class="text-wrap" style="min-width: 250px;">{{ $project->title }}</td>
                     <td class="text-center">
                         @if ($project->status == 6)
@@ -38,10 +40,10 @@
                             @php
                                 $step = $project->project_status_step ?? 1;
                                 $cat = $project->project_category ?? 'Service PM';
-                                
+
                                 $statusLabel = 'In Progress';
                                 $badgeClass = 'bg-primary';
-                                
+
                                 if ($step == 1) {
                                     $badgeClass = 'bg-warning';
                                     if (in_array($cat, ['Rental', 'Unit'])) {

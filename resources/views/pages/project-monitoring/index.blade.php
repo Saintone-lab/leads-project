@@ -2,7 +2,7 @@
 @section('title', 'Project Monitoring Dashboard')
 @section('no-container') @endsection
 @section('content')
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center py-3 mb-4 gap-2">
             <h4 class="fw-bold m-0">
                 <span class="text-muted fw-normal">Project /</span> Profitability Monitoring
@@ -199,7 +199,7 @@
                 // Replace cloned headers with input fields
                 $table.find('thead tr:eq(1) th').each(function(i) {
                     var title = $(this).text();
-                    if (i === 6) { // Skip Sales avatar column
+                    if (i === 7) { // Skip Sales avatar column
                         $(this).html('');
                         return;
                     }

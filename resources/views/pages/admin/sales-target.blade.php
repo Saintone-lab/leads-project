@@ -18,7 +18,7 @@
 @endpush
 
 @section('content')
-<div class="container-xxl flex-grow-1 container-p-y">
+<div class="container-fluid flex-grow-1 container-p-y">
 
     {{-- Header --}}
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">

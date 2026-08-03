@@ -6,7 +6,7 @@
         $activeTab = request()->get('tab', 'sales-order');
     @endphp
 
-    <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="container-fluid flex-grow-1 container-p-y">
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center py-3 mb-4 gap-2">
             <h4 class="fw-bold m-0">
                 <span class="text-muted fw-normal">Operations /</span> Sales Order & Project Monitoring
@@ -31,23 +31,23 @@
                 <div class="nav-align-top">
                     <ul class="nav nav-pills flex-column flex-sm-row mb-0 gap-1" role="tablist">
                         <li class="nav-item flex-sm-grow-0" role="presentation">
-                            <button class="nav-link {{ $activeTab !== 'project-monitoring' ? 'active' : '' }}" 
-                                    data-bs-toggle="tab" 
-                                    data-bs-target="#tab-content-sorder" 
-                                    type="button" 
-                                    role="tab" 
-                                    aria-controls="tab-content-sorder" 
+                            <button class="nav-link {{ $activeTab !== 'project-monitoring' ? 'active' : '' }}"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#tab-content-sorder"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="tab-content-sorder"
                                     aria-selected="{{ $activeTab !== 'project-monitoring' ? 'true' : 'false' }}">
                                 <i class="mdi mdi-cart-outline me-2"></i>Sales Order (Spare Parts)
                             </button>
                         </li>
                         <li class="nav-item flex-sm-grow-0" role="presentation">
-                            <button class="nav-link {{ $activeTab === 'project-monitoring' ? 'active' : '' }}" 
-                                    data-bs-toggle="tab" 
-                                    data-bs-target="#tab-content-project" 
-                                    type="button" 
-                                    role="tab" 
-                                    aria-controls="tab-content-project" 
+                            <button class="nav-link {{ $activeTab === 'project-monitoring' ? 'active' : '' }}"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#tab-content-project"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="tab-content-project"
                                     aria-selected="{{ $activeTab === 'project-monitoring' ? 'true' : 'false' }}">
                                 <i class="mdi mdi-briefcase-outline me-2"></i>Project Monitoring
                             </button>
@@ -63,8 +63,7 @@
             <div class="tab-pane fade {{ $activeTab !== 'project-monitoring' ? 'show active' : '' }}" id="tab-content-sorder" role="tabpanel">
                 <!-- Sales Order KPI Cards Grid -->
                 <div class="row gy-4 mb-4">
-                    <!-- Total Orders Card -->
-                    <div class="col-sm-6 col-lg-3">
+                    <div class="col-12">
                         <div class="card card-border-shadow-primary h-100">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-2 pb-1">
@@ -76,60 +75,6 @@
                                     <h4 class="ms-1 mb-0 fw-bold text-primary">{{ $totalOrdersCount }}</h4>
                                 </div>
                                 <p class="mb-0 text-primary-900 fw-semibold">Total Sales Order</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Total Revenue Card -->
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="card card-border-shadow-success h-100">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-2 pb-1">
-                                    <div class="avatar me-2">
-                                        <span class="avatar-initial rounded bg-label-success">
-                                            <i class="mdi mdi-currency-usd mdi-24px"></i>
-                                        </span>
-                                    </div>
-                                    <h5 class="ms-1 mb-0 text-success fw-bold">Rp {{ number_format($totalRevenueSOrder, 0, ',', '.') }}</h5>
-                                </div>
-                                <p class="mb-0 text-primary-900 fw-semibold">Total Revenue (Quotation)</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Total Cost Card -->
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="card card-border-shadow-danger h-100">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-2 pb-1">
-                                    <div class="avatar me-2">
-                                        <span class="avatar-initial rounded bg-label-danger">
-                                            <i class="mdi mdi-bank-minus mdi-24px"></i>
-                                        </span>
-                                    </div>
-                                    <h5 class="ms-1 mb-0 text-danger fw-bold">Rp {{ number_format($totalCostSOrder, 0, ',', '.') }}</h5>
-                                </div>
-                                <p class="mb-0 text-primary-900 fw-semibold">Purchase & Delivery Cost</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Net Profit Card -->
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="card card-border-shadow-info h-100">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-2 pb-1">
-                                    <div class="avatar me-2">
-                                        <span class="avatar-initial rounded bg-info text-white">
-                                            <i class="mdi mdi-trending-up mdi-24px"></i>
-                                        </span>
-                                    </div>
-                                    <div class="d-flex flex-column">
-                                        <h5 class="ms-1 mb-0 text-primary fw-bold">Rp {{ number_format($totalProfitSOrder, 0, ',', '.') }}</h5>
-                                        <small class="ms-1 text-muted fw-bold">Margin: {{ number_format($overallMarginSOrder, 1) }}%</small>
-                                    </div>
-                                </div>
-                                <p class="mb-0 text-primary-900 fw-semibold">Net Profit</p>
                             </div>
                         </div>
                     </div>
@@ -208,8 +153,7 @@
             <div class="tab-pane fade {{ $activeTab === 'project-monitoring' ? 'show active' : '' }}" id="tab-content-project" role="tabpanel">
                 <!-- Project KPI Cards Grid -->
                 <div class="row gy-4 mb-4">
-                    <!-- Total Projects Card -->
-                    <div class="col-sm-6 col-lg-3">
+                    <div class="col-12">
                         <div class="card card-border-shadow-primary h-100">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-2 pb-1">
@@ -221,60 +165,6 @@
                                     <h4 class="ms-1 mb-0">{{ $totalProjectsCount }}</h4>
                                 </div>
                                 <p class="mb-0 text-muted">Total Projects</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Total Revenue Card -->
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="card card-border-shadow-success h-100">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-2 pb-1">
-                                    <div class="avatar me-2">
-                                        <span class="avatar-initial rounded bg-label-success">
-                                            <i class="mdi mdi-currency-usd mdi-24px"></i>
-                                        </span>
-                                    </div>
-                                    <h4 class="ms-1 mb-0 text-success">Rp {{ number_format($totalRevenueProject, 0, ',', '.') }}</h4>
-                                </div>
-                                <p class="mb-0 text-muted">Total Revenue (Quotation)</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Total Cost Card -->
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="card card-border-shadow-warning h-100">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-2 pb-1">
-                                    <div class="avatar me-2">
-                                        <span class="avatar-initial rounded bg-label-warning">
-                                            <i class="mdi mdi-cart-outline mdi-24px"></i>
-                                        </span>
-                                    </div>
-                                    <h4 class="ms-1 mb-0 text-warning">Rp {{ number_format($totalCostProject, 0, ',', '.') }}</h4>
-                                </div>
-                                <p class="mb-0 text-muted">Total Expenses & Purchases</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Net Profit / Margin Card -->
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="card card-border-shadow-info h-100" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-2 pb-1">
-                                    <div class="avatar me-2">
-                                        <span class="avatar-initial rounded bg-info text-white">
-                                            <i class="mdi mdi-trending-up mdi-24px"></i>
-                                        </span>
-                                    </div>
-                                    <div class="d-flex flex-column">
-                                        <h5 class="ms-1 mb-0 text-primary fw-bold">Rp {{ number_format($totalProfitProject, 0, ',', '.') }}</h5>
-                                        <small class="ms-1 text-muted fw-bold">Margin: {{ number_format($overallMarginProject, 1) }}%</small>
-                                    </div>
-                                </div>
-                                <p class="mb-0 text-primary-900 fw-semibold">Net Profit</p>
                             </div>
                         </div>
                     </div>
@@ -388,7 +278,7 @@
                 if (targetId === '#tab-content-sorder' || targetId === '#tab-content-project') {
                     var tabName = targetId === '#tab-content-project' ? 'project-monitoring' : 'sales-order';
                     $('#active-tab-param').val(tabName);
-                    
+
                     // Update URL without reloading page
                     var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?tab=' + tabName + '&year=' + $('#filter-year').val();
                     window.history.pushState({path: newUrl}, '', newUrl);

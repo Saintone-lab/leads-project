@@ -596,6 +596,7 @@
             padding: 0 !important;
             margin: 0 !important;
         }
+        body.kanban-fullscreen-mode .container-fluid,
         body.kanban-fullscreen-mode .container-xxl {
             max-width: 100% !important;
             width: 100% !important;
@@ -1277,7 +1278,7 @@
                                 currentBastPrefill = response.so_details.bast_prefill || null;
                                 if (response.so_details.bast) {
                                     $('#bastExistingLabel').text('Lihat BAST ' + response.so_details.bast.no_bast);
-                                    $('#bastExistingLink').attr('href', response.so_details.bast.print_link);
+                                    $('#bastExistingLink').attr('href', response.so_details.bast.show_link || response.so_details.bast.print_link);
                                     $('#bastExistingContainer').show();
                                     $('#bastCreateContainer').hide();
                                 } else {

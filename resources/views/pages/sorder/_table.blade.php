@@ -1,5 +1,5 @@
 <div class="table-responsive text-nowrap border rounded">
-    <table class="table table-bordered table-striped datatable-sorder mb-0" id="{{ $tableId }}">
+    <table class="table table-bordered datatable-sorder mb-0" id="{{ $tableId }}">
         <thead>
             <tr class="table-light">
                 <th>No SO</th>
@@ -15,7 +15,7 @@
             @foreach ($orderList as $order)
                 <tr>
                     <td>
-                        <a href="{{ route('pending-po.show', $order->id) }}" class="fw-semibold text-primary">
+                        <a href="{{ $order->detail_route ?? route('pending-po.show', $order->id) }}" class="fw-semibold text-primary">
                             {{ $order->no_pending }}
                         </a>
                     </td>
