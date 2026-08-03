@@ -146,6 +146,11 @@
             $('#' + badgeId).text(api.page.info().recordsTotal);
         });
 
+        // Re-init tooltip (avatar Sales) tiap redraw ajax
+        $(document).on('draw.dt', function (e) {
+            $(e.target).find('[data-bs-toggle="tooltip"]').tooltip();
+        });
+
         $(document).ready(function() {
             $('[data-bs-toggle="tooltip"]').tooltip();
         });

@@ -43,7 +43,7 @@
                         </div>
                     @endif
                     <div class="text-end">
-                        <h1 class="fw-bold title-reftech">INVOICE</h1>
+                        <h1 class="fw-bold" style="color: #2529fa; letter-spacing: 2px;">INVOICE</h1>
                         <div>
                             <span class="fw-bolder" style="font-size:18px">{{ $invoice->no_invoice }}</span>
                         </div>
@@ -92,7 +92,7 @@
                         </div>
                     @endif
                     <div class="text-end">
-                        <h1 class="fw-bold" style="color: rgb(175, 29, 23);">INVOICE</h1>
+                        <h1 class="fw-bold" style="color: #696cff; letter-spacing: 2px;">INVOICE</h1>
                         <div>
                             <span class="fw-bolder">#{{ $invoice->no_invoice }}</span>
                         </div>
@@ -387,6 +387,141 @@
                                         </td>
                                     </tr>
                                 @endif
+                            @elseif ($invoice->type == 'DP')
+                                @php
+                                    $amount1 = $payments[0]->amount / (1 + $quote->tax / 100);
+                                    $vat = $amount1 * ($quote->tax / 100);
+                                    $totalwithpph = $payments[0]->amount - $totalPph;
+                                @endphp
+                                @if ($quote->diskon != 0)
+                                    <tr class="fw-medium" style="font-size: 13px">
+                                        <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
+                                            <p class="m-0">Discount</p>
+                                        </td>
+                                        <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                            <p class="m-0 text-end">RP
+                                                {{ number_format($quote->diskon, 0, '', '.') }}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <tr class="fw-medium" style="font-size: 13px">
+                                        <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
+                                            <p class="m-0">Total After Discount</p>
+                                        </td>
+                                        <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                            <p class="m-0 text-end">RP
+                                                {{ number_format($afterDisc, 0, '', '.') }}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                @endif
+                                <tr class="fw-medium" style="font-size: 13px">
+                                    <td colspan="{{ $labelColspan }}" class="text-end py-0 px-0">
+                                        <p class="m-0"
+                                            style="background-color: yellow; padding-left:20px; padding-right:10px;">
+                                            {{ $payments[0]->note }}
+                                            {{ $payments[0]->percent }}%:</p>
+                                    </td>
+                                    <td class="px-0 py-0" style="padding-left: 0 !important;">
+                                        <p class="fw-medium m-0 text-end"
+                                            style="background-color: yellow; padding-right:20px;">
+                                            RP
+                                            {{ number_format($amount1, 0, '', '.') }}</p>
+                                    </td>
+                                </tr>
+                                @if ($quote->tax != 0)
+                                    <tr class="fw-medium" style="font-size: 13px">
+                                        <td colspan="{{ $labelColspan }}" id="price" class="text-end pl-4 py-0"
+                                            style="padding-right: 10px !important;">
+                                            <p class="m-0">
+                                                DPP Atas PPN
+                                            </p>
+                                        </td>
+                                        <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
+                                            @php
+                                                $dpp = ($amount1 * 11) / 12;
+                                            @endphp
+                                            <p class="text-end m-0">RP
+                                                {{ number_format($dpp, 0, '', '.') }}</p>
+                                        </td>
+                                    </tr>
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
+                                        <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
+                                            <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
+                                        </td>
+                                        <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                            <p class="m-0 text-end">
+                                                {{ $vat == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
+                                        </td>
+                                    </tr>
+                                    @if ($totalPph > 0)
+                                        <tr class="fw-medium py-0" style="font-size: 13px">
+                                            <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                                style="padding-right: 10px !important;">
+                                                <p class="m-0">PPH</p>
+                                            </td>
+                                            <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                                <p class="m-0 text-end">
+                                                    {{ $totalPph == '0' ? '0' : 'RP ' . number_format($totalPph, 0, '', '.') }}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                    @if ($quote->shipping != 0)
+                                        <tr class="fw-medium" style="font-size: 13px">
+                                            <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                                style="padding-right: 10px !important;">
+                                                <p class="m-0">Shipping Cost</p>
+                                            </td>
+                                            <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                                <p class="m-0 text-end">RP
+                                                    {{ number_format($quote->shipping, 0, '', '.') }}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
+                                        <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                            style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
+                                            <p class="m-0 fw-bold">Total Include VAT</p>
+                                        </td>
+                                        <td class="pr-4 py-0"
+                                            style="background-color: {{ $bgColor }}; padding-right:20px;">
+                                            <p class="m-0 text-end fw-bold">
+                                                Rp {{ number_format($totalwithpph, 0, '', '.') }}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                @else
+                                    @if ($quote->shipping != 0)
+                                        <tr class="fw-medium" style="font-size: 13px">
+                                            <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                                style="padding-right: 10px !important;">
+                                                <p class="m-0">Shipping Cost</p>
+                                            </td>
+                                            <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                                <p class="m-0 text-end">RP
+                                                    {{ number_format($quote->shipping, 0, '', '.') }}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
+                                        <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                            style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
+                                            <p class="m-0">Total</p>
+                                        </td>
+                                        <td class="pr-4 py-0"
+                                            style="background-color: {{ $bgColor }}; padding-right:20px;">
+                                            <p class="m-0 text-end fw-bold">
+                                                {{ number_format($payments[0]->amount, 0, '', '.') }}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                @endif
                             @else
                                 @if ($quote->diskon != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
@@ -419,7 +554,7 @@
                                         $payamount = $pay->amount;
                                         $totalwithpph = $pay->amount - $totalPph;
                                     @endphp
-                                    @if (count($payments) > 1)
+                                    @if (count($payments) > 1 || $invoice->type != 'CT')
                                         <tr class="fw-medium" style="font-size: 13px">
                                             <td colspan="{{ $labelColspan }}" class="text-end py-0 px-0">
                                                 <p class="m-0"
@@ -752,7 +887,12 @@
                                         </td>
                                     </tr>
                                 @endif
-                            @else
+                            @elseif ($invoice->type == 'DP')
+                                @php
+                                    $amount1 = $payments[0]->amount / (1 + $quote->tax / 100);
+                                    $vat = $amount1 * ($quote->tax / 100);
+                                    $totalwithpph = $payments[0]->amount - $totalPph;
+                                @endphp
                                 @if ($quote->diskon != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
                                         <td colspan="{{ $labelColspan }}" class="text-end py-0"
@@ -777,30 +917,112 @@
                                         </td>
                                     </tr>
                                 @endif
-                                @foreach ($payments as $pay)
-                                    @php
-                                        $amount = $pay->amount / (1 + $quote->tax / 100);
-                                        $vat = $amount * ($quote->tax / 100);
-                                        $payamount = $pay->amount;
-                                        $totalwithpph = $pay->amount - $totalPph;
-                                    @endphp
-                                    @if (count($payments) > 1)
-                                        <tr class="fw-medium" style="font-size: 13px">
-                                            <td colspan="{{ $labelColspan }}" class="text-end py-0 px-0">
-                                                <p class="m-0"
-                                                    style="{{ $loop->last ? 'background-color: yellow;' : '' }} padding-left:20px; padding-right:10px;">
-                                                    {{ $pay->note }}
-                                                    {{ $pay->percent }}%</p>
+                                <tr class="fw-medium" style="font-size: 13px">
+                                    <td colspan="{{ $labelColspan }}" class="text-end py-0 px-0">
+                                        <p class="m-0"
+                                            style="background-color: yellow; padding-left:20px; padding-right:10px;">
+                                            {{ $payments[0]->note }}
+                                            {{ $payments[0]->percent }}%:</p>
+                                    </td>
+                                    <td class="px-0 py-0" style="padding-left: 0 !important;">
+                                        <p class="fw-medium m-0 text-end"
+                                            style="background-color: yellow; padding-right:20px;">
+                                            RP
+                                            {{ number_format($amount1, 0, '', '.') }}</p>
+                                    </td>
+                                </tr>
+                                @if ($quote->tax != 0)
+                                    <tr class="fw-medium" style="font-size: 13px">
+                                        <td colspan="{{ $labelColspan }}" id="price" class="text-end pl-4 py-0"
+                                            style="padding-right: 10px !important;">
+                                            <p class="m-0">
+                                                DPP Atas PPN
+                                            </p>
+                                        </td>
+                                        <td id="price" class="pr-4 py-0" style="padding-left: 0 !important;">
+                                            @php
+                                                $dpp = ($amount1 * 11) / 12;
+                                            @endphp
+                                            <p class="text-end m-0">RP
+                                                {{ number_format($dpp, 0, '', '.') }}</p>
+                                        </td>
+                                    </tr>
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
+                                        <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                            style="padding-right: 10px !important;">
+                                            <p class="m-0">VAT {{ $quote->tax == '11' ? '12%' : '' }}</p>
+                                        </td>
+                                        <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                            <p class="m-0 text-end">
+                                                {{ $vat == '0' ? '0' : 'RP ' . number_format($vat, 0, '', '.') }}</p>
+                                        </td>
+                                    </tr>
+                                    @if ($totalPph > 0)
+                                        <tr class="fw-medium py-0" style="font-size: 13px">
+                                            <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                                style="padding-right: 10px !important;">
+                                                <p class="m-0">PPH</p>
                                             </td>
-                                            <td class="px-0 py-0" style="padding-left: 0 !important;">
-                                                <p class="fw-medium m-0 text-end"
-                                                    style="{{ $loop->last ? 'background-color: yellow;' : '' }} padding-right:20px;">
-                                                    RP
-                                                    {{ number_format($amount, 0, '', '.') }}</p>
+                                            <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                                <p class="m-0 text-end">
+                                                    {{ $totalPph == '0' ? '0' : 'RP ' . number_format($totalPph, 0, '', '.') }}
+                                                </p>
                                             </td>
                                         </tr>
                                     @endif
-                                @endforeach
+                                    @if ($quote->shipping != 0)
+                                        <tr class="fw-medium" style="font-size: 13px">
+                                            <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                                style="padding-right: 10px !important;">
+                                                <p class="m-0">Shipping Cost</p>
+                                            </td>
+                                            <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                                <p class="m-0 text-end">RP
+                                                    {{ number_format($quote->shipping, 0, '', '.') }}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
+                                        <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                            style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
+                                            <p class="m-0 fw-bold">Total Include VAT</p>
+                                        </td>
+                                        <td class="pr-4 py-0"
+                                            style="background-color: {{ $bgColor }}; padding-right:20px;">
+                                            <p class="m-0 text-end fw-bold">
+                                                Rp {{ number_format($totalwithpph, 0, '', '.') }}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                @else
+                                    @if ($quote->shipping != 0)
+                                        <tr class="fw-medium" style="font-size: 13px">
+                                            <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                                style="padding-right: 10px !important;">
+                                                <p class="m-0">Shipping Cost</p>
+                                            </td>
+                                            <td class="pr-4 py-0" style="padding-left: 0 !important;">
+                                                <p class="m-0 text-end">RP
+                                                    {{ number_format($quote->shipping, 0, '', '.') }}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                    <tr class="fw-medium py-0" style="font-size: 13px">
+                                        <td colspan="{{ $labelColspan }}" class="text-end py-0"
+                                            style="background-color: {{ $bgColor }}; padding-left:20px; padding-right:10px;">
+                                            <p class="m-0">Total</p>
+                                        </td>
+                                        <td class="pr-4 py-0"
+                                            style="background-color: {{ $bgColor }}; padding-right:20px;">
+                                            <p class="m-0 text-end fw-bold">
+                                                {{ number_format($payments[0]->amount, 0, '', '.') }}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                @endif
+                            @else
                                 @if ($quote->tax != 0)
                                     <tr class="fw-medium" style="font-size: 13px">
                                         <td colspan="{{ $labelColspan }}" id="price" class="text-end pl-4 py-0"

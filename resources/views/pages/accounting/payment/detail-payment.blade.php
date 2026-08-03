@@ -1,290 +1,371 @@
 @extends('layouts.sales.app')
-@section('title', 'Payment Recieve AR')
+@section('title', 'Detail Pembayaran')
 @section('content')
-    <div class="card">
-        <div class="card-body">
-            <div class="row mb-3">
-                <div class="col-6 mb-3">
-                    <h4 class="mb-3">Customer Info</h4>
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <div class="card bg-label-secondary">
-                                <div class="card-body">
-                                    No Invoice
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    : <a href="{{ $isUnitQuotation ? route('invoice.show_unit', $invoice->id) : route('invoice.show', $invoice->id) }}" class="text-black"
-                                        target="_blank">
-                                        {{ $invoice->no_invoice }}
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="card bg-label-secondary">
-                                <div class="card-body">
-                                    Company
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    : {{ $isUnitQuotation ? $quote->client->company : $quote->pic->client->company }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="card bg-label-secondary">
-                                <div class="card-body">
-                                    NPWP
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    : {{ $isUnitQuotation ? $quote->client->npwp : $quote->pic->client->npwp }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="card bg-label-secondary h-100">
-                                <div class="card-body">
-                                    Address
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    : {{ $isUnitQuotation ? $quote->client->address : $quote->pic->client->address }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 mb-3">
-                    @php $clientInfo = $isUnitQuotation ? $quote->client->info : $quote->pic->client->info; @endphp
-                    @if ($clientInfo == 'Reftech')
-                        <div class="mb-xl-0 pb-1">
-                            <div class="svg-illustration align-items-center gap-2 mb-4">
-                                <span class="app-brand-logo demo">
-                                    <span style="color: var(--bs-primary)">
-                                        <img src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt="Logo" width="60%"
-                                            class="d-block ms-auto">
-                                    </span>
-                                </span>
-                            </div>
-                        </div>
-                    @else
-                        <div class="mb-xl-0 pb-1">
-                            <div class="svg-illustration align-items-center gap-2 mb-4">
-                                <span class="app-brand-logo demo">
-                                    <span style="color: var(--bs-primary)">
-                                        <img src="{{ asset('/asset') }}/logo/Kojisha-Log.png" alt="Logo" width="60%"
-                                            class="d-block ms-auto">
-                                    </span>
-                                </span>
-                            </div>
-                        </div>
-                    @endif
-                    <div class="info text-end pt-5 px-3">
-                        <h6>Payment Receipt No.</h6>
-                        <h3>#RCPT-{{ $payment->id }}</h3>
-                        <p>{{ Carbon\Carbon::parse($payment->date)->format('d-m-Y') }}</p>
-                        @php
-                            if ($payment->level == 0) {
-                                if ($payment->file == null) {
-                                    $warna = 'text-danger';
-                                    $text = 'Waiting Payment';
-                                } else {
-                                    $warna = 'text-warning';
-                                    $text = 'Awaiting Verification';
-                                }
-                            } else {
-                                $warna = 'text-success';
-                                $text = 'Verified';
-                            }
 
-                        @endphp
-                        <h4 class=" {{ $warna }}">
-                            {{ $text }}</h4>
-                    </div>
+@php
+    $clientCompany = $isUnitQuotation ? $quote->client->company : $quote->pic->client->company;
+    $clientNpwp = $isUnitQuotation ? $quote->client->npwp : $quote->pic->client->npwp;
+    $clientAddress = $isUnitQuotation ? $quote->client->address : $quote->pic->client->address;
+    $clientInfo = $isUnitQuotation ? $quote->client->info : $quote->pic->client->info;
+
+    if ($payment->level == 0) {
+        if ($payment->file == null) {
+            $statusColor = 'danger'; $statusIcon = 'mdi-clock-outline'; $statusText = 'Menunggu Pembayaran';
+        } else {
+            $statusColor = 'warning'; $statusIcon = 'mdi-eye-check-outline'; $statusText = 'Menunggu Verifikasi';
+        }
+    } else {
+        $statusColor = 'success'; $statusIcon = 'mdi-check-circle-outline'; $statusText = 'Terverifikasi';
+    }
+
+    $netAmount = $payment->amount - ($payment->pph ?? 0) - ($payment->cost ?? 0);
+@endphp
+
+{{-- Breadcrumb --}}
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 py-3 mb-4">
+    <div>
+        <h4 class="fw-bold mb-1 d-flex align-items-center gap-2">
+            <i class="mdi mdi-cash-check text-primary"></i> Detail Pembayaran
+            <span class="badge bg-label-{{ $statusColor }} rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1" style="font-size: 12px;">
+                <i class="mdi {{ $statusIcon }}"></i> {{ $statusText }}
+            </span>
+        </h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0" style="font-size: 13px;">
+                <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('payment_index.payment') }}">Payment Received</a></li>
+                <li class="breadcrumb-item active">#RCPT-{{ $payment->id }}</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ route('payment_index.payment') }}" class="btn btn-sm btn-label-secondary rounded-pill px-3">
+            <i class="mdi mdi-arrow-left me-1"></i> Kembali
+        </a>
+    </div>
+</div>
+
+{{-- Top Metric Cards --}}
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div class="avatar avatar-md flex-shrink-0">
+                    <span class="avatar-initial rounded-circle bg-label-primary"><i class="mdi mdi-receipt-text-outline fs-4"></i></span>
+                </div>
+                <div class="overflow-hidden">
+                    <small class="text-muted fw-semibold d-block" style="font-size: 11px;">Receipt No.</small>
+                    <span class="fw-bold text-dark text-truncate d-block" style="font-size: 15px;">#RCPT-{{ $payment->id }}</span>
                 </div>
             </div>
-            <div class="text-end">
-                {{-- <div class="functional d-flex justify-content-between"> --}}
-                <a class="mx-2" type="button" data-bs-toggle="modal" data-bs-target="#editDate">
-                    <button type="button" class="btn btn-warning">
-                        Edit Date
-                    </button>
-                </a>
-                <a class="mx-2" type="button" data-bs-toggle="modal" data-bs-target="#addPPH">
-                    <button type="button" class="btn btn-primary">
-                        {{ $payment->pph > 0 ? 'Edit' : 'Add' }} PPH
-                    </button>
-                </a>
-                <a class="mx-2" type="button" data-bs-toggle="modal" data-bs-target="#addCost">
-                    <button type="button" class="btn btn-info">
-                        {{ $payment->cost > 0 ? 'Edit' : 'Add' }} Cost
-                    </button>
-                </a>
-                {{-- </div> --}}
-            </div>
-            <div class="table-responsive mb-3">
-                <table class="table m-0">
-                    <thead class="">
-                        <tr>
-                            <th>Date</th>
-                            <th>Payment Method</th>
-                            @if ($payment->pph > 0)
-                                <th>PPH</th>
-                            @endif
-                            @if ($payment->cost > 0)
-                                <th>Cost</th>
-                            @endif
-                            <th>Amount</th>
-                            @if ($payment->pph > 0 || $payment->cost > 0)
-                                <th>Total</th>
-                            @endif
-                            <th>TAG</th>
-                            <th>Proof of Transfer</th>
-                            <th>Confirm</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style="font-size: 14px">
-                            <td class="align-top">
-                                {{ \Carbon\Carbon::parse($payment->created_at)->format('d-m-Y') }}
-                            </td>
-                            <td class="align-top"> {{ $payment->method }} </td>
-                            @if ($payment->pph > 0)
-                                <td class="align-top">RP {{ number_format($payment->pph, 0, '', '.') }}
-                            @endif
-                            @if ($payment->cost > 0)
-                                <td class="align-top">RP {{ number_format($payment->cost, 0, '', '.') }}
-                            @endif
-                            <td class="align-top">RP {{ number_format($payment->amount, 0, '', '.') }}
-                            </td>
-                            @if ($payment->pph > 0 || $payment->cost > 0)
-                                <td class="align-top">RP {{ number_format($payment->amount - $payment->pph - $payment->cost, 0, '', '.') }}
-                            @endif
-                            <td class="align-top">
-                                {{ $payment->type }} {{ $payment->percent }}%
-                            </td>
-                            <td class="align-top">
-                                <a href="{{ route('view_payment.payment', $payment->id) }}"
-                                    class="btn btn-primary d-grid waves-effect" target="_blank">
-                                    View
-                                </a>
-                            </td>
-                            <td class="align-top">
-                                @if ($payment->level == 0)
-                                    <a type="button" data-bs-toggle="modal" data-bs-target="#confirmPayment">
-                                        <button type="button" class="btn btn-secondary d-grid waves-effect">
-                                            Confirm
-                                        </button>
-                                    </a>
-                                @else
-                                    <a href="#" class="btn btn-label-danger d-grid waves-effect unconfirm-payment"
-                                        data-id="{{ $payment->id }}">UnConfirm</a>
-                                @endif
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="row">
-                <div class="col-6">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h5>Note</h5>
-                        </div>
-                        <div class="card-body">
-                            {{ $payment->note }}
-                        </div>
-                    </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div class="avatar avatar-md flex-shrink-0">
+                    <span class="avatar-initial rounded-circle bg-label-info"><i class="mdi mdi-calendar-check-outline fs-4"></i></span>
                 </div>
-                <div class="col-6">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h5>Activity</h5>
-                        </div>
-                        <div class="card-body pt-4" id="viewComment">
-                            <ul class="timeline card-timeline mb-0">
-                                @foreach ($activity as $stats)
-                                    @php
-                                        if ($stats->status == '1') {
-                                            $status = 'Payment Viewed';
-                                            $color = 'primary';
-                                        } elseif ($stats->status == '2') {
-                                            $status = 'Payment Verified';
-                                            $color = 'success';
-                                        } elseif ($stats->status == '3') {
-                                            $status = 'Payment UnVerified';
-                                            $color = 'danger';
-                                        } else {
-                                            $status = 'Payment Created';
-                                            $color = 'info';
-                                        }
-                                    @endphp
-                                    <li class="timeline-item timeline-item-transparent clearfix">
-                                        <span class="timeline-point timeline-point-{{ $color }}"></span>
-                                        <div class="timeline-event">
-                                            <div class="timeline-header mb-1">
-                                                <h6 class="mb-0">{{ $status }}</h6>
-                                                <small
-                                                    class="text-muted">{{ $stats->date->diffInHours(Carbon\Carbon::now()) > 24 ? $stats->date->format('d M y h:i:s') : $stats->date->diffForHumans() }}
-                                                </small>
-                                            </div>
-                                            <p class="mb-3">
-                                                {{ $stats->note }} {{ $stats->user->name }}
-                                            </p>
-                                            {{-- @foreach ($stats->comment as $item)
-                                                <div class="d-flex justify-content-between align-items-center px-2 mb-2{{ $item->id_user == Auth::user()->id ? ' rounded bg-label-primary float-end' : '' }}"
-                                                    style="width : 80%;">
-                                                    <div class="d-flex align-items-center mb-1">
-                                                        <img src="{{ url('') . '/' . $item->user->image }}" alt="ini photo"
-                                                            style="width: 50px;" class="mx-2 rounded-pill">
-                                                        <p class="mb-0">
-                                                            <span class="fw-medium">{{ $item->user->name }}</span>:
-                                                            {{ $item->comment }}
-                                                        </p>
-                                                    </div>
-                                                    <small
-                                                        class="text-muted">{{ $item->date->diffInHours(Carbon\Carbon::now()) > 24 ? $item->date->format('d M y h:i:s') : $item->date->diffForHumans() }}</small>
-                                                </div>
-                                            @endforeach --}}
-                                        </div>
-                                    </li>
-                                    {{-- @if ($stats->id == $lastStat->id)
-                                        <form action="{{ route('pending-po.addComment', $pending->id) }}" method="post"
-                                            enctype="multipart/form-data">
-                                            @csrf
-                                            <div class="form-floating mt-3">
-                                                <input type="text" class="form-control" id="floatingInputFilled"
-                                                    placeholder="Comment" name="comment"
-                                                    aria-describedby="floatingInputFilledHelp">
-                                                <label for="floatingInputFilled">Comment</label>
-                                                <span class="form-floating-focused"></span>
-                                            </div>
-                                            <button type="submit"
-                                                class="btn btn-primary waves-effect waves-light float-end">Comment</button>
-                                        </form>
-                                    @endif --}}
-                                @endforeach
-                            </ul>
+                <div>
+                    <small class="text-muted fw-semibold d-block" style="font-size: 11px;">Tanggal Pembayaran</small>
+                    <span class="fw-bold text-dark" style="font-size: 15px;">{{ Carbon\Carbon::parse($payment->date)->format('d M Y') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div class="avatar avatar-md flex-shrink-0">
+                    <span class="avatar-initial rounded-circle bg-label-success"><i class="mdi mdi-cash-multiple fs-4"></i></span>
+                </div>
+                <div>
+                    <small class="text-muted fw-semibold d-block" style="font-size: 11px;">Nominal Pembayaran</small>
+                    <span class="fw-bold text-success" style="font-size: 15px;">Rp {{ number_format($payment->amount, 0, ',', '.') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div class="avatar avatar-md flex-shrink-0">
+                    <span class="avatar-initial rounded-circle bg-label-secondary"><i class="mdi mdi-tag-outline fs-4"></i></span>
+                </div>
+                <div>
+                    <small class="text-muted fw-semibold d-block" style="font-size: 11px;">Tipe / Tag</small>
+                    <span class="fw-bold text-dark" style="font-size: 15px;">{{ $payment->type }} {{ $payment->percent }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    {{-- LEFT COLUMN --}}
+    <div class="col-xl-8">
+        {{-- Customer Info --}}
+        <div class="card border-0 shadow-sm mb-3 overflow-hidden">
+            <div class="card-header bg-body-tertiary border-bottom py-3 px-4 d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="mdi mdi-domain text-primary"></i> Informasi Customer
+                </h6>
+                {{-- Company Logo --}}
+                @if ($clientInfo == 'Reftech')
+                    <img src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt="Logo" style="height: 28px;">
+                @else
+                    <img src="{{ asset('/asset') }}/logo/Kojisha-Log.png" alt="Logo" style="height: 28px;">
+                @endif
+            </div>
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="avatar avatar-lg flex-shrink-0">
+                        <span class="avatar-initial rounded bg-primary text-white fw-bold" style="font-size: 18px;">
+                            {{ strtoupper(substr($clientCompany ?? 'C', 0, 1)) }}
+                        </span>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="fw-bold text-dark mb-1">{{ $clientCompany }}</h5>
+                        <p class="text-muted mb-2" style="font-size: 13px;">
+                            <i class="mdi mdi-map-marker-outline me-1"></i> {{ $clientAddress }}
+                        </p>
+                        <div class="d-flex flex-wrap gap-2">
+                            @if ($clientNpwp)
+                                <span class="badge bg-label-info rounded-pill px-3 py-1">
+                                    <i class="mdi mdi-card-account-details-outline me-1"></i> NPWP: {{ $clientNpwp }}
+                                </span>
+                            @else
+                                <span class="badge bg-label-danger rounded-pill px-3 py-1">
+                                    <i class="mdi mdi-alert-circle-outline me-1"></i> NPWP Belum Diisi
+                                </span>
+                            @endif
+                            <a href="{{ $isUnitQuotation ? route('invoice.show_unit', $invoice->id) : route('invoice.show', $invoice->id) }}" target="_blank" class="badge bg-label-primary rounded-pill px-3 py-1 text-decoration-none">
+                                <i class="mdi mdi-file-document-outline me-1"></i> Invoice: {{ $invoice->no_invoice }}
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        {{-- Payment Detail Table --}}
+        <div class="card border-0 shadow-sm mb-3 overflow-hidden">
+            <div class="card-header bg-body-tertiary border-bottom py-3 px-4 d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="mdi mdi-bank-transfer text-primary"></i> Detail Transaksi Pembayaran
+                </h6>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-xs btn-label-warning rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#editDate">
+                        <i class="mdi mdi-calendar-edit me-1"></i> Edit Tanggal
+                    </button>
+                    <button type="button" class="btn btn-xs btn-label-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addPPH">
+                        <i class="mdi mdi-percent me-1"></i> {{ $payment->pph > 0 ? 'Edit' : 'Add' }} PPH
+                    </button>
+                    <button type="button" class="btn btn-xs btn-label-info rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addCost">
+                        <i class="mdi mdi-currency-usd me-1"></i> {{ $payment->cost > 0 ? 'Edit' : 'Add' }} Cost
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr style="font-size: 12px;">
+                                <th class="text-uppercase fw-bold text-muted py-2.5 px-3">Tanggal</th>
+                                <th class="text-uppercase fw-bold text-muted py-2.5 px-3">Metode</th>
+                                @if ($payment->pph > 0)
+                                    <th class="text-uppercase fw-bold text-muted py-2.5 px-3 text-end">PPH</th>
+                                @endif
+                                @if ($payment->cost > 0)
+                                    <th class="text-uppercase fw-bold text-muted py-2.5 px-3 text-end">Cost</th>
+                                @endif
+                                <th class="text-uppercase fw-bold text-muted py-2.5 px-3 text-end">Nominal</th>
+                                @if ($payment->pph > 0 || $payment->cost > 0)
+                                    <th class="text-uppercase fw-bold text-muted py-2.5 px-3 text-end">Nett</th>
+                                @endif
+                                <th class="text-uppercase fw-bold text-muted py-2.5 px-3 text-center">Tag</th>
+                                <th class="text-uppercase fw-bold text-muted py-2.5 px-3 text-center">Bukti Transfer</th>
+                                <th class="text-uppercase fw-bold text-muted py-2.5 px-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="font-size: 13px;">
+                                <td class="align-middle px-3 text-dark">
+                                    {{ \Carbon\Carbon::parse($payment->created_at)->format('d M Y') }}
+                                </td>
+                                <td class="align-middle px-3">
+                                    <span class="d-inline-flex align-items-center gap-1">
+                                        <i class="mdi mdi-bank-transfer text-primary"></i> {{ $payment->method }}
+                                    </span>
+                                </td>
+                                @if ($payment->pph > 0)
+                                    <td class="align-middle px-3 text-end text-muted">Rp {{ number_format($payment->pph, 0, ',', '.') }}</td>
+                                @endif
+                                @if ($payment->cost > 0)
+                                    <td class="align-middle px-3 text-end text-muted">Rp {{ number_format($payment->cost, 0, ',', '.') }}</td>
+                                @endif
+                                <td class="align-middle px-3 text-end fw-semibold text-dark">Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
+                                @if ($payment->pph > 0 || $payment->cost > 0)
+                                    <td class="align-middle px-3 text-end fw-bold text-primary">Rp {{ number_format($netAmount, 0, ',', '.') }}</td>
+                                @endif
+                                <td class="align-middle px-3 text-center">
+                                    <span class="badge bg-label-secondary rounded-pill px-2.5">{{ $payment->type }} {{ $payment->percent }}%</span>
+                                </td>
+                                <td class="align-middle px-3 text-center">
+                                    @if ($payment->file)
+                                        <a href="{{ route('view_payment.payment', $payment->id) }}" target="_blank" class="btn btn-xs btn-label-primary rounded-pill px-3">
+                                            <i class="mdi mdi-eye-outline me-1"></i> Lihat
+                                        </a>
+                                    @else
+                                        <span class="text-muted" style="font-size: 12px;">Belum diupload</span>
+                                    @endif
+                                </td>
+                                <td class="align-middle px-3 text-center">
+                                    @if ($payment->level == 0)
+                                        <button type="button" class="btn btn-xs btn-success rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#confirmPayment">
+                                            <i class="mdi mdi-check me-1"></i> Konfirmasi
+                                        </button>
+                                    @else
+                                        <a href="#" class="btn btn-xs btn-label-danger rounded-pill px-3 unconfirm-payment" data-id="{{ $payment->id }}">
+                                            <i class="mdi mdi-close me-1"></i> Batal Konfirmasi
+                                        </a>
+                                    @endif
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {{-- Note Card --}}
+        @if ($payment->note)
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="card-header bg-body-tertiary border-bottom py-3 px-4">
+                    <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="mdi mdi-note-text-outline text-primary"></i> Catatan Pembayaran
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <p class="mb-0 text-dark" style="font-size: 13px; line-height: 1.6; white-space: pre-line;">{{ $payment->note }}</p>
+                </div>
+            </div>
+        @endif
     </div>
+
+    {{-- RIGHT SIDEBAR --}}
+    <div class="col-xl-4">
+        {{-- Payment Status Card --}}
+        <div class="card border-0 shadow-sm mb-3 overflow-hidden">
+            <div class="card-header bg-body-tertiary border-bottom py-3 px-4">
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="mdi mdi-shield-check-outline text-primary"></i> Status Pembayaran
+                </h6>
+            </div>
+            <div class="card-body p-4 text-center">
+                <div class="avatar avatar-lg mx-auto mb-3">
+                    <span class="avatar-initial rounded-circle bg-label-{{ $statusColor }}">
+                        <i class="mdi {{ $statusIcon }} fs-3"></i>
+                    </span>
+                </div>
+                <h5 class="fw-bold text-{{ $statusColor }} mb-1">{{ $statusText }}</h5>
+                <small class="text-muted">Diperbarui {{ $payment->updated_at ? $payment->updated_at->diffForHumans() : '-' }}</small>
+            </div>
+        </div>
+
+        {{-- Financial Summary --}}
+        <div class="card border-0 shadow-sm mb-3 overflow-hidden">
+            <div class="card-header bg-body-tertiary border-bottom py-3 px-4">
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="mdi mdi-calculator-variant-outline text-primary"></i> Rincian Nominal
+                </h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="d-flex flex-column gap-3" style="font-size: 13px;">
+                    <div class="d-flex justify-content-between align-items-center pb-2 border-bottom">
+                        <span class="text-muted"><i class="mdi mdi-cash me-1.5 text-secondary"></i> Nominal Bruto</span>
+                        <span class="fw-bold text-dark">Rp {{ number_format($payment->amount, 0, ',', '.') }}</span>
+                    </div>
+                    @if ($payment->pph > 0)
+                        <div class="d-flex justify-content-between align-items-center pb-2 border-bottom">
+                            <span class="text-muted"><i class="mdi mdi-percent me-1.5 text-danger"></i> PPH</span>
+                            <span class="fw-semibold text-danger">- Rp {{ number_format($payment->pph, 0, ',', '.') }}</span>
+                        </div>
+                    @endif
+                    @if ($payment->cost > 0)
+                        <div class="d-flex justify-content-between align-items-center pb-2 border-bottom">
+                            <span class="text-muted"><i class="mdi mdi-minus-circle-outline me-1.5 text-warning"></i> Cost</span>
+                            <span class="fw-semibold text-warning">- Rp {{ number_format($payment->cost, 0, ',', '.') }}</span>
+                        </div>
+                    @endif
+                    @if ($payment->pph > 0 || $payment->cost > 0)
+                        <div class="d-flex justify-content-between align-items-center pt-1">
+                            <span class="fw-bold text-primary"><i class="mdi mdi-cash-check me-1.5"></i> Nett Diterima</span>
+                            <span class="fw-bold text-primary" style="font-size: 15px;">Rp {{ number_format($netAmount, 0, ',', '.') }}</span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Activity Timeline --}}
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card-header bg-body-tertiary border-bottom py-3 px-4">
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="mdi mdi-history text-primary"></i> Riwayat Aktivitas
+                </h6>
+            </div>
+            <div class="card-body p-4">
+                @if ($activity->count() > 0)
+                    <div class="d-flex flex-column gap-0">
+                        @foreach ($activity as $index => $stats)
+                            @php
+                                if ($stats->status == '1') {
+                                    $actStatus = 'Payment Dilihat'; $actColor = 'primary'; $actIcon = 'mdi-eye-outline';
+                                } elseif ($stats->status == '2') {
+                                    $actStatus = 'Payment Diverifikasi'; $actColor = 'success'; $actIcon = 'mdi-check-circle-outline';
+                                } elseif ($stats->status == '3') {
+                                    $actStatus = 'Verifikasi Dibatalkan'; $actColor = 'danger'; $actIcon = 'mdi-close-circle-outline';
+                                } else {
+                                    $actStatus = 'Payment Dibuat'; $actColor = 'info'; $actIcon = 'mdi-plus-circle-outline';
+                                }
+                            @endphp
+                            <div class="d-flex gap-3 mb-3 position-relative">
+                                {{-- Connector line --}}
+                                @if (!$loop->last)
+                                    <div class="position-absolute" style="left: 15px; top: 32px; bottom: -12px; width: 2px; background: #e7e7e8;"></div>
+                                @endif
+                                <div class="avatar avatar-sm flex-shrink-0">
+                                    <span class="avatar-initial rounded-circle bg-label-{{ $actColor }}">
+                                        <i class="mdi {{ $actIcon }}" style="font-size: 14px;"></i>
+                                    </span>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center justify-content-between mb-0.5">
+                                        <span class="fw-bold text-dark" style="font-size: 12.5px;">{{ $actStatus }}</span>
+                                    </div>
+                                    <small class="text-muted d-block" style="font-size: 11px;">
+                                        {{ $stats->note }} {{ $stats->user->name }}
+                                    </small>
+                                    <small class="text-muted" style="font-size: 10.5px;">
+                                        <i class="mdi mdi-clock-outline me-1"></i>
+                                        {{ $stats->date->diffInHours(Carbon\Carbon::now()) > 24 ? $stats->date->format('d M Y, H:i') : $stats->date->diffForHumans() }}
+                                    </small>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-3">
+                        <i class="mdi mdi-history text-muted fs-1 mb-2 d-block"></i>
+                        <small class="text-muted">Belum ada aktivitas tercatat.</small>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection()
 @include('components.modal.payment.date ')
 @include('components.modal.payment.pph')
@@ -293,10 +374,8 @@
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
-    <link rel="stylesheet"
-        href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
-    <link rel="stylesheet"
-        href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
@@ -316,7 +395,6 @@
 
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-sales-invoice-ar.js"></script>
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
 @endpush
 
@@ -329,16 +407,9 @@
         $(".invoice-item-pph-label").on('keyup', function() {
             var input = $(this)
             var input_val = input.val();
-
-            // original length
             var original_len = input_val.length;
-
-            // add commas to number
-            // remove all non-digits
             input_val = formatNumber(input_val);
             input_val = input_val;
-
-            // send updated string to input
             input.val(input_val);
             var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
             console.log(nomorInt);
@@ -348,16 +419,9 @@
         $(".invoice-item-cost-label").on('keyup', function() {
             var input = $(this)
             var input_val = input.val();
-
-            // original length
             var original_len = input_val.length;
-
-            // add commas to number
-            // remove all non-digits
             input_val = formatNumber(input_val);
             input_val = input_val;
-
-            // send updated string to input
             input.val(input_val);
             var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
             console.log(nomorInt);

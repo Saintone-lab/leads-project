@@ -26,48 +26,52 @@
                 @endif
 
                 {{-- Header --}}
-                <div class="card-body" style="position: relative; z-index: 1;">
-                    <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column {{ !$quote->tax ? 'float-end' : '' }}">
+                <div class="card-body p-4" style="position: relative; z-index: 1;">
+                    <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column {{ !$quote->tax ? 'justify-content-end' : '' }} gap-3 mb-0">
                         @if ($quote->tax)
                             <div class="mb-xl-0 pb-1">
-                                <div class="d-flex svg-illustration align-items-center gap-2 mb-4">
+                                <div class="d-flex svg-illustration align-items-center gap-2 mb-3">
                                     <span class="app-brand-logo demo">
-                                        <span style="color: var(--bs-primary)">
-                                            <img class="text-md" src="{{ asset('/asset') }}/logo/Reftech-Log.png"
-                                                alt="" srcset="" width="60%">
-                                        </span>
+                                        <img src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt="Reftech Logo" width="180">
                                     </span>
                                 </div>
-                                <div class="d-flex justify-content-between">
-                                    <div class="info">
-                                        <p class="mb-1 fw-bolder">Office Address :</p>
-                                        <div style="font-size: 10px">
-                                            <p class="mb-1">Taman Kopo Indah V, Ruko Sommerville No. 31</p>
-                                            <p class="mb-1">Bandung – Jawa Barat 40218</p>
-                                            <p class="mb-1">
-                                                <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
-                                                &nbsp;&nbsp;<i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@reftech.id
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="npwp_add">
-                                        <p class="mb-1 fw-bolder">NPWP Address :</p>
-                                        <pre style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 250px; overflow-x: auto; white-space: pre-wrap;">Komp. Negia Kencana Residence Blok B, No.2 Pasanggrahan, Ujung Berung Kota Bandung - Jawa Barat 40199</pre>
-                                        <p class="mb-1 text-black fw-medium p-1" style="background-color: rgb(224, 221, 255); font-size: 10px">
-                                            NPWP : 73.728.571.8-429.000
+                                <div class="d-flex flex-row align-items-start gap-4 mt-2" style="font-size: 11px;">
+                                    <div class="info" style="max-width: 260px;">
+                                        <p class="mb-1 fw-bold text-dark" style="font-size: 11.5px;">
+                                            <i class="mdi mdi-office-building-outline me-1 text-primary"></i>Office Address :
                                         </p>
+                                        <p class="mb-1 text-muted" style="line-height: 1.4;">Taman Kopo Indah V, Soho Sommerville No. 31, Bandung – Jawa Barat 40218</p>
+                                        <p class="mb-0 text-muted">
+                                            <i class="mdi mdi-phone-outline me-1 text-primary"></i>022 54417653 &nbsp;|&nbsp; <i class="mdi mdi-email-outline me-1 text-primary"></i>info@reftech.id
+                                        </p>
+                                    </div>
+                                    <div class="npwp_add" style="max-width: 280px;">
+                                        <p class="mb-1 fw-bold text-dark" style="font-size: 11.5px;">
+                                            <i class="mdi mdi-file-document-outline me-1 text-primary"></i>NPWP Address :
+                                        </p>
+                                        <p class="mb-1 text-muted" style="line-height: 1.4;">Komp. Negia Kencana Residence Blok B, No.2 Pasanggrahan, Ujung Berung Kota Bandung - Jawa Barat 40199</p>
+                                        <div class="px-2 py-0.5 rounded-0" style="background:#eef0ff; border:1px solid #d0d0ff; font-size:10.5px; font-weight:600; color:#3d3d8f; display:inline-block; border-radius:0 !important;">
+                                            <i class="mdi mdi-card-account-details-outline me-1"></i>NPWP: 73.728.571.8-429.000
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                        @else
+                            <div class="mb-xl-0 pb-1">
+                                <div class="d-flex svg-illustration align-items-center gap-2 mb-3">
+                                    <span class="app-brand-logo demo">
+                                        <img src="{{ asset('/asset') }}/logo/Reftech-Log.png" alt="Reftech Logo" width="180">
+                                    </span>
+                                </div>
+                                <p class="mb-1 fw-bold text-dark" style="font-size:14px;">PT Reftech Jaya Optima</p>
+                                <p class="mb-0 text-muted" style="font-size:11px;">Taman Kopo Indah V, Soho Sommerville No. 31, Bandung – Jawa Barat 40218</p>
+                            </div>
                         @endif
+
                         <div class="text-end">
-                            <h1 class="fw-bold" style="color: blue;">INVOICE</h1>
-                            <div>
-                                <span class="fw-bolder">#{{ $invoice->no_invoice }}</span>
-                            </div>
-                            <div class="mt-1">
-                                <span class="text-black">{{ $invoice->date ? \Carbon\Carbon::parse($invoice->date)->format('d-m-Y') : '-' }}</span>
-                            </div>
+                            <h1 class="fw-bold" style="color: #2529fa; letter-spacing: 2px;">INVOICE</h1>
+                            <p class="mb-1 fw-bold text-dark" style="font-size:14px;">#{{ $invoice->no_invoice }}</p>
+                            <p class="mb-1 text-muted small">{{ $invoice->date ? \Carbon\Carbon::parse($invoice->date)->format('d F Y') : '-' }}</p>
                             @php
                                 $hasProof = $payments->whereNotNull('file')->where('level', 0)->isNotEmpty();
                                 if ($invoice->status_p) {
@@ -81,302 +85,342 @@
                                     $text  = 'Waiting Payment';
                                 }
                             @endphp
-                            <h6 class="mt-1 badge {{ $warna }} rounded">{{ $text }}</h6>
+                            <div class="mt-1">
+                                <span class="badge {{ $warna }} px-3 py-1 fs-6 fw-bold">{{ $text }}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <hr class="my-0">
+                    <div style="height:2px; background:linear-gradient(90deg,#696cff 0%,#9c9eff 60%,#e0e0e0 100%); border-radius:2px; margin:16px 0 18px;"></div>
 
-                {{-- Invoice To --}}
-                <div class="card-body mb-3">
-                    <h5>Invoice To</h5>
-                    <div class="table-responsive">
-                        <table class="table table-bordered" style="border: 1px solid black;">
-                            <tr>
-                                <td rowspan="3" style="vertical-align: top; width: 50%;">
-                                    <div class="row">
-                                        <div class="col-4 fw-medium">
-                                            <p class="mb-1">Bill To</p>
-                                        </div>
-                                        <div class="col-8">
-                                            <pre style="font-size: 14px; font-family: Inter;" class="mb-1 fw-bolder">: {{ $quote->client?->company ?? '-' }}</pre>
-                                        </div>
-                                        <div class="col-4 fw-medium">
-                                            <p class="mb-1">PIC</p>
-                                        </div>
-                                        <div class="col-8">
-                                            <p class="mb-1">: {{ $quote->pic?->name_pic ?? $quote->attn ?? '-' }}</p>
-                                        </div>
-                                        <div class="col-4 fw-medium">
-                                            <p class="mb-1">NPWP</p>
-                                        </div>
-                                        <div class="col-8">
-                                            <p class="mb-1">: {{ $quote->client?->npwp ?? '-' }}</p>
-                                        </div>
-                                        <div class="col-4 fw-medium">
-                                            <p class="mb-1">Phone</p>
-                                        </div>
-                                        <div class="col-8">
-                                            <p class="mb-1">: {{ $quote->client?->phone ?? '-' }}</p>
-                                        </div>
-                                        <div class="col-4 fw-medium">
-                                            <p class="mb-1">Address</p>
-                                        </div>
-                                        <div class="col-8">
-                                            <pre style="font-size: 14px; font-family: Inter; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $invoice->invoiceTo == '1' ? ($quote->client?->address ?? '-') : ($quote->client?->subAddress ?? '-') }}</pre>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <p>Purchase Order :</p>
-                                </td>
-                                <td>
-                                    <p>{{ $quote->po_number ?? '-' }}</p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" style="background-color: #F9F9F9;" class="text-center">
-                                    <p class="fs-5 text-black fw-medium m-0">Term Of Payment:</p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" class="text-center">
-                                    <pre style="font-size: 14px; font-family: Inter;">{{ $invoice->term ?? $quote->payment_method }}</pre>
-                                </td>
-                            </tr>
-                        </table>
+                    {{-- Invoice To + Document Info Box --}}
+                    <div style="display:flex !important; align-items:stretch !important; gap:12px; margin-bottom:16px; font-size:12px;">
+                        <div style="flex:1; display:flex; flex-direction:column; align-self:stretch; border:1px solid #dcdcdc; border-radius:0 !important; padding:10px 14px; background:#fafafa;">
+                            <p class="mb-1 fw-bold text-uppercase" style="font-size:10px; letter-spacing:.5px; color:#555;">Invoice To</p>
+                            <p class="mb-1 fw-bold" style="font-size:13.5px; color:#111;">{{ $quote->client?->company ?? '-' }}</p>
+                            @php
+                                $contactParts = [];
+                                $picName = $quote->pic?->name_pic ?? $quote->attn;
+                                if ($picName) {
+                                    $contactParts[] = '<i class="mdi mdi-account-outline me-1" style="font-size:11px; color:#444;"></i><span style="color:#222; font-weight:500;">' . e($picName) . '</span>';
+                                }
+                                if ($quote->pic?->phone_pic || $quote->client?->phone) {
+                                    $contactParts[] = '<i class="mdi mdi-phone-outline me-1" style="font-size:11px; color:#444;"></i><span style="color:#222; font-weight:500;">' . e($quote->pic?->phone_pic ?: $quote->client?->phone) . '</span>';
+                                }
+                                if ($quote->client?->npwp) {
+                                    $contactParts[] = '<i class="mdi mdi-card-account-details-outline me-1" style="font-size:11px; color:#444;"></i><span style="color:#222; font-weight:500;">NPWP: ' . e($quote->client->npwp) . '</span>';
+                                }
+                            @endphp
+                            @if (count($contactParts) > 0)
+                                <p class="mb-1" style="font-size:11.5px; color:#333;">
+                                    {!! implode(' &nbsp;|&nbsp; ', $contactParts) !!}
+                                </p>
+                            @endif
+                            @php
+                                $targetAddress = $invoice->invoiceTo == '1' ? ($quote->client?->address ?? '-') : ($quote->client?->subAddress ?? '-');
+                            @endphp
+                            @if ($targetAddress)
+                                <p class="mb-0" style="font-size:11.5px; color:#222;">
+                                    <i class="mdi mdi-map-marker-outline me-1" style="font-size:11px; color:#444;"></i><span style="font-weight:500;">{{ $targetAddress }}</span>
+                                </p>
+                            @endif
+                        </div>
+                        <div style="min-width:240px; display:flex; flex-direction:column; align-self:stretch; border:1px solid #dcdcdc; border-radius:0 !important; padding:10px 14px; background:#fafafa;">
+                            <p class="mb-1 fw-bold text-uppercase" style="font-size:10px; letter-spacing:.5px; color:#555;">Payment Terms &amp; Info</p>
+                            <p class="mb-1 fw-semibold" style="font-size:12px; color:#222;">
+                                <i class="mdi mdi-clipboard-text-outline me-1 text-primary"></i>PO No: <span class="fw-bold">{{ $quote->po_number ?? '-' }}</span>
+                            </p>
+                            <p class="mb-1 fw-semibold" style="font-size:12px; color:#222;">
+                                <i class="mdi mdi-clock-outline me-1 text-primary"></i>Term: <span class="fw-bold">{{ $invoice->term ?? $quote->payment_method }}</span>
+                            </p>
+                            @php
+                                $tempoPayRec = $payments->firstWhere('type', 'Tempo') ?? $payments->first();
+                                $dueDateDisplay = $tempoPayRec?->due_date ? \Carbon\Carbon::parse($tempoPayRec->due_date) : null;
+                            @endphp
+                            @if ($dueDateDisplay)
+                                <p class="mb-1 fw-semibold" style="font-size:12px; color:#d97706;">
+                                    <i class="mdi mdi-calendar-clock me-1"></i>Jatuh Tempo: <span class="fw-bold">{{ $dueDateDisplay->format('d F Y') }}</span>
+                                </p>
+                            @endif
+                            <p class="mb-0 text-muted" style="font-size:11.5px;">
+                                <i class="mdi mdi-account-outline me-1 text-primary"></i>Sales: <span class="fw-medium text-dark">{{ $quote->sales?->name ?? '-' }}</span>
+                            </p>
+                        </div>
                     </div>
-                </div>
 
                 {{-- Items Table --}}
-                @php
-                    $colCount = $quote->tax ? 5 : 4; // No, Item, Price, Qty, [DPP,] Amount
-                    $bgColor  = 'rgb(224, 248, 248)';
-                    $afterDisc = $quote->subtotal - $quote->discount_amount;
-                    $dppTotal  = $quote->tax ? ($afterDisc * 11 / 12) : 0;
-                @endphp
-                <div class="table-responsive">
-                    <table class="table table-bordered m-0" style="border: 1px solid rgb(60, 60, 60)">
-                        <thead class="table-light">
-                            <tr>
-                                <th>No.</th>
-                                <th>Item</th>
-                                <th>Price</th>
-                                <th>Qty</th>
-                                <th style="width: 5%">Disc</th>
-                                @if ($quote->tax)
-                                    <th style="width: 15%">DPP</th>
-                                @endif
-                                <th style="width: 20%">Amount</th>
-                            </tr>
-                        </thead>
-                        @php
-                            $specLabels = [
-                                'brand'=>'Brand','model'=>'Model','type_unit'=>'Type',
-                                'bar'=>'Max Pressure','air_cap'=>'Air Capacity','power'=>'Motor Power',
-                                'voltage'=>'Voltage','connect'=>'Drive','cooling'=>'Cooling Method',
-                                'exhaust'=>'Connection','refrigerant_type'=>'Refrigerant Type','pdp'=>'PDP',
-                                'filtration'=>'Filtration','oil_content'=>'Oil Content','grade'=>'Grade',
-                                'capacity'=>'Capacity','material'=>'Material','test_pressure'=>'Test Pressure',
-                                'inlet_pressure'=>'Inlet Pressure','outlet_pressure'=>'Outlet Pressure',
-                                'inlet_cap'=>'Inlet Capacity (LP)','outlet_cap'=>'Outlet Capacity (HP)',
-                                'dimension'=>'Dimension','weight'=>'Weight',
-                            ];
-                            $specUnits = [
-                                'bar'=>' Bar','air_cap'=>' m³/min',
-                                'filtration'=>' µm','oil_content'=>' ppm',
-                                'test_pressure'=>' Bar','inlet_pressure'=>' Bar','outlet_pressure'=>' Bar',
-                                'inlet_cap'=>' m³/min','outlet_cap'=>' m³/min',
-                                'weight'=>' Kg','capacity'=>' Liter',
-                            ];
-                            $specLabelsOverride = [
-                                'AIR RECEIVER TANK' => ['bar'=>'Max. Pressure','grade'=>'T Plate','cooling'=>'Certification'],
-                                'FILTRATION SYSTEM'  => ['air_cap'=>'Flowrate','material'=>'Element','connect'=>'Drain'],
-                            ];
-                        @endphp
-                        <tbody>
-                            @foreach ($quote->details as $i => $detail)
-                                @php
-                                    $dpp = $quote->tax ? ($detail->amount * 11 / 12) : 0;
-                                @endphp
-                                <tr style="font-size: 13px">
-                                    <td class="align-top">{{ $i + 1 }}</td>
-                                    <td class="align-top">
-                                        @if ($detail->type === 'unit' && $detail->unit)
-                                            <p class="mb-1 fw-medium" style="font-size: 12px">
-                                                {{ $detail->label ?: ($detail->unit->brand . ' ' . $detail->unit->model) }}
-                                            </p>
-                                            @php
-                                                $specs      = $detail->getSpecVisibleArray();
-                                                $category   = $detail->unit->unit ?? '';
-                                                $catOverride = $specLabelsOverride[$category] ?? [];
-                                            @endphp
-                                            @if (!empty($specs))
-                                                <div class="spec-detail-rows" style="font-size:11px; color:#888; margin-top:3px; {{ $invoice->show_spec ? '' : 'display:none;' }}">
-                                                    @foreach ($specs as $field)
-                                                        @if ($field === 'unit') @continue @endif
-                                                        @php $val = $detail->unit->$field ?? null; @endphp
-                                                        @if ($val && isset($specLabels[$field]))
-                                                            <div style="display:flex; padding:1px 0;">
-                                                                <span style="min-width:110px; flex-shrink:0;">{{ $catOverride[$field] ?? $specLabels[$field] }}</span>
-                                                                <span>: {{ $val }}{{ $specUnits[$field] ?? '' }}</span>
-                                                            </div>
-                                                        @endif
-                                                    @endforeach
-                                                </div>
-                                            @endif
-                                        @else
-                                            <p class="mb-0 fw-medium" style="font-size: 12px">{{ $detail->label }}</p>
-                                            @if ($detail->description)
-                                                <pre class="mb-0" style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $detail->description }}</pre>
-                                            @endif
-                                        @endif
-                                    </td>
-                                    <td class="align-top text-end">RP {{ number_format($detail->price, 0, '', '.') }}</td>
-                                    <td class="align-top">{{ $detail->qty }} {{ $detail->info_qty }}</td>
-                                    <td class="align-top">{{ $detail->disc > 0 ? $detail->disc . '%' : '-' }}</td>
-                                    @if ($quote->tax)
-                                        <td class="align-top text-end">RP {{ number_format($dpp, 0, '', '.') }}</td>
+                    @php
+                        $specLabels = [
+                            'brand'=>'Brand','model'=>'Model','type_unit'=>'Type',
+                            'bar'=>'Max Pressure','air_cap'=>'Air Capacity','power'=>'Motor Power',
+                            'voltage'=>'Voltage','connect'=>'Drive','cooling'=>'Cooling Method',
+                            'exhaust'=>'Connection','refrigerant_type'=>'Refrigerant Type','pdp'=>'PDP',
+                            'filtration'=>'Filtration','oil_content'=>'Oil Content','grade'=>'Grade',
+                            'capacity'=>'Capacity','material'=>'Material','test_pressure'=>'Test Pressure',
+                            'inlet_pressure'=>'Inlet Pressure','outlet_pressure'=>'Outlet Pressure',
+                            'inlet_cap'=>'Inlet Capacity (LP)','outlet_cap'=>'Outlet Capacity (HP)',
+                            'dimension'=>'Dimension','weight'=>'Weight',
+                        ];
+                        $specUnits = [
+                            'bar'=>' Bar','air_cap'=>' m³/min','test_pressure'=>' Bar',
+                            'inlet_pressure'=>' Bar','outlet_pressure'=>' Bar',
+                            'inlet_cap'=>' m³/min','outlet_cap'=>' m³/min',
+                            'weight'=>' Kg','capacity'=>' Liter',
+                        ];
+                        $hasDisc = $quote->details->where('disc', '>', 0)->count() > 0;
+                        $colCount = 5 + ($hasDisc ? 1 : 0) + ($quote->tax ? 1 : 0);
+                    @endphp
+                    <div class="table-responsive rounded border mb-3">
+                        <table class="table table-bordered m-0" style="width:100%; font-size:12px;">
+                            <thead style="font-size:11px; background:#eeeeff; color:#3d3d8f;">
+                                <tr>
+                                    <th class="text-center py-2" style="width:4%; font-weight:700; border-color:#d0d0ff;">No.</th>
+                                    <th class="text-center py-2" style="font-weight:700; border-color:#d0d0ff;">DESKRIPSI</th>
+                                    <th class="text-center py-2" style="width:10%; font-weight:700; border-color:#d0d0ff;">Qty</th>
+                                    <th class="text-center py-2" style="width:18%; font-weight:700; border-color:#d0d0ff;">HARGA (IDR)</th>
+                                    @if ($hasDisc)
+                                        <th class="text-center py-2" style="width:7%; font-weight:700; border-color:#d0d0ff;">Disc</th>
                                     @endif
-                                    <td class="align-top text-end">RP {{ number_format($detail->amount, 0, '', '.') }}</td>
+                                    @if ($quote->tax)
+                                        <th class="text-center py-2" style="width:15%; font-weight:700; border-color:#d0d0ff;">DPP (IDR)</th>
+                                    @endif
+                                    <th class="text-center py-2" style="width:18%; font-weight:700; border-color:#d0d0ff;">TOTAL HARGA (IDR)</th>
                                 </tr>
-                            @endforeach
+                            </thead>
+                            <tbody>
+                                @php
+                                    $itemNo = 1;
+                                    $headerCount = 0;
+                                @endphp
+                                @foreach ($quote->details as $item)
+                                    @if ($item->type === 'header' || $item->type === 'heading')
+                                        @php
+                                            $lbl = trim($item->label ?? '');
+                                            if (!preg_match('/^[A-Z0-9][\.\)]/i', $lbl)) {
+                                                $lbl = chr(65 + ($headerCount % 26)) . '. ' . $lbl;
+                                            }
+                                            $headerCount++;
+                                        @endphp
+                                        <tr style="background:#f0f0ff;">
+                                            <td colspan="{{ $colCount }}" class="fw-bold text-primary text-uppercase px-3" style="padding: 5px 10px; font-size:11.5px; border-top:1px solid #d0d0ff; border-bottom:1px solid #d0d0ff;">
+                                                <i class="mdi mdi-bookmark-outline me-1"></i>{{ $lbl }}
+                                            </td>
+                                        </tr>
+                                    @else
+                                        @php $dpp = $quote->tax ? ($item->amount * 11 / 12) : 0; @endphp
+                                        <tr style="font-size: 12px">
+                                            <td class="text-center align-top py-2">{{ $itemNo++ }}</td>
+                                            <td class="align-top py-2">
+                                                @if ($item->type === 'unit' && $item->unit)
+                                                    <p class="mb-1 fw-semibold" style="font-size: 12px">
+                                                        {{ $item->label ?: ($item->unit->brand . ' ' . $item->unit->sku . ($item->unit->model ? ' — ' . $item->unit->model : '')) }}
+                                                    </p>
+                                                    @php $specs = $item->getSpecVisibleArray(); @endphp
+                                                    @if (!empty($specs))
+                                                        <div class="spec-detail-rows" style="font-size:11px; color:#777; margin-top:4px; {{ $invoice->show_spec ? '' : 'display:none;' }}">
+                                                            @foreach ($specs as $field)
+                                                                @if ($field === 'unit') @continue @endif
+                                                                @php $val = $item->unit->$field ?? null; @endphp
+                                                                @if ($val && isset($specLabels[$field]))
+                                                                    <div style="display:flex; padding:1px 0;">
+                                                                        <span style="min-width:110px; flex-shrink:0;">{{ $specLabels[$field] }}</span>
+                                                                        <span>: {{ $val }}{{ $specUnits[$field] ?? '' }}</span>
+                                                                    </div>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
+                                                @elseif ($item->type === 'equivalent' || $item->type === 'sparepart' || $item->id_equivalent || $item->equivalent)
+                                                     @if ($item->equivalent)
+                                                         @php
+                                                             $brandPn = trim(($item->equivalent->brand ?? '') . ($item->equivalent->pn ? ' - ' . $item->equivalent->pn : ''));
+                                                             $subDesc = $item->label;
+                                                             if (empty($subDesc) || $subDesc === $brandPn) {
+                                                                 $subDesc = optional($item->equivalent->product)->description ?? optional($item->equivalent->product)->name;
+                                                             }
+                                                         @endphp
+                                                         <p class="mb-0 fw-bold text-dark" style="font-size: 12px">{{ $brandPn ?: $item->label }}</p>
+                                                         @if ($subDesc && $subDesc !== $brandPn)
+                                                             <div style="font-size: 12px; color: #333333; font-weight: 500; margin-top: 2px; line-height: 1.4;">{{ $subDesc }}</div>
+                                                         @endif
+                                                     @else
+                                                         <p class="mb-0 fw-bold text-dark" style="font-size: 12px">{{ $item->label }}</p>
+                                                     @endif
+                                                @else
+                                                    <p class="mb-0 fw-bold text-dark" style="font-size: 12px">{{ $item->label }}</p>
+                                                @endif
+                                                @if ($item->description)
+                                                     <div style="font-size: 11px; color: #444; white-space: pre-line; margin-top: 3px; line-height: 1.4;">{{ $item->description }}</div>
+                                                @endif
+                                            </td>
+                                            <td class="text-center align-top py-2">
+                                                {{ (float) $item->qty }} {{ $item->info_qty ?? 'Unit' }}
+                                                @if ($item->remaining_qty <= 0)
+                                                    <div><span class="badge bg-label-success mt-1" style="font-size:9.5px;">Terkirim Semua</span></div>
+                                                @elseif ($item->delivered_qty > 0)
+                                                    <div><span class="badge bg-label-warning mt-1" style="font-size:9.5px;">Sisa {{ $item->remaining_qty }}</span></div>
+                                                @else
+                                                    <div><span class="badge bg-label-secondary mt-1" style="font-size:9.5px;">Belum Dikirim</span></div>
+                                                @endif
+                                            </td>
+                                            <td class="text-end align-top py-2">{{ number_format($item->price, 0, '', '.') }}</td>
+                                            @if ($hasDisc)
+                                                <td class="text-center align-top py-2">{{ $item->disc > 0 ? (float) $item->disc . '%' : '-' }}</td>
+                                            @endif
+                                            @if ($quote->tax)
+                                                <td class="text-end align-top py-2">{{ number_format($dpp, 0, '', '.') }}</td>
+                                            @endif
+                                            <td class="text-end align-top py-2 fw-semibold">{{ number_format($item->amount, 0, '', '.') }}</td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
 
-                            {{-- Totals rows --}}
-                            <tr class="fw-medium" style="font-size: 13px">
-                                <td colspan="{{ $quote->tax ? 3 : 2 }}" rowspan="9" style="border-bottom: none !important;"></td>
-                                <td colspan="{{ $quote->tax ? 3 : 3 }}" class="text-end pl-4 py-0" style="padding-right: 10px !important;">
-                                    <p class="m-0">{{ ($quote->tax || $totalPph > 0) ? 'Subtotal' : 'Total' }}</p>
-                                </td>
-                                <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                    <p class="text-end m-0">RP {{ number_format($quote->subtotal, 0, '', '.') }}</p>
-                                </td>
-                            </tr>
-
-                            @if ($quote->diskon > 0)
-                                <tr class="fw-medium" style="font-size: 13px">
-                                    <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                        <p class="m-0">Discount{{ $quote->discount_label ? ' (' . $quote->discount_label . ')' : '' }}</p>
-                                    </td>
-                                    <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                        <p class="m-0 text-end">RP {{ number_format($quote->discount_amount, 0, '', '.') }}</p>
-                                    </td>
+                    {{-- Financial Summary Box --}}
+                    @php
+                        $afterDisc = $quote->diskon > 0
+                            ? $quote->subtotal - $quote->discount_amount
+                            : $quote->subtotal;
+                    @endphp
+                    <div class="d-flex justify-content-end mb-3">
+                        <div style="min-width:280px; font-size:12px; border:1px solid #d0d0ff; border-left:4px solid #696cff; border-radius:6px; overflow:hidden; background:#fff;">
+                            <table style="width:100%; border-collapse:collapse;">
+                                <tr>
+                                    <td style="padding:6px 16px 6px 14px; color:#555;">Subtotal</td>
+                                    <td style="padding:6px 14px 6px 0; text-align:right; font-weight:500; color:#333;">Rp {{ number_format($quote->subtotal, 0, '', '.') }}</td>
                                 </tr>
-                                <tr class="fw-medium" style="font-size: 13px">
-                                    <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                        <p class="m-0">Total After Discount</p>
-                                    </td>
-                                    <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                        <p class="m-0 text-end">RP {{ number_format($afterDisc, 0, '', '.') }}</p>
-                                    </td>
+                                @if ($quote->diskon > 0)
+                                    <tr style="border-top:1px solid #eeeeff;">
+                                        <td style="padding:6px 16px 6px 14px; color:#555;">Discount{{ $quote->discount_label ? ' ' . $quote->discount_label : '' }}</td>
+                                        <td style="padding:6px 14px 6px 0; text-align:right; font-weight:500; color:#dc3545;">- Rp {{ number_format($quote->discount_amount, 0, '', '.') }}</td>
+                                    </tr>
+                                    <tr style="border-top:1px solid #eeeeff;">
+                                        <td style="padding:6px 16px 6px 14px; color:#555;">After Discount</td>
+                                        <td style="padding:6px 14px 6px 0; text-align:right; font-weight:500; color:#333;">Rp {{ number_format($afterDisc, 0, '', '.') }}</td>
+                                    </tr>
+                                @endif
+                                @if ($quote->tax)
+                                    <tr style="border-top:1px solid #eeeeff;">
+                                        <td style="padding:6px 16px 6px 14px; color:#555;">DPP Atas PPN</td>
+                                        <td style="padding:6px 14px 6px 0; text-align:right; font-weight:500; color:#333;">Rp {{ number_format($afterDisc * 11 / 12, 0, '', '.') }}</td>
+                                    </tr>
+                                    <tr style="border-top:1px solid #eeeeff;">
+                                        <td style="padding:6px 16px 6px 14px; color:#555;">PPN 12%</td>
+                                        <td style="padding:6px 14px 6px 0; text-align:right; font-weight:500; color:#333;">Rp {{ number_format($quote->tax_amount, 0, '', '.') }}</td>
+                                    </tr>
+                                @endif
+                                @if ($quote->shipping > 0)
+                                    <tr style="border-top:1px solid #eeeeff;">
+                                        <td style="padding:6px 16px 6px 14px; color:#555;">Shipping Cost</td>
+                                        <td style="padding:6px 14px 6px 0; text-align:right; font-weight:500; color:#333;">Rp {{ number_format($quote->shipping, 0, '', '.') }}</td>
+                                    </tr>
+                                @endif
+                                @if ($totalPph > 0)
+                                    <tr style="border-top:1px solid #eeeeff;">
+                                        <td style="padding:6px 16px 6px 14px; color:#555;">PPH 23</td>
+                                        <td style="padding:6px 14px 6px 0; text-align:right; font-weight:500; color:#dc3545;">- Rp {{ number_format($totalPph, 0, '', '.') }}</td>
+                                    </tr>
+                                @endif
+                                <tr style="border-top:2px solid #d0d0ff; background:{{ (floatval($invoice->percent) >= 100 && !in_array($invoice->type, ['DP', 'BP', 'Balance Payment', 'Down Payment'])) ? 'yellow' : '#f0f0ff' }};">
+                                    <td style="padding:9px 16px 9px 14px; font-weight:700; font-size:13px; color:{{ (floatval($invoice->percent) >= 100 && !in_array($invoice->type, ['DP', 'BP', 'Balance Payment', 'Down Payment'])) ? '#000' : '#3d3d8f' }};">TOTAL</td>
+                                    <td style="padding:9px 14px 9px 0; text-align:right; font-weight:700; font-size:13px; color:{{ (floatval($invoice->percent) >= 100 && !in_array($invoice->type, ['DP', 'BP', 'Balance Payment', 'Down Payment'])) ? '#000' : '#696cff' }};">Rp {{ number_format($quote->total, 0, '', '.') }}</td>
                                 </tr>
-                            @endif
-
-                            @if ($quote->tax)
-                                <tr class="fw-medium" style="font-size: 13px">
-                                    <td colspan="3" class="text-end pl-4 py-0" style="padding-right: 10px !important;">
-                                        <p class="m-0">DPP Atas PPN</p>
-                                    </td>
-                                    <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                        <p class="text-end m-0">RP {{ number_format($dppTotal, 0, '', '.') }}</p>
-                                    </td>
-                                </tr>
-                                <tr class="fw-medium py-0" style="font-size: 13px">
-                                    <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                        <p class="m-0">VAT 12%</p>
-                                    </td>
-                                    <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                        <p class="m-0 text-end">RP {{ number_format($quote->tax_amount, 0, '', '.') }}</p>
-                                    </td>
-                                </tr>
-                            @endif
-
-                            @if ($totalPph > 0)
-                                <tr class="fw-medium py-0" style="font-size: 13px">
-                                    <td colspan="3" class="text-end py-0" style="padding-right: 10px !important;">
-                                        <p class="m-0">PPH</p>
-                                    </td>
-                                    <td class="pr-4 py-0" style="padding-left: 0 !important;">
-                                        <p class="m-0 text-end">RP {{ number_format($totalPph, 0, '', '.') }}</p>
-                                    </td>
-                                </tr>
-                            @endif
-
-                            @if ($quote->tax || $totalPph > 0)
-                                <tr class="fw-medium py-0" style="font-size: 13px">
-                                    <td colspan="3" class="text-end py-0"
-                                        style="background-color: {{ $bgColor }}; padding-left: 20px; padding-right: 10px;">
-                                        <p class="m-0 fw-bold">Total</p>
-                                    </td>
-                                    <td class="pr-4 py-0" style="background-color: {{ $bgColor }}; padding-right: 20px;">
-                                        <p class="m-0 text-end fw-bold">RP {{ number_format($quote->total, 0, '', '.') }}</p>
-                                    </td>
-                                </tr>
-                            @endif
-
-                            @if (in_array($invoice->type, ['DP', 'BP']))
-                                <tr style="font-size: 13px; background: #fff3cd;">
-                                    <td colspan="3" class="text-end py-1 fw-bold" style="padding-right: 10px !important;">
-                                        <p class="m-0">
-                                            {{ $invoice->type === 'DP' ? 'Tagihan DP (' . floatval($invoice->percent) . '%)' : 'Tagihan BP (' . floatval($invoice->percent) . '% sisa)' }}
-                                        </p>
-                                    </td>
-                                    <td class="py-1 fw-bold" style="padding-left: 0 !important; padding-right: 20px;">
-                                        <p class="m-0 text-end">RP {{ number_format($totalAfterPph, 0, '', '.') }}</p>
-                                    </td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Terbilang --}}
-                <p class="fw-medium mt-2 p-2" style="background-color: rgb(248, 248, 248); width: 70%;">
-                    Say amount: # {{ $terbilang }} Rupiah
-                </p>
-
-                {{-- Bank & TTD --}}
-                <div class="row mt-5">
-                    <div class="col-6 m-4">
-                        <h5 class="my-4">Payment by Transfer or Giro shall be made in Full amount to :</h5>
-                        <div class="row">
-                            <div class="col-3 fw-medium">
-                                <p class="mb-1">Payable to</p>
-                                <p class="mb-1">Acc Name</p>
-                                <p class="mb-1">Acc No.</p>
-                                <p class="mb-1">Swift Code</p>
-                            </div>
-                            @if ($quote->tax)
-                                <div class="col">
-                                    <p class="mb-1">: Bank BCA (IDR)</p>
-                                    <p class="mb-1">: PT. REFTECH JAYA OPTIMA</p>
-                                    <p class="mb-1">: 008 - 6289 - 789</p>
-                                    <p class="mb-1">: CENAIDJA</p>
-                                </div>
-                            @else
-                                <div class="col">
-                                    <p class="mb-1">: Bank BCA (IDR)</p>
-                                    <p class="mb-1">: ARIEP RACHMAN</p>
-                                    <p class="mb-1">: 166 - 2242 - 271</p>
-                                    <p class="mb-1">: -</p>
-                                </div>
-                            @endif
+                                @if (in_array($invoice->type, ['DP', 'BP', 'Balance Payment', 'Down Payment']) || floatval($invoice->percent) < 100)
+                                    @if (in_array($invoice->type, ['BP', 'Balance Payment']))
+                                        @php
+                                            $dpInvoices = isset($allInvoices) ? $allInvoices->reject(fn($i) => $i->id == $invoice->id) : collect();
+                                            $dpPercent  = $dpInvoices->sum(fn($i) => floatval($i->percent));
+                                            if ($dpPercent <= 0 && floatval($invoice->percent) < 100) {
+                                                $dpPercent = 100 - floatval($invoice->percent);
+                                            }
+                                            $dpAmount = round($quote->total * $dpPercent / 100);
+                                        @endphp
+                                        @if ($dpAmount > 0)
+                                            <tr style="border-top:1px solid #eeeeff;">
+                                                <td style="padding:6px 16px 6px 14px; color:#555;">DP TELAH DIBAYAR ({{ $dpPercent }}%)</td>
+                                                <td style="padding:6px 14px 6px 0; text-align:right; font-weight:500; color:#dc3545;">Rp {{ number_format($dpAmount, 0, '', '.') }}</td>
+                                            </tr>
+                                        @endif
+                                    @endif
+                                    <tr style="border-top:2px solid #e6c300; background:yellow;">
+                                        <td style="padding:8px 16px 8px 14px; font-weight:800; font-size:12.5px; color:#000;">
+                                            {{ in_array($invoice->type, ['DP', 'Down Payment']) ? 'TAGIHAN DP (' . floatval($invoice->percent) . '%)' : (in_array($invoice->type, ['BP', 'Balance Payment']) ? 'TAGIHAN BP (' . floatval($invoice->percent) . '%)' : 'TAGIHAN ' . strtoupper($invoice->type) . ' (' . floatval($invoice->percent) . '%)') }}
+                                        </td>
+                                        <td style="padding:8px 14px 8px 0; text-align:right; font-weight:800; font-size:13px; color:#000;">Rp {{ number_format($totalAfterPph, 0, '', '.') }}</td>
+                                    </tr>
+                                @endif
+                            </table>
                         </div>
                     </div>
-                    <div class="col"></div>
-                    <div class="col-4 my-5 text-center">
-                        <p>Bandung, {{ $invoice->date ? \Carbon\Carbon::parse($invoice->date)->locale('ID')->translatedFormat('d F Y') : \Carbon\Carbon::now()->locale('ID')->translatedFormat('d F Y') }}</p>
-                        @if ($quote->tax)
-                            <p class="fs-normal fw-bolder">PT. Reftech Jaya Optima</p>
-                        @endif
-                        @if (isset($invoice->sign))
-                            <img src="{{ url('') . '/' . $invoice->sign }}" alt="" srcset="" height="77">
-                        @else
-                            <div style="padding: 40px 0;"></div>
-                        @endif
-                        <p class="pt-3 fw-bolder">Ariep Rachman</p>
-                        <p>Director</p>
+
+                    {{-- Terbilang Box --}}
+                    <div class="p-3 rounded-0 mb-4" style="background:#f0f2ff; border: 1px dashed #696cff; border-radius:0 !important;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="mdi mdi-cash-multiple text-primary fs-5"></i>
+                            <span class="fw-bold text-primary" style="font-size:12px;">Terbilang :</span>
+                            <span class="fw-bold text-dark" style="font-size:12.5px;"># {{ $terbilang }} Rupiah</span>
+                        </div>
+                    </div>
+
+                    {{-- Bank & TTD --}}
+                    <div class="row pt-2 align-items-end">
+                        <div class="col-md-7">
+                            <div class="p-3 rounded-0 border" style="background:#fafafa; font-size:11.5px; border-radius:0 !important;">
+                                <p class="fw-bold mb-2 text-dark" style="font-size:12px;">
+                                    <i class="mdi mdi-bank-outline me-1 text-primary"></i>Pembayaran : Transfer / Giro
+                                </p>
+                                <table style="width:100%; border-collapse:collapse;">
+                                    @if ($quote->tax)
+                                        <tr>
+                                            <td style="padding:2px 0; color:#555; width:90px;">Bank Name</td>
+                                            <td style="padding:2px 0; font-weight:600; color:#111;">: Bank BCA (IDR)</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding:2px 0; color:#555;">Acc Name</td>
+                                            <td style="padding:2px 0; font-weight:700; color:#696cff;">: PT. REFTECH JAYA OPTIMA</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding:2px 0; color:#555;">Acc No.</td>
+                                            <td style="padding:2px 0; font-weight:700; color:#111;">: 008 - 6289 - 789</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding:2px 0; color:#555;">Swift Code</td>
+                                            <td style="padding:2px 0; font-weight:500; color:#333;">: CENAIDJA</td>
+                                        </tr>
+                                    @else
+                                        <tr>
+                                            <td style="padding:2px 0; color:#555; width:90px;">Bank Name</td>
+                                            <td style="padding:2px 0; font-weight:600; color:#111;">: Bank BCA (IDR)</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding:2px 0; color:#555;">Acc Name</td>
+                                            <td style="padding:2px 0; font-weight:700; color:#696cff;">: ARIEP RACHMAN</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding:2px 0; color:#555;">Acc No.</td>
+                                            <td style="padding:2px 0; font-weight:700; color:#111;">: 166 - 2242 - 271</td>
+                                        </tr>
+                                    @endif
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-md-5 text-center mt-3 mt-md-0">
+                            <p class="mb-1 text-muted" style="font-size:11.5px;">Bandung, {{ $invoice->date ? \Carbon\Carbon::parse($invoice->date)->locale('ID')->translatedFormat('d F Y') : \Carbon\Carbon::now()->locale('ID')->translatedFormat('d F Y') }}</p>
+                            @if ($quote->tax)
+                                <p class="fw-bold mb-1 text-dark" style="font-size:12px;">PT. Reftech Jaya Optima</p>
+                            @endif
+                            @if (isset($invoice->sign))
+                                <div class="my-2">
+                                    <img src="{{ url('') . '/' . $invoice->sign }}" alt="Signature" height="70">
+                                </div>
+                            @else
+                                <div style="padding: 30px 0;"></div>
+                            @endif
+                            <p class="mb-0 fw-bold text-dark" style="font-size:13px; border-bottom:1px solid #ddd; display:inline-block; padding-bottom:2px;">Ariep Rachman</p>
+                            <p class="mb-0 text-muted" style="font-size:11px;">Director</p>
+                        </div>
                     </div>
                 </div>
 
@@ -387,13 +431,13 @@
         {{-- Sidebar Actions --}}
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
 
-            {{-- 1. Primary Actions --}}
-            <div class="card mb-3">
-                <div class="card-body d-grid gap-2">
+            {{-- 1. Primary Actions Card --}}
+            <div class="card mb-3 border-0 shadow-sm">
+                <div class="card-body d-grid gap-2 p-3">
                     <div class="btn-group w-100">
                         <a href="{{ route('invoice.show_unit.print', $invoice->id) }}" target="_blank"
-                           class="btn btn-primary waves-effect">
-                            <i class="mdi mdi-printer-outline me-1"></i> Download
+                           class="btn btn-primary waves-effect fw-medium">
+                            <i class="mdi mdi-printer-outline me-1"></i> Print / Download
                         </a>
                         <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split waves-effect"
                             data-bs-toggle="dropdown" aria-expanded="false">
@@ -402,64 +446,88 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a class="dropdown-item" href="{{ route('invoice.show_unit.print', $invoice->id) }}" target="_blank">
-                                    <i class="mdi mdi-file-document-outline me-1"></i> Invoice
+                                    <i class="mdi mdi-file-document-outline me-1"></i> Invoice Print
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{{ route('invoice.unit.label_detail', $invoice->id) }}">
-                                    <i class="mdi mdi-package-variant-closed me-1"></i> Sampul
+                                    <i class="mdi mdi-package-variant-closed me-1"></i> Label Sampul
                                 </a>
                             </li>
                         </ul>
                     </div>
-                    <div class="d-flex align-items-center gap-2 px-1">
+
+                    @if (Auth::user()->role !== 'Sales')
+                    <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border">
+                        <label class="form-check-label text-dark small mb-0 fw-medium" for="toggle-spec">
+                            <i class="mdi mdi-text-box-search-outline me-1 text-primary"></i>Tampilkan Spek
+                        </label>
                         <div class="form-check form-switch mb-0">
                             <input class="form-check-input" type="checkbox" id="toggle-spec"
                                 data-id="{{ $invoice->id }}"
                                 {{ $invoice->show_spec ? 'checked' : '' }}>
                         </div>
-                        <label class="form-check-label text-muted small mb-0" for="toggle-spec">
-                            Tampilkan Spesifikasi
-                        </label>
                     </div>
-                    <button class="btn btn-outline-secondary w-100 waves-effect" id="backButton">Back</button>
-                    <a href="{{ route('unit-quotation.show', $quote->id) }}"
-                       class="btn btn-outline-info w-100 waves-effect">
-                        View Penawaran
-                    </a>
+                    @endif
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-label-secondary flex-grow-1 waves-effect" id="backButton">
+                            <i class="mdi mdi-arrow-left me-1"></i>Back
+                        </button>
+                        <a href="{{ route('unit-quotation.show', $quote->id) }}"
+                           class="btn btn-label-info flex-grow-1 waves-effect">
+                            <i class="mdi mdi-file-eye-outline me-1"></i>Quotation
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            {{-- Invoice Settings --}}
+            {{-- Invoice Settings Card --}}
             @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
-                <div class="card mb-3">
-                    <div class="card-header py-2 px-3">
-                        <small class="text-uppercase text-muted fw-semibold">Invoice Settings</small>
+                <div class="card mb-3 border-0 shadow-sm">
+                    <div class="card-header py-2 px-3 bg-light border-bottom">
+                        <small class="text-uppercase text-muted fw-bold" style="font-size:10px; letter-spacing:0.5px;">Invoice Settings</small>
                     </div>
-                    <div class="card-body d-grid gap-2">
-                        <button type="button" class="btn btn-outline-secondary w-100 waves-effect"
-                            data-bs-toggle="modal" data-bs-target="#changeDate">Change Date</button>
-                        <button type="button" class="btn btn-outline-secondary w-100 waves-effect"
-                            data-bs-toggle="modal" data-bs-target="#editInvoiceModal">Edit No Invoice / Term</button>
+                    <div class="card-body d-grid gap-2 p-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm w-100 waves-effect text-start"
+                            data-bs-toggle="modal" data-bs-target="#changeDate">
+                            <i class="mdi mdi-calendar-edit me-1 text-primary"></i> Change Date
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm w-100 waves-effect text-start"
+                            data-bs-toggle="modal" data-bs-target="#editInvoiceModal">
+                            <i class="mdi mdi-pencil-outline me-1 text-primary"></i> Edit No Invoice / Term
+                        </button>
+                        <button type="button" class="btn btn-outline-warning btn-sm w-100 waves-effect text-start"
+                            data-bs-toggle="modal" data-bs-target="#dueDate">
+                            <i class="mdi mdi-calendar-clock me-1 text-warning"></i> Set / Edit Due Date
+                        </button>
                     </div>
                 </div>
             @endif
 
-            {{-- 2. Invoice Info --}}
-            <div class="card mb-3">
-                <div class="card-header py-2 px-3">
-                    <small class="text-uppercase text-muted fw-semibold">Invoice</small>
+            {{-- 2. Invoice Info Card --}}
+            <div class="card mb-3 border-0 shadow-sm">
+                <div class="card-header py-2 px-3 bg-light border-bottom">
+                    <small class="text-uppercase text-muted fw-bold" style="font-size:10px; letter-spacing:0.5px;">Invoice Information</small>
                 </div>
-                <div class="card-body d-grid gap-2">
-                    <div class="d-flex justify-content-between">
+                <div class="card-body d-grid gap-2 p-3">
+                    <div class="d-flex justify-content-between align-items-center">
                         <span class="text-muted small">No. Invoice</span>
-                        <span class="fw-semibold small">{{ $invoice->no_invoice }}</span>
+                        <span class="fw-bold small text-primary">#{{ $invoice->no_invoice }}</span>
                     </div>
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between align-items-center">
                         <span class="text-muted small">Tanggal</span>
                         <span class="fw-semibold small">{{ $invoice->date ? \Carbon\Carbon::parse($invoice->date)->format('d M Y') : '-' }}</span>
                     </div>
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Jatuh Tempo</span>
+                        @if ($dueDateDisplay)
+                            <span class="fw-bold small text-warning"><i class="mdi mdi-calendar-clock me-1"></i>{{ $dueDateDisplay->format('d M Y') }}</span>
+                        @else
+                            <span class="badge bg-label-secondary" style="font-size:10px;">Belum Di-set</span>
+                        @endif
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
                         <span class="text-muted small">No. PO</span>
                         <span class="fw-semibold small">{{ $quote->po_number ?? '-' }}</span>
                     </div>
@@ -630,10 +698,16 @@
                             <i class="mdi mdi-cash-plus me-1"></i> Tambah Payment
                         </button>
                     @endif
-                    @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
+                    @if (in_array(Auth::user()->role, ['Admin', 'Accounting', 'Finance']))
                         @if (!$invoice->status_p)
-                            <button type="button" class="btn btn-primary w-100 waves-effect"
-                                data-bs-toggle="modal" data-bs-target="#confirmPayment">Confirm Payment</button>
+                            @if ($payments->isNotEmpty())
+                                <button type="button" class="btn btn-primary w-100 waves-effect"
+                                    data-bs-toggle="modal" data-bs-target="#confirmPayment">Confirm Payment</button>
+                            @else
+                                <div class="alert alert-warning p-2 mb-0" style="font-size:11px; border-radius:0 !important;">
+                                    <i class="mdi mdi-alert-circle-outline me-1"></i> Menunggu Sales menambahkan data Payment.
+                                </div>
+                            @endif
                         @else
                             <a href="#" class="btn btn-danger w-100 waves-effect undo-payment-unit"
                                data-id="{{ $invoice->id }}">Undo Confirm Payment</a>
@@ -657,11 +731,16 @@
                                 </a>
                             @endforeach
                         @endif
-                        @if ($quote->status === 'po_received')
+                        @php
+                            $hasRemaining = $quote->details->where('type', '!=', 'header')->sum('remaining_qty') > 0;
+                        @endphp
+                        @if ($quote->status === 'po_received' && $hasRemaining)
                             <button type="button" class="btn btn-outline-success w-100 waves-effect"
                                 data-bs-toggle="modal" data-bs-target="#modalSJUnit">
                                 <i class="mdi mdi-truck-delivery-outline me-1"></i> Buat Surat Jalan
                             </button>
+                        @elseif ($quote->status === 'po_received')
+                            <span class="badge bg-label-success w-100 py-2">Semua Item Sudah Terkirim</span>
                         @endif
                     </div>
                 </div>
@@ -672,7 +751,7 @@
     {{-- Modal Buat Surat Jalan --}}
     @if (($quote->status === 'po_received') && (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting'))
         <div class="modal fade" id="modalSJUnit" tabindex="-1">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <form action="{{ route('unit-quotation.storeDelivery', $quote->id) }}" method="POST">
                     @csrf
                     <input type="hidden" name="id_invoice" value="{{ $invoice->id }}">
@@ -682,28 +761,79 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="mb-3">
-                                <label class="form-label">Tanggal</label>
-                                <input type="date" class="form-control" name="date"
-                                    value="{{ \Carbon\Carbon::today()->toDateString() }}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Tujuan / Alamat</label>
-                                <select class="form-select" name="destination" required>
-                                    @if ($quote->client)
-                                        <option value="1">{{ $quote->client->address }}</option>
-                                        @if ($quote->client->subAddress)
-                                            <option value="2">{{ $quote->client->subAddress }}</option>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Tanggal</label>
+                                    <input type="date" class="form-control" name="date"
+                                        value="{{ \Carbon\Carbon::today()->toDateString() }}" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Tujuan / Alamat</label>
+                                    <select class="form-select" name="destination" required>
+                                        @if ($quote->client)
+                                            <option value="1">{{ $quote->client->address }}</option>
+                                            @if ($quote->client->subAddress)
+                                                <option value="2">{{ $quote->client->subAddress }}</option>
+                                            @endif
                                         @endif
-                                    @endif
-                                </select>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Jenis Pengiriman</label>
+                                    <select class="form-select" name="type">
+                                        <option value="Ekspedisi">Ekspedisi</option>
+                                        <option value="Teknisi">Teknisi</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Jenis Pengiriman</label>
-                                <select class="form-select" name="type">
-                                    <option value="Ekspedisi">Ekspedisi</option>
-                                    <option value="Teknisi">Teknisi</option>
-                                </select>
+
+                            <label class="form-label fw-semibold">Item yang Dikirim</label>
+                            <p class="text-muted mb-2" style="font-size:11.5px;">
+                                Centang item yang dikirim kali ini. Qty default = sisa yang belum terkirim, bisa dikurangi kalau cuma kirim sebagian.
+                            </p>
+                            <div class="table-responsive border rounded">
+                                <table class="table table-sm table-bordered m-0" style="font-size:12px;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width:5%"></th>
+                                            <th>Description</th>
+                                            <th class="text-center" style="width:15%">Sisa</th>
+                                            <th class="text-center" style="width:20%">Qty Dikirim</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($quote->details as $item)
+                                            @if ($item->type === 'header')
+                                                <tr style="background:#f0f0ff;">
+                                                    <td colspan="4" class="fw-bold text-uppercase py-1 px-2 text-primary" style="font-size:11px;">{{ $item->label }}</td>
+                                                </tr>
+                                            @elseif ($item->remaining_qty > 0)
+                                                <tr>
+                                                    <td class="text-center align-middle">
+                                                        <input class="form-check-input item-check" type="checkbox" name="item_ids[]"
+                                                            value="{{ $item->id }}" data-target="qty-{{ $item->id }}" checked>
+                                                    </td>
+                                                    <td class="align-middle">{{ $item->label }}</td>
+                                                    <td class="text-center align-middle">{{ $item->remaining_qty }} {{ $item->info_qty }}</td>
+                                                    <td class="align-middle">
+                                                        <input type="number" step="any" min="0" max="{{ $item->remaining_qty }}"
+                                                            value="{{ $item->remaining_qty }}" name="qty[{{ $item->id }}]"
+                                                            id="qty-{{ $item->id }}" class="form-control form-control-sm">
+                                                    </td>
+                                                </tr>
+                                            @else
+                                                <tr class="text-muted">
+                                                    <td class="text-center align-middle">
+                                                        <input type="checkbox" class="form-check-input" disabled>
+                                                    </td>
+                                                    <td class="align-middle text-decoration-line-through">{{ $item->label }}</td>
+                                                    <td class="text-center align-middle">0</td>
+                                                    <td class="align-middle"><span class="badge bg-label-success">Terkirim Semua</span></td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -929,6 +1059,7 @@
         </div>
 
         @include('components.modal.invoice.date')
+        @include('components.modal.invoice.due-date')
     @endif
 
 @endsection
@@ -945,6 +1076,12 @@
 @push('script')
 <script>
     $('#backButton').click(function () { window.history.back(); });
+
+    // Buat Surat Jalan: nonaktifkan qty saat item di-uncheck
+    $(document).on('change', '.item-check', function () {
+        var $qty = $('#' + $(this).data('target'));
+        $qty.prop('disabled', !this.checked);
+    });
 
     // Toggle spesifikasi
     $('#toggle-spec').on('change', function () {

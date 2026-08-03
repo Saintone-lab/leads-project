@@ -220,6 +220,12 @@
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
             <div class="card mb-3">
                 <div class="card-body">
+                    @if ($purchase->category == 'Unit' && $purchase->receipt_status == 'Pending')
+                        <a class="btn btn-success d-grid w-100 mb-3 waves-effect"
+                            href="{{ route('unit-product-in.goods-receipt-form', $purchase->id) }}">
+                            Terima Barang (Unit)
+                        </a>
+                    @endif
                     <a class="btn btn-primary btn-outline-secondary d-grid w-100 mb-3 waves-effect" target="_blank"
                         href="{{ route('purchase.show_print', $purchase->id) }}">
                         Download

@@ -251,7 +251,7 @@
                                     @forelse ($acctRecentSupplierBill as $bill)
                                         <tr>
                                             <td>
-                                                <span class="fw-medium d-block">{{ $bill->no_product_in }}</span>
+                                                <a href="{{ route('product-in.show', $bill->id) }}" class="fw-semibold text-primary-hover d-block">{{ $bill->no_product_in }}</a>
                                                 <small class="text-muted">{{ $bill->supplier }}</small>
                                             </td>
                                             <td class="text-end">
@@ -273,7 +273,7 @@
                                     @forelse ($acctRecentCustomerInvoice as $inv)
                                         <tr>
                                             <td>
-                                                <span class="fw-medium d-block">{{ $inv->no_invoice }}</span>
+                                                <a href="{{ route('invoice.show', $inv->id) }}" class="fw-semibold text-primary-hover d-block">{{ $inv->no_invoice }}</a>
                                                 <small class="text-muted">{{ $inv->company }}</small>
                                             </td>
                                             <td class="text-end">Rp {{ number_format($inv->harga_total ?? 0, 0, ',', '.') }}</td>
@@ -297,7 +297,7 @@
                                     @forelse ($acctRecentExpense as $exp)
                                         <tr>
                                             <td>
-                                                <span class="fw-medium d-block">{{ $exp->no_expense }}</span>
+                                                <a href="{{ route('expense.show', $exp->id) }}" class="fw-semibold text-primary-hover d-block">{{ $exp->no_expense }}</a>
                                                 <small class="text-muted">{{ $exp->memo }}</small>
                                             </td>
                                             <td class="text-end">Rp {{ number_format($exp->amount ?? 0, 0, ',', '.') }}</td>
@@ -316,7 +316,7 @@
                                     @forelse ($acctRecentFixedAsset as $fa)
                                         <tr>
                                             <td>
-                                                <span class="fw-medium d-block">{{ $fa->code }}</span>
+                                                <a href="{{ route('fixed.show', $fa->id) }}" class="fw-semibold text-primary-hover d-block">{{ $fa->code }}</a>
                                                 <small class="text-muted">{{ $fa->desc }}</small>
                                             </td>
                                             <td class="text-end">Rp {{ number_format($fa->total ?? 0, 0, ',', '.') }}</td>
