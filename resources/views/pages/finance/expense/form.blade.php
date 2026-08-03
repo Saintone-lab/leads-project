@@ -1,86 +1,142 @@
 @extends('layouts.sales.app')
-@section('title', 'Expense')
+@section('title', 'Create Expense')
 @section('content')
-    <form id="formAuthentication" class="mb-3 fv-plugins-bootstrap5 fv-plugins-framework" action="{{ route('expense.store') }}"
+    {{-- Hero Page Header & Top Bar --}}
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center py-3 mb-3 gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <span class="text-muted fw-light">Finance / <a href="{{ route('expense.index') }}" class="text-muted">Expense</a> /</span> Create
+            </h4>
+            <p class="text-muted mb-0 small"><i class="mdi mdi-cash-multiple me-1"></i> Catat pengeluaran &amp; alokasi akun</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ route('expense.index') }}" class="btn btn-label-secondary">
+                <i class="mdi mdi-arrow-left me-1"></i> Back
+            </a>
+            <button :disabled="focused" type="submit" form="formAuthentication" class="btn btn-primary shadow-sm">
+                <i class="mdi mdi-content-save me-1"></i> Save Expense
+            </button>
+        </div>
+    </div>
+
+    <form id="formAuthentication" class="fv-plugins-bootstrap5 fv-plugins-framework" action="{{ route('expense.store') }}"
         method="post" enctype="multipart/form-data">
         @csrf
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="form-invoice-repeater source-item">
-                    <div class="row">
-                        <div class="col-8 col-md-6">
-                            <div class="row">
-                                <div class="col-4">
-                                    <div class="form-floating form-floating-outline mb-2">
-                                        <select id="bank-dropdown" class="select2 form-select invoice-item-bank"
-                                            data-allow-clear="true" name="bank" data-id="1">
-                                            <option selected>Pilih bank...</option>
-                                            @foreach ($bank as $item)
-                                                <option value="{{ $item->id }}" data-saldo="{{ $item->saldo }}">
-                                                    {{ $item->bank }} - {{ $item->no_rek }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <label for="bank-dropdown">Bank</label>
-                                    </div>
-                                </div>
-                                <div class="col-8">
-                                    <div class="input-group input-group-merge mb-3" data-amount="1">
-                                        <span class="input-group-text">Rp. </span>
-                                        <div class="form-floating form-floating-outline">
-                                            <input type="text" class="form-control invoice-item-saldo-label"
-                                                placeholder="Pilih Bank Dahulu" id="saldo-label" name="saldo"
-                                                value="{{ old('saldo[]', 'Pilih Bank Dahulu') }}" disabled>
-                                            <label for="saldo-label">Bank Saldo</label>
-                                        </div>
-                                    </div>
+
+        {{-- Hero No Expense Card --}}
+        <div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%); border-left: 5px solid #696cff !important;">
+            <div class="card-body py-3">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-8 col-12">
+                        <label class="form-label text-uppercase fw-bold text-primary small mb-1" style="letter-spacing: .5px;">
+                            <i class="mdi mdi-pound me-1"></i> No. Expense
+                        </label>
+                        <input class="form-control form-control-lg fw-bold bg-white text-primary border-primary-subtle shadow-sm"
+                            type="text" id="no-expense-input" name="no_expense" value="{{ $noExpense }}" readonly
+                            style="font-size: 1.35rem;">
+                    </div>
+                    <div class="col-md-4 col-12 text-md-end">
+                        <span class="badge bg-label-secondary px-3 py-2 fs-6 rounded-pill">
+                            <i class="mdi mdi-clock-outline me-1"></i> NEW EXPENSE
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-invoice-repeater source-item">
+            {{-- BANK & EXPENSE DETAILS --}}
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center">
+                    <h6 class="card-title mb-0 fw-bold text-dark">
+                        <i class="mdi mdi-bank-outline me-2 text-primary fs-5"></i> Bank &amp; Expense Details
+                    </h6>
+                </div>
+                <div class="card-body pt-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center text-muted small fw-bold text-uppercase mb-1" style="letter-spacing:.5px;">
+                                <i class="mdi mdi-bank-transfer me-1"></i> Sumber Dana
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating form-floating-outline">
+                                <select id="bank-dropdown" class="select2 form-select invoice-item-bank"
+                                    data-allow-clear="true" name="bank" data-id="1">
+                                    <option selected>Pilih bank...</option>
+                                    @foreach ($bank as $item)
+                                        <option value="{{ $item->id }}" data-saldo="{{ $item->saldo }}">
+                                            {{ $item->bank }} - {{ $item->no_rek }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="bank-dropdown">Bank</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group input-group-merge" data-amount="1">
+                                <span class="input-group-text">Rp. </span>
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control invoice-item-saldo-label"
+                                        placeholder="Pilih Bank Dahulu" id="saldo-label" name="saldo"
+                                        value="{{ old('saldo[]', 'Pilih Bank Dahulu') }}" disabled>
+                                    <label for="saldo-label">Bank Saldo</label>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2"></div>
-                        <div class="col-4">
-                            <div class="form-floating form-floating-outline mb-4">
+                        <div class="col-md-4">
+                            <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="date" id="Date" name="date">
                                 <label for="Date">Date</label>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12 col-md-3">
-                            <div class="form-floating form-floating-outline mb-2">
-                                <input class="form-control fw-bold bg-light" type="text" id="no-expense-input"
-                                    name="no_expense" value="{{ $noExpense }}" readonly>
-                                <label for="no-expense-input">No. Expense</label>
+
+                        <div class="col-12">
+                            <hr class="my-2">
+                            <div class="d-flex align-items-center text-muted small fw-bold text-uppercase mb-1" style="letter-spacing:.5px;">
+                                <i class="mdi mdi-file-document-outline me-1"></i> Detail Dokumen
                             </div>
                         </div>
-                        <div class="col-12 col-md-3">
-                            <div class="form-floating form-floating-outline mb-2">
+                        <div class="col-12 col-md-4">
+                            <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="text" placeholder="Put No Voucher Here ...."
                                     id="no-voucher-input" name="no_invoice" value="{{ old('no_invoice') }}">
                                 <label for="no-voucher-input">No Invoice</label>
                             </div>
                         </div>
-                        <div class="col-6 col-md-3">
-                            <div class="form-floating form-floating-outline mb-2">
+                        <div class="col-6 col-md-4">
+                            <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="text" placeholder="Put No Cheque Here ...."
                                     id="no-cheque-input" name="no_cheque" value="{{ old('no_cheque') }}">
                                 <label for="no-cheque-input">No Cheque</label>
                             </div>
                         </div>
-                        <div class="col-6 col-md-3">
-                            <div class="form-floating form-floating-outline mb-2">
+                        <div class="col-6 col-md-4">
+                            <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="text" placeholder="Put Memo Here ...." id="memo-input"
                                     name="detail" value="{{ old('detail') }}">
-                                <label for="detail-input">Memo</label>
+                                <label for="memo-input">Memo</label>
                             </div>
                         </div>
                     </div>
-                    <div class="mb-2" data-repeater-list="group-a">
-                        <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
-                            <div class="d-flex border rounded position-relative pe-0">
-                                <div class="row w-100 p-3">
+                </div>
+            </div>
+
+            {{-- EXPENSE ITEMS --}}
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center justify-content-between">
+                    <h6 class="card-title mb-0 fw-bold text-dark">
+                        <i class="mdi mdi-format-list-bulleted me-2 text-primary fs-5"></i> Expense Items
+                    </h6>
+                    <span class="badge bg-label-secondary" id="items-count-badge">1 Item</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="mb-0" data-repeater-list="group-a">
+                        <div class="repeater-wrapper" data-repeater-item="">
+                            <div class="position-relative border-bottom p-3">
+                                <div class="row w-100">
                                     <div class="col-md-6 col-12 mb-md-0">
-                                        <label for="account" class="mb-2">Account</label>
+                                        <label for="account" class="mb-2 small text-muted">Account</label>
                                         <div class="form-floating form-floating-outline mb-2">
                                             <select id="account-1" class="select2 form-select invoice-item-account"
                                                 data-allow-clear="true" name="account[]" data-id="1">
@@ -95,7 +151,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-12 mb-md-0 mb-3">
-                                        <p class="mb-2 repeater-title">Memo</p>
+                                        <p class="mb-2 repeater-title small text-muted">Memo</p>
                                         <div class="form-floating form-floating-outline mb-2">
                                             <input type="text" class="form-control invoice-item-memo-label"
                                                 placeholder="Choose Account first" id="memo-label-1"
@@ -106,8 +162,8 @@
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-12 mb-md-0 mb-3">
-                                        <p class="mb-2 repeater-title">Amount</p>
-                                        <div class="input-group input-group-merge mb-3" data-amount="1">
+                                        <p class="mb-2 repeater-title small text-muted">Amount</p>
+                                        <div class="input-group input-group-merge" data-amount="1">
                                             <span class="input-group-text">Rp. </span>
                                             <div class="form-floating form-floating-outline">
                                                 <input type="text" class="form-control invoice-item-amount-label"
@@ -121,48 +177,68 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div
-                                    class="d-flex flex-column align-items-center justify-content-between border-start p-2">
-                                    <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
-                                        data-repeater-delete=""></i>
-                                </div>
+                                <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-del position-absolute top-0 end-0 m-2"
+                                    data-repeater-delete="">
+                                    <i class="mdi mdi-delete-outline"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-8 mb-2">
-                            <button type="button" class="btn btn-sm btn-primary waves-effect waves-light btn-add"
-                                data-repeater-create="">
-                                <i class="mdi mdi-plus me-1"></i> Add Item
-                            </button>
-                        </div>
-                        <div class="col-4 mb-2">
-                            <div class="input-group input-group-merge mb-3" data-amount="1">
-                                <span class="input-group-text">Rp. </span>
-                                <div class="form-floating form-floating-outline">
-                                    <input type="text" class="form-control invoice-item-total-label" name="harga"
-                                        placeholder="Total Here" id="total-label"value="{{ old('total[]') }}" disabled>
-                                    <input class="form-control invoice-item-total" type="number" name="total"
-                                        id="total" value="{{ old('total[]') }}" hidden>
-                                    <label for="total">Total</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="fs-5 fw-medium mt-2 p-2 invoice-item-say-total w-100"
-                        style="background-color: rgb(248, 248, 248); width:70%;"> Say
-                        amount: # Rupiah</p>
-                    <div class="float-end">
-                        <a href="{{ route('quotation.index') }}" type="button"
-                            class="btn btn-lg btn-outline-secondary">
-                            Back
-                        </a>
-                        <button :disabled="focused" type="submit" class="btn btn-lg btn-primary">
-                            Save
+                    <div class="d-flex flex-wrap gap-2 p-3 border-top bg-light-subtle">
+                        <button type="button" class="btn btn-sm btn-primary shadow-sm btn-add" data-repeater-create="">
+                            <i class="mdi mdi-plus me-1"></i> Add Item
                         </button>
                     </div>
                 </div>
             </div>
+
+            {{-- SUMMARY --}}
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            <h6 class="fw-bold mb-2 text-dark">
+                                <i class="mdi mdi-text-long me-1 text-primary"></i> Say Amount
+                            </h6>
+                            <p class="fs-6 fw-medium mb-0 p-3 rounded-3 invoice-item-say-total bg-light-subtle border">
+                                Say amount: # Rupiah
+                            </p>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="card border-0 shadow-sm overflow-hidden" style="background: #ffffff; border: 1px solid #e0e0ff !important; border-radius: 12px;">
+                                <div class="card-header py-3 px-4 bg-light border-bottom d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-xs bg-label-primary rounded me-2 d-flex align-items-center justify-content-center" style="width:28px; height:28px;">
+                                            <i class="mdi mdi-calculator text-primary fs-6"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-0 text-dark">Total Summary</h6>
+                                    </div>
+                                    <span class="badge bg-label-primary px-2 py-1" style="font-size:10px;">IDR SUMMARY</span>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%); border: 1px dashed #696cff;">
+                                        <div>
+                                            <div class="text-uppercase fw-bold text-primary" style="font-size: 10px; letter-spacing: 0.8px;">Total Amount</div>
+                                            <div class="text-muted" style="font-size: 10px;">( Total seluruh item )</div>
+                                        </div>
+                                        <input type="text" class="form-control invoice-item-total-label border-0 bg-transparent text-end fw-bolder text-primary fs-4 p-0"
+                                            name="harga" placeholder="Total Here" id="total-label" value="{{ old('total[]') }}" disabled style="max-width: 160px; letter-spacing: -0.5px;">
+                                        <input class="form-control invoice-item-total" type="number" name="total"
+                                            id="total" value="{{ old('total[]') }}" hidden>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mb-4">
+            <a href="{{ route('expense.index') }}" class="btn btn-label-secondary">Cancel</a>
+            <button :disabled="focused" type="submit" class="btn btn-primary shadow-sm px-4">
+                <i class="mdi mdi-content-save me-1"></i> Save Expense
+            </button>
         </div>
     </form>
 @endsection()
@@ -277,17 +353,26 @@
                     width: '100%',
                 });
             }
+
+            function updateItemsCountBadge() {
+                var count = $('.repeater-wrapper').length;
+                $('#items-count-badge').text(count + (count === 1 ? ' Item' : ' Items'));
+            }
+
             // Initialize Bootstrap tooltips using jQuery
             $(document).ready(function() {
                 $('[data-bs-toggle="tooltip"]').tooltip();
 
                 // Panggil fungsi inisialisasi saat halaman dimuat
                 initializeSelect2Account();
+                updateItemsCountBadge();
 
                 // Jika ada elemen dinamis yang ditambahkan, gunakan event listener
                 $(document).on('repeater:added', function() {
                     initializeSelect2Account();
+                    updateItemsCountBadge();
                 });
+                $(document).on('repeater:deleted', updateItemsCountBadge);
             });
             $('.invoice-item-account').on('change', function() {
                 var id = $(this).data('id');

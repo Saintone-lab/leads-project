@@ -1,9 +1,23 @@
 @extends('layouts.sales.app')
 @section('title', 'Ongkir Logistik')
 @section('content')
-    <div class="card mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center py-3 mb-3 gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <span class="text-muted fw-light">Finance / Expense /</span> Ongkir Logistik
+            </h4>
+            <p class="text-muted mb-0 small"><i class="mdi mdi-truck-delivery-outline me-1"></i> Posting biaya ongkir dari Logistik ke Finance</p>
+        </div>
+    </div>
+
+    <div class="card mb-3 border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center">
+            <h6 class="card-title mb-0 fw-bold text-dark">
+                <i class="mdi mdi-truck-delivery-outline me-2 text-primary fs-5"></i> Daftar Ongkir
+            </h6>
+        </div>
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-expense-ongkir table table-striped">
+            <table class="datatable-expense-ongkir table table-bordered">
                 <thead>
                     <tr>
                         <th>Date</th>

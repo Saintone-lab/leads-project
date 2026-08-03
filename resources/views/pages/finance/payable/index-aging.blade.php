@@ -1,21 +1,85 @@
 @extends('layouts.sales.app')
-@section('title', 'Payable: Aging')
+@section('title', 'AP Aging Report')
 @section('content')
-    <h4 class="fw-bold py-3 mb-4">
-        <span class="text-muted fw-normal">Account Payable /</span> Aging Reports
-    </h4>
-    <div class="card mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center py-3 mb-3 gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <span class="text-muted fw-light">Finance / Account Payable /</span> Aging Report
+            </h4>
+            <p class="text-muted mb-0 small"><i class="mdi mdi-calendar-clock-outline me-1"></i> Umur hutang ke supplier berdasarkan tanggal barang masuk yang belum dibayar</p>
+        </div>
+    </div>
+
+    {{-- Total Outstanding --}}
+    <div class="card mb-3 border-0 shadow-sm" style="background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%); border-left: 5px solid #696cff !important;">
+        <div class="card-body py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <label class="form-label text-uppercase fw-bold text-primary small mb-1" style="letter-spacing: .5px;">
+                    <i class="mdi mdi-cash-multiple me-1"></i> Total Outstanding (Belum Dibayar)
+                </label>
+                <div class="fw-bold text-primary" style="font-size: 1.75rem;">Rp {{ number_format($unpaid->sum('total'), 0, ',', '.') }}</div>
+            </div>
+            <span class="badge bg-label-secondary px-3 py-2 fs-6 rounded-pill">{{ $unpaid->count() }} Transaksi</span>
+        </div>
+    </div>
+
+    {{-- Aging buckets --}}
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #28a745 !important;">
+                <div class="card-body">
+                    <div class="text-muted small mb-1">Current (0-30 Hari)</div>
+                    <div class="fw-bold fs-5 text-success">Rp {{ number_format($bucketCurrent->sum('total'), 0, ',', '.') }}</div>
+                    <div class="text-muted small">{{ $bucketCurrent->count() }} transaksi</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #ffc107 !important;">
+                <div class="card-body">
+                    <div class="text-muted small mb-1">31-60 Hari</div>
+                    <div class="fw-bold fs-5" style="color:#c79100;">Rp {{ number_format($bucket31to60->sum('total'), 0, ',', '.') }}</div>
+                    <div class="text-muted small">{{ $bucket31to60->count() }} transaksi</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #fd7e14 !important;">
+                <div class="card-body">
+                    <div class="text-muted small mb-1">61-90 Hari</div>
+                    <div class="fw-bold fs-5" style="color:#fd7e14;">Rp {{ number_format($bucket61to90->sum('total'), 0, ',', '.') }}</div>
+                    <div class="text-muted small">{{ $bucket61to90->count() }} transaksi</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #dc3545 !important;">
+                <div class="card-body">
+                    <div class="text-muted small mb-1">90+ Hari</div>
+                    <div class="fw-bold fs-5 text-danger">Rp {{ number_format($bucket90plus->sum('total'), 0, ',', '.') }}</div>
+                    <div class="text-muted small">{{ $bucket90plus->count() }} transaksi</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center">
+            <h6 class="card-title mb-0 fw-bold text-dark">
+                <i class="mdi mdi-format-list-bulleted me-2 text-primary fs-5"></i> Daftar Hutang Belum Dibayar
+            </h6>
+        </div>
         <div class="card-datatable table-responsive pt-0">
             <table class="datatable-sales-aging-ap table table-bordered">
                 <thead>
                     <tr>
                         <th>Invoice No.</th>
                         <th>Date</th>
-                        <th>OverDue</th>
+                        <th>Days Outstanding</th>
+                        <th>Aging Bucket</th>
                         <th>Suppliers</th>
                         <th>Total Invoice</th>
                         <th>Total Item</th>
-                        {{-- <th>Outstanding</th> --}}
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -91,7 +155,7 @@
                                     },
                                 })
                                 window.setTimeout(function() {
-                                    window.location.href = '/payable-acount';
+                                    window.location.href = '/expense-account';
                                 }, 2000);
                             } else {
                                 Swal.fire({

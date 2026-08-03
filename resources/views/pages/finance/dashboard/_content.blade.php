@@ -2,7 +2,7 @@
 
 <!-- KPI Cards -->
 <div class="row mb-2">
-    <div class="col-sm-6 col-lg-3 mb-4">
+    <div class="col-sm-6 col-md-4 col-lg mb-4">
         <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center mb-2">
@@ -18,7 +18,7 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-6 col-lg-3 mb-4">
+    <div class="col-sm-6 col-md-4 col-lg mb-4">
         <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center mb-2">
@@ -34,7 +34,7 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-6 col-lg-3 mb-4">
+    <div class="col-sm-6 col-md-4 col-lg mb-4">
         <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center mb-2">
@@ -43,14 +43,30 @@
                     </div>
                     <div>
                         <small class="text-muted d-block">Outstanding AP (Hutang)</small>
-                        <h5 class="mb-0">Total Outstanding</h5>
+                        <h5 class="mb-0">Rp {{ number_format($financeOutstandingAP, 0, ',', '.') }}</h5>
                     </div>
                 </div>
-                <span class="badge bg-label-secondary">Under Development</span>
+                <small class="text-muted">Total Supplier Bill belum lunas</small>
             </div>
         </div>
     </div>
-    <div class="col-sm-6 col-lg-3 mb-4">
+    <div class="col-sm-6 col-md-4 col-lg mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="avatar avatar-md me-3">
+                        <div class="avatar-initial bg-label-danger rounded"><i class="mdi mdi-cash-minus mdi-24px"></i></div>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">Expense (Bulan Ini)</small>
+                        <h5 class="mb-0">Rp {{ number_format($financeExpenseMonth, 0, ',', '.') }}</h5>
+                    </div>
+                </div>
+                <small class="text-muted">Total pengeluaran operasional</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-4 col-lg mb-4">
         <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center mb-2">
@@ -197,10 +213,31 @@
                         </thead>
                         <tbody class="table-border-bottom-0">
                             @forelse ($financeRecentActivity as $activity)
+                                @php
+                                    $badgeClass = match ($activity->tipe) {
+                                        'Invoice' => 'bg-label-success',
+                                        'Payment' => 'bg-label-info',
+                                        'Expense' => 'bg-label-danger',
+                                        default   => 'bg-label-primary'
+                                    };
+                                    
+                                    $detailUrl = match ($activity->tipe) {
+                                        'Invoice' => route('invoice.show', $activity->doc_id),
+                                        'Payment' => route('payment_detail.payment', $activity->doc_id),
+                                        'Expense' => route('expense.show', $activity->doc_id),
+                                        default   => '#'
+                                    };
+                                @endphp
                                 <tr>
                                     <td>{{ \Carbon\Carbon::parse($activity->tanggal)->translatedFormat('d M Y') }}</td>
-                                    <td><span class="badge bg-label-primary">{{ $activity->tipe }}</span></td>
-                                    <td>{{ $activity->ref }}</td>
+                                    <td><span class="badge {{ $badgeClass }}">{{ $activity->tipe }}</span></td>
+                                    <td>
+                                        @if ($detailUrl !== '#')
+                                            <a href="{{ $detailUrl }}" class="text-body fw-semibold text-primary-hover">{{ $activity->ref }}</a>
+                                        @else
+                                            {{ $activity->ref }}
+                                        @endif
+                                    </td>
                                     <td class="text-end">Rp {{ number_format($activity->nominal, 0, ',', '.') }}</td>
                                 </tr>
                             @empty

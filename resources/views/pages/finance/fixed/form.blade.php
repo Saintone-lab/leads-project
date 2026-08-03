@@ -37,7 +37,7 @@
                                     </option>
                                     <option value="Kendaraan" {{ ($fixed->type ?? '') == 'Kendaraan' ? 'selected' : '' }}>Kendaraan
                                     </option>
-                                    <option value="Mesin" {{ ($fixed->type ?? '') == 'Mesin' ? 'selected' : '' }}>Mesin
+                                    <option value="Mesin" {{ ($fixed->type ?? '') == 'Mesin' ? 'selected' : '' }} {{ !isset($fixed) ? 'disabled' : '' }}>Mesin{{ !isset($fixed) ? ' (input lewat Barang Masuk Unit)' : '' }}
                                     </option>
                                     <option value="Peralatan Kantor" {{ ($fixed->type ?? '') == 'Peralatan Kantor' ? 'selected' : '' }}>Peralatan Kantor
                                     </option>
@@ -49,6 +49,11 @@
                             @if (isset($fixed))
                                 <input type="hidden" name="type" value="{{ $fixed->type }}">
                                 <small class="text-muted">Kategori tidak bisa diubah lewat edit.</small>
+                            @else
+                                <small class="text-muted">
+                                    Kategori Mesin (unit) diinput lewat
+                                    <a href="{{ route('unit-product-in.create') }}">Barang Masuk Unit</a>.
+                                </small>
                             @endif
                         </div>
                         <div class="col-2">

@@ -1,7 +1,21 @@
 @extends('layouts.sales.app')
-@section('title', 'Account')
+@section('title', 'Account Database')
 @section('content')
-    <div class="card mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center py-3 mb-3 gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <span class="text-muted fw-light">Finance / Expense /</span> Account Database
+            </h4>
+            <p class="text-muted mb-0 small"><i class="mdi mdi-format-list-bulleted-type me-1"></i> Chart of Accounts untuk pencatatan Expense &amp; Jurnal</p>
+        </div>
+    </div>
+
+    <div class="card mb-3 border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center">
+            <h6 class="card-title mb-0 fw-bold text-dark">
+                <i class="mdi mdi-format-list-bulleted-type me-2 text-primary fs-5"></i> Daftar Account
+            </h6>
+        </div>
         <div class="card-datatable table-responsive pt-0">
             <table class="datatable-account-data table table-striped">
                 <thead>

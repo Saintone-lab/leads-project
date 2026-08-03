@@ -1,10 +1,23 @@
 @extends('layouts.sales.app')
-@section('title', 'expense')
+@section('title', 'Jurnal Umum')
 @section('content')
-    <div class="card mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center py-3 mb-3 gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <span class="text-muted fw-light">Finance / Expense /</span> Jurnal Umum
+            </h4>
+            <p class="text-muted mb-0 small"><i class="mdi mdi-book-open-outline me-1"></i> Pencatatan jurnal umum pengeluaran</p>
+        </div>
+    </div>
+
+    <div class="card mb-3 border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center">
+            <h6 class="card-title mb-0 fw-bold text-dark">
+                <i class="mdi mdi-book-open-outline me-2 text-primary fs-5"></i> Daftar Jurnal Umum
+            </h6>
+        </div>
         <div class="card-datatable table-responsive pt-0">
-            <table
-                class="datatable-expense-umum-data table table-striped">
+            <table class="datatable-expense-umum-data table table-bordered">
                 <thead>
                     <tr>
                         <th>Date</th>
